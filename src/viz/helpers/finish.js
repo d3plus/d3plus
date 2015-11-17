@@ -88,7 +88,7 @@ module.exports = function(vars) {
       }
       // }
     }
-    else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
+    else if ((vars.labels.value || vars.labels.changed) && vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
       setTimeout(function(){
         labels(vars)
       },vars.draw.timing)

@@ -46,5 +46,5 @@ module.exports = (vars, b, timing) ->
 
   vars.zoom.reset = false
 
-  labels vars
+  labels(vars) if vars.labels.value or vars.labels.changed
   transform vars, timing

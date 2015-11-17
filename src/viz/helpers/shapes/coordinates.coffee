@@ -19,21 +19,21 @@ module.exports = (vars, selection, enter, exit) ->
   vars.zoom.area  = 1/vars.zoom.scale/vars.zoom.scale
   vars.path = d3.geo.path().projection(projection)
 
-  selection.selectAll("path")
-    .attr "d", vars.path
-    .call shapeStyle, vars
+  if vars.draw.timing
+    selection.selectAll "path.d3plus_data"
+      .attr "d", vars.path
+      .transition().duration(vars.draw.timing)
+        .call shapeStyle, vars
+  else
+    selection.selectAll("path.d3plus_data")
+      .attr "d", vars.path
+      .call shapeStyle, vars
 
   enter.append "path"
     .attr "id", (d) -> d.id
     .attr "class", "d3plus_data"
     .attr "d", vars.path
     .call shapeStyle, vars
-
-  if vars.draw.timing
-    selection.selectAll "path.d3plus_data"
-      .transition().duration(vars.draw.timing).call shapeStyle, vars
-  else
-    selection.selectAll("path.d3plus_data").call shapeStyle, vars
 
   size_change = vars.old_height isnt vars.height.viz or vars.height.changed or
                 vars.old_width isnt vars.width.viz or vars.width.changed
@@ -51,18 +51,18 @@ module.exports = (vars, selection, enter, exit) ->
 
     selection.each (d) ->
 
-      if d.geometry.coordinates.length > 1
+      if vars.coords.simplify.value and d.geometry.coordinates.length > 1
 
         distances = []
         areas     = []
         areaM     = 0
-        test      = copy d
-        largest   = copy d
+        largest = copy d
+        reduced = copy d
 
         d.geometry.coordinates = d.geometry.coordinates.filter (c, i) ->
 
-          test.geometry.coordinates = [c]
-          a = vars.path.area test
+          reduced.geometry.coordinates = [c]
+          a = vars.path.area reduced
 
           if a > 0
             areas.push(a)
@@ -73,19 +73,18 @@ module.exports = (vars, selection, enter, exit) ->
           else false
 
         center = vars.path.centroid largest
-        reduced = copy d
-
         for c, i in d.geometry.coordinates
-          test.geometry.coordinates = [c]
-          distances.push distance(vars.path.centroid(test), center)
+          reduced.geometry.coordinates = [c]
+          distances.push distance(vars.path.centroid(reduced), center)
 
         dist_values = distances.reduce (arr, dist, i) ->
           arr.push areas[i]/dist if dist
           return arr
         , []
+
         dist_cutoff = d3.quantile dist_values, vars.coords.threshold.value
 
-        reduced.geometry.coordinates = reduced.geometry.coordinates.filter (c,i) ->
+        reduced.geometry.coordinates = d.geometry.coordinates.filter (c,i) ->
           dist = distances[i]
           a = areas[i]
           dist is 0 or a/dist >= dist_cutoff
@@ -103,41 +102,43 @@ module.exports = (vars, selection, enter, exit) ->
 
       vars.zoom.coords[d.d3plus.id] = reduced
 
-      b = vars.path.bounds reduced
-      names = fetchText vars, d
       delete d.d3plus_label
 
-      if coords and names.length and vars.labels.value
+      if vars.labels.value
+        names = fetchText vars, d
 
-        path = path2poly vars.path(largest)
-        style =
-          "font-weight": vars.labels.font.weight
-          "font-family": vars.labels.font.family.value
+        if coords and names.length
 
-        ratio = null
-        if names[0].split(" ").length is 1
-          size = fontSizes(names[0],style)[0]
-          ratio = size.width/size.height
+          path = path2poly vars.path(largest)
+          style =
+            "font-weight": vars.labels.font.weight
+            "font-family": vars.labels.font.family.value
 
-        rect = largestRect path,
-          angle:       0
-          aspectRatio: ratio
+          ratio = null
+          if names[0].split(" ").length is 1
+            size = fontSizes(names[0],style)[0]
+            ratio = size.width/size.height
 
-        if rect
+          rect = largestRect path,
+            angle:       0
+            aspectRatio: ratio
 
-          rect = rect[0]
+          if rect
 
-          d.d3plus_label =
-            anchor: "middle"
-            valign: "center"
-            h:      rect.height
-            w:      rect.width
-            x:      rect.cx
-            y:      rect.cy
-            names:  names
+            rect = rect[0]
+
+            d.d3plus_label =
+              anchor: "middle"
+              valign: "center"
+              h:      rect.height
+              w:      rect.width
+              x:      rect.cx
+              y:      rect.cy
+              names:  names
 
       labels[d.id] = d.d3plus_label
 
+      b = vars.path.bounds reduced
       unless vars.zoom.bounds
         vars.zoom.bounds = b
       else
