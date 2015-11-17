@@ -75,6 +75,8 @@ module.exports = (vars) ->
           mix(color, vars.background.value, 0.4, 1)
       .attr "font-family", (d) -> getFontStyle(axis, d, "family").value
       .attr "font-weight", (d) -> getFontStyle(axis, d, "weight")
+      .style "text-transform", (d) -> getFontStyle(axis, d, "transform").value
+      .style "letter-spacing", (d) -> getFontStyle(axis, d, "spacing") + "px"
 
   lineStyle = (line, axis) ->
 
@@ -236,6 +238,8 @@ module.exports = (vars) ->
       .attr "fill", vars[axis].label.font.color
       .style "text-anchor", "middle"
       .attr "dominant-baseline", "central"
+      .style "text-transform", vars[axis].label.font.transform.value
+      .style "letter-spacing", vars[axis].label.font.spacing + "px"
 
   for axis in ["x", "y"]
 

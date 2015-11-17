@@ -72,6 +72,8 @@ module.exports = (vars, opts) ->
           "font-family": vars[axis].ticks.font.family.value
           "font-weight": vars[axis].ticks.font.weight
           "font-size":   vars[axis].ticks.font.size+"px"
+          "text-transform": vars[axis].ticks.font.transform.value
+          "letter-spacing": vars[axis].ticks.font.spacing + "px"
 
         timeReturn = timeDetect vars,
           values: vars[axis].ticks.values
@@ -148,6 +150,8 @@ labelPadding = (vars) ->
         "font-size":   vars[axis].ticks.font.size+"px"
         "font-family": vars[axis].ticks.font.family.value
         "font-weight": vars[axis].ticks.font.weight
+        "text-transform": vars[axis].ticks.font.transform.value
+        "letter-spacing": vars[axis].ticks.font.spacing + "px"
       yValues = vars[axis].ticks.visible
       if vars[axis].scale.value is "log"
         yText = yValues.map (d) -> formatPower d
@@ -183,6 +187,8 @@ labelPadding = (vars) ->
           "font-family": vars[axis].label.font.family.value
           "font-weight": vars[axis].label.font.weight
           "font-size":   vars[axis].label.font.size+"px"
+          "text-transform": vars[axis].label.font.transform.value
+          "letter-spacing": vars[axis].label.font.spacing + "px"
         vars[axis].label.height = fontSizes([yLabel], yLabelAttrs)[0].height
       else
         vars[axis].label.height = 0
@@ -206,6 +212,8 @@ labelPadding = (vars) ->
           "font-size":   vars[axis].ticks.font.size+"px"
           "font-family": vars[axis].ticks.font.family.value
           "font-weight": vars[axis].ticks.font.weight
+          "text-transform": vars[axis].ticks.font.transform.value
+          "letter-spacing": vars[axis].ticks.font.spacing + "px"
         xValues = vars[axis].ticks.visible
         if vars[axis].scale.value is "log"
           xText = xValues.map (d) -> formatPower d
@@ -292,6 +300,8 @@ labelPadding = (vars) ->
           "font-family": vars[axis].label.font.family.value
           "font-weight": vars[axis].label.font.weight
           "font-size":   vars[axis].label.font.size+"px"
+          "text-transform": vars[axis].label.font.transform.value
+          "letter-spacing": vars[axis].label.font.spacing + "px"
         vars[axis].label.height = fontSizes([xLabel], xLabelAttrs)[0].height
       else
         vars[axis].label.height = 0

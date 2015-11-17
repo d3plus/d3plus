@@ -28,6 +28,7 @@ module.exports = (axis) ->
       decoration: decoration(false)
       family:     family("")
       size:       false
+      spacing:    0
       transform:  transform(false)
       weight:     false
     rendering: rendering()
@@ -53,6 +54,7 @@ module.exports = (axis) ->
       decoration: decoration()
       family:     family()
       size:       12
+      spacing:    0
       transform:  transform()
       weight:     200
     padding: 3
@@ -145,6 +147,7 @@ module.exports = (axis) ->
       decoration: decoration()
       family:     family()
       size:       10
+      spacing:    0
       transform:  transform()
       weight:     200
     labels:
