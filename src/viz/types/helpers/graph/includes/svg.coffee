@@ -50,8 +50,10 @@ module.exports = (vars) ->
           color
         else if grid and vars.axes.background.color isnt "transparent"
           mix(color, vars.axes.background.color, 0.4, 1)
-        else
+        else if vars.background.value isnt "transparent"
           mix(color, vars.background.value, 0.4, 1)
+        else
+          mix(color, "white", 0.4, 1)
 
       .attr "stroke-width"   , vars[axis].ticks.width
       .attr "shape-rendering", vars[axis].ticks.rendering.value
