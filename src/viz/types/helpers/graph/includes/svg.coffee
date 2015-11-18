@@ -162,10 +162,10 @@ module.exports = (vars) ->
         if vars[axis].ticks.visible.indexOf(d) >= 0 then y2 else y2/2
 
     groups.select("text")
-        .attr "dy", ""
         .style "text-anchor", if rotated and axis is "x" then "end" else if rotated then "start" else "middle"
         .call tickFont, axis
         .each (d) ->
+          d3.select(this).attr "dy", "0px"
           d = +d if d.constructor is Date
           if !vars[axis].ticks.hidden and vars[axis].ticks.visible.indexOf(d) >= 0
             textwrap()
