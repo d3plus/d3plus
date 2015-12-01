@@ -327,7 +327,7 @@ module.exports = function(vars) {
           .attr("opacity",0)
           .remove();
 
-        if (!touch && vars.legend.tooltip.value) {
+        if (vars.legend.tooltip.value) {
 
           keys
             .on(events.over,function(d,i){

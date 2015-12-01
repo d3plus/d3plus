@@ -437,10 +437,12 @@ module.exports = function(vars) {
 
   edge_update()
 
-  if (!touch && vars.tooltip.value) {
+  if (vars.tooltip.value) {
 
     vars.g.data.selectAll("g")
       .on(events.over,function(d){
+
+        if (touch) touchEvent(vars, d3.event);
 
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
@@ -497,6 +499,8 @@ module.exports = function(vars) {
       })
       .on(events.move,function(d){
 
+        if (touch) touchEvent(vars, d3.event);
+
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           if (typeof vars.mouse.move.value === "function") {
@@ -541,6 +545,8 @@ module.exports = function(vars) {
 
       })
       .on(events.out,function(d){
+
+        if (touch) touchEvent(vars, d3.event);
 
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.out.value) {
 
