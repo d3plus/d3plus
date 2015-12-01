@@ -1,3 +1,4 @@
+buckets    = require "../../util/buckets.coffee"
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 nest       = require "./helpers/graph/nest.coffee"
@@ -53,7 +54,7 @@ bar = (vars) ->
       maxSize /= divisions
       offset   = space/2 - maxSize/2 - padding
 
-      x = d3.scale.linear()
+      x = d3.scale.ordinal()
         .domain [0, divisions-1]
         .range [-offset, offset]
 
@@ -64,7 +65,7 @@ bar = (vars) ->
   zero = 0
 
   maxBars = d3.max nested, (b) -> b.values.length
-  for p in nested
+  for p, i in nested
 
     if vars.axes.stacked
       bars = 1
@@ -72,6 +73,10 @@ bar = (vars) ->
     else if vars[discrete].persist.position.value
       bars = divisions
       newSize = maxSize
+      unless i
+        ids = p.values.map (d) -> fetchValue(vars, d, vars.id.value)
+        x.domain(ids).range(buckets(x.range(), ids.length))
+
     else
       bars = p.values.length
       if vars[discrete].persist.size.value
@@ -85,7 +90,13 @@ bar = (vars) ->
 
     for d, i in p.values
 
-      mod = if vars.axes.stacked then 0 else x(i % bars)
+      if vars.axes.stacked
+        mod = 0
+      else if vars[discrete].persist.position.value
+        mod = x fetchValue(vars, d, vars.id.value)
+      else
+        mod = x(i % bars)
+
       oppMethod = vars[opposite]
 
       if vars.axes.stacked
