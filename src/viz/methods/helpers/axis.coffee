@@ -112,7 +112,7 @@ module.exports = (axis) ->
   persist:
     position:
       accepted: [Boolean]
-      value: false
+      value: true
     size:
       accepted: [Boolean]
       value: true
