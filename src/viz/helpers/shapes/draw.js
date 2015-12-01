@@ -605,6 +605,10 @@ module.exports = function(vars) {
 
   }
 
+  d3.select(window).on("scroll.d3plus", function(){
+    removeTooltip(vars.type.value);
+  });
+
   vars.g.data.selectAll("g")
     .on(events.click,function(d){
 
