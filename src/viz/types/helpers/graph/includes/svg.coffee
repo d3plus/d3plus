@@ -165,7 +165,9 @@ module.exports = (vars) ->
         .style "text-anchor", if rotated and axis is "x" then "end" else if rotated then "start" else "middle"
         .call tickFont, axis
         .each (d) ->
-          d3.select(this).attr "dy", "0px"
+          d3.select(this)
+            .attr "dy", "0px"
+            .attr "font-size", (d) -> getFontStyle(axis, d, "size") + "px"
           d = +d if d.constructor is Date
           if !vars[axis].ticks.hidden and vars[axis].ticks.visible.indexOf(d) >= 0
             textwrap()

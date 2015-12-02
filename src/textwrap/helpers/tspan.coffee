@@ -118,9 +118,8 @@ module.exports = (vars) ->
   lines = null
   wrap  = ->
 
-    vars.container.value.selectAll("tspan").remove()
     vars.container.value.html ""
-    words    = vars.text.words.slice(0)
+    words    = vars.text.words.slice()
     words.reverse() if reverse
     progress = words[0]
     textBox  = newLine words.shift(), true

@@ -14,7 +14,7 @@ wrap = (vars) ->
       vars.text.words[0] = firstChar + vars.text.words[0]
 
     # Clears out the current container text.
-    vars.container.value.text ""
+    vars.container.value.html ""
 
     if vars.resize.value then resize vars else flow vars
 
