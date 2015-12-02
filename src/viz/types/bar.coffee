@@ -64,8 +64,12 @@ bar = (vars) ->
   data = []
   zero = 0
 
+  if vars[discrete].persist.position.value and not vars.axes.stacked
+    ids = uniques d3.merge(nested.map (d) -> d.values), vars.id.value, fetchValue, vars, vars.id.value, false
+    x.domain(ids).range(buckets(x.range(), ids.length))
+
   maxBars = d3.max nested, (b) -> b.values.length
-  for p, i in nested
+  for p in nested
 
     if vars.axes.stacked
       bars = 1
@@ -73,9 +77,6 @@ bar = (vars) ->
     else if vars[discrete].persist.position.value
       bars = divisions
       newSize = maxSize
-      unless i
-        ids = p.values.map (d) -> fetchValue(vars, d, vars.id.value)
-        x.domain(ids).range(buckets(x.range(), ids.length))
 
     else
       bars = p.values.length
