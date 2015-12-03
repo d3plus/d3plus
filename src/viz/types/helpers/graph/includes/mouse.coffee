@@ -20,19 +20,19 @@ module.exports = (node, vars) ->
 
   if not clickRemove and create
     color    = legible fetchColor vars, node
-    lineData = ["x", "y"].filter (axis) ->
+    lineData = ["x", "y", "x2", "y2"].filter (axis) ->
       val = fetchValue vars, node, vars[axis].value
-      !(val instanceof Array) and axis isnt vars.axes.stacked and
+      val and !(val instanceof Array) and axis isnt vars.axes.stacked and
       vars[axis].mouse.value and axis isnt vars.axes.discrete
   else
     lineData = []
 
   lineInit = (line) ->
     line
-      .attr "x1", (d) -> if d is "x" then x else x - r
-      .attr "y1", (d) -> if d is "y" then y else y + r
-      .attr "x2", (d) -> if d is "x" then x else x - r
-      .attr "y2", (d) -> if d is "y" then y else y + r
+      .attr "x1", (d) -> if d.indexOf("x") is 0 then x else x - r
+      .attr "y1", (d) -> if d.indexOf("y") is 0 then y else y + r
+      .attr "x2", (d) -> if d.indexOf("x") is 0 then x else x - r
+      .attr "y2", (d) -> if d.indexOf("y") is 0 then y else y + r
       .attr "opacity", 0
 
   lineStyle = (line) ->
@@ -45,18 +45,26 @@ module.exports = (node, vars) ->
 
   lineUpdate = (line) ->
     line
-      .attr "x1", (d) -> if d is "x" then x else x - r
-      .attr "y1", (d) -> if d is "y" then y else y + r
+      .attr "x1", (d) -> if d.indexOf("x") is 0 then x else x - r
+      .attr "y1", (d) -> if d.indexOf("y") is 0 then y else y + r
       .attr "x2", (d) ->
-        if d is "x"
+        if d.indexOf("x") is 0
           x
+        else if node.d3plus.x0
+          node.d3plus.x0
+        else if d is "y"
+          graph.margin.left - vars[d].ticks.size
         else
-          node.d3plus.x0 or graph.margin.left - vars[d].ticks.size
+          graph.margin.left + graph.width + vars[d].ticks.size
       .attr "y2", (d) ->
-        if d is "y"
+        if d.indexOf("y") is 0
           y
+        else if node.d3plus.y0
+          node.d3plus.y0
+        else if d is "x"
+          graph.height + graph.margin.top + vars[d].ticks.size
         else
-          node.d3plus.y0 or graph.height + graph.margin.top + vars[d].ticks.size
+          graph.margin.top - vars[d].ticks.size
       .style "opacity", 1
 
   lines = vars.g.labels.selectAll("line.d3plus_mouse_axis_label").data lineData
@@ -96,14 +104,22 @@ module.exports = (node, vars) ->
       .attr "font-family", (d) -> vars[d].ticks.font.family.value
       .attr "font-weight", (d) -> vars[d].ticks.font.weight
       .attr "x", (d) ->
-        if d is "x" then x else graph.margin.left - 5 - vars[d].ticks.size
+        if d.indexOf("x") is 0
+          x
+        else if d is "y"
+          graph.margin.left - 5 - vars[d].ticks.size
+        else
+          graph.margin.left + graph.width + 5 + vars[d].ticks.size
       .attr "y", (d) ->
-        if d is "y" then y else
-          if node.d3plus.y0
-            node.d3plus.y + (node.d3plus.y0 - node.d3plus.y)/2 +
-            graph.margin.top - 6
-          else
-            graph.height + graph.margin.top + 5 + vars[d].ticks.size
+        if d.indexOf("y") is 0
+          y
+        else if node.d3plus.y0
+          node.d3plus.y + (node.d3plus.y0 - node.d3plus.y)/2 +
+          graph.margin.top - 6
+        else if d is "x"
+          graph.height + graph.margin.top + 5 + vars[d].ticks.size
+        else
+          graph.margin.top - 5 - vars[d].ticks.size - (vars[d].ticks.font.size * 1.35)
       .attr "fill",
         if vars.shape.value is "area"
           "white"
@@ -116,11 +132,17 @@ module.exports = (node, vars) ->
     .attr "class", "d3plus_mouse_axis_label"
     .attr "id", (d) -> d+"_d3plusmouseaxislabel"
     .attr "dy", (d) ->
-      if d is "y"
+      if d.indexOf("y") is 0
         vars[d].ticks.font.size * 0.35
       else
         vars[d].ticks.font.size
-    .style "text-anchor", (d) -> if d is "y" then "end" else "middle"
+    .style "text-anchor", (d) ->
+      if d is "y"
+        "end"
+      else if d is "y2"
+        "start"
+      else
+        "middle"
     .attr "opacity", 0
     .attr "pointer-events", "none"
     .call textStyle
@@ -148,21 +170,31 @@ module.exports = (node, vars) ->
 
   rectStyle = (rect) ->
     getText = (axis) ->
-      d3.select("text#"+axis+"_d3plusmouseaxislabel").node().getBBox()
+      l = d3.select("text#"+axis+"_d3plusmouseaxislabel")
+      if l.size()
+        l.node().getBBox()
+      else
+        {"width": 0, "height": 0}
     rect
       .attr "x", (d) ->
         width = getText(d).width
-        if d is "x"
+        if d.indexOf("x") is 0
           x - width/2 - 5
-        else
+        else if d is "y"
           graph.margin.left - vars[d].ticks.size - width - 10
+        else
+          graph.margin.left + graph.width + vars[d].ticks.size
       .attr "y", (d) ->
-        mod = getText(d).height/2 + 5
-        if d is "y" then y-mod else
-          if node.d3plus.y0
-            node.d3plus.y + (node.d3plus.y0 - node.d3plus.y)/2 +
-            graph.margin.top - mod
-          else graph.height + graph.margin.top + vars[d].ticks.size
+        height = getText(d).height
+        if d.indexOf("y") is 0
+          y-(height/2 + 5)
+        else if node.d3plus.y0
+          node.d3plus.y + (node.d3plus.y0 - node.d3plus.y)/2 +
+          graph.margin.top - (height/2 + 5)
+        else if d is "x"
+          graph.height + graph.margin.top + vars[d].ticks.size
+        else
+          graph.margin.top - vars[d].ticks.size - height - 10
       .attr "width", (d) -> getText(d).width + 10
       .attr "height", (d) -> getText(d).height + 10
       .style "stroke",
