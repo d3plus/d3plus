@@ -1,4 +1,5 @@
-var events = require("../../../client/pointer.coffee");
+var events = require("../../../client/pointer.coffee"),
+    textColor = require("../../../color/text.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
@@ -45,8 +46,8 @@ module.exports = function(vars,message) {
   }
 
   var bg = vars.background.value;
-  if (bg === "none") {
-    bg = "white";
+  if (bg === "none" || bg === "transparent") {
+    bg = textColor(font.color);
   }
 
   function style(elem) {
