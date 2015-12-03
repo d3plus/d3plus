@@ -45,9 +45,12 @@ module.exports = function(vars,message) {
     "padding": font.padding+"px"
   }
 
-  var bg = vars.background.value;
-  if (bg === "none" || bg === "transparent") {
-    bg = textColor(font.color);
+  var bg = vars.messages.background.value;
+  if (!bg) {
+    bg = vars.background.value;
+    if (bg === "none" || bg === "transparent") {
+      bg = textColor(font.color);
+    }
   }
 
   function style(elem) {
