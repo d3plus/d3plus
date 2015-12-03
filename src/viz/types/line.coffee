@@ -20,9 +20,23 @@ line = (vars) ->
   # Assign x and y to each data point
   for point in data
     for d in point.values
-      d.d3plus.x  = vars.x.scale.viz fetchValue(vars, d, vars.x.value)
+
+      xval = fetchValue(vars, d, vars.x.value)
+      if xval
+        d.d3plus.x2 = false
+        d.d3plus.x  = vars.x.scale.viz xval
+      else
+        d.d3plus.x2 = true
+        d.d3plus.x = vars.x2.scale.viz fetchValue(vars, d, vars.x2.value)
       d.d3plus.x += vars.axes.margin.left
-      d.d3plus.y  = vars.y.scale.viz fetchValue(vars, d, vars.y.value)
+
+      yval = fetchValue(vars, d, vars.y.value)
+      if yval
+        d.d3plus.y2 = false
+        d.d3plus.y  = vars.y.scale.viz yval
+      else
+        d.d3plus.y2 = true
+        d.d3plus.y = vars.y2.scale.viz fetchValue(vars, d, vars.y2.value)
       d.d3plus.y += vars.axes.margin.top
 
   if vars.axes.stacked then stack vars, data else data
