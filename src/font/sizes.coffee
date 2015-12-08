@@ -24,7 +24,7 @@ module.exports = (words, style, opts) ->
   getWidth = (elem) ->
     add = 0
     if spacing
-      add = (elem.innerHTML.length - 1) * spacing
+      add = (d3.select(elem).text().length - 1) * spacing
     elem.getComputedTextLength() + add
   getHeight = (elem) ->
     elem.offsetHeight or
