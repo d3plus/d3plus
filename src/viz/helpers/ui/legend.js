@@ -12,6 +12,7 @@ var arraySort = require("../../../array/sort.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     textColor     = require("../../../color/text.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
+    scroll        = require("../../../client/scroll.js"),
     stringStrip   = require("../../../string/strip.js"),
     textWrap      = require("../../../textwrap/textwrap.coffee"),
     touch         = require("../../../client/touch.coffee"),
@@ -335,8 +336,8 @@ module.exports = function(vars) {
               d3.select(this).style("cursor","pointer");
 
               var bounds = this.getBoundingClientRect(),
-                  x = bounds.left + square_size/2 + window.scrollX,
-                  y = bounds.top + square_size/2 + window.scrollY + 5;
+                  x = bounds.left + square_size/2 + scroll.x(),
+                  y = bounds.top + square_size/2 + scroll.y() + 5;
 
               var id = fetchValue(vars, d, colorKey),
                   idIndex = vars.id.nesting.indexOf(colorKey),

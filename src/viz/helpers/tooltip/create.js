@@ -8,6 +8,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     mergeObject   = require("../../../object/merge.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     segments      = require("../shapes/segments.coffee"),
+    scroll        = require("../../../client/scroll.js"),
     uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
@@ -79,7 +80,7 @@ module.exports = function(params) {
     }
     x += vars.margin.left;
     if (params.length !== "long") {
-      y += window.scrollX;
+      y += scroll.x();
       x += vars.container.value.node().getBoundingClientRect().left;
       x += parseFloat(vars.container.value.style("padding-left"), 10);
     }
@@ -98,7 +99,7 @@ module.exports = function(params) {
     }
     y += vars.margin.top;
     if (params.length !== "long") {
-      y += window.scrollY;
+      y += scroll.y();
       y += vars.container.value.node().getBoundingClientRect().top;
       y += parseFloat(vars.container.value.style("padding-top"), 10);
     }

@@ -48,6 +48,7 @@ d3plus.client =
   pointer:   require "./client/pointer.coffee"
   prefix:    require "./client/prefix.coffee"
   rtl:       require "./client/rtl.coffee"
+  scroll:    require "./client/scroll.js"
   scrollbar: require "./client/scrollbar.coffee"
   touch:     require "./client/touch.coffee"
 

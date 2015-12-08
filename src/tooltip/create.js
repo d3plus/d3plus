@@ -5,6 +5,7 @@ var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     prefix        = require("../client/prefix.coffee"),
     rtl           = require("../client/rtl.coffee"),
     removeTooltip = require("./remove.coffee"),
+    scroll        = require("../client/scroll.js"),
     stringList    = require("../string/list.coffee"),
     textColor     = require("../color/text.coffee")
 
@@ -45,7 +46,7 @@ module.exports = function(params) {
   }
 
   if (params.parent.node() === document.body) {
-    params.limit = [window.innerWidth + window.scrollX, window.innerHeight + window.scrollY];
+    params.limit = [window.innerWidth + scroll.x(), window.innerHeight + scroll.y()];
   }
   else {
     params.limit = [
