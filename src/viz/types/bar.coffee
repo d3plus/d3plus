@@ -123,6 +123,7 @@ bar = (vars) ->
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
+      delete d.d3plus.r
       d.d3plus[w]     = newSize
       d.d3plus[h]     = Math.abs length
       d.d3plus.init   = {}
