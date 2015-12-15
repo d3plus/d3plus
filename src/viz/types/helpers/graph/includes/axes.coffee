@@ -147,7 +147,7 @@ axisRange = (vars, axis, zero, buffer) ->
       else
         values.push val
     values = values.filter (d) -> d isnt null
-    if typeof values[0] is "string"
+    if axis is vars.axes.discrete
       if vars.order.value is true
         sortKey = vars[oppAxis].value
       else

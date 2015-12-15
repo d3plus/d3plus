@@ -22,8 +22,12 @@ module.exports = (vars, d, keys, colors, depth) ->
     else
       value = d[key]
 
-    value = value[0] if value instanceof Array
-    value = if typeof value is "string" then value.toLowerCase() else value
+    if [vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0
+      agg = vars.order.agg.value or vars.aggs.value[sortKey] or "sum"
+      value = d3[agg] value
+    else
+      value = value[0] if value instanceof Array
+      value = if typeof value is "string" then value.toLowerCase() else value
 
     obj[key] = value
 
