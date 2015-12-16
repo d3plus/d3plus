@@ -62,6 +62,9 @@ module.exports = (number, opts) ->
     else
       ret = format.numberFormat(".3g") number
 
+  if ret.length > 2 and "" + ret.indexOf(".0") is ret.length - 2
+    ret = ret.slice(0, ret.length - 2)
+
   if labels and key and "format" of vars and key of vars.format.affixes.value
     affixes = vars.format.affixes.value[key]
     affixes[0] + ret + affixes[1]
