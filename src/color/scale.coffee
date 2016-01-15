@@ -1,8 +1,8 @@
 # Default D3plus color scale
 module.exports = d3.scale.ordinal().range([
   "#b22200",
-  "#EACE3F",
   "#282F6B",
+  "#EACE3F",
 
   "#B35C1E",
   "#224F20",
