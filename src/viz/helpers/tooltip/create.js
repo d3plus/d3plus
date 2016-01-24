@@ -8,6 +8,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     mergeObject   = require("../../../object/merge.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     segments      = require("../shapes/segments.coffee"),
+    scroll        = require("../../../client/scroll.js"),
     uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
@@ -49,20 +50,20 @@ module.exports = function(params) {
           parent = fetchValue(vars,id,key)
     }
 
-    if (zoom === 1 && vars.zoom.value) {
-      var text = vars.format.value(vars.format.locale.value.ui.expand)
-    }
-    else if (zoom === -1 && vars.zoom.value && vars.history.states.length && !vars.tooltip.value.long) {
-      var text = vars.format.value(vars.format.locale.value.ui.collapse)
-    }
-    else if (!vars.small && length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && (vars.focus.value.length !== 1 || vars.focus.value[0] != id)) {
-      var text = vars.format.locale.value.ui.moreInfo
-    }
-    else if (length == "long") {
-      var text = vars.footer.value || ""
-    }
-    else {
-      var text = ""
+    var text = "";
+    if (!(!vars.mouse.click.value || (vars.mouse.viz && vars.mouse.viz.click === false))) {
+      if (zoom === 1 && vars.zoom.value) {
+        var text = vars.format.value(vars.format.locale.value.ui.expand)
+      }
+      else if (zoom === -1 && vars.zoom.value && vars.history.states.length && !vars.tooltip.value.long) {
+        var text = vars.format.value(vars.format.locale.value.ui.collapse)
+      }
+      else if (!vars.small && length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && (vars.focus.value.length !== 1 || vars.focus.value[0] != id)) {
+        var text = vars.format.locale.value.ui.moreInfo
+      }
+      else if (length == "long") {
+        var text = vars.footer.value || ""
+      }
     }
 
     var footer = text.length ? vars.format.value(text,{"key": "footer", "vars": vars}) : false
@@ -79,7 +80,7 @@ module.exports = function(params) {
     }
     x += vars.margin.left;
     if (params.length !== "long") {
-      y += window.scrollX;
+      y += scroll.x();
       x += vars.container.value.node().getBoundingClientRect().left;
       x += parseFloat(vars.container.value.style("padding-left"), 10);
     }
@@ -98,7 +99,7 @@ module.exports = function(params) {
     }
     y += vars.margin.top;
     if (params.length !== "long") {
-      y += window.scrollY;
+      y += scroll.y();
       y += vars.container.value.node().getBoundingClientRect().top;
       y += parseFloat(vars.container.value.style("padding-top"), 10);
     }
@@ -215,6 +216,9 @@ module.exports = function(params) {
       }
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
         ex[getLabel(vars.axes.opposite)] = fetchValue(vars, d, vars[vars.axes.opposite].value);
+      }
+      if (vars.axes.opposite && vars[vars.axes.opposite + "2"].value !== vars.size.value) {
+        ex[getLabel(vars.axes.opposite + "2")] = fetchValue(vars, d, vars[vars.axes.opposite + "2"].value);
       }
       if (vars.color.valueScale) {
         ex[getLabel("color")] = fetchValue(vars, d, vars.color.value);

@@ -174,7 +174,7 @@ module.exports = function(vars, years, depth) {
       if ( years.length > 1 ) {
 
         var separated = false;
-        ["x","y"].forEach(function(a){
+        ["x", "y", "x2", "y2"].forEach(function(a){
           if (vars[a].value === vars.time.value &&
               vars[a].scale.value === "discrete" ) {
             separated = true;

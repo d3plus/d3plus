@@ -1,5 +1,4 @@
 ie    = require "../../client/ie.js"
-touch = require "../../client/touch.coffee"
 wiki  = require "./wiki.coffee"
 
 # Custom styling and behavior for browser console statements.

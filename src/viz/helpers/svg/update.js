@@ -22,6 +22,7 @@ module.exports = function(vars) {
     vars.g.bg.transition().duration(vars.draw.timing)
         .attr("width",vars.width.value)
         .attr("height",vars.height.value)
+        .attr("fill",vars.background.value);
 
     // Update App Clipping Rectangle
     vars.g.clipping.select("rect").transition().duration(vars.draw.timing)
@@ -49,6 +50,7 @@ module.exports = function(vars) {
     vars.g.bg
       .attr("width",vars.width.value)
       .attr("height",vars.height.value)
+      .attr("fill",vars.background.value);
 
     // Update App Clipping Rectangle
     vars.g.clipping.select("rect")

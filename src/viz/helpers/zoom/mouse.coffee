@@ -1,5 +1,6 @@
-labels    = require "./labels.coffee"
-transform = require "./transform.coffee"
+labels        = require "./labels.coffee"
+removeTooltip = require "../../../tooltip/remove.coffee"
+transform     = require "./transform.coffee"
 
 module.exports = (vars) ->
 
@@ -31,13 +32,17 @@ module.exports = (vars) ->
   vars.zoom.scale     = scale
 
   if eventType is "wheel"
-    delay = (if vars.draw.timing then 100 else 250)
-    clearTimeout vars.zoom.wheel
-    vars.zoom.wheel = setTimeout( ->
+    removeTooltip vars.type.value
+
+  if vars.labels.value or vars.labels.changed
+    if eventType is "wheel"
+      delay = (if vars.draw.timing then 100 else 250)
+      clearTimeout vars.zoom.wheel
+      vars.zoom.wheel = setTimeout( ->
+        labels vars
+      , delay)
+    else
       labels vars
-    , delay)
-  else
-    labels vars
 
   if eventType is "dblclick"
     transform vars, vars.timing.transitions

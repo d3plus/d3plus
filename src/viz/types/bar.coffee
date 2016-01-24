@@ -1,3 +1,4 @@
+buckets    = require "../../util/buckets.coffee"
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 nest       = require "./helpers/graph/nest.coffee"
@@ -16,7 +17,7 @@ bar = (vars) ->
 
   graph vars,
     buffer: true
-    zero:   vars.axes.opposite
+    zero:   opposite
 
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
@@ -53,7 +54,7 @@ bar = (vars) ->
       maxSize /= divisions
       offset   = space/2 - maxSize/2 - padding
 
-      x = d3.scale.linear()
+      x = d3.scale.ordinal()
         .domain [0, divisions-1]
         .range [-offset, offset]
 
@@ -63,6 +64,10 @@ bar = (vars) ->
   data = []
   zero = 0
 
+  if vars[discrete].persist.position.value and not vars.axes.stacked
+    ids = uniques d3.merge(nested.map (d) -> d.values), vars.id.value, fetchValue, vars, vars.id.value, false
+    x.domain(ids).range(buckets(x.range(), ids.length))
+
   maxBars = d3.max nested, (b) -> b.values.length
   for p in nested
 
@@ -71,7 +76,8 @@ bar = (vars) ->
       newSize = maxSize
     else if vars[discrete].persist.position.value
       bars = divisions
-      newSize = maxSize/divisions
+      newSize = maxSize
+
     else
       bars = p.values.length
       if vars[discrete].persist.size.value
@@ -85,18 +91,28 @@ bar = (vars) ->
 
     for d, i in p.values
 
-      mod = if vars.axes.stacked then 0 else x(i % bars)
+      if vars.axes.stacked
+        mod = 0
+      else if vars[discrete].persist.position.value
+        mod = x fetchValue(vars, d, vars.id.value)
+      else
+        mod = x(i % bars)
+
+      oppMethod = vars[opposite]
 
       if vars.axes.stacked
         value  = d.d3plus[opposite]
         base   = d.d3plus[opposite+"0"]
       else
-        oppVal = fetchValue(vars, d, vars[opposite].value)
+        oppVal = fetchValue(vars, d, oppMethod.value)
+        if oppVal is null
+          oppMethod = vars[opposite + "2"]
+          oppVal = fetchValue(vars, d, oppMethod.value)
         continue if oppVal is 0
-        if vars[opposite].scale.value is "log"
+        if oppMethod.scale.value is "log"
           zero = if oppVal < 0 then -1 else 1
-        value  = vars[opposite].scale.viz oppVal
-        base   = vars[opposite].scale.viz zero
+        value  = oppMethod.scale.viz oppVal
+        base   = oppMethod.scale.viz zero
 
       discreteVal = fetchValue(vars, d, vars[discrete].value)
       d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
@@ -107,17 +123,21 @@ bar = (vars) ->
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
+      delete d.d3plus.r
       d.d3plus[w]     = newSize
       d.d3plus[h]     = Math.abs length
       d.d3plus.init   = {}
 
-      d.d3plus.init[opposite]  = vars[opposite].scale.viz zero
+      d.d3plus.init[opposite]  = oppMethod.scale.viz zero
       d.d3plus.init[opposite] -= d.d3plus[opposite]
       d.d3plus.init[opposite] += vars.axes.margin[oMargin]
 
       d.d3plus.init[w]         = d.d3plus[w]
 
-      d.d3plus.label = false
+      if vars.text.value
+        delete d.d3plus.label
+      else
+        d.d3plus.label = false
 
       data.push d
 

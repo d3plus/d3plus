@@ -7,9 +7,9 @@ if touch
     click: "click"
     down: "touchstart"
     up: "touchend"
-    over: "touchstart"
-    out: "touchend"
-    move: "touchmove"
+    over: if ie then "mouseenter" else "mouseover"
+    out: if ie then "mouseleave" else "mouseout"
+    move: "mousemove"
 else
   module.exports =
     click: "click"

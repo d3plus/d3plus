@@ -5,8 +5,7 @@ rtl = require "../../client/rtl.coffee"
 #------------------------------------------------------------------------------
 module.exports = (vars) ->
 
-  newLine = (w, first) ->
-    w = "" unless w
+  newLine = (first) ->
     if not reverse or first
       tspan = vars.container.value.append("tspan")
     else
@@ -18,7 +17,6 @@ module.exports = (vars) ->
       .attr "dy", dy + "px"
       .style "baseline-shift", "0%"
       .attr "dominant-baseline", "alphabetic"
-      .text w
 
   mirror = vars.rotate.value is -90 or vars.rotate.value is 90
   width = if mirror then vars.height.inner else vars.width.inner
@@ -110,7 +108,8 @@ module.exports = (vars) ->
 
     if textBox.node().getComputedTextLength() > lineWidth() or next_char is "\n"
       textBox.text current
-      textBox = newLine(word)
+      textBox = newLine()
+      textBox.text word
       if reverse then line-- else line++
 
   start = 1
@@ -118,12 +117,11 @@ module.exports = (vars) ->
   lines = null
   wrap  = ->
 
-    vars.container.value.selectAll("tspan").remove()
     vars.container.value.html ""
-    words    = vars.text.words.slice(0)
+    words    = vars.text.words.slice()
     words.reverse() if reverse
-    progress = words[0]
-    textBox  = newLine words.shift(), true
+    progress = ""
+    textBox  = newLine true
     line = start
 
     for word in words

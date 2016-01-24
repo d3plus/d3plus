@@ -53,7 +53,7 @@ module.exports = function( vars ) {
 
         var data_obj = {}
 
-        data_obj.text = this.innerHTML
+        data_obj.text = d3.select(this).text();
 
         get_attributes(data_obj,this)
 

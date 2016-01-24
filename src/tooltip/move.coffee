@@ -1,3 +1,5 @@
+scroll = require "../client/scroll.js"
+
 # Set X and Y position for Tooltip
 module.exports = (x, y, id) ->
 
@@ -13,7 +15,7 @@ module.exports = (x, y, id) ->
     unless d.fixed
 
       if d.parent.node().tagName.toLowerCase() is "body"
-        mins = [window.scrollX, window.scrollY]
+        mins = [scroll.x(), scroll.y()]
       else
         mins = [0, 0]
 

@@ -1,11 +1,12 @@
 objectValidate = require "../object/validate.coffee"
 
 # Returns list of unique values
-uniques = (data, value, fetch, vars, depth) ->
+uniques = (data, value, fetch, vars, depth, sorted) ->
 
   return [] if data is undefined
 
   depth   = vars.id.value if vars and depth is undefined
+  sorted  = true is sorted is undefined
   data    = [data] unless data instanceof Array
   lookups = []
 
@@ -44,6 +45,6 @@ uniques = (data, value, fetch, vars, depth) ->
         val = d[value]
         check val
 
-  vals.sort (a, b) -> a - b
+  if sorted then vals.sort (a, b) -> a - b else vals
 
 module.exports = uniques

@@ -20,7 +20,7 @@ module.exports = (vars, axis, buffer) ->
 
       else
 
-        domain = domain.slice().reverse() if axis is "y"
+        domain = domain.slice().reverse() if axis.indexOf("y") is 0
 
         if vars[axis].ticks.values.length is 1
           if vars[axis].value is vars.time.value and
@@ -60,7 +60,7 @@ module.exports = (vars, axis, buffer) ->
           else
 
             domain = [domainLow, domainHigh]
-            domain = domain.reverse() if axis is "y"
+            domain = domain.reverse() if axis.indexOf("y") is 0
 
             domainCompare = vars[axis].scale.viz.domain()
             domainCompare = domainCompare[1] - domainCompare[0]
@@ -77,12 +77,12 @@ module.exports = (vars, axis, buffer) ->
           domain[0] = domain[0] - additional
           domain[1] = domain[1] + additional
 
-        domain = domain.reverse() if axis is "y"
+        domain = domain.reverse() if axis.indexOf("y") is 0
 
         vars[axis].scale.viz.domain(domain)
 
-    else if (buffer is "x" and axis is "x") or
-            (buffer is "y" and axis is "y") or
+    else if (buffer is "x" and axis.indexOf("x") is 0) or
+            (buffer is "y" and axis.indexOf("y") is 0) or
             (buffer is true)
 
       domain = vars[axis].scale.viz.domain()
@@ -93,7 +93,7 @@ module.exports = (vars, axis, buffer) ->
       if vars[axis].scale.value is "log"
 
         zero = if allPositive then 1 else -1
-        domain = domain.slice().reverse() if allPositive and axis is "y"
+        domain = domain.slice().reverse() if allPositive and axis.indexOf("y") is 0
 
         lowerScale = Math.pow(10, parseInt(Math.abs(domain[0])).toString().length - 1) * zero
         lowerMod = domain[0] % lowerScale
@@ -113,11 +113,11 @@ module.exports = (vars, axis, buffer) ->
         domain[1] += upperValue
         domain[1] = zero if domain[1] is 0
 
-        domain = domain.reverse() if allPositive and axis is "y"
+        domain = domain.reverse() if allPositive and axis.indexOf("y") is 0
 
       else
         zero = 0
-        domain = domain.slice().reverse() if axis is "y"
+        domain = domain.slice().reverse() if axis.indexOf("y") is 0
 
         strings = domain.filter (d) -> d.constructor is String
         additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
@@ -132,7 +132,7 @@ module.exports = (vars, axis, buffer) ->
           domain[1] = zero if (allPositive and domain[1] < zero) or
                               (allNegative and domain[1] > zero)
 
-        domain = domain.reverse() if axis is "y"
+        domain = domain.reverse() if axis.indexOf("y") is 0
 
       vars[axis].scale.viz.domain(domain)
 
@@ -141,7 +141,7 @@ module.exports = (vars, axis, buffer) ->
       copy = false
       if vars.axes.mirror.value
 
-        opp = if axis is "y" then "x" else "y"
+        opp = if axis.indexOf("y") is 0 then "x" else "y"
         copy = vars[opp].scale.viz
         second = if vars.width.viz > vars.height.viz then "x" else "y"
 
@@ -158,7 +158,7 @@ module.exports = (vars, axis, buffer) ->
         domainHigh  = vars[axis].scale.viz.invert rangeMax + maxSize*1.5
 
         domain = [domainLow, domainHigh]
-        domain = domain.reverse() if axis is "y"
+        domain = domain.reverse() if axis.indexOf("y") is 0
 
         domainCompare = vars[axis].scale.viz.domain()
         domainCompare = domainCompare[1] - domainCompare[0]
@@ -167,6 +167,6 @@ module.exports = (vars, axis, buffer) ->
           domain[0] -= 1
           domain[1] += 1
 
-        domain = domain.reverse() if axis is "y"
+        domain = domain.reverse() if axis.indexOf("y") is 0
 
       vars[axis].scale.viz.domain(domain)

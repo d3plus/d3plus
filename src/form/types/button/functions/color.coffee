@@ -29,7 +29,16 @@ module.exports = (elem, vars) ->
     if !image and d[vars.color.value]
       color = legible d[vars.color.value]
     else
-      color = textColor d3.select(this).style("background-color")
+
+      if vars.focus.value is d[vars.id.value]
+        bg = vars.ui.color.secondary.value
+      else
+        bg = vars.ui.color.primary.value
+
+      if vars.hover.value is d[vars.id.value]
+        bg = d3.rgb(bg).darker(0.15).toString()
+
+      color = textColor bg
 
     color = d3.rgb color
     "rgba(" + color.r + "," + color.g + "," + color.b + "," + opacity + ")"

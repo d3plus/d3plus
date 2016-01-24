@@ -23,26 +23,30 @@ radar = (vars) ->
   angle = Math.PI * 2 / total
   maxRadius = d3.min([vars.width.viz, vars.height.viz])/2
 
-  first = offset Math.PI/2, maxRadius
-  second = offset angle + Math.PI/2, maxRadius
-  labelWidth = (first.x - second.x)
+  labelHeight = 0
+  labelWidth = 0
   labels = (fetchText(vars, c, nextDepth)[0] for c in children)
   labels = uniques(d3.merge(labels))
-  textStyle = {
-    "fill": vars.x.ticks.font.color
-    "font-family": vars.x.ticks.font.family.value
-    "font-weight": vars.x.ticks.font.weight
-    "font-size":   vars.x.ticks.font.size+"px"
-  }
-  sizes = fontSizes labels, textStyle,
-    mod: (elem) ->
-      textwrap().container d3.select(elem)
-        .height(vars.height.viz/8)
-        .width(labelWidth).draw()
-  labelHeight = d3.median sizes, (d) -> d.height
+  if vars.labels.value
+    first = offset Math.PI/2, maxRadius
+    second = offset angle + Math.PI/2, maxRadius
+    labelWidth = (first.x - second.x)
+    textStyle = {
+      "fill": vars.x.ticks.font.color
+      "font-family": vars.x.ticks.font.family.value
+      "font-weight": vars.x.ticks.font.weight
+      "font-size":   vars.x.ticks.font.size+"px"
+    }
+    sizes = fontSizes labels, textStyle,
+      mod: (elem) ->
+        textwrap().container d3.select(elem)
+          .height(vars.height.viz/8)
+          .width(labelWidth).draw()
+    labelHeight = d3.median sizes, (d) -> d.height
 
-  maxRadius -= (labelHeight * 2)
-  maxRadius -= (vars.labels.padding * 2)
+    maxRadius -= (labelHeight * 2)
+    maxRadius -= (vars.labels.padding * 2)
+
   maxData = (fetchValue(vars, d, vars.size.value) for d in c for c in children)
   maxData = d3.max(d3.merge(maxData))
 
@@ -74,7 +78,7 @@ radar = (vars) ->
   ringData = buckets([maxRadius/intervals, maxRadius], intervals-1).reverse()
 
   rings = vars.group.selectAll ".d3plus_radar_rings"
-    .data ringData, (d) -> d
+    .data ringData, (d, i) -> i
 
   ringStyle = (ring) ->
     ring
@@ -107,7 +111,9 @@ radar = (vars) ->
     a = (angle * labelIndex(l)) - Math.PI/2
     top = a < 0 or a > Math.PI
     righty = a < Math.PI/2
-    o = offset a, maxRadius + vars.labels.padding
+    ov = maxRadius
+    ov += vars.labels.padding if vars.labels.value
+    o = offset a, ov
     x = o.x
     y = o.y
     x -= labelWidth unless righty
@@ -124,7 +130,7 @@ radar = (vars) ->
     }
 
   text = vars.group.selectAll ".d3plus_radar_labels"
-    .data labelData, (d) -> d.text
+    .data (if vars.labels.value then labelData else []), (d) -> d.text
 
   labelStyle = (label) ->
     label
@@ -154,7 +160,7 @@ radar = (vars) ->
     .remove()
 
   grid = vars.group.selectAll ".d3plus_radar_lines"
-    .data labelData, (d) -> d.text
+    .data labelData, (d, i) -> i
 
   gridStyle = (grid) ->
     grid
@@ -177,6 +183,8 @@ radar = (vars) ->
     .attr "opacity", 0
     .remove()
 
+  vars.mouse.viz =
+    click: false
 
   data
 

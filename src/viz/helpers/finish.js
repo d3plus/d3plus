@@ -1,4 +1,5 @@
 var edges = require("./shapes/edges.js"),
+    paths       = require("./shapes/paths.js"),
     flash       = require("./ui/message.js"),
     focusViz    = require("./focus/viz.js"),
     methodReset = require("../../core/methods/reset.coffee"),
@@ -72,17 +73,22 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   if (!vars.error.value) {
     if (vars.draw.update) {
-      edges(vars)
+      if (vars.edges.path) {
+        paths(vars);
+      }
+      else {
+        edges(vars);
+      }
       // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
-      shapeLabels( vars , "data" )
-      if (vars.edges.label) {
+      shapeLabels(vars, "data");
+      if (vars.edges.label && !vars.edges.path) {
         setTimeout(function(){
-          shapeLabels( vars , "edges" )
-        }, vars.draw.timing+200)
+          shapeLabels(vars, "edges");
+        }, vars.draw.timing + 200);
       }
       // }
     }
-    else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
+    else if ((vars.labels.value || vars.labels.changed) && vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
       setTimeout(function(){
         labels(vars)
       },vars.draw.timing)

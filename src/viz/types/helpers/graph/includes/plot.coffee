@@ -12,82 +12,101 @@ module.exports = (vars, opts) ->
   vars.axes.margin = resetMargins vars
   vars.axes.height = vars.height.viz
   vars.axes.width  = vars.width.viz
-  axes = if vars.width.viz > vars.height.viz then ["y", "x"] else ["x", "y"]
+  axes = if vars.width.viz > vars.height.viz then ["y", "y2", "x", "x2"] else ["x", "x2", "y", "y2"]
 
   # Set ticks, if not previously set
   for axis in axes
 
-    if vars[axis].ticks.values is false
-      if vars[axis].value is vars.time.value
-        ticks = vars.time.solo.value
-        if ticks.length
-          ticks = ticks.map (d) ->
-            if d.constructor isnt Date
-              d = d + ""
-              d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
-              d = new Date d
-              # d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-            d
+    if vars[axis].value
+
+      if vars[axis].ticks.values is false
+        if vars[axis].value is vars.time.value
+          ticks = vars.time.solo.value
+          if ticks.length
+            ticks = ticks.map (d) ->
+              if d.constructor isnt Date
+                d = d + ""
+                d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
+                d = new Date d
+                # d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+              d
+          else
+            ticks = vars.data.time.values
+
+          extent = d3.extent ticks
+          step = vars.data.time.stepType
+          ticks = [extent[0]]
+          tick = extent[0]
+          while tick < extent[1]
+            newtick = new Date tick
+            tick = new Date newtick["set"+step](newtick["get"+step]()+1)
+            ticks.push tick
+
+          vars[axis].ticks.values = ticks
+
         else
-          ticks = vars.data.time.values
+          if axis.indexOf("2") is 1
+            otherScale = vars[axis.slice(0,1)].scale.viz
+            scale = vars[axis].scale.viz
+            ticks = vars[axis.slice(0,1)].scale.ticks
+            vars[axis].ticks.values = otherScale.ticks(ticks).map (t) ->
+              parseFloat(d3.format(".5f")(scale.invert(otherScale(t))))
+          else
+            vars[axis].ticks.values = vars[axis].scale.viz.ticks(vars[axis].scale.ticks)
 
-        extent = d3.extent ticks
-        step = vars.data.time.stepType
-        ticks = [extent[0]]
-        tick = extent[0]
-        while tick < extent[1]
-          newtick = new Date tick
-          tick = new Date newtick["set"+step](newtick["get"+step]()+1)
-          ticks.push tick
+      unless vars[axis].ticks.values.length
+        values = fetchValue vars, vars.data.viz, vars[axis].value
+        values = [values] unless values instanceof Array
+        vars[axis].ticks.values = values
 
-        vars[axis].ticks.values = ticks
+      opp = if axis.indexOf("x") is 0 then "y" else "x"
+      if vars[axis].ticks.values.length is 1 or
+         (opts.buffer and opts.buffer isnt opp and
+         axis is vars.axes.discrete and vars[axis].reset is true)
+        buffer vars, axis, opts.buffer
+      vars[axis].reset = false
 
+      if vars[axis].value is vars.time.value
+
+        axisStyle =
+          "font-family": vars[axis].ticks.font.family.value
+          "font-weight": vars[axis].ticks.font.weight
+          "font-size":   vars[axis].ticks.font.size+"px"
+          "text-transform": vars[axis].ticks.font.transform.value
+          "letter-spacing": vars[axis].ticks.font.spacing + "px"
+
+        timeReturn = timeDetect vars,
+          values: vars[axis].ticks.values
+          limit:  vars.width.viz
+          style:  axisStyle
+
+        if vars[axis].ticks.value
+          vars[axis].ticks.visible = vars[axis].ticks.value.map Number
+        else if vars[axis].ticks.labels.value.constructor is Array
+          vars[axis].ticks.visible = vars[axis].ticks.labels.value.map Number
+        else
+          vars[axis].ticks.visible = timeReturn.values.map Number
+        vars[axis].ticks.format  = timeReturn.format
+
+      else if vars[axis].ticks.value
+        vars[axis].ticks.values = vars[axis].ticks.value
+        if vars[axis].ticks.labels.value.constructor is Array
+          vars[axis].ticks.visible = vars[axis].ticks.labels.value
+        else
+          vars[axis].ticks.visible = vars[axis].ticks.value
+
+      else if vars[axis].ticks.labels.value.constructor is Array
+        vars[axis].ticks.visible = vars[axis].ticks.labels.value
+
+      else if vars[axis].scale.value is "log"
+        ticks = vars[axis].ticks.values
+        tens = ticks.filter (t) -> Math.abs(t).toString().charAt(0) is "1"
+        if tens.length < 3
+          vars[axis].ticks.visible = ticks
+        else
+          vars[axis].ticks.visible = tens
       else
-        vars[axis].ticks.values = vars[axis].scale.viz.ticks()
-
-    unless vars[axis].ticks.values.length
-      values = fetchValue vars, vars.data.viz, vars[axis].value
-      values = [values] unless values instanceof Array
-      vars[axis].ticks.values = values
-
-    opp = if axis is "x" then "y" else "x"
-    if vars[axis].ticks.values.length is 1 or
-       (opts.buffer and opts.buffer isnt opp and
-       axis is vars.axes.discrete and vars[axis].reset is true)
-      buffer vars, axis, opts.buffer
-    vars[axis].reset = false
-
-    if vars[axis].value is vars.time.value
-
-      axisStyle =
-        "font-family": vars[axis].ticks.font.family.value
-        "font-weight": vars[axis].ticks.font.weight
-        "font-size":   vars[axis].ticks.font.size+"px"
-
-      timeReturn = timeDetect vars,
-        values: vars[axis].ticks.values
-        limit:  vars.width.viz
-        style:  axisStyle
-
-      if vars[axis].ticks.value
-        vars[axis].ticks.visible = vars[axis].ticks.value.map Number
-      else
-        vars[axis].ticks.visible = timeReturn.values.map Number
-      vars[axis].ticks.format  = timeReturn.format
-
-    else if vars[axis].ticks.value
-      vars[axis].ticks.values = vars[axis].ticks.value
-      vars[axis].ticks.visible = vars[axis].ticks.value
-
-    else if vars[axis].scale.value is "log"
-      ticks = vars[axis].ticks.values
-      tens = ticks.filter (t) -> Math.abs(t).toString().charAt(0) is "1"
-      if tens.length < 3
-        vars[axis].ticks.visible = ticks
-      else
-        vars[axis].ticks.visible = tens
-    else
-      vars[axis].ticks.visible = vars[axis].ticks.values
+        vars[axis].ticks.visible = vars[axis].ticks.values
 
 
 
@@ -95,7 +114,7 @@ module.exports = (vars, opts) ->
   labelPadding vars unless vars.small
 
   # Create SVG Axes
-  for axis in ["x","y"]
+  for axis in axes
     vars[axis].axis.svg = createAxis(vars, axis)
 
   return
@@ -118,160 +137,191 @@ labelPadding = (vars) ->
 
   xDomain = vars.x.scale.viz.domain()
   yDomain = vars.y.scale.viz.domain()
+  x2Domain = vars.x2.scale.viz.domain() if vars.x2.value
+  y2Domain = vars.y2.scale.viz.domain() if vars.y2.value
 
-  # Calculate Y axis padding
-  yAttrs =
-    "font-size":   vars.y.ticks.font.size+"px"
-    "font-family": vars.y.ticks.font.family.value
-    "font-weight": vars.y.ticks.font.weight
-  yValues = vars.y.ticks.visible
-  if vars.y.scale.value is "log"
-    yText = yValues.map (d) -> formatPower d
-  else if vars.y.scale.value is "share"
-    yText = yValues.map (d) -> vars.format.value d * 100,
-      key: "share"
-      vars: vars
-  else if vars.y.value is vars.time.value
-    yText = yValues.map (d, i) ->
-      vars.y.ticks.format new Date(d)
-  else
-    if typeof yValues[0] is "string"
-      yValues = vars.y.scale.viz.domain().filter (d) ->
-        d.indexOf("d3plus_buffer_") isnt 0
-    yText = yValues.map (d) ->
-      vars.format.value d,
-        key:    vars.y.value
-        vars:   vars
-        labels: vars.y.affixes.value
+  for axis in ["y", "y2"]
 
-  yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
-  yAxisWidth             = Math.ceil yAxisWidth + vars.labels.padding
-  vars.axes.margin.left += yAxisWidth
+    if vars[axis].value
 
-  yLabel = vars.y.label.fetch vars
-  if yLabel
-    yLabelAttrs =
-      "font-family": vars.y.label.font.family.value
-      "font-weight": vars.y.label.font.weight
-      "font-size":   vars.y.label.font.size+"px"
-    vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height
-  else
-    vars.y.label.height = 0
-  if vars.y.label.value
-    vars.axes.margin.left += vars.y.label.height
-    vars.axes.margin.left += vars.y.label.padding * 2
+      # Calculate Y axis paddings
+      margin = if axis is "y" then "left" else "right"
+      yAttrs =
+        "font-size":   vars[axis].ticks.font.size+"px"
+        "font-family": vars[axis].ticks.font.family.value
+        "font-weight": vars[axis].ticks.font.weight
+        "text-transform": vars[axis].ticks.font.transform.value
+        "letter-spacing": vars[axis].ticks.font.spacing + "px"
+      yValues = vars[axis].ticks.visible
+      if vars[axis].scale.value is "log"
+        yText = yValues.map (d) -> formatPower d
+      else if vars[axis].scale.value is "share"
+        yText = yValues.map (d) -> vars.format.value d * 100,
+          key: "share"
+          vars: vars
+      else if vars[axis].value is vars.time.value
+        yText = yValues.map (d, i) ->
+          vars[axis].ticks.format new Date(d)
+      else
+        if typeof yValues[0] is "string"
+          yValues = vars[axis].scale.viz.domain().filter (d) ->
+            d.indexOf("d3plus_buffer_") isnt 0
+        yText = yValues.map (d) ->
+          vars.format.value d,
+            key:    vars[axis].value
+            vars:   vars
+            labels: vars[axis].affixes.value
+
+      if vars[axis].ticks.labels.value
+        vars[axis].ticks.hidden    = false
+        yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
+        yAxisWidth             = Math.ceil yAxisWidth + vars.labels.padding
+        vars.axes.margin[margin] += yAxisWidth
+
+      else
+        vars[axis].ticks.hidden = true
+
+      yLabel = vars[axis].label.fetch vars
+      if yLabel
+        yLabelAttrs =
+          "font-family": vars[axis].label.font.family.value
+          "font-weight": vars[axis].label.font.weight
+          "font-size":   vars[axis].label.font.size+"px"
+          "text-transform": vars[axis].label.font.transform.value
+          "letter-spacing": vars[axis].label.font.spacing + "px"
+        vars[axis].label.height = fontSizes([yLabel], yLabelAttrs)[0].height
+      else
+        vars[axis].label.height = 0
+      if vars[axis].label.value
+        vars.axes.margin[margin] += vars[axis].label.height
+        vars.axes.margin[margin] += vars[axis].label.padding * 2
 
   vars.axes.width -= (vars.axes.margin.left + vars.axes.margin.right)
-  vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
+  vars.x.scale.viz.range buckets([0, vars.axes.width], xDomain.length)
+  vars.x2.scale.viz.range buckets([0, vars.axes.width], x2Domain.length) if x2Domain
 
-  # Calculate X axis padding
-  xAttrs =
-    "font-size":   vars.x.ticks.font.size+"px"
-    "font-family": vars.x.ticks.font.family.value
-    "font-weight": vars.x.ticks.font.weight
-  xValues = vars.x.ticks.visible
-  if vars.x.scale.value is "log"
-    xText = xValues.map (d) -> formatPower d
-  else if vars.x.scale.value is "share"
-    xText = xValues.map (d) -> vars.format.value d * 100,
-      key: "share"
-      vars: vars
-  else if vars.x.value is vars.time.value
-    xText = xValues.map (d, i) ->
-      vars.x.ticks.format new Date(d)
-  else
-    if typeof xValues[0] is "string"
-      xValues = vars.x.scale.viz.domain().filter (d) ->
-        d.indexOf("d3plus_buffer_") isnt 0
-    xText = xValues.map (d) ->
-      vars.format.value d,
-        key:    vars.x.value
-        vars:   vars
-        labels: vars.x.affixes.value
+  for axis in ["x", "x2"]
 
-  xSizes      = fontSizes(xText,xAttrs)
-  xAxisWidth  = d3.max xSizes, (d) -> d.width
-  xAxisHeight = d3.max xSizes, (d) -> d.height
+    if vars[axis].value
+      margin = if axis is "x" then "bottom" else "top"
 
-  if xValues.length is 1
-    xMaxWidth = vars.axes.width
-  else
-    xMaxWidth  = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
-    xMaxWidth  = Math.abs xMaxWidth
+      # Calculate X axis paddings
+      if vars[axis].ticks.labels.value
+        vars[axis].ticks.hidden = false
+        xAttrs =
+          "font-size":   vars[axis].ticks.font.size+"px"
+          "font-family": vars[axis].ticks.font.family.value
+          "font-weight": vars[axis].ticks.font.weight
+          "text-transform": vars[axis].ticks.font.transform.value
+          "letter-spacing": vars[axis].ticks.font.spacing + "px"
+        xValues = vars[axis].ticks.visible
+        if vars[axis].scale.value is "log"
+          xText = xValues.map (d) -> formatPower d
+        else if vars[axis].scale.value is "share"
+          xText = xValues.map (d) -> vars.format.value d * 100,
+            key: "share"
+            vars: vars
+        else if vars[axis].value is vars.time.value
+          xText = xValues.map (d, i) ->
+            vars[axis].ticks.format new Date(d)
+        else
+          if typeof xValues[0] is "string"
+            xValues = vars[axis].scale.viz.domain().filter (d) ->
+              d.indexOf("d3plus_buffer_") isnt 0
+          xText = xValues.map (d) ->
+            vars.format.value d,
+              key:    vars[axis].value
+              vars:   vars
+              labels: vars[axis].affixes.value
 
-  if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
-    vars.x.ticks.wrap = true
-    xSizes = fontSizes xText, xAttrs,
-      mod: (elem) ->
-        textwrap().container d3.select(elem)
-          .height(vars.axes.height/2)
-          .width(xMaxWidth).draw()
-    xAxisWidth  = d3.max xSizes, (d) -> d.width
-    xAxisHeight = d3.max xSizes, (d) -> d.height
-  else
-    vars.x.ticks.wrap = false
+        xSizes      = fontSizes(xText,xAttrs)
+        xAxisWidth  = d3.max xSizes, (d) -> d.width
+        xAxisHeight = d3.max xSizes, (d) -> d.height
 
-  vars.x.ticks.hidden   = false
-  vars.x.ticks.baseline = "auto"
+        if xValues.length is 1
+          xMaxWidth = vars.axes.width
+        else
+          xMaxWidth  = vars[axis].scale.viz(xValues[1]) - vars[axis].scale.viz(xValues[0])
+          xMaxWidth  = Math.abs xMaxWidth
 
-  if xAxisWidth <= xMaxWidth
-    vars.x.ticks.rotate = 0
-  else if xAxisWidth < vars.axes.height/2
-    xSizes = fontSizes xText, xAttrs,
-      mod: (elem) ->
-        textwrap().container d3.select(elem)
-          .width(vars.axes.height/2)
-          .height(xMaxWidth).draw()
-    xAxisHeight         = d3.max xSizes, (d) -> d.width
-    xAxisWidth          = d3.max xSizes, (d) -> d.height
-    vars.x.ticks.rotate = -90
-  else
-    xAxisWidth  = 0
-    xAxisHeight = 0
+        if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
+          vars[axis].ticks.wrap = true
+          xSizes = fontSizes xText, xAttrs,
+            mod: (elem) ->
+              textwrap().container d3.select(elem)
+                .height(vars.axes.height/2)
+                .width(xMaxWidth).draw()
+          xAxisWidth  = d3.max xSizes, (d) -> d.width
+          xAxisHeight = d3.max xSizes, (d) -> d.height
+        else
+          vars[axis].ticks.wrap = false
 
-  unless xAxisWidth and xAxisHeight
-    vars.x.ticks.hidden = true
-    vars.x.ticks.rotate = 0
+        vars[axis].ticks.baseline = "auto"
 
-  xAxisWidth  = Math.ceil xAxisWidth
-  xAxisHeight = Math.ceil xAxisHeight
-  xAxisWidth++
-  xAxisHeight++
-  vars.x.ticks.maxHeight = xAxisHeight
-  vars.x.ticks.maxWidth = xAxisWidth
-  vars.axes.margin.bottom += xAxisHeight + vars.labels.padding
-  lastTick = vars.x.ticks.visible[vars.x.ticks.visible.length - 1]
-  rightLabel = vars.x.scale.viz lastTick
-  rightLabel += xAxisWidth/2 + vars.axes.margin.left
-  if rightLabel > vars.width.value
-    rightMod = rightLabel - vars.width.value + vars.axes.margin.right
-    vars.axes.width -= rightMod
-    vars.axes.margin.right += rightMod
+        if xAxisWidth <= xMaxWidth
+          vars[axis].ticks.rotate = 0
+        else if xAxisWidth < vars.axes.height/2
+          xSizes = fontSizes xText, xAttrs,
+            mod: (elem) ->
+              textwrap().container d3.select(elem)
+                .width(vars.axes.height/2)
+                .height(xMaxWidth).draw()
+          xAxisHeight         = d3.max xSizes, (d) -> d.width
+          xAxisWidth          = d3.max xSizes, (d) -> d.height
+          vars[axis].ticks.rotate = -90
+        else
+          xAxisWidth  = 0
+          xAxisHeight = 0
 
-  xLabel = vars.x.label.fetch vars
-  if xLabel
-    xLabelAttrs =
-      "font-family": vars.x.label.font.family.value
-      "font-weight": vars.x.label.font.weight
-      "font-size":   vars.x.label.font.size+"px"
-    vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height
-  else
-    vars.x.label.height = 0
-  if vars.x.label.value
-    vars.axes.margin.bottom += vars.x.label.height
-    vars.axes.margin.bottom += vars.x.label.padding * 2
+        unless xAxisWidth and xAxisHeight
+          vars[axis].ticks.hidden = true
+          vars[axis].ticks.rotate = 0
+
+        xAxisWidth  = Math.ceil xAxisWidth
+        xAxisHeight = Math.ceil xAxisHeight
+        xAxisWidth++
+        xAxisHeight++
+        vars[axis].ticks.maxHeight = xAxisHeight
+        vars[axis].ticks.maxWidth = xAxisWidth
+        vars.axes.margin[margin] += xAxisHeight + vars.labels.padding
+        lastTick = vars[axis].ticks.visible[vars[axis].ticks.visible.length - 1]
+        rightLabel = vars[axis].scale.viz lastTick
+        rightLabel += xAxisWidth/2 + vars.axes.margin.left
+        if rightLabel > vars.width.value
+          rightMod = rightLabel - vars.width.value + vars.axes.margin.right
+          vars.axes.width -= rightMod
+          vars.axes.margin.right += rightMod
+      else
+        vars[axis].ticks.hidden = true
+
+      xLabel = vars[axis].label.fetch vars
+      if xLabel
+        xLabelAttrs =
+          "font-family": vars[axis].label.font.family.value
+          "font-weight": vars[axis].label.font.weight
+          "font-size":   vars[axis].label.font.size+"px"
+          "text-transform": vars[axis].label.font.transform.value
+          "letter-spacing": vars[axis].label.font.spacing + "px"
+        vars[axis].label.height = fontSizes([xLabel], xLabelAttrs)[0].height
+      else
+        vars[axis].label.height = 0
+      if vars[axis].label.value
+        vars.axes.margin[margin] += vars[axis].label.height
+        vars.axes.margin[margin] += vars[axis].label.padding * 2
 
   vars.axes.height -= (vars.axes.margin.top + vars.axes.margin.bottom)
 
-  vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
-  vars.y.scale.viz.range buckets([0,vars.axes.height], yDomain.length)
+  vars.x.scale.viz.range buckets([0, vars.axes.width], xDomain.length)
+  vars.x2.scale.viz.range buckets([0, vars.axes.width], x2Domain.length) if x2Domain
+  vars.y.scale.viz.range buckets([0, vars.axes.height], yDomain.length)
+  vars.y2.scale.viz.range buckets([0, vars.axes.height], y2Domain.length) if y2Domain
 
 createAxis = (vars, axis) ->
 
   d3.svg.axis()
     .tickSize vars[axis].ticks.size
     .tickPadding 5
-    .orient if axis is "x" then "bottom" else "left"
+    .orient vars[axis].orient.value
     .scale vars[axis].scale.viz
     .tickValues vars[axis].ticks.values
     .tickFormat (d, i) ->

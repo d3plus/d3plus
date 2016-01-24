@@ -9,7 +9,7 @@ module.exports = (vars) ->
   timing = if data.length * 2 > vars.data.large then 0 else vars.draw.timing
 
   style = (line, axis) ->
-    if axis is "y"
+    if axis.indexOf("y") is 0
       line
         .attr "x1", -2
         .attr "x2", -8
@@ -40,7 +40,7 @@ module.exports = (vars) ->
 
   print.timeEnd "creating axis tick groups" if vars.dev.value
 
-  for axis in ["x","y"]
+  for axis in ["x", "y"]
 
     print.time "creating " + axis + " ticks" if vars.dev.value and timing
 

@@ -12,6 +12,7 @@ var arraySort = require("../../../array/sort.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     textColor     = require("../../../color/text.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
+    scroll        = require("../../../client/scroll.js"),
     stringStrip   = require("../../../string/strip.js"),
     textWrap      = require("../../../textwrap/textwrap.coffee"),
     touch         = require("../../../client/touch.coffee"),
@@ -48,6 +49,12 @@ module.exports = function(vars) {
         data = vars.data.viz;
       }
 
+      if (data.length && "key" in data[0] && "values" in data[0]) {
+        data = d3.merge(data.map(function(d){
+          return d.values;
+        }));
+      }
+
       var colorFunction = function(d){
             return fetchColor(vars, d, colorDepth);
           },
@@ -81,7 +88,7 @@ module.exports = function(vars) {
 
       var legendNesting = [vars.color.value];
       // if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
-      var colors = dataNest(vars, data, legendNesting, []);
+      var colors = dataNest(vars, data, legendNesting, false);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
@@ -321,7 +328,7 @@ module.exports = function(vars) {
           .attr("opacity",0)
           .remove();
 
-        if (!touch && vars.legend.tooltip.value) {
+        if (vars.legend.tooltip.value) {
 
           keys
             .on(events.over,function(d,i){
@@ -329,8 +336,8 @@ module.exports = function(vars) {
               d3.select(this).style("cursor","pointer");
 
               var bounds = this.getBoundingClientRect(),
-                  x = bounds.left + square_size/2 + window.scrollX,
-                  y = bounds.top + square_size/2 + window.scrollY + 5;
+                  x = bounds.left + square_size/2 + scroll.x(),
+                  y = bounds.top + square_size/2 + scroll.y() + 5;
 
               var id = fetchValue(vars, d, colorKey),
                   idIndex = vars.id.nesting.indexOf(colorKey),

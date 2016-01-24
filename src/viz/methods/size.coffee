@@ -5,7 +5,6 @@ module.exports =
   dataFilter: true
   deprecates: ["value", "value_var"]
   mute:       filter(true)
-  radius:     true
   scale:
     accepted:   [Function]
     deprecates: "size_scale"

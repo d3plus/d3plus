@@ -28,7 +28,15 @@ module.exports = function( vars , data ) {
 
       data = data.filter( function( d ) {
 
-        var val = fetchValue(vars,d,vars[key].value)
+        var val = fetchValue(vars,d,vars[key].value);
+
+        if (key === "y" && vars.y2.value && val === null) {
+          val = fetchValue(vars,d,vars.y2.value);
+        }
+        else if (key === "x" && vars.x2.value && val === null) {
+          val = fetchValue(vars,d,vars.x2.value);
+        }
+
         if ( key === "size" ) {
           return typeof val === "number"
         }

@@ -90,20 +90,24 @@ module.exports = function(vars) {
   function id(d) {
 
     if (!d.d3plus.id) {
-      d.d3plus.id = ""
+      d.d3plus.id = "";
       for (var i = 0; i <= vars.depth.value; i++) {
         d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
       }
 
       d.d3plus.id += shape;
 
-      ["x","y"].forEach(function(axis){
+      ["x", "y", "x2", "y2"].forEach(function(axis){
         if (vars[axis].scale.value == "discrete") {
           var val = fetchValue(vars, d, vars[axis].value)
           if (val.constructor === Date) val = val.getTime()
           d.d3plus.id += "_"+val
         }
       })
+
+      if (d.d3plus.suffix) {
+        d.d3plus.id += "_" + d.d3plus.suffix;
+      }
 
       d.d3plus.id = stringStrip(d.d3plus.id)
     }
@@ -324,9 +328,10 @@ module.exports = function(vars) {
 
           var id = d[vars.id.value],
               source = l[vars.edges.source][vars.id.value],
-              target = l[vars.edges.target][vars.id.value]
+              target = l[vars.edges.target][vars.id.value];
 
-          if (source == id || target == id) {
+          if (source == id || source == "left_" + id || source == "right_" + id ||
+              target == id || target == "left_" + id || target == "right_" + id) {
             var elem = vars.g.edge_hover.node().appendChild(this.cloneNode(true))
             d3.select(elem).datum(l).attr("opacity",1)
               .selectAll("line, path").datum(l)
@@ -341,7 +346,10 @@ module.exports = function(vars) {
         .attr("opacity",0)
         .selectAll("line, path")
           .style("stroke",vars.color.primary)
-          .style("stroke-width",function(){
+          .style("stroke-width",function(d){
+            if (vars.edges.path && d.dy) {
+              return Math.max(1, d.dy);
+            }
             return vars.edges.size.value ? d3.select(this).style("stroke-width")
                  : vars.data.stroke.width*2
           })
@@ -429,12 +437,14 @@ module.exports = function(vars) {
 
   edge_update()
 
-  if (!touch && vars.tooltip.value) {
+  if (vars.tooltip.value) {
 
     vars.g.data.selectAll("g")
       .on(events.over,function(d){
 
-        if (vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (touch) touchEvent(vars, d3.event);
+
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           if (typeof vars.mouse.over.value === "function") {
             vars.mouse.over.value(d, vars.self);
@@ -482,11 +492,16 @@ module.exports = function(vars) {
           }
 
         }
+        else {
+          removeTooltip(vars.type.value);
+        }
 
       })
       .on(events.move,function(d){
 
-        if (vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (touch) touchEvent(vars, d3.event);
+
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           if (typeof vars.mouse.move.value === "function") {
             vars.mouse.move.value(d, vars.self);
@@ -524,11 +539,16 @@ module.exports = function(vars) {
           }
 
         }
+        else {
+          removeTooltip(vars.type.value);
+        }
 
       })
       .on(events.out,function(d){
 
-        if (vars.mouse.value && vars.mouse.out.value) {
+        if (touch) touchEvent(vars, d3.event);
+
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.out.value) {
 
           if (typeof vars.mouse.out.value === "function") {
             vars.mouse.out.value(d, vars.self);
@@ -565,6 +585,9 @@ module.exports = function(vars) {
           }
 
         }
+        else {
+          removeTooltip(vars.type.value);
+        }
 
       })
 
@@ -582,15 +605,31 @@ module.exports = function(vars) {
 
   }
 
+  d3.select(window).on("scroll.d3plus", function(){
+    removeTooltip(vars.type.value);
+  });
+
   vars.g.data.selectAll("g")
     .on(events.click,function(d){
 
-      if (vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!(vars.mouse.viz && vars.mouse.viz.click === false) && vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse.click.value === "function") {
           vars.mouse.click.value(d, vars.self);
         }
         else {
+
+          if (d.values && vars.axes.discrete) {
+
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
+
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
+
+          }
 
           if (typeof vars.mouse.viz == "function") {
             vars.mouse.viz(d.d3plus_data || d, vars)

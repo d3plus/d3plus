@@ -78,56 +78,46 @@ module.exports = function(vars) {
     .attr("height",vars.height.value)
     .attr("opacity",0);
 
-  if (!touch) {
+  vars.g.overlay
+    .on(events.move,function(d){
 
-    vars.g.overlay
-      .on(events.move,function(d){
+      if (touch) touchEvent(vars, d3.event);
 
-        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grab");
-        }
-        else {
-          d3.select(this).style("cursor","auto");
-        }
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grab");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
 
-      })
-      .on(events.up,function(d){
+    })
+    .on(events.up,function(d){
 
-        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grab");
-        }
-        else {
-          d3.select(this).style("cursor","auto");
-        }
+      if (touch) touchEvent(vars, d3.event);
 
-      })
-      .on(events.down,function(d){
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grab");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
 
-        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grabbing");
-        }
-        else {
-          d3.select(this).style("cursor","auto");
-        }
+    })
+    .on(events.down,function(d){
 
-      });
+      if (touch) touchEvent(vars, d3.event);
 
-  }
-  else {
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grabbing");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
 
-    var mouseEvent = function() {
-      touchEvent(vars, d3.event);
-    };
-
-    vars.g.overlay
-      .on(events.over, mouseEvent)
-      .on(events.move, mouseEvent)
-      .on(events.out , mouseEvent);
-
-  }
+    });
 
   // Enter App Background Group
   vars.g.app = vars.g.viz.selectAll("g#app").data(["app"]);

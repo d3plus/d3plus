@@ -1,0 +1,41 @@
+{
+  "name": "d3plus",
+  "main": "./d3plus.full.js",
+  "version": "1.8.0",
+  "moduleType": ["node"],
+  "homepage": "https://github.com/alexandersimoes/d3plus",
+  "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
+  "authors": [
+    "Dave Landry <landry.dave@gmail.com>",
+    "Alexander Simoes <alexandersimoes@gmail.com>",
+    "Daniel Smilkov <dsmilkov@gmail.com>"
+  ],
+  "dependencies": {
+    "d3": "^3.5.10",
+    "heap": "^0.2.6",
+    "numericjs": "^1.2.6",
+    "simplify-js": "https://github.com/mourner/simplify-js.git",
+    "static-kdtree": "https://github.com/mikolalysenko/static-kdtree.git",
+    "topojson": "^1.6.19"
+  },
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "coffee-script": "^1.9.3",
+    "coffeeify": "^1.1.0",
+    "event-stream": "^3.3.1",
+    "gulp": "^3.9.0",
+    "gulp-chmod": "^1.2.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-duration": "^0.0.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-streamify": "^1.0.0",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.6",
+    "require-dir": "^0.3.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.3.1"
+  },
+  "keywords": ["charts", "d3", "d3plus", "data", "visualization"],
+  "license": "MIT"
+}
