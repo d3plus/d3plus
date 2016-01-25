@@ -103,7 +103,6 @@ bar = (vars) ->
       if vars.axes.stacked
         mod = 0
       else if vars[discrete].persist.position.value
-        console.log x.domain(), x.range(), fetchValue(vars, d, vars.id.value)
         mod = x fetchValue(vars, d, vars.id.value)
       else
         mod = x(i % bars)
