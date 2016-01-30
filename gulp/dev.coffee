@@ -11,10 +11,11 @@ watchify   = require "watchify"
 
 test_dir = "./tests/**/*.*"
 
-connect.server
-  livereload: true
-  port: 4000
-  root: path.resolve("./")
+gulp.task "server", ->
+  connect.server
+    livereload: true
+    port: 4000
+    root: path.resolve("./")
 
 rebundle = ->
   bundler.bundle()
