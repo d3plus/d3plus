@@ -10550,7 +10550,7 @@ module.exports = function(x, scale) {
 
 
 },{"./scale.coffee":50}],50:[function(require,module,exports){
-module.exports = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
+module.exports = d3.scale.ordinal().range(["#b22200", "#282F6B", "#EACE3F", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
 
 
 },{}],51:[function(require,module,exports){
@@ -15274,7 +15274,7 @@ module.exports = function(words, style, opts) {
     return elem.getComputedTextLength() + add;
   };
   getHeight = function(elem) {
-    return elem.offsetHeight || elem.getBoundingClientRect().height || elem.parentNode.getBBox().height;
+    return elem.offsetHeight || elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
   };
   tspans.enter().append("tspan").text(String).style(style).attr(attr).each(function(d) {
     if (typeof opts.mod === "function") {
@@ -30726,7 +30726,12 @@ bar = function(vars) {
       }
       maxSize /= divisions;
       offset = space / 2 - maxSize / 2 - padding;
-      x = d3.scale.ordinal().domain([0, divisions - 1]).range([-offset, offset]);
+      x = d3.scale.ordinal();
+      if (divisions === 1) {
+        x.domain([0]).range([0]);
+      } else {
+        x.domain([0, divisions - 1]).range([-offset, offset]);
+      }
     } else {
       x = d3.scale.linear();
     }
@@ -30737,7 +30742,12 @@ bar = function(vars) {
     ids = uniques(d3.merge(nested.map(function(d) {
       return d.values;
     })), vars.id.value, fetchValue, vars, vars.id.value, false);
-    x.domain(ids).range(buckets(x.range(), ids.length));
+    x.domain(ids);
+    if (ids.length === 1) {
+      x.range([0]);
+    } else {
+      x.range(buckets(x.range(), ids.length));
+    }
   }
   maxBars = d3.max(nested, function(b) {
     return b.values.length;
@@ -32499,8 +32509,6 @@ labelPadding = function(vars) {
         }
         xAxisWidth = Math.ceil(xAxisWidth);
         xAxisHeight = Math.ceil(xAxisHeight);
-        xAxisWidth++;
-        xAxisHeight++;
         vars[axis].ticks.maxHeight = xAxisHeight;
         vars[axis].ticks.maxWidth = xAxisWidth;
         vars.axes.margin[margin] += xAxisHeight + vars.labels.padding;
@@ -33751,7 +33759,7 @@ buckets = require("../../util/buckets.coffee");
 uniques = require("../../util/uniques.coffee");
 
 radar = function(vars) {
-  var a, angle, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
+  var a, a2, anchor, angle, buffer, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelGroup, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
   data = vars.data.viz;
   nextDepth = vars.depth.value + 1;
   nextLevel = vars.id.nesting[nextDepth];
@@ -33791,7 +33799,7 @@ radar = function(vars) {
   if (vars.labels.value) {
     first = offset(Math.PI / 2, maxRadius);
     second = offset(angle + Math.PI / 2, maxRadius);
-    labelWidth = first.x - second.x;
+    labelHeight = (first.x - second.x) - vars.labels.padding * 2;
     textStyle = {
       "fill": vars.x.ticks.font.color,
       "font-family": vars.x.ticks.font.family.value,
@@ -33800,13 +33808,13 @@ radar = function(vars) {
     };
     sizes = fontSizes(labels, textStyle, {
       mod: function(elem) {
-        return textwrap().container(d3.select(elem)).height(vars.height.viz / 8).width(labelWidth).draw();
+        return textwrap().container(d3.select(elem)).width(vars.height.viz / 8).height(labelHeight).draw();
       }
     });
-    labelHeight = d3.median(sizes, function(d) {
-      return d.height;
+    labelWidth = d3.max(sizes, function(d) {
+      return d.width;
     });
-    maxRadius -= labelHeight * 2;
+    maxRadius -= labelWidth;
     maxRadius -= vars.labels.padding * 2;
   }
   maxData = (function() {
@@ -33863,6 +33871,9 @@ radar = function(vars) {
     }
   }
   ringData = buckets([maxRadius / intervals, maxRadius], intervals - 1).reverse();
+  if (ringData.length === intervals) {
+    ringData.shift();
+  }
   rings = vars.group.selectAll(".d3plus_radar_rings").data(ringData, function(d, i) {
     return i;
   });
@@ -33884,14 +33895,23 @@ radar = function(vars) {
   labelData = [];
   for (n = 0, len3 = labels.length; n < len3; n++) {
     l = labels[n];
-    a = (angle * labelIndex(l)) - Math.PI / 2;
-    top = a < 0 || a > Math.PI;
-    righty = a < Math.PI / 2;
+    a2 = (angle * labelIndex(l)) - Math.PI / 2;
+    a = a2 * (180 / Math.PI);
+    if (a < -90 || a > 90) {
+      a = a - 180;
+      buffer = -(maxRadius + vars.labels.padding * 2 + labelWidth);
+      anchor = "end";
+    } else {
+      buffer = maxRadius + vars.labels.padding * 2;
+      anchor = "start";
+    }
+    top = a2 < 0 || a2 > Math.PI;
+    righty = a2 < Math.PI / 2;
     ov = maxRadius;
     if (vars.labels.value) {
       ov += vars.labels.padding;
     }
-    o = offset(a, ov);
+    o = offset(a2, ov);
     x = o.x;
     y = o.y;
     if (!righty) {
@@ -33906,23 +33926,28 @@ radar = function(vars) {
     }
     labelData.push({
       "text": l,
-      "x": x + vars.width.viz / 2 + vars.margin.top,
-      "y": y + vars.height.viz / 2 + vars.margin.left,
-      "align": center ? "center" : righty ? "left" : "right",
-      "valign": top ? "bottom" : "top",
+      "angle": a,
+      "x": buffer,
+      "anchor": anchor,
       "offset": o
     });
   }
-  text = vars.group.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d) {
-    return d.text;
+  labelGroup = vars.group.selectAll("g.d3plus_radar_label_group").data([0]);
+  labelGroup.enter().append("g").attr("class", "d3plus_radar_label_group").attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
+  labelGroup.transition().duration(vars.draw.timing).attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
+  text = labelGroup.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d, i) {
+    return i;
   });
   labelStyle = function(label) {
-    return label.attr(textStyle).attr("x", function(l) {
-      return l.x;
-    }).attr("y", function(l) {
-      return l.y;
-    }).each(function(l, i) {
-      return textwrap().container(d3.select(this)).height(labelHeight).width(labelWidth).align(l.align).text(l.text).padding(0).valign(l.valign).draw();
+    return label.attr(textStyle).each(function(l, i) {
+      return textwrap().container(d3.select(this)).height(labelHeight).width(labelWidth).align(l.anchor).text(l.text).padding(0).valign("middle").x(l.x).y(-labelHeight / 2).draw();
+    }).attr("transform", function(t) {
+      var translate;
+      translate = d3.select(this).attr("transform") || "";
+      if (translate.length) {
+        translate = translate.split(")").slice(-3).join(")");
+      }
+      return "rotate(" + t.angle + ")" + translate;
     });
   };
   text.call(labelStyle);
