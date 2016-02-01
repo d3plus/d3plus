@@ -13,7 +13,6 @@ module.exports = (vars) ->
 
     tspan
       .attr "x", x + "px"
-      .attr "dx", dx + "px"
       .attr "dy", dy + "px"
       .style "baseline-shift", "0%"
       .attr "dominant-baseline", "alphabetic"
@@ -28,14 +27,14 @@ module.exports = (vars) ->
     anchor = vars.align.value or vars.container.align or "start"
 
   if anchor is "end" or (anchor is "start" and rtl)
-    dx = width
+    xOffset = width
   else if anchor is "middle"
-    dx = width/2
+    xOffset = width/2
   else
-    dx = 0
+    xOffset = 0
 
   valign   = vars.valign.value or "top"
-  x        = vars.container.x
+  x        = vars.container.x + xOffset
   fontSize = if vars.resize.value then vars.size.value[1] else vars.container.fontSize or vars.size.value[0]
   dy       = vars.container.dy or fontSize * 1.1
   textBox  = null
