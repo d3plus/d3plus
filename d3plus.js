@@ -10380,7 +10380,7 @@ module.exports = sheet;
 
 },{}],39:[function(require,module,exports){
 // Determines if the current browser is Internet Explorer.
-module.exports = /*@cc_on!@*/false
+module.exports = /(MSIE|Trident\/|Edge\/)/i.test(navigator.userAgent);
 
 },{}],40:[function(require,module,exports){
 var ie, touch;
@@ -19929,7 +19929,7 @@ var rtl;
 rtl = require("../../client/rtl.coffee");
 
 module.exports = function(vars) {
-  var anchor, dx, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, y, yOffset;
+  var anchor, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, xOffset, y, yOffset;
   newLine = function(first) {
     var tspan;
     if (!reverse || first) {
@@ -19937,7 +19937,7 @@ module.exports = function(vars) {
     } else {
       tspan = vars.container.value.insert("tspan", "tspan");
     }
-    return tspan.attr("x", x + "px").attr("dx", dx + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
+    return tspan.attr("x", x + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
   };
   mirror = vars.rotate.value === -90 || vars.rotate.value === 90;
   width = mirror ? vars.height.inner : vars.width.inner;
@@ -19948,14 +19948,14 @@ module.exports = function(vars) {
     anchor = vars.align.value || vars.container.align || "start";
   }
   if (anchor === "end" || (anchor === "start" && rtl)) {
-    dx = width;
+    xOffset = width;
   } else if (anchor === "middle") {
-    dx = width / 2;
+    xOffset = width / 2;
   } else {
-    dx = 0;
+    xOffset = 0;
   }
   valign = vars.valign.value || "top";
-  x = vars.container.x;
+  x = vars.container.x + xOffset;
   fontSize = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0];
   dy = vars.container.dy || fontSize * 1.1;
   textBox = null;
@@ -20032,7 +20032,7 @@ module.exports = function(vars) {
       progress += joiner + word;
       textBox.text(current + joiner + word);
     }
-    if (textBox.node().getComputedTextLength() > lineWidth() || next_char === "\n") {
+    if (Math.floor(textBox.node().getComputedTextLength()) > lineWidth() || next_char === "\n") {
       textBox.text(current);
       textBox = newLine();
       textBox.text(word);
@@ -20048,7 +20048,7 @@ module.exports = function(vars) {
   lines = null;
   wrap = function() {
     var i, len, next_char, unsafe, word;
-    vars.container.value.html("");
+    vars.container.value.text("").html("");
     words = vars.text.words.slice();
     if (reverse) {
       words.reverse();

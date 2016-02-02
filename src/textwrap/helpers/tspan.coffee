@@ -105,7 +105,7 @@ module.exports = (vars) ->
       progress += joiner + word
       textBox.text current + joiner + word
 
-    if textBox.node().getComputedTextLength() > lineWidth() or next_char is "\n"
+    if Math.floor(textBox.node().getComputedTextLength()) > lineWidth() or next_char is "\n"
       textBox.text current
       textBox = newLine()
       textBox.text word
@@ -116,7 +116,7 @@ module.exports = (vars) ->
   lines = null
   wrap  = ->
 
-    vars.container.value.html ""
+    vars.container.value.text("").html ""
     words    = vars.text.words.slice()
     words.reverse() if reverse
     progress = ""
