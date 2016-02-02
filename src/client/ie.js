@@ -1,2 +1,2 @@
 // Determines if the current browser is Internet Explorer.
-module.exports = /*@cc_on!@*/false
+module.exports = /(MSIE|Trident\/|Edge\/)/i.test(navigator.userAgent);
