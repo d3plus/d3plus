@@ -20388,7 +20388,11 @@ module.exports = {
   },
   split: {
     accepted: [Array],
-    value: ["-", "/", ";", ":", "&"]
+    process: function(s) {
+      this["break"] = new RegExp("[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g");
+      return s;
+    },
+    value: ["-", "/", ";", ":", "&", "."]
   }
 };
 

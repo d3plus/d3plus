@@ -9,4 +9,7 @@ module.exports =
     false
   split:
     accepted: [Array]
-    value:    ["-", "/", ";", ":", "&"]
+    process: (s) ->
+      @break = new RegExp "[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g"
+      s
+    value:    ["-", "/", ";", ":", "&", "."]
