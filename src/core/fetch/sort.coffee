@@ -6,7 +6,11 @@ module.exports = (vars, d, keys, colors, depth) ->
 
   keys   = [keys] unless keys instanceof Array
   colors = [colors] unless colors instanceof Array
-  depth  = vars.id.nesting.indexOf(depth) if vars and depth isnt undefined and typeof depth isnt "number"
+  if vars
+    if depth is undefined
+      depth = vars.id.value
+    else if typeof depth isnt "number"
+      depth  = vars.id.nesting.indexOf(depth)
 
   obj = {}
 
@@ -17,6 +21,8 @@ module.exports = (vars, d, keys, colors, depth) ->
         value = fetchColor vars, d, depth
       else if key is vars.text.value
         value = fetchText vars, d, depth
+      else if d3.keys(d).length is 3 and d["d3plus"] and d["key"] and d["values"]
+        value = fetchValue vars, d.values.map((dd) -> dd.d3plus), key, depth
       else
         value = fetchValue vars, d, key, depth
     else
@@ -24,6 +30,7 @@ module.exports = (vars, d, keys, colors, depth) ->
 
     if [vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0
       agg = vars.order.agg.value or vars.aggs.value[key] or "sum"
+      value = [value] if !(value instanceof Array)
       value = d3[agg] value
     else
       value = value[0] if value instanceof Array
