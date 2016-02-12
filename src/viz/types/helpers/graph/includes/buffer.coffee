@@ -70,12 +70,19 @@ module.exports = (vars, axis, buffer) ->
               domain[1] += 1
 
         else
-          difference = Math.abs domain[1] - domain[0]
-          additional = difference / (vars[axis].ticks.values.length - 1)
-          additional = additional / 2
 
-          domain[0] = domain[0] - additional
-          domain[1] = domain[1] + additional
+          difference = Math.abs domain[1] - domain[0]
+          add = difference / 2
+
+          i = domain.length
+          orig_domain = domain.slice()
+          while i >= 0
+            d = if i then orig_domain[i - 1] + add else orig_domain[i] - add
+            domain.splice(i, 0, d)
+            i--
+          range = vars[axis].scale.viz.range()
+          range = buckets d3.extent(range), domain.length
+          vars[axis].scale.viz.domain(domain).range(range)
 
         domain = domain.reverse() if axis.indexOf("y") is 0
 

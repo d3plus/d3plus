@@ -180,7 +180,7 @@ axisRange = (vars, axis, zero, buffer) ->
         , []
         counts
       else
-        uniques values
+        uniques(values).sort()
     else
       values.sort (a, b) -> a - b
       if vars[axis].scale.value is "log"
