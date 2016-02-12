@@ -1,3 +1,4 @@
+
 attach      = require "../core/methods/attach.coffee"
 axis        = require "./methods/helpers/axis.coffee"
 flash       = require "./helpers/ui/message.js"
@@ -130,7 +131,7 @@ module.exports = ->
     attrs:      require "./methods/attrs.coffee"
     axes:       require "./methods/axes.coffee"
     background: require "./methods/background.coffee"
-    class:      require "./methods/class.coffee"
+    svgclass:   require "./methods/class.coffee"
     color:      require "./methods/color.coffee"
     cols:       require "./methods/cols.js"
     config:     require "./methods/config.coffee"
