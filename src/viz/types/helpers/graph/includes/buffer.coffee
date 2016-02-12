@@ -69,7 +69,7 @@ module.exports = (vars, axis, buffer) ->
               domain[0] -= 1
               domain[1] += 1
 
-        else if vars[axis].value if vars.time.value
+        else if vars[axis].value is vars.time.value
           difference = Math.abs domain[1] - domain[0]
           additional = difference / (vars[axis].ticks.values.length - 1)
           additional = additional / 2
@@ -78,7 +78,6 @@ module.exports = (vars, axis, buffer) ->
           domain[1] = domain[1] + additional
 
         else
-
           difference = Math.abs domain[1] - domain[0]
           add = difference / 2
 
