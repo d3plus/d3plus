@@ -10551,7 +10551,11 @@ module.exports = function(x, scale) {
 
 },{"./scale.coffee":50}],50:[function(require,module,exports){
 <<<<<<< HEAD
+<<<<<<< HEAD
 module.exports = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
+=======
+module.exports = d3.scale.ordinal().range(["#b22200", "#282F6B", "#EACE3F", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
+>>>>>>> alexandersimoes/master
 =======
 module.exports = d3.scale.ordinal().range(["#b22200", "#282F6B", "#EACE3F", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
 >>>>>>> alexandersimoes/master
@@ -12379,6 +12383,12 @@ module.exports = function(vars, d, keys, colors, depth) {
     if ([vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0) {
       agg = vars.order.agg.value || vars.aggs.value[key] || "sum";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      if (!(value instanceof Array)) {
+        value = [value];
+      }
+>>>>>>> alexandersimoes/master
 =======
       if (!(value instanceof Array)) {
         value = [value];
@@ -15293,7 +15303,11 @@ module.exports = function(words, style, opts) {
   };
   getHeight = function(elem) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     return elem.offsetHeight || elem.getBoundingClientRect().height || elem.parentNode.getBBox().height;
+=======
+    return elem.offsetHeight || elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
+>>>>>>> alexandersimoes/master
 =======
     return elem.offsetHeight || elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
 >>>>>>> alexandersimoes/master
@@ -19948,7 +19962,11 @@ rtl = require("../../client/rtl.coffee");
 
 module.exports = function(vars) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   var anchor, dx, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, y, yOffset;
+=======
+  var anchor, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, xOffset, y, yOffset;
+>>>>>>> alexandersimoes/master
 =======
   var anchor, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, xOffset, y, yOffset;
 >>>>>>> alexandersimoes/master
@@ -19960,7 +19978,11 @@ module.exports = function(vars) {
       tspan = vars.container.value.insert("tspan", "tspan");
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     return tspan.attr("x", x + "px").attr("dx", dx + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
+=======
+    return tspan.attr("x", x + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
+>>>>>>> alexandersimoes/master
 =======
     return tspan.attr("x", x + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
 >>>>>>> alexandersimoes/master
@@ -20061,7 +20083,13 @@ module.exports = function(vars) {
     if (Math.floor(textBox.node().getComputedTextLength()) > lineWidth() || next_char === "\n") {
       textBox.text(current);
 <<<<<<< HEAD
+<<<<<<< HEAD
       textBox = newLine();
+=======
+      if (current.length) {
+        textBox = newLine();
+      }
+>>>>>>> alexandersimoes/master
 =======
       if (current.length) {
         textBox = newLine();
@@ -20081,7 +20109,11 @@ module.exports = function(vars) {
   wrap = function() {
     var i, len, next_char, unsafe, word;
 <<<<<<< HEAD
+<<<<<<< HEAD
     vars.container.value.html("");
+=======
+    vars.container.value.text("").html("");
+>>>>>>> alexandersimoes/master
 =======
     vars.container.value.text("").html("");
 >>>>>>> alexandersimoes/master
@@ -25591,7 +25623,78 @@ function mouseStyle(vars, elem, stroke, mod) {
 },{"../../../client/pointer.coffee":40,"../../../core/fetch/value.coffee":69,"../../../util/closest.coffee":207,"../../../util/copy.coffee":208,"./style.coffee":235}],231:[function(require,module,exports){
 module.exports = function(vars) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+  var edges = vars.returned.edges || [];
+
+  var paths = vars.g.edges.selectAll("g.d3plus_edge_path")
+    .data(edges, function(d){
+      d.d3plus.id = "path_" + d[vars.edges.source][vars.id.value] + "_" + d[vars.edges.target][vars.id.value];
+      return d.d3plus.id;
+    });
+
+  function pathStyles(p) {
+    p
+      .attr("d", vars.edges.path)
+      .style("stroke-width", function(d) {
+        return Math.max(1, d.dy);
+      })
+      .style("stroke", "#ddd")
+      .style("fill", "none")
+      .attr("transform", function(d){
+        return "translate(" + d.d3plus.x + "," + d.d3plus.y + ")";
+      });
+  }
+
+  if (vars.draw.timing) {
+
+    paths.exit().transition().duration(vars.draw.timing)
+      .attr("opacity",0)
+      .remove();
+
+    paths.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .transition().duration(vars.draw.timing/2)
+      .attr("opacity",0)
+      .remove();
+
+    paths.selectAll("path")
+      .data(function(d){ return [d] })
+      .transition().duration(vars.draw.timing)
+        .call(pathStyles);
+
+    paths.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .style("stroke-width", 0)
+      .transition().duration(vars.draw.timing)
+        .call(pathStyles);
+
+  }
+  else {
+
+    paths.exit().remove();
+
+    paths.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .remove();
+
+    paths.selectAll("path")
+      .data(function(d){ return [d] })
+      .call(pathStyles);
+
+    paths.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .call(pathStyles);
+
+  }
+
+}
+
+},{}],232:[function(require,module,exports){
+var angles, interpolates, radii, shapeStyle;
+>>>>>>> alexandersimoes/master
 
   var edges = vars.returned.edges || [];
 
@@ -26296,6 +26399,7 @@ module.exports = function(vars) {
 
   vars.g.overlay
     .on(events.move,function(d){
+<<<<<<< HEAD
 
       if (touch) touchEvent(vars, d3.event);
 
@@ -26342,6 +26446,45 @@ module.exports = function(vars) {
         d3.select(this).style("cursor","auto");
       }
 
+=======
+
+      if (touch) touchEvent(vars, d3.event);
+
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grab");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
+
+    })
+    .on(events.up,function(d){
+
+      if (touch) touchEvent(vars, d3.event);
+
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grab");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
+
+    })
+    .on(events.down,function(d){
+
+      if (touch) touchEvent(vars, d3.event);
+
+      if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+        d3.select(this).style("cursor",prefix()+"grabbing");
+      }
+      else {
+        d3.select(this).style("cursor","auto");
+      }
+
+>>>>>>> alexandersimoes/master
     });
 
   // Enter App Background Group
@@ -30864,14 +31007,20 @@ bar = function(vars) {
       maxSize /= divisions;
       offset = space / 2 - maxSize / 2 - padding;
 <<<<<<< HEAD
+<<<<<<< HEAD
       x = d3.scale.ordinal().domain([0, divisions - 1]).range([-offset, offset]);
 =======
+=======
+>>>>>>> alexandersimoes/master
       x = d3.scale.ordinal();
       if (divisions === 1) {
         x.domain([0]).range([0]);
       } else {
         x.domain([0, divisions - 1]).range([-offset, offset]);
       }
+<<<<<<< HEAD
+>>>>>>> alexandersimoes/master
+=======
 >>>>>>> alexandersimoes/master
     } else {
       x = d3.scale.linear();
@@ -30884,14 +31033,20 @@ bar = function(vars) {
       return d.values;
     })), vars.id.value, fetchValue, vars, vars.id.value, false);
 <<<<<<< HEAD
+<<<<<<< HEAD
     x.domain(ids).range(buckets(x.range(), ids.length));
 =======
+=======
+>>>>>>> alexandersimoes/master
     x.domain(ids);
     if (ids.length === 1) {
       x.range([0]);
     } else {
       x.range(buckets(x.range(), ids.length));
     }
+<<<<<<< HEAD
+>>>>>>> alexandersimoes/master
+=======
 >>>>>>> alexandersimoes/master
   }
   maxBars = d3.max(nested, function(b) {
@@ -32475,6 +32630,7 @@ labelPadding = function(vars) {
   yDomain = vars.y.scale.viz.domain();
   if (vars.x2.value) {
     x2Domain = vars.x2.scale.viz.domain();
+<<<<<<< HEAD
   }
   if (vars.y2.value) {
     y2Domain = vars.y2.scale.viz.domain();
@@ -32550,6 +32706,83 @@ labelPadding = function(vars) {
       }
     }
   }
+=======
+  }
+  if (vars.y2.value) {
+    y2Domain = vars.y2.scale.viz.domain();
+  }
+  ref = ["y", "y2"];
+  for (j = 0, len = ref.length; j < len; j++) {
+    axis = ref[j];
+    if (vars[axis].value) {
+      margin = axis === "y" ? "left" : "right";
+      yAttrs = {
+        "font-size": vars[axis].ticks.font.size + "px",
+        "font-family": vars[axis].ticks.font.family.value,
+        "font-weight": vars[axis].ticks.font.weight,
+        "text-transform": vars[axis].ticks.font.transform.value,
+        "letter-spacing": vars[axis].ticks.font.spacing + "px"
+      };
+      yValues = vars[axis].ticks.visible;
+      if (vars[axis].scale.value === "log") {
+        yText = yValues.map(function(d) {
+          return formatPower(d);
+        });
+      } else if (vars[axis].scale.value === "share") {
+        yText = yValues.map(function(d) {
+          return vars.format.value(d * 100, {
+            key: "share",
+            vars: vars
+          });
+        });
+      } else if (vars[axis].value === vars.time.value) {
+        yText = yValues.map(function(d, i) {
+          return vars[axis].ticks.format(new Date(d));
+        });
+      } else {
+        if (typeof yValues[0] === "string") {
+          yValues = vars[axis].scale.viz.domain().filter(function(d) {
+            return d.indexOf("d3plus_buffer_") !== 0;
+          });
+        }
+        yText = yValues.map(function(d) {
+          return vars.format.value(d, {
+            key: vars[axis].value,
+            vars: vars,
+            labels: vars[axis].affixes.value
+          });
+        });
+      }
+      if (vars[axis].ticks.labels.value) {
+        vars[axis].ticks.hidden = false;
+        yAxisWidth = d3.max(fontSizes(yText, yAttrs), function(d) {
+          return d.width;
+        });
+        yAxisWidth = Math.ceil(yAxisWidth + vars.labels.padding);
+        vars.axes.margin[margin] += yAxisWidth;
+      } else {
+        vars[axis].ticks.hidden = true;
+      }
+      yLabel = vars[axis].label.fetch(vars);
+      if (yLabel) {
+        yLabelAttrs = {
+          "font-family": vars[axis].label.font.family.value,
+          "font-weight": vars[axis].label.font.weight,
+          "font-size": vars[axis].label.font.size + "px",
+          "text-transform": vars[axis].label.font.transform.value,
+          "letter-spacing": vars[axis].label.font.spacing + "px"
+        };
+        vars[axis].label.height = fontSizes([yLabel], yLabelAttrs)[0].height;
+      } else {
+        vars[axis].label.height = 0;
+      }
+      if (vars[axis].label.value) {
+        vars.axes.margin[margin] += vars[axis].label.height;
+        vars.axes.margin[margin] += vars[axis].label.padding * 2;
+      }
+    }
+  }
+>>>>>>> alexandersimoes/master
   vars.axes.width -= vars.axes.margin.left + vars.axes.margin.right;
   vars.x.scale.viz.range(buckets([0, vars.axes.width], xDomain.length));
   if (x2Domain) {
@@ -32655,8 +32888,11 @@ labelPadding = function(vars) {
         xAxisWidth = Math.ceil(xAxisWidth);
         xAxisHeight = Math.ceil(xAxisHeight);
 <<<<<<< HEAD
+<<<<<<< HEAD
         xAxisWidth++;
         xAxisHeight++;
+=======
+>>>>>>> alexandersimoes/master
 =======
 >>>>>>> alexandersimoes/master
         vars[axis].ticks.maxHeight = xAxisHeight;
@@ -32766,7 +33002,11 @@ validObject = require("../../../../../object/validate.coffee");
 
 module.exports = function(vars) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
+=======
+  var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, opp, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
+>>>>>>> alexandersimoes/master
 =======
   var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, opp, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
 >>>>>>> alexandersimoes/master
@@ -33915,7 +34155,11 @@ uniques = require("../../util/uniques.coffee");
 
 radar = function(vars) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   var a, angle, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
+=======
+  var a, a2, anchor, angle, buffer, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelGroup, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
+>>>>>>> alexandersimoes/master
 =======
   var a, a2, anchor, angle, buffer, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelGroup, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
 >>>>>>> alexandersimoes/master
@@ -33959,7 +34203,11 @@ radar = function(vars) {
     first = offset(Math.PI / 2, maxRadius);
     second = offset(angle + Math.PI / 2, maxRadius);
 <<<<<<< HEAD
+<<<<<<< HEAD
     labelWidth = first.x - second.x;
+=======
+    labelHeight = (first.x - second.x) - vars.labels.padding * 2;
+>>>>>>> alexandersimoes/master
 =======
     labelHeight = (first.x - second.x) - vars.labels.padding * 2;
 >>>>>>> alexandersimoes/master
@@ -33972,6 +34220,7 @@ radar = function(vars) {
     sizes = fontSizes(labels, textStyle, {
       mod: function(elem) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         return textwrap().container(d3.select(elem)).height(vars.height.viz / 8).width(labelWidth).draw();
       }
     });
@@ -33980,6 +34229,8 @@ radar = function(vars) {
     });
     maxRadius -= labelHeight * 2;
 =======
+=======
+>>>>>>> alexandersimoes/master
         return textwrap().container(d3.select(elem)).width(vars.height.viz / 8).height(labelHeight).draw();
       }
     });
@@ -33987,6 +34238,9 @@ radar = function(vars) {
       return d.width;
     });
     maxRadius -= labelWidth;
+<<<<<<< HEAD
+>>>>>>> alexandersimoes/master
+=======
 >>>>>>> alexandersimoes/master
     maxRadius -= vars.labels.padding * 2;
   }
@@ -34045,6 +34299,12 @@ radar = function(vars) {
   }
   ringData = buckets([maxRadius / intervals, maxRadius], intervals - 1).reverse();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  if (ringData.length === intervals) {
+    ringData.shift();
+  }
+>>>>>>> alexandersimoes/master
 =======
   if (ringData.length === intervals) {
     ringData.shift();
@@ -34072,10 +34332,13 @@ radar = function(vars) {
   for (n = 0, len3 = labels.length; n < len3; n++) {
     l = labels[n];
 <<<<<<< HEAD
+<<<<<<< HEAD
     a = (angle * labelIndex(l)) - Math.PI / 2;
     top = a < 0 || a > Math.PI;
     righty = a < Math.PI / 2;
 =======
+=======
+>>>>>>> alexandersimoes/master
     a2 = (angle * labelIndex(l)) - Math.PI / 2;
     a = a2 * (180 / Math.PI);
     if (a < -90 || a > 90) {
@@ -34088,13 +34351,20 @@ radar = function(vars) {
     }
     top = a2 < 0 || a2 > Math.PI;
     righty = a2 < Math.PI / 2;
+<<<<<<< HEAD
+>>>>>>> alexandersimoes/master
+=======
 >>>>>>> alexandersimoes/master
     ov = maxRadius;
     if (vars.labels.value) {
       ov += vars.labels.padding;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     o = offset(a, ov);
+=======
+    o = offset(a2, ov);
+>>>>>>> alexandersimoes/master
 =======
     o = offset(a2, ov);
 >>>>>>> alexandersimoes/master
@@ -34119,14 +34389,20 @@ radar = function(vars) {
     });
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   text = vars.group.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d) {
     return d.text;
 =======
+=======
+>>>>>>> alexandersimoes/master
   labelGroup = vars.group.selectAll("g.d3plus_radar_label_group").data([0]);
   labelGroup.enter().append("g").attr("class", "d3plus_radar_label_group").attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
   labelGroup.transition().duration(vars.draw.timing).attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
   text = labelGroup.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d, i) {
     return i;
+<<<<<<< HEAD
+>>>>>>> alexandersimoes/master
+=======
 >>>>>>> alexandersimoes/master
   });
   labelStyle = function(label) {

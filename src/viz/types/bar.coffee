@@ -55,6 +55,16 @@ bar = (vars) ->
       offset   = space/2 - maxSize/2 - padding
 
       x = d3.scale.ordinal()
+<<<<<<< HEAD
+=======
+
+      if divisions is 1
+        x.domain([0]).range([0])
+      else
+        x
+          .domain [0, divisions-1]
+          .range [-offset, offset]
+>>>>>>> alexandersimoes/master
 
       if divisions is 1
         x.domain([0]).range([0])
