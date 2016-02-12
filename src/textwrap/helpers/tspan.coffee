@@ -107,7 +107,8 @@ module.exports = (vars) ->
 
     if Math.floor(textBox.node().getComputedTextLength()) > lineWidth() or next_char is "\n"
       textBox.text current
-      textBox = newLine()
+      if current.length
+        textBox = newLine()
       textBox.text word
       if reverse then line-- else line++
 
@@ -144,7 +145,10 @@ module.exports = (vars) ->
 
   wrap()
 
-  lines = line
+  lines = 0
+  vars.container.value.selectAll("tspan").each () ->
+    if this.innerHTML.length
+      lines++
   if vars.shape.value is "circle"
     space = height - lines * dy
     if space > dy
@@ -155,6 +159,11 @@ module.exports = (vars) ->
         reverse = true
         start = (height/dy >> 0)
         wrap()
+
+  lines = 0
+  vars.container.value.selectAll("tspan").each () ->
+    if this.innerHTML.length
+      lines++
 
   if valign is "top"
     y = 0

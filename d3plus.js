@@ -12347,8 +12347,12 @@ module.exports = function(vars, d, keys, colors, depth) {
   if (!(colors instanceof Array)) {
     colors = [colors];
   }
-  if (vars && depth !== void 0 && typeof depth !== "number") {
-    depth = vars.id.nesting.indexOf(depth);
+  if (vars) {
+    if (depth === void 0) {
+      depth = vars.id.value;
+    } else if (typeof depth !== "number") {
+      depth = vars.id.nesting.indexOf(depth);
+    }
   }
   obj = {};
   for (i = 0, len = keys.length; i < len; i++) {
@@ -12358,6 +12362,10 @@ module.exports = function(vars, d, keys, colors, depth) {
         value = fetchColor(vars, d, depth);
       } else if (key === vars.text.value) {
         value = fetchText(vars, d, depth);
+      } else if (d3.keys(d).length === 3 && d["d3plus"] && d["key"] && d["values"]) {
+        value = fetchValue(vars, d.values.map(function(dd) {
+          return dd.d3plus;
+        }), key, depth);
       } else {
         value = fetchValue(vars, d, key, depth);
       }
@@ -12366,6 +12374,9 @@ module.exports = function(vars, d, keys, colors, depth) {
     }
     if ([vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0) {
       agg = vars.order.agg.value || vars.aggs.value[key] || "sum";
+      if (!(value instanceof Array)) {
+        value = [value];
+      }
       value = d3[agg](value);
     } else {
       if (value instanceof Array) {
@@ -17238,14 +17249,10 @@ module.exports = function(vars) {
         }
       });
     }
-    if (vars.data.changed) {
-      vars.container.items.data({
-        large: large,
-        value: vars.data.filtered
-      });
-    }
     vars.container.items.active(vars.active.value).data({
-      "sort": vars.data.sort.value
+      large: large,
+      sort: vars.data.sort.value,
+      value: vars.data.filtered
     }).draw({
       update: vars.draw.update
     }).font(vars.font.secondary).format(vars.format).hover(vars.hover.value).id(vars.id.value).icon({
@@ -20034,7 +20041,9 @@ module.exports = function(vars) {
     }
     if (Math.floor(textBox.node().getComputedTextLength()) > lineWidth() || next_char === "\n") {
       textBox.text(current);
-      textBox = newLine();
+      if (current.length) {
+        textBox = newLine();
+      }
       textBox.text(word);
       if (reverse) {
         return line--;
@@ -20078,7 +20087,12 @@ module.exports = function(vars) {
     return lines = Math.abs(line - start) + 1;
   };
   wrap();
-  lines = line;
+  lines = 0;
+  vars.container.value.selectAll("tspan").each(function() {
+    if (this.innerHTML.length) {
+      return lines++;
+    }
+  });
   if (vars.shape.value === "circle") {
     space = height - lines * dy;
     if (space > dy) {
@@ -20092,6 +20106,12 @@ module.exports = function(vars) {
       }
     }
   }
+  lines = 0;
+  vars.container.value.selectAll("tspan").each(function() {
+    if (this.innerHTML.length) {
+      return lines++;
+    }
+  });
   if (valign === "top") {
     y = 0;
   } else {
