@@ -32645,7 +32645,7 @@ textwrap = require("../../../../../textwrap/textwrap.coffee");
 validObject = require("../../../../../object/validate.coffee");
 
 module.exports = function(vars) {
-  var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
+  var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, opp, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
   domains = vars.x.domain.viz.concat(vars.y.domain.viz);
   if (domains.indexOf(void 0) >= 0) {
     return null;
@@ -32868,7 +32868,8 @@ module.exports = function(vars) {
       }
     } else {
       gridData = [];
-      if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[axis].axis.value) {
+      opp = axis === "x" ? "y" : "x";
+      if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[opp].axis.value) {
         gridData = [0];
       }
     }

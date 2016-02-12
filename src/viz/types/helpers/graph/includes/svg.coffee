@@ -252,7 +252,8 @@ module.exports = (vars) ->
         gridData = vars[axis].ticks.values
     else
       gridData = []
-      if vars[axis].ticks.values.indexOf(0) >= 0 and vars[axis].axis.value
+      opp = if axis is "x" then "y" else "x"
+      if vars[axis].ticks.values.indexOf(0) >= 0 and vars[opp].axis.value
         gridData = [0]
 
     # Draw Axis Grid Lines
