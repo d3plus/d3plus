@@ -13,7 +13,6 @@ module.exports = (vars) ->
 
     tspan
       .attr "x", x + "px"
-      .attr "dx", dx + "px"
       .attr "dy", dy + "px"
       .style "baseline-shift", "0%"
       .attr "dominant-baseline", "alphabetic"
@@ -28,14 +27,14 @@ module.exports = (vars) ->
     anchor = vars.align.value or vars.container.align or "start"
 
   if anchor is "end" or (anchor is "start" and rtl)
-    dx = width
+    xOffset = width
   else if anchor is "middle"
-    dx = width/2
+    xOffset = width/2
   else
-    dx = 0
+    xOffset = 0
 
   valign   = vars.valign.value or "top"
-  x        = vars.container.x
+  x        = vars.container.x + xOffset
   fontSize = if vars.resize.value then vars.size.value[1] else vars.container.fontSize or vars.size.value[0]
   dy       = vars.container.dy or fontSize * 1.1
   textBox  = null
@@ -106,9 +105,10 @@ module.exports = (vars) ->
       progress += joiner + word
       textBox.text current + joiner + word
 
-    if textBox.node().getComputedTextLength() > lineWidth() or next_char is "\n"
+    if Math.floor(textBox.node().getComputedTextLength()) > lineWidth() or next_char is "\n"
       textBox.text current
-      textBox = newLine()
+      if current.length
+        textBox = newLine()
       textBox.text word
       if reverse then line-- else line++
 
@@ -117,7 +117,7 @@ module.exports = (vars) ->
   lines = null
   wrap  = ->
 
-    vars.container.value.html ""
+    vars.container.value.text("").html ""
     words    = vars.text.words.slice()
     words.reverse() if reverse
     progress = ""
@@ -145,7 +145,10 @@ module.exports = (vars) ->
 
   wrap()
 
-  lines = line
+  lines = 0
+  vars.container.value.selectAll("tspan").each () ->
+    if d3.select(this).text().length
+      lines++
   if vars.shape.value is "circle"
     space = height - lines * dy
     if space > dy
@@ -156,6 +159,11 @@ module.exports = (vars) ->
         reverse = true
         start = (height/dy >> 0)
         wrap()
+
+  lines = 0
+  vars.container.value.selectAll("tspan").each () ->
+    if d3.select(this).text().length
+      lines++
 
   if valign is "top"
     y = 0

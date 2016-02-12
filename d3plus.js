@@ -10380,7 +10380,7 @@ module.exports = sheet;
 
 },{}],39:[function(require,module,exports){
 // Determines if the current browser is Internet Explorer.
-module.exports = /*@cc_on!@*/false
+module.exports = /(MSIE|Trident\/|Edge\/)/i.test(navigator.userAgent);
 
 },{}],40:[function(require,module,exports){
 var ie, touch;
@@ -10550,7 +10550,11 @@ module.exports = function(x, scale) {
 
 
 },{"./scale.coffee":50}],50:[function(require,module,exports){
+<<<<<<< HEAD
 module.exports = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
+=======
+module.exports = d3.scale.ordinal().range(["#b22200", "#282F6B", "#EACE3F", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
+>>>>>>> alexandersimoes/master
 
 
 },{}],51:[function(require,module,exports){
@@ -12347,8 +12351,12 @@ module.exports = function(vars, d, keys, colors, depth) {
   if (!(colors instanceof Array)) {
     colors = [colors];
   }
-  if (vars && depth !== void 0 && typeof depth !== "number") {
-    depth = vars.id.nesting.indexOf(depth);
+  if (vars) {
+    if (depth === void 0) {
+      depth = vars.id.value;
+    } else if (typeof depth !== "number") {
+      depth = vars.id.nesting.indexOf(depth);
+    }
   }
   obj = {};
   for (i = 0, len = keys.length; i < len; i++) {
@@ -12358,6 +12366,10 @@ module.exports = function(vars, d, keys, colors, depth) {
         value = fetchColor(vars, d, depth);
       } else if (key === vars.text.value) {
         value = fetchText(vars, d, depth);
+      } else if (d3.keys(d).length === 3 && d["d3plus"] && d["key"] && d["values"]) {
+        value = fetchValue(vars, d.values.map(function(dd) {
+          return dd.d3plus;
+        }), key, depth);
       } else {
         value = fetchValue(vars, d, key, depth);
       }
@@ -12366,6 +12378,12 @@ module.exports = function(vars, d, keys, colors, depth) {
     }
     if ([vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0) {
       agg = vars.order.agg.value || vars.aggs.value[key] || "sum";
+<<<<<<< HEAD
+=======
+      if (!(value instanceof Array)) {
+        value = [value];
+      }
+>>>>>>> alexandersimoes/master
       value = d3[agg](value);
     } else {
       if (value instanceof Array) {
@@ -15274,7 +15292,11 @@ module.exports = function(words, style, opts) {
     return elem.getComputedTextLength() + add;
   };
   getHeight = function(elem) {
+<<<<<<< HEAD
     return elem.offsetHeight || elem.getBoundingClientRect().height || elem.parentNode.getBBox().height;
+=======
+    return elem.offsetHeight || elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
+>>>>>>> alexandersimoes/master
   };
   tspans.enter().append("tspan").text(String).style(style).attr(attr).each(function(d) {
     if (typeof opts.mod === "function") {
@@ -17238,14 +17260,10 @@ module.exports = function(vars) {
         }
       });
     }
-    if (vars.data.changed) {
-      vars.container.items.data({
-        large: large,
-        value: vars.data.filtered
-      });
-    }
     vars.container.items.active(vars.active.value).data({
-      "sort": vars.data.sort.value
+      large: large,
+      sort: vars.data.sort.value,
+      value: vars.data.filtered
     }).draw({
       update: vars.draw.update
     }).font(vars.font.secondary).format(vars.format).hover(vars.hover.value).id(vars.id.value).icon({
@@ -19929,7 +19947,11 @@ var rtl;
 rtl = require("../../client/rtl.coffee");
 
 module.exports = function(vars) {
+<<<<<<< HEAD
   var anchor, dx, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, y, yOffset;
+=======
+  var anchor, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, xOffset, y, yOffset;
+>>>>>>> alexandersimoes/master
   newLine = function(first) {
     var tspan;
     if (!reverse || first) {
@@ -19937,7 +19959,11 @@ module.exports = function(vars) {
     } else {
       tspan = vars.container.value.insert("tspan", "tspan");
     }
+<<<<<<< HEAD
     return tspan.attr("x", x + "px").attr("dx", dx + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
+=======
+    return tspan.attr("x", x + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic");
+>>>>>>> alexandersimoes/master
   };
   mirror = vars.rotate.value === -90 || vars.rotate.value === 90;
   width = mirror ? vars.height.inner : vars.width.inner;
@@ -19948,14 +19974,14 @@ module.exports = function(vars) {
     anchor = vars.align.value || vars.container.align || "start";
   }
   if (anchor === "end" || (anchor === "start" && rtl)) {
-    dx = width;
+    xOffset = width;
   } else if (anchor === "middle") {
-    dx = width / 2;
+    xOffset = width / 2;
   } else {
-    dx = 0;
+    xOffset = 0;
   }
   valign = vars.valign.value || "top";
-  x = vars.container.x;
+  x = vars.container.x + xOffset;
   fontSize = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0];
   dy = vars.container.dy || fontSize * 1.1;
   textBox = null;
@@ -20032,9 +20058,15 @@ module.exports = function(vars) {
       progress += joiner + word;
       textBox.text(current + joiner + word);
     }
-    if (textBox.node().getComputedTextLength() > lineWidth() || next_char === "\n") {
+    if (Math.floor(textBox.node().getComputedTextLength()) > lineWidth() || next_char === "\n") {
       textBox.text(current);
+<<<<<<< HEAD
       textBox = newLine();
+=======
+      if (current.length) {
+        textBox = newLine();
+      }
+>>>>>>> alexandersimoes/master
       textBox.text(word);
       if (reverse) {
         return line--;
@@ -20048,7 +20080,11 @@ module.exports = function(vars) {
   lines = null;
   wrap = function() {
     var i, len, next_char, unsafe, word;
+<<<<<<< HEAD
     vars.container.value.html("");
+=======
+    vars.container.value.text("").html("");
+>>>>>>> alexandersimoes/master
     words = vars.text.words.slice();
     if (reverse) {
       words.reverse();
@@ -20078,7 +20114,12 @@ module.exports = function(vars) {
     return lines = Math.abs(line - start) + 1;
   };
   wrap();
-  lines = line;
+  lines = 0;
+  vars.container.value.selectAll("tspan").each(function() {
+    if (d3.select(this).text().length) {
+      return lines++;
+    }
+  });
   if (vars.shape.value === "circle") {
     space = height - lines * dy;
     if (space > dy) {
@@ -20092,6 +20133,12 @@ module.exports = function(vars) {
       }
     }
   }
+  lines = 0;
+  vars.container.value.selectAll("tspan").each(function() {
+    if (d3.select(this).text().length) {
+      return lines++;
+    }
+  });
   if (valign === "top") {
     y = 0;
   } else {
@@ -20388,7 +20435,11 @@ module.exports = {
   },
   split: {
     accepted: [Array],
-    value: ["-", "/", ";", ":", "&"]
+    process: function(s) {
+      this["break"] = new RegExp("[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g");
+      return s;
+    },
+    value: ["-", "/", ";", ":", "&", "."]
   }
 };
 
@@ -25077,7 +25128,13 @@ module.exports = function( vars , group ) {
 
               var background_data = ["background"];
 
-              var bounds = copy(text.node().getBBox());
+              var box = text.node().getBBox();
+              var bounds = {
+                "height": box.height,
+                "width": box.width,
+                "x": box.x,
+                "y": box.y
+              };
               bounds.width += vars.labels.padding*scale[0];
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
@@ -25533,6 +25590,77 @@ function mouseStyle(vars, elem, stroke, mod) {
 
 },{"../../../client/pointer.coffee":40,"../../../core/fetch/value.coffee":69,"../../../util/closest.coffee":207,"../../../util/copy.coffee":208,"./style.coffee":235}],231:[function(require,module,exports){
 module.exports = function(vars) {
+<<<<<<< HEAD
+=======
+
+  var edges = vars.returned.edges || [];
+
+  var paths = vars.g.edges.selectAll("g.d3plus_edge_path")
+    .data(edges, function(d){
+      d.d3plus.id = "path_" + d[vars.edges.source][vars.id.value] + "_" + d[vars.edges.target][vars.id.value];
+      return d.d3plus.id;
+    });
+
+  function pathStyles(p) {
+    p
+      .attr("d", vars.edges.path)
+      .style("stroke-width", function(d) {
+        return Math.max(1, d.dy);
+      })
+      .style("stroke", "#ddd")
+      .style("fill", "none")
+      .attr("transform", function(d){
+        return "translate(" + d.d3plus.x + "," + d.d3plus.y + ")";
+      });
+  }
+
+  if (vars.draw.timing) {
+
+    paths.exit().transition().duration(vars.draw.timing)
+      .attr("opacity",0)
+      .remove();
+
+    paths.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .transition().duration(vars.draw.timing/2)
+      .attr("opacity",0)
+      .remove();
+
+    paths.selectAll("path")
+      .data(function(d){ return [d] })
+      .transition().duration(vars.draw.timing)
+        .call(pathStyles);
+
+    paths.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .style("stroke-width", 0)
+      .transition().duration(vars.draw.timing)
+        .call(pathStyles);
+
+  }
+  else {
+
+    paths.exit().remove();
+
+    paths.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .remove();
+
+    paths.selectAll("path")
+      .data(function(d){ return [d] })
+      .call(pathStyles);
+
+    paths.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .call(pathStyles);
+
+  }
+
+}
+
+},{}],232:[function(require,module,exports){
+var angles, interpolates, radii, shapeStyle;
+>>>>>>> alexandersimoes/master
 
   var edges = vars.returned.edges || [];
 
@@ -26178,12 +26306,21 @@ module.exports = function(vars) {
       else {
         d3.select(this).style("cursor","auto");
       }
+<<<<<<< HEAD
 
     })
     .on(events.up,function(d){
 
       if (touch) touchEvent(vars, d3.event);
 
+=======
+
+    })
+    .on(events.up,function(d){
+
+      if (touch) touchEvent(vars, d3.event);
+
+>>>>>>> alexandersimoes/master
       if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
         vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
         d3.select(this).style("cursor",prefix()+"grab");
@@ -30726,7 +30863,16 @@ bar = function(vars) {
       }
       maxSize /= divisions;
       offset = space / 2 - maxSize / 2 - padding;
+<<<<<<< HEAD
       x = d3.scale.ordinal().domain([0, divisions - 1]).range([-offset, offset]);
+=======
+      x = d3.scale.ordinal();
+      if (divisions === 1) {
+        x.domain([0]).range([0]);
+      } else {
+        x.domain([0, divisions - 1]).range([-offset, offset]);
+      }
+>>>>>>> alexandersimoes/master
     } else {
       x = d3.scale.linear();
     }
@@ -30737,7 +30883,16 @@ bar = function(vars) {
     ids = uniques(d3.merge(nested.map(function(d) {
       return d.values;
     })), vars.id.value, fetchValue, vars, vars.id.value, false);
+<<<<<<< HEAD
     x.domain(ids).range(buckets(x.range(), ids.length));
+=======
+    x.domain(ids);
+    if (ids.length === 1) {
+      x.range([0]);
+    } else {
+      x.range(buckets(x.range(), ids.length));
+    }
+>>>>>>> alexandersimoes/master
   }
   maxBars = d3.max(nested, function(b) {
     return b.values.length;
@@ -32499,8 +32654,11 @@ labelPadding = function(vars) {
         }
         xAxisWidth = Math.ceil(xAxisWidth);
         xAxisHeight = Math.ceil(xAxisHeight);
+<<<<<<< HEAD
         xAxisWidth++;
         xAxisHeight++;
+=======
+>>>>>>> alexandersimoes/master
         vars[axis].ticks.maxHeight = xAxisHeight;
         vars[axis].ticks.maxWidth = xAxisWidth;
         vars.axes.margin[margin] += xAxisHeight + vars.labels.padding;
@@ -32607,7 +32765,11 @@ textwrap = require("../../../../../textwrap/textwrap.coffee");
 validObject = require("../../../../../object/validate.coffee");
 
 module.exports = function(vars) {
+<<<<<<< HEAD
   var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
+=======
+  var affixes, alignMap, axis, axisData, axisGroup, axisLabel, bg, bgStyle, d, domain, domains, getFontStyle, grid, gridData, groupEnter, j, k, l, label, labelData, labelStyle, len, len1, len2, len3, len4, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, m, mirror, n, opp, plane, planeTrans, position, realData, rectData, rectStyle, ref, ref1, ref2, ref3, rotated, sep, style, textData, textPad, textPos, tickFont, tickPosition, tickStyle, userLines, valid, xStyle, yStyle;
+>>>>>>> alexandersimoes/master
   domains = vars.x.domain.viz.concat(vars.y.domain.viz);
   if (domains.indexOf(void 0) >= 0) {
     return null;
@@ -32830,7 +32992,8 @@ module.exports = function(vars) {
       }
     } else {
       gridData = [];
-      if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[axis].axis.value) {
+      opp = axis === "x" ? "y" : "x";
+      if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[opp].axis.value) {
         gridData = [0];
       }
     }
@@ -33751,7 +33914,11 @@ buckets = require("../../util/buckets.coffee");
 uniques = require("../../util/uniques.coffee");
 
 radar = function(vars) {
+<<<<<<< HEAD
   var a, angle, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
+=======
+  var a, a2, anchor, angle, buffer, c, center, children, d, data, first, grid, gridStyle, i, idIndex, ids, intervals, j, k, l, labelData, labelGroup, labelHeight, labelIndex, labelStyle, labelWidth, labels, len, len1, len2, len3, m, maxData, maxRadius, n, nextDepth, nextLevel, o, ov, radius, ref, ref1, righty, ringData, ringStyle, rings, second, sizes, text, textStyle, top, total, x, y;
+>>>>>>> alexandersimoes/master
   data = vars.data.viz;
   nextDepth = vars.depth.value + 1;
   nextLevel = vars.id.nesting[nextDepth];
@@ -33791,7 +33958,11 @@ radar = function(vars) {
   if (vars.labels.value) {
     first = offset(Math.PI / 2, maxRadius);
     second = offset(angle + Math.PI / 2, maxRadius);
+<<<<<<< HEAD
     labelWidth = first.x - second.x;
+=======
+    labelHeight = (first.x - second.x) - vars.labels.padding * 2;
+>>>>>>> alexandersimoes/master
     textStyle = {
       "fill": vars.x.ticks.font.color,
       "font-family": vars.x.ticks.font.family.value,
@@ -33800,6 +33971,7 @@ radar = function(vars) {
     };
     sizes = fontSizes(labels, textStyle, {
       mod: function(elem) {
+<<<<<<< HEAD
         return textwrap().container(d3.select(elem)).height(vars.height.viz / 8).width(labelWidth).draw();
       }
     });
@@ -33807,6 +33979,15 @@ radar = function(vars) {
       return d.height;
     });
     maxRadius -= labelHeight * 2;
+=======
+        return textwrap().container(d3.select(elem)).width(vars.height.viz / 8).height(labelHeight).draw();
+      }
+    });
+    labelWidth = d3.max(sizes, function(d) {
+      return d.width;
+    });
+    maxRadius -= labelWidth;
+>>>>>>> alexandersimoes/master
     maxRadius -= vars.labels.padding * 2;
   }
   maxData = (function() {
@@ -33863,6 +34044,12 @@ radar = function(vars) {
     }
   }
   ringData = buckets([maxRadius / intervals, maxRadius], intervals - 1).reverse();
+<<<<<<< HEAD
+=======
+  if (ringData.length === intervals) {
+    ringData.shift();
+  }
+>>>>>>> alexandersimoes/master
   rings = vars.group.selectAll(".d3plus_radar_rings").data(ringData, function(d, i) {
     return i;
   });
@@ -33884,14 +34071,33 @@ radar = function(vars) {
   labelData = [];
   for (n = 0, len3 = labels.length; n < len3; n++) {
     l = labels[n];
+<<<<<<< HEAD
     a = (angle * labelIndex(l)) - Math.PI / 2;
     top = a < 0 || a > Math.PI;
     righty = a < Math.PI / 2;
+=======
+    a2 = (angle * labelIndex(l)) - Math.PI / 2;
+    a = a2 * (180 / Math.PI);
+    if (a < -90 || a > 90) {
+      a = a - 180;
+      buffer = -(maxRadius + vars.labels.padding * 2 + labelWidth);
+      anchor = "end";
+    } else {
+      buffer = maxRadius + vars.labels.padding * 2;
+      anchor = "start";
+    }
+    top = a2 < 0 || a2 > Math.PI;
+    righty = a2 < Math.PI / 2;
+>>>>>>> alexandersimoes/master
     ov = maxRadius;
     if (vars.labels.value) {
       ov += vars.labels.padding;
     }
+<<<<<<< HEAD
     o = offset(a, ov);
+=======
+    o = offset(a2, ov);
+>>>>>>> alexandersimoes/master
     x = o.x;
     y = o.y;
     if (!righty) {
@@ -33906,23 +34112,33 @@ radar = function(vars) {
     }
     labelData.push({
       "text": l,
-      "x": x + vars.width.viz / 2 + vars.margin.top,
-      "y": y + vars.height.viz / 2 + vars.margin.left,
-      "align": center ? "center" : righty ? "left" : "right",
-      "valign": top ? "bottom" : "top",
+      "angle": a,
+      "x": buffer,
+      "anchor": anchor,
       "offset": o
     });
   }
+<<<<<<< HEAD
   text = vars.group.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d) {
     return d.text;
+=======
+  labelGroup = vars.group.selectAll("g.d3plus_radar_label_group").data([0]);
+  labelGroup.enter().append("g").attr("class", "d3plus_radar_label_group").attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
+  labelGroup.transition().duration(vars.draw.timing).attr("transform", "translate(" + vars.width.viz / 2 + "," + vars.height.viz / 2 + ")");
+  text = labelGroup.selectAll(".d3plus_radar_labels").data((vars.labels.value ? labelData : []), function(d, i) {
+    return i;
+>>>>>>> alexandersimoes/master
   });
   labelStyle = function(label) {
-    return label.attr(textStyle).attr("x", function(l) {
-      return l.x;
-    }).attr("y", function(l) {
-      return l.y;
-    }).each(function(l, i) {
-      return textwrap().container(d3.select(this)).height(labelHeight).width(labelWidth).align(l.align).text(l.text).padding(0).valign(l.valign).draw();
+    return label.attr(textStyle).each(function(l, i) {
+      return textwrap().container(d3.select(this)).height(labelHeight).width(labelWidth).align(l.anchor).text(l.text).padding(0).valign("middle").x(l.x).y(-labelHeight / 2).draw();
+    }).attr("transform", function(t) {
+      var translate;
+      translate = d3.select(this).attr("transform") || "";
+      if (translate.length) {
+        translate = translate.split(")").slice(-3).join(")");
+      }
+      return "rotate(" + t.angle + ")" + translate;
     });
   };
   text.call(labelStyle);

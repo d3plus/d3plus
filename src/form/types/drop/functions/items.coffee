@@ -48,15 +48,12 @@ module.exports = (vars) ->
 
           return
 
-    if vars.data.changed
-      vars.container.items
-          .data
-            large: large
-            value: vars.data.filtered
-
     vars.container.items
       .active vars.active.value
-      .data {"sort": vars.data.sort.value}
+      .data
+        large: large
+        sort: vars.data.sort.value
+        value: vars.data.filtered
       .draw
         update: vars.draw.update
       .font vars.font.secondary

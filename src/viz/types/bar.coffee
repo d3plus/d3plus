@@ -55,9 +55,13 @@ bar = (vars) ->
       offset   = space/2 - maxSize/2 - padding
 
       x = d3.scale.ordinal()
-        .domain [0, divisions-1]
-        .range [-offset, offset]
 
+      if divisions is 1
+        x.domain([0]).range([0])
+      else
+        x
+          .domain [0, divisions-1]
+          .range [-offset, offset]
     else
       x = d3.scale.linear()
 
@@ -66,7 +70,11 @@ bar = (vars) ->
 
   if vars[discrete].persist.position.value and not vars.axes.stacked
     ids = uniques d3.merge(nested.map (d) -> d.values), vars.id.value, fetchValue, vars, vars.id.value, false
-    x.domain(ids).range(buckets(x.range(), ids.length))
+    x.domain(ids)
+    if ids.length is 1
+      x.range([0])
+    else
+      x.range(buckets(x.range(), ids.length))
 
   maxBars = d3.max nested, (b) -> b.values.length
   for p in nested

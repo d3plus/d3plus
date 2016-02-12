@@ -26,10 +26,11 @@ module.exports = (words, style, opts) ->
     if spacing
       add = (d3.select(elem).text().length - 1) * spacing
     elem.getComputedTextLength() + add
+
   getHeight = (elem) ->
     elem.offsetHeight or
-    elem.getBoundingClientRect().height or
-    elem.parentNode.getBBox().height
+    elem.parentNode.getBBox().height or
+    elem.getBoundingClientRect().height
 
   tspans.enter().append("tspan")
     .text String

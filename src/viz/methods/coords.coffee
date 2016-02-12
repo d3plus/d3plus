@@ -20,6 +20,9 @@ module.exports =
                "conicEquidistant", "equirectangular", "gnomonic", "mercator",
                "orthographic", "stereographic", "transverseMercator", Function]
     value:    "mercator"
+  simplify:
+    accepted: [Boolean]
+    value:    true
   solo:      filter false
   threshold:
     accepted: [Number]

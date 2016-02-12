@@ -11,10 +11,11 @@ watchify   = require "watchify"
 
 test_dir = "./tests/**/*.*"
 
-# connect.server
-#   livereload: false
-#   port: 4000
-#   root: path.resolve("./")
+gulp.task "server", ->
+  connect.server
+    livereload: true
+    port: 4000
+    root: path.resolve("./")
 
 rebundle = ->
   bundler.bundle()
@@ -27,7 +28,7 @@ rebundle = ->
       message: "New Build Compiled"
       icon:    __dirname + "/../icon.png"
     ))
-    # .pipe connect.reload()
+    .pipe connect.reload()
     .on "error", notify.onError(error)
 
 bundler = watchify(browserify(watchify.args))
@@ -43,4 +44,4 @@ gulp.task "dev", ->
     fileName = path.relative("./", file.path)
     gutil.log gutil.colors.cyan(fileName), "changed"
 
-    # gulp.src(test_dir).pipe connect.reload()
+    gulp.src(test_dir).pipe connect.reload()

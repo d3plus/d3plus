@@ -30,7 +30,7 @@ radar = (vars) ->
   if vars.labels.value
     first = offset Math.PI/2, maxRadius
     second = offset angle + Math.PI/2, maxRadius
-    labelWidth = (first.x - second.x)
+    labelHeight = (first.x - second.x) - vars.labels.padding * 2
     textStyle = {
       "fill": vars.x.ticks.font.color
       "font-family": vars.x.ticks.font.family.value
@@ -40,12 +40,12 @@ radar = (vars) ->
     sizes = fontSizes labels, textStyle,
       mod: (elem) ->
         textwrap().container d3.select(elem)
-          .height(vars.height.viz/8)
-          .width(labelWidth).draw()
-    labelHeight = d3.median sizes, (d) -> d.height
+          .width(vars.height.viz/8)
+          .height(labelHeight).draw()
+    labelWidth = d3.max sizes, (d) -> d.width
 
-    maxRadius -= (labelHeight * 2)
-    maxRadius -= (vars.labels.padding * 2)
+    maxRadius -= labelWidth
+    maxRadius -= vars.labels.padding * 2
 
   maxData = (fetchValue(vars, d, vars.size.value) for d in c for c in children)
   maxData = d3.max(d3.merge(maxData))
@@ -75,7 +75,8 @@ radar = (vars) ->
       intervals = i
       break
 
-  ringData = buckets([maxRadius/intervals, maxRadius], intervals-1).reverse()
+  ringData = buckets([maxRadius/intervals, maxRadius], intervals - 1).reverse()
+  ringData.shift() if ringData.length is intervals
 
   rings = vars.group.selectAll ".d3plus_radar_rings"
     .data ringData, (d, i) -> i
@@ -108,43 +109,70 @@ radar = (vars) ->
 
   labelData = []
   for l in labels
-    a = (angle * labelIndex(l)) - Math.PI/2
-    top = a < 0 or a > Math.PI
-    righty = a < Math.PI/2
+    a2 = (angle * labelIndex(l)) - Math.PI/2
+    a = a2 * (180/Math.PI)
+
+    if a < -90 or a > 90
+      a = a-180
+      buffer = -(maxRadius + vars.labels.padding * 2 + labelWidth)
+      anchor = "end"
+    else
+      buffer = maxRadius + vars.labels.padding * 2
+      anchor = "start"
+
+    top = a2 < 0 or a2 > Math.PI
+    righty = a2 < Math.PI/2
     ov = maxRadius
     ov += vars.labels.padding if vars.labels.value
-    o = offset a, ov
+    o = offset a2, ov
     x = o.x
     y = o.y
     x -= labelWidth unless righty
     y -= labelHeight if top
     center = [0, Math.PI].indexOf(angle * labelIndex(l)) >= 0
     x -= labelWidth/2 if center
+
+
     labelData.push {
       "text": l,
-      "x": x + vars.width.viz/2 + vars.margin.top,
-      "y": y + vars.height.viz/2 + vars.margin.left,
-      "align": if center then "center" else if righty then "left" else "right",
-      "valign": if top then "bottom" else "top",
+      "angle": a,
+      "x": buffer,
+      "anchor": anchor,
       "offset": o
     }
 
-  text = vars.group.selectAll ".d3plus_radar_labels"
-    .data (if vars.labels.value then labelData else []), (d) -> d.text
+
+  labelGroup = vars.group.selectAll "g.d3plus_radar_label_group"
+    .data [0]
+  labelGroup.enter().append("g").attr "class", "d3plus_radar_label_group"
+    .attr "transform", "translate(" + vars.width.viz/2 + "," + vars.height.viz/2 + ")"
+  labelGroup.transition().duration(vars.draw.timing)
+    .attr "transform", "translate(" + vars.width.viz/2 + "," + vars.height.viz/2 + ")"
+
+
+  text = labelGroup.selectAll ".d3plus_radar_labels"
+    .data (if vars.labels.value then labelData else []), (d, i) -> i
 
   labelStyle = (label) ->
     label
       .attr textStyle
-      .attr "x", (l) -> l.x
-      .attr "y", (l) -> l.y
       .each (l, i) ->
-        textwrap().container d3.select(this)
-          .height(labelHeight)
-          .width(labelWidth)
-          .align(l.align)
-          .text(l.text)
-          .padding(0)
-          .valign(l.valign).draw()
+        textwrap()
+          .container d3.select(this)
+          .height labelHeight
+          .width labelWidth
+          .align l.anchor
+          .text l.text
+          .padding 0
+          .valign "middle"
+          .x l.x
+          .y -labelHeight/2
+          .draw()
+      .attr "transform", (t) ->
+        translate = d3.select(this).attr("transform") or ""
+        if translate.length
+          translate = translate.split(")").slice(-3).join(")")
+        return "rotate(" + t.angle + ")" + translate
 
   text.call labelStyle
 

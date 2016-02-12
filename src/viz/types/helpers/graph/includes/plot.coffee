@@ -279,8 +279,6 @@ labelPadding = (vars) ->
 
         xAxisWidth  = Math.ceil xAxisWidth
         xAxisHeight = Math.ceil xAxisHeight
-        xAxisWidth++
-        xAxisHeight++
         vars[axis].ticks.maxHeight = xAxisHeight
         vars[axis].ticks.maxWidth = xAxisWidth
         vars.axes.margin[margin] += xAxisHeight + vars.labels.padding
