@@ -147,7 +147,7 @@ module.exports = (vars) ->
 
   lines = 0
   vars.container.value.selectAll("tspan").each () ->
-    if this.innerHTML.length
+    if d3.select(this).text().length
       lines++
   if vars.shape.value is "circle"
     space = height - lines * dy
@@ -162,7 +162,7 @@ module.exports = (vars) ->
 
   lines = 0
   vars.container.value.selectAll("tspan").each () ->
-    if this.innerHTML.length
+    if d3.select(this).text().length
       lines++
 
   if valign is "top"

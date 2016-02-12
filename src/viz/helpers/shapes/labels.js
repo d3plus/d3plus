@@ -324,7 +324,13 @@ module.exports = function( vars , group ) {
 
               var background_data = ["background"];
 
-              var bounds = copy(text.node().getBBox());
+              var box = text.node().getBBox();
+              var bounds = {
+                "height": box.height,
+                "width": box.width,
+                "x": box.x,
+                "y": box.y
+              };
               bounds.width += vars.labels.padding*scale[0];
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
