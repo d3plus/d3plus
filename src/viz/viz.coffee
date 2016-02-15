@@ -39,7 +39,7 @@ module.exports = ->
       vars.draw.timing    = 0 if vars.error.value
 
       # Analyze Container
-      container vars if vars.container.changed
+      container vars
 
       # Determine if in "small" mode
       small_width     = vars.width.value <= vars.width.small

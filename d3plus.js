@@ -20996,7 +20996,10 @@ module.exports = function(vars) {
     } else {
       return "relative";
     }
-  }).html("");
+  });
+  if (vars.container.changed) {
+    vars.container.value.html("");
+  }
   ref = ["width", "height"];
   for (i = 0, len = ref.length; i < len; i++) {
     s = ref[i];
@@ -34843,9 +34846,7 @@ module.exports = function() {
       if (vars.error.value) {
         vars.draw.timing = 0;
       }
-      if (vars.container.changed) {
-        container(vars);
-      }
+      container(vars);
       small_width = vars.width.value <= vars.width.small;
       small_height = vars.height.value <= vars.height.small;
       vars.small = small_width || small_height;
