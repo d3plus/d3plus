@@ -23122,7 +23122,16 @@ module.exports = function(vars) {
           }
           else {
 
-            d3.select(this).style("cursor","pointer")
+            var zoomDir = zoomDirection(d.d3plus_data || d, vars)
+            var pointer = typeof vars.mouse.viz === "function" ||
+                          typeof vars.mouse.viz[events.click] === "function" ||
+                          (vars.zoom.value && (vars.types[vars.type.value].zoom ||
+                                              (d.d3plus.threshold && d.d3plus.merged) ||
+                                              zoomDir === 1 ||
+                                              (zoomDir === -1 && vars.history.states.length && !vars.tooltip.value.long)));
+
+            d3.select(this)
+              .style("cursor", pointer ? "pointer" : "auto")
               .transition().duration(vars.timing.mouseevents)
               .call(transform,true)
 
@@ -23178,6 +23187,17 @@ module.exports = function(vars) {
             vars.mouse.move.value(d, vars.self);
           }
           else {
+
+            var zoomDir = zoomDirection(d.d3plus_data || d, vars)
+            var pointer = typeof vars.mouse.viz === "function" ||
+                          typeof vars.mouse.viz[events.click] === "function" ||
+                          (vars.zoom.value && (vars.types[vars.type.value].zoom ||
+                                              (d.d3plus.threshold && d.d3plus.merged) ||
+                                              zoomDir === 1 ||
+                                              (zoomDir === -1 && vars.history.states.length && !vars.tooltip.value.long)));
+
+
+            d3.select(this).style("cursor", pointer ? "pointer" : "auto");
 
             // vars.covered = false
             var tooltipType = vars.types[vars.type.value].tooltip || "follow"
