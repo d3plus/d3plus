@@ -13,7 +13,7 @@ module.exports = d3plus
 # @type String
 # @static
 ###
-d3plus.version = "1.9.0 - Cornflower"
+d3plus.version = "1.9.1 - Cornflower"
 
 ###*
 # The URL for the repo, used internally for certain error messages.
