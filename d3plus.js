@@ -28380,12 +28380,12 @@ module.exports = function(data, vars) {
   var depth, max_depth, nextDepth;
   max_depth = vars.id.nesting.length - 1;
   depth = vars.depth.value;
-  nextDepth = vars.id.nesting[vars.depth.value + 1];
+  nextDepth = vars.id.nesting[depth + 1];
   if (vars.types[vars.type.value].nesting === false) {
     return 0;
   } else if ((data.d3plus.merged || (nextDepth in data && depth < max_depth)) && (!data || nextDepth in data)) {
     return 1;
-  } else if ((depth === max_depth || (data && (!(nextDepth in data)))) && (vars.small || !vars.tooltip.html.value)) {
+  } else if (((depth === max_depth && depth > 0) || (data && nextDepth && (!(nextDepth in data)))) && (vars.small || !vars.tooltip.html.value)) {
     return -1;
   } else {
     return 0;
@@ -33978,8 +33978,12 @@ var rings = function(vars) {
   vars.mouse.viz = {};
   vars.mouse.viz[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
-      removeTooltip(vars.type.value)
-      vars.self.focus(d[vars.id.value]).draw()
+      removeTooltip(vars.type.value);
+      var old_focus = vars.focus.value[0];
+      vars.history.states.push(function(){
+        vars.self.focus(old_focus).draw();
+      })
+      vars.self.focus(d[vars.id.value]).draw();
     }
   }
 
@@ -34110,8 +34114,13 @@ sankey = function(vars) {
   }
   vars.mouse.viz = {};
   vars.mouse.viz[events.click] = function(d) {
+    var old_focus;
     if (d[vars.id.value] !== vars.focus.value[0]) {
       removeTooltip(vars.type.value);
+      old_focus = vars.focus.value[0];
+      vars.history.states.push(function() {
+        return vars.self.focus(old_focus).draw();
+      });
       return vars.self.focus(d[vars.id.value]).draw();
     }
   };
