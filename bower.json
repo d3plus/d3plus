@@ -13,7 +13,7 @@
   "dependencies": {
     "d3": "^3.5.15",
     "heap": "^0.2.6",
-    "numeric": "^1.2.6",
+    "numericjs": "^1.2.6",
     "simplify-js": "https://github.com/mourner/simplify-js.git",
     "static-kdtree": "https://github.com/mikolalysenko/static-kdtree.git",
     "topojson": "^1.6.24"
