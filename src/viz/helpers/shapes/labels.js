@@ -57,6 +57,7 @@ module.exports = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
+      .attr("stroke", "none")
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none";
       })

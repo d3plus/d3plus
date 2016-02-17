@@ -265,6 +265,7 @@ module.exports = function(vars) {
                       .attr("font-size", size[size.length-1]+"px")
                       .attr("font-weight", vars.legend.font.weight)
                       .attr("font-family", vars.legend.font.family.value)
+                      .attr("stroke", "none")
                       .attr("fill", textColor(color))
                       .attr("x", 0)
                       .attr("y", 0)
@@ -489,6 +490,7 @@ module.exports = function(vars) {
 
       text.enter().append("text")
         .attr("class","d3plus_tick")
+        .attr("stroke", "none")
         .attr("x",function(d){
           if (vars.legend.align == "middle") {
             return vars.width.value/2;

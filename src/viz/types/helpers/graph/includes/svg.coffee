@@ -67,6 +67,7 @@ module.exports = (vars) ->
     log = vars[axis].scale.value is "log"
     tick
       .attr "font-size"  , (d) -> getFontStyle(axis, d, "size") + "px"
+      .attr "stroke", "none"
       .attr "fill"       , (d) ->
         color = getFontStyle(axis, d, "color")
         if !log or Math.abs(d).toString().charAt(0) is "1"
@@ -213,7 +214,9 @@ module.exports = (vars) ->
     groupEnter = axisGroup.enter().append "g"
       .attr "id", "d3plus_graph_" + axis + "ticks"
       .call style, axis
-    groupEnter.selectAll("path").attr "fill", "none"
+    groupEnter.selectAll("path")
+      .attr "fill", "none"
+      .attr "stroke", "none"
     groupEnter.selectAll("line").call tickStyle, axis
     axisGroup.exit().transition().duration vars.data.timing
       .attr "opacity", 0
@@ -305,6 +308,7 @@ module.exports = (vars) ->
       .transition().duration vars.draw.timing
         .call labelStyle, axis
     label.enter().append("text")
+      .attr "stroke", "none"
       .attr "id", "d3plus_graph_"+axis+"label"
       .text axisLabel
       .call labelStyle, axis
