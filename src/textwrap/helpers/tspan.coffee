@@ -134,7 +134,9 @@ module.exports = (vars) ->
 
       unsafe = true
       while unsafe
-        next_char = vars.text.current.charAt(progress.length + 1)
+        next_char = vars.text.current.charAt(progress.length)
+        if next_char is " "
+          next_char = vars.text.current.charAt(progress.length + 1)
         unsafe = vars.text.split.value.indexOf(next_char) >= 0
         placeWord next_char if unsafe
 
