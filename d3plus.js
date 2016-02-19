@@ -19649,7 +19649,10 @@ module.exports = function(vars) {
       placeWord(word);
       unsafe = true;
       while (unsafe) {
-        next_char = vars.text.current.charAt(progress.length + 1);
+        next_char = vars.text.current.charAt(progress.length);
+        if (next_char === " ") {
+          next_char = vars.text.current.charAt(progress.length + 1);
+        }
         unsafe = vars.text.split.value.indexOf(next_char) >= 0;
         if (unsafe) {
           placeWord(next_char);
@@ -24386,6 +24389,7 @@ module.exports = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
+      .attr("stroke", "none")
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none";
       })
@@ -24664,8 +24668,14 @@ module.exports = function( vars , group ) {
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
               bounds.y -= (vars.labels.padding*scale[0])/2;
-              var t = text.attr("transform").split(")");
-              bounds.y += parseFloat(t[t.length-2].split(",")[1]);
+              var y = text.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0];
+              y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2");
+              y = y.split(",");
+              if (y.length > 1) {
+                y = y[y.length - 1];
+                y = y.substring(0, y.length - 1);
+                bounds.y += y;
+              }
 
             }
             else {
@@ -25693,6 +25703,7 @@ module.exports = function(vars) {
   vars.g.bg.enter().append("rect")
     .attr("id","bg")
     .attr("fill",vars.background.value)
+    .attr("stroke", "none")
     .attr("width",vars.width.value)
     .attr("height",vars.height.value);
 
@@ -26755,7 +26766,9 @@ module.exports = function(vars) {
     if (titleClass) {
       stripY = function(elem) {
         var y;
-        y = elem.attr("transform").split(",");
+        y = elem.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0];
+        y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2");
+        y = y.split(",");
         y = y[y.length - 1];
         return parseFloat(y.substring(0, y.length - 1));
       };
@@ -27071,6 +27084,7 @@ module.exports = function(vars) {
                       .attr("font-size", size[size.length-1]+"px")
                       .attr("font-weight", vars.legend.font.weight)
                       .attr("font-family", vars.legend.font.family.value)
+                      .attr("stroke", "none")
                       .attr("fill", textColor(color))
                       .attr("x", 0)
                       .attr("y", 0)
@@ -27295,6 +27309,7 @@ module.exports = function(vars) {
 
       text.enter().append("text")
         .attr("class","d3plus_tick")
+        .attr("stroke", "none")
         .attr("x",function(d){
           if (vars.legend.align == "middle") {
             return vars.width.value/2;
@@ -27841,7 +27856,7 @@ module.exports = function(vars) {
     playIconStyle = function(text) {
       var y;
       y = timelineHeight / 2 + vars.ui.padding + 1;
-      return text.attr("fill", textColor(vars.ui.color.primary.value)).attr(textStyle).attr("x", start_x - (playbackWidth - 1) / 2 - vars.ui.padding).attr("y", y).attr("dy", "0.5ex").call(playIconChar, playInterval ? "pause" : "icon");
+      return text.attr("fill", textColor(vars.ui.color.primary.value)).attr("stroke", "none").attr(textStyle).attr("x", start_x - (playbackWidth - 1) / 2 - vars.ui.padding).attr("y", y).attr("dy", "0.5ex").call(playIconChar, playInterval ? "pause" : "icon");
     };
     playIcon.enter().append("text").attr("class", "d3plus_timeline_playIcon").call(playIconStyle).style("pointer-events", "none").attr("opacity", 0);
     playIcon.call(playIconStyle).transition().duration(vars.draw.timing).attr("opacity", 1);
@@ -27911,7 +27926,7 @@ module.exports = function(vars) {
     text = labels.selectAll("text").data(years, function(d, i) {
       return i;
     });
-    text.enter().append("text").attr("y", 0).attr("dy", "0.5ex").attr("x", 0);
+    text.enter().append("text").attr("stroke", "none").attr("y", 0).attr("dy", "0.5ex").attr("x", 0);
     x = d3.time.scale().domain(d3.extent(year_ticks)).rangeRound([0, timelineWidth]);
     text.order().attr(textStyle).text(function(d, i) {
       if (visible.indexOf(+d) >= 0) {
@@ -28206,6 +28221,7 @@ module.exports = function(vars) {
     })
     .attr("opacity",0)
     .append("text")
+      .attr("stroke", "none")
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30413,8 +30429,7 @@ uniques = require("../../util/uniques.coffee");
 box = function(vars) {
   var disMargin, discrete, domains, h, medians, mergeData, mode, noData, oppMargin, opposite, returnData, size, space, w;
   graph(vars, {
-    buffer: true,
-    mouse: true
+    buffer: true
   });
   domains = vars.x.domain.viz.concat(vars.y.domain.viz);
   if (domains.indexOf(void 0) >= 0) {
@@ -32256,7 +32271,7 @@ module.exports = function(vars) {
     log = vars[axis].scale.value === "log";
     return tick.attr("font-size", function(d) {
       return getFontStyle(axis, d, "size") + "px";
-    }).attr("fill", function(d) {
+    }).attr("stroke", "none").attr("fill", function(d) {
       var color;
       color = getFontStyle(axis, d, "color");
       if (!log || Math.abs(d).toString().charAt(0) === "1") {
@@ -32376,7 +32391,7 @@ module.exports = function(vars) {
     axisGroup.transition().duration(vars.draw.timing).call(style, axis);
     axisGroup.selectAll("line").transition().duration(vars.draw.timing).call(tickStyle, axis);
     groupEnter = axisGroup.enter().append("g").attr("id", "d3plus_graph_" + axis + "ticks").call(style, axis);
-    groupEnter.selectAll("path").attr("fill", "none");
+    groupEnter.selectAll("path").attr("fill", "none").attr("stroke", "none");
     groupEnter.selectAll("line").call(tickStyle, axis);
     axisGroup.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
@@ -32434,7 +32449,7 @@ module.exports = function(vars) {
     }
     label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(labelData);
     label.text(axisLabel).transition().duration(vars.draw.timing).call(labelStyle, axis);
-    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(axisLabel).call(labelStyle, axis);
+    label.enter().append("text").attr("stroke", "none").attr("id", "d3plus_graph_" + axis + "label").text(axisLabel).call(labelStyle, axis);
     label.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
   ref3 = ["x", "y", "x2", "y2"];

@@ -28388,7 +28388,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.9.0 - Cornflower";
+d3plus.version = "1.9.1 - Cornflower";
 
 
 /**
@@ -29758,7 +29758,10 @@ module.exports = function(vars) {
       placeWord(word);
       unsafe = true;
       while (unsafe) {
-        next_char = vars.text.current.charAt(progress.length + 1);
+        next_char = vars.text.current.charAt(progress.length);
+        if (next_char === " ") {
+          next_char = vars.text.current.charAt(progress.length + 1);
+        }
         unsafe = vars.text.split.value.indexOf(next_char) >= 0;
         if (unsafe) {
           placeWord(next_char);
@@ -31105,7 +31108,10 @@ module.exports = function(vars) {
     } else {
       return "relative";
     }
-  }).html("");
+  });
+  if (vars.container.changed) {
+    vars.container.value.html("");
+  }
   ref = ["width", "height"];
   for (i = 0, len = ref.length; i < len; i++) {
     s = ref[i];
@@ -33228,7 +33234,16 @@ module.exports = function(vars) {
           }
           else {
 
-            d3.select(this).style("cursor","pointer")
+            var zoomDir = zoomDirection(d.d3plus_data || d, vars)
+            var pointer = typeof vars.mouse.viz === "function" ||
+                          typeof vars.mouse.viz[events.click] === "function" ||
+                          (vars.zoom.value && (vars.types[vars.type.value].zoom ||
+                                              (d.d3plus.threshold && d.d3plus.merged) ||
+                                              zoomDir === 1 ||
+                                              (zoomDir === -1 && vars.history.states.length && !vars.tooltip.value.long)));
+
+            d3.select(this)
+              .style("cursor", pointer ? "pointer" : "auto")
               .transition().duration(vars.timing.mouseevents)
               .call(transform,true)
 
@@ -33284,6 +33299,17 @@ module.exports = function(vars) {
             vars.mouse.move.value(d, vars.self);
           }
           else {
+
+            var zoomDir = zoomDirection(d.d3plus_data || d, vars)
+            var pointer = typeof vars.mouse.viz === "function" ||
+                          typeof vars.mouse.viz[events.click] === "function" ||
+                          (vars.zoom.value && (vars.types[vars.type.value].zoom ||
+                                              (d.d3plus.threshold && d.d3plus.merged) ||
+                                              zoomDir === 1 ||
+                                              (zoomDir === -1 && vars.history.states.length && !vars.tooltip.value.long)));
+
+
+            d3.select(this).style("cursor", pointer ? "pointer" : "auto");
 
             // vars.covered = false
             var tooltipType = vars.types[vars.type.value].tooltip || "follow"
@@ -34472,6 +34498,7 @@ module.exports = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
+      .attr("stroke", "none")
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none";
       })
@@ -34750,8 +34777,14 @@ module.exports = function( vars , group ) {
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
               bounds.y -= (vars.labels.padding*scale[0])/2;
-              var t = text.attr("transform").split(")");
-              bounds.y += parseFloat(t[t.length-2].split(",")[1]);
+              var y = text.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0];
+              y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2");
+              y = y.split(",");
+              if (y.length > 1) {
+                y = y[y.length - 1];
+                y = y.substring(0, y.length - 1);
+                bounds.y += y;
+              }
 
             }
             else {
@@ -35779,6 +35812,7 @@ module.exports = function(vars) {
   vars.g.bg.enter().append("rect")
     .attr("id","bg")
     .attr("fill",vars.background.value)
+    .attr("stroke", "none")
     .attr("width",vars.width.value)
     .attr("height",vars.height.value);
 
@@ -36841,7 +36875,9 @@ module.exports = function(vars) {
     if (titleClass) {
       stripY = function(elem) {
         var y;
-        y = elem.attr("transform").split(",");
+        y = elem.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0];
+        y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2");
+        y = y.split(",");
         y = y[y.length - 1];
         return parseFloat(y.substring(0, y.length - 1));
       };
@@ -37157,6 +37193,7 @@ module.exports = function(vars) {
                       .attr("font-size", size[size.length-1]+"px")
                       .attr("font-weight", vars.legend.font.weight)
                       .attr("font-family", vars.legend.font.family.value)
+                      .attr("stroke", "none")
                       .attr("fill", textColor(color))
                       .attr("x", 0)
                       .attr("y", 0)
@@ -37381,6 +37418,7 @@ module.exports = function(vars) {
 
       text.enter().append("text")
         .attr("class","d3plus_tick")
+        .attr("stroke", "none")
         .attr("x",function(d){
           if (vars.legend.align == "middle") {
             return vars.width.value/2;
@@ -37927,7 +37965,7 @@ module.exports = function(vars) {
     playIconStyle = function(text) {
       var y;
       y = timelineHeight / 2 + vars.ui.padding + 1;
-      return text.attr("fill", textColor(vars.ui.color.primary.value)).attr(textStyle).attr("x", start_x - (playbackWidth - 1) / 2 - vars.ui.padding).attr("y", y).attr("dy", "0.5ex").call(playIconChar, playInterval ? "pause" : "icon");
+      return text.attr("fill", textColor(vars.ui.color.primary.value)).attr("stroke", "none").attr(textStyle).attr("x", start_x - (playbackWidth - 1) / 2 - vars.ui.padding).attr("y", y).attr("dy", "0.5ex").call(playIconChar, playInterval ? "pause" : "icon");
     };
     playIcon.enter().append("text").attr("class", "d3plus_timeline_playIcon").call(playIconStyle).style("pointer-events", "none").attr("opacity", 0);
     playIcon.call(playIconStyle).transition().duration(vars.draw.timing).attr("opacity", 1);
@@ -37997,7 +38035,7 @@ module.exports = function(vars) {
     text = labels.selectAll("text").data(years, function(d, i) {
       return i;
     });
-    text.enter().append("text").attr("y", 0).attr("dy", "0.5ex").attr("x", 0);
+    text.enter().append("text").attr("stroke", "none").attr("y", 0).attr("dy", "0.5ex").attr("x", 0);
     x = d3.time.scale().domain(d3.extent(year_ticks)).rangeRound([0, timelineWidth]);
     text.order().attr(textStyle).text(function(d, i) {
       if (visible.indexOf(+d) >= 0) {
@@ -38292,6 +38330,7 @@ module.exports = function(vars) {
     })
     .attr("opacity",0)
     .append("text")
+      .attr("stroke", "none")
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38466,12 +38505,12 @@ module.exports = function(data, vars) {
   var depth, max_depth, nextDepth;
   max_depth = vars.id.nesting.length - 1;
   depth = vars.depth.value;
-  nextDepth = vars.id.nesting[vars.depth.value + 1];
+  nextDepth = vars.id.nesting[depth + 1];
   if (vars.types[vars.type.value].nesting === false) {
     return 0;
   } else if ((data.d3plus.merged || (nextDepth in data && depth < max_depth)) && (!data || nextDepth in data)) {
     return 1;
-  } else if ((depth === max_depth || (data && (!(nextDepth in data)))) && (vars.small || !vars.tooltip.html.value)) {
+  } else if (((depth === max_depth && depth > 0) || (data && nextDepth && (!(nextDepth in data)))) && (vars.small || !vars.tooltip.html.value)) {
     return -1;
   } else {
     return 0;
@@ -40499,8 +40538,7 @@ uniques = require("../../util/uniques.coffee");
 box = function(vars) {
   var disMargin, discrete, domains, h, medians, mergeData, mode, noData, oppMargin, opposite, returnData, size, space, w;
   graph(vars, {
-    buffer: true,
-    mouse: true
+    buffer: true
   });
   domains = vars.x.domain.viz.concat(vars.y.domain.viz);
   if (domains.indexOf(void 0) >= 0) {
@@ -42342,7 +42380,7 @@ module.exports = function(vars) {
     log = vars[axis].scale.value === "log";
     return tick.attr("font-size", function(d) {
       return getFontStyle(axis, d, "size") + "px";
-    }).attr("fill", function(d) {
+    }).attr("stroke", "none").attr("fill", function(d) {
       var color;
       color = getFontStyle(axis, d, "color");
       if (!log || Math.abs(d).toString().charAt(0) === "1") {
@@ -42431,7 +42469,7 @@ module.exports = function(vars) {
         d = +d;
       }
       if (!vars[axis].ticks.hidden && vars[axis].ticks.visible.indexOf(d) >= 0) {
-        return textwrap().container(d3.select(this)).rotate(vars[axis].ticks.rotate).valign(rotated ? "middle" : axis === "x" ? "top" : "bottom").width(vars[axis].ticks.maxWidth).height(vars[axis].ticks.maxHeight).padding(0).x(-vars[axis].ticks.maxWidth / 2).y(axis === "x2" ? -(vars[axis].ticks.maxHeight + vars.labels.padding * 2) : 0).draw();
+        return textwrap().container(d3.select(this)).rotate(vars[axis].ticks.rotate).align(rotated ? "end" : "center").valign(rotated ? "middle" : axis === "x" ? "top" : "bottom").width(vars[axis].ticks.maxWidth).height(vars[axis].ticks.maxHeight).padding(0).x(-vars[axis].ticks.maxWidth / 2).y(axis === "x2" ? -(vars[axis].ticks.maxHeight + vars.labels.padding * 2) : 0).draw();
       }
     });
   };
@@ -42462,7 +42500,7 @@ module.exports = function(vars) {
     axisGroup.transition().duration(vars.draw.timing).call(style, axis);
     axisGroup.selectAll("line").transition().duration(vars.draw.timing).call(tickStyle, axis);
     groupEnter = axisGroup.enter().append("g").attr("id", "d3plus_graph_" + axis + "ticks").call(style, axis);
-    groupEnter.selectAll("path").attr("fill", "none");
+    groupEnter.selectAll("path").attr("fill", "none").attr("stroke", "none");
     groupEnter.selectAll("line").call(tickStyle, axis);
     axisGroup.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
@@ -42520,7 +42558,7 @@ module.exports = function(vars) {
     }
     label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(labelData);
     label.text(axisLabel).transition().duration(vars.draw.timing).call(labelStyle, axis);
-    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(axisLabel).call(labelStyle, axis);
+    label.enter().append("text").attr("stroke", "none").attr("id", "d3plus_graph_" + axis + "label").text(axisLabel).call(labelStyle, axis);
     label.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
   ref3 = ["x", "y", "x2", "y2"];
@@ -44064,8 +44102,12 @@ var rings = function(vars) {
   vars.mouse.viz = {};
   vars.mouse.viz[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
-      removeTooltip(vars.type.value)
-      vars.self.focus(d[vars.id.value]).draw()
+      removeTooltip(vars.type.value);
+      var old_focus = vars.focus.value[0];
+      vars.history.states.push(function(){
+        vars.self.focus(old_focus).draw();
+      })
+      vars.self.focus(d[vars.id.value]).draw();
     }
   }
 
@@ -44196,8 +44238,13 @@ sankey = function(vars) {
   }
   vars.mouse.viz = {};
   vars.mouse.viz[events.click] = function(d) {
+    var old_focus;
     if (d[vars.id.value] !== vars.focus.value[0]) {
       removeTooltip(vars.type.value);
+      old_focus = vars.focus.value[0];
+      vars.history.states.push(function() {
+        return vars.self.focus(old_focus).draw();
+      });
       return vars.self.focus(d[vars.id.value]).draw();
     }
   };
@@ -44952,9 +44999,7 @@ module.exports = function() {
       if (vars.error.value) {
         vars.draw.timing = 0;
       }
-      if (vars.container.changed) {
-        container(vars);
-      }
+      container(vars);
       small_width = vars.width.value <= vars.width.small;
       small_height = vars.height.value <= vars.height.small;
       vars.small = small_width || small_height;
