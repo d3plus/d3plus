@@ -11,6 +11,7 @@ module.exports = ->
   vars =
     g: {apps: {}}
     types:
+      area:     require "./types/area.coffee"
       bar:      require "./types/bar.coffee"
       bubbles:  require "./types/bubbles.coffee"
       box:      require "./types/box.coffee"
@@ -24,7 +25,7 @@ module.exports = ->
       rings:    require "./types/rings.js"
       sankey:   require "./types/sankey.coffee"
       scatter:  require "./types/scatter.coffee"
-      stacked:  require "./types/stacked.coffee"
+      stacked:  require "./types/area.coffee"
       table:    require "./types/table.js"
       tree_map: require "./types/tree_map.coffee"
 

@@ -2,7 +2,7 @@ fetchValue = require "../../../../core/fetch/value.coffee"
 
 module.exports = (vars, data) ->
 
-  stacked  = vars.axes.stacked
+  stacked  = vars.axes.stacked or vars.axes.opposite
   flip     = vars[stacked].scale.viz 0
   scale    = vars[stacked].scale.value
   opposite = if stacked is "x" then "y" else "x"
@@ -23,8 +23,9 @@ module.exports = (vars, data) ->
         d.d3plus[stacked+"0"] = (1 - y0) * flip
         d.d3plus[stacked]     = d.d3plus[stacked+"0"] - (y * flip)
       else
-        d.d3plus[stacked+"0"] = flip - y0
-        d.d3plus[stacked]     = d.d3plus[stacked+"0"] - y
+        d.d3plus[stacked+"0"] = flip
+        d.d3plus[stacked+"0"] -= y0 if vars.axes.stacked
+        d.d3plus[stacked] = d.d3plus[stacked+"0"] - y
 
       d.d3plus[stacked]     += margin
       d.d3plus[stacked+"0"] += margin
