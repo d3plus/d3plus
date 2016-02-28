@@ -28,7 +28,6 @@ module.exports = (words, style, opts) ->
     elem.getComputedTextLength() + add
 
   getHeight = (elem) ->
-    elem.offsetHeight or
     elem.parentNode.getBBox().height or
     elem.getBoundingClientRect().height
 
