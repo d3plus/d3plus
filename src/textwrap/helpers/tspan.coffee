@@ -96,12 +96,28 @@ module.exports = (vars) ->
     next_char = ""
     if reverse
       next_char = vars.text.current.charAt(vars.text.current.length - progress.length - 1)
-      joiner    = if next_char is " " then " " else ""
+      if next_char is " "
+        joiner = ""
+        i = 2
+        while next_char is " "
+          joiner += " "
+          next_char = vars.text.current.charAt(vars.text.current.length - progress.length - i)
+          i++
+      else
+        joiner = ""
       progress  = word + joiner + progress
       textBox.text word + joiner + current
     else
       next_char = vars.text.current.charAt(progress.length)
-      joiner    = if next_char is " " then " " else ""
+      if next_char is " "
+        joiner = ""
+        i = 1
+        while next_char is " "
+          joiner += " "
+          next_char = vars.text.current.charAt(progress.length + i)
+          i++
+      else
+        joiner = ""
       progress += joiner + word
       textBox.text current + joiner + word
 
@@ -135,8 +151,10 @@ module.exports = (vars) ->
       unsafe = true
       while unsafe
         next_char = vars.text.current.charAt(progress.length)
-        if next_char is " "
-          next_char = vars.text.current.charAt(progress.length + 1)
+        i = 1
+        while next_char is " "
+          next_char = vars.text.current.charAt(progress.length + i)
+          i++
         unsafe = vars.text.split.value.indexOf(next_char) >= 0
         placeWord next_char if unsafe
 
