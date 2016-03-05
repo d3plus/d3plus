@@ -12,4 +12,4 @@ module.exports =
     process: (s) ->
       @break = new RegExp "[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g"
       s
-    value:    ["-", "/", ";", ":", "&", "."]
+    value:    ["-", "/", ";", ":", "&"]
