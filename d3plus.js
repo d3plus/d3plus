@@ -14860,7 +14860,7 @@ module.exports = function(words, style, opts) {
     return elem.getComputedTextLength() + add;
   };
   getHeight = function(elem) {
-    return elem.offsetHeight || elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
+    return elem.parentNode.getBBox().height || elem.getBoundingClientRect().height;
   };
   tspans.enter().append("tspan").text(String).style(style).attr(attr).each(function(d) {
     if (typeof opts.mod === "function") {
@@ -19600,17 +19600,37 @@ module.exports = function(vars) {
     }
   };
   placeWord = function(word) {
-    var current, joiner, next_char;
+    var current, i, joiner, next_char;
     current = textBox.text();
     next_char = "";
     if (reverse) {
       next_char = vars.text.current.charAt(vars.text.current.length - progress.length - 1);
-      joiner = next_char === " " ? " " : "";
+      if (next_char === " ") {
+        joiner = "";
+        i = 2;
+        while (next_char === " ") {
+          joiner += " ";
+          next_char = vars.text.current.charAt(vars.text.current.length - progress.length - i);
+          i++;
+        }
+      } else {
+        joiner = "";
+      }
       progress = word + joiner + progress;
       textBox.text(word + joiner + current);
     } else {
       next_char = vars.text.current.charAt(progress.length);
-      joiner = next_char === " " ? " " : "";
+      if (next_char === " ") {
+        joiner = "";
+        i = 1;
+        while (next_char === " ") {
+          joiner += " ";
+          next_char = vars.text.current.charAt(progress.length + i);
+          i++;
+        }
+      } else {
+        joiner = "";
+      }
       progress += joiner + word;
       textBox.text(current + joiner + word);
     }
@@ -19631,7 +19651,7 @@ module.exports = function(vars) {
   line = null;
   lines = null;
   wrap = function() {
-    var i, len, next_char, unsafe, word;
+    var i, j, len, next_char, unsafe, word;
     vars.container.value.text("").html("");
     words = vars.text.words.slice();
     if (reverse) {
@@ -19640,8 +19660,8 @@ module.exports = function(vars) {
     progress = "";
     textBox = newLine(true);
     line = start;
-    for (i = 0, len = words.length; i < len; i++) {
-      word = words[i];
+    for (j = 0, len = words.length; j < len; j++) {
+      word = words[j];
       if (line * dy > height) {
         truncate();
         break;
@@ -19650,8 +19670,10 @@ module.exports = function(vars) {
       unsafe = true;
       while (unsafe) {
         next_char = vars.text.current.charAt(progress.length);
-        if (next_char === " ") {
-          next_char = vars.text.current.charAt(progress.length + 1);
+        i = 1;
+        while (next_char === " ") {
+          next_char = vars.text.current.charAt(progress.length + i);
+          i++;
         }
         unsafe = vars.text.split.value.indexOf(next_char) >= 0;
         if (unsafe) {
@@ -19959,7 +19981,7 @@ module.exports = {
       this["break"] = new RegExp("[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g");
       return s;
     },
-    value: ["-", "/", ";", ":", "&", "."]
+    value: ["-", "/", ";", ":", "&"]
   }
 };
 
@@ -30227,6 +30249,109 @@ module.exports = {
 }
 
 },{}],305:[function(require,module,exports){
+var area, closest, fetchValue, graph, nest, sort, stack, threshold;
+
+closest = require("../../util/closest.coffee");
+
+fetchValue = require("../../core/fetch/value.coffee");
+
+graph = require("./helpers/graph/draw.coffee");
+
+nest = require("./helpers/graph/nest.coffee");
+
+sort = require("../../array/sort.coffee");
+
+stack = require("./helpers/graph/stack.coffee");
+
+threshold = require("../../core/data/threshold.js");
+
+area = function(vars) {
+  var d, data, discrete, domains, i, j, len, len1, opposite, point, ref;
+  graph(vars, {
+    buffer: vars.axes.opposite,
+    zero: true
+  });
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
+  data = sort(vars.data.viz, null, null, null, vars);
+  discrete = vars[vars.axes.discrete];
+  opposite = vars[vars.axes.opposite];
+  for (i = 0, len = data.length; i < len; i++) {
+    point = data[i];
+    if (!point.d3plus) {
+      point.d3plus = {};
+    }
+    ref = point.values;
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      d = ref[j];
+      if (!d.d3plus) {
+        d.d3plus = {};
+      }
+      d.d3plus.x = discrete.scale.viz(fetchValue(vars, d, discrete.value));
+      d.d3plus.x += vars.axes.margin.left;
+      d.d3plus.y = opposite.scale.viz(fetchValue(vars, d, opposite.value));
+      d.d3plus.y += vars.axes.margin.top;
+      if (d.d3plus.merged instanceof Array) {
+        if (!point.d3plus.merged) {
+          point.d3plus.merged = [];
+        }
+        point.d3plus.merged = point.d3plus.merged.concat(d.d3plus.merged);
+      }
+      if (d.d3plus.text && !point.d3plus.text) {
+        point.d3plus.text = d.d3plus.text;
+      }
+    }
+  }
+  return stack(vars, data);
+};
+
+area.filter = function(vars, data) {
+  return nest(vars, threshold(vars, data, vars[vars.axes.discrete].value));
+};
+
+area.requirements = ["data", "x", "y"];
+
+area.setup = function(vars) {
+  var axis, size, y;
+  if (!vars.axes.discrete) {
+    axis = vars.time.value === vars.y.value ? "y" : "x";
+    vars.self[axis]({
+      scale: "discrete"
+    });
+  }
+  if (!vars[vars.axes.discrete].zerofill.value) {
+    vars.self[vars.axes.discrete]({
+      zerofill: true
+    });
+  }
+  if (!vars[vars.axes.opposite].stacked.value && vars.type.value === "stacked") {
+    vars.self[vars.axes.opposite]({
+      stacked: true
+    });
+  }
+  y = vars[vars.axes.opposite];
+  size = vars.size;
+  if ((!y.value && size.value) || (size.changed && size.previous === y.value)) {
+    return vars.self[vars.axes.opposite](size.value);
+  } else if ((!size.value && y.value) || (y.changed && y.previous === size.value)) {
+    return vars.self.size(y.value);
+  }
+};
+
+area.shapes = ["area"];
+
+area.threshold = function(vars) {
+  return 20 / vars.height.viz;
+};
+
+area.tooltip = "static";
+
+module.exports = area;
+
+
+},{"../../array/sort.coffee":34,"../../core/data/threshold.js":61,"../../core/fetch/value.coffee":67,"../../util/closest.coffee":205,"./helpers/graph/draw.coffee":312,"./helpers/graph/nest.coffee":318,"./helpers/graph/stack.coffee":319}],306:[function(require,module,exports){
 var bar, buckets, fetchValue, graph, nest, stack, uniques,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -30415,7 +30540,7 @@ bar.shapes = ["square"];
 module.exports = bar;
 
 
-},{"../../core/fetch/value.coffee":67,"../../util/buckets.coffee":203,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":311,"./helpers/graph/nest.coffee":317,"./helpers/graph/stack.coffee":318}],306:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":67,"../../util/buckets.coffee":203,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":312,"./helpers/graph/nest.coffee":318,"./helpers/graph/stack.coffee":319}],307:[function(require,module,exports){
 var box, fetchValue, graph, strip, uniques;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -30676,7 +30801,7 @@ box.setup = function(vars) {
 module.exports = box;
 
 
-},{"../../core/fetch/value.coffee":67,"../../string/strip.js":174,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":311}],307:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":67,"../../string/strip.js":174,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":312}],308:[function(require,module,exports){
 var arraySort, bubbles, fetchColor, fetchText, fetchValue, groupData, legible;
 
 arraySort = require("../../array/sort.coffee");
@@ -30810,7 +30935,7 @@ bubbles.shapes = ["circle", "donut"];
 module.exports = bubbles;
 
 
-},{"../../array/sort.coffee":34,"../../color/legible.coffee":44,"../../core/data/group.coffee":57,"../../core/fetch/color.coffee":63,"../../core/fetch/text.js":66,"../../core/fetch/value.coffee":67}],308:[function(require,module,exports){
+},{"../../array/sort.coffee":34,"../../color/legible.coffee":44,"../../core/data/group.coffee":57,"../../core/fetch/color.coffee":63,"../../core/fetch/text.js":66,"../../core/fetch/value.coffee":67}],309:[function(require,module,exports){
 var chart, print;
 
 print = require("../../../core/console/print.coffee");
@@ -30834,7 +30959,7 @@ chart.shapes = ["circle", "donut", "line", "square", "area"];
 module.exports = chart;
 
 
-},{"../../../core/console/print.coffee":52}],309:[function(require,module,exports){
+},{"../../../core/console/print.coffee":52}],310:[function(require,module,exports){
 var geo_map;
 
 geo_map = function(vars) {
@@ -30873,7 +30998,7 @@ geo_map.zoom = true;
 module.exports = geo_map;
 
 
-},{}],310:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 var color, legible, print;
 
 color = require("../../../../core/fetch/color.coffee");
@@ -30953,7 +31078,7 @@ module.exports = function(vars) {
 };
 
 
-},{"../../../../color/legible.coffee":44,"../../../../core/console/print.coffee":52,"../../../../core/fetch/color.coffee":63}],311:[function(require,module,exports){
+},{"../../../../color/legible.coffee":44,"../../../../core/console/print.coffee":52,"../../../../core/fetch/color.coffee":63}],312:[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -30975,7 +31100,7 @@ module.exports = function(vars, opts) {
 };
 
 
-},{"./includes/axes.coffee":312,"./includes/mouse.coffee":314,"./includes/plot.coffee":315,"./includes/svg.coffee":316}],312:[function(require,module,exports){
+},{"./includes/axes.coffee":313,"./includes/mouse.coffee":315,"./includes/plot.coffee":316,"./includes/svg.coffee":317}],313:[function(require,module,exports){
 var arraySort, axisRange, buckets, buffer, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, uniques;
 
 arraySort = require("../../../../../array/sort.coffee");
@@ -31316,7 +31441,7 @@ sizeScale = function(vars, value) {
 };
 
 
-},{"../../../../../array/sort.coffee":34,"../../../../../core/console/print.coffee":52,"../../../../../core/fetch/data.js":64,"../../../../../core/fetch/value.coffee":67,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":313}],313:[function(require,module,exports){
+},{"../../../../../array/sort.coffee":34,"../../../../../core/console/print.coffee":52,"../../../../../core/fetch/data.js":64,"../../../../../core/fetch/value.coffee":67,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":314}],314:[function(require,module,exports){
 var buckets, closest;
 
 buckets = require("../../../../../util/buckets.coffee");
@@ -31501,7 +31626,7 @@ module.exports = function(vars, axis, buffer) {
 };
 
 
-},{"../../../../../util/buckets.coffee":203,"../../../../../util/closest.coffee":205}],314:[function(require,module,exports){
+},{"../../../../../util/buckets.coffee":203,"../../../../../util/closest.coffee":205}],315:[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible, textColor;
 
 copy = require("../../../../../util/copy.coffee");
@@ -31745,7 +31870,7 @@ module.exports = function(node, vars) {
 };
 
 
-},{"../../../../../client/pointer.coffee":38,"../../../../../color/legible.coffee":44,"../../../../../color/text.coffee":50,"../../../../../core/fetch/color.coffee":63,"../../../../../core/fetch/value.coffee":67,"../../../../../util/copy.coffee":206}],315:[function(require,module,exports){
+},{"../../../../../client/pointer.coffee":38,"../../../../../color/legible.coffee":44,"../../../../../color/text.coffee":50,"../../../../../core/fetch/color.coffee":63,"../../../../../core/fetch/value.coffee":67,"../../../../../util/copy.coffee":206}],316:[function(require,module,exports){
 var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap, timeDetect, uniques;
 
 buckets = require("../../../../../util/buckets.coffee");
@@ -32176,7 +32301,7 @@ formatPower = function(d) {
 };
 
 
-},{"../../../../../core/data/time.coffee":62,"../../../../../core/fetch/value.coffee":67,"../../../../../font/sizes.coffee":101,"../../../../../textwrap/textwrap.coffee":199,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":313}],316:[function(require,module,exports){
+},{"../../../../../core/data/time.coffee":62,"../../../../../core/fetch/value.coffee":67,"../../../../../font/sizes.coffee":101,"../../../../../textwrap/textwrap.coffee":199,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":314}],317:[function(require,module,exports){
 var mix, textwrap, validObject;
 
 mix = require("../../../../../color/mix.coffee");
@@ -32570,7 +32695,7 @@ module.exports = function(vars) {
 };
 
 
-},{"../../../../../color/mix.coffee":46,"../../../../../object/validate.coffee":171,"../../../../../textwrap/textwrap.coffee":199}],317:[function(require,module,exports){
+},{"../../../../../color/mix.coffee":46,"../../../../../object/validate.coffee":171,"../../../../../textwrap/textwrap.coffee":199}],318:[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
 fetchValue = require("../../../../core/fetch/value.coffee");
@@ -32694,14 +32819,14 @@ module.exports = function(vars, data, keys) {
 };
 
 
-},{"../../../../core/fetch/value.coffee":67,"../../../../string/strip.js":174,"../../../../util/uniques.coffee":209}],318:[function(require,module,exports){
+},{"../../../../core/fetch/value.coffee":67,"../../../../string/strip.js":174,"../../../../util/uniques.coffee":209}],319:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../../../../core/fetch/value.coffee");
 
 module.exports = function(vars, data) {
   var d, flip, i, j, len, len1, margin, neg, negativeData, offset, opposite, positiveData, scale, stack, stacked, v, val;
-  stacked = vars.axes.stacked;
+  stacked = vars.axes.stacked || vars.axes.opposite;
   flip = vars[stacked].scale.viz(0);
   scale = vars[stacked].scale.value;
   opposite = stacked === "x" ? "y" : "x";
@@ -32721,7 +32846,10 @@ module.exports = function(vars, data) {
       d.d3plus[stacked + "0"] = (1 - y0) * flip;
       d.d3plus[stacked] = d.d3plus[stacked + "0"] - (y * flip);
     } else {
-      d.d3plus[stacked + "0"] = flip - y0;
+      d.d3plus[stacked + "0"] = flip;
+      if (vars.axes.stacked) {
+        d.d3plus[stacked + "0"] -= y0;
+      }
       d.d3plus[stacked] = d.d3plus[stacked + "0"] - y;
     }
     d.d3plus[stacked] += margin;
@@ -32769,7 +32897,7 @@ module.exports = function(vars, data) {
 };
 
 
-},{"../../../../core/fetch/value.coffee":67}],319:[function(require,module,exports){
+},{"../../../../core/fetch/value.coffee":67}],320:[function(require,module,exports){
 var fetchValue, graph, line, nest, sort, stack;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -32848,7 +32976,7 @@ line.tooltip = "static";
 module.exports = line;
 
 
-},{"../../array/sort.coffee":34,"../../core/fetch/value.coffee":67,"./helpers/graph/draw.coffee":311,"./helpers/graph/nest.coffee":317,"./helpers/graph/stack.coffee":318}],320:[function(require,module,exports){
+},{"../../array/sort.coffee":34,"../../core/fetch/value.coffee":67,"./helpers/graph/draw.coffee":312,"./helpers/graph/nest.coffee":318,"./helpers/graph/stack.coffee":319}],321:[function(require,module,exports){
 var smallestGap = require("../../network/smallestGap.coffee"),
     fetchValue = require("../../core/fetch/value.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32997,7 +33125,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.coffee":67,"../../network/smallestGap.coffee":167}],321:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":67,"../../network/smallestGap.coffee":167}],322:[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -33254,7 +33382,7 @@ viz.tooltip = "static";
 module.exports = viz;
 
 
-},{"../../core/fetch/value.coffee":67,"../../network/shortestPath.coffee":166,"../../util/uniques.coffee":209}],322:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":67,"../../network/shortestPath.coffee":166,"../../util/uniques.coffee":209}],323:[function(require,module,exports){
 var comparator, dataThreshold, groupData, pie;
 
 comparator = require("../../array/comparator.coffee");
@@ -33307,7 +33435,7 @@ pie.threshold = function(vars) {
 module.exports = pie;
 
 
-},{"../../array/comparator.coffee":32,"../../core/data/group.coffee":57,"../../core/data/threshold.js":61}],323:[function(require,module,exports){
+},{"../../array/comparator.coffee":32,"../../core/data/group.coffee":57,"../../core/data/threshold.js":61}],324:[function(require,module,exports){
 var buckets, comparator, dataThreshold, fetchText, fetchValue, fontSizes, offset, radar, sort, textwrap, uniques;
 
 comparator = require("../../array/comparator.coffee");
@@ -33551,7 +33679,7 @@ radar.shapes = ["radial"];
 module.exports = radar;
 
 
-},{"../../array/comparator.coffee":32,"../../array/sort.coffee":34,"../../core/data/threshold.js":61,"../../core/fetch/text.js":66,"../../core/fetch/value.coffee":67,"../../font/sizes.coffee":101,"../../geom/offset.coffee":160,"../../textwrap/textwrap.coffee":199,"../../util/buckets.coffee":203,"../../util/uniques.coffee":209}],324:[function(require,module,exports){
+},{"../../array/comparator.coffee":32,"../../array/sort.coffee":34,"../../core/data/threshold.js":61,"../../core/fetch/text.js":66,"../../core/fetch/value.coffee":67,"../../font/sizes.coffee":101,"../../geom/offset.coffee":160,"../../textwrap/textwrap.coffee":199,"../../util/buckets.coffee":203,"../../util/uniques.coffee":209}],325:[function(require,module,exports){
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
     fetchValue    = require("../../core/fetch/value.coffee"),
@@ -34050,7 +34178,7 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":34,"../../client/pointer.coffee":38,"../../color/legible.coffee":44,"../../color/text.coffee":50,"../../core/fetch/color.coffee":63,"../../core/fetch/value.coffee":67,"../../network/smallestGap.coffee":167,"../../tooltip/remove.coffee":202,"../../util/uniques.coffee":209}],325:[function(require,module,exports){
+},{"../../array/sort.coffee":34,"../../client/pointer.coffee":38,"../../color/legible.coffee":44,"../../color/text.coffee":50,"../../core/fetch/color.coffee":63,"../../core/fetch/value.coffee":67,"../../network/smallestGap.coffee":167,"../../tooltip/remove.coffee":202,"../../util/uniques.coffee":209}],326:[function(require,module,exports){
 var d3sankey, events, removeTooltip, sankey, uniques;
 
 d3sankey = require("./sankey.js");
@@ -34152,7 +34280,7 @@ sankey.shapes = ["square"];
 module.exports = sankey;
 
 
-},{"../../client/pointer.coffee":38,"../../tooltip/remove.coffee":202,"../../util/uniques.coffee":209,"./sankey.js":326}],326:[function(require,module,exports){
+},{"../../client/pointer.coffee":38,"../../tooltip/remove.coffee":202,"../../util/uniques.coffee":209,"./sankey.js":327}],327:[function(require,module,exports){
 module.exports = function() {
   var sankey = {},
       nodeWidth = 24,
@@ -34448,7 +34576,7 @@ module.exports = function() {
   return sankey;
 };
 
-},{}],327:[function(require,module,exports){
+},{}],328:[function(require,module,exports){
 var fetchValue, graph, print, scatter, sort, ticks;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -34516,109 +34644,7 @@ scatter.tooltip = "static";
 module.exports = scatter;
 
 
-},{"../../array/sort.coffee":34,"../../core/console/print.coffee":52,"../../core/fetch/value.coffee":67,"./helpers/graph/dataTicks.coffee":310,"./helpers/graph/draw.coffee":311}],328:[function(require,module,exports){
-var closest, fetchValue, graph, nest, sort, stack, stacked, threshold;
-
-closest = require("../../util/closest.coffee");
-
-fetchValue = require("../../core/fetch/value.coffee");
-
-graph = require("./helpers/graph/draw.coffee");
-
-nest = require("./helpers/graph/nest.coffee");
-
-sort = require("../../array/sort.coffee");
-
-stack = require("./helpers/graph/stack.coffee");
-
-threshold = require("../../core/data/threshold.js");
-
-stacked = function(vars) {
-  var d, data, discrete, domains, i, j, len, len1, opposite, point, ref;
-  graph(vars, {
-    buffer: vars.axes.opposite
-  });
-  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
-  if (domains.indexOf(void 0) >= 0) {
-    return [];
-  }
-  data = sort(vars.data.viz, null, null, null, vars);
-  discrete = vars[vars.axes.discrete];
-  opposite = vars[vars.axes.opposite];
-  for (i = 0, len = data.length; i < len; i++) {
-    point = data[i];
-    if (!point.d3plus) {
-      point.d3plus = {};
-    }
-    ref = point.values;
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      d = ref[j];
-      if (!d.d3plus) {
-        d.d3plus = {};
-      }
-      d.d3plus.x = discrete.scale.viz(fetchValue(vars, d, discrete.value));
-      d.d3plus.x += vars.axes.margin.left;
-      d.d3plus.y = opposite.scale.viz(fetchValue(vars, d, opposite.value));
-      d.d3plus.y += vars.axes.margin.top;
-      if (d.d3plus.merged instanceof Array) {
-        if (!point.d3plus.merged) {
-          point.d3plus.merged = [];
-        }
-        point.d3plus.merged = point.d3plus.merged.concat(d.d3plus.merged);
-      }
-      if (d.d3plus.text && !point.d3plus.text) {
-        point.d3plus.text = d.d3plus.text;
-      }
-    }
-  }
-  return stack(vars, data);
-};
-
-stacked.filter = function(vars, data) {
-  return nest(vars, threshold(vars, data, vars[vars.axes.discrete].value));
-};
-
-stacked.requirements = ["data", "x", "y"];
-
-stacked.setup = function(vars) {
-  var axis, size, y;
-  if (!vars.axes.discrete) {
-    axis = vars.time.value === vars.y.value ? "y" : "x";
-    vars.self[axis]({
-      scale: "discrete"
-    });
-  }
-  if (!vars[vars.axes.discrete].zerofill.value) {
-    vars.self[vars.axes.discrete]({
-      zerofill: true
-    });
-  }
-  if (!vars[vars.axes.opposite].stacked.value) {
-    vars.self[vars.axes.opposite]({
-      stacked: true
-    });
-  }
-  y = vars[vars.axes.opposite];
-  size = vars.size;
-  if ((!y.value && size.value) || (size.changed && size.previous === y.value)) {
-    return vars.self[vars.axes.opposite](size.value);
-  } else if ((!size.value && y.value) || (y.changed && y.previous === size.value)) {
-    return vars.self.size(y.value);
-  }
-};
-
-stacked.shapes = ["area"];
-
-stacked.threshold = function(vars) {
-  return 20 / vars.height.viz;
-};
-
-stacked.tooltip = "static";
-
-module.exports = stacked;
-
-
-},{"../../array/sort.coffee":34,"../../core/data/threshold.js":61,"../../core/fetch/value.coffee":67,"../../util/closest.coffee":205,"./helpers/graph/draw.coffee":311,"./helpers/graph/nest.coffee":317,"./helpers/graph/stack.coffee":318}],329:[function(require,module,exports){
+},{"../../array/sort.coffee":34,"../../core/console/print.coffee":52,"../../core/fetch/value.coffee":67,"./helpers/graph/dataTicks.coffee":311,"./helpers/graph/draw.coffee":312}],329:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.coffee");
 var uniques    = require("../../util/uniques.coffee");
 var copy       = require("../../util/copy.coffee");
@@ -34861,6 +34887,7 @@ module.exports = function() {
       apps: {}
     },
     types: {
+      area: require("./types/area.coffee"),
       bar: require("./types/bar.coffee"),
       bubbles: require("./types/bubbles.coffee"),
       box: require("./types/box.coffee"),
@@ -34874,7 +34901,7 @@ module.exports = function() {
       rings: require("./types/rings.js"),
       sankey: require("./types/sankey.coffee"),
       scatter: require("./types/scatter.coffee"),
-      stacked: require("./types/stacked.coffee"),
+      stacked: require("./types/area.coffee"),
       table: require("./types/table.js"),
       tree_map: require("./types/tree_map.coffee")
     }
@@ -35041,4 +35068,4 @@ module.exports = function() {
 };
 
 
-},{"../core/console/print.coffee":52,"../core/methods/attach.coffee":79,"../object/validate.coffee":171,"./helpers/container.coffee":210,"./helpers/drawSteps.js":211,"./helpers/ui/message.js":245,"./methods/active.coffee":254,"./methods/aggs.coffee":255,"./methods/attrs.coffee":256,"./methods/axes.coffee":257,"./methods/background.coffee":258,"./methods/class.coffee":259,"./methods/color.coffee":260,"./methods/cols.js":261,"./methods/config.coffee":262,"./methods/container.coffee":263,"./methods/coords.coffee":264,"./methods/csv.coffee":265,"./methods/data.coffee":266,"./methods/depth.coffee":267,"./methods/descs.coffee":268,"./methods/dev.coffee":269,"./methods/draw.js":270,"./methods/edges.js":271,"./methods/error.coffee":272,"./methods/focus.coffee":273,"./methods/font.coffee":274,"./methods/footer.coffee":275,"./methods/format.coffee":276,"./methods/height.coffee":277,"./methods/helpers/axis.coffee":278,"./methods/history.coffee":279,"./methods/icon.coffee":280,"./methods/id.coffee":281,"./methods/labels.coffee":282,"./methods/legend.coffee":283,"./methods/links.coffee":284,"./methods/margin.coffee":285,"./methods/messages.coffee":286,"./methods/mouse.coffee":287,"./methods/nodes.coffee":288,"./methods/order.coffee":289,"./methods/shape.coffee":290,"./methods/size.coffee":291,"./methods/style.coffee":292,"./methods/temp.coffee":293,"./methods/text.coffee":294,"./methods/time.coffee":295,"./methods/timeline.coffee":296,"./methods/timing.coffee":297,"./methods/title.coffee":298,"./methods/tooltip.coffee":299,"./methods/total.coffee":300,"./methods/type.coffee":301,"./methods/ui.coffee":302,"./methods/width.coffee":303,"./methods/zoom.js":304,"./types/bar.coffee":305,"./types/box.coffee":306,"./types/bubbles.coffee":307,"./types/deprecated/chart.coffee":308,"./types/geo_map.coffee":309,"./types/line.coffee":319,"./types/network.js":320,"./types/paths.coffee":321,"./types/pie.coffee":322,"./types/radar.coffee":323,"./types/rings.js":324,"./types/sankey.coffee":325,"./types/scatter.coffee":327,"./types/stacked.coffee":328,"./types/table.js":329,"./types/tree_map.coffee":330}]},{},[162]);
+},{"../core/console/print.coffee":52,"../core/methods/attach.coffee":79,"../object/validate.coffee":171,"./helpers/container.coffee":210,"./helpers/drawSteps.js":211,"./helpers/ui/message.js":245,"./methods/active.coffee":254,"./methods/aggs.coffee":255,"./methods/attrs.coffee":256,"./methods/axes.coffee":257,"./methods/background.coffee":258,"./methods/class.coffee":259,"./methods/color.coffee":260,"./methods/cols.js":261,"./methods/config.coffee":262,"./methods/container.coffee":263,"./methods/coords.coffee":264,"./methods/csv.coffee":265,"./methods/data.coffee":266,"./methods/depth.coffee":267,"./methods/descs.coffee":268,"./methods/dev.coffee":269,"./methods/draw.js":270,"./methods/edges.js":271,"./methods/error.coffee":272,"./methods/focus.coffee":273,"./methods/font.coffee":274,"./methods/footer.coffee":275,"./methods/format.coffee":276,"./methods/height.coffee":277,"./methods/helpers/axis.coffee":278,"./methods/history.coffee":279,"./methods/icon.coffee":280,"./methods/id.coffee":281,"./methods/labels.coffee":282,"./methods/legend.coffee":283,"./methods/links.coffee":284,"./methods/margin.coffee":285,"./methods/messages.coffee":286,"./methods/mouse.coffee":287,"./methods/nodes.coffee":288,"./methods/order.coffee":289,"./methods/shape.coffee":290,"./methods/size.coffee":291,"./methods/style.coffee":292,"./methods/temp.coffee":293,"./methods/text.coffee":294,"./methods/time.coffee":295,"./methods/timeline.coffee":296,"./methods/timing.coffee":297,"./methods/title.coffee":298,"./methods/tooltip.coffee":299,"./methods/total.coffee":300,"./methods/type.coffee":301,"./methods/ui.coffee":302,"./methods/width.coffee":303,"./methods/zoom.js":304,"./types/area.coffee":305,"./types/bar.coffee":306,"./types/box.coffee":307,"./types/bubbles.coffee":308,"./types/deprecated/chart.coffee":309,"./types/geo_map.coffee":310,"./types/line.coffee":320,"./types/network.js":321,"./types/paths.coffee":322,"./types/pie.coffee":323,"./types/radar.coffee":324,"./types/rings.js":325,"./types/sankey.coffee":326,"./types/scatter.coffee":328,"./types/table.js":329,"./types/tree_map.coffee":330}]},{},[162]);
