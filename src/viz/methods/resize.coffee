@@ -19,7 +19,7 @@ module.exports = {
 
       vars.self(vars.container.value)
 
-    d3.select(window).on("resize", (e) => 
+    d3.select(window).on("resize." + vars.container.id, (e) =>
       clearTimeout resize
       resize = setTimeout resizeEnd, this.timeout
     )
