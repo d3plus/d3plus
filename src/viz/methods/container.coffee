@@ -12,8 +12,7 @@ module.exports =
     if d3selection(value)
       value
     else if value instanceof Array
-      d3.select value[0][0]
+      d3.select(value[0][0]).append('div')
     else
-      d3.select value
-
+      d3.select(value).append('div')
   value:    false

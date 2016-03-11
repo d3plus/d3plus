@@ -161,6 +161,7 @@ module.exports = ->
     mouse:      require "./methods/mouse.coffee"
     nodes:      require "./methods/nodes.coffee"
     order:      require "./methods/order.coffee"
+    resize:     require "./methods/resize.coffee"
     shape:      require "./methods/shape.coffee"
     size:       require "./methods/size.coffee"
     style:      require "./methods/style.coffee"
