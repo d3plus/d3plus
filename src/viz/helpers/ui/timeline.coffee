@@ -211,6 +211,7 @@ module.exports = (vars) ->
       y = timelineHeight/2 + vars.ui.padding + 1
       text
         .attr "fill", textColor vars.ui.color.primary.value
+        .attr "stroke", "none"
         .attr textStyle
         .attr "x", start_x - (playbackWidth - 1)/2 - vars.ui.padding
         .attr "y", y
@@ -318,6 +319,7 @@ module.exports = (vars) ->
 
     text = labels.selectAll("text").data years, (d,i) -> i
     text.enter().append("text")
+      .attr("stroke", "none")
       .attr("y",0)
       .attr("dy","0.5ex")
       .attr("x",0)

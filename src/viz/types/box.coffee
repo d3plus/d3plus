@@ -7,7 +7,6 @@ box = (vars) ->
 
   graph vars,
     buffer: true
-    mouse:  true
 
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0

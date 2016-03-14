@@ -10,10 +10,9 @@ module.exports =
       vars.self.container id: "d3plus_" + +new Date()
 
     if d3selection(value)
-      value
+      value.append("div")
     else if value instanceof Array
-      d3.select value[0][0]
+      d3.select(value[0][0]).append("div")
     else
-      d3.select value
-
+      d3.select(value).append("div")
   value:    false

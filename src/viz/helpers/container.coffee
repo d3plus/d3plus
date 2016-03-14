@@ -9,7 +9,8 @@ module.exports = (vars) ->
       current = d3.select(this).style("position")
       remain  = ["absolute","fixed"].indexOf(current) >= 0
       if remain then current else "relative"
-    .html ""
+
+  vars.container.value.html "" if vars.container.changed
 
   # Get overall width and height, if not defined
   for s in ["width","height"]

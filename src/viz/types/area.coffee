@@ -6,11 +6,12 @@ sort       = require "../../array/sort.coffee"
 stack      = require "./helpers/graph/stack.coffee"
 threshold  = require "../../core/data/threshold.js"
 
-# Stacked Area Chart
-stacked = (vars) ->
+# Area Chart
+area = (vars) ->
 
   graph vars,
     buffer: vars.axes.opposite
+    zero: true
 
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
@@ -40,10 +41,10 @@ stacked = (vars) ->
   stack vars, data
 
 # Visualization Settings and Helper Functions
-stacked.filter = (vars, data) ->
+area.filter = (vars, data) ->
   nest vars, threshold(vars, data, vars[vars.axes.discrete].value)
-stacked.requirements = ["data", "x", "y"]
-stacked.setup = (vars) ->
+area.requirements = ["data", "x", "y"]
+area.setup = (vars) ->
 
   unless vars.axes.discrete
     axis = if vars.time.value is vars.y.value then "y" else "x"
@@ -51,7 +52,7 @@ stacked.setup = (vars) ->
 
   unless vars[vars.axes.discrete].zerofill.value
     vars.self[vars.axes.discrete] zerofill: true
-  unless vars[vars.axes.opposite].stacked.value
+  if !vars[vars.axes.opposite].stacked.value and vars.type.value is "stacked"
     vars.self[vars.axes.opposite] stacked: true
 
   y    = vars[vars.axes.opposite]
@@ -64,7 +65,7 @@ stacked.setup = (vars) ->
           (y.changed and y.previous is size.value)
     vars.self.size y.value
 
-stacked.shapes = ["area"]
-stacked.threshold = (vars) -> 20 / vars.height.viz
-stacked.tooltip = "static"
-module.exports  = stacked
+area.shapes = ["area"]
+area.threshold = (vars) -> 20 / vars.height.viz
+area.tooltip = "static"
+module.exports  = area

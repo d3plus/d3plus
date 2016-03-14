@@ -57,6 +57,7 @@ module.exports = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
+      .attr("stroke", "none")
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none";
       })
@@ -335,8 +336,14 @@ module.exports = function( vars , group ) {
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
               bounds.y -= (vars.labels.padding*scale[0])/2;
-              var t = text.attr("transform").split(")");
-              bounds.y += parseFloat(t[t.length-2].split(",")[1]);
+              var y = text.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0];
+              y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2");
+              y = y.split(",");
+              if (y.length > 1) {
+                y = y[y.length - 1];
+                y = y.substring(0, y.length - 1);
+                bounds.y += y;
+              }
 
             }
             else {

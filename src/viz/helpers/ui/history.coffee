@@ -34,7 +34,9 @@ module.exports = (vars) ->
 
     if titleClass
       stripY = (elem) ->
-        y = elem.attr("transform").split(",")
+        y = elem.attr("transform").match(/translate\(([^a-z]+)\)/gi)[0]
+        y = y.replace(/([^a-z])\s([^a-z])/gi, "$1,$2")
+        y = y.split(",")
         y = y[y.length - 1]
         parseFloat y.substring(0, y.length - 1)
 

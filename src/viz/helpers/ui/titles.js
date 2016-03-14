@@ -199,6 +199,7 @@ module.exports = function(vars) {
     })
     .attr("opacity",0)
     .append("text")
+      .attr("stroke", "none")
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

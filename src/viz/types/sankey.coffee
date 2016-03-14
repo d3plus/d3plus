@@ -70,6 +70,8 @@ sankey = (vars) ->
   vars.mouse.viz[events.click] = (d) ->
     if d[vars.id.value] isnt vars.focus.value[0]
       removeTooltip vars.type.value
+      old_focus = vars.focus.value[0]
+      vars.history.states.push -> vars.self.focus(old_focus).draw()
       vars.self.focus(d[vars.id.value]).draw()
 
   # return
