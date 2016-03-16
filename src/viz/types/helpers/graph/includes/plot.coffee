@@ -159,6 +159,7 @@ labelPadding = (vars) ->
         yText = yValues.map (d) -> vars.format.value d * 100,
           key: "share"
           vars: vars
+          output: axis
       else if vars[axis].value is vars.time.value
         yText = yValues.map (d, i) ->
           vars[axis].ticks.format new Date(d)
@@ -171,6 +172,7 @@ labelPadding = (vars) ->
             key:    vars[axis].value
             vars:   vars
             labels: vars[axis].affixes.value
+            output: axis
 
       if vars[axis].ticks.labels.value
         vars[axis].ticks.hidden    = false
@@ -221,6 +223,7 @@ labelPadding = (vars) ->
           xText = xValues.map (d) -> vars.format.value d * 100,
             key: "share"
             vars: vars
+            output: axis
         else if vars[axis].value is vars.time.value
           xText = xValues.map (d, i) ->
             vars[axis].ticks.format new Date(d)
@@ -233,6 +236,7 @@ labelPadding = (vars) ->
               key:    vars[axis].value
               vars:   vars
               labels: vars[axis].affixes.value
+              output: axis
 
         xSizes      = fontSizes(xText,xAttrs)
         xAxisWidth  = d3.max xSizes, (d) -> d.width
@@ -331,14 +335,14 @@ createAxis = (vars, axis) ->
       if vars[axis].ticks.visible.indexOf(c) >= 0
         if scale is "share"
           vars.format.value d * 100,
-            key: "share", vars: vars, labels: vars[axis].affixes.value
+            key: "share", vars: vars, labels: vars[axis].affixes.value, output: axis
         else if d.constructor is Date
           vars[axis].ticks.format d
         else if scale is "log"
           formatPower d
         else
           vars.format.value d,
-            key: vars[axis].value, vars: vars, labels: vars[axis].affixes.value
+            key: vars[axis].value, vars: vars, labels: vars[axis].affixes.value, output: axis
       else
         null
 
