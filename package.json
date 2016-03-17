@@ -2,11 +2,9 @@
   "name": "d3plus",
   "version": "1.9.1",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
-  "main": "d3plus.full.js",
   "devDependencies": {
     "browserify": "^13.0.0",
     "coffee-script": "^1.9.3",
-    "coffeeify": "^2.0.1",
     "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-chmod": "^1.2.0",
@@ -66,7 +64,8 @@
     "numeric": "^1.2.6",
     "simplify-js": "^1.2.1",
     "static-kdtree": "^1.0.1",
-    "topojson": "^1.6.24"
+    "topojson": "^1.6.24",
+    "coffeeify": "^2.0.1"
   },
   "filename": "d3plus.min.js",
   "npmName": "d3plus",

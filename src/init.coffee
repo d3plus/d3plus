@@ -2,8 +2,6 @@
 # @class d3plus
 ###
 d3plus         = {}
-window.d3plus  = d3plus if typeof window isnt "undefined"
-module.exports = d3plus
 
 ###*
 # The current version of **D3plus** you are using. Returns a string in
@@ -196,3 +194,6 @@ stylesheet = require "./client/css.coffee"
 message    = require "./core/console/print.coffee"
 if stylesheet "d3plus.css"
   message.warning "d3plus.css has been deprecated, you do not need to load this file.", d3plus.repo+"releases/tag/v1.4.0"
+
+window.d3plus  = d3plus if typeof window isnt "undefined"
+module.exports = d3plus
