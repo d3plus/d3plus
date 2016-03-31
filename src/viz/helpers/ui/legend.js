@@ -522,7 +522,7 @@ module.exports = function(vars) {
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2;
         })
         .each(function(d){
-          var w = this.offsetWidth;
+          var w = Math.ceil(this.getBBox().width);
           if (w > label_width) label_width = w;
         });
 
