@@ -22,6 +22,7 @@ sankey = (vars) ->
         id: "left_" + e[vars.edges.source][vars.id.value]
         dupe: "left"
         data: e[vars.edges.source]
+        value: e[vars.edges.strength.value]
       t = e[vars.edges.target]
     else
       s = e[vars.edges.source]
@@ -29,6 +30,7 @@ sankey = (vars) ->
         id: "right_" + e[vars.edges.target][vars.id.value]
         dupe: "right"
         data: e[vars.edges.target]
+        value: e[vars.edges.strength.value]
     nodes.push s if placed.indexOf(s.id) < 0
     nodes.push t if placed.indexOf(t.id) < 0
     placed.push s.id
@@ -57,6 +59,7 @@ sankey = (vars) ->
       width: n.dx
       height: n.dy
       suffix: n.dupe
+    d[vars.edges.strength.value] = n.value unless d.id is focus
     returnData.push d
 
   vars.edges.path = layout.link()
