@@ -3,6 +3,8 @@ defaultLocale = require "../core/locale/languages/en_US.coffee"
 # Formats numbers to look "pretty"
 module.exports = (number, opts) ->
 
+  return "" if number is undefined or number is null or number is false
+
   opts = {} unless opts
   if "locale" of opts
     locale = opts.locale
