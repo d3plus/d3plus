@@ -22,7 +22,8 @@ line = (vars) ->
     for d in point.values
 
       xval = fetchValue(vars, d, vars.x.value)
-      if xval
+
+      if xval isnt null
         d.d3plus.x2 = false
         d.d3plus.x  = vars.x.scale.viz xval
       else
@@ -31,7 +32,8 @@ line = (vars) ->
       d.d3plus.x += vars.axes.margin.left
 
       yval = fetchValue(vars, d, vars.y.value)
-      if yval
+
+      if yval isnt null
         d.d3plus.y2 = false
         d.d3plus.y  = vars.y.scale.viz yval
       else
