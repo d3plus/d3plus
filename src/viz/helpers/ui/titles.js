@@ -228,7 +228,7 @@ module.exports = function(vars) {
       textWrap()
         .align(align)
         .container(container)
-        .height(vars.height.value / 8)
+        .height(vars.height.value / 2)
         .size(false)
         .text(d.value)
         .width(titleWidth)
