@@ -18280,7 +18280,7 @@ d3plus = {};
  * @static
  */
 
-d3plus.version = "1.9.2 - Cornflower";
+d3plus.version = "1.9.3 - Cornflower";
 
 
 /**
@@ -19048,6 +19048,9 @@ defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 module.exports = function(number, opts) {
   var affixes, format, key, labels, length, locale, ret, sigs, symbol, time, vars, zeros;
+  if (number === void 0 || number === null || number === false) {
+    return "";
+  }
   if (!opts) {
     opts = {};
   }
@@ -27364,7 +27367,7 @@ module.exports = function(vars) {
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2;
         })
         .each(function(d){
-          var w = this.offsetWidth;
+          var w = Math.ceil(this.getBBox().width);
           if (w > label_width) label_width = w;
         });
 
@@ -28273,7 +28276,7 @@ module.exports = function(vars) {
       textWrap()
         .align(align)
         .container(container)
-        .height(vars.height.value / 8)
+        .height(vars.height.value / 2)
         .size(false)
         .text(d.value)
         .width(titleWidth)
@@ -32965,7 +32968,7 @@ line = function(vars) {
     for (j = 0, len1 = ref.length; j < len1; j++) {
       d = ref[j];
       xval = fetchValue(vars, d, vars.x.value);
-      if (xval) {
+      if (xval !== null) {
         d.d3plus.x2 = false;
         d.d3plus.x = vars.x.scale.viz(xval);
       } else {
@@ -32974,7 +32977,7 @@ line = function(vars) {
       }
       d.d3plus.x += vars.axes.margin.left;
       yval = fetchValue(vars, d, vars.y.value);
-      if (yval) {
+      if (yval !== null) {
         d.d3plus.y2 = false;
         d.d3plus.y = vars.y.scale.viz(yval);
       } else {
@@ -34243,7 +34246,8 @@ sankey = function(vars) {
       s = {
         id: "left_" + e[vars.edges.source][vars.id.value],
         dupe: "left",
-        data: e[vars.edges.source]
+        data: e[vars.edges.source],
+        value: e[vars.edges.strength.value]
       };
       t = e[vars.edges.target];
     } else {
@@ -34251,7 +34255,8 @@ sankey = function(vars) {
       t = {
         id: "right_" + e[vars.edges.target][vars.id.value],
         dupe: "right",
-        data: e[vars.edges.target]
+        data: e[vars.edges.target],
+        value: e[vars.edges.strength.value]
       };
     }
     if (placed.indexOf(s.id) < 0) {
@@ -34283,6 +34288,9 @@ sankey = function(vars) {
       height: n.dy,
       suffix: n.dupe
     };
+    if (d.id !== focus) {
+      d[vars.edges.strength.value] = n.value;
+    }
     returnData.push(d);
   }
   vars.edges.path = layout.link();
