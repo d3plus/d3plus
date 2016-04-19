@@ -244,7 +244,7 @@ module.exports = function(params) {
     var depth = "depth" in params ? params.depth : dataDepth,
         title = params.title || fetchText(vars,d,depth)[0],
         icon = uniques(d, vars.icon.value, fetchValue, vars, vars.id.nesting[depth]),
-        tooltip_data = fetchData(vars,d,length,ex,children,depth)
+        tooltip_data = params.titleOnly ? [] : fetchData(vars,d,length,ex,children,depth);
 
     if (icon.length === 1 && typeof icon[0] === "string") {
       icon = icon[0];

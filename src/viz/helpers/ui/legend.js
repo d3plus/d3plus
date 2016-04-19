@@ -218,6 +218,7 @@ module.exports = function(vars) {
 
                 pattern_enter.append("rect")
                   .attr("fill",color)
+                  .attr("stroke", "none")
                   .attr("width",square_size)
                   .attr("height",square_size);
 
@@ -397,6 +398,7 @@ module.exports = function(vars) {
                 "y": y,
                 "mouseevents": this,
                 "title": title,
+                "titleOnly": !vars.legend.data.value,
                 "offset": square_size*0.4
               });
 

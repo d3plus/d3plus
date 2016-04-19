@@ -3,6 +3,9 @@ family = require "../../core/methods/font/family.coffee"
 module.exports =
   accepted: [Boolean]
   align:    "middle"
+  data:
+    accepted: [Boolean]
+    value:    true
   filters:
     accepted: [Boolean]
     value:    false
