@@ -153,10 +153,14 @@ module.exports = function(vars) {
   // Sets the class name for a group
   //----------------------------------------------------------------------------
   function className(g) {
-    g.attr("class", function(d){
-      var c = vars.class.value ? " " + fetchValue(vars, d, vars.class.value) : "";
-      return "d3plus_" + shape + c;
-    });
+    g
+      .attr("id", function(d){
+        return "d3plus_group_" + d.d3plus.id;
+      })
+      .attr("class", function(d){
+        var c = vars.class.value ? " " + fetchValue(vars, d, vars.class.value) : "";
+        return "d3plus_" + shape + c;
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
