@@ -19748,7 +19748,7 @@ wrap = function(vars) {
   var firstChar;
   if (vars.text.phrases.length) {
     vars.text.current = vars.text.phrases.shift() + "";
-    vars.text.words = vars.text.current.match(vars.text["break"]);
+    vars.text.words = vars.text.current.match(vars.text.split["break"]);
     firstChar = vars.text.current.charAt(0);
     if (firstChar !== vars.text.words[0].charAt(0)) {
       vars.text.words[0] = firstChar + vars.text.words[0];
@@ -19976,7 +19976,7 @@ module.exports = {
   init: function(vars) {
     var s;
     s = this.split.value;
-    this["break"] = new RegExp("[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g");
+    this.split["break"] = new RegExp("[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g");
     return false;
   },
   split: {
@@ -26188,7 +26188,7 @@ module.exports = function(params) {
     var depth = "depth" in params ? params.depth : dataDepth,
         title = params.title || fetchText(vars,d,depth)[0],
         icon = uniques(d, vars.icon.value, fetchValue, vars, vars.id.nesting[depth]),
-        tooltip_data = fetchData(vars,d,length,ex,children,depth)
+        tooltip_data = params.titleOnly ? [] : fetchData(vars,d,length,ex,children,depth);
 
     if (icon.length === 1 && typeof icon[0] === "string") {
       icon = icon[0];
@@ -27063,6 +27063,7 @@ module.exports = function(vars) {
 
                 pattern_enter.append("rect")
                   .attr("fill",color)
+                  .attr("stroke", "none")
                   .attr("width",square_size)
                   .attr("height",square_size);
 
@@ -27242,6 +27243,7 @@ module.exports = function(vars) {
                 "y": y,
                 "mouseevents": this,
                 "title": title,
+                "titleOnly": !vars.legend.data.value,
                 "offset": square_size*0.4
               });
 
@@ -29651,6 +29653,10 @@ family = require("../../core/methods/font/family.coffee");
 module.exports = {
   accepted: [Boolean],
   align: "middle",
+  data: {
+    accepted: [Boolean],
+    value: true
+  },
   filters: {
     accepted: [Boolean],
     value: false

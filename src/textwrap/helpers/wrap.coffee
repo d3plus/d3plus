@@ -7,7 +7,7 @@ wrap = (vars) ->
   if vars.text.phrases.length
 
     vars.text.current = vars.text.phrases.shift() + ""
-    vars.text.words   = vars.text.current.match vars.text.break
+    vars.text.words   = vars.text.current.match vars.text.split.break
 
     firstChar = vars.text.current.charAt(0)
     if firstChar isnt vars.text.words[0].charAt(0)

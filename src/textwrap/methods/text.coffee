@@ -5,7 +5,7 @@ module.exports =
     value:    false
   init: (vars) ->
     s = @split.value
-    @break = new RegExp "[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g"
+    @split.break = new RegExp "[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g"
     false
   split:
     accepted: [Array]
