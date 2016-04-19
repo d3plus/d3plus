@@ -225,9 +225,9 @@ sizeScale = (vars, value) ->
   max = max vars if typeof max is "function"
 
   if value is false
-    vars.size.scale.value.rangeRound [max,max]
+    vars.size.scale.value.domain([0, 1]).rangeRound [max,max]
   else if typeof value is "number"
-    vars.size.scale.value.rangeRound [value,value]
+    vars.size.scale.value.domain([0, 1]).rangeRound [value,value]
   else if value
 
     print.time "calculating buffer scale" if vars.dev.value

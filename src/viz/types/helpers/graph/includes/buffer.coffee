@@ -55,7 +55,7 @@ module.exports = (vars, axis, buffer) ->
           if domain[0] - additional < domainLow
 
             domain[0] = domain[0] - additional
-            domain[1] = domain[1] + additional
+            domain[domain.length - 1] = domain[domain.length - 1] + additional
 
           else
 
