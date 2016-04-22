@@ -64,12 +64,10 @@ module.exports = {
         "legend": "leyenda",
         "margin": "margen",
         "messages": "mensajes de estado",
-        "mute": "ocultar",
         "order": "orden",
         "search": "búsqueda",
         "shape": "forma",
         "size": "tamaño",
-        "solo": "aislar",
         "style": "estilo",
         "temp": "segmentos temporales",
         "text": "texto",
@@ -80,8 +78,10 @@ module.exports = {
         "width": "anchura",
         "x": "eje x",
         "y": "eje Y",
-        "zoom": "#ERROR!",
-        "mode": "modo"
+        "zoom": "enfocar",
+        "mode": "modo",
+        "mute": "esconder",
+        "solo": "aislar"
     },
     "time": [
         "fecha",
@@ -121,7 +121,13 @@ module.exports = {
         "total": "total",
         "values": "valores",
         "including": "Incluyendo",
-        "or": "o"
+        "or": "o",
+        "iqr": "rango intercuartil para {0}",
+        "max": "máximo",
+        "min": "mínimo",
+        "percentile": "{0} percentil",
+        "tukey_bottom": "Tukey inferior",
+        "tukey_top": "la parte superior de Tukey"
     },
     "message": {
         "data": "analizando los datos",

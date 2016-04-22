@@ -13,18 +13,6 @@ module.exports = {
         "months": ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
         "shortMonths": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
     },
-    "dev": {
-        "accepted": "{0} não é um valor válido para {1}, por favor escolha uma das seguintes opções: {2}.",
-        "deprecated": "o método {0} foi removido, por favor atualize o seu código para usar {1}.",
-        "noChange": "{0} não foi atualizado porque não houve modificações.",
-        "noContainer": "Não foi possível encontrar um elemento na página correspondente a {0}.",
-        "of": "de",
-        "oldStyle": "as propriedades de {0} já foram incluídas em .{1}().",
-        "sameEdge": "bordas não podem vincular a si mesmos. removendo automaticamente borda de auto-referência {0}.",
-        "set": "{0} foi definido.",
-        "setLong": "{0} foi alterado para {1}.",
-        "setContainer": "por favor indique um elemento div através do método .container()"
-    },
     "error": {
         "accepted": "{0} não é uma {1} válida para a visualização {2}, por favor escolha uma das seguintes: {3}.",
         "connections": "não existem ligações disponíveis para {0}.",
@@ -83,13 +71,13 @@ module.exports = {
         "text": "texto",
         "time": "tempo",
         "timeline": "linha temporal",
-        "total": "segmentos no total",
-        "type": "tipo",
+        "total": "segmentos totais",
+        "type": "digitar",
         "width": "largura",
         "x": "eixo dos xx",
         "y": "eixo dos yy",
         "zoom": "zoom",
-        "mode": "#ERROR!",
+        "mode": "modo",
         "mute": "ocultar",
         "solo": "isolar"
     },
@@ -112,9 +100,9 @@ module.exports = {
         "tree_map": "Tree Map",
         "bar": "Gráfico de Barras",
         "box": "Diagrama de Caixa e Bigodes",
-        "paths": "Caminhos",
+        "paths": "caminhos",
         "pie": "Gráfico de Setores",
-        "table": "Tabela"
+        "table": "Mesa"
     },
     "ui": {
         "and": "e",
@@ -131,7 +119,13 @@ module.exports = {
         "total": "total",
         "values": "valores",
         "including": "Incluindo",
-        "or": "ou"
+        "or": "ou",
+        "iqr": "intervalo interquartil para {0}",
+        "max": "máximo",
+        "min": "mínimo",
+        "percentile": "{0} percentil",
+        "tukey_bottom": "tukey bottom",
+        "tukey_top": "tukey topo"
     },
     "message": {
         "data": "a analisar os dados",

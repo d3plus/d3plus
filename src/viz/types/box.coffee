@@ -1,5 +1,6 @@
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
+stringFormat = require "../../string/format.js"
 strip      = require "../../string/strip.js"
 uniques    = require "../../util/uniques.coffee"
 
@@ -36,6 +37,14 @@ box = (vars) ->
   noData  = false
   medians = []
 
+
+  iqrstr = vars.format.value(vars.format.locale.value.ui.iqr)
+  maxstr = vars.format.value(vars.format.locale.value.ui.max)
+  minstr = vars.format.value(vars.format.locale.value.ui.min)
+  pctstr = vars.format.value(vars.format.locale.value.ui.percentile)
+  botstr = vars.format.value(vars.format.locale.value.ui.tukey_bottom)
+  topstr = vars.format.value(vars.format.locale.value.ui.tukey_top)
+
   returnData = []
   d3.nest()
     .key (d) -> fetchValue(vars, d, vars[discrete].value)
@@ -55,13 +64,13 @@ box = (vars) ->
       if mode[1] is "tukey"
         iqr = first - second
         top = second - iqr * 1.5
-        topLabel = "top tukey"
+        topLabel = topstr
       else if mode[1] is "extent"
         top = d3.max values
-        topLabel = "maximum"
+        topLabel = maxstr
       else if typeof mode[1] is "number"
         top = d3.quantile values, (100 - mode[1])/100
-        topLabel = mode[1] + " percentile"
+        topLabel = stringFormat pctstr, mode[1]
       top = d3.min [d3.max(values), top]
 
       if vars.tooltip.extent.value
@@ -83,13 +92,13 @@ box = (vars) ->
       if mode[0] is "tukey"
         iqr    = first - second
         bottom = first + iqr * 1.5
-        bottomLabel = "bottom tukey"
+        bottomLabel = botstr
       else if mode[0] is "extent"
         bottom = d3.min values
-        bottomLabel = "minimum"
+        bottomLabel = minstr
       else if typeof mode[0] is "number"
         bottom = d3.quantile values, mode[0]/100
-        bottomLabel = mode[0] + " percentile"
+        topLabel = stringFormat pctstr, mode[0]
       bottom = d3.max [d3.min(values), bottom]
 
       if vars.tooltip.extent.value
@@ -129,7 +138,7 @@ box = (vars) ->
           label:  false
           shape:  "square"
           stroke: "#444"
-          text:   "Interquartile Range for " + label
+          text:   stringFormat iqrstr, label
 
       boxData.d3plus[w]      = space
       boxData.d3plus.init[w] = space

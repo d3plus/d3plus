@@ -133,7 +133,11 @@ module.exports = {
         "total": "gesamt",
         "values": "Werte",
         "including": "einschließlich",
-        "or": "oder"
+        "or": "oder",
+        "iqr": "Interquartilabstände {0}",
+        "max": "maximal",
+        "percentile": "{0} Perzentil",
+        "tukey_bottom": "boden tukey"
     },
     "message": {
         "data": "analysiere Daten",

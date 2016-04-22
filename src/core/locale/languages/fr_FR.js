@@ -74,12 +74,10 @@ module.exports = {
         "legend": "légende",
         "margin": "marge",
         "messages": "messages",
-        "mute": "cacher",
         "order": "ordre",
         "search": "recherche",
         "shape": "format",
         "size": "taille",
-        "solo": "isoler",
         "style": "style",
         "temp": "segments temporaires",
         "text": "texte",
@@ -91,7 +89,9 @@ module.exports = {
         "x": "axe x",
         "y": "axe y",
         "zoom": "zoom",
-        "mode": "mode"
+        "mode": "mode",
+        "mute": "cacher",
+        "solo": "isoler"
     },
     "time": [
         "année",
@@ -131,7 +131,13 @@ module.exports = {
         "total": "total",
         "values": "valeurs",
         "including": "incluant",
-        "or": "ou"
+        "or": "ou",
+        "iqr": "gamme interquartile pour {0}",
+        "max": "maximum",
+        "min": "le minimum",
+        "percentile": "{0} percentile",
+        "tukey_bottom": "tukey bas",
+        "tukey_top": "top tukey"
     },
     "message": {
         "data": "analyse des données",
