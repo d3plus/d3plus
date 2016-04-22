@@ -137,7 +137,10 @@ module.exports = {
         "min": "le minimum",
         "percentile": "{0} percentile",
         "tukey_bottom": "tukey bas",
-        "tukey_top": "top tukey"
+        "tukey_top": "top tukey",
+        "quartile_first": "premier quartile",
+        "quartile_third": "le troisième quartile",
+        "median": "médian"
     },
     "message": {
         "data": "analyse des données",

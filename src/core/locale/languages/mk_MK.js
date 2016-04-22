@@ -110,7 +110,10 @@ module.exports = {
         "min": "минимум",
         "percentile": "{0} перцентил",
         "tukey_bottom": "дното Tukey",
-        "tukey_top": "Топ Tukey"
+        "tukey_top": "Топ Tukey",
+        "quartile_first": "првиот квартал",
+        "quartile_third": "третиот квартал",
+        "median": "средната"
     },
     "message": {
         "data": "анализа на податоци",

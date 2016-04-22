@@ -111,7 +111,10 @@ module.exports = {
         "min": "最低限度",
         "percentile": "{0}百分",
         "tukey_bottom": "底部杜克",
-        "tukey_top": "顶部杜克"
+        "tukey_top": "顶部杜克",
+        "quartile_first": "第一个四分位数",
+        "quartile_third": "第三个四分位数",
+        "median": "中位数"
     },
     "message": {
         "data": "分析数据",

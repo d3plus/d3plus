@@ -102,7 +102,10 @@ module.exports = {
         "min": "최저한의",
         "percentile": "{0} 백분위 수",
         "tukey_bottom": "바닥 Tukey에",
-        "tukey_top": "상단 Tukey에"
+        "tukey_top": "상단 Tukey에",
+        "quartile_first": "1 분위",
+        "quartile_third": "3 분위",
+        "median": "중앙값"
     },
     "message": {
         "data": "데이터 분석 중",

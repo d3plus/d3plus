@@ -44,6 +44,9 @@ box = (vars) ->
   pctstr = vars.format.value(vars.format.locale.value.ui.percentile)
   botstr = vars.format.value(vars.format.locale.value.ui.tukey_bottom)
   topstr = vars.format.value(vars.format.locale.value.ui.tukey_top)
+  qt1str = vars.format.value(vars.format.locale.value.ui.quartile_first)
+  qt3str = vars.format.value(vars.format.locale.value.ui.quartile_third)
+  medstr = vars.format.value(vars.format.locale.value.ui.median)
 
   returnData = []
   d3.nest()
@@ -79,13 +82,13 @@ box = (vars) ->
           value: top
 
       if vars.tooltip.iqr.value
-        tooltipData["third quartile"] =
+        tooltipData[qt3str] =
             key:   vars[opposite].value
             value: second
-        tooltipData["median"] =
+        tooltipData[medstr] =
             key:   vars[opposite].value
             value: median
-        tooltipData["first quartile"] =
+        tooltipData[qt1str] =
             key:   vars[opposite].value
             value: first
 

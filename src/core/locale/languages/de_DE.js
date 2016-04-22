@@ -13,18 +13,6 @@ module.exports = {
         "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
         "shortMonths": ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
     },
-    "dev": {
-        "accepted": "{0} ist kein gültiger Wert für {1}. Benutzen Sie bitte eine der folgenden Optionen: {2}.",
-        "deprecated": "Die Methode {0} wurde entfernt. Aktualisieren Sie Ihren Code, um {1} zu verwenden.",
-        "noChange": "{0} wurde nicht aktualisiert, weil es nicht verändert wurde.",
-        "noContainer": "Es existiert kein Container-Element, das zu {0} passt.",
-        "of": "von",
-        "oldStyle": "Die Stileigenschaften für {0} sind nun direkt in .{1}() eingebettet.",
-        "sameEdge": "Kanten können nicht auf sich selbst verweisen. Selbst-referenzierende Kanten {0} werden automatisch entfernt.",
-        "set": "{0} wurde definiert.",
-        "setLong": "{0} wurde auf {1} gesetzt.",
-        "setContainer": "Definieren Sie ein Container-Element (div) für Ihre Darstellung mit Hilfe des .container()-Attributs."
-    },
     "error": {
         "accepted": "{0} ist kein gültiger {1} für {2}-Darstellungen. Benutzen Sie bitte: {3}.",
         "connections": "Keine Verbindungen verfügbar für {0}.",
@@ -134,10 +122,15 @@ module.exports = {
         "values": "Werte",
         "including": "einschließlich",
         "or": "oder",
-        "iqr": "Interquartilabstände {0}",
-        "max": "maximal",
-        "percentile": "{0} Perzentil",
-        "tukey_bottom": "boden tukey"
+        "iqr": "Interquartilsabstände {0}",
+        "max": "Maximalwert",
+        "min": "Minimalwert",
+        "percentile": "Perzentil P{0}",
+        "tukey_bottom": "Unterer Ausreißer",
+        "tukey_top": "Oberer Ausreißer",
+        "quartile_first": "Unteres Quartil Q1",
+        "quartile_third": "Oberes Quartil Q3",
+        "median": "Medianwert"
     },
     "message": {
         "data": "analysiere Daten",

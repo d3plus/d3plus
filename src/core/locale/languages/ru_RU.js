@@ -121,7 +121,10 @@ module.exports = {
         "min": "минимальный",
         "percentile": "{0} процентиль",
         "tukey_bottom": "нижний Тьюки",
-        "tukey_top": "сверху Тьюки"
+        "tukey_top": "сверху Тьюки",
+        "quartile_first": "первый квартиль",
+        "quartile_third": "третий квартиль",
+        "median": "медиана"
     },
     "message": {
         "data": "данные анализа",
