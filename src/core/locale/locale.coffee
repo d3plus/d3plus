@@ -1,4 +1,5 @@
 module.exports =
+  de_DE: require "./languages/de_DE.js"
   en_US: require "./languages/en_US.coffee"
   es_ES: require "./languages/es_ES.js"
   fr_FR: require "./languages/fr_FR.js"
