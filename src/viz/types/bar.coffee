@@ -67,7 +67,8 @@ bar = (vars) ->
       x = d3.scale.linear()
 
   data = []
-  zero = 0
+  oppMethod = vars[opposite]
+  zero = d3.min oppMethod.scale.viz.domain()
 
   if vars[discrete].persist.position.value and not vars.axes.stacked
     ids = uniques d3.merge(nested.map (d) -> d.values), vars.id.value, fetchValue, vars, vars.id.value, false
@@ -106,8 +107,6 @@ bar = (vars) ->
         mod = x fetchValue(vars, d, vars.id.value)
       else
         mod = x(i % bars)
-
-      oppMethod = vars[opposite]
 
       if vars.axes.stacked
         value  = d.d3plus[opposite]
