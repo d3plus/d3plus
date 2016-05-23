@@ -437,11 +437,13 @@ module.exports = function(vars) {
         .attr("class","d3plus_scale")
         .attr("opacity",0);
 
-      var heatmap = scale.selectAll("#d3plus_legend_heatmap")
+      var heatmapId = vars.container.id + "_legend_heatmap";
+
+      var heatmap = scale.selectAll("#" + heatmapId)
         .data(["heatmap"]);
 
       heatmap.enter().append("linearGradient")
-        .attr("id", "d3plus_legend_heatmap")
+        .attr("id", heatmapId)
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
@@ -485,7 +487,7 @@ module.exports = function(vars) {
         .attr("height", vars.legend.gradient.height)
         .attr("stroke",vars.legend.font.color)
         .attr("stroke-width",1)
-        .style("fill", "url(#d3plus_legend_heatmap)");
+        .style("fill", "url(#" + heatmapId + ")");
 
       var text = scale.selectAll("text.d3plus_tick")
         .data(d3.range(0,values.length));
