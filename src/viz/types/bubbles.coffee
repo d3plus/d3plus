@@ -27,10 +27,21 @@ bubbles = (vars) ->
 
   # Define size scale
   if vars.size.value
-    domainMin = d3.min vars.data.viz, (d) ->
-      fetchValue vars, d, vars.size.value, vars.id.value, "min"
-    domainMax = d3.max vars.data.viz, (d) ->
-      fetchValue vars, d, vars.size.value, vars.id.value
+    userDomainMin = vars.size.scale.domain.min.value
+    userDomainMax = vars.size.scale.domain.max.value
+
+    if typeof userDomainMin is 'number'
+      domainMin = userDomainMin
+    else
+      domainMin = d3.min vars.data.viz, (d) ->
+        fetchValue vars, d, vars.size.value, vars.id.value, "min"
+
+    if typeof userDomainMax is 'number'
+      domainMax = userDomainMax
+    else
+      domainMax = d3.max vars.data.viz, (d) ->
+        fetchValue vars, d, vars.size.value, vars.id.value
+
     domain = [domainMin, domainMax]
   else
     domain = [0, 0]
@@ -39,7 +50,7 @@ bubbles = (vars) ->
   size_max = (d3.min([column_width, column_height]) / 2) - (padding * 2)
   labelHeight = if vars.labels.value and not vars.small and size_max >= 40 then d3.max([20, d3.min [size_max * 0.25, 50]]) else 0
   size_max -= labelHeight
-  size_min = d3.min [size_max, vars.size.scale.min.value]
+  size_min = d3.min [size_max, vars.size.scale.range.min.value]
 
   size = vars.size.scale.value
     .domain domain
