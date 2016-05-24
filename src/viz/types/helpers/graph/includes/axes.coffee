@@ -219,9 +219,9 @@ sizeScale = (vars, value) ->
   value = "size" if value is true
   value = vars[value].value if value of vars
 
-  min = vars.size.scale.min.value
+  min = vars.size.scale.range.min.value
   min = min vars if typeof min is "function"
-  max = vars.size.scale.max.value
+  max = vars.size.scale.range.max.value
   max = max vars if typeof max is "function"
 
   if value is false
