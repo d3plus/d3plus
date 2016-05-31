@@ -1,7 +1,7 @@
 {
   "name": "d3plus",
   "main": "./d3plus.full.js",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "moduleType": ["node"],
   "homepage": "https://github.com/alexandersimoes/d3plus",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
@@ -25,7 +25,7 @@
     "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-chmod": "^1.2.0",
-    "gulp-connect": "^2.2.0",
+    "gulp-connect": "^4.0.0",
     "gulp-duration": "^0.0.0",
     "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
