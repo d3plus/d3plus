@@ -330,7 +330,7 @@ module.exports = function( vars , group ) {
                 "height": box.height,
                 "width": box.width,
                 "x": box.x,
-                "y": box.y
+                "y": box.y > 0 ? box.y : -box.height/2
               };
               bounds.width += vars.labels.padding*scale[0];
               bounds.height += vars.labels.padding*scale[0];
@@ -342,7 +342,7 @@ module.exports = function( vars , group ) {
               if (y.length > 1) {
                 y = y[y.length - 1];
                 y = y.substring(0, y.length - 1);
-                bounds.y += y;
+                bounds.y += parseFloat(y);
               }
 
             }
