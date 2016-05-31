@@ -66,11 +66,15 @@ module.exports = function( vars ) {
         };
       }
       else {
-        focus = d.value[0];
+        focus = d.focus || d.value[0];
         if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
         if (typeof d.method === "function") {
           callback = function(value) {
-            d.method(value, vars.self);
+            if (value !== focus) {
+              focus = value;
+              d.focus = value;
+              d.method(value, vars.self);
+            }
           };
         }
       }
