@@ -176,7 +176,7 @@ module.exports = (vars) ->
               .rotate(vars[axis].ticks.rotate)
               .align(if rotated then "end" else "center")
               .valign(if rotated then "middle" else if axis is "x" then "top" else "bottom")
-              .width(vars[axis].ticks.maxWidth)
+              .width(vars[axis].ticks.maxWidth + 2)
               .height(vars[axis].ticks.maxHeight)
               .padding(0)
               .x(-vars[axis].ticks.maxWidth/2)
