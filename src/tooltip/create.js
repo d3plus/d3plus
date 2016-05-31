@@ -6,6 +6,7 @@ var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     rtl           = require("../client/rtl.coffee"),
     removeTooltip = require("./remove.coffee"),
     scroll        = require("../client/scroll.js"),
+    scrollBar     = require("../client/scrollBar.coffee"),
     stringList    = require("../string/list.coffee"),
     textColor     = require("../color/text.coffee")
 
@@ -47,6 +48,8 @@ module.exports = function(params) {
 
   if (params.parent.node() === document.body) {
     params.limit = [window.innerWidth + scroll.x(), window.innerHeight + scroll.y()];
+    var sb = scrollBar();
+    if (document.body.scrollHeight > window.innerHeight) params.limit[0] -= sb;
   }
   else {
     params.limit = [
