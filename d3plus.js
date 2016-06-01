@@ -18467,7 +18467,7 @@ d3plus = {};
  * @static
  */
 
-d3plus.version = "1.9.4 - Cornflower";
+d3plus.version = "1.9.5 - Cornflower";
 
 
 /**
@@ -20254,6 +20254,7 @@ var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     rtl           = require("../client/rtl.coffee"),
     removeTooltip = require("./remove.coffee"),
     scroll        = require("../client/scroll.js"),
+    scrollBar     = require("../client/scrollBar.coffee"),
     stringList    = require("../string/list.coffee"),
     textColor     = require("../color/text.coffee")
 
@@ -20295,6 +20296,8 @@ module.exports = function(params) {
 
   if (params.parent.node() === document.body) {
     params.limit = [window.innerWidth + scroll.x(), window.innerHeight + scroll.y()];
+    var sb = scrollBar();
+    if (document.body.scrollHeight > window.innerHeight) params.limit[0] -= sb;
   }
   else {
     params.limit = [
@@ -20828,7 +20831,7 @@ function close_descriptions() {
   d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc");
 }
 
-},{"../client/pointer.coffee":38,"../client/prefix.coffee":39,"../client/rtl.coffee":40,"../client/scroll.js":41,"../color/legible.coffee":44,"../color/text.coffee":50,"../core/locale/languages/en_US.coffee":70,"../string/list.coffee":174,"./move.coffee":202,"./remove.coffee":203}],202:[function(require,module,exports){
+},{"../client/pointer.coffee":38,"../client/prefix.coffee":39,"../client/rtl.coffee":40,"../client/scroll.js":41,"../client/scrollBar.coffee":42,"../color/legible.coffee":44,"../color/text.coffee":50,"../core/locale/languages/en_US.coffee":70,"../string/list.coffee":174,"./move.coffee":202,"./remove.coffee":203}],202:[function(require,module,exports){
 var arrowStyle, scroll;
 
 scroll = require("../client/scroll.js");
@@ -26873,11 +26876,15 @@ module.exports = function( vars ) {
         };
       }
       else {
-        focus = d.value[0];
+        focus = d.focus || d.value[0];
         if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
         if (typeof d.method === "function") {
           callback = function(value) {
-            d.method(value, vars.self);
+            if (value !== focus) {
+              focus = value;
+              d.focus = value;
+              d.method(value, vars.self);
+            }
           };
         }
       }
@@ -30614,7 +30621,7 @@ stack = require("./helpers/graph/stack.coffee");
 uniques = require("../../util/uniques.coffee");
 
 bar = function(vars) {
-  var bars, base, cMargin, d, data, discrete, discreteVal, divisions, domains, h, i, ids, j, k, l, len, len1, len2, length, maxBars, maxSize, mod, nested, newSize, oMargin, offset, oppMethod, oppVal, opposite, p, padding, point, ref, ref1, space, value, w, x, zero;
+  var bars, base, cMargin, d, data, discrete, discreteVal, divisions, domains, h, i, ids, j, k, l, len, len1, len2, length, maxBars, maxSize, mod, nested, newSize, oMargin, offset, oppDomain, oppMethod, oppVal, opposite, p, padding, point, ref, ref1, space, value, w, x, zero;
   discrete = vars.axes.discrete;
   h = discrete === "x" ? "height" : "width";
   w = discrete === "x" ? "width" : "height";
@@ -30668,7 +30675,14 @@ bar = function(vars) {
   }
   data = [];
   oppMethod = vars[opposite];
-  zero = d3.min(oppMethod.scale.viz.domain());
+  oppDomain = oppMethod.scale.viz.domain();
+  if (oppDomain[0] <= 0 && oppDomain[1] >= 0) {
+    zero = 0;
+  } else if (oppDomain[0] < 0) {
+    zero(d3.max(oppDomain));
+  } else {
+    zero = d3.min(oppDomain);
+  }
   if (vars[discrete].persist.position.value && !vars.axes.stacked) {
     ids = uniques(d3.merge(nested.map(function(d) {
       return d.values;
@@ -31663,7 +31677,7 @@ getScale = function(vars, axis, range) {
     }
   }
   vars[axis].scale.ticks = t;
-  return d3.scale[scaleType]().domain(range).range(rangeArray);
+  return d3.scale[scaleType]().domain(range).range(rangeArray).clamp(true);
 };
 
 sizeScale = function(vars, value) {
@@ -32760,7 +32774,7 @@ module.exports = function(vars) {
         d = +d;
       }
       if (!vars[axis].ticks.hidden && vars[axis].ticks.visible.indexOf(d) >= 0) {
-        return textwrap().container(d3.select(this)).rotate(vars[axis].ticks.rotate).align(rotated ? "end" : "center").valign(rotated ? "middle" : axis === "x" ? "top" : "bottom").width(vars[axis].ticks.maxWidth).height(vars[axis].ticks.maxHeight).padding(0).x(-vars[axis].ticks.maxWidth / 2).y(axis === "x2" ? -(vars[axis].ticks.maxHeight + vars.labels.padding * 2) : 0).draw();
+        return textwrap().container(d3.select(this)).rotate(vars[axis].ticks.rotate).align(rotated ? "end" : "center").valign(rotated ? "middle" : axis === "x" ? "top" : "bottom").width(vars[axis].ticks.maxWidth + 2).height(vars[axis].ticks.maxHeight).padding(0).x(-vars[axis].ticks.maxWidth / 2).y(axis === "x2" ? -(vars[axis].ticks.maxHeight + vars.labels.padding * 2) : 0).draw();
       }
     });
   };
