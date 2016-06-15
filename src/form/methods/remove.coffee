@@ -1,6 +1,7 @@
 module.exports =
-  accepted: undefined
+  accepted: [undefined, Function]
   process:  (value, vars) ->
-    vars.container.value.remove() if @initialized
+    vars.container.ui.remove() if @initialized
+    delete vars.container.ui
     return
   value:    undefined
