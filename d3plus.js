@@ -15700,7 +15700,7 @@ module.exports = {
     if ( typeof value === "function" && vars.history.chain.length ) {
 
       var changesObject = {}
-      changes.forEach(function(c){
+      vars.history.chain.forEach(function(c){
         var method = c.method
         delete c.method
         changesObject[method] = c
@@ -16024,11 +16024,12 @@ module.exports = {
 
 },{}],126:[function(require,module,exports){
 module.exports = {
-  accepted: void 0,
+  accepted: [void 0, Function],
   process: function(value, vars) {
     if (this.initialized) {
-      vars.container.value.remove();
+      vars.container.ui.remove();
     }
+    delete vars.container.ui;
   },
   value: void 0
 };
@@ -18467,7 +18468,7 @@ d3plus = {};
  * @static
  */
 
-d3plus.version = "1.9.5 - Cornflower";
+d3plus.version = "1.9.6 - Cornflower";
 
 
 /**
@@ -29194,7 +29195,7 @@ module.exports = {
     if ( typeof value === "function" && vars.history.chain.length ) {
 
       var changesObject = {}
-      changes.forEach(function(c){
+      vars.history.chain.forEach(function(c){
         var method = c.method
         delete c.method
         changesObject[method] = c
@@ -30676,6 +30677,9 @@ bar = function(vars) {
   data = [];
   oppMethod = vars[opposite];
   oppDomain = oppMethod.scale.viz.domain();
+  if (opposite.indexOf("y") === 0) {
+    oppDomain = oppDomain.reverse();
+  }
   if (oppDomain[0] <= 0 && oppDomain[1] >= 0) {
     zero = 0;
   } else if (oppDomain[0] < 0) {
@@ -31660,7 +31664,7 @@ axisRange = function(vars, axis, zero, buffer) {
 };
 
 getScale = function(vars, axis, range) {
-  var rangeArray, rangeMax, scaleType, t;
+  var rangeArray, rangeMax, retScale, scaleType, t;
   rangeMax = axis.indexOf("x") === 0 ? vars.width.viz : vars.height.viz;
   scaleType = vars[axis].scale.value;
   if (["discrete", "share"].indexOf(scaleType) >= 0) {
@@ -31677,7 +31681,11 @@ getScale = function(vars, axis, range) {
     }
   }
   vars[axis].scale.ticks = t;
-  return d3.scale[scaleType]().domain(range).range(rangeArray).clamp(true);
+  retScale = d3.scale[scaleType]().domain(range).range(rangeArray);
+  if ("clamp" in retScale) {
+    retScale.clamp(true);
+  }
+  return retScale;
 };
 
 sizeScale = function(vars, value) {
@@ -31732,17 +31740,21 @@ buckets = require("../../../../../util/buckets.coffee");
 closest = require("../../../../../util/closest.coffee");
 
 module.exports = function(vars, axis, buffer) {
-  var add, additional, allNegative, allPositive, closestTime, copy, d, diff, difference, domain, domainCompare, domainHigh, domainLow, i, lowerDiff, lowerMod, lowerScale, lowerValue, maxSize, opp, orig_domain, range, rangeMax, second, strings, timeIndex, upperDiff, upperMod, upperScale, upperValue, zero;
+  var add, additional, allNegative, allPositive, closestTime, copy, d, diff, difference, domain, domainCompare, domainHigh, domainLow, i, lowerDiff, lowerMod, lowerScale, lowerValue, maxSize, opp, orig_domain, range, rangeMax, second, strings, testScale, timeIndex, upperDiff, upperMod, upperScale, upperValue, zero;
   if (vars[axis].scale.value !== "share" && !vars[axis].range.value && vars[axis].reset) {
+    testScale = vars[axis].scale.viz.copy();
+    if ("clamp" in testScale) {
+      testScale.clamp(false);
+    }
     if (axis === vars.axes.discrete) {
-      domain = vars[axis].scale.viz.domain();
+      domain = testScale.domain();
       if (typeof domain[0] === "string") {
         i = domain.length;
         while (i >= 0) {
           domain.splice(i, 0, "d3plus_buffer_" + i);
           i--;
         }
-        range = vars[axis].scale.viz.range();
+        range = testScale.range();
         range = buckets(d3.extent(range), domain.length);
         return vars[axis].scale.viz.domain(domain).range(range);
       } else {
@@ -31773,10 +31785,10 @@ module.exports = function(vars, axis, buffer) {
           difference = Math.abs(domain[1] - domain[0]);
           additional = difference / (vars[axis].ticks.values.length - 1);
           additional = additional / 2;
-          rangeMax = vars[axis].scale.viz.range()[1];
+          rangeMax = testScale.range()[1];
           maxSize = vars.axes.scale.range()[1] * 1.5;
-          domainLow = vars[axis].scale.viz.invert(-maxSize);
-          domainHigh = vars[axis].scale.viz.invert(rangeMax + maxSize);
+          domainLow = testScale.invert(-maxSize);
+          domainHigh = testScale.invert(rangeMax + maxSize);
           if (domain[0] - additional < domainLow) {
             domain[0] = domain[0] - additional;
             domain[domain.length - 1] = domain[domain.length - 1] + additional;
@@ -31785,7 +31797,7 @@ module.exports = function(vars, axis, buffer) {
             if (axis.indexOf("y") === 0) {
               domain = domain.reverse();
             }
-            domainCompare = vars[axis].scale.viz.domain();
+            domainCompare = testScale.domain();
             domainCompare = domainCompare[1] - domainCompare[0];
             if (!domainCompare) {
               domain[0] -= 1;
@@ -31808,7 +31820,7 @@ module.exports = function(vars, axis, buffer) {
             domain.splice(i, 0, d);
             i--;
           }
-          range = vars[axis].scale.viz.range();
+          range = testScale.range();
           range = buckets(d3.extent(range), domain.length);
           vars[axis].scale.viz.domain(domain).range(range);
         }
@@ -31818,7 +31830,7 @@ module.exports = function(vars, axis, buffer) {
         return vars[axis].scale.viz.domain(domain);
       }
     } else if ((buffer === "x" && axis.indexOf("x") === 0) || (buffer === "y" && axis.indexOf("y") === 0) || (buffer === true)) {
-      domain = vars[axis].scale.viz.domain();
+      domain = testScale.domain();
       allPositive = domain[0] >= 0 && domain[1] >= 0;
       allNegative = domain[0] <= 0 && domain[1] <= 0;
       if (vars[axis].scale.value === "log") {
@@ -31885,15 +31897,15 @@ module.exports = function(vars, axis, buffer) {
       if (axis === second && copy) {
         domain = copy.domain().slice().reverse();
       } else {
-        rangeMax = vars[axis].scale.viz.range()[1];
+        rangeMax = testScale.range()[1];
         maxSize = vars.axes.scale.range()[1];
-        domainLow = vars[axis].scale.viz.invert(-maxSize * 1.5);
-        domainHigh = vars[axis].scale.viz.invert(rangeMax + maxSize * 1.5);
+        domainLow = testScale.invert(-maxSize * 1.5);
+        domainHigh = testScale.invert(rangeMax + maxSize * 1.5);
         domain = [domainLow, domainHigh];
         if (axis.indexOf("y") === 0) {
           domain = domain.reverse();
         }
-        domainCompare = vars[axis].scale.viz.domain();
+        domainCompare = testScale.domain();
         domainCompare = domainCompare[1] - domainCompare[0];
         if (!domainCompare) {
           domain[0] -= 1;
