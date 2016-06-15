@@ -1,7 +1,7 @@
 {
   "name": "d3plus",
   "main": "./d3plus.full.js",
-  "version": "1.9.5",
+  "version": "1.9.6",
   "moduleType": ["node"],
   "homepage": "https://github.com/alexandersimoes/d3plus",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
