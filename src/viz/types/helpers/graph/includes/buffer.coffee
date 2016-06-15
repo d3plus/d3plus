@@ -5,7 +5,8 @@ module.exports = (vars, axis, buffer) ->
 
   if vars[axis].scale.value isnt "share" and !vars[axis].range.value and vars[axis].reset
 
-    testScale = vars[axis].scale.viz.copy().clamp(false)
+    testScale = vars[axis].scale.viz.copy()
+    testScale.clamp(false) if "clamp" of testScale
 
     if axis is vars.axes.discrete
 

@@ -211,8 +211,10 @@ getScale = (vars, axis, range) ->
 
   vars[axis].scale.ticks = t
 
-  d3.scale[scaleType]()
-    .domain(range).range(rangeArray).clamp(true)
+  retScale = d3.scale[scaleType]()
+    .domain(range).range(rangeArray)
+  retScale.clamp(true) if "clamp" of retScale
+  retScale
 
 sizeScale = (vars, value) ->
 
