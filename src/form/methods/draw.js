@@ -49,7 +49,7 @@ module.exports = {
     if ( typeof value === "function" && vars.history.chain.length ) {
 
       var changesObject = {}
-      changes.forEach(function(c){
+      vars.history.chain.forEach(function(c){
         var method = c.method
         delete c.method
         changesObject[method] = c
