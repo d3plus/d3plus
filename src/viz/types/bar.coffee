@@ -69,6 +69,7 @@ bar = (vars) ->
   data = []
   oppMethod = vars[opposite]
   oppDomain = oppMethod.scale.viz.domain()
+  oppDomain = oppDomain.reverse() if opposite.indexOf("y") is 0
   if oppDomain[0] <= 0 and oppDomain[1] >= 0
     zero = 0
   else if oppDomain[0] < 0
