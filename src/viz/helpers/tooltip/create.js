@@ -159,7 +159,8 @@ module.exports = function(params) {
 
       }
 
-      var limit = length === "short" ? 3 : vars.data.large,
+      var maxChildrenShownInShortMode = vars.tooltip.children.value === true ? 3 : vars.tooltip.children.value;
+      var limit = length === "short" ? maxChildrenShownInShortMode : vars.data.large,
           listLength = nameList.length,
           max   = d3.min([listLength , limit]),
           objs  = [];

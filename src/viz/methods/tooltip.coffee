@@ -6,7 +6,7 @@ module.exports =
   anchor:     "top center"
   background: "#ffffff"
   children:
-    accepted: [Boolean]
+    accepted: [Boolean, Number]
     value:    true
   connections:
     accepted: [Boolean]
