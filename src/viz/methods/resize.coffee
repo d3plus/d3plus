@@ -17,7 +17,7 @@ module.exports =
       vars.self.width(width)
       vars.self.height(height)
 
-      vars.self.draw()
+      vars.self.draw() if vars.width.changed or vars.height.changed
 
     d3.select(window).on("resize." + vars.container.id, (e) =>
       clearTimeout resize
