@@ -179,8 +179,10 @@ axisRange = (vars, axis, zero, buffer) ->
           arr
         , []
         counts
+      else if values[0].constructor is String
+        uniques(values).sort((a,b) -> "" + a.localeCompare("" + b))
       else
-        uniques(values).sort((a,b) -> a-b)
+        uniques(values).sort((a,b) -> a - b)
     else
       values.sort (a, b) -> a - b
       if vars[axis].scale.value is "log"
