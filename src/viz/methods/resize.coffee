@@ -1,12 +1,12 @@
-module.exports = {
-  "accepted" : [ Boolean ],
-  "value"    : false,
-  "timeout": 400,
-  "process"  : (value, vars) ->
+module.exports =
+  accepted: [Boolean]
+  value: false
+  timeout: 400
+  process: (value, vars) ->
     if !value
       return false
 
-    resize = null;
+    resize = null
 
     resizeEnd = ->
       mainNode = vars.container.value.node().parentNode.getBoundingClientRect()
@@ -14,15 +14,14 @@ module.exports = {
       width = mainNode.width
       height = mainNode.height
 
-      vars.width.value = width
-      vars.height.value = height
+      vars.self.width(width)
+      vars.self.height(height)
 
-      vars.self(vars.container.value)
+      vars.self.draw()
 
     d3.select(window).on("resize." + vars.container.id, (e) =>
       clearTimeout resize
       resize = setTimeout resizeEnd, this.timeout
     )
 
-    return value
-}
+    value

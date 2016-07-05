@@ -69,7 +69,7 @@ dataChange = (vars) ->
   changed = vars.id.solo.changed or vars.id.mute.changed unless changed
   return changed if changed
 
-  check = ["data", "time", "id", "depth", "type", "x", "y", "x2", "y2"]
+  check = ["data", "time", "id", "depth", "type", "width", "height", "x", "y", "x2", "y2"]
   for k in check
     if vars[k].changed
       changed = true
