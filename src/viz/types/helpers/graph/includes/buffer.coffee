@@ -26,6 +26,7 @@ module.exports = (vars, axis, buffer) ->
         domain = domain.slice().reverse() if axis.indexOf("y") is 0
 
         if vars[axis].ticks.values.length is 1
+          domain = [domain[0], domain[0]]
           if vars[axis].value is vars.time.value and
              vars.data.time.ticks.length isnt 1
             closestTime = closest(vars.data.time.ticks, domain[0])
