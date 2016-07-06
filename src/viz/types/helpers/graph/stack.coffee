@@ -6,7 +6,7 @@ module.exports = (vars, data) ->
   flip     = vars[stacked].scale.viz 0
   scale    = vars[stacked].scale.value
   opposite = if stacked is "x" then "y" else "x"
-  margin   = if stacked is "y" then vars.axes.margin.top else vars.axes.margin.left
+  margin   = if stacked is "y" then vars.axes.margin.viz.top else vars.axes.margin.viz.left
   offset   = if scale is "share" then "expand" else "zero"
 
   stack = d3.layout.stack()

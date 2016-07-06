@@ -131,12 +131,12 @@ bar = (vars) ->
 
       discreteVal = fetchValue(vars, d, vars[discrete].value)
       d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
-      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
+      d.d3plus[discrete] += vars.axes.margin.viz[cMargin] + mod
 
       length = base - value
 
       d.d3plus[opposite]  = base - length/2
-      d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
+      d.d3plus[opposite] += vars.axes.margin.viz[oMargin] unless vars.axes.stacked
 
       delete d.d3plus.r
       d.d3plus[w]     = newSize
@@ -145,7 +145,7 @@ bar = (vars) ->
 
       d.d3plus.init[opposite]  = oppMethod.scale.viz zero
       d.d3plus.init[opposite] -= d.d3plus[opposite]
-      d.d3plus.init[opposite] += vars.axes.margin[oMargin]
+      d.d3plus.init[opposite] += vars.axes.margin.viz[oMargin]
 
       d.d3plus.init[w]         = d.d3plus[w]
 

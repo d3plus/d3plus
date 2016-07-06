@@ -29,7 +29,7 @@ line = (vars) ->
       else
         d.d3plus.x2 = true
         d.d3plus.x = vars.x2.scale.viz fetchValue(vars, d, vars.x2.value)
-      d.d3plus.x += vars.axes.margin.left
+      d.d3plus.x += vars.axes.margin.viz.left
 
       yval = fetchValue(vars, d, vars.y.value)
 
@@ -39,7 +39,7 @@ line = (vars) ->
       else
         d.d3plus.y2 = true
         d.d3plus.y = vars.y2.scale.viz fetchValue(vars, d, vars.y2.value)
-      d.d3plus.y += vars.axes.margin.top
+      d.d3plus.y += vars.axes.margin.viz.top
 
   if vars.axes.stacked then stack vars, data else data
 

@@ -1,3 +1,4 @@
+process = require "../../core/methods/process/margin.coffee"
 rendering = require "../../core/methods/rendering.coffee"
 
 module.exports =
@@ -7,6 +8,16 @@ module.exports =
     stroke:
       color: "#ccc"
       width: 1
+  margin:
+    accepted: [Number, Object, String]
+    process:  (value) ->
+
+      value     = @value if value is undefined
+      userValue = value
+      process value, this
+      userValue
+
+    value: 10
   mirror:
     accepted:   [Boolean]
     deprecates: ["mirror_axis", "mirror_axes"]

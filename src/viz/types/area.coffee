@@ -28,10 +28,10 @@ area = (vars) ->
       d.d3plus = {} unless d.d3plus
 
       d.d3plus.x  = discrete.scale.viz fetchValue vars, d, discrete.value
-      d.d3plus.x += vars.axes.margin.left
+      d.d3plus.x += vars.axes.margin.viz.left
 
       d.d3plus.y  = opposite.scale.viz fetchValue vars, d, opposite.value
-      d.d3plus.y += vars.axes.margin.top
+      d.d3plus.y += vars.axes.margin.viz.top
 
       if d.d3plus.merged instanceof Array
         point.d3plus.merged = [] unless point.d3plus.merged

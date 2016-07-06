@@ -9,7 +9,11 @@ uniques    = require "../../../../../util/uniques.coffee"
 module.exports = (vars, opts) ->
 
   # Reset margins
-  vars.axes.margin = resetMargins vars
+  vars.axes.margin.viz =
+    top:    vars.axes.margin.top
+    right:  vars.axes.margin.right
+    bottom: vars.axes.margin.bottom
+    left:   vars.axes.margin.left
   vars.axes.height = vars.height.viz
   vars.axes.width  = vars.width.viz
   axes = if vars.width.viz > vars.height.viz then ["y", "y2", "x", "x2"] else ["x", "x2", "y", "y2"]
@@ -116,27 +120,19 @@ module.exports = (vars, opts) ->
           new Date(d).getTime()
 
   # Calculate padding for tick labels
-  labelPadding vars unless vars.small
+  if vars.small
+    vars.axes.width -= (vars.axes.margin.viz.left + vars.axes.margin.viz.right)
+    vars.axes.height -= (vars.axes.margin.viz.top + vars.axes.margin.viz.bottom)
+    for axis in axes
+      vars[axis].label.height = 0
+  else
+    labelPadding vars unless vars.small
 
   # Create SVG Axes
   for axis in axes
     vars[axis].axis.svg = createAxis(vars, axis)
 
   return
-
-resetMargins = (vars) ->
-  if vars.small
-    # return
-    top:    0
-    right:  0
-    bottom: 0
-    left:   0
-  else
-    # return
-    top:    10
-    right:  10
-    bottom: 10
-    left:   10
 
 labelPadding = (vars) ->
 
@@ -182,8 +178,9 @@ labelPadding = (vars) ->
       if vars[axis].ticks.labels.value
         vars[axis].ticks.hidden    = false
         yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
-        yAxisWidth             = Math.ceil yAxisWidth + vars.labels.padding
-        vars.axes.margin[margin] += yAxisWidth
+        if yAxisWidth
+          yAxisWidth             = Math.ceil yAxisWidth + vars.labels.padding
+          vars.axes.margin.viz[margin] += yAxisWidth
 
       else
         vars[axis].ticks.hidden = true
@@ -200,10 +197,10 @@ labelPadding = (vars) ->
       else
         vars[axis].label.height = 0
       if vars[axis].label.value
-        vars.axes.margin[margin] += vars[axis].label.height
-        vars.axes.margin[margin] += vars[axis].label.padding * 2
+        vars.axes.margin.viz[margin] += vars[axis].label.height
+        vars.axes.margin.viz[margin] += vars[axis].label.padding * 2
 
-  vars.axes.width -= (vars.axes.margin.left + vars.axes.margin.right)
+  vars.axes.width -= (vars.axes.margin.viz.left + vars.axes.margin.viz.right)
   vars.x.scale.viz.range buckets([0, vars.axes.width], xDomain.length)
   vars.x2.scale.viz.range buckets([0, vars.axes.width], x2Domain.length) if x2Domain
 
@@ -290,14 +287,15 @@ labelPadding = (vars) ->
         xAxisHeight = Math.ceil xAxisHeight
         vars[axis].ticks.maxHeight = xAxisHeight
         vars[axis].ticks.maxWidth = xAxisWidth
-        vars.axes.margin[margin] += xAxisHeight + vars.labels.padding
+        if xAxisHeight
+          vars.axes.margin.viz[margin] += xAxisHeight + vars.labels.padding
         lastTick = vars[axis].ticks.visible[vars[axis].ticks.visible.length - 1]
         rightLabel = vars[axis].scale.viz lastTick
-        rightLabel += xAxisWidth/2 + vars.axes.margin.left
+        rightLabel += xAxisWidth/2 + vars.axes.margin.viz.left
         if rightLabel > vars.width.value
-          rightMod = rightLabel - vars.width.value + vars.axes.margin.right
+          rightMod = rightLabel - vars.width.value + vars.axes.margin.viz.right
           vars.axes.width -= rightMod
-          vars.axes.margin.right += rightMod
+          vars.axes.margin.viz.right += rightMod
       else
         vars[axis].ticks.hidden = true
 
@@ -313,10 +311,10 @@ labelPadding = (vars) ->
       else
         vars[axis].label.height = 0
       if vars[axis].label.value
-        vars.axes.margin[margin] += vars[axis].label.height
-        vars.axes.margin[margin] += vars[axis].label.padding * 2
+        vars.axes.margin.viz[margin] += vars[axis].label.height
+        vars.axes.margin.viz[margin] += vars[axis].label.padding * 2
 
-  vars.axes.height -= (vars.axes.margin.top + vars.axes.margin.bottom)
+  vars.axes.height -= (vars.axes.margin.viz.top + vars.axes.margin.viz.bottom)
 
   vars.x.scale.viz.range buckets([0, vars.axes.width], xDomain.length)
   vars.x2.scale.viz.range buckets([0, vars.axes.width], x2Domain.length) if x2Domain

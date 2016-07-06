@@ -14,8 +14,8 @@ box = (vars) ->
 
   discrete  = vars.axes.discrete
   opposite  = vars.axes.opposite
-  disMargin = if discrete is "x" then vars.axes.margin.left else vars.axes.margin.top
-  oppMargin = if opposite is "x" then vars.axes.margin.left else vars.axes.margin.top
+  disMargin = if discrete is "x" then vars.axes.margin.viz.left else vars.axes.margin.viz.top
+  oppMargin = if opposite is "x" then vars.axes.margin.viz.left else vars.axes.margin.viz.top
   h         = if discrete is "x" then "height" else "width"
   w         = if discrete is "x" then "width" else "height"
   space     = vars.axes[w] / vars[discrete].ticks.values.length

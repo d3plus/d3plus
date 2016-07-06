@@ -112,7 +112,7 @@ module.exports = (vars) ->
       .attr "font-weight", vars[axis].lines.font.weight
 
   # Draw Plane Group
-  planeTrans = "translate(" + vars.axes.margin.left + "," + vars.axes.margin.top + ")"
+  planeTrans = "translate(" + vars.axes.margin.viz.left + "," + vars.axes.margin.viz.top + ")"
   plane = vars.group.selectAll("g#d3plus_graph_plane").data [0]
   plane.transition().duration vars.draw.timing
     .attr "transform", planeTrans
@@ -231,7 +231,7 @@ module.exports = (vars) ->
         if axis.indexOf("x") is 0
           vars.width.viz/2
         else
-          -(vars.axes.height/2+vars.axes.margin.top)
+          -(vars.axes.height/2+vars.axes.margin.viz.top)
       .attr "y",
         if axis is "x"
           vars.height.viz - vars[axis].label.height/2 - vars[axis].label.padding
@@ -294,7 +294,7 @@ module.exports = (vars) ->
     if vars[axis].value
 
       axisLabel = vars[axis].label.fetch vars
-      labelData = if axisData and axisLabel then [0] else []
+      labelData = if axisData and axisLabel and !vars.small then [0] else []
       affixes   = vars.format.affixes.value[vars[axis].value]
       if axisLabel and !vars[axis].affixes.value and affixes
         sep = vars[axis].affixes.separator.value
