@@ -38,13 +38,15 @@ module.exports = (vars) ->
     color = if grid then vars[axis].grid.color else vars[axis].ticks.color
     log   = vars[axis].scale.value is "log"
 
+    visibles = vars[axis].ticks.visible or []
+
     tick
       .attr "stroke", (d) ->
 
         return vars[axis].axis.color if d is 0
 
         d = +d if d.constructor is Date
-        visible = vars[axis].ticks.visible.indexOf(d) >= 0
+        visible = visibles.indexOf(d) >= 0
 
         if visible and (!log or Math.abs(d).toString().charAt(0) is "1")
           color
@@ -259,6 +261,12 @@ module.exports = (vars) ->
       opp = if axis is "x" then "y" else "x"
       if vars[axis].ticks.values.indexOf(0) >= 0 and vars[opp].axis.value
         gridData = [0]
+
+    if vars[axis].value is vars.time.value
+      gridData = gridData.map (d) ->
+        d += ""
+        d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
+        new Date(d).getTime()
 
     # Draw Axis Grid Lines
     grid = plane.selectAll("g#d3plus_graph_"+axis+"grid").data [0]

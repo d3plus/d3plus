@@ -108,7 +108,12 @@ module.exports = (vars, opts) ->
       else
         vars[axis].ticks.visible = vars[axis].ticks.values
 
-
+      if vars[axis].value is vars.time.value
+        vars[axis].ticks.visible = vars[axis].ticks.visible.map (d) ->
+          return d if d.constructor is Number and ("" + d).length > 4
+          d += ""
+          d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
+          new Date(d).getTime()
 
   # Calculate padding for tick labels
   labelPadding vars unless vars.small
