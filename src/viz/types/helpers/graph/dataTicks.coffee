@@ -5,6 +5,7 @@ print   = require "../../../../core/console/print.coffee"
 module.exports = (vars) ->
 
   axes = vars.axes
+  margin = vars.axes.margin.viz
   data = if axes.stacked or not axes.ticks.value then [] else vars.data.viz
   timing = if data.length * 2 > vars.data.large then 0 else vars.draw.timing
 
@@ -13,12 +14,12 @@ module.exports = (vars) ->
       line
         .attr "x1", -2
         .attr "x2", -8
-        .attr "y1", (d) -> d.d3plus.y - axes.margin.top
-        .attr "y2", (d) -> d.d3plus.y - axes.margin.top
+        .attr "y1", (d) -> d.d3plus.y - margin.top
+        .attr "y2", (d) -> d.d3plus.y - margin.top
     else
       line
-        .attr "x1", (d) -> d.d3plus.x - axes.margin.left
-        .attr "x2", (d) -> d.d3plus.x - axes.margin.left
+        .attr "x1", (d) -> d.d3plus.x - margin.left
+        .attr "x2", (d) -> d.d3plus.x - margin.left
         .attr "y1", axes.height + 2
         .attr "y2", axes.height + 8
     line
