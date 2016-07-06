@@ -11950,10 +11950,13 @@ module.exports = function(vars, d, keys, colors, depth) {
     }
     if ([vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0) {
       agg = vars.order.agg.value || vars.aggs.value[key] || "sum";
+      if (agg.constructor === String) {
+        agg = d3[agg];
+      }
       if (!(value instanceof Array)) {
         value = [value];
       }
-      value = d3[agg](value);
+      value = agg(value);
     } else {
       if (value instanceof Array) {
         value = value[0];
@@ -18468,7 +18471,7 @@ d3plus = {};
  * @static
  */
 
-d3plus.version = "1.9.6 - Cornflower";
+d3plus.version = "1.9.7 - Cornflower";
 
 
 /**
@@ -26298,7 +26301,8 @@ module.exports = function(params) {
 
       }
 
-      var limit = length === "short" ? 3 : vars.data.large,
+      var maxChildrenShownInShortMode = vars.tooltip.children.value === true ? 3 : vars.tooltip.children.value;
+      var limit = length === "short" ? maxChildrenShownInShortMode : vars.data.large,
           listLength = nameList.length,
           max   = d3.min([listLength , limit]),
           objs  = [];
@@ -28813,7 +28817,9 @@ module.exports = {
 
 
 },{"../../core/methods/process/data.coffee":87}],258:[function(require,module,exports){
-var rendering;
+var process, rendering;
+
+process = require("../../core/methods/process/margin.coffee");
 
 rendering = require("../../core/methods/rendering.coffee");
 
@@ -28825,6 +28831,19 @@ module.exports = {
       color: "#ccc",
       width: 1
     }
+  },
+  margin: {
+    accepted: [Number, Object, String],
+    process: function(value) {
+      var userValue;
+      if (value === void 0) {
+        value = this.value;
+      }
+      userValue = value;
+      process(value, this);
+      return userValue;
+    },
+    value: 10
   },
   mirror: {
     accepted: [Boolean],
@@ -28838,7 +28857,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/rendering.coffee":92}],259:[function(require,module,exports){
+},{"../../core/methods/process/margin.coffee":90,"../../core/methods/rendering.coffee":92}],259:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
@@ -30032,10 +30051,10 @@ module.exports = {
 
 },{}],291:[function(require,module,exports){
 module.exports = {
-  "accepted": [Boolean],
-  "value": false,
-  "timeout": 400,
-  "process": function(value, vars) {
+  accepted: [Boolean],
+  value: false,
+  timeout: 400,
+  process: function(value, vars) {
     var resize, resizeEnd;
     if (!value) {
       return false;
@@ -30046,9 +30065,11 @@ module.exports = {
       mainNode = vars.container.value.node().parentNode.getBoundingClientRect();
       width = mainNode.width;
       height = mainNode.height;
-      vars.width.value = width;
-      vars.height.value = height;
-      return vars.self(vars.container.value);
+      vars.self.width(width);
+      vars.self.height(height);
+      if (vars.width.changed || vars.height.changed) {
+        return vars.self.draw();
+      }
     };
     d3.select(window).on("resize." + vars.container.id, (function(_this) {
       return function(e) {
@@ -30332,7 +30353,7 @@ module.exports = {
   anchor: "top center",
   background: "#ffffff",
   children: {
-    accepted: [Boolean],
+    accepted: [Boolean, Number],
     value: true
   },
   connections: {
@@ -30544,9 +30565,9 @@ area = function(vars) {
         d.d3plus = {};
       }
       d.d3plus.x = discrete.scale.viz(fetchValue(vars, d, discrete.value));
-      d.d3plus.x += vars.axes.margin.left;
+      d.d3plus.x += vars.axes.margin.viz.left;
       d.d3plus.y = opposite.scale.viz(fetchValue(vars, d, opposite.value));
-      d.d3plus.y += vars.axes.margin.top;
+      d.d3plus.y += vars.axes.margin.viz.top;
       if (d.d3plus.merged instanceof Array) {
         if (!point.d3plus.merged) {
           point.d3plus.merged = [];
@@ -30676,7 +30697,7 @@ bar = function(vars) {
   }
   data = [];
   oppMethod = vars[opposite];
-  oppDomain = oppMethod.scale.viz.domain();
+  oppDomain = oppMethod.scale.viz.domain().slice();
   if (opposite.indexOf("y") === 0) {
     oppDomain = oppDomain.reverse();
   }
@@ -30751,11 +30772,11 @@ bar = function(vars) {
       }
       discreteVal = fetchValue(vars, d, vars[discrete].value);
       d.d3plus[discrete] = vars[discrete].scale.viz(discreteVal);
-      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod;
+      d.d3plus[discrete] += vars.axes.margin.viz[cMargin] + mod;
       length = base - value;
       d.d3plus[opposite] = base - length / 2;
       if (!vars.axes.stacked) {
-        d.d3plus[opposite] += vars.axes.margin[oMargin];
+        d.d3plus[opposite] += vars.axes.margin.viz[oMargin];
       }
       delete d.d3plus.r;
       d.d3plus[w] = newSize;
@@ -30763,7 +30784,7 @@ bar = function(vars) {
       d.d3plus.init = {};
       d.d3plus.init[opposite] = oppMethod.scale.viz(zero);
       d.d3plus.init[opposite] -= d.d3plus[opposite];
-      d.d3plus.init[opposite] += vars.axes.margin[oMargin];
+      d.d3plus.init[opposite] += vars.axes.margin.viz[oMargin];
       d.d3plus.init[w] = d.d3plus[w];
       if (vars.text.value) {
         delete d.d3plus.label;
@@ -30828,8 +30849,8 @@ box = function(vars) {
   }
   discrete = vars.axes.discrete;
   opposite = vars.axes.opposite;
-  disMargin = discrete === "x" ? vars.axes.margin.left : vars.axes.margin.top;
-  oppMargin = opposite === "x" ? vars.axes.margin.left : vars.axes.margin.top;
+  disMargin = discrete === "x" ? vars.axes.margin.viz.left : vars.axes.margin.viz.top;
+  oppMargin = opposite === "x" ? vars.axes.margin.viz.left : vars.axes.margin.viz.top;
   h = discrete === "x" ? "height" : "width";
   w = discrete === "x" ? "width" : "height";
   space = vars.axes[w] / vars[discrete].ticks.values.length;
@@ -31293,22 +31314,23 @@ legible = require("../../../../color/legible.coffee");
 print = require("../../../../core/console/print.coffee");
 
 module.exports = function(vars) {
-  var axes, axis, axisData, data, i, len, ref, style, tick, ticks, timing;
+  var axes, axis, axisData, data, i, len, margin, ref, style, tick, ticks, timing;
   axes = vars.axes;
+  margin = vars.axes.margin.viz;
   data = axes.stacked || !axes.ticks.value ? [] : vars.data.viz;
   timing = data.length * 2 > vars.data.large ? 0 : vars.draw.timing;
   style = function(line, axis) {
     if (axis.indexOf("y") === 0) {
       line.attr("x1", -2).attr("x2", -8).attr("y1", function(d) {
-        return d.d3plus.y - axes.margin.top;
+        return d.d3plus.y - margin.top;
       }).attr("y2", function(d) {
-        return d.d3plus.y - axes.margin.top;
+        return d.d3plus.y - margin.top;
       });
     } else {
       line.attr("x1", function(d) {
-        return d.d3plus.x - axes.margin.left;
+        return d.d3plus.x - margin.left;
       }).attr("x2", function(d) {
-        return d.d3plus.x - axes.margin.left;
+        return d.d3plus.x - margin.left;
       }).attr("y1", axes.height + 2).attr("y2", axes.height + 8);
     }
     return line.style("stroke", function(d) {
@@ -31462,7 +31484,7 @@ dataChange = function(vars) {
   if (changed) {
     return changed;
   }
-  check = ["data", "time", "id", "depth", "type", "x", "y", "x2", "y2"];
+  check = ["data", "time", "id", "depth", "type", "width", "height", "x", "y", "x2", "y2"];
   for (i = 0, len = check.length; i < len; i++) {
     k = check[i];
     if (vars[k].changed) {
@@ -31629,6 +31651,10 @@ axisRange = function(vars, axis, zero, buffer) {
           return arr;
         }, []);
         return counts;
+      } else if (values[0].constructor === String) {
+        return uniques(values).sort(function(a, b) {
+          return "" + a.localeCompare("" + b);
+        });
       } else {
         return uniques(values).sort(function(a, b) {
           return a - b;
@@ -31762,6 +31788,7 @@ module.exports = function(vars, axis, buffer) {
           domain = domain.slice().reverse();
         }
         if (vars[axis].ticks.values.length === 1) {
+          domain = [domain[0], domain[0]];
           if (vars[axis].value === vars.time.value && vars.data.time.ticks.length !== 1) {
             closestTime = closest(vars.data.time.ticks, domain[0]);
             timeIndex = vars.data.time.ticks.indexOf(closestTime);
@@ -31937,7 +31964,7 @@ legible = require("../../../../../color/legible.coffee");
 textColor = require("../../../../../color/text.coffee");
 
 module.exports = function(node, vars) {
-  var clickRemove, color, create, graph, lineData, lineInit, lineStyle, lineUpdate, lines, r, rectStyle, rects, s, textStyle, texts, timing, x, y;
+  var clickRemove, color, create, graph, lineData, lineInit, lineStyle, lineUpdate, lines, margin, r, rectStyle, rects, s, textStyle, texts, timing, x, y;
   clickRemove = d3.event.type === events.click && (vars.tooltip.value.long || vars.tooltip.html.value);
   create = [events.over, events.move].indexOf(d3.event.type) >= 0;
   x = node.d3plus.x;
@@ -31946,13 +31973,14 @@ module.exports = function(node, vars) {
   s = vars.types[vars.type.value].scale || 1;
   r = r * s;
   graph = vars.axes;
+  margin = vars.axes.margin.viz;
   timing = vars.draw.timing ? vars.timing.mouseevents : 0;
   if (!clickRemove && create) {
     color = legible(fetchColor(vars, node));
     lineData = ["x", "y", "x2", "y2"].filter(function(axis) {
       var val;
       val = fetchValue(vars, node, vars[axis].value);
-      return val && !(val instanceof Array) && axis !== vars.axes.stacked && vars[axis].mouse.value && axis !== vars.axes.discrete;
+      return val && !(val instanceof Array) && axis !== vars.axes.stacked && vars[axis].mouse.value;
     });
   } else {
     lineData = [];
@@ -32018,9 +32046,9 @@ module.exports = function(node, vars) {
       } else if (node.d3plus.x0) {
         return node.d3plus.x0;
       } else if (d === "y") {
-        return graph.margin.left - vars[d].ticks.size;
+        return margin.left - vars[d].ticks.size;
       } else {
-        return graph.margin.left + graph.width + vars[d].ticks.size;
+        return margin.left + graph.width + vars[d].ticks.size;
       }
     }).attr("y2", function(d) {
       if (d.indexOf("y") === 0) {
@@ -32028,9 +32056,9 @@ module.exports = function(node, vars) {
       } else if (node.d3plus.y0) {
         return node.d3plus.y0;
       } else if (d === "x") {
-        return graph.height + graph.margin.top + vars[d].ticks.size;
+        return graph.height + margin.top + vars[d].ticks.size;
       } else {
-        return graph.margin.top - vars[d].ticks.size;
+        return margin.top - vars[d].ticks.size;
       }
     }).style("opacity", 1);
   };
@@ -32055,19 +32083,19 @@ module.exports = function(node, vars) {
       if (d.indexOf("x") === 0) {
         return x;
       } else if (d === "y") {
-        return graph.margin.left - 5 - vars[d].ticks.size;
+        return margin.left - 5 - vars[d].ticks.size;
       } else {
-        return graph.margin.left + graph.width + 5 + vars[d].ticks.size;
+        return margin.left + graph.width + 5 + vars[d].ticks.size;
       }
     }).attr("y", function(d) {
       if (d.indexOf("y") === 0) {
         return y;
       } else if (node.d3plus.y0) {
-        return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + graph.margin.top - 6;
+        return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + margin.top - 6;
       } else if (d === "x") {
-        return graph.height + graph.margin.top + 5 + vars[d].ticks.size;
+        return graph.height + margin.top + 5 + vars[d].ticks.size;
       } else {
-        return graph.margin.top - 5 - vars[d].ticks.size - (vars[d].ticks.font.size * 1.35);
+        return margin.top - 5 - vars[d].ticks.size - (vars[d].ticks.font.size * 1.35);
       }
     }).attr("fill", vars.shape.value === "area" ? "white" : textColor(color));
   };
@@ -32126,9 +32154,9 @@ module.exports = function(node, vars) {
       if (d.indexOf("x") === 0) {
         return x - width / 2 - 5;
       } else if (d === "y") {
-        return graph.margin.left - vars[d].ticks.size - width - 10;
+        return margin.left - vars[d].ticks.size - width - 10;
       } else {
-        return graph.margin.left + graph.width + vars[d].ticks.size;
+        return margin.left + graph.width + vars[d].ticks.size;
       }
     }).attr("y", function(d) {
       var height;
@@ -32136,11 +32164,11 @@ module.exports = function(node, vars) {
       if (d.indexOf("y") === 0) {
         return y - (height / 2 + 5);
       } else if (node.d3plus.y0) {
-        return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + graph.margin.top - (height / 2 + 5);
+        return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + margin.top - (height / 2 + 5);
       } else if (d === "x") {
-        return graph.height + graph.margin.top + vars[d].ticks.size;
+        return graph.height + margin.top + vars[d].ticks.size;
       } else {
-        return graph.margin.top - vars[d].ticks.size - height - 10;
+        return margin.top - vars[d].ticks.size - height - 10;
       }
     }).attr("width", function(d) {
       return getText(d).width + 10;
@@ -32166,7 +32194,7 @@ module.exports = function(node, vars) {
 
 
 },{"../../../../../client/pointer.coffee":38,"../../../../../color/legible.coffee":44,"../../../../../color/text.coffee":50,"../../../../../core/fetch/color.coffee":63,"../../../../../core/fetch/value.coffee":67,"../../../../../util/copy.coffee":207}],318:[function(require,module,exports){
-var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap, timeDetect, uniques;
+var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, superscript, textwrap, timeDetect, uniques;
 
 buckets = require("../../../../../util/buckets.coffee");
 
@@ -32183,8 +32211,13 @@ timeDetect = require("../../../../../core/data/time.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axes, axis, axisStyle, extent, j, k, len, len1, newtick, opp, otherScale, scale, step, tens, tick, ticks, timeReturn, values;
-  vars.axes.margin = resetMargins(vars);
+  var axes, axis, axisStyle, extent, j, k, l, len, len1, len2, newtick, opp, otherScale, scale, step, tens, tick, ticks, timeReturn, values;
+  vars.axes.margin.viz = {
+    top: vars.axes.margin.top,
+    right: vars.axes.margin.right,
+    bottom: vars.axes.margin.bottom,
+    left: vars.axes.margin.left
+  };
   vars.axes.height = vars.height.viz;
   vars.axes.width = vars.width.viz;
   axes = vars.width.viz > vars.height.viz ? ["y", "y2", "x", "x2"] : ["x", "x2", "y", "y2"];
@@ -32286,32 +32319,35 @@ module.exports = function(vars, opts) {
       } else {
         vars[axis].ticks.visible = vars[axis].ticks.values;
       }
+      if (vars[axis].value === vars.time.value) {
+        vars[axis].ticks.visible = vars[axis].ticks.visible.map(function(d) {
+          if (d.constructor === Number && ("" + d).length > 4) {
+            return d;
+          }
+          d += "";
+          if (d.length === 4 && parseInt(d) + "" === d) {
+            d += "/01/01";
+          }
+          return new Date(d).getTime();
+        });
+      }
     }
   }
-  if (!vars.small) {
-    labelPadding(vars);
-  }
-  for (k = 0, len1 = axes.length; k < len1; k++) {
-    axis = axes[k];
-    vars[axis].axis.svg = createAxis(vars, axis);
-  }
-};
-
-resetMargins = function(vars) {
   if (vars.small) {
-    return {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    };
+    vars.axes.width -= vars.axes.margin.viz.left + vars.axes.margin.viz.right;
+    vars.axes.height -= vars.axes.margin.viz.top + vars.axes.margin.viz.bottom;
+    for (k = 0, len1 = axes.length; k < len1; k++) {
+      axis = axes[k];
+      vars[axis].label.height = 0;
+    }
   } else {
-    return {
-      top: 10,
-      right: 10,
-      bottom: 10,
-      left: 10
-    };
+    if (!vars.small) {
+      labelPadding(vars);
+    }
+  }
+  for (l = 0, len2 = axes.length; l < len2; l++) {
+    axis = axes[l];
+    vars[axis].axis.svg = createAxis(vars, axis);
   }
 };
 
@@ -32374,8 +32410,10 @@ labelPadding = function(vars) {
         yAxisWidth = d3.max(fontSizes(yText, yAttrs), function(d) {
           return d.width;
         });
-        yAxisWidth = Math.ceil(yAxisWidth + vars.labels.padding);
-        vars.axes.margin[margin] += yAxisWidth;
+        if (yAxisWidth) {
+          yAxisWidth = Math.ceil(yAxisWidth + vars.labels.padding);
+          vars.axes.margin.viz[margin] += yAxisWidth;
+        }
       } else {
         vars[axis].ticks.hidden = true;
       }
@@ -32393,12 +32431,12 @@ labelPadding = function(vars) {
         vars[axis].label.height = 0;
       }
       if (vars[axis].label.value) {
-        vars.axes.margin[margin] += vars[axis].label.height;
-        vars.axes.margin[margin] += vars[axis].label.padding * 2;
+        vars.axes.margin.viz[margin] += vars[axis].label.height;
+        vars.axes.margin.viz[margin] += vars[axis].label.padding * 2;
       }
     }
   }
-  vars.axes.width -= vars.axes.margin.left + vars.axes.margin.right;
+  vars.axes.width -= vars.axes.margin.viz.left + vars.axes.margin.viz.right;
   vars.x.scale.viz.range(buckets([0, vars.axes.width], xDomain.length));
   if (x2Domain) {
     vars.x2.scale.viz.range(buckets([0, vars.axes.width], x2Domain.length));
@@ -32506,14 +32544,16 @@ labelPadding = function(vars) {
         xAxisHeight = Math.ceil(xAxisHeight);
         vars[axis].ticks.maxHeight = xAxisHeight;
         vars[axis].ticks.maxWidth = xAxisWidth;
-        vars.axes.margin[margin] += xAxisHeight + vars.labels.padding;
+        if (xAxisHeight) {
+          vars.axes.margin.viz[margin] += xAxisHeight + vars.labels.padding;
+        }
         lastTick = vars[axis].ticks.visible[vars[axis].ticks.visible.length - 1];
         rightLabel = vars[axis].scale.viz(lastTick);
-        rightLabel += xAxisWidth / 2 + vars.axes.margin.left;
+        rightLabel += xAxisWidth / 2 + vars.axes.margin.viz.left;
         if (rightLabel > vars.width.value) {
-          rightMod = rightLabel - vars.width.value + vars.axes.margin.right;
+          rightMod = rightLabel - vars.width.value + vars.axes.margin.viz.right;
           vars.axes.width -= rightMod;
-          vars.axes.margin.right += rightMod;
+          vars.axes.margin.viz.right += rightMod;
         }
       } else {
         vars[axis].ticks.hidden = true;
@@ -32532,12 +32572,12 @@ labelPadding = function(vars) {
         vars[axis].label.height = 0;
       }
       if (vars[axis].label.value) {
-        vars.axes.margin[margin] += vars[axis].label.height;
-        vars.axes.margin[margin] += vars[axis].label.padding * 2;
+        vars.axes.margin.viz[margin] += vars[axis].label.height;
+        vars.axes.margin.viz[margin] += vars[axis].label.padding * 2;
       }
     }
   }
-  vars.axes.height -= vars.axes.margin.top + vars.axes.margin.bottom;
+  vars.axes.height -= vars.axes.margin.viz.top + vars.axes.margin.viz.bottom;
   vars.x.scale.viz.range(buckets([0, vars.axes.width], xDomain.length));
   if (x2Domain) {
     vars.x2.scale.viz.range(buckets([0, vars.axes.width], x2Domain.length));
@@ -32659,9 +32699,10 @@ module.exports = function(vars) {
     });
   };
   tickStyle = function(tick, axis, grid) {
-    var color, log;
+    var color, log, visibles;
     color = grid ? vars[axis].grid.color : vars[axis].ticks.color;
     log = vars[axis].scale.value === "log";
+    visibles = vars[axis].ticks.visible || [];
     return tick.attr("stroke", function(d) {
       var visible;
       if (d === 0) {
@@ -32670,7 +32711,7 @@ module.exports = function(vars) {
       if (d.constructor === Date) {
         d = +d;
       }
-      visible = vars[axis].ticks.visible.indexOf(d) >= 0;
+      visible = visibles.indexOf(d) >= 0;
       if (visible && (!log || Math.abs(d).toString().charAt(0) === "1")) {
         return color;
       } else if (grid && vars.axes.background.color !== "transparent") {
@@ -32740,7 +32781,7 @@ module.exports = function(vars) {
       return d.color || vars[axis].lines.color;
     }).attr("font-family", vars[axis].lines.font.family.value).attr("font-weight", vars[axis].lines.font.weight);
   };
-  planeTrans = "translate(" + vars.axes.margin.left + "," + vars.axes.margin.top + ")";
+  planeTrans = "translate(" + vars.axes.margin.viz.left + "," + vars.axes.margin.viz.top + ")";
   plane = vars.group.selectAll("g#d3plus_graph_plane").data([0]);
   plane.transition().duration(vars.draw.timing).attr("transform", planeTrans);
   plane.enter().append("g").attr("id", "d3plus_graph_plane").attr("transform", planeTrans);
@@ -32822,7 +32863,7 @@ module.exports = function(vars) {
     axisGroup.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
   labelStyle = function(label, axis) {
-    return label.attr("x", axis.indexOf("x") === 0 ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - vars[axis].label.height / 2 - vars[axis].label.padding : axis === "y2" ? vars.width.viz - vars[axis].label.height / 2 - vars[axis].label.padding : vars[axis].label.height / 2 + vars[axis].label.padding).attr("transform", axis.indexOf("y") === 0 ? "rotate(-90)" : null).attr("font-family", vars[axis].label.font.family.value).attr("font-weight", vars[axis].label.font.weight).attr("font-size", vars[axis].label.font.size + "px").attr("fill", vars[axis].label.font.color).style("text-anchor", "middle").attr("dominant-baseline", "central").style("text-transform", vars[axis].label.font.transform.value).style("letter-spacing", vars[axis].label.font.spacing + "px");
+    return label.attr("x", axis.indexOf("x") === 0 ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.viz.top)).attr("y", axis === "x" ? vars.height.viz - vars[axis].label.height / 2 - vars[axis].label.padding : axis === "y2" ? vars.width.viz - vars[axis].label.height / 2 - vars[axis].label.padding : vars[axis].label.height / 2 + vars[axis].label.padding).attr("transform", axis.indexOf("y") === 0 ? "rotate(-90)" : null).attr("font-family", vars[axis].label.font.family.value).attr("font-weight", vars[axis].label.font.weight).attr("font-size", vars[axis].label.font.size + "px").attr("fill", vars[axis].label.font.color).style("text-anchor", "middle").attr("dominant-baseline", "central").style("text-transform", vars[axis].label.font.transform.value).style("letter-spacing", vars[axis].label.font.spacing + "px");
   };
   ref1 = ["x", "y"];
   for (k = 0, len1 = ref1.length; k < len1; k++) {
@@ -32839,6 +32880,15 @@ module.exports = function(vars) {
       if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[opp].axis.value) {
         gridData = [0];
       }
+    }
+    if (vars[axis].value === vars.time.value) {
+      gridData = gridData.map(function(d) {
+        d += "";
+        if (d.length === 4 && parseInt(d) + "" === d) {
+          d += "/01/01";
+        }
+        return new Date(d).getTime();
+      });
     }
     grid = plane.selectAll("g#d3plus_graph_" + axis + "grid").data([0]);
     grid.enter().append("g").attr("id", "d3plus_graph_" + axis + "grid");
@@ -32858,7 +32908,7 @@ module.exports = function(vars) {
     axis = ref2[l];
     if (vars[axis].value) {
       axisLabel = vars[axis].label.fetch(vars);
-      labelData = axisData && axisLabel ? [0] : [];
+      labelData = axisData && axisLabel && !vars.small ? [0] : [];
       affixes = vars.format.affixes.value[vars[axis].value];
       if (axisLabel && !vars[axis].affixes.value && affixes) {
         sep = vars[axis].affixes.separator.value;
@@ -33131,7 +33181,7 @@ module.exports = function(vars, data) {
   flip = vars[stacked].scale.viz(0);
   scale = vars[stacked].scale.value;
   opposite = stacked === "x" ? "y" : "x";
-  margin = stacked === "y" ? vars.axes.margin.top : vars.axes.margin.left;
+  margin = stacked === "y" ? vars.axes.margin.viz.top : vars.axes.margin.viz.left;
   offset = scale === "share" ? "expand" : "zero";
   stack = d3.layout.stack().values(function(d) {
     return d.values || [d];
@@ -33235,7 +33285,7 @@ line = function(vars) {
         d.d3plus.x2 = true;
         d.d3plus.x = vars.x2.scale.viz(fetchValue(vars, d, vars.x2.value));
       }
-      d.d3plus.x += vars.axes.margin.left;
+      d.d3plus.x += vars.axes.margin.viz.left;
       yval = fetchValue(vars, d, vars.y.value);
       if (yval !== null) {
         d.d3plus.y2 = false;
@@ -33244,7 +33294,7 @@ line = function(vars) {
         d.d3plus.y2 = true;
         d.d3plus.y = vars.y2.scale.viz(fetchValue(vars, d, vars.y2.value));
       }
-      d.d3plus.y += vars.axes.margin.top;
+      d.d3plus.y += vars.axes.margin.viz.top;
     }
   }
   if (vars.axes.stacked) {
@@ -34909,9 +34959,9 @@ scatter = function(vars) {
   for (i = 0, len = ref.length; i < len; i++) {
     d = ref[i];
     d.d3plus.x = vars.x.scale.viz(fetchValue(vars, d, vars.x.value));
-    d.d3plus.x += vars.axes.margin.left;
+    d.d3plus.x += vars.axes.margin.viz.left;
     d.d3plus.y = vars.y.scale.viz(fetchValue(vars, d, vars.y.value));
-    d.d3plus.y += vars.axes.margin.top;
+    d.d3plus.y += vars.axes.margin.viz.top;
     if (typeof vars.size.value === "number" || !vars.size.value) {
       d.d3plus.r = vars.axes.scale(0);
     } else {
