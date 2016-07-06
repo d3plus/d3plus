@@ -23,7 +23,7 @@ module.exports = (node, vars) ->
     lineData = ["x", "y", "x2", "y2"].filter (axis) ->
       val = fetchValue vars, node, vars[axis].value
       val and !(val instanceof Array) and axis isnt vars.axes.stacked and
-      vars[axis].mouse.value and axis isnt vars.axes.discrete
+      vars[axis].mouse.value
   else
     lineData = []
 
