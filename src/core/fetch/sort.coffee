@@ -30,8 +30,9 @@ module.exports = (vars, d, keys, colors, depth) ->
 
     if [vars.data.keys[key], vars.attrs.keys[key]].indexOf("number") >= 0
       agg = vars.order.agg.value or vars.aggs.value[key] or "sum"
+      agg = d3[agg] if agg.constructor is String
       value = [value] if !(value instanceof Array)
-      value = d3[agg] value
+      value = agg value
     else
       value = value[0] if value instanceof Array
       value = if typeof value is "string" then value.toLowerCase() else value
