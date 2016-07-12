@@ -196,10 +196,10 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     mouse
       .on(events.over,function(m){
-        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 2);
+        if (!vars.draw.frozen && vars.mouse.value && vars.mouse.over.value) mouseStyle(vars, this, stroke, 2);
       })
       .on(events.out,function(d){
-        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 0);
+        if (!vars.draw.frozen && vars.mouse.value && vars.mouse.out.value) mouseStyle(vars, this, stroke, 0);
       });
 
     if (vars.draw.timing) {
