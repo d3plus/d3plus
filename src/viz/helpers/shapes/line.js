@@ -26,7 +26,7 @@ module.exports = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var stroke = vars.size.value || vars.data.stroke.width * 2,
+  var stroke = vars.size.value || vars.data.stroke.width,
       discrete = vars[vars.axes.discrete],
       hitarea = function(l){
         var s = stroke;
@@ -105,7 +105,7 @@ module.exports = function(vars,selection,enter,exit) {
     var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
         if (!d.d3plus) d.d3plus = {};
-        d.d3plus.r = vars.data.stroke.width * 2;
+        d.d3plus.r = stroke;
         return d.d3plus.id;
       });
 
