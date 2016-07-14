@@ -118,15 +118,23 @@ var network = function(vars) {
 
     l[vars.edges.source].d3plus = {}
     var source = lookup[l[vars.edges.source][vars.id.value]]
-    l[vars.edges.source].d3plus.r = source.r
-    l[vars.edges.source].d3plus.x = source.x
-    l[vars.edges.source].d3plus.y = source.y
+    if (source !== undefined) {
+      l[vars.edges.source].d3plus.r = source.r
+      l[vars.edges.source].d3plus.x = source.x
+      l[vars.edges.source].d3plus.y = source.y
+    } else {
+      delete l[vars.edges.source].d3plus;
+    }
 
     l[vars.edges.target].d3plus = {}
     var target = lookup[l[vars.edges.target][vars.id.value]]
-    l[vars.edges.target].d3plus.r = target.r
-    l[vars.edges.target].d3plus.x = target.x
-    l[vars.edges.target].d3plus.y = target.y
+    if (target !== undefined) {
+      l[vars.edges.target].d3plus.r = target.r
+      l[vars.edges.target].d3plus.x = target.x
+      l[vars.edges.target].d3plus.y = target.y
+    } else {
+      delete l[vars.edges.target].d3plus;
+    }
 
   })
 
