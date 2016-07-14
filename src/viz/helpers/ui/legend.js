@@ -342,9 +342,16 @@ module.exports = function(vars) {
                   y = bounds.top + square_size/2 + scroll.y() + 5;
 
               var id = fetchValue(vars, d, colorKey),
-                  idIndex = vars.id.nesting.indexOf(colorKey),
-                  title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
-                          vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), {"key": vars.color.value, "vars": vars, "data": d});
+                  idIndex = vars.id.nesting.indexOf(colorKey);
+
+              var title;
+              if (vars.legend.title.value) {
+                title = fetchValue(vars, d, vars.legend.title.value, colorDepth);
+              }
+              else { 
+                title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
+                        vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), {"key": vars.color.value, "vars": vars, "data": d});
+              }
 
               var html, js;
               if (vars.legend.filters.value && !(id instanceof Array)) {
