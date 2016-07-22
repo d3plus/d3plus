@@ -36,4 +36,7 @@ module.exports =
   text:
     accepted: [false, Function, String]
     value:    false
+  title:
+    accepted: [false, Function, String]
+    value:    false
   value: true
