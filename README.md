@@ -1,8 +1,7 @@
 [![NPM Release](http://img.shields.io/npm/v/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
 [![Dependency Status](http://img.shields.io/david/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus)
 [![Dependency Status](http://img.shields.io/david/dev/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
-[![NPM Downloads](http://img.shields.io/npm/dm/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
-[![License](http://img.shields.io/npm/l/d3plus.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![Slack](https://img.shields.io/badge/Slack-Click%20to%20Join!-green.svg?style=social)](https://goo.gl/forms/ynrKdvusekAwRMPf2)
 
 <img src="https://raw.githubusercontent.com/alexandersimoes/d3plus/gh-pages/assets/img/facebook.jpg">
 
