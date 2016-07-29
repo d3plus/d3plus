@@ -316,6 +316,7 @@ module.exports = function(vars) {
           .call(position)
           .append("rect")
             .attr("class","d3plus_color")
+            .attr("stroke", "none")
             .call(style);
 
         keys.order()
@@ -348,7 +349,7 @@ module.exports = function(vars) {
               if (vars.legend.title.value) {
                 title = fetchValue(vars, d, vars.legend.title.value, colorDepth);
               }
-              else { 
+              else {
                 title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
                         vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), {"key": vars.color.value, "vars": vars, "data": d});
               }
