@@ -12,5 +12,6 @@ module.exports =
     else if value instanceof Array
       d3.select value[0][0]
     else
+      @selector = value
       d3.select value
   value:    false

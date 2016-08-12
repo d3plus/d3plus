@@ -25,7 +25,8 @@ module.exports = {
     else if ( vars.container.value.empty() ) {
 
       var str = vars.format.locale.value.dev.noContainer
-      print.warning( stringFormat(str,"\""+vars.container.value+"\"") , "container" )
+      var selector = vars.container.selector || "";
+      print.warning( stringFormat(str, "\"" + selector + "\"") , "container" )
 
     }
     else {

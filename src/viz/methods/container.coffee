@@ -14,5 +14,6 @@ module.exports =
     else if value instanceof Array
       d3.select(value[0][0]).append("div")
     else
+      @selector = value
       d3.select(value).append("div")
   value:    false
