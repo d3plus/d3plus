@@ -3,7 +3,7 @@
 [![Dependency Status](http://img.shields.io/david/dev/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
 [![Slack](https://img.shields.io/badge/Slack-Click%20to%20Join!-green.svg?style=social)](https://goo.gl/forms/ynrKdvusekAwRMPf2)
 
-<img src="https://raw.githubusercontent.com/alexandersimoes/d3plus/gh-pages/assets/img/facebook.jpg">
+<img src="https://d3plus.org/assets/img/facebook.jpg">
 
 | <a href="https://d3plus.org/examples/basic/32517cfde67270c99092/"><img src="https://gist.githubusercontent.com/davelandry/32517cfde67270c99092/raw/thumbnail.png" width="120px"><br>Bar Charts</a> | <a href="https://d3plus.org/examples/basic/9029130/"><img src="https://gist.githubusercontent.com/davelandry/9029130/raw/thumbnail.png" width="120px"><br>Tree Maps</a> | <a href="https://d3plus.org/examples/basic/9029781/"><img src="https://gist.githubusercontent.com/davelandry/9029781/raw/thumbnail.png" width="120px"><br>Scatter Plots</a> | <a href="https://d3plus.org/examples/basic/9029462/"><img src="https://gist.githubusercontent.com/davelandry/9029462/raw/thumbnail.png" width="120px"><br>Stacked Areas</a> | <a href="https://d3plus.org/examples/basic/9037371/"><img src="https://gist.githubusercontent.com/davelandry/9037371/raw/thumbnail.png" width="120px"><br>Line Plots</a> |
 | :-: | :-: | :-: | :-: | :-: |
