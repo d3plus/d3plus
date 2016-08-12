@@ -8,11 +8,16 @@ module.exports = function(vars) {
 
   if ( vars.dev.value ) print.time("getting color data range")
 
-  var data_range = []
-  vars.data.pool.forEach(function(d){
-    var val = parseFloat(fetchValue(vars,d,vars.color.value))
-    if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
-  })
+  if (vars.color.domain.value) {
+    var data_range = vars.color.domain.value;
+  }
+  else {
+    var data_range = []
+    vars.data.pool.forEach(function(d){
+      var val = parseFloat(fetchValue(vars,d,vars.color.value))
+      if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
+    })
+  }
 
   if ( vars.dev.value ) print.timeEnd("getting color data range")
 
@@ -22,7 +27,7 @@ module.exports = function(vars) {
 
     if ( vars.dev.value ) print.time("calculating color scale")
 
-    data_range = d3.extent(data_range)
+    data_range = d3.extent(data_range);
 
     if (data_range[0] < 0 && data_range[1] > 0) {
       var color_range = vars.color.range

@@ -4,6 +4,9 @@ scale  = require("../../color/scale.coffee")
 module.exports =
   accepted:   [false, Array, Function, Object, String]
   deprecates: "color_var"
+  domain:
+    accepted: [false, Array]
+    value: false
   focus:      "#444444"
   heatmap:    ["#282F6B", "#419391", "#AFD5E8", "#EACE3F", "#B35C1E", "#B22200"]
   missing:    "#eeeeee"
