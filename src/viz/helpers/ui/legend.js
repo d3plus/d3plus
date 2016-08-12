@@ -126,17 +126,21 @@ module.exports = function(vars) {
 
         if ( vars.dev.value ) print.time("sorting legend");
 
-        var order = vars[vars.legend.order.value].value;
+        if(typeof vars.legend.order.value === "function") {
+          colors = vars.legend.order.value(colors)
+        } else {
+          var order = vars[vars.legend.order.value].value;
 
-        var sort_color = vars.color.value;
-        if (!order) {
-          order = vars[vars.color.value].value;
-        }
-        else if (vars.legend.order.value !== "color") {
-          sort_color = [];
-        }
+          var sort_color = vars.color.value;
+          if (!order) {
+            order = vars[vars.color.value].value;
+          }
+          else if (vars.legend.order.value !== "color") {
+            sort_color = [];
+          }
 
-        arraySort(colors, order, vars.legend.order.sort.value, sort_color, vars, colorDepth);
+          arraySort(colors, order, vars.legend.order.sort.value, sort_color, vars, colorDepth);
+        }
 
         if ( vars.dev.value ) print.timeEnd("sorting legend");
 
