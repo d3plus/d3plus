@@ -450,10 +450,11 @@ module.exports = function(vars) {
 
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
+          var defaultClick = typeof vars.mouse.over.value !== "function";
           if (typeof vars.mouse.over.value === "function") {
-            vars.mouse.over.value(d, vars.self);
+            defaultClick = vars.mouse.over.value(d, vars.self);
           }
-          else {
+          if (defaultClick) {
 
             var zoomDir = zoomDirection(d.d3plus_data || d, vars)
             var pointer = typeof vars.mouse.viz === "function" ||
@@ -516,10 +517,11 @@ module.exports = function(vars) {
 
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
+          var defaultClick = typeof vars.mouse.move.value !== "function";
           if (typeof vars.mouse.move.value === "function") {
-            vars.mouse.move.value(d, vars.self);
+            defaultClick = vars.mouse.move.value(d, vars.self);
           }
-          else {
+          if (defaultClick) {
 
             var zoomDir = zoomDirection(d.d3plus_data || d, vars)
             var pointer = typeof vars.mouse.viz === "function" ||
@@ -574,10 +576,11 @@ module.exports = function(vars) {
 
         if (!d3.event.buttons && vars.mouse.value && vars.mouse.out.value) {
 
+          var defaultClick = typeof vars.mouse.out.value !== "function";
           if (typeof vars.mouse.out.value === "function") {
-            vars.mouse.out.value(d, vars.self);
+            defaultClick = vars.mouse.out.value(d, vars.self);
           }
-          else {
+          if (defaultClick) {
 
             var childElement = child(this,d3.event.toElement)
 
@@ -638,10 +641,11 @@ module.exports = function(vars) {
 
       if (!(vars.mouse.viz && vars.mouse.viz.click === false) && vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
+        var defaultClick = typeof vars.mouse.click.value !== "function";
         if (typeof vars.mouse.click.value === "function") {
-          vars.mouse.click.value(d, vars.self);
+          defaultClick = vars.mouse.click.value(d, vars.self);
         }
-        else {
+        if (defaultClick) {
 
           if (d.values && vars.axes.discrete) {
 
