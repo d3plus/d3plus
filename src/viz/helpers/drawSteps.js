@@ -159,8 +159,8 @@ module.exports = function(vars) {
 
           if (!vars.color.type || vars.color.changed || vars.data.changed ||
               vars.attrs.changed || vars.id.changed || vars.depth.changed ||
-              (!vars.time.fixed.value &&
-                (vars.time.solo.changed || vars.time.mute.changed))) {
+              vars.id.solo.changed ||
+              (!vars.time.fixed.value && (vars.time.solo.changed || vars.time.mute.changed))) {
 
             vars.color.valueScale = false;
 
