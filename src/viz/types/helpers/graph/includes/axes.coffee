@@ -19,7 +19,7 @@ module.exports = (vars, opts) ->
     reorder  = vars.order.changed or vars.order.sort.changed or
                (vars.order.value is true and vars[oppAxis].changed)
 
-    if vars[axis].value and (!vars[axis].ticks.values or changed or reorder)
+    if vars[axis].value and (!vars[axis].ticks.values or changed or reorder or (vars[axis].value is vars.time.value and vars.time.fixed.value))
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -64,7 +64,7 @@ module.exports = (vars, opts) ->
 
 dataChange = (vars) ->
 
-  changed = vars.time.fixed.value and
+  changed = !vars.time.fixed.value and
             (vars.time.solo.changed or vars.time.mute.changed)
   changed = vars.id.solo.changed or vars.id.mute.changed unless changed
   return changed if changed
@@ -87,11 +87,11 @@ dataChange = (vars) ->
   changed
 
 getData = (vars) ->
-  if vars.time.fixed.value
+  if !vars.time.fixed.value
     vars.data.viz
   else
-    depths  = d3.range(0,vars.id.nesting.length)
-    d3.merge [fetchData(vars,"all",d) for d in depths]
+    depths = d3.range 0, vars.id.nesting.length
+    d3.merge d3.merge([fetchData(vars, "all", d) for d in depths])
 
 axisRange = (vars, axis, zero, buffer) ->
 
