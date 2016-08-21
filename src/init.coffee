@@ -11,7 +11,7 @@ d3plus         = {}
 # @type String
 # @static
 ###
-d3plus.version = "1.9.7 - Cornflower"
+d3plus.version = "1.9.8 - Cornflower"
 
 ###*
 # The URL for the repo, used internally for certain error messages.
