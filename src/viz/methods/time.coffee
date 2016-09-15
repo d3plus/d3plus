@@ -7,7 +7,7 @@ module.exports =
   fixed:
     accepted:   [Boolean]
     deprecates: ["static_axis", "static_axes"]
-    value:      true
+    value:      false
   format:
     accepted: [false, Array, Function, String]
     value:    false
