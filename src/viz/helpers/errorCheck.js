@@ -24,7 +24,7 @@ module.exports = function(vars) {
   var missing = []
   reqs.forEach(function(r){
     if (typeof r === "string") {
-      if (!vars[r].value) missing.push("\""+r+"\"")
+      if (!vars[r].value || !vars[r].value.length) missing.push("\""+r+"\"")
     }
     else if (typeof r === "function") {
       var reqReturn = r(vars)
