@@ -6,7 +6,7 @@ stylesheet = require "../../../client/css.coffee"
 # Creates "back" button, if applicable
 module.exports = (vars) ->
 
-  if !vars.small and vars.history.states.length > 0
+  if !vars.small and vars.history.value and vars.history.states.length > 0
 
     print.time "drawing back button" if vars.dev.value
 
