@@ -28,8 +28,8 @@ module.exports = (words, style, opts) ->
     elem.getComputedTextLength() + add
 
   getHeight = (elem) ->
-    elem.parentNode.getBBox().height or
-    elem.getBoundingClientRect().height
+    try elem.parentNode.getBBox().height
+    catch e then elem.getBoundingClientRect().height
 
   tspans.enter().append("tspan")
     .text String
