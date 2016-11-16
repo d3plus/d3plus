@@ -1,33 +1,14 @@
 {
   "name": "d3plus",
-  "version": "1.9.8",
+  "version": "2.0.0-alpha.1",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
-  "devDependencies": {
-    "browserify": "^13.1.0",
-    "coffeeify": "^2.0.1",
-    "coffee-script": "^1.10.0",
-    "event-stream": "^3.3.4",
-    "gulp": "^3.9.1",
-    "gulp-chmod": "^1.3.0",
-    "gulp-connect": "^5.0.0",
-    "gulp-duration": "^0.0.0",
-    "gulp-notify": "^2.2.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^2.0.0",
-    "gulp-util": "^3.0.7",
-    "require-dir": "^0.3.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.7.0"
-  },
+  "main": "build/d3plus-shape.js",
+  "jsnext:main": "index",
+  "license": "MIT",
+  "homepage": "https://d3plus.org",
   "repository": {
     "type": "git",
     "url": "https://github.com/alexandersimoes/d3plus.git"
-  },
-  "browserify": {
-    "transform": [
-      "coffeeify"
-    ]
   },
   "keywords": [
     "charts",
@@ -41,43 +22,28 @@
     "email": "landry.dave@gmail.com",
     "url": "http://www.dave-landry.com"
   },
-  "contributors": [
-    {
-      "name": "Alexander Simoes",
-      "email": "alexandersimoes@gmail.com",
-      "url": "http://www.alexandersimoes.com"
-    },
-    {
-      "name": "Daniel Smilkov",
-      "email": "dsmilkov@gmail.com",
-      "url": "http://smilkov.com"
-    }
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/alexandersimoes/d3plus/issues",
-    "email": "landry.dave@gmail.com"
-  },
-  "homepage": "http://www.d3plus.org",
   "dependencies": {
-    "d3": "^3.5.15",
-    "heap": "^0.2.6",
-    "numeric": "^1.2.6",
-    "simplify-js": "^1.2.1",
-    "static-kdtree": "^1.0.1",
-    "topojson": "^1.6.24"
+    "d3plus-axis": "^0.3.11",
+    "d3plus-color": "^0.5.3",
+    "d3plus-common": "^0.6.8",
+    "d3plus-geomap": "^0.2.0",
+    "d3plus-legend": "^0.6.15",
+    "d3plus-plot": "^0.3.14",
+    "d3plus-priestley": "^0.1.8",
+    "d3plus-shape": "^0.8.25",
+    "d3plus-text": "^0.9.8",
+    "d3plus-timeline": "^0.2.1",
+    "d3plus-tooltip": "^0.2.2",
+    "d3plus-viz": "^0.4.0"
   },
-  "filename": "d3plus.min.js",
-  "npmName": "d3plus",
-  "npmFileMap": [
-    {
-      "basePath": "/",
-      "files": [
-        "d3plus.full.js",
-        "d3plus.full.min.js",
-        "d3plus.js",
-        "d3plus.min.js"
-      ]
-    }
-  ]
+  "scripts": {
+    "build": "json2module package.json > build/package.js && d3plus-build",
+    "dev": "d3plus-dev",
+    "prepublish": "npm run build",
+    "release": "npm publish --tag next"
+  },
+  "devDependencies": {
+    "d3plus-dev": "^0.1.11",
+    "json2module": "0.0.3"
+  }
 }
