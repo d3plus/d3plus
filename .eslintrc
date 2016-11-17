@@ -59,7 +59,7 @@
       }
     ],
     "generator-star-spacing": 2,
-    "global-require": 0,
+    "global-require": 2,
     "guard-for-in": 2,
     "handle-callback-err": 2,
     "id-match": 2,

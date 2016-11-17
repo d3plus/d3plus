@@ -27,6 +27,7 @@
     "d3plus-color": "^0.5.3",
     "d3plus-common": "^0.6.8",
     "d3plus-geomap": "^0.2.0",
+    "d3plus-hierarchy": "^0.1.0",
     "d3plus-legend": "^0.6.15",
     "d3plus-plot": "^0.3.14",
     "d3plus-priestley": "^0.1.8",
@@ -34,13 +35,15 @@
     "d3plus-text": "^0.9.8",
     "d3plus-timeline": "^0.2.1",
     "d3plus-tooltip": "^0.2.2",
-    "d3plus-viz": "^0.4.0"
+    "d3plus-viz": "^0.4.1"
   },
   "scripts": {
-    "build": "json2module package.json > build/package.js && d3plus-build",
+    "build": "d3plus-build",
     "dev": "d3plus-dev",
-    "prepublish": "npm run build",
-    "release": "npm publish --tag next"
+    "prepublish": "d3plus-build",
+    "pretest": "json2module package.json > build/package.js",
+    "release": "npm publish --tag next",
+    "test": "d3plus-test"
   },
   "devDependencies": {
     "d3plus-dev": "^0.1.11",

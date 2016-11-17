@@ -39,6 +39,11 @@ export {
 } from "d3plus-geomap";
 
 export {
+  Tree,
+  Treemap
+} from "d3plus-hierarchy";
+
+export {
   Legend
 } from "d3plus-legend";
 
