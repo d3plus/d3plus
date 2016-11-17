@@ -1,46 +1,16 @@
-[![NPM Release](http://img.shields.io/npm/v/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
-[![Dependency Status](http://img.shields.io/david/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus)
-[![Dependency Status](http://img.shields.io/david/dev/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
+# d3plus 2.0
+
+[![NPM Release](http://img.shields.io/npm/v/@next/d3plus.svg?style=flat)](https://www.npmjs.org/package/d3plus)
+[![Build Status](https://travis-ci.org/alexandersimoes/d3plus.svg?branch=2.0)](https://travis-ci.org/alexandersimoes/d3plus)
+[![Dependency Status](https://david-dm.org/alexandersimoes/d3plus/2.0/status.svg)](https://david-dm.org/alexandersimoes/d3plus/2.0)
 [![Slack](https://img.shields.io/badge/Slack-Click%20to%20Join!-green.svg?style=social)](https://goo.gl/forms/ynrKdvusekAwRMPf2)
 
-<img src="https://d3plus.org/assets/img/facebook.jpg">
+Pre-release of d3plus 2.0
 
-| <a href="https://d3plus.org/examples/basic/32517cfde67270c99092/"><img src="https://gist.githubusercontent.com/davelandry/32517cfde67270c99092/raw/thumbnail.png" width="120px"><br>Bar Charts</a> | <a href="https://d3plus.org/examples/basic/9029130/"><img src="https://gist.githubusercontent.com/davelandry/9029130/raw/thumbnail.png" width="120px"><br>Tree Maps</a> | <a href="https://d3plus.org/examples/basic/9029781/"><img src="https://gist.githubusercontent.com/davelandry/9029781/raw/thumbnail.png" width="120px"><br>Scatter Plots</a> | <a href="https://d3plus.org/examples/basic/9029462/"><img src="https://gist.githubusercontent.com/davelandry/9029462/raw/thumbnail.png" width="120px"><br>Stacked Areas</a> | <a href="https://d3plus.org/examples/basic/9037371/"><img src="https://gist.githubusercontent.com/davelandry/9037371/raw/thumbnail.png" width="120px"><br>Line Plots</a> |
-| :-: | :-: | :-: | :-: | :-: |
-| <a href="https://d3plus.org/examples/basic/9042919/"><img src="https://gist.githubusercontent.com/davelandry/9042919/raw/thumbnail.png" width="120px"><br>**Networks**</a> | <a href="https://d3plus.org/examples/basic/78018ce8c3787d4e30d9/"><img src="https://gist.githubusercontent.com/davelandry/78018ce8c3787d4e30d9/raw/thumbnail.png" width="120px"><br>**Box Plots**</a> | <a href="https://d3plus.org/examples/basic/33fc382f1f1913682ec1/"><img src="https://gist.githubusercontent.com/davelandry/33fc382f1f1913682ec1/raw/thumbnail.png" width="120px"><br>**Pie Charts**</a> | <a href="https://d3plus.org/examples/basic/9042807/"><img src="https://gist.githubusercontent.com/davelandry/9042807/raw/thumbnail.png" width="120px"><br>**Geo Maps**</a> | <a href="https://d3plus.org/examples/basic/b197f489fb0fc2093fee/"><img src="https://gist.githubusercontent.com/davelandry/b197f489fb0fc2093fee/raw/thumbnail.png" width="120px"><br>**Bubbles**</a> |
+## Installing
 
-A javascript library that extends the popular [D3.js](http://d3js.org) to enable fast and beautiful visualizations.
+If you use NPM, `npm install d3plus@next`. Otherwise, download the [latest release](https://github.com/alexandersimoes/d3plus/releases/latest). The released bundle supports AMD, CommonJS, and vanilla environments. Create a [custom bundle using Rollup](https://github.com/rollup/rollup) or your preferred bundler. You can also load directly from [d3plus.org](https://d3plus.org):
 
-### Helpful Links
-* [Getting Started](https://d3plus.org/blog/getting-started/2014/06/12/getting-started-1/)
-* [Live Examples](https://d3plus.org/examples/)
-* [Documentation](https://github.com/alexandersimoes/d3plus/wiki)
-* [Bug Reporting](https://github.com/alexandersimoes/d3plus/issues?state=open)
-* [Google Group Discussions](https://groups.google.com/forum/#!forum/d3plus)
-* [Help with the Localization](https://docs.google.com/spreadsheets/d/1JPFkLTDqnF3azUU2ssWs_M918Rr1mXIR-Flh8ccjYlo/edit#gid=0)
-
-### Development Environment
-
-Clone the repo:
-```sh
-git clone https://github.com/alexandersimoes/d3plus.git
+```html
+<script src="https://d3plus.org/js/d3plus-plus.v2.0.0-alpha.1.full.min.js"></script>
 ```
-
-Move into that directory:
-```sh
-cd d3plus
-```
-
-Install the dependencies:
-```sh
-npm install
-```
-
-Run the gulp process:
-```sh
-gulp
-```
-
-Gulp will run a server on your local machine at port 4000, and whenever you change a source file it will re-compile d3plus.js and reload your browser!
-
-Additionally, the gulp process watches for any files in a directory titles "/tests". If you place all of your test .html files in a directory of that name, the gulp process will also detect any file changes and refresh the browser.
