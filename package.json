@@ -23,15 +23,15 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^0.3.11",
+    "d3plus-axis": "^0.3.12",
     "d3plus-color": "^0.5.3",
     "d3plus-common": "^0.6.8",
     "d3plus-geomap": "^0.2.0",
     "d3plus-hierarchy": "^0.1.0",
     "d3plus-legend": "^0.6.15",
-    "d3plus-plot": "^0.3.14",
+    "d3plus-plot": "^0.3.15",
     "d3plus-priestley": "^0.1.8",
-    "d3plus-shape": "^0.8.25",
+    "d3plus-shape": "^0.9.1",
     "d3plus-text": "^0.9.8",
     "d3plus-timeline": "^0.2.1",
     "d3plus-tooltip": "^0.2.2",
