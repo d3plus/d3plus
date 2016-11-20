@@ -4,7 +4,7 @@ touch = require "./touch.coffee"
 # Creates custom mouse events based on IE and Touch Devices.
 if touch
   module.exports =
-    click: "click"
+    click: "touchend"
     down: "touchstart"
     up: "touchend"
     over: if ie then "mouseenter" else "mouseover"
