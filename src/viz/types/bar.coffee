@@ -108,6 +108,8 @@ bar = (vars) ->
 
     for d, i in p.values
 
+      oppMethod = vars[opposite]
+
       if vars.axes.stacked
         mod = 0
       else if vars[discrete].persist.position.value
