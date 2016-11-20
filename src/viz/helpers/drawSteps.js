@@ -207,8 +207,9 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Format nodes/edges if needed
     //--------------------------------------------------------------------------
-    if ( appReqs.indexOf("edges") >= 0 && vars.edges.value
-    && ( !vars.edges.linked || vars.edges.changed ) ) {
+    if ( (appReqs.indexOf("edges") >= 0 && vars.edges.value
+    && ( !vars.edges.linked || vars.edges.changed ))
+    || (appReqs.indexOf("nodes") >= 0 && !vars.nodes.value && vars.edges.value) ) {
       steps.push({ "function" : parseEdges, "message" : dataMessage })
     }
 
