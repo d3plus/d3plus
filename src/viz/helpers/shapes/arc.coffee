@@ -16,7 +16,7 @@ module.exports = (vars, selection, enter, exit) ->
     if vars.labels.value
       if d.d3plus.label
         d.d3plus_label = d.d3plus.label
-      else
+      else if d.d3plus.endAngle - d.d3plus.startAngle >= 0.1
         poly = path2poly(arc(d))
         rect = largestRect poly,
           angle: 0
@@ -28,6 +28,8 @@ module.exports = (vars, selection, enter, exit) ->
             y: rect[0].cy
         else
           delete d.d3plus_label
+      else
+        delete d.d3plus_label
     [d]
 
   if vars.draw.timing
