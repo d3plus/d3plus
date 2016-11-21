@@ -34,7 +34,7 @@
     "d3plus-shape": "^0.9.3",
     "d3plus-text": "^0.9.9",
     "d3plus-timeline": "^0.2.2",
-    "d3plus-tooltip": "^0.2.2",
+    "d3plus-tooltip": "^0.2.3",
     "d3plus-viz": "^0.4.1"
   },
   "scripts": {
