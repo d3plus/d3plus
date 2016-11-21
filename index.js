@@ -39,6 +39,8 @@ export {
 } from "d3plus-geomap";
 
 export {
+  Donut,
+  Pie,
   Tree,
   Treemap
 } from "d3plus-hierarchy";
