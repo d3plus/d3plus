@@ -26,7 +26,7 @@
     "d3plus-axis": "^0.3.13",
     "d3plus-color": "^0.5.3",
     "d3plus-common": "^0.6.9",
-    "d3plus-geomap": "^0.2.1",
+    "d3plus-geomap": "^0.2.2",
     "d3plus-hierarchy": "^0.2.1",
     "d3plus-legend": "^0.6.18",
     "d3plus-plot": "^0.3.17",
