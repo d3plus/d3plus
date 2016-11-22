@@ -23,11 +23,13 @@ export {
 
 export {
   accessor,
+  assign,
   attrize,
   BaseClass,
   closest,
   constant,
   elem,
+  isObject,
   locale,
   merge,
   prefix,
