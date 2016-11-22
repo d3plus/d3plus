@@ -40,7 +40,7 @@
   "scripts": {
     "build": "npm run pretest && d3plus-build",
     "dev": "d3plus-dev",
-    "prepublish": "d3plus-build",
+    "prepublish": "npm run build",
     "pretest": "mkdir -p build && json2module package.json > build/package.js",
     "release": "npm publish --tag next",
     "test": "d3plus-test"
