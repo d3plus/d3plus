@@ -12,13 +12,13 @@ export {
 } from "d3plus-axis";
 
 export {
-  add,
-  assign,
-  contrast,
-  defaults,
-  legible,
-  lighter,
-  subtract
+  colorAdd,
+  colorAssign,
+  colorContrast,
+  colorDefaults,
+  colorLegible,
+  colorLighter,
+  colorSubtract
 } from "d3plus-color";
 
 export {
