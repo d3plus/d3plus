@@ -37,9 +37,14 @@
     "d3plus-tooltip": "^0.2.3",
     "d3plus-viz": "^0.4.3"
   },
+  "bin": {
+    "d3plus-website": "bin/website.js",
+    "d3plus-workshop": "bin/workshop.js"
+  },
   "scripts": {
     "build": "npm run pretest && d3plus-build",
     "dev": "d3plus-dev",
+    "postpublish": "d3plus-website && d3plus-workshop",
     "prepublish": "npm run build",
     "pretest": "mkdir -p build && json2module package.json > build/package.js",
     "release": "npm publish --tag next",
