@@ -16,7 +16,7 @@ if (shell.test("-d", "../../d3plus/d3plus-workshop")) {
     shell.exec("git commit -m \"updates d3plus\"", (code, stdout) => {
       if (code) kill(code, stdout);
 
-      shell.exec("git push", (code, stdout) => {
+      shell.exec("git pull && git push", (code, stdout) => {
         if (code) kill(code, stdout);
 
         shell.cd("-");
