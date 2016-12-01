@@ -52,6 +52,10 @@ export {
 } from "d3plus-legend";
 
 export {
+  Network
+} from "d3plus-network";
+
+export {
   AreaPlot,
   LinePlot,
   Plot,

@@ -24,6 +24,7 @@ testModule("d3plus-common", require("d3plus-common"));
 testModule("d3plus-geomap", require("d3plus-geomap"));
 testModule("d3plus-hierarchy", require("d3plus-hierarchy"));
 testModule("d3plus-legend", require("d3plus-legend"));
+testModule("d3plus-network", require("d3plus-network"));
 testModule("d3plus-plot", require("d3plus-plot"));
 testModule("d3plus-priestley", require("d3plus-priestley"));
 testModule("d3plus-shape", require("d3plus-shape"));
