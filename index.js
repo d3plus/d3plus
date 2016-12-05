@@ -68,6 +68,7 @@ export {
 
 export {
   Area,
+  Bar,
   Circle,
   Image,
   Line,
