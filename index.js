@@ -57,6 +57,7 @@ export {
 
 export {
   AreaPlot,
+  BarChart,
   LinePlot,
   Plot,
   StackedArea
