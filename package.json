@@ -28,7 +28,7 @@
     "d3plus-common": "^0.6.9",
     "d3plus-geomap": "^0.2.4",
     "d3plus-hierarchy": "^0.2.5",
-    "d3plus-legend": "^0.6.22",
+    "d3plus-legend": "^0.7.0",
     "d3plus-network": "^0.1.3",
     "d3plus-plot": "^0.3.20",
     "d3plus-priestley": "^0.1.14",
