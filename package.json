@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "d3plus-axis": "^0.3.16",
-    "d3plus-color": "^0.5.3",
+    "d3plus-color": "^0.6.0",
     "d3plus-common": "^0.6.9",
     "d3plus-geomap": "^0.2.4",
     "d3plus-hierarchy": "^0.2.5",
