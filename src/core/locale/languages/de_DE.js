@@ -117,7 +117,7 @@ module.exports = {
         "moreInfo": "Für zusätzliche Informationen klicken",
         "noResults": "Keine Ergebnisse für {0} gefunden.",
         "primary": "Primäre Verbindungen",
-        "share": "teilen",
+        "share": "verteilung",
         "total": "gesamt",
         "values": "Werte",
         "including": "einschließlich",
