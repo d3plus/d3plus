@@ -8,7 +8,7 @@ test("version matches package.json", assert => {
 });
 
 function testModule(name, module) {
-  test(`d3 exports everything from ${name}`, assert => {
+  test(`exports everything from ${name}`, assert => {
     for (const symbol in module) {
       if ({}.hasOwnProperty.call(module, symbol)) {
         assert.equal(symbol in d3plus, true, `${name} exports ${symbol}`);
