@@ -111,5 +111,7 @@ export {
 } from "d3plus-tooltip";
 
 export {
+  dataFold,
+  dataLoad,
   Viz
 } from "d3plus-viz";
