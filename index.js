@@ -80,6 +80,7 @@ export {
 } from "d3plus-shape";
 
 export {
+  fontExists,
   stringify,
   strip,
   TextBox,
