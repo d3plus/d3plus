@@ -19,7 +19,7 @@ function testModule(name, module) {
 }
 
 testModule("d3plus-axis", require("d3plus-axis"));
-// testModule("d3plus-color", require("d3plus-color"));
+testModule("d3plus-color", require("d3plus-color"));
 testModule("d3plus-common", require("d3plus-common"));
 testModule("d3plus-geomap", require("d3plus-geomap"));
 testModule("d3plus-hierarchy", require("d3plus-hierarchy"));
