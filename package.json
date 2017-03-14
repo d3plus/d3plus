@@ -52,7 +52,7 @@
     "test": "d3plus-test"
   },
   "devDependencies": {
-    "d3plus-dev": "^0.2.1",
+    "d3plus-dev": "^0.3.1",
     "json2module": "0.0.3"
   }
 }
