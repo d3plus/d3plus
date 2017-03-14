@@ -116,7 +116,7 @@ module.exports =
     tukey_bottom:   "bottom tukey"
     tukey_top:      "top tukey"
     values:         "values"
-  uppercase: ["CEO", "CEOs", "CFO", "CFOs", "CNC", "COO", "COOs", "CPU", "CPUs", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"]
+  uppercase: ["CEO", "CEOs", "CFO", "CFOs", "CNC", "COO", "COOs", "CPU", "CPUs", "ER", "GDP", "HVAC", "ID", "IT", "PCP", "R&D", "TV", "UI"]
   visualization:
     bar:      "Bar Chart"
     box:      "Box Plot"
