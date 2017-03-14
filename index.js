@@ -48,6 +48,8 @@ export {
 } from "d3plus-hierarchy";
 
 export {
+  ckmeans,
+  ColorScale,
   Legend
 } from "d3plus-legend";
 
