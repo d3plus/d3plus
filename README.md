@@ -12,5 +12,5 @@ Pre-release of d3plus 2.0
 If you use NPM, `npm install d3plus@next`. Otherwise, download the [latest release](https://github.com/alexandersimoes/d3plus/releases/latest). The released bundle supports AMD, CommonJS, and vanilla environments. Create a [custom bundle using Rollup](https://github.com/rollup/rollup) or your preferred bundler. You can also load directly from [d3plus.org](https://d3plus.org):
 
 ```html
-<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.10.full.min.js"></script>
+<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.11.full.min.js"></script>
 ```
