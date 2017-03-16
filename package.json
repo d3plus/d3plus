@@ -36,7 +36,7 @@
     "d3plus-text": "^0.9.10",
     "d3plus-timeline": "^0.3.0",
     "d3plus-tooltip": "^0.2.3",
-    "d3plus-viz": "^0.7.2"
+    "d3plus-viz": "^0.7.3"
   },
   "bin": {
     "d3plus-website": "bin/website.js",
