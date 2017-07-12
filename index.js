@@ -27,13 +27,15 @@ export {
   attrize,
   BaseClass,
   closest,
+  configPrep,
   constant,
   elem,
   isObject,
   locale,
   merge,
   prefix,
-  stylize
+  stylize,
+  uuid
 } from "d3plus-common";
 
 export {
