@@ -74,11 +74,16 @@ module.exports =
       blob = new Blob [csv_data], {type: "text/csv;charset=utf-8;"}
       navigator.msSaveBlob blob, title + ".csv"
     else
-      encodedUri = encodeURI(csv_data)
-      link       = document.createElement("a")
-      link.setAttribute "href", encodedUri
-      link.setAttribute "download", title + ".csv"
-      link.click()
+      var blob = new Blob([csv_data], {type: "text/csv;charset=utf-8;"});
+      var link = document.createElement("a");
+      var url  = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", title + ".csv");
+      link.style = "visibility:hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);    
+      
 
     @data = csv_to_return
     columns
