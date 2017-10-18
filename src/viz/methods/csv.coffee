@@ -65,25 +65,23 @@ module.exports =
             row.push fetchValue(vars, node, col)
           csv_to_return.push row
 
-    csv_data = "data:text/csv;charset=utf-8,"
+    csv_data = ""
     for c, i in csv_to_return
       dataString = c.join(",")
       csv_data += (if i < csv_to_return.length then dataString + "\n" else dataString)
 
+    blob = new Blob [csv_data], {type: "text/csv;charset=utf-8;"}
     if ie
-      blob = new Blob [csv_data], {type: "text/csv;charset=utf-8;"}
       navigator.msSaveBlob blob, title + ".csv"
     else
-      var blob = new Blob([csv_data], {type: "text/csv;charset=utf-8;"});
-      var link = document.createElement("a");
-      var url  = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", title + ".csv");
-      link.style = "visibility:hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);    
-      
+      link = document.createElement "a"
+      url  = URL.createObjectURL blob
+      link.setAttribute "href", url
+      link.setAttribute "download", title + ".csv"
+      link.style = "visibility:hidden"
+      document.body.appendChild link
+      link.click()
+      document.body.removeChild link
 
     @data = csv_to_return
     columns
