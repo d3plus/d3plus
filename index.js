@@ -97,13 +97,17 @@ export {
 
 export {
   fontExists,
+  rtl,
   stringify,
   strip,
   TextBox,
   textSplit,
   textWidth,
   textWrap,
-  titleCase
+  titleCase,
+  trim,
+  trimLeft,
+  trimRight
 } from "d3plus-text";
 
 export {
