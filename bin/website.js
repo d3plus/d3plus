@@ -13,8 +13,9 @@ if (shell.test("-d", "../../d3plus/d3plus-website")) {
   shell.cp("build/d3plus.full.js", `../../d3plus/d3plus-website/js/d3plus.v${version}.full.js`);
   shell.cp("build/d3plus.min.js", `../../d3plus/d3plus-website/js/d3plus.v${version}.min.js`);
   shell.cp("build/d3plus.full.min.js", `../../d3plus/d3plus-website/js/d3plus.v${version}.full.min.js`);
+  shell.cp("build/d3plus.zip", "../../d3plus/d3plus-website/d3plus.zip");
   shell.cd("../../d3plus/d3plus-website");
-  shell.exec(`git add js/d3plus.v${version}.js js/d3plus.v${version}.min.js js/d3plus.v${version}.full.js js/d3plus.v${version}.full.min.js`, (code, stdout) => {
+  shell.exec(`git add d3plus.zip js/d3plus.v${version}.js js/d3plus.v${version}.min.js js/d3plus.v${version}.full.js js/d3plus.v${version}.full.min.js`, (code, stdout) => {
     if (code) kill(code, stdout);
 
     shell.exec(`git commit -m \"d3plus v${version}\"`, (code, stdout) => {
