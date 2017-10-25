@@ -23,20 +23,20 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^0.3.32",
+    "d3plus-axis": "^0.3.36",
     "d3plus-color": "^0.6.1",
-    "d3plus-common": "^0.6.22",
-    "d3plus-geomap": "^0.4.10",
-    "d3plus-hierarchy": "^0.3.10",
-    "d3plus-legend": "^0.8.9",
-    "d3plus-network": "^0.1.7",
-    "d3plus-plot": "^0.5.22",
-    "d3plus-priestley": "^0.1.17",
-    "d3plus-shape": "^0.13.3",
-    "d3plus-text": "^0.9.18",
+    "d3plus-common": "^0.6.23",
+    "d3plus-geomap": "^0.4.14",
+    "d3plus-hierarchy": "^0.3.12",
+    "d3plus-legend": "^0.8.13",
+    "d3plus-network": "^0.1.12",
+    "d3plus-plot": "^0.5.26",
+    "d3plus-priestley": "^0.1.18",
+    "d3plus-shape": "^0.13.9",
+    "d3plus-text": "^0.9.22",
     "d3plus-timeline": "^0.3.6",
-    "d3plus-tooltip": "^0.2.5",
-    "d3plus-viz": "^0.9.6"
+    "d3plus-tooltip": "^0.2.6",
+    "d3plus-viz": "^0.10.11"
   },
   "bin": {
     "d3plus-website": "bin/website.js",
@@ -52,7 +52,7 @@
     "test": "d3plus-test"
   },
   "devDependencies": {
-    "d3plus-dev": "^0.4.10",
+    "d3plus-dev": "^0.4.20",
     "json2module": "0.0.3"
   }
 }
