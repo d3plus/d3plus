@@ -31,7 +31,6 @@ export {
   constant,
   elem,
   isObject,
-  locale,
   merge,
   prefix,
   stylize,
