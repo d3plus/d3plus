@@ -1,13 +1,16 @@
+# D3plus
+
+⚠️  **Version 2 Incoming**  ⚠️
+
+This branch is for version 1, which is not being actively maintained. All development has been focused on version 2, which splits the project into [many small libraries](https://github.com/d3plus/) that are designed to work together.
+
+There will be an announcement when the version 2 modules are feature-complete with everything from version 1, but the water is warm so don't be afraid to jump in.
+
+**[Click here to view the D3plus 2.0 branch](https://github.com/alexandersimoes/d3plus/tree/2.0)**
+
 [![NPM Release](http://img.shields.io/npm/v/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
 [![Dependency Status](http://img.shields.io/david/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus)
-[![Dependency Status](http://img.shields.io/david/dev/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat)](https://gitter.im/d3plus/)
-
-<img src="https://d3plus.org/assets/img/facebook.jpg">
-
-| <a href="https://d3plus.org/examples/basic/32517cfde67270c99092/"><img src="https://gist.githubusercontent.com/davelandry/32517cfde67270c99092/raw/thumbnail.png" width="120px"><br>Bar Charts</a> | <a href="https://d3plus.org/examples/basic/9029130/"><img src="https://gist.githubusercontent.com/davelandry/9029130/raw/thumbnail.png" width="120px"><br>Tree Maps</a> | <a href="https://d3plus.org/examples/basic/9029781/"><img src="https://gist.githubusercontent.com/davelandry/9029781/raw/thumbnail.png" width="120px"><br>Scatter Plots</a> | <a href="https://d3plus.org/examples/basic/9029462/"><img src="https://gist.githubusercontent.com/davelandry/9029462/raw/thumbnail.png" width="120px"><br>Stacked Areas</a> | <a href="https://d3plus.org/examples/basic/9037371/"><img src="https://gist.githubusercontent.com/davelandry/9037371/raw/thumbnail.png" width="120px"><br>Line Plots</a> |
-| :-: | :-: | :-: | :-: | :-: |
-| <a href="https://d3plus.org/examples/basic/9042919/"><img src="https://gist.githubusercontent.com/davelandry/9042919/raw/thumbnail.png" width="120px"><br>**Networks**</a> | <a href="https://d3plus.org/examples/basic/78018ce8c3787d4e30d9/"><img src="https://gist.githubusercontent.com/davelandry/78018ce8c3787d4e30d9/raw/thumbnail.png" width="120px"><br>**Box Plots**</a> | <a href="https://d3plus.org/examples/basic/33fc382f1f1913682ec1/"><img src="https://gist.githubusercontent.com/davelandry/33fc382f1f1913682ec1/raw/thumbnail.png" width="120px"><br>**Pie Charts**</a> | <a href="https://d3plus.org/examples/basic/9042807/"><img src="https://gist.githubusercontent.com/davelandry/9042807/raw/thumbnail.png" width="120px"><br>**Geo Maps**</a> | <a href="https://d3plus.org/examples/basic/b197f489fb0fc2093fee/"><img src="https://gist.githubusercontent.com/davelandry/b197f489fb0fc2093fee/raw/thumbnail.png" width="120px"><br>**Bubbles**</a> |
 
 A javascript library that extends the popular [D3.js](http://d3js.org) to enable fast and beautiful visualizations.
 
