@@ -38,3 +38,7 @@ If you use npm, `npm install d3plus@next`. Otherwise, download the [latest relea
 * [d3plus-timeline](https://github.com/d3plus/d3plus-timeline)
 * [d3plus-tooltip](https://github.com/d3plus/d3plus-tooltip)
 * [d3plus-viz](https://github.com/d3plus/d3plus-viz)
+
+## React Usage
+
+* [d3plus-react](https://github.com/d3plus/d3plus-react)
