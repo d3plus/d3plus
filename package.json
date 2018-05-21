@@ -35,7 +35,7 @@
     "d3plus-shape": "^0.14.6",
     "d3plus-text": "^0.9.23",
     "d3plus-timeline": "^0.3.6",
-    "d3plus-tooltip": "^0.2.6",
+    "d3plus-tooltip": "^0.3.0",
     "d3plus-viz": "^0.10.12"
   },
   "bin": {
