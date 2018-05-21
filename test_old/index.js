@@ -1,15 +1,13 @@
-import zora from "zora";
+import test from "zora";
 import * as d3plus from "../";
 import {version} from "../build/package";
 
-const runner = zora();
-
-runner.test("version matches package.json", assert => {
+test("version matches package.json", assert => {
   assert.equal(d3plus.version, version);
 });
 
 function testModule(name, module) {
-  runner.test(`exports everything from ${name}`, assert => {
+  test(`exports everything from ${name}`, assert => {
     for (const symbol in module) {
       if ({}.hasOwnProperty.call(module, symbol)) {
         assert.equal(symbol in d3plus, true, `${name} exports ${symbol}`);
@@ -60,4 +58,4 @@ testModule("d3plus-tooltip", tooltip);
 import * as viz from "d3plus-viz";
 testModule("d3plus-viz", viz);
 
-export default runner;
+export default test;
