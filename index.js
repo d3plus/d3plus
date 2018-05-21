@@ -32,6 +32,7 @@ export {
   elem,
   isObject,
   merge,
+  parseSides,
   prefix,
   stylize,
   uuid
@@ -55,7 +56,8 @@ export {
 } from "d3plus-legend";
 
 export {
-  Network
+  Network,
+  Rings
 } from "d3plus-network";
 
 export {
