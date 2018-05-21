@@ -67,6 +67,8 @@
       2,
       2,
       {
+        "flatTernaryExpressions": true,
+        "MemberExpression": "off",
         "SwitchCase": 1,
         "VariableDeclarator": {
           "var": 2,
