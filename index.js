@@ -58,7 +58,8 @@ export {
 
 export {
   Network,
-  Rings
+  Rings,
+  Sankey
 } from "d3plus-network";
 
 export {
