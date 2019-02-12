@@ -32,7 +32,7 @@
     "d3plus-network": "^0.5.2",
     "d3plus-plot": "^0.8.6",
     "d3plus-priestley": "^0.3.1",
-    "d3plus-shape": "^0.14.6",
+    "d3plus-shape": "^0.16.2",
     "d3plus-text": "^0.9.40",
     "d3plus-timeline": "^0.3.8",
     "d3plus-tooltip": "^0.3.3",

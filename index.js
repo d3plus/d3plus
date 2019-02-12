@@ -77,6 +77,7 @@ export {
 export {
   Area,
   Bar,
+  Box,
   Circle,
   Image,
   Line,
@@ -95,7 +96,8 @@ export {
   shapeEdgePoint,
   simplify,
   Rect,
-  Shape
+  Shape,
+  Whisker
 } from "d3plus-shape";
 
 export {
