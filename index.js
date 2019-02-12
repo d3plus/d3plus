@@ -44,6 +44,7 @@ export {
 
 export {
   Donut,
+  Pack,
   Pie,
   Tree,
   Treemap
