@@ -63,5 +63,6 @@
     "build/d3plus.js.map",
     "build/d3plus.min.js",
     "es"
-  ]
+  ],
+  "sideEffects": false
 }
