@@ -53,7 +53,7 @@
     "test": "d3plus-test"
   },
   "devDependencies": {
-    "d3plus-dev": "^0.4.22",
+    "d3plus-dev": "^0.6.17",
     "json2module": "0.0.3"
   },
   "module": "es/index",
