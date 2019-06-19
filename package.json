@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "version": "2.0.0-alpha.17",
+  "version": "2.0.0-alpha.19",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "build/d3plus.js",
   "jsnext:main": "es/index",
@@ -23,20 +23,20 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^0.3.53",
+    "d3plus-axis": "^0.4.8",
     "d3plus-color": "^0.6.4",
-    "d3plus-common": "^0.6.45",
+    "d3plus-common": "^0.6.49",
     "d3plus-geomap": "^0.6.2",
-    "d3plus-hierarchy": "^0.8.1",
-    "d3plus-legend": "^0.8.19",
-    "d3plus-network": "^0.5.2",
-    "d3plus-plot": "^0.8.6",
-    "d3plus-priestley": "^0.3.1",
-    "d3plus-shape": "^0.16.2",
-    "d3plus-text": "^0.9.40",
-    "d3plus-timeline": "^0.4.9",
-    "d3plus-tooltip": "^0.3.3",
-    "d3plus-viz": "^0.12.10"
+    "d3plus-hierarchy": "^0.8.5",
+    "d3plus-legend": "^0.8.22",
+    "d3plus-network": "^0.5.6",
+    "d3plus-plot": "^0.8.10",
+    "d3plus-priestley": "^0.3.2",
+    "d3plus-shape": "^0.16.8",
+    "d3plus-text": "^0.9.43",
+    "d3plus-timeline": "^0.4.11",
+    "d3plus-tooltip": "^0.3.8",
+    "d3plus-viz": "^0.12.33"
   },
   "bin": {
     "d3plus-website": "bin/website.js",
