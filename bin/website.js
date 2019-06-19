@@ -2,6 +2,7 @@
 const shell = require("shelljs"),
       {version} = JSON.parse(shell.cat("package.json"));
 
+/** Shared function to kill the process on error */
 function kill(code, stdout) {
   shell.echo(stdout);
   shell.exit(code);

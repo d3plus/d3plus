@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 const shell = require("shelljs");
 
+/** Shared function to kill the process on error */
 function kill(code, stdout) {
   shell.echo(stdout);
   shell.exit(code);
