@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "version": "2.0.0-alpha.19",
+  "version": "2.0.0-alpha.20",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "build/d3plus.js",
   "jsnext:main": "es/index",
@@ -47,7 +47,7 @@
     "dev": "d3plus-dev",
     "env": "d3plus-env",
     "postpublish": "d3plus-website && d3plus-workshop",
-    "prepublishOnly": "npm run build && d3plus-test",
+    "prepublishOnly": "npm run build && npm run test",
     "pretest": "mkdir -p build && json2module package.json > build/package.js",
     "release": "npm publish --tag next",
     "test": "eslint --color index.js"
