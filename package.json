@@ -23,20 +23,20 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^0.4.10",
-    "d3plus-color": "^0.6.5",
-    "d3plus-common": "^0.6.50",
-    "d3plus-geomap": "^0.6.3",
-    "d3plus-hierarchy": "^0.8.6",
-    "d3plus-legend": "^0.8.23",
-    "d3plus-network": "^0.5.7",
-    "d3plus-plot": "^0.8.13",
-    "d3plus-priestley": "^0.3.3",
-    "d3plus-shape": "^0.16.9",
-    "d3plus-text": "^0.9.44",
-    "d3plus-timeline": "^0.4.12",
-    "d3plus-tooltip": "^0.3.9",
-    "d3plus-viz": "^0.12.34"
+    "d3plus-axis": "^0.4.11",
+    "d3plus-color": "^0.6.6",
+    "d3plus-common": "^0.6.51",
+    "d3plus-geomap": "^0.6.4",
+    "d3plus-hierarchy": "^0.8.7",
+    "d3plus-legend": "^0.8.24",
+    "d3plus-network": "^0.5.8",
+    "d3plus-plot": "^0.8.14",
+    "d3plus-priestley": "^0.3.4",
+    "d3plus-shape": "^0.16.10",
+    "d3plus-text": "^0.9.45",
+    "d3plus-timeline": "^0.4.13",
+    "d3plus-tooltip": "^0.3.10",
+    "d3plus-viz": "^0.12.35"
   },
   "bin": {
     "d3plus-website": "bin/website.js",
@@ -53,7 +53,7 @@
     "test": "eslint --color index.js"
   },
   "devDependencies": {
-    "d3plus-dev": "^0.7.1",
+    "d3plus-dev": "^0.7.2",
     "json2module": "0.0.3"
   },
   "module": "es/index",
