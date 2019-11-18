@@ -43,6 +43,11 @@ export {
 } from "d3plus-geomap";
 
 export {
+  formatAbbreviate,
+  formatLocale
+} from "d3plus-format";
+
+export {
   Donut,
   Pack,
   Pie,
