@@ -1,16 +1,17 @@
-import test from "zora";
-import * as d3plus from "../";
+import {test} from "zora";
+import d3plus from "../build/d3plus";
 import {version} from "../build/package";
 
 test("version matches package.json", assert => {
   assert.equal(d3plus.version, version);
 });
 
-function testModule(name, module) {
+/** */
+function testModule(name, obj) {
   test(`exports everything from ${name}`, assert => {
-    for (const symbol in module) {
-      if ({}.hasOwnProperty.call(module, symbol)) {
-        assert.equal(symbol in d3plus, true, `${name} exports ${symbol}`);
+    for (const symbol in obj) {
+      if ({}.hasOwnProperty.call(obj, symbol)) {
+        assert.ok(symbol in d3plus, `${name} exports ${symbol}`);
       }
     }
   });
@@ -24,6 +25,9 @@ testModule("d3plus-color", color);
 
 import * as common from "d3plus-common";
 testModule("d3plus-common", common);
+
+import * as format from "d3plus-format";
+testModule("d3plus-format", format);
 
 import * as geomap from "d3plus-geomap";
 testModule("d3plus-geomap", geomap);
