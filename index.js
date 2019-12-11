@@ -30,11 +30,14 @@ export {
   configPrep,
   constant,
   elem,
+  findLocale,
   isObject,
   merge,
   parseSides,
   prefix,
+  RESET,
   stylize,
+  unique,
   uuid
 } from "d3plus-common";
 
@@ -70,8 +73,11 @@ export {
 export {
   AreaPlot,
   BarChart,
+  BoxWhisker,
+  BumpChart,
   LinePlot,
   Plot,
+  Radar,
   StackedArea
 } from "d3plus-plot";
 
@@ -129,6 +135,7 @@ export {
 } from "d3plus-tooltip";
 
 export {
+  dataConcat,
   dataFold,
   dataLoad,
   Viz
