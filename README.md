@@ -17,7 +17,7 @@
 If you use npm, `npm install d3plus@next`. Otherwise, download the [latest release](https://d3plus.org/d3plus.zip). The released bundle supports anonymous AMD, CommonJS, and vanilla environments. You can also load directly from [d3plus.org](https://d3plus.org):
 
 ```html
-<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.23.full.min.js"></script>
+<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.25.full.min.js"></script>
 ```
 
 ## Modules
