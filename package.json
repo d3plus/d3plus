@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "version": "2.0.0-alpha.25",
+  "version": "2.0.0-alpha.26",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "build/d3plus.js",
   "jsnext:main": "es/index",
@@ -26,6 +26,7 @@
     "d3plus-axis": "^0.5.4",
     "d3plus-color": "^0.6.7",
     "d3plus-common": "^0.6.61",
+    "d3plus-export": "^0.3.19",
     "d3plus-format": "^0.1.18",
     "d3plus-geomap": "^0.6.14",
     "d3plus-hierarchy": "^0.8.10",

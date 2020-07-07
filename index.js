@@ -42,6 +42,11 @@ export {
 } from "d3plus-common";
 
 export {
+  dom2canvas,
+  saveElement
+} from "d3plus-export";
+
+export {
   Geomap
 } from "d3plus-geomap";
 
