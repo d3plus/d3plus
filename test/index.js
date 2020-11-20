@@ -38,6 +38,9 @@ testModule("d3plus-hierarchy", hierarchy);
 import * as legend from "d3plus-legend";
 testModule("d3plus-legend", legend);
 
+import * as matrix from "d3plus-matrix";
+testModule("d3plus-matrix", matrix);
+
 import * as network from "d3plus-network";
 testModule("d3plus-network", network);
 

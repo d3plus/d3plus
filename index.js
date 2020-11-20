@@ -70,6 +70,11 @@ export {
 } from "d3plus-legend";
 
 export {
+  Matrix,
+  RadialMatrix
+} from "d3plus-matrix";
+
+export {
   Network,
   Rings,
   Sankey
