@@ -8,7 +8,7 @@
   "homepage": "https://d3plus.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexandersimoes/d3plus.git"
+    "url": "https://github.com/d3plus/d3plus.git"
   },
   "keywords": [
     "charts",
