@@ -56,10 +56,13 @@
   },
   "module": "es/index",
   "files": [
-    "bin",
     "build/d3plus.js",
     "build/d3plus.js.map",
     "build/d3plus.min.js",
+    "build/d3plus.full.js",
+    "build/d3plus.full.js.map",
+    "build/d3plus.full.min.js",
+    "build/d3plus.zip",
     "es"
   ],
   "sideEffects": false
