@@ -47,13 +47,15 @@ export {
 } from "d3plus-export";
 
 export {
-  Geomap
-} from "d3plus-geomap";
-
-export {
+  format,
   formatAbbreviate,
+  formatDefaultLocale,
   formatLocale
 } from "d3plus-format";
+
+export {
+  Geomap
+} from "d3plus-geomap";
 
 export {
   Donut,
@@ -145,8 +147,10 @@ export {
 } from "d3plus-tooltip";
 
 export {
+  addToQueue,
   dataConcat,
   dataFold,
   dataLoad,
+  isData,
   Viz
 } from "d3plus-viz";
