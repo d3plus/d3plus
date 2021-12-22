@@ -42,7 +42,7 @@
     "d3plus-viz": "^1.0.3"
   },
   "scripts": {
-    "build": "mkdir -p build && json2module package.json > build/package.js && d3plus-build",
+    "build": "mkdir -p build && json2module package.json > build/package.js && d3plus-build && mkdir -p es/build && cp build/package.js es/build/package.js",
     "dev": "d3plus-dev",
     "env": "d3plus-env",
     "prepublishOnly": "npm run test",
@@ -56,13 +56,7 @@
   },
   "module": "es/index",
   "files": [
-    "build/d3plus.js",
-    "build/d3plus.js.map",
-    "build/d3plus.min.js",
-    "build/d3plus.full.js",
-    "build/d3plus.full.js.map",
-    "build/d3plus.full.min.js",
-    "build/d3plus.zip",
+    "build",
     "es"
   ],
   "sideEffects": false
