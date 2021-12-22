@@ -49,6 +49,7 @@ export {
 export {
   format,
   formatAbbreviate,
+  formatDate,
   formatDefaultLocale,
   formatLocale
 } from "d3plus-format";
