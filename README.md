@@ -17,12 +17,15 @@ If you use NPM, `npm install d3plus`. Otherwise, download the [latest release](h
 
 ## Resources
 
-* [Examples](http://d3plus.org/examples/)
-* [Documentation](http://d3plus.org/docs/)
+Examples and documentation are published in a Storybook [here](https://d3plus.org/). Each example has controls that are able to modified on the fly, documentation for each method used, and an example code output for the [d3plus-react](https://github.com/d3plus/d3plus-react) configurations.
+
+### [Examples and Documentation](https://d3plus.org/)
 
 ## Modules
 
 **D3plus 2.0** is a [collection of modules](https://github.com/d3plus) that are designed to work together; you can use the modules independently, or you can use them together as part of the default build. The source and documentation for each module is available in its repository. Follow the links below to learn more.
+
+### Core Packages
 
 * [d3plus-axis](https://github.com/d3plus/d3plus-axis)
 * [d3plus-color](https://github.com/d3plus/d3plus-color)
@@ -42,6 +45,10 @@ If you use NPM, `npm install d3plus`. Otherwise, download the [latest release](h
 * [d3plus-tooltip](https://github.com/d3plus/d3plus-tooltip)
 * [d3plus-viz](https://github.com/d3plus/d3plus-viz)
 
-## React Usage
+### React Usage
 
 * [d3plus-react](https://github.com/d3plus/d3plus-react)
+
+### Examples and Documentation
+
+* [d3plus-storybook](https://github.com/d3plus/d3plus-storybook)
