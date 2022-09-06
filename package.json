@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "build/d3plus.full.js",
   "jsnext:main": "es/index",
@@ -23,23 +23,23 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^1.0.6",
+    "d3plus-axis": "^1.1.3",
     "d3plus-color": "^1.0.0",
-    "d3plus-common": "^1.0.6",
-    "d3plus-export": "^1.0.1",
-    "d3plus-format": "^1.0.2",
+    "d3plus-common": "^1.1.2",
+    "d3plus-export": "^1.1.0",
+    "d3plus-format": "^1.1.1",
     "d3plus-geomap": "^1.0.0",
     "d3plus-hierarchy": "^1.0.1",
-    "d3plus-legend": "^1.0.3",
-    "d3plus-matrix": "^1.0.3",
+    "d3plus-legend": "^1.1.1",
+    "d3plus-matrix": "^1.1.0",
     "d3plus-network": "^1.0.2",
-    "d3plus-plot": "^1.0.15",
+    "d3plus-plot": "^1.1.5",
     "d3plus-priestley": "^1.0.0",
-    "d3plus-shape": "^1.0.4",
-    "d3plus-text": "^1.0.2",
-    "d3plus-timeline": "^1.0.0",
+    "d3plus-shape": "^1.0.7",
+    "d3plus-text": "^1.0.3",
+    "d3plus-timeline": "^1.0.2",
     "d3plus-tooltip": "^1.0.1",
-    "d3plus-viz": "^1.0.11"
+    "d3plus-viz": "^1.2.5"
   },
   "scripts": {
     "build": "mkdir -p build && json2module package.json > build/package.js && d3plus-build && mkdir -p es/build && cp build/package.js es/build/package.js",
