@@ -24,6 +24,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Lint Code
-        run: ./node_modules/.bin/eslint src test
+        run: ./node_modules/.bin/eslint index.js
       - name: Run Tests
         run: ./node_modules/.bin/mocha 'test/**/*-test.js'
