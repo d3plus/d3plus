@@ -2,7 +2,7 @@
   "name": "d3plus",
   "version": "2.0.2",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
-  "main": "build/d3plus.full.js",
+  "main": "es/index.js",
   "jsnext:main": "es/index",
   "license": "MIT",
   "homepage": "https://d3plus.org",
@@ -23,23 +23,23 @@
     "url": "http://www.dave-landry.com"
   },
   "dependencies": {
-    "d3plus-axis": "^1.1.3",
-    "d3plus-color": "^1.0.0",
-    "d3plus-common": "^1.1.2",
-    "d3plus-export": "^1.1.0",
-    "d3plus-format": "^1.1.1",
-    "d3plus-geomap": "^1.0.0",
-    "d3plus-hierarchy": "^1.0.1",
-    "d3plus-legend": "^1.1.1",
-    "d3plus-matrix": "^1.1.0",
-    "d3plus-network": "^1.0.2",
-    "d3plus-plot": "^1.1.5",
-    "d3plus-priestley": "^1.0.0",
-    "d3plus-shape": "^1.0.7",
-    "d3plus-text": "^1.0.3",
-    "d3plus-timeline": "^1.0.2",
-    "d3plus-tooltip": "^1.0.1",
-    "d3plus-viz": "^1.2.5"
+    "d3plus-axis": "^1.2.1",
+    "d3plus-color": "^1.1.2",
+    "d3plus-common": "^1.2.4",
+    "d3plus-export": "^1.2.0",
+    "d3plus-format": "^1.2.2",
+    "d3plus-geomap": "^1.1.0",
+    "d3plus-hierarchy": "^1.1.0",
+    "d3plus-legend": "^1.2.0",
+    "d3plus-matrix": "^1.2.0",
+    "d3plus-network": "^1.1.0",
+    "d3plus-plot": "^1.2.1",
+    "d3plus-priestley": "^1.1.0",
+    "d3plus-shape": "^1.1.0",
+    "d3plus-text": "^1.2.1",
+    "d3plus-timeline": "^1.1.0",
+    "d3plus-tooltip": "^1.1.0",
+    "d3plus-viz": "^1.3.0"
   },
   "scripts": {
     "build": "mkdir -p build && json2module package.json > build/package.js && d3plus-build && mkdir -p es/build && cp build/package.js es/build/package.js",
@@ -48,16 +48,22 @@
     "prepublishOnly": "npm run test",
     "pretest": "npm run build",
     "release": "npm publish",
-    "test": "eslint --color index.js && d3plus-test"
+    "test": "eslint index.js && mocha 'test/**/*-test.js'"
   },
   "devDependencies": {
-    "d3plus-dev": "^1.1.0",
+    "d3plus-dev": "^1.2.9",
     "json2module": "0.0.3"
   },
-  "module": "es/index",
+  "module": "es/index.js",
   "files": [
-    "build",
+    "bin",
+    "build/d3plus.js",
+    "build/d3plus.js.map",
+    "build/d3plus.min.js",
     "es"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "jsdelivr": "build/d3plus.full.min.js",
+  "unpkg": "build/d3plus.full.min.js",
+  "type": "module"
 }

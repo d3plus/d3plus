@@ -1,14 +1,14 @@
-import {test} from "zora";
-import d3plus from "../build/d3plus";
-import {version} from "../build/package";
+import assert from "assert";
+import * as d3plus from "../es/index.js";
+import {version} from "../es/build/package.js";
 
-test("version matches package.json", assert => {
-  assert.equal(d3plus.version, version);
+it("version matches package.json", () => {
+  assert.strictEqual(d3plus.version, version);
 });
 
 /** */
 function testModule(name, obj) {
-  test(`exports everything from ${name}`, assert => {
+  it(`exports everything from ${name}`, () => {
     for (const symbol in obj) {
       if ({}.hasOwnProperty.call(obj, symbol)) {
         assert.ok(symbol in d3plus, `${name} exports ${symbol}`);
@@ -64,5 +64,3 @@ testModule("d3plus-tooltip", tooltip);
 
 import * as viz from "d3plus-viz";
 testModule("d3plus-viz", viz);
-
-export default test;

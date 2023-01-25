@@ -1,12 +1,16 @@
 # d3plus
 
-[![NPM Release](http://img.shields.io/npm/v/d3plus.svg?style=flat)](https://www.npmjs.org/package/d3plus) [![Build Status](https://travis-ci.org/d3plus/d3plus.svg?branch=master)](https://travis-ci.org/d3plus/d3plus) [![Dependency Status](http://img.shields.io/david/d3plus/d3plus.svg?style=flat)](https://david-dm.org/d3plus/d3plus) [![Gitter](https://img.shields.io/badge/-chat_on_gitter-brightgreen.svg?style=flat&logo=gitter-white)](https://gitter.im/d3plus/)
-
 **D3plus** is a JavaScript re-usable chart library that extends the popular **[D3.js](https://d3js.org/)** to enable the easy creation of beautiful visualizations.
 
 ## Installing
 
-If you use NPM, `npm install d3plus`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus/releases/latest). ES modules, AMD, CommonJS, and vanilla environments are supported. In vanilla, a `d3plus` global is exported:
+If using npm, `npm install d3plus`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/d3plus@2).
+
+```js
+import modules from "d3plus";
+```
+
+d3plus can be loaded as a standalone library or bundled as part of [D3plus](https://github.com/d3plus/d3plus). ES modules, AMD, CommonJS, and vanilla environments are supported. In vanilla, a `d3plus` global is exported:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/d3plus@2"></script>

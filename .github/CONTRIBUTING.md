@@ -58,35 +58,27 @@ npm run docs
 
 ## Tests
 
-Any time you write a new feature for a module, you should also be writing tests. D3plus modules come bundled with a test suite that let's you write tests using full ES6, which are then run directly in a headless Electron browser.
+Any time you write a new feature for a module, you should also be writing tests. D3plus modules come bundled with a test suite that let's you write functional tests using [Mocha](https://mochajs.org/) and [JSDOM](https://github.com/jsdom/jsdom).
 
-All tests need to be placed in the `./test` directory, and the filenames should match up to the components in `./src`. To run all tests, run:
+All tests need to be placed in the `./test` directory, and the filenames should match up to the components in `./src` with a suffix of `-test.js`. To run all tests, run:
 
 ```sh
 npm test
 ```
-> This command will also lint all files according to the provided `.eslintc` file.
+> This command will also lint all files using eslint.
 
-D3plus uses [zora](https://github.com/lorenzofox3/zora) for running tests, and [tape-run](https://github.com/juliangruber/tape-run) for outputting the results. Here is an example of what a test file could look like:
+Here is an example of what a test file could look like:
 
 ```js
-import {test} from "zora";
+import assert from "assert";
+import it from "./jsdom.js"; // optional import, only the test needs window/document
 
-test("testing booleans", assert => {
+it("example test title", () => {
 
-  assert.equal(true, true, "testing true");
-  assert.equal(false, false, "testing false");
-
-});
-
-test("testing numbers", assert => {
-
-  assert.equal(1, 1, "testing 1");
-  assert.equal(2, 2, "testing 2");
+  assert.strictEqual(true, true, "the truth test");
 
 });
 
-export default test;
 ```
 
 ## Submitting a Pull Request
