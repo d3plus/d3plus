@@ -8,7 +8,8 @@ export {
   AxisLeft,
   AxisRight,
   AxisTop,
-  date
+  date,
+  locale
 } from "d3plus-axis";
 
 export {
@@ -42,7 +43,6 @@ export {
 } from "d3plus-common";
 
 export {
-  dom2canvas,
   saveElement
 } from "d3plus-export";
 
