@@ -1,0 +1,58 @@
+{
+  "name": "d3plus-react",
+  "version": "1.3.3",
+  "description": "React components for d3plus visualizations.",
+  "type": "module",
+  "main": "es/index.js",
+  "module": "es/index.js",
+  "sideEffects": false,
+  "files": [
+    "bin",
+    "es"
+  ],
+  "license": "MIT",
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/d3plus/d3plus-react.git"
+  },
+  "keywords": [
+    "react",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "author": {
+    "name": "Dave Landry",
+    "email": "landry.dave@gmail.com",
+    "url": "http://www.dave-landry.com"
+  },
+  "dependencies": {
+    "d3plus-common": "^1.2.7",
+    "d3plus-geomap": "^1.1.0",
+    "d3plus-hierarchy": "^1.1.0",
+    "d3plus-matrix": "^1.2.0",
+    "d3plus-network": "^1.1.0",
+    "d3plus-plot": "^1.2.13",
+    "d3plus-priestley": "^1.1.0",
+    "d3plus-viz": "^1.3.10"
+  },
+  "peerDependencies": {
+    "prop-types": ">=15.6.2",
+    "react": ">=15.6.2"
+  },
+  "scripts": {
+    "docs": "node bin/docs.cjs",
+    "env": "d3plus-env",
+    "release": "node bin/release.cjs",
+    "test": "eslint src"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.24.1",
+    "d3plus-dev": "^1.2.9",
+    "eslint-plugin-react": "^7.34.1",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0"
+  }
+}

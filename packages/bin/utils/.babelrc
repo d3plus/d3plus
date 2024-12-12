@@ -1,0 +1,19 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": "last 2 versions, >1%",
+        "modules": false,
+        "forceAllTransforms": true,
+        "useBuiltIns": "entry",
+        "corejs": 2
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-proposal-function-bind",
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/plugin-proposal-throw-expressions"
+  ]
+}

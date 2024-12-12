@@ -1,0 +1,52 @@
+{
+  "name": "d3plus-export",
+  "version": "1.3.0",
+  "description": "Export methods for transforming and downloading SVG.",
+  "main": "es/index.js",
+  "jsnext:main": "es/index",
+  "license": "MIT",
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/d3plus/d3plus-export.git"
+  },
+  "keywords": [
+    "export",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "author": {
+    "name": "Dave Landry",
+    "email": "landry.dave@gmail.com",
+    "url": "http://www.dave-landry.com"
+  },
+  "dependencies": {
+    "file-saver": "1.3.3",
+    "html-to-image": "^1.11.11"
+  },
+  "scripts": {
+    "build": "d3plus-build",
+    "dev": "d3plus-dev",
+    "docs": "d3plus-docs",
+    "env": "d3plus-env",
+    "release": "d3plus-release",
+    "test": "eslint src"
+  },
+  "devDependencies": {
+    "d3plus-dev": "^1.2.9"
+  },
+  "module": "es/index.js",
+  "sideEffects": false,
+  "files": [
+    "bin",
+    "build/d3plus-export.js",
+    "build/d3plus-export.js.map",
+    "build/d3plus-export.min.js",
+    "es"
+  ],
+  "jsdelivr": "build/d3plus-export.full.min.js",
+  "unpkg": "build/d3plus-export.full.min.js",
+  "type": "module"
+}

@@ -1,0 +1,19 @@
+{{>parent kind="class" ~}}
+{{>parent kind="function" ~}}
+{{>parent kind="mixin" ~}}
+{{>parent kind="member" ~}}
+{{>parent kind="namespace" ~}}
+{{>parent kind="constant" ~}}
+{{>parent kind="event" ~}}
+{{>parent kind="typedef" ~}}
+{{>parent kind="external" ~}}
+{{>parent kind="file" ~}}
+{{>parent kind="module" ~}}
+{{#modules~}}
+<a name="{{{anchorName}}}"></a>
+#### {{>sig}}
+{{>body~}}
+
+---
+
+{{/modules}}
