@@ -13,7 +13,11 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
+
+    defaults:
+      run:
+        working-directory: ./packages/core
 
     steps:
       - uses: actions/checkout@v3
@@ -23,13 +27,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install Dependencies
         run: npm ci
-        working-directory: ./packages/core
       - name: Pre-Build
         run: npm run build
-        working-directory: ./packages/core
       - name: Lint Code
         run: ./node_modules/.bin/eslint index.js
-        working-directory: ./packages/core
       - name: Run Tests
         run: ./node_modules/.bin/mocha 'test/**/*-test.js'
-        working-directory: ./packages/core
