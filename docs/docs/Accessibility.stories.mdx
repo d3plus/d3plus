@@ -1,0 +1,70 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Accessibility" />
+
+# Accessibility
+
+D3plus is a collection of tools built on top of the low-level helper functions made available by D3 to help aid in the generation of charts. While D3 itself can be considered accessible out of the box, as it doesn't actively add any elements to a webpage (see [this discussion](https://github.com/d3/d3-shape/issues/102)), D3plus tries its best to make sure that the SVG elements that get added to the page include accessibility features automatically. This page outlines those features.
+
+## SVG "role" Attribute
+
+All SVG elements created by D3plus contain a role attribute with the value "img". This ensures that all visualizations are identified as a graphic.
+
+```html
+<svg role="img"> ... </svg>
+```
+
+## Shape "role" and "aria-label" Attributes
+
+All shape DOM elements created by D3plus contain a `role` attribute with the value "presentation". They also contain an `aria-label` which describes the data related to the shape. At it's minimum, the value will contain the text label of the data point, but additional information (such as rank and/or value) is provided depending on the visualization.
+
+```html
+<rect
+  aria-label="2. United States, 34%."
+  role="presentation"
+  width="300"
+  height="371"
+  x="-150"
+  y="-185.5"
+  fill="#b22200" />
+```
+
+## SVG "title" and "desc" (Optional)
+
+The `svgTitle` and `svgDesc` methods can be set to include additional information about a chart for screen assistive technologies.
+
+```html
+<svg aria-labelledby="title desc" aria-hidden="false">
+
+  <title id="title">
+    Bar Chart of Income Over Time
+  </title>
+
+  <desc id="desc">
+    The income in Texas has been rising steadily over the past 10 years.
+  </desc>
+
+  ...
+
+</svg>
+```
+
+## Inline Data Table (Optional)
+
+If `ariaHidden` is set to `"false"`, a visually hidden data table will be rendered inside of the SVG. This makes the data readable by screen assistive technologies, but may overload the DOM in larger websites.
+
+```html
+<g role="table">
+  <text role="row">
+    <tspan role="columnheader" dy="-1000px">Year</tspan>
+    <tspan role="columnheader" dy="-1000px">State</tspan>
+    <tspan role="columnheader" dy="-1000px">Income</tspan>
+  </text>
+  <text role="row">
+    <tspan role="cell" dy="-1000px">2010</tspan>
+    <tspan role="cell" dy="-1000px">Texas</tspan>
+    <tspan role="cell" dy="-1000px">43218</tspan>
+  </text>
+  ...
+</g>
+```
