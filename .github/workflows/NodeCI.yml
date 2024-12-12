@@ -21,13 +21,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Test Core
-        run: cd packages/core
       - name: Install Dependencies
         run: npm ci
+        working-directory: ./packages/core
       - name: Pre-Build
         run: npm run build
+        working-directory: ./packages/core
       - name: Lint Code
         run: ./node_modules/.bin/eslint index.js
+        working-directory: ./packages/core
       - name: Run Tests
         run: ./node_modules/.bin/mocha 'test/**/*-test.js'
+        working-directory: ./packages/core
