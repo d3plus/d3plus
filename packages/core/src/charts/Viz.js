@@ -459,19 +459,24 @@ export default class Viz extends BaseClass {
   */
   _draw() {
 
+    // Sanitizes user input for legendPosition and colorScalePosition
     let legendPosition = this._legendPosition.bind(this)(this.config());
     if (![false, "top", "bottom", "left", "right"].includes(legendPosition)) legendPosition = "bottom";
     let colorScalePosition = this._colorScalePosition.bind(this)(this.config());
     if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition)) colorScalePosition = "bottom";
+
+    // Draws legend and colorScale if they are positioned "left" or "right"
     if (legendPosition === "left" || legendPosition === "right") drawLegend.bind(this)(this._legendData);
     if (colorScalePosition === "left" || colorScalePosition === "right" || colorScalePosition === false) drawColorScale.bind(this)(this._filteredData);
 
+    // Draws all of the top/bottom UI elements
     drawBack.bind(this)();
     drawTitle.bind(this)(this._filteredData);
     drawSubtitle.bind(this)(this._filteredData);
     drawTotal.bind(this)(this._filteredData);
     drawTimeline.bind(this)(this._filteredData);
 
+    // Draws legend and colorScale if they are positioned "top" or "bottom"
     if (legendPosition === "top" || legendPosition === "bottom") drawLegend.bind(this)(this._legendData);
     if (colorScalePosition === "top" || colorScalePosition === "bottom") drawColorScale.bind(this)(this._filteredData);
 
@@ -682,6 +687,8 @@ export default class Viz extends BaseClass {
 
       q.awaitAll(() => {
 
+        // creates a data table as DOM elements inside of the SVG for accessibility
+        // only if this._ariaHidden is set to true
         const columns = this._data instanceof Array && this._data.length > 0 ? Object.keys(this._data[0]) : [];
         const svgTable = this._select.selectAll("g.data-table")
           .data(!this._ariaHidden && this._data instanceof Array && this._data.length ? [0] : []);
@@ -705,6 +712,7 @@ export default class Viz extends BaseClass {
           .attr("dy", "-1000px")
           .html(d => d.text);
 
+        // finishes the draw cycle
         this._preDraw();
         this._draw(callback);
         zoomControls.bind(this)();
