@@ -1,0 +1,37 @@
+[
+  {
+    "group": "Group 1",
+    "item": "Item 1",
+    "value": 17
+  },
+  {
+    "group": "Group 1",
+    "item": "Item 2",
+    "value": 15
+  },
+  {
+    "group": "Group 1",
+    "item": "Item 3",
+    "value": 3
+  },
+  {
+    "group": "Group 2",
+    "item": "Item 4",
+    "value": 7
+  },
+  {
+    "group": "Group 2",
+    "item": "Item 5",
+    "value": 10
+  },
+  {
+    "group": "Group 3",
+    "item": "Item 6 has an extra long title",
+    "value": 20
+  },
+  {
+    "group": "Group 3",
+    "item": "Item 7",
+    "value": 30
+  }
+]
