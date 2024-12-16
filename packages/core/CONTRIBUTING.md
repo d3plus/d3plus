@@ -13,7 +13,7 @@ git clone https://github.com/d3plus/d3plus.git
 2. Move into this directory, and install dependencies:
 ```sh
 cd packages/core
-npm i
+npm ci
 ```
 
 And that's it! Your environment should be all set up and ready to start coding.
