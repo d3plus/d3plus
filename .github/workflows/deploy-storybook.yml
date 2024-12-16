@@ -1,11 +1,9 @@
+name: Deploy Storybook to gh-pages
+
 on:
   push:
     branches:
       - "main"
-
-defaults:
- run:
-  working-directory: ./docs
       
 permissions:
   contents: read
@@ -17,6 +15,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.build-publish.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: ./docs
     runs-on: ubuntu-latest
     steps:
     - id: build-publish
