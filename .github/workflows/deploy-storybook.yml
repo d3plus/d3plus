@@ -1,4 +1,4 @@
-name: Deploy Storybook to gh-pages
+name: Deploy Storybook to Github Pages
 
 on:
   push:
@@ -14,15 +14,26 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.build-publish.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
     defaults:
       run:
         working-directory: ./docs
     runs-on: ubuntu-latest
     steps:
-    - id: build-publish
-      uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
-      with:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build
+      shell: bash
+      run: npm ci
+    - name: Build
+      shell: bash
+      run: npm run build
+    - name: Upload
+      uses: actions/upload-pages-artifact@v3
+      with: 
         path: build
-        install_command: npm ci
-        build_command: npm run build
+    - id: deploy
+      name: Deploy
+      uses: actions/deploy-pages@v4
+      with:
+        token: ${{ github.token }}
