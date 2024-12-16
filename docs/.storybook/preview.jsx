@@ -1,5 +1,6 @@
 import React, {useContext, useMemo} from "react";
 import { Anchor, Canvas, Controls, Description, DocsContext, Subheading, Subtitle, Title } from '@storybook/blocks';
+import theme from "./theme.js";
 
 const replacer = (key, value) => {
   if (value instanceof Array && typeof value[0] === "object") {
@@ -63,6 +64,7 @@ const myChart = () => <${component.name} config={${JSON.stringify(moduleExport.a
           </>
         );
       },
+      theme: theme,
       toc: true
     },
     options: {
