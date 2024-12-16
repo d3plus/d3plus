@@ -22,3 +22,4 @@ BasicExample.args = {
   groupBy: "Type",
   value: "Percentage"
 };
+BasicExample.parameters = {controls: {include: ["value"]}};

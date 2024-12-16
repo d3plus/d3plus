@@ -30,10 +30,9 @@ BasicExample.args = {
   groupBy: "fruit",
   discrete: "x",
   label: funcify(
-    d => d["label"],
-    "d => d['label']"
+    d => d.label,
+    "d => d.label"
   ),
   x: "year",
-  y: "rank",
-  y2: "rank"
+  y: "rank"
 };

@@ -31,3 +31,4 @@ BasicExample.args = {
   pointSizeMin: 1,
   pointSizeMax: 10
 };
+BasicExample.parameters = {controls: {include: ["point", "pointSize", "pointSizeMin", "pointSizeMax"]}};

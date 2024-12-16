@@ -23,3 +23,4 @@ BasicExample.args = {
   groupBy: ["parent", "id"],
   sum: funcify(d => d.value, "d => d.value")
 };
+BasicExample.parameters = {controls: {include: ["sum"]}};

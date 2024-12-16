@@ -17,20 +17,6 @@ BasicExample.args = {
   groupBy: ["Exporter Continent", "Importer Continent"],
   column: "Importer Continent",
   row: "Exporter Continent",
-  colorScale: "Trade Value",
-  colorScaleConfig: {
-    legendConfig: {
-      title: "Trade Value"
-    }
-  },
-  title: "Continent to Continent Product Trade",
-  tooltipConfig: {
-    tbody: [
-      ["Trade Value", funcify(
-        d => Math.round(d["Trade Value"]),
-        `d => Math.round(d["Trade Value"])`
-        )
-      ]
-    ]
-  }
+  colorScale: "Trade Value"
 };
+BasicExample.parameters = {controls: {include: ["column", "row"]}};

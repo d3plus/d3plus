@@ -22,3 +22,4 @@ BasicExample.args = {
   groupBy: "Topping",
   value: "Sold"
 };
+BasicExample.parameters = {controls: {include: ["value"]}};

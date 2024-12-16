@@ -205,7 +205,7 @@ import {colorAssign, colorContrast} from "d3plus-color";
 }`
         }
       },
-      control: {type: null},
+      control: {type: "object"},
       description: `A Shape config that is used for rendering the primary shapes that represent each data point.`
     },
 

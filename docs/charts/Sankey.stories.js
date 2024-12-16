@@ -28,3 +28,4 @@ BasicExample.args = {
     {id: "theta"}
   ]
 };
+BasicExample.parameters = {controls: {include: ["links", "nodes"]}};
