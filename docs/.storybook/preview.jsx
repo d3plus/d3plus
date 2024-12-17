@@ -59,6 +59,9 @@ const myChart = () => <${component.name} config={${JSON.stringify(moduleExport.a
                     sourceState="shown"
                   />
                   {story.parameters.controls ? <Controls of={moduleExport} /> : null}
+                  <p>Full documentation for all available <strong>{compName}</strong> methods can be found <a href={`https://github.com/d3plus/d3plus/tree/main/packages/core#${compName}`} target="_blank">here</a>.</p>
+                  <br />
+                  <br />
                 </Anchor>
               );
             })}
