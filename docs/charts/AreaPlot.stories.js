@@ -1,9 +1,9 @@
 import React from "react";
-import {argTypes, Area as Viz} from "../args/Area.args";
+import {argTypes, AreaPlot as Viz} from "../args/AreaPlot.args";
 import configify from "../helpers/configify";
 
 export default {
-  title: "Charts/Area Chart",
+  title: "Charts/Area Plot",
   component: Viz,
   argTypes
 };
