@@ -24,7 +24,7 @@ const preview = {
               const {component, moduleExport} = story;
               const stringifiedArgs = JSON.stringify(moduleExport.args);
               const code = useMemo(() => {
-                return `import {${component.name}} from "d3plus-react";
+                return `import {${component.__docgenInfo.displayName}} from "d3plus-react";
 ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "d3plus-format";\n` : ""}
 const myChart = () => <${component.name} config={${JSON.stringify(moduleExport.args, replacer, 2)
                   // "data" cleanup
