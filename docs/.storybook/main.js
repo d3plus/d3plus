@@ -25,7 +25,7 @@ module.exports = {
   framework: "@storybook/react-webpack5",
 
   docs: {
-    defaultName: "Documentation"
+    defaultName: "D3plus"
   },
 
   staticDirs: ["../static"],
