@@ -1,0 +1,17 @@
+{{>list-short kind="class" title="Classes" ~}}
+{{>list-short kind="function" title="Functions" ~}}
+{{>list-short kind="mixin" title="Mixins" ~}}
+{{>list-short kind="member" title="Members" ~}}
+{{>list-short kind="namespace" title="Objects" ~}}
+{{>list-short kind="constant" title="Constants" ~}}
+{{>list-short kind="event" title="Events" ~}}
+{{>list-short kind="typedef" title="Typedefs" ~}}
+{{>list-short kind="external" title="External" ~}}
+{{>list-short kind="file" title="File" ~}}
+{{#modules~}}
+{{#if @first~}}
+
+##### Scripts
+{{/if~}}
+* [{{{name}}}](#{{{anchorName}}})
+{{/modules}}
