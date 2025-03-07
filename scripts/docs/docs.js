@@ -13,6 +13,7 @@ const log = Logger("documentation");
 
 import readmeStub from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
+import packageStub from "./stubs/package.js";
 
 shell.config.silent = true;
 const {version} = JSON.parse(shell.cat("package.json"));
@@ -23,11 +24,19 @@ async function generateMarkdown() {
     const folder = folders[i];
     
     const template = `${shell.tempdir()}/README.hbs`;
-    const {name, description} = JSON.parse(shell.cat(`${folder}/package.json`));
-    log.timer(`writing JSDOC comments to README.md for ${name}`);
+    let packageJSON = JSON.parse(shell.cat(`${folder}/package.json`));
+    const {name} = packageJSON;
 
-    const contents = readmeStub(name, description, version);
-    new shell.ShellString(contents).to(template);
+    log.timer(`updating package.json for ${name}`);
+    packageJSON.version = version;
+
+
+    log.timer(`writing JSDOC comments to README.md for ${name}`);
+    packageJSON = packageStub(packageJSON);
+    fs.writeFileSync(`${folder}/package.json`, JSON.stringify(packageJSON, null, 2));
+
+    const readmeContent = readmeStub(packageJSON);
+    new shell.ShellString(readmeContent).to(template);
 
     const outputRender = await jsdoc2md
       .render({
@@ -46,31 +55,35 @@ async function generateMarkdown() {
     
     fs.writeFileSync(`${folder}/README.md`, outputRender);
 
-    if (folder.includes("core")) {
-      const outputObject = await jsdoc2md
-        .getJsdocData({
-          files: `${folder}/src/**/*.+(js|jsx)`,
-          noCache: true
-        })
-        .then(arr => arr.filter(d => 
-          d.params && d.params.length && 
-          d.memberof && !d.memberof.includes("<anonymous>") && 
-          d.access !== "private" && !d.undocumented)
-        )
-        .then(arr => arr.reduce((obj, d) => {
-          if (!obj[d.memberof]) obj[d.memberof] = [];
-          obj[d.memberof].push(d);
-          return obj;
-        }, {}));
+    // if (folder.includes("core")) {
+    //   log.timer(`writing JSDOC comments to Storybook Args for ${name}`);
+    //   const outputObject = await jsdoc2md
+    //     .getJsdocData({
+    //       files: `${folder}/src/**/*.+(js|jsx)`,
+    //       noCache: true
+    //     })
+    //     .then(arr => arr.filter(d => 
+    //       d.params && d.params.length && 
+    //       d.memberof && !d.memberof.includes("<anonymous>") && 
+    //       d.access !== "private" && !d.undocumented)
+    //     )
+    //     .then(arr => arr.reduce((obj, d) => {
+    //       if (!obj[d.memberof]) obj[d.memberof] = [];
+    //       obj[d.memberof].push(d);
+    //       return obj;
+    //     }, {}));
 
-      const keys = Object.keys(outputObject);
-      for (let i = 0; i < keys.length; i++) {
-        const methods = outputObject[keys[i]];
-        const contents = argsStub(keys[i], methods);
-        if (keys[i] === "Pie") console.log(contents);
-      }
+    //   const keys = Object.keys(outputObject);
+    //   for (let i = 0; i < keys.length; i++) {
+    //     const methods = outputObject[keys[i]];
+    //     const contents = argsStub(keys[i], methods);
+    //     if (keys[i] === "Pie") console.log(contents);
+    //   }
 
-    }
+    // }
+
+    log.done();
+    shell.echo("");
       
   }
   log.exit();

@@ -1,4 +1,4 @@
-export default function(name, description, version) {
+export default function({name, description, version}) {
   return `# ${name}
   
 ${description}
