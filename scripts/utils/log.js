@@ -4,6 +4,7 @@ import shell from "shelljs";
 const {name, version} = JSON.parse(shell.cat("package.json"));
 
 const frames = ["▁", "▄", "▆", "█", "█", "▆", "▅", "▁"].map(d => chalk.dim(d));
+const color = [36, 114, 200];
 
 export default function(script) {
 
@@ -13,8 +14,8 @@ export default function(script) {
 
   shell.echo(`
 
-    ${chalk.bold.blue(`${name} v${version}`)}
-    ${chalk.blue(script)}
+    ${chalk.bold.rgb(...color)(`${name} v${version}`)}
+    ${chalk.rgb(...color)(script)}
 
   `);
 
@@ -23,7 +24,7 @@ export default function(script) {
   Logger.done = msg => {
     if (msg) message = msg;
     interval = clearInterval(interval);
-    shell.echo(`\r[ ${chalk.blue("done")} ] ${message}`);
+    shell.echo(`\r[ ${chalk.rgb(...color)("done")} ] ${message}`);
   };
 
   Logger.fail = msg => {
