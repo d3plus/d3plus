@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #viz {
+      height: 600px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <!-- <div id="viz"></div> -->
+  <!-- <label for="iterations">iterations</label><input name="iterations" type="range" min="1" max="2000" value="150" step="10" onChange="onChange(this);" />
+  <label for="strength">strength</label><input name="strength" type="range" min="-100" max="-1" value="-70" step="1" onChange="onChange(this);" />
+  <label for="velocityDecay">velocityDecay</label><input name="velocityDecay" type="range" min="0" max="1" value="0.4" step="0.1" onChange="onChange(this);" />
+  <label for="distanceMax">distanceMax</label><input name="distanceMax" type="range" min="0" max="866" value="20" step="1" onChange="onChange(this);" /> -->
+</body>
+
+<script>
+
+  const forceSettings = {};
+
+  const colors = {"10":"#EDE6D9","11":"#105B10","12":"#3ab11a","13":"#D66011","14":"#752277","15":"#5E1F05","16":"#17BCEF","17":"#9edae5","18":"#AA1F61","19":"#A4BD99","20":"#7F7F7F","21":"#93789E","22":"#C7C7C7","1":"#FFE999","2":"#FFC41C","3":"#E0902F","4":"#D1FF00","5":"#330000","6":"#E377C2","7":"#f7b6d2","8":"#98df8a","9":"#B00000"};
+
+  const unique = (arr, cb) => {
+    const l = Array.from(new Set(arr.map(cb)))
+    return l.length === 1 ? l[0] : l;
+  };
+
+  const network = new d3plus.Network()
+    // .groupBy(["group", "id"])
+    // .depth(1)
+    // .links("./hs92_4_links_circular_spring_d3p2.json")
+    // .nodes("./hs92_4_nodes_circular_spring_d3p2.json", resp => resp.map(d => ({id: d.id})))
+    .aggs({
+      "HS2 ID": unique,
+      "HS4 ID": unique
+    })
+    .data("https://oec.world/olap-proxy/data?cube=trade_i_baci_a_92&Exporter+Country=eufra&Year=2019&drilldowns=Year&measures=Trade+Value&parents=true&rca=Exporter+Country,HS4,Trade+Value&sparse=false&q=2019&q1=1&locale=en")
+    .links("./network_hs4_edges.json")
+    // .nodes("./network_hs4_nodes.json", resp => resp.map(d => ({id: d.id})))
+    .nodes("./network_hs4_nodes.json")
+    // .nodes("https://datamexico.org/json/network_hs4.json", d => d.nodes)
+    // .links("https://datamexico.org/json/network_hs4.json", d => d.edges)
+    // .linkSize(d => d.strength)
+    // .select("#viz")
+    .groupBy(["HS2 ID", "HS4 ID"])
+    .shapeConfig({fill: d => (console.log(d["Section ID"] ? d["Section ID"] : "#ccc", d), d["Section ID"] ? colors[d["Section ID"]] : "#ccc")})
+    .render();
+
+  function onChange(e) {
+    forceSettings[e.name] = parseFloat(e.value, 10);
+    console.log(forceSettings);
+    network.forceSettings(forceSettings).render();
+  }
+
+</script>
+
+</html>

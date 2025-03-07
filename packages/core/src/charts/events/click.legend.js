@@ -1,6 +1,7 @@
 import {merge} from "d3-array";
 
 /**
+    @module clickLegend
     @desc On click event for all legend shapes in a Viz.
     @param {Object} *d* The data object being interacted with.
     @param {Number} *i* The index of the data object being interacted with.

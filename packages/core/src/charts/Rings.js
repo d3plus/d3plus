@@ -3,10 +3,10 @@ import {extent, max, min} from "d3-array";
 import {nest} from "d3-collection";
 import * as scales from "d3-scale";
 
-import {assign, elem} from "../dom/index.js";
-import {colorLegible} from "../color/index.js";
-import {addToQueue} from "../data/index.js";
-import * as shapes from "../shape/index.js";
+import {assign, elem} from "@d3plus/dom";
+import {colorLegible} from "@d3plus/color";
+import {addToQueue} from "@d3plus/data";
+import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz";
 

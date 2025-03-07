@@ -1,0 +1,69 @@
+
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v1.0.full.min.js"></script> -->
+
+</head>
+
+<body>
+</body>
+
+<script>
+
+var data = [
+  {fruit: "apple", label: "Apple", year: 1, rank:  1},
+  {fruit: "apple", label: "Apple", year: 2, rank: 2},
+  {fruit: "apple", label: "Apple", year: 3, rank: 1},
+  {fruit: "banana", label: "Banana",  year: 1, rank: 2},
+  {fruit: "banana", label: "Banana",  year: 2, rank:  4},
+  {fruit: "banana", label: "Banana",  year: 3, rank: 3},
+  {fruit: "cherry", label: "Cherry", year: 1, rank:  4},
+  {fruit: "cherry", label: "Cherry", year: 2, rank: 3},
+  {fruit: "cherry", label: "Cherry", year: 3, rank: 2},
+  {fruit: "orange", label: "Orange",  year: 1, rank: 3},
+  {fruit: "orange", label: "Orange",  year: 2, rank:  1},
+  {fruit: "orange", label: "Orange",  year: 3, rank: 4}
+];
+
+new d3plus.BumpChart()
+  // .data(data)
+  // .groupBy("fruit")
+  // // .label(function(d) {
+  // //     return d.label;
+  // //   })
+  // .x("year")
+  // .y("rank")
+  // .lineLabels(true)
+  .config({
+    "data": "https://pytesseract-dev.oec.world/tesseract/data.jsonrecords?cube=complexity_eci_a_hs96_hs6&drilldowns=Country%2CYear%2CECI+Rank&locale=en&measures=ECI",
+    "groupBy": "Country",
+    // "lineLabels": true,
+    "legend": false,
+    "baseline": 1,
+    "time": "Year",
+    "timeline": true,
+    "title": "Economic Complexity (Trade)",
+    "x": "Year",
+    "xConfig": {
+        "title": false
+    },
+    "yConfig": {
+        "title": "ECI Rank"
+    },
+    "type": "LinePlot",
+    "y": "ECI Rank",
+    // "yDomain": [
+    //     104,
+    //     1
+    // ]
+  })
+  .render();
+
+</script>
+
+</html>

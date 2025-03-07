@@ -1,0 +1,58 @@
+
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var data = [
+    {id: "alpha", alphaX: 2004, alphaY:  7},
+    {id: "alpha", alphaX: 2005, alphaY: 25},
+    {id: "alpha", alphaX: 2006, alphaY: 13},
+    {id: "alpha", alphaX: 2007, alphaY: 10},
+    {id: "beta",  alphaX: 2004, betaY: -700},
+    {id: "beta",  alphaX: 2005, betaY:  850},
+    {id: "beta",  alphaX: 2006, betaY: 0},
+    {id: "beta",  alphaX: 2007, betaY: 900}
+  ];
+
+  new d3plus.LinePlot()
+    .data(data)
+    .groupBy("id")
+    .x("alphaX")
+    .y("alphaY")
+    .y2("betaY")
+    .lineLabels(true)
+    // .time("alphaX") // comment this line to see the difference
+    .timeline(false)
+    .xConfig({
+      shapeConfig: {
+        labelConfig: {
+          fontSize: () => 16
+        }
+      }
+    })
+    .yConfig({title: "First Axis"})
+    // .y2Config({title: "Second Axis", domain: [600, 1000]})
+    .render();
+
+</script>
+
+</html>

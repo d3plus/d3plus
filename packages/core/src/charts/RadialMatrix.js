@@ -1,9 +1,9 @@
 import {min} from "d3-array";
 import {arc} from "d3-shape";
 
-import {assign, elem} from "../dom/index.js";
-import {Path} from "../shape/index.js";
-import {TextBox} from "../text/index.js";
+import {assign, elem} from "@d3plus/dom";
+import {Path} from "../shapes/index.js";
+import {TextBox} from "../components/index.js";
 import {accessor, configPrep, constant, getProp} from "../utils/index.js";
 
 import Viz from "./Viz.js";

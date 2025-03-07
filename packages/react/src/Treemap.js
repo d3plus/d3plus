@@ -1,5 +1,5 @@
 import React from "react";
-import {Treemap as type} from "d3plus-hierarchy";
+import {Treemap as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

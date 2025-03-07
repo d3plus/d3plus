@@ -1,0 +1,108 @@
+
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v0.7.full.js"></script> -->
+  <style>
+    body {
+      display: flex;
+      width: 100%;
+    }
+    section {
+      flex: 1 1 100%;
+      height: 100vh;
+    }
+    div {
+      padding: 25px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <section>
+    <div id="bar0"></div>
+    <div id="bar1"></div>
+  </section>
+  <section>
+    <div id="circle0"></div>
+    <div id="circle1"></div>
+  </section>
+  <section>
+    <div id="line0"></div>
+    <div id="line1"></div>
+  </section>
+</body>
+
+<script>
+
+  var fruits = [
+    {year: 2011, parent: "Fruits", group: "Apples", value: 10, value2: 3},
+    {year: 2012, parent: "Fruits", group: "Bananas", value: 3, value2: 1.5},
+    {year: 2013, parent: "Fruits", group: "Cherimoya", value: 12, value2: 1.235},
+    {year: 2014, parent: "Fruits", group: "Oranges", value: 6, value2: 2.45}
+  ];
+
+  for (let i = 0; i < 2; i ++) {
+    new d3plus.BarChart()
+      .config({
+        buffer: {Bar: !i},
+        data: fruits,
+        groupBy: "group",
+        height: window.innerHeight / 2 - 20 - 50,
+        x: "value",
+        y: "group",
+        discrete: "y",
+        select: `#bar${i}`,
+        xConfig: {
+          title: false
+        },
+        title: `{buffer: ${i ? "false} (New Default)" : "true}"}`
+      })
+      .render();
+  }
+
+  for (let i = 0; i < 2; i ++) {
+    new d3plus.Plot()
+      .config({
+        buffer: {Circle: !i},
+        data: fruits,
+        groupBy: "group",
+        height: window.innerHeight / 2 - 20 - 50,
+        legend: false,
+        x: "value",
+        y: "value2",
+        select: `#circle${i}`,
+        xConfig: {
+          title: false
+        },
+        title: `{buffer: ${i ? "false}" : "true} (Existing Default)"}`
+      })
+      .render();
+  }
+
+  for (let i = 0; i < 2; i ++) {
+    new d3plus.LinePlot()
+      .config({
+        baseline: 0,
+        buffer: {Line: !i},
+        data: fruits,
+        groupBy: "parent",
+        height: window.innerHeight / 2 - 20 - 50,
+        x: "year",
+        y: "value",
+        select: `#line${i}`,
+        time: "year",
+        timeline: false,
+        title: `{buffer: ${i ? "false} (New Default)" : "true}"}`
+      })
+      .render();
+  }
+
+</script>
+
+</html>

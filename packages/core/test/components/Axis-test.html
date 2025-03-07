@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+
+    <style>
+
+      body {
+        background-color: #ccc;
+        font-family: "Helvetica Neue";
+        margin: 0;
+        text-align: center;
+        /* overflow: hidden; */
+      }
+
+      svg {
+        background-color: white;
+        /* border: 1px solid gray; */
+        display: inline-block;
+        margin: 10px;
+      }
+
+      .row {
+        align-items: center;
+        display: flex;
+      }
+
+      .column {
+        flex: 1 1 100%;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <script type="module">
+
+      import analyze from "../test/Axis-analyze.js";
+
+      const height = 150;
+      const widths = [200, 400, 600];
+      // const widths = [200, 400, 600, 1240];
+      const expected = {};
+
+      function makeAxis(test, config) {
+
+        const testTitle = document.createElement("h2");
+        testTitle.id = test;
+        testTitle.innerHTML = test;
+        document.body.appendChild(testTitle);
+
+          const roundings = [undefined, "linear", "log"].includes(config.scale) ? ["none", "inside", "outside"] : ["none"];
+
+          roundings.forEach(rounding => {
+
+            if (roundings.length > 1) {
+              const testTitle = document.createElement("h3");
+              testTitle.innerHTML = `rounding: "${rounding}"`;
+              document.body.appendChild(testTitle);
+            }
+
+            const row = document.createElement("div");
+            row.className = "row";
+            document.body.appendChild(row);
+
+            const columnA = document.createElement("div");
+            columnA.className = "column";
+            row.appendChild(columnA);
+
+            const columnB = document.createElement("div");
+            columnB.className = "column";
+            row.appendChild(columnB);
+
+            function makeSVG(width, reversed = false) {
+
+              const w = reversed ? height : width;
+              const h = reversed ? width : height;
+
+              const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+              svg.id = `${test}-${width}-${rounding}-${reversed ? "reversed" : "standard"}`;
+              svg.setAttribute("width", w + "px");
+              svg.setAttribute("height", h + "px");
+              svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+              (reversed ? columnB : columnA).appendChild(svg);
+
+              const axis = new d3plus[reversed ? "AxisLeft" : "AxisBottom"]()
+                .select("#" + svg.id)
+                .duration(0)
+                .width(w)
+                .height(h)
+                .config(config)
+                .domain(reversed ? config.domain.slice().reverse() : config.domain)
+                .rounding(rounding)
+                .render(() => {
+                  const results = analyze(svg);
+                  console.log(test, `(width: ${width})`)
+                  console.log(results);
+                  console.log("");
+                  expected[svg.id] = results;
+                });
+          }
+
+          widths.forEach(width => {
+            makeSVG(width);
+          });
+
+          widths.forEach(width => {
+            makeSVG(width, true);
+          });
+
+        });
+
+      }
+
+      (async function logMovies() {
+        const configs = await fetch("../test/Axis-configs.json")
+          .then(resp => resp.json());
+
+        const configFilter = test => true;
+        // const configFilter = test => configs[test].scale === "time";
+
+        for (const test in configs) {
+          if (configFilter(test)) makeAxis(test, configs[test]);
+        }
+        setTimeout(() => {
+          console.log(JSON.stringify(expected));
+        }, 2000);
+      })();
+
+    </script>
+
+  </body>
+
+</html>

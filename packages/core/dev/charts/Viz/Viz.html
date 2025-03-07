@@ -1,0 +1,315 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      /* margin: 100px; */
+      margin: 0;
+    }
+
+    /* .container {
+      display: flex;
+      width: 100%;
+    } */
+
+    #viz1 {
+      height: 400px;
+    }
+
+    .viz {
+      border: 1px solid green;
+      /* flex: 1; */
+      margin: 50px;
+      /* position: static; */
+    }
+
+    svg {
+      border: 1px solid red;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <main class="container" dir="ltr">
+    <div class="viz" id="viz1"></div>
+    <div class="viz" id="viz2"></div>
+    <div class="viz" id="viz3"></div>
+  </main>
+
+  <script>
+
+function mean(values, valueof) {
+  let count = 0;
+  let sum = 0;
+  if (valueof === undefined) {
+    for (let value of values) {
+      if (value != null && (value = +value) >= value) {
+        ++count, sum += value;
+      }
+    }
+  } else {
+    let index = -1;
+    for (let value of values) {
+      if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
+        ++count, sum += value;
+      }
+    }
+  }
+  if (count) return sum / count;
+}
+
+    function toDate(d) {
+      var date = new Date(d + "/01/01");
+      date.setFullYear(d);
+      return date;
+    }
+
+    const bigData = [];
+    for (var i = 1; i < 10000; i++) {
+      const year = i < 25 ? 2010 : 2011
+      // const id = i + "";
+      const id = i % 100 + "";
+      bigData.push({id, value: 10, year});
+    }
+
+    const colors = {
+      "1": "#90BB90",
+      "2": "#EFBA5B",
+      "3": "#B56576",
+      "4": "#9CAFB7",
+      "5": "#6B9AC4"
+    };
+
+    var viz = new d3plus.Viz()
+      // .data("./data.json", d => ({data: d.filter(d => d.id !== "alpha")}))
+      // .data("./data.json")
+      // .data([
+      //   {
+      //     id: 'alpha',
+      //     parent: "parent 1",
+      //     parentNum: 1,
+      //     value: 29
+      //   },
+      //   {
+      //     id: 'beta',
+      //     parent: "parent 1",
+      //     parentNum: 1,
+      //     value: 10
+      //   },
+      //   {
+      //     id: 'gamma',
+      //     parent: "parent 2",
+      //     parentNum: 2,
+      //     value: 2
+      //   },
+      //   {
+      //     id: 'delta',
+      //     parent: "parent 2",
+      //     parentNum: 2,
+      //     value: 24
+      //   },
+      //   {
+      //     id: 'eta',
+      //     parent: "parent 2",
+      //     parentNum: 2,
+      //     value: 25
+      //   }
+      // ])
+      // .colorScale("value")
+      // .groupBy(["parent", "id"])
+      .label(d => d.Division)
+      .time("Year")
+      // .shapeConfig({fill: d => colors[`${d["Grande Sector ID"]}`]})
+      .title("Here is a long title that should wrap and change the top margin.")
+      // .subtitle("Here is a subtitle")
+      .total(() => 500)
+      // .depth(1)
+      // .on({
+      //   "click.legend": null
+      // })
+      .legendPosition("bottom")
+      // .groupBy("value")
+      // .depth(1)
+      // .time("year")
+      // .tooltipConfig({
+      //   tbody: d => [[d.year]]
+      // })
+      // .legendFilterInvert(true)
+      // .locale("es")
+      // .data("./gini.csv")
+      // .attribution("© <a href='http://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors, © <a href='https://carto.com/attribution' target='_blank'>CARTO</a>")
+      // .attributionStyle({color: "red"})
+      // .data([
+      //   {id: "alpha", time: 4, value: 240},
+      //   {id: "beta", time: 5, value: 120},
+      //   {id: "gamma", time: 6, value: 180},
+      //   {id: "delta", time: 4, value: 240},
+      //   {id: "delta", time: 5, value: 120},
+      //   {id: "delta", time: 6, value: 180}
+      // ])
+      // .discrete("x")
+      // .shape(function(d) {
+      //   return d.id === "delta" ? "Line" : "Circle";
+      // })
+      // .label((d, i) => i)
+      // .tooltip(d => d.id !== "alpha")
+      // .on("mouseenter", function(d) {
+      //   if (d.id !== "alpha") this.hover(h => h.id === d.id);
+      // })
+      // .groupBy(["parent", "id"])
+      // .depth(0)
+      // .legendSort((a, b) => {
+      //   console.log(a, b);
+      //   return b.value - a.value;
+      //   // return b.id.localeCompare(a.id);
+      // })
+      // .data(bigData)
+      // .ariaHidden(false)
+      // .groupBy(["parent", "id"])
+      // .depth(0)
+      // .total(true)
+      // .totalConfig({
+      //   fontSize: 24,
+      //   fontFamily: () => "Times New Roman",
+      //   padding: 20
+      // })
+      // .shapeConfig({hoverOpacity: 0.1})
+      // .shapeConfig({
+      //   fill(d) {
+      //     console.log(d.id, this);
+      //     return "red";
+      //   }
+      // })
+      // .legendTooltip({footer: ""})
+      // .tooltipConfig({
+      //   body: d => {
+      //     console.log(d);
+      //     return d.id;
+      //   }
+      // })
+      // .legendTooltip({
+      //   body: null
+      // })
+      // .on({"click.legend": () => {}})
+      // .time("year")
+      // .totalFormat(d => `Kokku: ${d}`)
+      // .data([
+      //   {"year": 2010, "parent": "Parent 1", "id": "alpha", "value": 20},
+      //   {"year": 2010, "parent": "Parent 1", "id": "beta", "value": 20},
+      //   {"year": 2010, "parent": "Parent 2", "id": "gamma", "value": 40},
+      //   {"year": 2011, "parent": "Parent 1", "id": "alpha", "value": 150},
+      //   {"year": 2011, "parent": "Parent 1", "id": "beta", "value": 21},
+      //   {"year": 2011, "parent": "Parent 2", "id": "gamma", "value": 46},
+      //   {"year": 2012, "parent": "Parent 1", "id": "alpha", "value": 200},
+      //   {"year": 2012, "parent": "Parent 1", "id": "beta", "value": 200},
+      //   {"year": 2012, "parent": "Parent 2", "id": "gamma", "value": 400}
+      // ])
+      // .data([{"year": 2010, "id": "alpha", "value": 20}])
+      // .shape("Line")
+      // .colorScale("value")
+      // .colorScalePosition(false)
+      // .legend(true)
+      // .colorScaleConfig({scale: "jenks"})
+      // .colorScalePosition("top")
+      .height(400)
+      // .width(600)
+      .select("#viz1")
+      // .timelineConfig({brushing: true})
+      // .label(d => d.id)
+      // .total(d => d.value * 1000000)
+      // .title("My Cool Viz")
+      // .desc("First Description")
+      // .noDataMessage(false)
+      // .data([
+      //   {"year": 2010, "id": "alpha", "value": 20},
+      //   {"year": 2011, "id": "beta", "value": 20},
+      //   {"year": 2013, "id": "alpha2", "value": 40}
+      // ])
+      // .time("year")
+      // .discrete("year")
+      // .config({
+      //   // data: "./data.json",
+      //   shapeConfig: {
+      //     fill: "green",
+      //     hoverOpacity: 1
+      //   },
+      //   // time: "year",
+      //   timeline: false,
+      //   // timelineConfig: {
+      //   //   brushing: true,
+      //   //   on: {
+      //   //     end: d => {
+      //   //       console.log(d);
+      //   //     }
+      //   //   }
+      //   // }
+      // })
+      // .on("shape.click", () => alert("hello!"))
+      .render();
+
+    // var viz2 = new d3plus.Viz()
+    //   .data("./data2.json")
+    //   // .height(600)
+    //   .select("#viz2")
+    //   // .detectVisibleInterval(5000)
+    //   .render();
+
+    // setTimeout(() => {
+    //   // console.log(viz._configDefault);
+    //   viz.legend(false).render();
+    // }, 2000);
+
+    // setTimeout(() => {
+    //   // console.log(viz._configDefault);
+    //   viz.timeFilter(d => d.year === 2012).render();
+    //   setTimeout(() => {
+    //     // console.log(viz._configDefault);
+    //     viz.timeFilter(d => d.year === 2013).render();
+    //   }, 2000);
+    // }, 2000);
+
+
+
+    // setTimeout(() => {
+    //   // console.log(viz._configDefault);
+    //   // viz.config({shapeConfig: {fill: "D3PLUS-COMMON-RESET"}}).render();
+    //   // viz.title("Second Title").desc("Second Description").render();
+    //   viz.depth(-1).render();
+    // }, 2000);
+
+
+    // setTimeout(() => {
+    //   // console.log(viz._configDefault);
+    //   // viz.config({shapeConfig: {fill: "D3PLUS-COMMON-RESET"}}).render();
+    //   // viz.title("Second Title").desc("Second Description").render();
+    //   viz.data([]).render();
+    // }, 4000);
+
+
+    // setTimeout(() => {
+    //   // console.log(viz._configDefault);
+    //   // viz.config({shapeConfig: {fill: "D3PLUS-COMMON-RESET"}}).render();
+    //   // viz.title("Second Title").desc("Second Description").render();
+    //   viz.data("./data.json").render();
+    // }, 6000);
+
+
+
+    // var viz3 = new d3plus.Viz()
+    //   .data("./data3.json")
+    //   .height(600)
+    //   .select("#viz3")
+    //   .render();
+
+  </script>
+</body>
+
+</html>

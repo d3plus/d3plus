@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body></body>
+
+<script>
+
+  const data = [
+    {id: "Space Temp", x: 0, y:  0},
+    {id: "Space Temp", x: 15, y: 4},
+    {id: "Space Temp", x: 30, y: 9},
+    {id: "Space Temp", x: 45, y: 13},
+    {id: "Space Temp", x: 60, y: 25},
+    {id: "Space Temp", x: 75, y: 13},
+    {id: "Space Temp", x: 90, y: 9},
+    {id: "Space Temp", x: 115, y: 4},
+    {id: "Space Temp", x: 150, y: 0},
+    {id: "Supply Temp",  x: 0, y: 17},
+    {id: "Supply Temp",  x: 15, y:  8},
+    {id: "Supply Temp",  x: 30, y:  3},
+    {id: "Supply Temp",  x: 40, y: 5},
+    {id: "Supply Temp",  x: 45, y: 9},
+    {id: "Supply Temp",  x: 60, y: 11},
+    {id: "Supply Temp",  x: 75, y: 17},
+    {id: "Supply Temp",  x: 90, y: 13},
+    {id: "Supply Temp",  x: 120, y: 11},
+    {id: "Supply Temp",  x: 150, y: 9}
+  ];
+
+  var chart = new d3plus.LinePlot()
+    .config({
+      data: data,
+      groupBy: "id",
+      annotations: [
+        {
+          data: [
+            { id: "heat", x:15, y:4, width:21,  height:20 },
+            { id: "heat", x:45, y:13, width:16,  height:20 }
+          ],
+          fill: "red",
+          shape: "Rect"
+        },
+        {
+          data: [
+            { id: "cool", x:90, y:13, width:23,  height:20 },
+            { id: "cool", x:120, y:11, width:17, height:20 }
+          ],
+          fill: "blue",
+          layer: "front",
+          shape: "Rect"
+        }
+      ]
+    })
+    .render();
+
+  // setTimeout(() => {
+  //   chart.config({
+  //     annotations: [
+  //       {
+  //         data: [
+  //           { id: "heat", x:15, y:4, r: 10 },
+  //           { id: "heat", x:45, y:13, r: 10 }
+  //         ],
+  //         fill: "red",
+  //         layer: "front",
+  //         shape: "Circle"
+  //       },
+  //       {
+  //         data: [
+  //           { id: "cool", x:90, y:13, r: 10 },
+  //           { id: "cool", x:120, y:11, r: 10 }
+  //         ],
+  //         fill: "blue",
+  //         layer: "back",
+  //         shape: "Circle"
+  //       }
+  //     ]}).render()
+  // }, 2000);
+
+</script>
+
+</html>

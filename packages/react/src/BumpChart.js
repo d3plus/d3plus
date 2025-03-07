@@ -1,5 +1,5 @@
 import React from "react";
-import {BumpChart as type} from "d3plus-plot";
+import {BumpChart as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

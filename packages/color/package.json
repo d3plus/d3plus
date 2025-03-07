@@ -1,0 +1,40 @@
+{
+  "name": "@d3plus/color",
+  "version": "3.0.0",
+  "description": "Color functions that extent the ability of d3-color.",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.js",
+  "main": "build/d3plus-color.full.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "files": [
+    "build",
+    "es"
+  ],
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git",
+    "directory": "packages/color"
+  },
+  "keywords": [
+    "export",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build.js",
+    "dev": "node ../../scripts/dev.js",
+    "pretest": "npm run build",
+    "test": "eslint index.js src && eslint --global=it test && mocha 'test/**/*-test.js'"
+  },
+  "dependencies": {
+    "d3-color": "^3.1.0",
+    "d3-scale": "^4.0.2"
+  }
+}

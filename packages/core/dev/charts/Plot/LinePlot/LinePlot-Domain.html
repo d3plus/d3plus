@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v0.8.full.js"></script> -->
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+const data = [
+	{id: "alpha", day: 1, value: 5},
+  {id: "alpha", day: 2, value: 0},
+  {id: "alpha", day: 3, value: 10},
+  {id: "alpha", day: 4, value: 5},
+  {id: "alpha", day: 5, value: 6}
+]
+
+const data2 = data.map(d => ({...d, day: 6 - d.day}));
+
+const coreConfig = {
+  groupBy: "id",
+  x: "day",
+  y: "value"
+}
+
+const config1 = {...coreConfig,
+	data: data,
+  xConfig: {
+    domain: [1, 2, 3, 4, 5, 6, 7, 8]
+  },
+  // xDomain: [1, 2, 3, 4, 5, 6, 7, 8]
+}
+
+const config2 = {
+	data: data2,
+  xConfig: {
+    domain: "D3PLUS-COMMON-RESET"
+  },
+  xDomain: false
+}
+
+var chart = new d3plus.LinePlot().config(config1);
+
+chart.render();
+
+setTimeout(() => chart.config(config2).render(), 3000);
+
+
+
+</script>
+
+</html>

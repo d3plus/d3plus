@@ -6,9 +6,9 @@ import {polygonHull} from "d3-polygon";
 import * as scales from "d3-scale";
 import {zoomTransform} from "d3-zoom";
 
-import {assign, elem} from "../dom/index.js";
-import {addToQueue} from "../data/index.js";
-import * as shapes from "../shape/index.js";
+import {assign, elem} from "@d3plus/dom";
+import {addToQueue} from "@d3plus/data";
+import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz";
 

@@ -2,7 +2,8 @@ import {max, min, sum} from "d3-array";
 import {nest} from "d3-collection";
 
 /**
-    Adds a buffer to either side of the non-discrete axis.
+    @module boxBuffer
+    @desc Adds a buffer to either side of the non-discrete axis.
     @param {Array} data
     @param {D3Scale} x
     @param {D3Scale} y

@@ -2,7 +2,8 @@ import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
 
 /**
-    Adds a buffer to either side of the non-discrete axis.
+    @module circleBuffer
+    @desc Adds a buffer to either side of the non-discrete axis.
     @param {Array} data
     @param {D3Scale} x
     @param {D3Scale} y

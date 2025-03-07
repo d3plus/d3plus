@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-dom.full.js"></script>
+  <script src="https://d3js.org/d3-selection.v1.min.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  console.log(d3plus.isObject({}));
+  console.log(d3plus.isObject("string"));
+  console.log(d3plus.isObject(d3.select("body").node()));
+  console.log(d3plus.isObject([1, 2, 3]));
+  console.log(d3plus.isObject(undefined));
+  console.log(d3plus.isObject(window));
+  console.log(d3plus.isObject(document));
+
+</script>
+
+</html>

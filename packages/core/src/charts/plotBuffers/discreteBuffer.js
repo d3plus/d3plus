@@ -1,7 +1,8 @@
 /**
- * Adds left/right padding to a point or time scale.
- * @private
- */
+    @module discreteBuffer
+    @desc Adds left/right padding to a point or time scale.
+    @private
+*/
 export default (scale, data, discrete) => {
 
   if (scale.padding) scale.padding(0.5);

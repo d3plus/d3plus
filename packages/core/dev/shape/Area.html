@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      background: #fbb931;
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: "alpha", x: 0,   y0: 300, y1: 200},
+    {id: "alpha", x: 150, y0: 100, y1: 0},
+    {id: "alpha", x: 450, y0: 300, y1: 180},
+    {id: "alpha", x: 700, y0: 140, y1: 40}
+  ];
+
+  var actives = [];
+
+  var area = new d3plus.Area()
+    .data(data)
+    .y0(function(d) { return d.y0; })
+    .y1(function(d) { return d.y1; })
+    .label("An Example D3plus Area")
+    .curve(() => "monotoneX")
+    // .duration(0)
+    // .active(d => actives.includes(d.id))
+    .render();
+
+  setTimeout(() => {
+
+    // actives.push("alpha");
+    // area.render();
+
+    var data = [
+      {id: "alpha", x: 20,   y0: 300, y1: 180},
+      {id: "alpha", x: 150, y0: 100, y1: 0},
+      {id: "alpha", x: 600, y0: 300, y1: 180}
+    ];
+    area.data(data).render();
+  }, 2000);
+
+</script>
+
+</html>

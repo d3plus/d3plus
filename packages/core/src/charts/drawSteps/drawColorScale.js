@@ -1,5 +1,5 @@
 import {min} from "d3-array";
-import {elem} from "../../dom/index.js";
+import {elem} from "@d3plus/dom";
 
 /**
     @function _drawColorScale

@@ -1,0 +1,25 @@
+{
+  "basic": {
+    "domain": [-3.14, 6.12],
+    "title": "My Test Axis"
+  },
+  "large-numbers": {
+    "domain": [-124612, 1482562]
+  },
+  "log": {
+    "domain": [-124612, 1482562],
+    "scale": "log"
+  },
+  "log-tiny": {
+    "domain": [-3.14, 6.12],
+    "scale": "log"
+  },
+  "date-years": {
+    "domain": [2010, 2024],
+    "scale": "time"
+  },
+  "point-scale": {
+    "domain": ["Net job growth", "Employment rate", "Working age change", "Fourth Title"],
+    "scale": "point"
+  }
+}

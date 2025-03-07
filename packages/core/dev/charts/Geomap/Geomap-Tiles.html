@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    /* body {
+      margin: 50px;
+      overflow: hidden;
+    } */
+
+    #tile-switcher {
+      font-size: 16px;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- element to contain our map -->
+  <div id="viz"></div>
+
+  <!-- selector to change tiles -->
+  <select id="tile-switcher">
+    <option value="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png">CartoDB Positron (default)</option>
+    <option value="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}@2x.png">CartoDB Dark Matter</option>
+    <option value="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}@2x.png">CartoDB Voyager</option>
+    <option value="https://cartocdn_{s}.global.ssl.fastly.net/base-eco/{z}/{x}/{y}@2x.png">CartoDB Eco</option>
+    <option value="https://cartocdn_{s}.global.ssl.fastly.net/base-antique/{z}/{x}/{y}@2x.png">CartoDB Antique</option>
+    <option value="https://tile.opentopomap.org/{z}/{x}/{y}.png">OpenStreetMap Topology</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Terrain</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Street Map</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Satellite Imagery</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI National Geographic</option>
+    <option value="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png">Stamen Toner</option>
+    <option value="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}@2x.png">Stamen Terrain</option>
+    <option value="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png">Stamen Watercolor</option>
+  </select>
+
+</body>
+
+<script>
+
+var map = new d3plus.Geomap()
+  .config({
+
+    // draws the map inside of the "#viz" element
+    // and sets a static height of 700
+    select: "#viz",
+    height: 700,
+
+    // fits the max viewport to the boundaries of all
+    // of the countries except Antarctica ("anata")
+    fitObject: "https://oec.world/topojson/world-50m.json",
+    fitFilter: function(d) { return d.id !== "anata"; },
+
+    // removes outer padding around the default fit
+    projectionPadding: 0
+
+  })
+  .render();
+
+// attaches a Javascript listener to the "change"
+// event of the "#tile-switcher" select element
+document.querySelector("#tile-switcher")
+  .addEventListener("change", function(event) {
+
+    // reads the URL from the "value" attribute
+    // of the selected option element
+    const newUrl = event.target.value;
+
+    // passed the new URL to the tileUrl method
+    // and re-renders the map
+    map.tileUrl(newUrl).render();
+
+  });
+
+</script>
+
+</html>

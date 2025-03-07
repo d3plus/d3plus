@@ -4,10 +4,10 @@ import {hierarchy, treemap} from "d3-hierarchy";
 import {treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify} from "d3-hierarchy";
 const tileMethods = {treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify};
 
-import {merge} from "../data/index.js";
-import {assign, elem} from "../dom/index.js";
-import {formatAbbreviate} from "../format/index.js";
-import {Rect} from "../shape/index.js";
+import {merge} from "@d3plus/data";
+import {assign, elem} from "@d3plus/dom";
+import {formatAbbreviate} from "@d3plus/format";
+import {Rect} from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz.js";
 

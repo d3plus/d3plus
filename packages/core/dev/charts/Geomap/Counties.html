@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  // const myProjection = d3.geoAlbersUsaTerritories();
+  // console.log(myProjection);
+
+  var activeThings = [];
+  // console.time("first");
+  var chart = new d3plus.Geomap()
+    .data("https://datausa.io/api/data?measures=Population&drilldowns=County&year=latest", function(d) { return d.data; })
+    .topojson("./County.json")
+    // .projection("geoAlbersUsa")
+    .projection("geoAlbersUsaTerritories")
+    .colorScale("Population")
+    .colorScaleConfig({
+      buckets: [0, 100000, 500000, 1000000],
+      bucketFormat: function(tick, i, ticks) {
+        return tick;
+      },
+      scale: "buckets"
+    })
+    .groupBy("ID County")
+    .ocean("transparent")
+    // .label(d => d.County)
+    // .tooltipConfig({
+    //   tbody: [
+    //     ["Year", d => d.Year],
+    //     ["Population", d => d.Population]
+    //   ]
+    // })
+    .shapeConfig({
+      activeOpacity: 0.25,
+      Path: {
+        fillOpacity: 0.75,
+        // stroke: d => activeThings.includes(d["ID County"]) ? "red" : "transparent",
+        // strokeOpacity: 1
+      }
+    })
+    .render();
+
+  // setTimeout(() => {
+  //   activeThings.push("05000US06037");
+  //   console.time("second");
+  //   chart
+  //     // .shapeConfig({Path: {stroke: d => activeThings.includes(d.id) ? "red" : "transparent"}})
+  //     .render(() => console.timeEnd("second"));
+  // }, 5000);
+
+</script>
+
+</html>

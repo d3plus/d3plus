@@ -5,14 +5,15 @@ import {nest} from "d3-collection";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
 
-import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../components/index.js";
-import {colorAssign, colorContrast, colorDefaults, colorLegible} from "../color/index.js";
-import {merge as d3plusMerge} from "../data/index.js";
-import {assign, date, elem, rtl, textWidth} from "../dom/index.js";
-import {formatAbbreviate} from "../format/index.js";
-import * as shapes from "../shape/index.js";
-import {TextBox} from "../text/index.js";
-import {accessor, configPrep, constant, unique} from "../utils/index.js";
+import {colorAssign, colorContrast, colorDefaults, colorLegible} from "@d3plus/color";
+import {merge as d3plusMerge, unique} from "@d3plus/data";
+import {assign, date, elem, rtl, textWidth} from "@d3plus/dom";
+import {largestRect} from "@d3plus/math";
+import {formatAbbreviate} from "@d3plus/format";
+
+import {AxisBottom, AxisLeft, AxisRight, AxisTop, TextBox} from "../components/index.js";
+import * as shapes from "../shapes/index.js";
+import {accessor, configPrep, constant} from "../utils/index.js";
 
 const testLineShape = new shapes.Line();
 const testTextBox = new TextBox();
@@ -175,8 +176,8 @@ export default class Plot extends Viz {
       Area: {
         label: (d, i) => this._stacked ? this._drawLabel(d, i) : false,
         labelBounds: (d, i, aes) => {
-          let r = shapes.largestRect(aes.points, {angle: range(-20, 20, 5)});
-          if (!r || r.height < 20 || r.width < 50) r = shapes.largestRect(aes.points, {angle: range(-80, 80, 5)});
+          let r = largestRect(aes.points, {angle: range(-20, 20, 5)});
+          if (!r || r.height < 20 || r.width < 50) r = largestRect(aes.points, {angle: range(-80, 80, 5)});
           if (!r) return null;
           const x = min(aes.points, d => d[0]);
           const y = max(aes.points.filter(d => d[0] === x), d => d[1]);
@@ -1163,7 +1164,6 @@ export default class Plot extends Viz {
           const bumpLimit = (yRange[1] - yRange[0]) / 8;
           
           /** */
-          // eslint-disable-next-line no-inner-declarations
           function bumpPrevious(d, i, arr) {
             if (!d.defaultY) d.defaultY = this._yAxis._getPosition(d.value);
             if (i) {

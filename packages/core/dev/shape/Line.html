@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .box {
+      border: 1px solid black;
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: "alpha", x: 10,   y0: 300, y1: 200},
+    {id: "alpha", x: 400, y0: 100, y1: 0},
+    {id: "alpha", x: 450, y0: 300, y1: 180},
+    {id: "alpha", x: 475, y0: 140, y1: 40},
+    // {id: "beta", x: 10,   y0: 290, y1: 200},
+    // {id: "beta", x: 150, y0: 150, y1: 0},
+    // {id: "beta", x: 450, y0: 200, y1: 180},
+    // {id: "beta", x: 700, y0: 120, y1: 40},
+    // {id: "gamma", x: 10,  y0: 190, y1: 200},
+    // {id: "gamma", x: 150, y0: 250, y1: 0},
+    // {id: "gamma", x: 450, y0: 100, y1: 180},
+    // {id: "gamma", x: 700, y0: 20, y1: 40}
+  ];
+
+  const width = 690;
+  console.time("timer");
+  var line = new d3plus.Line()
+    // .discrete("x")
+    .data(data)
+    .y(function(d) { return d.y0; })
+    .label("An Example D3plus Line")
+    .on("mousemove", function(d, i) {
+      line.hover(x => x.id === d.id);
+      console.log(i, d.x);
+    })
+    .on("mouseleave", function(d) {
+      line.hover(false);
+    })
+    .on("click", function(d) {
+      line.active(x => x.id === d.id);
+    })
+    .curve(c => (console.log(c), "monotoneX"))
+    .stroke((d, i) => d.id === "epsilon" ? "purple" : i === 0 ? "red" : i === 4 ? "green" : "blue")
+    .strokeWidth(10)
+    .strokeDasharray(function(d) {
+      return "10";
+      // if (d.id === "alpha") return "10";
+      // if (d.id === "beta") return "10 5";
+      // if (d.id === "gamma") return "10 5 2";
+      // return "0";
+    })
+    .sort(function(a, b) {
+      // console.log(a, b);
+      return 1;
+    })
+    .duration(width * 1.25)
+    // .duration(0)
+    .render(() => {
+      console.timeEnd("timer");
+    });
+
+  // setTimeout(() => {
+  //   line.data([
+  //     {id: "epsilon", x: 10,   y0: 200, y1: 200},
+  //     {id: "epsilon", x: 120, y0: 100, y1: 0},
+  //     {id: "epsilon", x: 450, y0: 80, y1: 180},
+  //     {id: "epsilon", x: 700, y0: 280, y1: 40},
+  //     {id: "alpha", x: 10,   y0: 200, y1: 200},
+  //     {id: "alpha", x: 150, y0: 120, y1: 0},
+  //     {id: "alpha", x: 450, y0: 150, y1: 180},
+  //     {id: "alpha", x: 700, y0: 110, y1: 40}
+  //   ]).render();
+  // }, 2000);
+
+  // var data = d3.range(6000);
+  // var duration = 0;
+
+  // var divs = d3.select("body").selectAll("div")
+  //   .data(data);
+
+
+  // console.time("timer");
+
+  // divs.enter().append("div")
+  //   .attr("class", "box")
+  //   // .style("background", "transparent")
+  //   // .transition(duration)
+  //     .style("background", "red");
+
+  // console.timeEnd("timer");
+
+</script>
+
+</html>

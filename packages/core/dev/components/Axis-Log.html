@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+    <!-- <script src="https://d3plus.org/js/d3plus-axis.v0.5.full.min.js"></script> -->
+
+    <style>
+
+      body {
+        background-color: gray;
+        margin: 0;
+        /* overflow: hidden; */
+      }
+
+      svg {
+        background-color: white;
+        border: 1px solid gray;
+        display: inline-block;
+        margin: 10px;
+      }
+
+      .bounds {
+        border: 1px solid red;
+        pointer-events: none;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <script>
+
+      var index = {horizontal: 0, vertical: 0};
+      var width = 400;
+      var height = 100;
+      var border = 1;
+
+      function makeAxis(config, vertical = false) {
+
+        var orient = vertical ? "vertical" : "horizontal";
+        var i = index[orient];
+        var w = orient === "horizontal" ? width : height;
+        var h = orient === "horizontal" ? height : width;
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "axis" + orient + i;
+        svg.setAttribute("width", w + "px");
+        svg.setAttribute("height", h + "px");
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        document.body.appendChild(svg);
+        // config.domain = config.domain.reverse();
+        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+          .select("#axis" + orient + i)
+          .width(w)
+          .height(h)
+          .scale("log")
+          .config(config)
+          .gridLog(true)
+          .labelRotation(false)
+          .rounding("inside")
+          // .labelOffset(false)
+          // .maxSize(100)
+          // .locale("es-ES")
+          // .tickSuffix("smallest")
+          // .title("Here is a super long title that should probably wrap at some point because it's very very long.")
+          // .title("Center")
+          // .range([100, undefined])
+          .padding(5)
+          .render();
+        // console.log(axis._getPosition(-0.9));
+        // console.log(axis._getPosition(-0));
+        // console.log(axis._getPosition(0));
+        // console.log(axis._getPosition(1));
+        // console.log(axis._getPosition(90));
+        // var bounds = axis.outerBounds();
+        // var square = document.createElement("div");
+        // square.className = "bounds";
+        // square.id = "bounds" + i;
+        // square.style.width = bounds.width + "px";
+        // square.style.height = bounds.height + "px";
+        // square.style.left = bounds.x + (i * w) + (i * border * 2)  + "px";
+        // square.style.top = bounds.y + "px";
+        // document.body.appendChild(square);
+        // // console.log(index, bounds);
+        // console.log("\n");
+        index[orient]++;
+
+      }
+
+      const labelRotation = undefined;
+
+      // makeAxis({domain: [-1000000, -1]});
+      // makeAxis({domain: [1, 1000000]});
+      // makeAxis({domain: [-1000000, 1000000]});
+      // makeAxis({domain: [1000000, -1000000]});
+      // makeAxis({domain: [-5, -1]});
+      // makeAxis({domain: [1, 5]});
+      makeAxis({domain: [-3.14, 6.12]});
+      makeAxis({domain: [6.12, -3.14]});
+
+      // makeAxis({domain: [-2, 8]});
+      // makeAxis({domain: [0, 0.5]});
+      // makeAxis({domain: [-2, 0.75]});
+      // makeAxis({domain: [-1, 0]});
+      // makeAxis({domain: [-1, 100], data: [-0.9, -0.25, 0, 0.1, 0.9, 1.7, 23, 95]});
+      // makeAxis({domain: [0, 10000]});
+      // makeAxis({domain: [-10000, 0]});
+      // makeAxis({domain: [-10000, 1000]});
+
+      // makeAxis({domain: [180000000, 2800000]});
+      // makeAxis({domain: [950000, 200]});
+      // makeAxis({domain: [500000, 12]});
+      // makeAxis({domain: [1000000, 0]});
+      // makeAxis({domain: [200000, 0]});
+      // makeAxis({domain: [100000, 0]});
+      // makeAxis({domain: [500, 0]});
+      // makeAxis({domain: [200, 0]});
+      // makeAxis({domain: [100, 0]});
+      // makeAxis({domain: [20, 0]});
+      // makeAxis({domain: [10, 0]});
+      // makeAxis({domain: [5, 0]});
+      // makeAxis({domain: [1, 0.01]});
+      // makeAxis({domain: [0.2, 0.001]});
+      // makeAxis({domain: [20, -200]});
+      // makeAxis({domain: [-1, -200]});
+      // makeAxis({domain: [0.1, 0.001]});
+
+    </script>
+
+  </body>
+
+</html>

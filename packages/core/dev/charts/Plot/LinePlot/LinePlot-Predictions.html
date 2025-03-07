@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  new d3plus.LinePlot()
+    .config({
+  data: [
+    {
+      "Year": 2006,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 227746107622,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2006,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 243328728338,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2007,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 250510781866,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2007,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 266075508173,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2008,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 273451264785,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2008,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 284982624365,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2009,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 206734904705,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2009,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 220133846133,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2010,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 282348541534,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2010,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 293914911217,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2011,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 331884428040,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2011,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 343550107823,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2012,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 351687026850,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2012,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 361886624083,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2013,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 356069934491,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2013,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 373619307190,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2014,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 369627996773,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2014,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 389499264277,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2015,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 375484880972,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2015,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 372557671308,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2016,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 363829206796,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2016,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 364493560621,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2017,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 376297646785,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2017,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 401741532115,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2018,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 414829536859,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2018,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 441736801029,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2019,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 425699639802,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2019,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 432693158563,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2020,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 366314124058,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2020,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 406070750072,
+      "Type": "Observed"
+    },
+    {
+      "Year": 2020,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 366314124058,
+      "Type": "Predicted"
+    },
+    {
+      "Year": 2020,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 406070750072,
+      "Type": "Predicted"
+    },
+    {
+      "Year": 2021,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 346314124058,
+      "Type": "Predicted"
+    },
+    {
+      "Year": 2021,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 386070750072,
+      "Type": "Predicted"
+    },
+    {
+      "Year": 2022,
+      "Flow ID": 1,
+      "Flow": "Imports",
+      "Trade Value": 336314124058,
+      "Type": "Predicted"
+    },
+    {
+      "Year": 2022,
+      "Flow ID": 2,
+      "Flow": "Exports",
+      "Trade Value": 396070750072,
+      "Type": "Predicted"
+    }
+  ],
+  groupBy: ["Type", "Flow"],
+  // shapeConfig: {
+  //   Line: {
+  //     strokeDasharray: funcify(
+  //       d => {
+  //         if (d["Type"] === "Predicted") return "10";
+  //         return "0";
+  //       },
+  //       "d => {if (d['Type'] === 'Predicted') return '10'; return '0'; }"
+  //     )
+  //   }
+  // },
+  time: "Year",
+  // timeline: false,
+  x: "Year",
+  y: "Trade Value"
+})
+    .render();
+
+</script>
+
+</html>

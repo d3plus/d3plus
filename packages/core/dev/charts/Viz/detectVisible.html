@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../build/d3plus-core.full.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+      .section {
+        display: flex;
+        flex-direction: row;
+        height: 400px;
+        width: 100%;
+      }
+      .section:nth-child(even) {
+        background-color: #eee;
+      }
+      .viz {
+        flex: 1;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <script>
+
+      const sections = 200;
+      for (let i = 1; i <= sections; i++) {
+        const div = document.createElement("div");
+        div.className = "section";
+        div.id = "section-" + i;
+        const button = document.createElement("button");
+        button.innerHTML = "Re-render";
+        div.appendChild(button);
+        const viz = document.createElement("div");
+        viz.className = "viz";
+        div.appendChild(viz);
+        document.body.appendChild(div);
+      }
+
+      const dataPoints = 200;
+      const data = [];
+      for (let i = 1; i <= dataPoints; i++) {
+        data.push({id: `${i}`});
+      }
+
+      const visualizations = [];
+      for (let i = 1; i <= sections; i++) {
+        const v = new d3plus.Viz()
+          .data(data)
+          .select("#section-" + i + " .viz")
+          .render();
+        visualizations.push(v);
+      }
+
+      const buttons = document.querySelectorAll("button");
+      buttons.forEach(elem => {
+        elem
+          .addEventListener("click", () => {
+            visualizations.forEach(v => v.render());
+          });
+      });
+
+      // var visualization = new d3plus.Viz()
+      //   .data(data)
+      //   .render();
+
+      // setTimeout(() => {
+      //   visualization
+      //     // .data("./data.json", arr => arr.filter(d => d.id !== "beta"))
+      //     // .data("./data.json")
+      //     .render();
+      // }, 2000);
+
+    </script>
+
+  </body>
+
+</html>

@@ -3,7 +3,10 @@ import {scaleLog} from "d3-scale";
 const floor10 = v => Math.pow(10, Math.floor(Math.log10(Math.abs(v)))) * Math.pow(-1, v < 0);
 const ceil10 = v => Math.pow(10, Math.ceil(Math.log10(Math.abs(v)))) * Math.pow(-1, v < 0);
 
-/** */
+/**
+    @module numericBuffer
+    @private
+*/
 export default function(axis, scale, value, size, range, domain, index, invert) {
 
   if (value === undefined || isNaN(domain[0]) || isNaN(domain[1])) return domain;

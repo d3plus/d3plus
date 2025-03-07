@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-text.full.js"></script>
+
+  <style>
+
+  body {
+    margin: 0;
+  }
+
+  .box {
+    border: 1px solid red;
+    display: block;
+    height: 30px;
+    left: 100px;
+    position: absolute;
+    transform-origin: 0% 50%;
+    width: 100px;
+  }
+
+  #box-1 {
+    top: 0;
+    transform: rotate(0deg);
+  }
+
+  #box-2 {
+    top: 100px;
+    transform: rotate(45deg);
+  }
+
+  #box-3 {
+    top: 200px;
+    transform: rotate(90deg);
+  }
+
+  #box-4 {
+    top: 300px;
+    transform: rotate(135deg);
+  }
+
+  #box-5 {
+    top: 400px;
+    transform: rotate(180deg);
+  }
+
+  </style>
+
+</head>
+
+<body>
+  <div id="box-1" class="box"></div>
+  <div id="box-2" class="box"></div>
+  <div id="box-3" class="box"></div>
+  <div id="box-4" class="box"></div>
+  <div id="box-5" class="box"></div>
+</body>
+
+<script>
+
+  var data = [{r: 0}, {r: 45}, {r: 90}, {r: 135}, {r: 180}];
+
+  var text = new d3plus.TextBox()
+    .data(data)
+    .text("My Label")
+    .height(30)
+    .width(100)
+    .verticalAlign("middle")
+    .textAnchor("start")
+    .x(100)
+    .y((d, i) => i * 100)
+    .rotate(d => d.r)
+    .rotateAnchor([0, 15])
+    .fontSize(10)
+    .render();
+
+</script>
+
+</html>

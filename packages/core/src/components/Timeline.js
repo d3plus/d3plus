@@ -3,13 +3,14 @@ import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointers} from "d3-selection";
 
-import {Axis} from "../components/index.js";
-import {colorDefaults} from "../color/index.js";
-import {assign, attrize, date, elem, textWidth} from "../dom/index.js";
-import {formatDate} from "../format/index.js";
-import {locale} from "../locales/index.js";
-import {closest} from "../math/index.js";
-import {TextBox, textWrap} from "../text/index.js";
+import {colorDefaults} from "@d3plus/color";
+import {assign, attrize, date, elem, textWidth} from "@d3plus/dom";
+import {formatDate} from "@d3plus/format";
+import {locale} from "@d3plus/locales";
+import {closest} from "@d3plus/math";
+import {textWrap} from "@d3plus/text";
+
+import {Axis, TextBox} from "../components/index.js";
 import {constant} from "../utils/index.js";
 
 const colorMid = "#bbb";

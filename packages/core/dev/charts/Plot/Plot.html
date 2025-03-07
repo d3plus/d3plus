@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <script src="https://d3js.org/d3-array.v1.min.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  const dataArray = [{"HS4 ID":168517,"State ID":1,"Trade Value RCA":0.0000029773,"Trade Value":502,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Aguascalientes","Nation ID":"mex","ECI":0.9006230235099792},{"HS4 ID":168517,"State ID":2,"Trade Value RCA":0.3737113096,"Trade Value":504961261,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Baja California","Nation ID":"mex","ECI":1.210289716720581},{"HS4 ID":168517,"State ID":3,"Trade Value RCA":0.1226946063,"Trade Value":662065,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Baja California Sur","Nation ID":"mex","ECI":0.05926717445254326},{"HS4 ID":168517,"State ID":4,"Trade Value RCA":0.1101692218,"Trade Value":370269,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Campeche","Nation ID":"mex","ECI":-0.3159857392311096},{"HS4 ID":168517,"State ID":5,"Trade Value RCA":0.0094623498,"Trade Value":8854292,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Coahuila de Zaragoza","Nation ID":"mex","ECI":1.2360962629318237},{"HS4 ID":168517,"State ID":6,"Trade Value RCA":0.0001080382,"Trade Value":657,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Colima","Nation ID":"mex","ECI":0.04282766208052635},{"HS4 ID":168517,"State ID":7,"Trade Value RCA":0.0017786386,"Trade Value":11801,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Chiapas","Nation ID":"mex","ECI":-1.808553695678711},{"HS4 ID":168517,"State ID":8,"Trade Value RCA":0.8838413822,"Trade Value":2521804193,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Chihuahua","Nation ID":"mex","ECI":1.090824842453003},{"HS4 ID":168517,"State ID":9,"Trade Value RCA":1.2745964832,"Trade Value":8630277904,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Ciudad de México","Nation ID":"mex","ECI":0.9661829471588135},{"HS4 ID":168517,"State ID":10,"Trade Value RCA":0.0088936421,"Trade Value":324526,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Durango","Nation ID":"mex","ECI":0.1600339412689209},{"HS4 ID":168517,"State ID":11,"Trade Value RCA":0.0041002268,"Trade Value":2890146,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Guanajuato","Nation ID":"mex","ECI":0.689828634262085},{"HS4 ID":168517,"State ID":13,"Trade Value RCA":0.01917082,"Trade Value":386267,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Hidalgo","Nation ID":"mex","ECI":-0.5929623246192932},{"HS4 ID":168517,"State ID":14,"Trade Value RCA":4.7973763266,"Trade Value":7759929829,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Jalisco","Nation ID":"mex","ECI":0.8838102221488953},{"HS4 ID":168517,"State ID":15,"Trade Value RCA":0.4951530573,"Trade Value":536421671,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Estado de México","Nation ID":"mex","ECI":0.48521673679351807},{"HS4 ID":168517,"State ID":16,"Trade Value RCA":0.0078145461,"Trade Value":1068356,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Michoacán de Ocampo","Nation ID":"mex","ECI":-0.9962540864944458},{"HS4 ID":168517,"State ID":17,"Trade Value RCA":0.0906681094,"Trade Value":2545380,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Morelos","Nation ID":"mex","ECI":-0.7810869216918945},{"HS4 ID":168517,"State ID":19,"Trade Value RCA":0.44518364,"Trade Value":1128110890,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Nuevo León","Nation ID":"mex","ECI":1.4819133281707764},{"HS4 ID":168517,"State ID":20,"Trade Value RCA":0.0014668092,"Trade Value":3359,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Oaxaca","Nation ID":"mex","ECI":-1.982450008392334},{"HS4 ID":168517,"State ID":21,"Trade Value RCA":0.0062537184,"Trade Value":3940808,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Puebla","Nation ID":"mex","ECI":-0.8439782857894897},{"HS4 ID":168517,"State ID":22,"Trade Value RCA":0.0203912978,"Trade Value":10772393,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Querétaro","Nation ID":"mex","ECI":1.4924240112304688},{"HS4 ID":168517,"State ID":23,"Trade Value RCA":0.2744276579,"Trade Value":3850516,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Quintana Roo","Nation ID":"mex","ECI":0.07109120488166809},{"HS4 ID":168517,"State ID":24,"Trade Value RCA":0.0495972217,"Trade Value":12243418,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"San Luis Potosí","Nation ID":"mex","ECI":0.6773000359535217},{"HS4 ID":168517,"State ID":25,"Trade Value RCA":0.1636692277,"Trade Value":17037162,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Sinaloa","Nation ID":"mex","ECI":0.12180459499359131},{"HS4 ID":168517,"State ID":26,"Trade Value RCA":0.2194528734,"Trade Value":121740294,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Sonora","Nation ID":"mex","ECI":0.5879386067390442},{"HS4 ID":168517,"State ID":27,"Trade Value RCA":0.0599160828,"Trade Value":413701,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Tabasco","Nation ID":"mex","ECI":-0.5434579849243164},{"HS4 ID":168517,"State ID":28,"Trade Value RCA":0.2710084082,"Trade Value":296723253,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Tamaulipas","Nation ID":"mex","ECI":1.0230517387390137},{"HS4 ID":168517,"State ID":29,"Trade Value RCA":0.4631499056,"Trade Value":10433463,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Tlaxcala","Nation ID":"mex","ECI":-0.7801836133003235},{"HS4 ID":168517,"State ID":30,"Trade Value RCA":0.0131766103,"Trade Value":727245,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Veracruz de Ignacio de la Llave","Nation ID":"mex","ECI":-0.9376561641693115},{"HS4 ID":168517,"State ID":31,"Trade Value RCA":0.0480259131,"Trade Value":1955973,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Yucatán","Nation ID":"mex","ECI":-0.03453151509165764},{"HS4 ID":168517,"State ID":32,"Trade Value RCA":0.0701799952,"Trade Value":819708,"Chapter":"Machines","HS2":"Electrical, Electronic Equipment","HS4":"Telephones, Including Mobile Phones and those of other Wireless Networks","Chapter ID":16,"HS2 ID":1685,"Nation":"México","State":"Zacatecas","Nation ID":"mex","ECI":-0.6596811413764954}];
+
+  dataArray.forEach(d => {
+    // d.ECI *= 100000;
+    d.ECI = Math.abs(d.ECI) * -10;
+  });
+  console.time("draw");
+  var chart = new d3plus.Plot()
+    .config({
+      aggs: {
+        "Chapter ID": d3.mean,
+        "State ID": d3.mean
+      },
+      locale: "es-MX",
+      data: dataArray,
+      // data: dataArray.filter(d => [11].includes(d["State ID"])),
+      groupBy: ["State ID"],
+      size: "Trade Value",
+      sizeMin: 5,
+      sizeMax: 10,
+      x: "Trade Value RCA",
+      y: "ECI",
+      yConfig: {
+        scale: "log"
+      },
+      xConfig: {
+        title: false,
+        scale: "linear"
+      }
+    })
+    .render(() => console.timeEnd("draw"));
+
+  // setTimeout(() => {
+  //   chart.data(dataArray.filter(d => [11].includes(d["State ID"]))).render();
+  // }, 2000);
+
+  // var data = [
+  //   {id: "alpha", time: 4, value: 240},
+  //   {id: "beta", time: 5, value: 120},
+  //   {id: "gamma", time: 6, value: 180},
+  //   // {id: "delta", time: 4, value: 240, lci: 200, hci: 260},
+  //   // {id: "delta", time: 5, value: 120, lci: 100, hci: 150},
+  //   // {id: "delta", time: 7, value: 180, lci: 170, hci: 185}
+  // ];
+
+  // data.forEach(d => {
+  //   d.value *= 10000000000;
+  //   d.lci *= 10000000000;
+  //   d.hci *= 10000000000;
+  // });
+
+  // const order = ["Circle", "Line"];
+
+  // data.forEach(d => {
+  //   d.time = 2010 + d.time;
+  // });
+
+  // var plot = new d3plus.Plot()
+  //   // .config({
+  //   //   shapeConfig: {
+  //   //     Circle: {
+  //   //       fill: "green"
+  //   //     },
+  //   //     Line: {
+  //   //       strokeLinecap: "round",
+  //   //       strokeWidth: 5
+  //   //     }
+  //   //   }
+  //   // })
+  //   // .confidence([d => d.lci, d => d.hci])
+  //   .data(data)
+  //   // .discrete("x")
+  //   .groupBy("id")
+  //   // .shape(function(d) {
+  //   //   return d.id === "delta" ? "Line" : "Circle";
+  //   // })
+  //   // .shapeSort(function(a, b) {
+  //   //   return order.indexOf(a) - order.indexOf(b);
+  //   // })
+  //   .legend(false)
+  //   .sizeMin(20)
+  //   .time("time")
+  //   .x("time")
+  //   .discrete("x")
+  //   .y("value")
+  //   .yConfig({scale: "auto"})
+  //   // .yConfig({width: 200})
+  //   .render();
+
+  // console.log(plot._configDefault.shapeConfig.Circle);
+
+  // setTimeout(() => {
+  //   plot
+  //     .data([
+  //       {id: "delta", time: 4, value: 240, lci: 200, hci: 260},
+  //       {id: "delta", time: 5, value: 120, lci: 100, hci: 150},
+  //       {id: "delta", time: 6, value: 180, lci: 170, hci: 185}
+  //     ])
+  //     .render();
+  //   // plot.config({shapeConfig: {Circle: {fill: "D3PLUS-COMMON-RESET"}}}).render();
+  //   // plot.config({shapeConfig: {Circle: "D3PLUS-COMMON-RESET"}}).render();
+  //   // console.log(plot.shapeConfig().Circle);
+  // }, 2000);
+
+</script>
+
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  const testData = [
+    {
+      "city": "Ada",
+      "dma_code": 657,
+      "latitude": 34.774531,
+      "longitude": -96.6783449,
+      "region": "OK",
+      "slug": "ada-ok"
+    },
+    {
+      "city": "Akron",
+      "dma_code": 510,
+      "latitude": 41.0814447,
+      "longitude": -81.5190053,
+      "region": "OH",
+      "slug": "akron-oh"
+    }
+  ];
+
+  new d3plus.Geomap()
+    // .data("https://d3plus.org/data/city_coords.json")
+    .data(testData)
+    .groupBy("slug")
+    .colorScale("dma_code")
+    .colorScaleConfig({
+      color: ["red", "orange", "yellow", "green", "blue"]
+    })
+    .topojson("./County.json")
+    .label(function(d) {
+      return d.city + ", " + d.region;
+    })
+    .point(function(d) {
+      return [d.longitude, d.latitude];
+    })
+    .pointSize(d => d.dma_code)
+    .pointSizeMin(1)
+    .pointSizeMax(20)
+    .render();
+
+</script>
+
+</html>

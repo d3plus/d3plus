@@ -8,16 +8,15 @@ import {zoom} from "d3-zoom";
 
 import lrucache from "lrucache";
 
-import {colorAssign, colorContrast} from "../color/index.js";
-import {ColorScale, Legend, Timeline, Tooltip} from "../components/index.js";
-import {addToQueue, merge} from "../data/index.js";
-import {assign, date, getSize, inViewport} from "../dom/index.js";
-import {formatAbbreviate} from "../format/index.js";
+import {colorAssign, colorContrast} from "@d3plus/color";
+import {addToQueue, merge, unique} from "@d3plus/data";
+import {assign, date, getSize, inViewport} from "@d3plus/dom";
+import {formatAbbreviate} from "@d3plus/format";
+import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../components/index.js";
+import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 // import {Rect} from "../shape/index.js";
-import {TextBox} from "../text/index.js";
-import {accessor, BaseClass, configPrep, constant, unique} from "../utils/index.js";
 
-import Message from "./Message.js";
+import Message from "../components/Message.js";
 
 import drawBack from "./drawSteps/drawBack.js";
 import drawColorScale from "./drawSteps/drawColorScale.js";

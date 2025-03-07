@@ -1,7 +1,7 @@
 import {extent} from "d3-array";
 
-import {date, elem} from "../../dom/index.js";
-import {unique} from "../../utils/index.js";
+import {unique} from "@d3plus/data";
+import {date, elem} from "@d3plus/dom";
 
 /**
     @function setTimeFilter

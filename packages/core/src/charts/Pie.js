@@ -1,8 +1,8 @@
 import {min} from "d3-array";
 import {arc, pie} from "d3-shape";
 
-import {Path} from "../shape/index.js";
-import {assign, elem} from "../dom/index.js";
+import {Path} from "../shapes/index.js";
+import {assign, elem} from "@d3plus/dom";
 import {accessor, configPrep} from "../utils/index.js";
 import Viz from "./Viz.js";
 
@@ -95,8 +95,8 @@ export default class Pie extends Viz {
 
   /**
       @memberof Pie
-      @desc If *value* is specified, sets the inner radius accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current inner radius accessor.
-      @param {Function|Number} [*value*]
+      @desc The pixel value, or function that returns a pixel value, that is used as the inner radius of the Pie (creating a Donut).
+      @param {Function|Number} [*value* = 0]
   */
   innerRadius(_) {
     return arguments.length ? (this._innerRadius = _, this) : this._innerRadius;
@@ -104,7 +104,9 @@ export default class Pie extends Viz {
 
   /**
       @memberof Pie
-      @desc If *value* is specified, sets the arc padding to the specified radian value and returns the current class instance. If *value* is not specified, returns the current radian padding.
+      @desc The padding between each arc, set as a radian value between \`0\` and \`1\`.
+
+If set, this will override any previously set padPixel value.
       @param {Number} [*value*]
   */
   padAngle(_) {
@@ -113,8 +115,12 @@ export default class Pie extends Viz {
 
   /**
       @memberof Pie
-      @desc If *value* is specified, sets the arc padding to the specified pixel value and returns the current class instance. If *value* is not specified, returns the current pixel padding.
-      @param {Number} [*value*]
+      @desc The padding between each arc, set as a pixel number value.
+
+By default the value is \`0\`, which shows no padding between each arc.
+
+If \`padAngle\` is defined, the \`padPixel\` value will not be considered.
+      @param {Number} [*value* = 0]
   */
   padPixel(_) {
     return arguments.length ? (this._padPixel = _, this) : this._padPixel;
@@ -122,12 +128,8 @@ export default class Pie extends Viz {
 
   /**
       @memberof Pie
-      @desc If *comparator* is specified, sets the sort order for the pie slices using the specified comparator function. If *comparator* is not specified, returns the current sort order, which defaults to descending order by the associated input data's numeric value attribute.
-      @param {Array} [*comparator*]
-      @example
-function comparator(a, b) {
-  return b.value - a.value;
-}
+      @desc A comparator function that sorts the Pie slices.
+      @param {Function} [*comparator* = (a, b) => b.value - a.value]
   */
   sort(_) {
     return arguments.length ? (this._sort = _, this) : this._sort;
@@ -135,12 +137,8 @@ function comparator(a, b) {
 
   /**
       @memberof Pie
-      @desc If *value* is specified, sets the value accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current value accessor.
-      @param {Function|String} *value*
-      @example
-function value(d) {
-  return d.value;
-}
+      @desc The accessor key for each data point used to calculate the size of each Pie section.
+      @param {Function|String} *value* = d => d.value
   */
   value(_) {
     return arguments.length ? (this._value = typeof _ === "function" ? _ : accessor(_), this) : this._value;

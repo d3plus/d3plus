@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: "alpha",   start2: 2004, end: 2007},
+    {id: "epsilon", start2: 2007, end: 2012},
+    {id: "beta",    start2: 2005, end: 2010},
+  ];
+
+  new d3plus.Priestley()
+    .data(data)
+    .start("start2")
+    // .paddingInner(0.05)
+    .paddingOuter(0)
+    .render();
+
+</script>
+
+</html>

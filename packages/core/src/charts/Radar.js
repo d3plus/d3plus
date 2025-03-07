@@ -3,10 +3,10 @@ import {min, max, sum} from "d3-array";
 import {nest} from "d3-collection";
 import {pointer} from "d3-selection";
 
-import {merge} from "../data/index.js";
-import {assign, elem} from "../dom/index.js";
+import {merge} from "@d3plus/data";
+import {assign, elem} from "@d3plus/dom";
 import {accessor, configPrep, constant} from "../utils/index.js";
-import {Circle, Path, Rect} from "../shape/index.js";
+import {Circle, Path, Rect} from "../shapes/index.js";
 import Viz from "./Viz.js";
 
 const tau = Math.PI * 2;

@@ -11,10 +11,10 @@ import * as scales from "d3-scale";
 import {tile} from "d3-tile";
 import {feature} from "topojson-client";
 
-import {load} from "../data/index.js";
-import {assign, parseSides} from "../dom/index.js";
-import {pointDistance} from "../math/index.js";
-import {Circle, Path} from "../shape/index.js";
+import {load} from "@d3plus/data";
+import {assign, parseSides} from "@d3plus/dom";
+import {pointDistance} from "@d3plus/math";
+import {Circle, Path} from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 
 import Viz from "./Viz";

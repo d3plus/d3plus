@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+  <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+  <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+  <script src="https://d3js.org/d3-request.v1.min.js"></script>
+
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body></body>
+
+<script>
+
+  d3.csv("nodelist3.csv", function(err, data) {
+    console.log(data);
+    let nodes = [];
+    const counted = [];
+    const links = data.reduce((arr, link) => {
+      const step = parseInt(link.step, 10);
+      const source = `${link["Source.key1"]}-${link["Source.key2"]}-${step}`;
+      const target = `${link["Target.key1"]}-${link["Target.key2"]}-${step + 1}`;
+      if (!nodes.includes(source)) nodes.push(source);
+      if (!nodes.includes(target)) nodes.push(target);
+      arr.push({origin: source, destination: target, weight: parseInt(link.weight, 10)});
+      return arr;
+    }, []);
+    nodes = nodes.map(id => ({id}));
+    console.log(nodes, links);
+
+    new d3plus.Sankey()
+      .links(links)
+      // .nodes(nodes)
+      .linksSource("origin")
+      .linksTarget("destination")
+      .nodeAlign("left")
+      .render();
+  });
+
+</script>
+
+</html>

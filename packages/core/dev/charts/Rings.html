@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  // var links = [
+  //     {weight: 100, source: "alpha", target: "beta"},
+  //     {weight: 10, source: "alpha", target: "gamma"},
+  //     {weight: 50, source: "beta", target: "delta"},
+  //     {weight: 60, source: "beta", target: "epsilon"},
+  //     {weight: 20, source: "zeta", target: "gamma"},
+  //     {weight: 70, source: "theta", target: "gamma"},
+  //     {weight: 12, source: "eta", target: "gamma"}
+  //   ];
+
+  // new d3plus.Rings()
+  //   .links(links)
+  //   .label(d => d.id)
+  //   .center("alpha")
+  //   // .linkSize(10)
+  //   .linkSize(d => d.weight)
+  //   // .linkSizeMin(5)
+  //   .render();
+
+  // new d3plus.Rings()
+  //   .links("./hs92_4_links_circular_spring_d3p2.json")
+  //   .nodes("./hs92_4_nodes_circular_spring_d3p2.json")
+  //   .center("9701")
+  //   // .size(() => 20)
+  //   .render();
+
+  const colors = {"10":"#EDE6D9","11":"#105B10","12":"#3ab11a","13":"#D66011","14":"#752277","15":"#5E1F05","16":"#17BCEF","17":"#9edae5","18":"#AA1F61","19":"#A4BD99","20":"#7F7F7F","21":"#93789E","22":"#C7C7C7","1":"#FFE999","2":"#FFC41C","3":"#E0902F","4":"#D1FF00","5":"#330000","6":"#E377C2","7":"#f7b6d2","8":"#98df8a","9":"#B00000"};
+
+  new d3plus.Rings()
+    .config({
+      // data: `/olap-proxy/data.jsonrecords?cube=trade_i_baci_a_92&drilldowns=HS4&measures=Trade+Value&parents=true&sparse=false&Year=2018`,
+      // dataFormat: resp => {
+      //   const {data} = resp;
+      //     data.forEach(d => {
+      //       d["id"] = d["HS4 ID"].toString()
+      //     });
+      //   return data;
+      // },
+      // data: [{id: "10102", value: 10}, {id: "40102", value: 10}],
+      center: "010101",
+      // label: "",
+      // shapeConfig: {
+      //   fill: d => colors[d.id.slice(0, d.id.length === 6 ? 2 : 1)]
+      // }
+    })
+    // .loadingMessage(false)
+    .nodes("./network_hs4_nodes.json")
+    .links("./network_hs4_edges.json", resp => resp.map(e => ({source: e.source.id, target: e.target.id})))
+    .render();
+
+</script>
+
+</html>

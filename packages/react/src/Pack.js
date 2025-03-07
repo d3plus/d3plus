@@ -1,5 +1,5 @@
 import React from "react";
-import {Pack as type} from "d3plus-hierarchy";
+import {Pack as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

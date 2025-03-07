@@ -5,13 +5,15 @@ import * as scales from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {colorDefaults} from "../color/index.js";
-import {assign, attrize, date, elem, rtl as detectRTL} from "../dom/index.js";
-import {formatAbbreviate, formatDate} from "../format/index.js";
-import {formatLocale, locale} from "../locales/index.js";
-import {closest} from "../math/index.js";
-import * as shapes from "../shape/index.js";
-import {TextBox, textWrap} from "../text/index.js";
+import {colorDefaults} from "@d3plus/color";
+import {assign, attrize, date, elem, rtl as detectRTL} from "@d3plus/dom";
+import {formatAbbreviate, formatDate} from "@d3plus/format";
+import {formatLocale, locale} from "@d3plus/locales";
+import {closest} from "@d3plus/math";
+import {textWrap} from "@d3plus/text";
+
+import {TextBox} from "../components/index.js";
+import * as shapes from "../shapes/index.js";
 import {configPrep, BaseClass, constant} from "../utils/index.js";
 
 

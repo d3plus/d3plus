@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var nodes = [
+    {id: "alpha"},
+    {id: "beta"},
+    {id: "gamma"},
+    {id: "epsilon"},
+    {id: "zeta"},
+    {id: "theta"}
+  ];
+
+  var links = [
+    {source: "alpha", target: "beta", weight: 2},
+    {source: "alpha", target: "gamma", weight: 1},
+    {source: "epsilon", target: "theta", weight: 3},
+    {source: "theta", target: "alpha", weight: 3},
+    {source: "epsilon", target: "zeta", weight: 1}
+  ];
+
+  new d3plus.Sankey()
+    .links(links)
+    .nodes(nodes)
+    .value(d => d.weight)
+    .render();
+
+</script>
+
+</html>

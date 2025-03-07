@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #viz {
+      height: 600px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+    <div id="viz"></div>
+    <!-- <label for="iterations">iterations</label><input name="iterations" type="range" min="1" max="2000" value="150" step="10" onChange="onChange(this);" />
+    <label for="strength">strength</label><input name="strength" type="range" min="-100" max="-1" value="-70" step="1" onChange="onChange(this);" />
+    <label for="velocityDecay">velocityDecay</label><input name="velocityDecay" type="range" min="0" max="1" value="0.4" step="0.1" onChange="onChange(this);" />
+    <label for="distanceMax">distanceMax</label><input name="distanceMax" type="range" min="0" max="6" value="1" step="0.5" onChange="onChange(this);" /> -->
+  </body>
+
+<script>
+
+  var nodeArray = [
+    {id: "alpha"}, // 0
+    {id: "beta"}, // 1
+    {id: "gamma"}, // 2
+    {id: "epsilon"}, // 3
+    {id: "zeta"}, // 4
+    {id: "theta"} // 5
+  ];
+
+  var linkArray = [
+    {source: 0, target: 1, weight: 10},
+    {source: 0, target: 2, weight: 10},
+    {source: 3, target: 4, weight: 10},
+    {source: 3, target: 5, weight: 5},
+    {source: 5, target: 0, weight: 20},
+    {source: 2, target: 1, weight: 12},
+    {source: 4, target: 5, weight: 12}
+  ];
+
+  // linkArray.forEach(link => {
+  //   link.source = nodeArray[link.source];
+  //   link.target = nodeArray[link.target];
+  // });
+
+  const network = new d3plus.Network()
+    // .links(linkArray)
+    // .nodes(nodeArray)
+    // .label(d => d.id)
+    // .linkSize(d => d.weight)
+    // .linkSize("weight")
+    .select("#viz")
+    .config({
+      links: linkArray,
+      linkSize: function(d) { return d.weight; },
+      nodes: nodeArray
+    })
+    .render();
+
+  const forceSettings = {};
+
+  function onChange(e) {
+    forceSettings[e.name] = parseFloat(e.value, 10);
+    console.log(forceSettings);
+    network.forceSettings(forceSettings).render();
+  }
+
+</script>
+
+</html>

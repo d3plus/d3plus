@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import PropTypes from "prop-types";
-import {assign} from "d3plus-common";
+import {assign} from "@d3plus/dom";
+
 import D3plusContext from "./D3plusContext.js";
 
 /**
@@ -41,6 +42,7 @@ const Viz = props => {
       if (nodesFormat && c.nodes) viz.nodes(c.nodes, nodesFormat);
       if (topojsonFormat && c.topojson) viz.topojson(c.topojson, topojsonFormat);
 
+      // ADD CALLBACK
       viz.render();
     }
 

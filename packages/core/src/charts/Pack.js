@@ -1,9 +1,9 @@
 import {nest} from "d3-collection";
 import {hierarchy, pack} from "d3-hierarchy";
 
-import {assign, elem} from "../dom/index.js";
+import {assign, elem} from "@d3plus/dom";
 import {accessor, configPrep, constant} from "../utils/index.js";
-import {Circle} from "../shape/index.js";
+import {Circle} from "../shapes/index.js";
 import Viz from "./Viz.js";
 
 const recursionCircles = (d, arr = []) => {

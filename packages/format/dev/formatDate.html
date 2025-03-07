@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="/build/d3plus-format.full.js"></script>
+
+</head>
+
+<body>
+</body>
+
+<script>
+
+  const days = [], months = [];
+  for (let i = 4; i <= 12; i++) {
+    days.push(new Date(`01/${i < 10 ? `0${i}` : i}/2020`));
+    months.push(new Date(`${i < 10 ? `0${i}` : i}/01/2020`));
+  }
+
+  console.log(d3plus.formatDate(days[0], days));
+  console.log(d3plus.formatDate(months[4], months));
+
+  const quarters = [
+    new Date("03/31/2020"),
+    new Date("06/30/2020"),
+    new Date("09/30/2020"),
+    new Date("12/31/2020"),
+    new Date("03/31/2021")
+  ];
+
+  console.log(d3plus.formatDate(quarters[4], quarters));
+
+</script>
+
+</html>

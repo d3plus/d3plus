@@ -1,0 +1,65 @@
+<!doctype html>
+<html dir="rtl">
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="/build/d3plus-format.full.js"></script>
+
+</head>
+
+<body>
+</body>
+
+<script>
+
+  console.log(d3plus.formatAbbreviate(12345));
+  console.log(d3plus.formatAbbreviate(-12345));
+
+  const numbers = [
+    1234567890000000000,
+    1234567890000000,
+    1234567890000,
+    1234567890,
+    1000000009,
+    1234567,
+    123456,
+    12345,
+    1234,
+    123,
+    12,
+    1,
+    0.1,
+    0.01,
+    0.12,
+    0.0123,
+    0.00123,
+    0.000123
+  ];
+
+  numbers.forEach(n => {
+    const formatted = d3plus.formatAbbreviate(n, "ar-SA");
+    console.log(n, formatted);
+    const p = document.createElement("p");
+    p.innerHTML = formatted;
+    document.body.appendChild(p);
+  });
+
+  // const table = [];
+  // numbers.forEach(n => table.push({
+  //   "Old Function": d3plus.formatAbbreviate(n, "en-AR"),
+  //   "New String Template": d3plus.format(".3~a")(n),
+  //   "d3-format SI": d3plus.format(".3~s")(n)
+  // }));
+
+  // console.table(table);
+
+  // console.table([
+  //   ["Old Method", "formatAbbreviate(1234567890)", d3plus.formatAbbreviate(1234567890)],
+  //   ["New Method", "format(\".3~a\")(1234567890)", d3plus.format(".3~a")(1234567890)],
+  //   ["d3-format", "format(\".3~s\")(1234567890)", d3plus.format(".3~s")(1234567890)]
+  // ]);
+
+</script>
+
+</html>

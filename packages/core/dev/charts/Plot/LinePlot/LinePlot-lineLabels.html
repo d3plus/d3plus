@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+let data = [
+	{
+  	"Year": 2020,
+    "Trade Value": 1000,
+    "Country": "Chile",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2021,
+    "Trade Value": 1500,
+    "Country": "Chile",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2022,
+    "Trade Value": 2500,
+    "Country": "Chile",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2023,
+    "Trade Value": 2300,
+    "Country": "Chile",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2023,
+    "Trade Value": 2300,
+    "Country": "Chile",
+    "Type": "Predicted"
+  },
+  {
+  	"Year": 2024,
+    "Trade Value": 2400,
+    "Country": "Chile",
+    "Type": "Predicted"
+  },
+  {
+  	"Year": 2025,
+    "Trade Value": 1800,
+    "Country": "Chile",
+    "Type": "Predicted"
+  },
+  {
+  	"Year": 2020,
+    "Trade Value": 5000,
+    "Country": "United States",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2021,
+    "Trade Value": 8500,
+    "Country": "United States",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2022,
+    "Trade Value": 12500,
+    "Country": "United States",
+    "Type": "Observed"
+  },
+  {
+  	"Year": 2023,
+    "Trade Value": 12900,
+    "Country": "United States",
+    "Type": "Observed"
+  }
+];
+
+const viz = new d3plus.LinePlot()
+	.data(data)
+	.config({
+    groupBy: ["Type", "Country"],
+    lineLabels: true,
+    // lineLabels: (d) => {
+    // 	console.log("Hi Dave!");
+    // 	const alreadyPredictedMembers = data.map((h) => h.Country);
+    //     if (alreadyPredictedMembers.includes(d.Country)) {
+    //       if (d.Type === "Predicted") {
+    //         return true;
+    //       }
+    //       return false;
+    //     }
+    //     return true;
+    // },
+    shapeConfig: {
+    	Line: {
+    		strokeDasharray: (d) => d.Type === "Predicted" ? "10" : "0",
+    	},
+    },
+    x: "Year",
+    y: "Trade Value"
+  });
+  
+viz.render();
+  
+ setTimeout(() => {
+	const newData = data.concat([
+  	{
+  		"Year": 2023,
+  	  "Trade Value": 12900,
+  	  "Country": "United States",
+  	  "Type": "Predicted"
+  	},
+  	{
+  		"Year": 2024,
+    	"Trade Value": 13900,
+    	"Country": "United States",
+    	"Type": "Predicted"
+  	},
+    {
+  		"Year": 2025,
+    	"Trade Value": 13400,
+    	"Country": "United States",
+    	"Type": "Predicted"
+  	}
+  ]);
+  
+  viz.data(newData).render();
+  
+  viz.render();
+}, 2000);
+
+</script>
+
+</html>

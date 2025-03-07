@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+    margin: 0;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <script>
+
+    var viz = new d3plus.Viz()
+      .data("data2.json")
+      .time("year")
+      .legend(false)
+      .timelineDefault([2010, "01/01/2011"])
+      .timelineConfig({
+        brushing: true
+      })
+      .render();
+
+    // setTimeout(() => {
+    //   viz.data("data2.json").render();
+    // }, 2000);
+
+    // setTimeout(() => {
+    //   viz.data("data.json").render();
+    // }, 4000);
+
+  </script>
+</body>
+
+</html>

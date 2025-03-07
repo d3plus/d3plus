@@ -1,5 +1,5 @@
 import React from "react";
-import {Matrix as type} from "d3plus-matrix";
+import {Matrix as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

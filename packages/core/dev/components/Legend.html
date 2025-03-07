@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    svg {
+      border: 1px solid red;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <svg id="ltr" width="400"></svg>
+  <section dir="rtl">
+    <svg id="rtl" width="400"></svg>
+  </section>
+
+  <script>
+
+    var data = [
+      {color: "red", id: "alpha"},
+      {color: "green", id: "beta"},
+      {color: "blue", id: "gamma title"},
+      // {color: "yellow", id: "delta"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"},
+      // {color: "purple", id: "epsilon"}
+    ];
+
+    new d3plus.Legend()
+      .data(data)
+      .direction("column")
+      .duration(0)
+      // .opacity(1)
+      .shapeConfig({
+        fill: d => d.color,
+        labelConfig: {
+          fontSize: 12
+        },
+        r: 10,
+        height: 20,
+        width: 20
+      })
+      // .shape("Circle")
+      .select("#ltr")
+      .title("My Legend")
+      .height(100)
+      .width(400)
+      .render();
+
+    new d3plus.Legend()
+      .data(data)
+      .direction("column")
+      .duration(0)
+      // .opacity(1)
+      .shapeConfig({
+        fill: d => d.color,
+        labelConfig: {
+          fontSize: 12
+        },
+        r: 10,
+        height: 20,
+        width: 20
+      })
+      // .shape("Circle")
+      .select("#rtl")
+      .title("RTL Container")
+      .height(100)
+      .width(400)
+      .render();
+
+  </script>
+
+</body>
+
+</html>

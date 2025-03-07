@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      background-size: 10px 10px;
+      background-image: linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px);
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: "alpha", value: 300},
+    {id: "alpha", value: 150},
+    {id: "alpha", value: 150},
+    {id: "alpha", value: 150},
+    {id: "alpha", value: 150},
+    {id: "alpha", value: 20},
+    {id: "alpha", value: 180},
+    {id: "alpha", value: 40},
+    {id: "alpha", value: 170},
+    {id: "alpha", value: 125},
+    {id: "alpha", value: 74},
+    {id: "alpha", value: 80},
+    {id: "beta", value: 180},
+    {id: "beta", value: 30},
+    {id: "beta", value: 120},
+    {id: "beta", value: 50},
+    {id: "beta", value: 140},
+    {id: "beta", value: 115},
+    {id: "beta", value: 20},
+    {id: "beta", value: 30}
+  ];
+
+  var boxes = new d3plus.Box()
+    .data(data)
+    .x(d => d.id === "alpha" ? 100 : 200)
+    .y(d => d.value)
+    .whiskerMode([0.2, 0.8])
+    .on("mousemove", d => boxes.hover(h => h.id === d.id))
+    .on("mouseleave", d => boxes.hover(false))
+    .outlier(d => d.id === "alpha" ? "Circle" : "Rect")
+    .outlierConfig({
+      fill: "red"
+    })
+    .render();
+
+</script>
+
+</html>

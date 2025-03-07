@@ -1,6 +1,6 @@
 import {Axis} from "../components/index.js";
-import {assign, elem} from "../dom/index.js";
-import {Rect} from "../shape/index.js";
+import {assign, elem} from "@d3plus/dom";
+import {Rect} from "../shapes/index.js";
 import {accessor, configPrep, getProp} from "../utils/index.js";
 
 import Viz from "./Viz.js";

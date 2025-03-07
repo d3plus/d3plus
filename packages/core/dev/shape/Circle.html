@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      background: black;
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {text: "Box #1", r: 50, x: 210, y: 275,  color: "cornflowerblue"},
+    {text: "Box #2", r: 50, x: 585, y: 300, color: "firebrick"}
+  ];
+
+  var actives = [];
+
+  var circles = new d3plus.Circle()
+    .config({
+      fill: function(d) { return d.color; }
+    })
+    .id(d => d.text)
+    // .data([data[0]])
+    .data(data)
+    .label(d => d.text)
+    .backgroundImage("https://oec.world/images/icons/country/country_usa.png")
+    // .duration(0)
+    // .opacity(0.5)
+    // .backgroundImage("https://datausa.io/icons/visualizations/app_network.png")
+    .labelConfig({
+      // fontOpacity: 1
+    })
+    // .duration(0)
+    // .labelBounds(d => {
+    //   return {
+    //     x: -100,
+    //     y: 50 + 5,
+    //     width: 200,
+    //     height: 200
+    //   }
+    // })
+    // .labelConfig({
+    //   fontColor: () => "white",
+    //   padding: 0,
+    //   rotate: 90,
+    //   textAnchor: "start",
+    //   verticalAlign: "middle"
+    // })
+    // .label(function(d) { return actives.includes(d.text) ? null : false; })
+    .render();
+
+  // setTimeout(() => {
+  //   circles.data([data[1]]).render();
+  // }, 2000);
+
+  // setTimeout(function() {
+  //   actives.push("Box #2");
+  //   circles.active(d => (console.log(d), actives.includes(d.text)));
+  //   setTimeout(function() {
+  //     actives = [];
+  //     circles.active(false);
+  //   }, 2000);
+  // }, 2000);
+
+</script>
+
+</html>

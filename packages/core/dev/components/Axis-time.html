@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/d3plus-axis@1"></script> -->
+
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://d3js.org/d3-time.v2.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v3.min.js"></script>
+
+    <style>
+
+      body {
+        background-color: #fafafa;
+        margin: 0;
+        /* overflow: hidden; */
+        text-align: center;
+      }
+
+      .column {
+        display: inline-block;
+        float: left;
+        margin: 0;
+        vertical-align: top;
+      }
+
+      svg {
+        border: 1px solid green;
+        background: white;
+        display: inline-block;
+        margin: 10px;
+      }
+
+      .bounds {
+        /* border: 1px solid red; */
+        pointer-events: none;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="column" id="horizontal"></div>
+    <!-- <div class="column" id="vertical"></div> -->
+
+    <script>
+
+      var index = {horizontal: 0, vertical: 0};
+      var height = 150;
+      var width = 600;
+      var border = 1;
+
+      function makeAxis(config, vertical) {
+
+        var orient = vertical ? "vertical" : "horizontal";
+        var i = index[orient];
+        var w = orient === "horizontal" ? width : height;
+        var h = orient === "horizontal" ? height : width;
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "axis" + orient + i;
+        svg.setAttribute("width", w + "px");
+        svg.setAttribute("height", h + "px");
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        document.getElementById(orient).appendChild(svg);
+
+        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+          .select("#axis" + orient + i)
+          .width(w)
+          // .locale("ar")
+          .height(h)
+          .scale("time")
+          .config(config)
+          .render();
+
+        // var bounds = axis.outerBounds();
+        // var square = document.createElement("div");
+        // square.className = "bounds";
+        // square.id = "bounds" + i;
+        // square.style.width = bounds.width + "px";
+        // square.style.height = bounds.height + "px";
+        // square.style.left = bounds.x + (orient === "vertical" ? width : 0) + "px";
+        // square.style.top = bounds.y + (i * h) + (i * border * 2) + "px";
+        // document.body.appendChild(square);
+        // // console.log(index, bounds);
+        // console.log("\n");
+        index[orient]++;
+
+      }
+
+      function getExtent(extent, res) {
+        const [start, end] = extent;
+        let curr = start;
+        const ret = [];
+        while (curr <= end) {
+          ret.push(curr);
+          curr = new Date(curr);
+          curr[`set${res}`](curr[`get${res}`]() + 1);
+        }
+        return ret;
+      }
+
+      const yearlyExtent = [new Date("01/01/1994"), new Date("01/01/2020")];
+      const yearlyData = getExtent(yearlyExtent, "FullYear");
+
+      makeAxis({title: "Yearly", domain: yearlyExtent});
+      makeAxis({title: "Yearly", data: yearlyData, domain: yearlyExtent});
+      // makeAxis({title: "Yearly", data: yearlyData.slice(10, 14), domain: [yearlyData[10], yearlyData[13]]});
+
+      const monthlyExtent = [new Date("01/01/1993"), new Date("12/01/2023")];
+      const monthlyData = getExtent(monthlyExtent, "Month");
+
+      makeAxis({title: "Monthly", domain: monthlyExtent});
+      makeAxis({title: "Monthly", domain: monthlyExtent, data: monthlyData});
+      // makeAxis({title: "Monthly", data: monthlyData.slice(10, 14), domain: [monthlyData[10], monthlyData[13]]});
+
+      const dailyExtent = [new Date("02/01/2020"), new Date("05/21/2021")];
+      const dailyData = getExtent(dailyExtent, "Date");
+
+      makeAxis({title: "Daily", domain: dailyExtent});
+      makeAxis({title: "Daily", data: dailyData, domain: dailyExtent});
+      // makeAxis({title: "Daily", data: dailyData.slice(0, 16), domain: [dailyData[0], dailyData[15]]});
+      // makeAxis({title: "Daily", data: dailyData.slice(18, 57), domain: [dailyData[18], dailyData[56]]});
+
+    </script>
+
+  </body>
+
+</html>

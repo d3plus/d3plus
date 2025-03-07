@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 20px;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <svg>
+    <g id="test-rects"></g>
+    <g id="test-circles"></g>
+  </svg>
+
+</body>
+
+<script>
+
+  const width = 100;
+
+  var rect = new d3plus.Rect()
+    .on("mouseenter", function(d) {
+      rect.hover(x => x === d);
+      circle.hover(x => x === d);
+    })
+    .on("mouseleave", function(d) {
+      setTimeout(() => {
+        if (rect.hover()(d)) rect.hover(false);
+        if (circle.hover()(d)) circle.hover(false);
+      }, 100);
+    })
+    .config({
+      data: [{id: 1}],
+      x: d => d.id * width,
+      y: width,
+      width: width,
+      height: width,
+      select: "#test-rects"
+    })
+    .render();
+
+var circle = new d3plus.Circle()
+  .on("mouseenter", function(d) {
+    rect.hover(x => x === d);
+    circle.hover(x => x === d);
+  })
+  .on("mouseleave", function(d) {
+    setTimeout(() => {
+      if (rect.hover()(d)) rect.hover(false);
+      if (circle.hover()(d)) circle.hover(false);
+    }, 100);
+  })
+  .config({
+    data: [{id: 2}, {id: 3}],
+    x: d => d.id * width,
+    y: width,
+    r: width / 2,
+      select: "#test-rects"
+  })
+  .render();
+
+</script>
+
+</html>

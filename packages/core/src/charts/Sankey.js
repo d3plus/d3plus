@@ -15,11 +15,11 @@ const sankeyAligns = {
   right: sankeyRight
 };
 
-import {addToQueue} from "../data/index.js";
-import {assign, elem} from "../dom/index.js";
+import {addToQueue} from "@d3plus/data";
+import {assign, elem} from "@d3plus/dom";
 import {accessor, configPrep, constant} from "../utils/index.js";
-import {Path} from "../shape/index.js";
-import * as shapes from "../shape/index.js";
+import {Path} from "../shapes/index.js";
+import * as shapes from "../shapes/index.js";
 import Viz from "./Viz";
 
 /**

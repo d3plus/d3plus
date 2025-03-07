@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+  <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+  <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+  <script src="https://d3js.org/d3-request.v1.min.js"></script>
+  <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+
+  <style>
+
+    .buffer {
+      background-color: #eee;
+      height: 50px;
+      width: 100%;
+    }
+
+    .sparklines {
+      display: flex;
+    }
+
+    .sparklines > div {
+      flex: 1;
+      height: 150px;
+    }
+
+    svg {
+      border: 1px solid red;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="sparklines" id="new"></div>
+  <div class="buffer"></div>
+  <div class="sparklines" id="old"></div>
+
+</body>
+
+<script>
+
+  const states = ["04000US25", "04000US26", "04000US27", "04000US28"];
+  // const states = ["04000US25"];
+
+  states.forEach((state, i) => {
+
+    const div = document.createElement("div");
+    div.id = `new-${i}`;
+    document.getElementById("new").appendChild(div);
+
+
+    const div2 = document.createElement("div");
+    div2.id = `old-${i}`;
+    document.getElementById("old").appendChild(div2);
+  });
+
+  // states.forEach((state, i) => {
+  //   new d3plus.LinePlot()
+  //     .data(`https://datausa.io/api/data?State=${state}&measures=Opioid%20Overdose%20Death%20Rate%20Per%20100,000%20Age-Adjusted&year=all`, resp => resp.data)
+  //     .config({
+  //       groupBy: "State",
+  //       select: `#sparkline-${i}`,
+  //       x: "ID Year",
+  //       y: "Opioid Overdose Death Rate Per 100,000 Age-Adjusted"
+  //     })
+  //     .render();
+  // });
+
+  const q = d3.queue();
+  states.forEach((state, i) => {
+    q.defer(d3.json, `https://datausa.io/api/data?State=${state}&measures=Opioid%20Overdose%20Death%20Rate%20Per%20100,000%20Age-Adjusted&year=all`);
+  });
+
+  const config = {
+    groupBy: "State",
+    // time: "ID Year",
+    // discrete: "y",
+    x: "ID Year",
+    y: "Opioid Overdose Death Rate Per 100,000 Age-Adjusted"
+  };
+
+  q.awaitAll((err, results) => {
+    results.slice(1, 2).forEach((resp, i) => {
+
+      // console.time(`#new-${i}`);
+      new d3plus.LinePlot()
+        .data(resp.data)
+        .config(config)
+        .select(`#new-${i}`)
+        .duration(1000)
+        // .yCutoff(0)
+        .xCutoff(100000)
+        // .discreteCutoff(0)
+        .render(() => {
+          // console.timeEnd(`#new-${i}`);
+        });
+
+      // console.time(`#old-${i}`);
+      // new d3plus.LinePlot()
+      //   .data(resp.data)
+      //   .config(config)
+      //   .select(`#old-${i}`)
+      //   .yCutoff(0)
+      //   .render(() => {
+      //     // console.timeEnd(`#old-${i}`);
+      //   });
+
+    });
+  });
+
+</script>
+
+</html>

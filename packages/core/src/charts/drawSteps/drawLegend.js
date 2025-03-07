@@ -1,6 +1,6 @@
 import {rollup} from "d3-array";
-import {merge} from "../../data/index.js";
-import {elem} from "../../dom/index.js";
+import {merge} from "@d3plus/data";
+import {elem} from "@d3plus/dom";
 import {configPrep} from "../../utils/index.js";
 
 const legendAttrs = ["fill", "opacity", "texture"];

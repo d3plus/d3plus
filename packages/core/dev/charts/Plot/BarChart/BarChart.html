@@ -1,0 +1,186 @@
+
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <!-- <script src="../../build/d3plus-core.full.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/d3plus-plot@1"></script>
+
+</head>
+
+<body>
+  <div class="viz" id="viz1"></div>
+</body>
+
+<script>
+
+//   const config2 = {
+//     "data": [
+//       {
+//         "Age Group": "35 - 39",
+//         "Gender": "Male",
+//         "Population": -0.07523423523
+//       },
+//       // {
+//       //   "Age Group": "35 - 39",
+//       //   "Gender": "Female",
+//       //   "Population": -48788
+//       // },
+//       // {
+//       //   "Age Group": "25 - 29",
+//       //   "Gender": "Male",
+//       //   "Population": 63930
+//       // },
+//       // {
+//       //   "Age Group": "25 - 29",
+//       //   "Gender": "Female",
+//       //   "Population": 83930
+//       // }
+//     ],
+//     "groupBy": d => `${d["Age Group"]} ${d.Gender}`,
+//     select: "#viz1",
+//     tooltipConfig: {
+//       tbody: [["Population", d => d.Population]]
+//     },
+//     height: 250,
+//     stacked: true,
+//     "y": d => `${d["Age Group"]} ${d.Gender}`,
+//     // yConfig: {
+//     //   shapeConfig: {
+//     //     labelConfig: {
+//     //       fontSize: () => 30
+//     //     }
+//     //   }
+//     // },
+//     discrete: "y",
+//     // x: d => `${d["Age Group"]} ${d.Gender} and Some Other Text`,
+//     "x": "Population",
+//     width: 400
+//   };
+
+//   const config = {
+//     x: "Value Growth",
+//     y: "Crime Type",
+//     discrete: "y",
+//     groupBy: "Crime Type",
+//     data: [
+//   {
+//     "Affected Legal Good ID": 6,
+//     "Affected Legal Good": "Libertad Personal",
+//     "Crime Type ID": 603,
+//     "Crime Type": "Tráfico de Menores",
+//     "Year": 2018,
+//     "Value": 40,
+//     "Value Growth": -0.7727272727272727,
+//     "Value Growth Value": -136
+//   },
+//   {
+//     "Affected Legal Good ID": 3,
+//     "Affected Legal Good": "La Libertad y la Seguridad Sexual",
+//     "Crime Type ID": 304,
+//     "Crime Type": "Incesto",
+//     "Year": 2018,
+//     "Value": 10,
+//     "Value Growth": -0.71428571,
+//     "Value Growth Value": -25
+//   },
+//   {
+//     "Affected Legal Good ID": 6,
+//     "Affected Legal Good": "Libertad Personal",
+//     "Crime Type ID": 601,
+//     "Crime Type": "Rapto",
+//     "Year": 2018,
+//     "Value": 119,
+//     "Value Growth": -0.4166666666666667,
+//     "Value Growth Value": -85
+//   },
+//   {
+//     "Affected Legal Good ID": 2,
+//     "Affected Legal Good": "La Familia",
+//     "Crime Type ID": 204,
+//     "Crime Type": "Otros Delitos contra la Familia",
+//     "Year": 2018,
+//     "Value": 10181,
+//     "Value Growth": -0.09694873159481994,
+//     "Value Growth Value": -1093
+//   },
+//   {
+//     "Affected Legal Good ID": 2,
+//     "Affected Legal Good": "La Familia",
+//     "Crime Type ID": 201,
+//     "Crime Type": "Incumplimiento de Obligaciones de Asistencia Familiar",
+//     "Year": 2018,
+//     "Value": 21545,
+//     "Value Growth": -0.08201959948870899,
+//     "Value Growth Value": -1925
+//   }
+// ],xConfig: {
+//     domain: [0, -1]
+//   }};
+
+// var data2 = [
+//   {"cluster_id":5,"cluster_name":"Educated and emigrating areas","property":"Net job growth","value":"-0.0584","color":"#fd9e86"},
+//   {"cluster_id":14,"cluster_name":"Average EU Cluster","property":"Net job growth","value":"0.0121","color":"#ccc"},
+//   {"cluster_id":5,"cluster_name":"Educated and emigrating areas","property":"Employment rate","value":"0.0553","color":"#fd9e86"},
+//   {"cluster_id":14,"cluster_name":"Average EU Cluster","property":"Employment rate","value":"0.0684","color":"#ccc"},
+//   {"cluster_id":5,"cluster_name":"Educated and emigrating areas","property":"Working age change","value":"-0.1056","color":"#fd9e86"},
+//   {"cluster_id":14,"cluster_name":"Average EU Cluster","property":"Working age change","value":"-0.0519","color":"#ccc"}
+// ];
+
+// new d3plus.BarChart()
+//     .data(data2)
+//     .groupBy("cluster_name")
+//    	.height(400)
+//     .x("property")
+//     .y(d => parseFloat(d.value, 10))
+//     .legend(false)
+//     .render();
+
+var fruits = [
+  {year: 2009, parent: "fruits", group: "Apples", value: 10},
+  {year: 2009, parent: "fruits", group: "Bananas", value: 24},
+  {year: 2009, parent: "fruits", group: "Some fruit with a really long name", value: 11.2},
+  {year: 2009, parent: "fruits", group: "Oranges", value: 6},
+  {year: 2010, parent: "fruits", group: "Apples", value: 10},
+  {year: 2010, parent: "fruits", group: "Bananas", value: 24},
+  {year: 2010, parent: "fruits", group: "Some fruit with a really long name", value: 11.2},
+  {year: 2010, parent: "fruits", group: "Oranges", value: 6},
+  {year: 2011, parent: "fruits", group: "Apples", value: 10},
+  {year: 2011, parent: "fruits", group: "Bananas", value: 3},
+  {year: 2011, parent: "fruits", group: "Some fruit with a really long name", value: 11.2},
+  {year: 2011, parent: "fruits", group: "Oranges", value: 6}
+];
+
+new d3plus.BarChart()
+  .config({
+    // axisPersist: false,
+    data: fruits,
+    groupBy: ["group"],
+    // label: d => d.parent,
+    y: "group",
+    x: d => d.value,
+    ySort: (a, b) => {
+      // console.log(a, b);
+      return b.value - a.value;
+    },
+    // legendPosition: "bottom",
+    discrete: "y",
+    time: "year",
+    // shapeConfig: {
+    //   // label: () => "",
+    //   Bar: {
+    //     // label: false,
+    //     labelConfig: {
+    //       padding: "0x 5x",
+    //       fontSize: () => 12
+    //     }
+    //   }
+    // }
+  })
+  .render();
+
+</script>
+
+</html>

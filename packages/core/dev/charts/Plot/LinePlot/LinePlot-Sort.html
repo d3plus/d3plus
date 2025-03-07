@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var data = [
+    {id: "alpha long label", x: 4, y:  9},
+    {id: "alpha long label", x: 5, y: 17},
+    {id: "alpha long label", x: 5.5, y: 15},
+    {id: "beta",  x: 4, y: 17},
+    {id: "beta",  x: 5, y:  8},
+    {id: "beta",  x: 6, y: 13},
+    {id: "gamma",  x: 4, y: 14},
+    {id: "gamma",  x: 5, y:  9},
+    {id: "gamma",  x: 6, y: 11}
+  ];
+
+  var chart = new d3plus.LinePlot()
+    .data(data)
+    .groupBy("id")
+    .lineLabels(true)
+    .shapeConfig({
+      Line: {
+        labelConfig: {
+          padding: 10,
+          fontStroke: "white",
+          fontStrokeWidth: 0.5,
+          fontWeight: 800
+        },
+        strokeLinecap: "round",
+        strokeWidth: 10
+      },
+      sort: function(a, b) {
+        if (a.id === "beta") return -1;
+        else return 1;
+      }
+    })
+    .render();
+
+  // setTimeout(() => {
+  //   chart
+  //     .shapeConfig({
+  //       sort: function(a, b) {
+  //         if (a.id === "beta") return 1;
+  //         else return -1;
+  //       }
+  //     })
+  //     .render();
+  // }, 2000);
+
+</script>
+
+</html>

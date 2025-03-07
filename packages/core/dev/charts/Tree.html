@@ -1,0 +1,20 @@
+<script src="../../build/d3plus-core.full.js"></script>
+<body>
+
+</body>
+<script>
+  new d3plus.Tree()
+    .config({
+      data: [
+       {parent: "Group 1", id: "lets", id2: "1", id3: "5", value: 29},
+       {parent: "Group 1", id: "make a", id2: "2", id3: "4", value: 10},
+       {parent: "Group 1", id: "functional", id2: "3", id3: "3", value: 2},
+       {parent: "Group 2", id: "tree", id2: "4", id3: "2", value: 29},
+       {parent: "Group 2", id: "example", id2: "5", id3: "1", value: 25}
+      ],
+      groupBy: ["parent", "id"],
+      orient: "horizontal"
+    })
+  .render()
+
+</script>

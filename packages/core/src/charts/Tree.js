@@ -2,10 +2,10 @@ import {extent, min, max} from "d3-array";
 import {hierarchy, tree} from "d3-hierarchy";
 import {scaleLinear} from "d3-scale";
 
-import {assign, elem} from "../dom/index.js";
-import {merge, nest} from "../data/index.js";
+import {assign, elem} from "@d3plus/dom";
+import {merge, nest} from "@d3plus/data";
 import {configPrep, constant} from "../utils/index.js";
-import {Circle, Path} from "../shape/index.js";
+import {Circle, Path} from "../shapes/index.js";
 
 import Viz from "./Viz.js";
 

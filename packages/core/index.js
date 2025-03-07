@@ -7,7 +7,6 @@ export {
   Geomap,
   LinePlot,
   Matrix,
-  Message,
   Network,
   Pack,
   Pie,
@@ -24,16 +23,6 @@ export {
 } from "./src/charts/index.js";
 
 export {
-  colorAdd,
-  colorAssign,
-  colorContrast,
-  colorDefaults,
-  colorLegible,
-  colorLighter,
-  colorSubtract
-} from "./src/color/index.js";
-
-export {
   Axis,
   AxisBottom,
   AxisLeft,
@@ -41,63 +30,11 @@ export {
   AxisTop,
   ColorScale,
   Legend,
+  Message,
+  TextBox,
   Timeline,
   Tooltip
 } from "./src/components/index.js";
-
-export {
-  addToQueue,
-  concat as dataConcat,
-  fold as dataFold,
-  load as dataLoad,
-  isData,
-  merge
-} from "./src/data/index.js";
-
-export {
-  assign,
-  attrize,
-  date,
-  elem,
-  fontExists,
-  isObject,
-  parseSides,
-  prefix,
-  rtl,
-  stylize,
-  textWidth
-} from "./src/dom/index.js";
-
-export {
-  format,
-  formatAbbreviate,
-  formatDate,
-  formatDefaultLocale
-} from "./src/format/index.js";
-
-export {
-  findLocale,
-  formatLocale,
-  locale
-} from "./src/locales/index.js";
-
-export {
-  ckmeans,
-  closest,
-  largestRect,
-  lineIntersection,
-  path2polygon,
-  pointDistance,
-  pointDistanceSquared,
-  pointRotate,
-  polygonInside,
-  polygonRayCast,
-  polygonRotate,
-  segmentBoxContains,
-  segmentsIntersect,
-  shapeEdgePoint,
-  simplify
-} from "./src/math/index.js";
 
 export {
   Area,
@@ -110,19 +47,7 @@ export {
   Rect,
   Shape,
   Whisker
-} from "./src/shape/index.js";
-
-export {
-  stringify,
-  strip,
-  TextBox,
-  textSplit,
-  textWrap,
-  titleCase,
-  trim,
-  trimLeft,
-  trimRight
-} from "./src/text/index.js";
+} from "./src/shapes/index.js";
 
 export {
   accessor,
@@ -130,6 +55,5 @@ export {
   configPrep,
   constant,
   RESET,
-  unique,
   uuid
 } from "./src/utils/index.js";

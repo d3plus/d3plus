@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  // console.log(d3plus.date(1234));
+  // console.log(d3plus.date("Q2 1987").getTime(), d3plus.date("06/30/1987").getTime());
+  // console.log(d3plus.date("Q1 2020"));
+  // console.log(d3plus.date("Q12020"));
+  // console.log(d3plus.date("q12020"));
+  // console.log(d3plus.date("2020 Q1"));
+  // console.log(d3plus.date("2020q1"));
+
+  const dataset = [
+    "Q4 2019", 
+    "Q1 2020",
+    "Q2 2020",
+    "Q3 2020",
+    "Q4 2020",
+    "Q1 2021",
+    "Q2 2021",
+    "Q3 2021",
+    "Q4 2021",
+    "Q1 2022",
+    "Q2 2022",
+    "Q3 2022",
+    "Q4 2022",
+    "Q1 2023",
+    "Q2 2023",
+    "Q3 2023",
+    "Q4 2023",
+    "Q1 2024",
+    "Q2 2024",
+    "Q3 2024",
+    "Q4 2024",
+    "Q1 2025",
+    "Q2 2025",
+    "Q3 2025",
+    "Q4 2025",
+    "Q1 2026",
+    "Q2 2026",
+    "Q3 2026",
+    "Q4 2026",
+    "Q1 2027",
+    "Q2 2027",
+    "Q3 2027",
+    "Q4 2027",
+    "Q1 2028",
+    "Q2 2028",
+  ].map(d3plus.date);
+  // console.log(dataset);
+
+  const bottom = new d3plus.AxisBottom()
+    .domain([dataset[0], dataset[dataset.length - 1]])
+    .data(dataset)
+    .locale("ar-SA")
+    .width(500)
+    .height(200)
+    .scale("time")
+    .render();
+
+</script>
+
+</html>

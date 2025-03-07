@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-math.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+    const poly = [[40, 0], [80, 40], [40, 80], [0, 40], [40, 0]];
+
+    const rect = d3plus.largestRect(poly, {angle: 0});
+    const expected = [[21, 21], [59, 21], [59, 59], [21, 59], [21, 21]];
+    console.log(rect);
+    console.log(expected);
+    // assert.strictEqual(JSON.stringify(expected), JSON.stringify(rect.points.map(d => d.map(Math.round))), "angle option");
+
+</script>
+
+</html>

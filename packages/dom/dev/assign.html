@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-dom.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+
+  var clone = d3plus.assign(
+    {},
+    {colorScaleConfig: {color: ["red", "blue"]}},
+    {colorScaleConfig: {tickFormat: d => d * 100}, thing: window, other: document}
+  );
+  console.log(clone);
+
+  var w = d3plus.assign({}, window);
+  console.log(w);
+
+  var d = d3plus.assign({}, document);
+  console.log(d);
+
+</script>
+
+</html>

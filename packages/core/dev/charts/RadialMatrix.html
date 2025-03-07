@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+<script>
+
+  new d3plus.RadialMatrix()
+    .config({
+      colorScale: "Trade Value",
+      colorScaleConfig: {
+        legendConfig: {
+          title: "Trade Value"
+        },
+        scale: "jenks"
+      },
+      colorScalePosition: "right",
+      columnConfig: {
+        labels: ["Africa"]
+      },
+      column: "Importer Continent",
+      data: "https://api.oec.world/tesseract/data.jsonrecords?cube=trade_i_baci_a_17&drilldowns=Year,Exporter+Continent,Importer+Continent&measures=Trade+Value&Year=2018",
+      groupBy: ["Exporter Continent", "Importer Continent"],
+      row: "Exporter Continent",
+      title: "Continent to Continent Product Trade",
+      titleConfig: {
+        fontSize: 20
+      },
+      tooltipConfig: {
+        tbody: [
+          ["Trade Value", function(d) { return Math.round(d["Trade Value"]) }]
+        ]
+      }
+    })
+    .render();
+
+</script>
+
+</body>
+
+</html>

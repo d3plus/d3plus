@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v1.0.full.min.js"></script> -->
+
+  <style>
+
+    body {
+      margin: 5px;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var data = [
+    // {parent: "Group 1", id: "alpha", x: 4, y:  7},
+    // {parent: "Group 1", id: "alpha", x: 5, y: 25},
+    {parent: "Group 1", id: "gamma",  x: 4, y: 17},
+    {parent: "Group 1", id: "gamma",  x: 5, y:  8},
+    {parent: "Group 1", id: "gamma",  x: 6, y: 13},
+    {parent: "Group 2", id: "delta",  x: 4, y: 17},
+    {parent: "Group 2", id: "delta",  x: 5, y:  0},
+    {parent: "Group 2", id: "delta",  x: 6, y: 13},
+    // {parent: "Group 1", id: "alpha", x: 6, y: 13},
+    // {parent: "Group 2", id: "beta",  x: 4, y: 6},
+    // {parent: "Group 2", id: "beta",  x: 5, y:  0},
+    // {parent: "Group 2", id: "beta",  x: 6, y: 2}
+  ];
+
+  // data.forEach(d => {
+  //   d.y *= -1;
+  // });
+
+  new d3plus.StackedArea()
+    .axisPersist(true)
+    .data(data)
+    .groupBy(["parent", "id"])
+    // .stackOffset("expand")
+    .depth(1)
+    .yConfig({scale: "auto"})
+    .width(400)
+    .time(d => `01/01/200${d.x}`)
+    .x(d => `01/01/200${d.x}`)
+    .render();
+
+</script>
+
+</html>

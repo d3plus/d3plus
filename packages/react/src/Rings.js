@@ -1,5 +1,5 @@
 import React from "react";
-import {Rings as type} from "d3plus-network";
+import {Rings as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

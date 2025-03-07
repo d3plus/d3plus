@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+  <style>
+
+    body {
+      height: 200vh;
+      margin: 100px;
+      width: 200%;
+    }
+
+    /* .d3plus-tooltip {
+      display: block;
+    }
+
+    .d3plus-tooltip:after {
+      background-color: red;
+      display: block;
+      height: 100px;
+      left: 50%;
+      position: absolute;
+      top: 0;
+      width: 1px;
+    }
+
+    .tooltip-table {
+      width: 100%;
+    }
+
+    .tooltip-table .data {
+      text-align: right;
+    }
+
+    .tooltip-footer {
+      opacity: 0.5;
+    } */
+
+    #hitBox {
+      background-color: red;
+      height: 100px;
+      position: absolute;
+      top: 370px;
+      left: 450px;
+      width: 100px;
+    }
+
+    #hitBox2 {
+      background-color: blue;
+      height: 100px;
+      position: absolute;
+      top: 370px;
+      left: 560px;
+      width: 100px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+<div id="hitBox"></div>
+<div id="hitBox2"></div>
+</body>
+
+<script>
+
+  var data = [
+    {"title": "D3plus Tooltip", "body": "Check out this cool table:", "position": "mouse", "label": "Position"},
+    {"title": "D3plus Tooltip #2", "body": "Check out this cool table:", "x": 200, "y": 220, "label": "Position"},
+    {"title": "D3plus Tooltip #3", "body": "Check out this cool table:", "position": "hitBox", "label": "Position"}
+  ];
+
+  var tips = new d3plus.Tooltip()
+    .data(data)
+    .thead(["Axis", d => d.label])
+    .tbody([
+      ["x", d => d.x],
+      ["y", d => d.y]
+    ])
+    .position(d => {
+      if (d.position === "mouse") return [0, 0];
+      else if (d.position) return document.getElementById(d.position)
+      else return [d.x, d.y];
+    })
+    .render();
+
+  // window.addEventListener("mousemove", e => {
+  //   tips
+  //     .position(d => {
+  //       if (d.position === "mouse") return [e.clientX, e.clientY];
+  //       else if (d.position) return document.getElementById(d.position)
+  //       else return [d.x, d.y];
+  //     })
+  //     .render();
+  // });
+
+  // window.addEventListener("click", e => {
+  //   tips
+  //     .data([])
+  //     .render();
+  // });
+
+  // var tips = new d3plus.Tooltip()
+  //   .data(data)
+  //   .thead(["Axis", d => d.label])
+  //   .tbody([
+  //     ["x", d => d.x],
+  //     ["y", d => d.y]
+  //   ])
+  //   .render();
+
+  // setTimeout(() => {
+  //   tips
+  //     .data([data[0]])
+  //     .position(d => [d.x + 50, d.y + 50])
+  //     .render();
+  // }, 2000);
+
+  // var tooltipData = [{"title": "D3plus Tooltip #3", "body": "Check out this cool table:", "position": "hitBox", "label": "Position"}];
+  // var tooltip = new d3plus.Tooltip()
+  //   .config({
+  //     duration: 50,
+  //     pointerEvents: "none"
+  //   })
+  //   .body(false)
+  //   .footer("Click to Expand")
+  //   // .tdStyle({
+  //   //   color: "red"
+  //   // })
+  //   .thead(["Axis", d => d.label])
+  //   .tbody([
+  //     ["x", d => d.x],
+  //     ["y", d => d.y]
+  //   ]);
+
+  // document.getElementById("hitBox")
+  //   .addEventListener("mousemove", e => {
+  //     tooltip
+  //       .data(tooltipData)
+  //       .position([e.clientX, e.clientY])
+  //       .render();
+  //   });
+
+  // document.getElementById("hitBox")
+  //   .addEventListener("mouseleave", e => {
+  //     tooltip.data([]).render();
+  //   });
+
+  // var tooltip2 = new d3plus.Tooltip()
+  //   .config({
+  //     duration: 0,
+  //     pointerEvents: "none"
+  //   })
+  //   .footer("Click to Expand")
+  //   .thead(["Axis", d => d.label])
+  //   .tbody([
+  //     ["x", d => d.x],
+  //     ["y", d => d.y]
+  //   ]);
+
+  // document.getElementById("hitBox2")
+  //   .addEventListener("mousemove", e => {
+  //     tooltip2
+  //       .data([Object.assign({}, tooltipData[0], {title: "Number 3!"})])
+  //       .position([e.clientX, e.clientY])
+  //       .render();
+  //   });
+
+  // document.getElementById("hitBox2")
+  //   .addEventListener("mouseleave", e => {
+  //     tooltip2.data([]).render();
+  //   });
+
+</script>
+
+</html>

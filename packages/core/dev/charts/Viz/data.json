@@ -1,0 +1,47 @@
+[
+    {
+        "year": 2010,
+        "year2": 2009,
+        "color": "blue",
+        "parent": "Parent 1",
+        "id": "alpha",
+        "value": 20,
+        "value2": 40
+    },
+    {
+        "year": 2010,
+        "year2": 2010,
+        "color": "blue",
+        "parent": "Parent 2",
+        "id": "beta",
+        "value": 10,
+        "value2": 5
+    },
+    {
+        "year": 2011,
+        "year2": 2011,
+        "color": "red",
+        "parent": "Parent 2",
+        "id": "gamma",
+        "value": 40,
+        "value2": 45
+    },
+    {
+        "year": 2011,
+        "year2": 2012,
+        "color": "red",
+        "parent": "Parent 2",
+        "id": "beta",
+        "value": 20,
+        "value2": 15
+    },
+    {
+        "year": 2011,
+        "year2": 2013,
+        "color": "red",
+        "parent": "Parent 2",
+        "id": "delta",
+        "value": 30,
+        "value2": 5
+    }
+]

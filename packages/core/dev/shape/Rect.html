@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 20px;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: 1, text: "Box #1", width: 200, height: 150, x: 105, y: 80,  color: "cornflowerblue"},
+    {id: 2, text: "Box #2", width: 150, height: 100, x: 285, y: 100, color: "firebrick"}
+  ];
+
+  const bigData = [];
+  for (var i = 1; i < 10; i++) {
+    bigData.push({id: i + "", value: 10});
+  }
+  const testWidth = 50;
+  console.time("timer")
+  var rect = new d3plus.Rect()
+    // .config({
+    //   fill: function(d) { return d.color; }
+    // })
+    .backgroundImage("https://oec.world/images/icons/country/country_usa.png")
+    // .data(data)
+    // .label(function(d) { return d.text; })
+    // .ariaLabel(d => d.text)
+    // .role("img")
+    .data(bigData)
+    .on("mouseenter", function(d) {
+      rect.hover(x => x === d);
+    })
+    .on("mouseleave", function(d) {
+      setTimeout(() => {
+        if (rect.hover()(d)) rect.hover(false);
+      }, 100);
+    })
+    .config({
+      x: (d, i) => i * testWidth,
+      y: 100,
+      width: testWidth,
+      height: 200
+    })
+    // .on("click", function(d) {
+    //   rect.active(x => x === d);
+    // })
+    // .duration(0)
+    .render(() => console.timeEnd("timer"));
+
+  // setTimeout(() => {
+  //   rect.data(bigData.slice(50, 150)).render();
+  // }, 2000);
+
+  // setTimeout(() => {
+  //   rect.config({fill: "D3PLUS-COMMON-RESET"}).backgroundImage(false).render();
+  // }, 2000);
+
+</script>
+
+</html>

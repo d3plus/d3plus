@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v0.8.full.js"></script> -->
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  // // var data = [
+  // //   {id: "alpha", x: 2017, y:  0},
+  // //   {id: "alpha", x: 2018, y: 25},
+  // //   {id: "alpha", x: 2019, y: 13}
+  // // ];
+
+  // var domain = [];
+
+  // function createData() {
+  //   var data = [];
+  //   domain = [];
+  //   for (let i = 2009; i < 2020; i++) {
+  //     domain.push(i);
+  //     if (i !== 2012) data.push({id: "alpha", x: i, y: Math.random() * 100});
+  //     data.push({id: "beta", x: i, y: Math.random() * 100});
+  //   }
+  //   return data;
+  // }
+
+  // console.time("timer");
+  // var linePlot = new d3plus.LinePlot()
+  //   .data(createData())
+  //   //.groupBy("id")
+  //   // .time("x")
+  //   // .discrete("x")
+  //   // .yConfig({scale: "log"})
+  //   .lineLabels(true)
+  //   .lineMarkers(true)
+  //   .shapeConfig({
+  //     Line: {
+  //       labelConfig: {
+  //         // fontColor: "black",
+  //         fontFamily: "Comic Sans MS",
+  //         // fontSize: 50,
+  //         // padding: 5
+  //       }
+  //     }
+  //   })
+  //   // .xConfig({domain})
+  //   .discrete("x")
+  //   .render(() => console.timeEnd("timer"));
+
+  //   // setTimeout(() => {
+  //   //   linePlot.data(createData()).render();
+  //   // }, 3000);
+
+  var myData = [
+    {fruit: "apple",  price: 5,  value: 0.5},
+    {fruit: "banana", price: 4,  value: 1},
+    {fruit: "cherry", price: 7,  value: 0.75},
+    {fruit: "apple",  price: 7,  value: 0.65},
+    {fruit: "banana", price: 9,  value: 1.1},
+    {fruit: "cherry", price: 9,  value: 0.55},
+    {fruit: "apple",  price: 10, value: 0.77},
+    {fruit: "banana", price: 15,  value: 0.99},
+    {fruit: "cherry", price: 5,  value: 1.5},
+    {fruit: "apple",  price: 6,  value: 1.7},
+    {fruit: "banana", price: 10, value: 2.32},
+    {fruit: "cherry", price: 10, value: 1.2},
+    {fruit: "apple",  price: 8,  value: 9.1},
+    {fruit: "banana", price: 15, value: 0},
+    {fruit: "cherry", price: 12, value: 0.1}
+  ];
+
+  var viz = new d3plus.Plot()
+    .config({
+      data: myData,
+      groupBy: "fruit",
+      discrete: "x",
+      lineMarkers: true,
+      lineLabels: true,
+      tooltipConfig: {
+        tbody: [
+          ["X", d => d.value],
+          ["Y", d => d.price]
+        ]
+      },
+      shape: d => d.fruit === "cherry" ? "Bar" : "Line",
+      // xConfig: {
+      // 	scale: "log"
+      // },
+      // yConfig: {
+      // 	scale: "log"
+      // },
+      x: "value",
+      y: "price"
+      // yDomain: [1, 100]
+    })
+    .render();
+
+  // setTimeout(() => {
+  //   // viz.config({yDomain: false}).render();
+  //   viz.config({data: myData.filter(d => d.fruit === "cherry")}).render();
+  // }, 2000);
+
+</script>
+
+</html>

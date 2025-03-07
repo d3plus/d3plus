@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/d3plus-timeline@1"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    svg {
+      border: 1px solid red;
+      display: block;
+      margin: 20px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  new d3plus.Timeline()
+    // .brushMin(() => 2)
+    .buttonBehavior("buttons")
+    .buttonAlign("middle")
+    .domain([2012, 2015])
+    .ticks([2012, 2013, 2014, 2015])
+    .data([2012, 2013, 2014, 2015])
+    // .selection([2014])
+    .brushing(false)
+    // .playButton(true)
+    // .title("Yearly (Single)")
+    .render();
+
+  const control = new d3plus.Timeline()
+    // .brushMin(() => 2)
+    .buttonBehavior("buttons")
+    .domain([2012, 2015])
+    .ticks([2012, 2013, 2014, 2015])
+    .data([2012, 2013, 2014, 2015])
+    // .selection([2014, 2015])
+    // .playButton(false)
+    // .playButton(true)
+    // .title("Yearly (Range)")
+    // .width(300)
+    .render();
+
+  // setTimeout(() => {
+  //   control
+  //     .buttonBehavior("ticks")
+  //     .domain(["2001Q1", "2002Q1"])
+  //     .ticks(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+  //     .data(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+  //     .render();
+  // }, 2000);
+
+  // function toDate(d) {
+  //   const date = new Date(`${d}/01/01`);
+  //   date.setFullYear(d);
+  //   return date;
+  // }
+
+  // const first = new d3plus.Timeline()
+  //   .domain([2001, 2004])
+  //   // .domain([2010, 2013].map(toDate))
+  //   // .buttonBehavior("buttons")
+  //   // .align("end")
+  //   // .buttonAlign("end")
+  //   // .height(400)
+  //   // .width(900)
+  //   .ticks([2001, 2002, 2003, 2004])
+  //   // .ticks([2010, 2011, 2013].map(toDate))
+  //   // .selection(toDate(2011))
+  //   // .width(800)
+  //   // .brushing(false)
+  //   // .buttonPadding(5)
+  //   // .buttonHeight(20)
+  //   // .select(document.getElementById("tester"))
+  //   .render();
+
+  // const years = [2013, 2014, 2015, 2016, 2017].map(d => new Date("01/01/" + d));
+
+  // new d3plus.Timeline()
+  //   .domain([years[0], years[years.length - 1]])
+  //   .buttonBehavior("auto")
+  //   .select("#tester")
+  //   .ticks(years)
+  //   .brushing(false)
+  //   .width(800)
+  //   .render();
+
+  new d3plus.Timeline()
+    .domain(["2001Q1", "2002Q1"])
+    .ticks(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+    .data(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+    .brushing(false)
+    // .title("Quarterly (Single)")
+    .render();
+
+  new d3plus.Timeline()
+    .domain(["2001Q1", "2002Q1"])
+    .ticks(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+    .data(["2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4"])
+    .selection(["2003Q2", "2003Q4"])
+    // .title("Quarterly (Range)")
+    .render();
+
+  // new d3plus.Timeline()
+  //   .buttonBehavior("auto")
+  //   .domain([2001, 2004])
+  //   .ticks([2001, 2003, 2004])
+  //   .width(800)
+  //   .render();
+
+  // new d3plus.Timeline()
+  //   .domain([2001, 2020])
+  //   // .brushing(false)
+  //   .ticks([2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020])
+  //   .render();
+
+  // new d3plus.Timeline()
+  //   .domain([2001, 2010])
+  //   .buttonBehavior("auto")
+  //   .render();
+
+  // new d3plus.Timeline()
+  //   .domain([2007, 2010])
+  //   .buttonBehavior("auto")
+  //   .render();
+
+  // new d3plus.Timeline()
+  //   .domain([2005, 2010])
+  //   .buttonBehavior("auto")
+  //   .render();
+
+  // new d3plus.Timeline()
+  //   .handleConfig({
+  //    fill: "red",
+  //    stroke: "black"
+  //  })
+  //  .buttonBehavior("auto")
+  //  .shapeConfig({
+  //    height: 6,
+  //    fill: "red",
+  //    stroke: "blue",
+  //    width: 4
+  //  })
+  //  .render();
+
+  //  const months = ["01/01/2012", "02/01/2012", "03/01/2012", "04/01/2012", "05/01/2012", "06/01/2012", "07/01/2012", "08/01/2012", "09/01/2012", "10/01/2012", "11/01/2012", "12/01/2012", "01/01/2013", "02/01/2013", "03/01/2013", "04/01/2013", "05/01/2013", "06/01/2013", "07/01/2013", "08/01/2013", "09/01/2013", "10/01/2013", "11/01/2013", "12/01/2013", "01/01/2014", "02/01/2014", "03/01/2014", "04/01/2014", "05/01/2014", "07/01/2014", "08/01/2014", "09/01/2014", "11/01/2014", "12/01/2014", "01/01/2015", "02/01/2015", "03/01/2015", "04/01/2015", "06/01/2015", "07/01/2015", "08/01/2015", "09/01/2015", "10/01/2015", "11/01/2015", "12/01/2015", "01/01/2016", "02/01/2016", "03/01/2016", "04/01/2016", "05/01/2016", "06/01/2016", "07/01/2016", "08/01/2016", "09/01/2016", "10/01/2016", "11/01/2016", "01/01/2017", "02/01/2017", "03/01/2017", "04/01/2017"];
+
+  //  new d3plus.Timeline()
+  //   .domain([months[0], months[months.length - 1]])
+  //   // .domain(["01/01/2012", "04/01/2017"])
+  //   // .domain([2005, 2010].map(toDate))
+  //   .ticks(months)
+  //   .render();
+
+</script>
+
+</html>

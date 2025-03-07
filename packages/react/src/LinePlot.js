@@ -1,5 +1,5 @@
 import React from "react";
-import {LinePlot as type} from "d3plus-plot";
+import {LinePlot as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

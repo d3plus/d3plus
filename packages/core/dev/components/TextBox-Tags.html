@@ -1,0 +1,62 @@
+<!doctype html>
+<html dir="rtl">
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-text.full.js"></script>
+
+</head>
+
+<body>
+
+  <script>
+
+    // const font = "Verdana";
+
+    // const sentence = "Hello D3plus, please wrap this sentence for me.",
+    //       testWrap = d3plus.textWrap().fontFamily(font).fontSize(14)(sentence);
+    // console.log(testWrap);
+
+    var data = [
+      {text: "<i>Here</i> is some <i>sample 'text' that</i> has been > wrapped < 3 times, but >5 and <10 using d3plus.textBox."},
+      // {text: "Here is <i>some</i> sample & text & stuff <b>that has</b> been <em>wrapped &amp; using</em>, & d3plus.textBox."},
+      // {text: "Here is some <em>sample text</em> that <strong>has</strong> been wrapped using <b><i>d3plus.textBox</i></b>."},
+      {text: "الناتج المحلي الإجمالي (<bdi>2023</bdi>)"},
+      {text: "الناتج المحلي $60.2 الإجمالي (2023)"}
+    ];
+
+    const boxes = new d3plus.TextBox()
+      .data(data)
+      .fontSize(16)
+      .width(200)
+      // .html({
+      //   "i": "font-weight: bold;"
+      // })
+      // .duration(1000)
+      .x(function(d, i) { return i * 250; })
+      .render();
+
+    // setTimeout(function() {
+    //   boxes.y(100).render();
+    // }, 2000);
+
+    // new d3plus.TextBox()
+    //   // .select("svg")
+    //   .textAnchor("middle")
+    //   .data([
+    //     {text: "Here is some sample text that has been wrapped using d3plus.textBox."},
+    //     {text: "Here is <i>some</i> sample text <b>that has</b> been <em>wrapped using</em> d3plus.textBox."}
+    //   ])
+    //   .fontSize(16)
+    //   .width(100)
+    //   .duration(1000)
+    //   .verticalAlign("middle")
+    //   .x(function(d, i) { return i * 250; })
+    //   .render()
+
+  </script>
+
+</body>
+
+</html>

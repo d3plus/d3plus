@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    /* body {
+      margin: 50px;
+      overflow: hidden;
+    }
+
+    #flex {
+      display: flex;
+    }
+
+    #text {
+      max-width: 300px;
+      width: 300px;
+    }
+
+    #viz {
+      flex: 2;
+      height: 500px;
+    } */
+
+  </style>
+
+</head>
+
+<body>
+
+  <div id="flex">
+    <div id="text">
+      <select id="tile-switcher">
+        <option value="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png">Carto DB (default)</option>
+        <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}.png">ESRI WorldTerrain</option>
+      </select>
+    </div>
+    <div id="viz"></div>
+  </div>
+
+</body>
+
+<script>
+
+  document.querySelector("#tile-switcher")
+    .addEventListener("change", function(event) {
+
+      const newUrl = event.target.value;
+      chart.tileUrl(newUrl).render();
+
+    });
+
+  // var chart = new d3plus.Geomap()
+  //   .topojson("https://d3plus.org/topojson/states.json")
+  //   .topojsonFilter(d => !["02", "15", "43", "60", "66", "69", "72", "78"].includes(d.id))
+  //   .render();
+  //
+  // setTimeout(() => {
+  // 	chart
+  //   	// .topojson("https://d3plus.org/topojson/states.json")
+  //   	.topojsonFilter(d => false)
+  //     // .topojsonFilter(d => !["02", "15", "43", "60", "66", "69", "72", "78"].includes(d.id))
+  //   	.render()
+  // }, 2000);
+
+  // const regions = [
+  //   // {id: "ZRXXXUS01", value: 500},
+  //   // {id: "ZRXXXUS02", value: 1000},
+  //   // {id: "ZRXXXUS03", value: 700},
+  //   {id: "ZRXXXUS22", value: 1200}
+  // ];
+
+  // const michigan = ["79500US2603300", "79500US2603006", "79500US2603003", "79500US2600100", "79500US2603004", "79500US2601300", "79500US2601600", "79500US2603207", "79500US2603005", "79500US2600400", "79500US2601004", "79500US2602905", "79500US2603202", "79500US2603204", "79500US2603209", "79500US2600500", "79500US2603205", "79500US2601701", "79500US2602102", "79500US2603208", "79500US2602300", "79500US2603212", "79500US2602200", "79500US2601900", "79500US2602500", "79500US2601200", "79500US2602901", "79500US2601703", "79500US2602903", "79500US2602907", "79500US2602904", "79500US2602906", "79500US2601802", "79500US2600200", "79500US2603100", "79500US2602400", "79500US2600700", "79500US2601400", "79500US2603001", "79500US2602000", "79500US2600802", "79500US2602101", "79500US2601001", "79500US2601500", "79500US2603210", "79500US2602702", "79500US2601003", "79500US2601100", "79500US2601801", "79500US2602902", "79500US2601002", "79500US2603002", "79500US2603201", "79500US2602908", "79500US2603206", "79500US2600600", "79500US2602703", "79500US2600300", "79500US2603213", "79500US2602800", "79500US2602600", "79500US2603203", "79500US2602701", "79500US2600801", "79500US2600900", "79500US2601704", "79500US2603211", "79500US2601702"];
+  // console.log(michigan[41]);
+  // const map = new d3plus.Geomap()
+  //   .topojson("zipregions.json")
+  //   .data(regions)
+  //   .colorScale("value")
+  //   .groupBy("id")
+  //   .topojsonId(d => d.properties.REGION)
+  //   .topojsonFilter((d, i) => i < 4)
+  //   .total(true)
+  //   .totalConfig({
+  //     fontSize: 24,
+  //     padding: 20
+  //   })
+  //   // .fitObject("https://d3plus.org/topojson/states.json")
+  //   // .fitFilter(d => !["02", "15", "43", "60", "66", "69", "72", "78"].includes(d.id))
+  //   // .topojsonFilter((d, i) => d.id.slice(7, 9) === "25")
+  //   // .topojsonFilter((d, i) => d.id.slice(7, 9) === "26" && d.id === michigan[41])
+  //   // .tiles(false)
+  //   // .ocean("white")
+  //   // .shapeConfig({Path: {fill: d => {
+  //   //   if (d.id === michigan[41]) console.log(d);
+  //   //   return "red";
+  //   // }}})
+  //   .render();
+
+  // setTimeout(() => {
+  //   map.topojsonFilter(d => true).render();
+  // }, 2000);
+
+  // const width = 320;
+  // const height = 125;
+  // const longOffset = 15;
+  // const latOffset = 10;
+  // // const coordinates = [
+  // //   [-width/2+longOffset/2,height/2+latOffset/2],
+  // //   [width/2+longOffset/2,-height/2+latOffset/2]
+  // // ];
+  // // console.log(coordinates);
+  // const coordinates = [
+  //   [-160, 70],
+  //   [170, -55]
+  // ];
+
+  // const map = new d3plus.Geomap()
+  //   .fitObject({
+  //     "type": "Topology",
+  //     "objects": {
+  //       "example": {
+  //         "type": "GeometryCollection",
+  //         "geometries":[
+  //           {"type":"MultiPoint","coordinates":coordinates
+  //           }
+  //         ]
+  //       }
+  //     }
+  //   })
+  //   .render();
+
+const data = [
+  {
+    "ID Year": 2015,
+    "Year": "2015",
+    "ID Tract": "14000US36067001400",
+    "Tract": "14",
+    "ID Poverty Line Status": 0,
+    "Poverty Line Status": "below",
+    "Population Sum": 2063
+  },
+  {
+    "ID Year": 2013,
+    "Year": "2015",
+    "ID Tract": "14000US36067001400",
+    "Tract": "14",
+    "ID Poverty Line Status": 0,
+    "Poverty Line Status": "below",
+    "Population Sum": 2063
+  },
+  {
+    "ID Year": 2014,
+    "Year": "2015",
+    "ID Tract": "14000US36067001400",
+    "Tract": "14",
+    "ID Poverty Line Status": 0,
+    "Poverty Line Status": "below",
+    "Population Sum": 2063
+  }
+];
+
+var popData = [
+  {id: "01", population: 4830620},
+  {id: "08", population: 5278906},
+  {id: "16", population: 1616547},
+  {id: "24", population: 5930538},
+  {id: "29", population: 6045448},
+  {id: "30", population: 1014699},
+  {id: "35", population: 2084117},
+  {id: "40", population: 3849733},
+  {id: "47", population: 6499615},
+  {id: "56", population: 579679}
+];
+
+var chart = new d3plus.Geomap()
+  .config({
+    colorScale: "Diabetes Prevalence",
+    data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
+    groupBy: 'ID State',
+    height: 600,
+    projection: 'geoAlbersUsa',
+    // projection: "geoAzimuthalEqualArea",
+    // projectionRotate: [-90, 0],
+    // topojson: "./countries.json",
+    // topojsonKey: "countries",
+    // topojsonFilter: d => d.id === "rus"
+    topojson: "https://datausa.io/topojson/State.json",
+    shapeConfig: {
+      Path: {
+        ariaLabel: (d, i) => "my"
+      }
+    }
+  })
+  .render();
+
+// new d3plus.Geomap()
+//   .data(data)
+// 	.groupBy(d => d["ID Tract"])
+//   .colorScale(d => d["Population Sum"])
+//   // .colorScaleConfig({color: "blue"})
+//   // .colorScaleConfig({scale: "linear"})
+//   // .colorScalePosition("bottom")
+//   .topojson("https://pro.cnyvitals.org/api/within/?target=14000US36067001400&targetLevel=tract&searchLevel=tract&asTopo=1")
+//   .topojsonKey("objects")
+//   .topojsonId(d => d.properties.geoid)
+//   .time("ID Year")
+//   .render();
+
+  // const popData = [{id: "01", population: 4830620}, {id: "02", population: 733375}, {id: "04", population: 6641928}, {id: "05", population: 2958208}, {id: "06", population: 38421464}, {id: "08", population: 5278906}, {id: "09", population: 3593222}, {id: "10", population: 926454}, {id: "11", population: 647484}, {id: "12", population: 19645772}, {id: "13", population: 10006693}, {id: "15", population: 1406299}, {id: "16", population: 1616547}, {id: "17", population: 12873761}, {id: "18", population: 6568645}, {id: "19", population: 3093526}, {id: "20", population: 2892987}, {id: "21", population: 4397353}, {id: "22", population: 4625253}, {id: "23", population: 1329100}, {id: "24", population: 5930538}, {id: "25", population: 6705586}, {id: "26", population: 9900571}, {id: "27", population: 5419171}, {id: "28", population: 2988081}, {id: "29", population: 6045448}, {id: "30", population: 1014699}, {id: "31", population: 1869365}, {id: "32", population: 2798636}, {id: "33", population: 1324201}, {id: "34", population: 8904413}, {id: "35", population: 2084117}, {id: "36", population: 19673174}, {id: "37", population: 9845333}, {id: "38", population: 721640}, {id: "39", population: 11575977}, {id: "40", population: 3849733}, {id: "41", population: 3939233}, {id: "42", population: 12779559}, {id: "44", population: 1053661}, {id: "45", population: 4777576}, {id: "46", population: 843190}, {id: "47", population: 6499615}, {id: "48", population: 26538614}, {id: "49", population: 2903379}, {id: "50", population: 626604}, {id: "51", population: 8256630}, {id: "53", population: 6985464}, {id: "54", population: 1851420}, {id: "55", population: 5742117}, {id: "56", population: 579679}, {id: "72", population: 3583073}];
+  //
+  // var chart = new d3plus.Geomap()
+  //   .config({
+  //     // colorScale: "population",
+  //     data: popData,
+  //     fitFilter: function(d) {
+  //       return ["02", "15", "43", "60", "66", "69", "72", "78"].indexOf(d.id) < 0;
+  //     },
+  //     projection: "geoMercator",
+  //     select: "#viz",
+  //     // shapeConfig: {
+  //     //   Path: {
+  //     //     fill: "#888"
+  //     //   }
+  //     // },
+  //     topojson: "https://d3plus.org/topojson/states.json"
+  //   })
+  //   // .projection("geoAlbersUsa")
+  //   .projectionPadding("20px 10px 20px 100px")
+  //   // .projectionPadding(50)
+  //   .render();
+
+  // var chart2 = new d3plus.Geomap()
+  //   .data("https://d3plus.org/data/city_coords.json")
+  //   .groupBy("slug")
+  //   .colorScale("dma_code")
+  //   .colorScaleConfig({
+  //     color: ["red", "orange", "yellow", "green", "blue"]
+  //   })
+  //   .label(function(d) {
+  //     return d.city + ", " + d.region;
+  //   })
+  //   .point(function(d) {
+  //     return [d.longitude, d.latitude];
+  //   })
+  //   .pointSize(() => Math.random() * 10)
+  //   .render();
+
+  // setTimeout(function() {
+  //
+  //   chart
+  //     .config({
+  //       colorScale: "population",
+  //       shapeConfig: {
+  //         Path: {
+  //           fill: "D3PLUS-COMMON-RESET"
+  //         }
+  //       }
+  //     })
+  //     .render();
+  //
+  //     setTimeout(() => {
+  //
+  //       chart
+  //         .config({
+  //           colorScale: "D3PLUS-COMMON-RESET",
+  //           shapeConfig: {
+  //             Path: {
+  //               fill: "#888"
+  //             }
+  //           }
+  //         })
+  //         .render();
+  //
+  //     }, 3000);
+  //
+  // }, 3000);
+
+</script>
+
+</html>

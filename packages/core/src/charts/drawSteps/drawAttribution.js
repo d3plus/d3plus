@@ -1,5 +1,5 @@
 import {select} from "d3-selection";
-import {stylize} from "../../dom/index.js";
+import {stylize} from "@d3plus/dom";
 
 /**
     @name _drawAttribution

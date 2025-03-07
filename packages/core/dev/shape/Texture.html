@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 50px;
+      min-height: calc(100vh - 100px);
+    }
+    p {
+      font-family: monospace;
+      font-weight: bold;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  const customExample = (size) => "M91.657 22.631v.912c0 3.47-1.965 6.505-4.837 8.046.193.225.372.464.537.715l.16.255 5.952 9.92c.821 1.371.488 3.171-.74 4.167l-.152.115-5.332 3.814c-.681.484-1.599.438-2.23-.09l-.122-.112-2.358-2.358-10.634 10.632c-1.294 1.296-2.053 3.03-2.13 4.855l-.006.305v12.642c0 .956-.738 1.742-1.675 1.818l-.149.006h-9.124c-.958 0-1.742-.738-1.818-1.675l-.006-.149v-14.596l-23.902.044c-.949 4.336-4.474 7.133-8.662 7.25l-.274.004v7.298c0 .958-.738 1.742-1.675 1.818l-.149.006h-9.122c-.958 0-1.742-.736-1.818-1.674l-.006-.15.001-32.851c-1.527 1.153-3.425 1.839-5.473 1.839h-.912v-3.65h.912c3.042 0 5.472-2.428 5.472-5.472h.001c0-3.929 3.158-7.165 7.056-7.293l.24-.004h62.578l.364.009v-.01h.912c2.97 0 5.355-2.311 5.47-5.25l.004-.222v-.912h3.648zm-10.398 10.033h-62.578c-1.97 0-3.544 1.51-3.643 3.454l-.005.196v38.308h5.472v-16.416h3.65v7.296c3.044 0 5.474-2.428 5.474-5.472 0-.958.736-1.742 1.674-1.818l.15-.006h27.364c.958 0 1.742.736 1.818 1.674l.006.15v14.592h5.476v-10.816c0-2.786 1.064-5.463 2.964-7.49l.242-.25 10.634-10.632c1.358-1.36 3.582-1.408 5.003-.146l.155.146 1.27 1.27 3.754-2.68-5.75-9.584c-.662-1.104-1.844-1.776-3.13-1.776z";
+
+  const customExampleNamed = function(s) {
+    return `M 0,${s * 3 / 4} l ${s / 2},${-s / 2} l ${s / 2},${s / 2}`;
+  };
+
+  // const textures = ["circles", "lines", "squares", "nylon", "waves", "woven", "crosses", "caps" , "hexagons", "grid", customExample, customExampleNamed];
+  const textures = [customExample, customExampleNamed];
+  const rows = 2;
+  const size = 200;
+  const padding = 25;
+
+
+  const columns = Math.ceil(textures.length/rows);
+
+  function createGrid(extra) {
+    const rect = new d3plus.Rect()
+      .fill("#4281A4")
+      .data(textures)
+      .id((d, i) => `${i + 1}`)
+      // .label(d => typeof d === "function" ? `${d}`.includes("=>") ? "anonymous function" : "named function" : `"${d}"`)
+      // .label(d => `${d}`)
+      .labelConfig({
+        fontWeight: "bold",
+        fontStrokeWidth: 0.5,
+        fontStroke: "#888",
+        textAnchor: "middle",
+        verticalAlign: "middle"
+      })
+      .x((d, i) => (i % columns) * (size + padding) + size / 2)
+      .y((d, i) => (i % rows) * (size + padding) + size / 2)
+      .width(size)
+      .height(size)
+      .texture(d => d)
+      .textureDefault(extra)
+      .render();
+    const svg = rect.select();
+    svg.style("height", `${rows * (size + padding)}px`);
+    svg.style("width", `${columns * (size + padding) - padding}px`);
+    const sub = document.createElement("p");
+    sub.innerText = `texture: ${textures[0]}`;
+    svg.node().parentNode.insertBefore(sub, svg.node());
+    const title = document.createElement("p");
+    title.innerText = extra ? `textureDefault: ${JSON.stringify(extra)}` : "basic (ie. {texture: \"circles\"})";
+    svg.node().parentNode.insertBefore(title, svg.node());
+  }
+
+  createGrid();
+  createGrid({size: 100, strokeWidth: 1});
+  createGrid({radius: 5, stroke: "#F6AE2D", strokeWidth: 1});
+
+</script>
+
+</html>

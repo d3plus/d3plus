@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+    <!-- <script src="https://d3plus.org/js/d3plus-axis.v0.3.full.min.js"></script> -->
+
+    <style>
+
+      body {
+        /* background-color: black; */
+        margin: 0;
+        /* overflow: hidden; */
+      }
+
+      .column {
+        display: inline-block;
+        float: left;
+        margin: 0;
+        vertical-align: top;
+      }
+
+      svg {
+        border: 1px solid green;
+        display: block;
+        margin: 0;
+      }
+
+      .bounds {
+        border: 1px solid red;
+        pointer-events: none;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="column" id="horizontal"></div>
+    <div class="column" id="vertical"></div>
+
+    <script>
+
+      var index = {horizontal: 0, vertical: 0};
+      var height = 150;
+      var width = 400;
+      var border = 1;
+
+      function makeAxis(config, vertical) {
+
+        var orient = vertical ? "vertical" : "horizontal";
+        var i = index[orient];
+        var w = orient === "horizontal" ? width : height;
+        var h = orient === "horizontal" ? height : width;
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "axis" + orient + i;
+        svg.setAttribute("width", w + "px");
+        svg.setAttribute("height", h + "px");
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        document.getElementById(orient).appendChild(svg);
+
+        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+          .select("#axis" + orient + i)
+          .width(w)
+          .height(h)
+          .config(config)
+          .maxSize(100)
+          // .locale("es-ES")
+          // .tickSuffix("smallest")
+          // .title("Here is a super long title that should probably wrap at some point because it's very very long.")
+          .title("Center")
+          // .range([100, undefined])
+          .render();
+
+        var bounds = axis.outerBounds();
+        var square = document.createElement("div");
+        square.className = "bounds";
+        square.id = "bounds" + i;
+        square.style.width = bounds.width + "px";
+        square.style.height = bounds.height + "px";
+        square.style.left = bounds.x + (orient === "vertical" ? width : 0) + "px";
+        square.style.top = bounds.y + (i * h) + (i * border * 2) + "px";
+        document.body.appendChild(square);
+        // console.log(index, bounds);
+        console.log("\n");
+        index[orient]++;
+
+      }
+
+      var labels = [
+        "Here is the first long label.",
+        "This one is the second",
+        "Third?",
+        "And then there's a super-duper really long one!"
+      ];
+
+      const buffedLabels = ["d3plus-buffer-start"];
+      labels.forEach(b => {
+        buffedLabels.push(b);
+        buffedLabels.push(`d3plus-buffer-${b}`);
+      });
+
+      const labelRotation = false;
+
+      // makeAxis({
+      //   domain: labels,
+      //   labelRotation: labelRotation,
+      //   ticks: [],
+      //   scale: "ordinal"
+      // });
+
+      // makeAxis({
+      //   domain: labels,
+      //   labelRotation: labelRotation,
+      //   scale: "ordinal"
+      // });
+
+      // makeAxis({
+      //   domain: buffedLabels,
+      //   labelRotation: labelRotation,
+      //   ticks: labels,
+      //   scale: "ordinal"
+      // });
+
+      // makeAxis({
+      //   domain: ["One", "Two", "And then there's a super-duper really long one!", "Four"],
+      //   labelRotation: labelRotation,
+      //   ticks: ["And then there's a super-duper really long one!"],
+      //   scale: "ordinal"
+      // });
+
+      // makeAxis({
+      //   domain: [0, 1000000],
+      //   labelRotation: labelRotation
+      // });
+
+      // makeAxis({
+      //   domain: [0, 100],
+      //   labelRotation: labelRotation,
+      //   labels: [0, 12, 87, 89, 100]
+      // });
+
+      // makeAxis({
+      //   domain: [0, 100],
+      //   labelRotation: labelRotation,
+      //   ticks: []
+      // });
+
+      // makeAxis({
+      //   domain: [0, 100],
+      //   labelRotation: labelRotation,
+      //   labels: []
+      // });
+
+      // makeAxis({
+      //   domain: [12.441176470588236, 0],
+      //   // domain: [0, 12.441176470588236],
+      //   // labelRotation: labelRotation,
+      //   scale: "linear",
+      //   // tickSuffix: "smallest",
+      //   // locale: "es-ES"
+      // }, true);
+
+      makeAxis({
+        domain: [2001, 2010],
+        // labelRotation: labelRotation,
+        scale: "time"
+      });
+
+      makeAxis({
+        domain: [1990, 2010],
+        // labelRotation: labelRotation,
+        // labels: [1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010],
+        scale: "time",
+      });
+
+      makeAxis({
+        domain: ["01/01/2013", "09/01/2013"],
+        // labelRotation: labelRotation,
+        scale: "time"
+      });
+
+      makeAxis({
+        domain: ["01/01/2013", "09/12/2013"],
+        labels: ["01/01/2013", "07/01/2013", "08/20/2013", "09/08/2013", "09/12/2013"],
+        labelRotation: labelRotation,
+        scale: "time"
+      });
+
+      makeAxis({
+        domain: labels,
+        labelRotation: labelRotation,
+        scale: "ordinal"
+      }, true);
+
+      makeAxis({
+        domain: [0, 100],
+        labelRotation: labelRotation
+      }, true);
+
+      makeAxis({
+        domain: [0, 0.426],
+        labelRotation: labelRotation
+      }, true);
+
+    </script>
+
+  </body>
+
+</html>

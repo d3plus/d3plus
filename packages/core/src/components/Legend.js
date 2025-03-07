@@ -2,10 +2,12 @@
 import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 
-import {colorDefaults} from "../color/index.js";
-import {assign, elem, rtl as detectRTL, textWidth} from "../dom/index.js";
-import * as shapes from "../shape/index.js";
-import {TextBox, textWrap} from "../text/index.js";
+import {colorDefaults} from "@d3plus/color";
+import {assign, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
+import {textWrap} from "@d3plus/text";
+
+import {TextBox} from "../components/index.js";
+import * as shapes from "../shapes/index.js";
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 
 const padding = 5;
@@ -133,7 +135,7 @@ export default class Legend extends BaseClass {
 
       const f = this._titleConfig.fontFamily || this._titleClass.fontFamily()(),
             s = this._titleConfig.fontSize || this._titleClass.fontSize()();
-      let lH = lH = this._titleConfig.lineHeight || this._titleClass.lineHeight();
+      let lH = this._titleConfig.lineHeight || this._titleClass.lineHeight();
       lH = lH ? lH() : s * 1.4;
 
       const res = textWrap()

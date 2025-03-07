@@ -1,7 +1,7 @@
 import {select} from "d3-selection";
 import {zoomTransform} from "d3-zoom";
 
-import {attrize, stylize} from "../../dom/index.js";
+import {attrize, stylize} from "@d3plus/dom";
 
 let brushing = false;
 

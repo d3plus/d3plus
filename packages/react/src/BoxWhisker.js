@@ -1,5 +1,5 @@
 import React from "react";
-import {BoxWhisker as type} from "d3plus-plot";
+import {BoxWhisker as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

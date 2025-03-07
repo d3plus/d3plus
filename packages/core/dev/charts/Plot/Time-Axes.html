@@ -1,0 +1,106 @@
+
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/d3plus-plot@1"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/d3plus@2"></script> -->
+
+  <style>
+    div {
+      display: inline-block;
+    }
+  </style>
+
+</head>
+
+<body>
+</body>
+
+<script>
+
+var yearlyData = [
+  {year: 2010, group: "Apples", value: 10},
+  {year: 2010, group: "Bananas", value: 8},
+  {year: 2010, group: "Some fruit with a really long name", value: 12},
+  {year: 2010, group: "Oranges", value: 6},
+  {year: 2011, group: "Apples", value: 12},
+  {year: 2011, group: "Bananas", value: 6},
+  {year: 2011, group: "Some fruit with a really long name", value: 11},
+  {year: 2011, group: "Oranges", value: 2},
+  {year: 2012, group: "Apples", value: 12},
+  {year: 2012, group: "Bananas", value: 6},
+  {year: 2012, group: "Some fruit with a really long name", value: 11},
+  {year: 2012, group: "Oranges", value: 2}
+];
+
+var monthlyData = [
+  {month: "11/01/2010", group: "Apples", value: 10},
+  {month: "11/01/2010", group: "Bananas", value: 8},
+  {month: "12/01/2010", group: "Apples", value: 11},
+  {month: "12/01/2010", group: "Bananas", value: 7},
+  {month: "01/01/2011", group: "Apples", value: 12},
+  {month: "01/01/2011", group: "Bananas", value: 9},
+  {month: "02/01/2011", group: "Apples", value: 10},
+  {month: "02/01/2011", group: "Bananas", value: 2}
+];
+
+const config = {
+  legend: false,
+  height: 300,
+  timeline: false,
+  width: 500
+}
+
+new d3plus.BarChart()
+  .config({
+    ...config,
+    data: yearlyData,
+    groupBy: "group",
+    time: "year",
+    x: "year",
+    y: "value",
+    stacked: true
+  })
+  .render();
+
+new d3plus.BarChart()
+  .config({
+    ...config,
+    data: monthlyData,
+    groupBy: "group",
+    time: "month",
+    x: "month",
+    y: "value",
+    stacked: true
+  })
+  .render();
+
+new d3plus.LinePlot()
+  .config({
+    ...config,
+    data: yearlyData,
+    groupBy: "group",
+    time: "year",
+    x: "year",
+    y: "value"
+  })
+  .render();
+
+new d3plus.LinePlot()
+  .config({
+    ...config,
+    data: monthlyData,
+    groupBy: "group",
+    time: "month",
+    x: "month",
+    y: "value"
+  })
+  .render();
+
+</script>
+
+</html>

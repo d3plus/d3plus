@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #viz {
+      height: 600px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div id="viz"></div>
+</body>
+
+<script>
+
+  const forceSettings = {};
+
+  const colors = {"a":"#105B10","b":"#330000","c":"#5E1F05","d":"#e377c2","e":"#2F2F6D","f":"#E87600","g":"#17bcef","h":"#9edae5","i":"#FFC41C","j":"#57D200","k":"#408e60","l":"#a4bd99","m":"#cc0000","n":"#b7834b","o":"#752277","p":"#d66011","q":"#800000","r":"#93789e","s":"#c7c7c7","t":"#f7b6d2","u":"#4C4C4C","x":"#C7C7C7"};
+
+  const network = new d3plus.Network()
+    .links("./network_cnae_links.json")
+    // .nodes("./network_cnae_nodes.json", resp => resp.map(d => ({id: d.id})))
+    .nodes("./network_cnae_nodes.json")
+    // .linkSize(d => d.proximity)
+    .select("#viz")
+    .shapeConfig({fill: d => colors[d.id.slice(0, 1)]})
+    .render();
+
+</script>
+
+</html>

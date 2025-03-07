@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+
+    <style>
+
+      body {
+        margin: 0;
+      }
+
+      .bounds {
+        border: 1px solid red;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <main>
+      <svg width=600 height=600>
+        <g id="my-axis"></g>
+      </svg>
+    </main>
+
+    <div class="bounds" id="bounds">
+
+  </body>
+
+  <script>
+
+    var bottom = new d3plus.AxisLeft()
+      .select("#my-axis")
+      .domain([0, 100000])
+      .labels([0, 20000, 100000])
+      .minSize(100)
+      // .labelOffset(false)
+      .render();
+
+    // var bottom = new d3plus.AxisBottom()
+    //   .select("#my-axis")
+    //   .domain(["Dave Landry", "Alexander Simoes", "Nick Bond", "Jimmy Mullen"])
+    //   .scale("ordinal")
+    //   .width(300)
+    //   .height(300)
+    //   .render();
+
+    const bounds = bottom.outerBounds();
+    const square = document.getElementById("bounds");
+    square.style.width = bounds.width + "px";
+    square.style.height = bounds.height + "px";
+    square.style.left = bounds.x + "px";
+    square.style.top = bounds.y + "px";
+    console.log(bounds);
+
+  </script>
+
+</html>

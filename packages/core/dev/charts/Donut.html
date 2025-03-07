@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var data = [
+    {id: "alpha", value2: 29, year: 2010},
+    {id: "beta",  value2: 10, year: 2010},
+    {id: "gamma", value2: 2,  year: 2010},
+    {id: "delta", value2: 29, year: 2010},
+    {id: "eta",   value2: 25, year: 2010}
+  ];
+
+  var pie = new d3plus.Pie()
+    // .data(data)
+    // .value(d => d.value2)
+    .config({
+      data: data,
+      value: "value2"
+    })
+    .render();
+
+  // setTimeout(() => {
+  //   data.push({id: "beta",  value2: 10, year: 2010});
+  //   pie.data(data).render();
+  // }, 2000);
+
+  // var myData = [
+  //   {"Group": "Store", "Sub-Group": "Convenience Store", "Number of Food Stores": 100, year: 2018},
+  //   {"Group": "Store", "Sub-Group": "Grocery Store", "Number of Food Stores": 150, year: 2018},
+  //   {"Group": "Store", "Sub-Group": "Farmer's Market", "Number of Food Stores": 50, year: 2018},
+  //   {"Group": "Store", "Sub-Group": "Supercenters", "Number of Food Stores": 30, year: 2018},
+  //   {"Group": "Restaurant", "Sub-Group": "Fast-Food Restaurant", "Number of Food Stores": 60, year: 2018},
+  //   {"Group": "Restaurant", "Sub-Group": "Full-Service Restaurant", "Number of Food Stores": 120, year: 2018}
+  // ];
+
+  // new d3plus.Pie()
+  // .config({
+  //   data: myData,
+  //   groupBy: ["Group", "Sub-Group"],
+  //   legendConfig: {
+  //     direction: "column"
+  //   },
+  //   legendPosition: "right",
+  //   // groupBy: "Sub-Group",
+  //   value: function(d) {
+  //     return d["Number of Food Stores"];
+  //   },
+  //   tooltipConfig: {
+  //     tbody: [
+  //       ["Total", function(d) { return d["Number of Food Stores"] }],
+  //       ["Year", function(d) { return d.year }]
+  //     ]
+  //   }
+  // })
+  // .render();
+
+</script>
+
+</html>

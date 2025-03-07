@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  new d3plus.LinePlot()
+    .config({
+      // aggs: {
+      //   "Trade Value": (arr, cb) => (console.log(arr), Math.max(...arr.map(cb)))
+      // },
+      baseline: 0,
+      axisPersist: true,
+      colorScale: "Trade Value",
+      groupBy: "Country",
+      x: "Year",
+      y: "Trade Value",
+      time: "Year",
+      shapeConfig: {
+        Line: {
+          stroke: null
+        },
+        stroke(d, i) {
+
+          // find most recent data point for the given line
+          // (d3plus only returns the first/oldest data point to this function)
+          const latestData = this._filteredData
+            .filter(f => f.Country === d.Country)
+            .sort((a, b) => b.Year - a.Year)[0];
+
+          // get the number we need
+          const c = this._colorScale(latestData);
+
+          // get the color
+          const scale = this._colorScaleClass._colorScale;
+          return scale(c);
+
+        }
+      }
+    })
+    .data("https://oec.world/olap-proxy/data.jsonrecords?cube=trade_i_baci_a_02&drilldowns=Exporter+Country%2CYear&measures=Trade+Value&token=6e892a3d38a0399d3cce19f94cd18f60", resp => resp.data.filter(d => d["Trade Value"] > 1000000000000))
+    .render();
+
+</script>
+
+</html>

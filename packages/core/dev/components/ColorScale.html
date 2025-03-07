@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+      body {
+        /* background-color: #343b45; */
+        margin: 0;
+        /* overflow: hidden; */
+      }
+
+      .column {
+        /* display: inline-block; */
+        float: left;
+        margin: 0;
+        vertical-align: top;
+      }
+
+      svg {
+        border: 1px solid green;
+        display: block;
+        margin: 0;
+      }
+
+      .bounds {
+        border: 1px solid transparent;
+        pointer-events: none;
+        position: absolute;
+      }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="column" id="horizontal"></div>
+  <div class="column" id="vertical"></div>
+
+  <script>
+
+    const data = [
+      {value: 200},
+      {value: 1000},
+      {value: 2000},
+      {value: 2010},
+      {value: 2020},
+      {value: 2030},
+      {value: 2040},
+      {value: 2100},
+      {value: 6400}
+    ];
+
+    const data2 = [
+      {value: -120000},
+      {value: -200000},
+      {value: 2001234},
+      {value: 20000654},
+      {value: 2010001},
+      {value: 20200123},
+      {value: 20312300},
+      {value: 20000123},
+      {value: 21900000},
+      {value: 21950000},
+      {value: 6400}
+    ];
+
+    const data3 = [
+      {value: 1},
+      {value: 4.99},
+      {value: 4.989},
+      {value: 12},
+      {value: 54},
+      {value: 23},
+      {value: 11},
+      {value: 2},
+      {value: 5},
+      {value: 12}
+    ];
+
+    const data4 = [
+      {value: -1},
+      {value: 0},
+      {value: 0},
+      {value: 3},
+      {value: 1}
+    ];
+
+    const largeData = [{"value":4190713},{"value":577737},{"value":5813568},{"value":4887871},{"value":1805832},{"value":737438},{"value":7535591},{"value":7171646},{"value":8517685},{"value":3013825},{"value":626299},{"value":39557045},{"value":3161105},{"value":5695564},{"value":28701845},{"value":3572665},{"value":6770010},{"value":967171},{"value":882235},{"value":702455},{"value":5084127},{"value":21299325},{"value":1057315},{"value":10519475},{"value":12807060},{"value":1420491},{"value":3195153},{"value":1754208},{"value":3943079},{"value":12741080},{"value":11689442},{"value":6691878},{"value":760077},{"value":3156145},{"value":10383620},{"value":2911510},{"value":19542209},{"value":4468402},{"value":2095428},{"value":4659978},{"value":8908520},{"value":1338404},{"value":1356410},{"value":6042718},{"value":3034392},{"value":6902197},{"value":1929268},{"value":9995915},{"value":1062305},{"value":5611179},{"value":6126452},{"value":2986530},{"value":5607154},{"value":4142776},{"value":1716943},{"value":7405743},{"value":7016270},{"value":3930864},{"value":12802023},{"value":28304596},{"value":3588184},{"value":11658609},{"value":6666818},{"value":579315},{"value":3337177},{"value":755393},{"value":3145711},{"value":6715984},{"value":961939},{"value":10273419},{"value":2913123},{"value":8470020},{"value":3004279},{"value":19849399},{"value":4454189},{"value":869666},{"value":693972},{"value":2088070},{"value":4684333},{"value":1815857},{"value":739795},{"value":9005644},{"value":1335907},{"value":5024369},{"value":20984400},{"value":1342795},{"value":6052177},{"value":623657},{"value":39536653},{"value":2998039},{"value":6859819},{"value":1059639},{"value":10429379},{"value":1920076},{"value":9962311},{"value":5795483},{"value":4874747},{"value":1050493},{"value":5576606},{"value":12805537},{"value":1427538},{"value":6113532},{"value":2984100},{"value":3101833},{"value":1683140},{"value":3411307},{"value":2988726},{"value":1042520},{"value":5519952},{"value":1907116},{"value":9928300},{"value":2940058},{"value":6811885},{"value":1334689},{"value":6016447},{"value":8944469},{"value":1331479},{"value":2081015},{"value":4681666},{"value":19745289},{"value":4436974},{"value":10146788},{"value":2907289},{"value":757953},{"value":3134693},{"value":11614373},{"value":6633053},{"value":3923561},{"value":12801539},{"value":4093465},{"value":6093000},{"value":12784227},{"value":1428557},{"value":1056426},{"value":10310371},{"value":4961119},{"value":20612439},{"value":865454},{"value":681170},{"value":6651194},{"value":952065},{"value":27862596},{"value":3576452},{"value":3051217},{"value":5540545},{"value":624594},{"value":39250017},{"value":8411808},{"value":2988248},{"value":7288000},{"value":6931071},{"value":1831102},{"value":741894},{"value":5778709},{"value":4863300},{"value":585501},{"value":6083672},{"value":12802503},{"value":2992333},{"value":4670724},{"value":1431603},{"value":1056298},{"value":19795791},{"value":5489594},{"value":10214860},{"value":4896146},{"value":6794422},{"value":4425092},{"value":20271272},{"value":858469},{"value":10042802},{"value":1330608},{"value":672228},{"value":6600299},{"value":1896190},{"value":2911641},{"value":945934},{"value":27469114},{"value":756928},{"value":1032949},{"value":3590886},{"value":2995919},{"value":6006401},{"value":3123899},{"value":5456574},{"value":626042},{"value":11613423},{"value":8958013},{"value":39144818},{"value":8382993},{"value":3474182},{"value":6619680},{"value":2978204},{"value":7170351},{"value":3911338},{"value":9922576},{"value":6828065},{"value":1844128},{"value":1329328},{"value":12859995},{"value":738432},{"value":5771337},{"value":4028977},{"value":2085109},{"value":4858979},{"value":586107},{"value":2890845},{"value":1654930},{"value":4849377},{"value":1023579},{"value":853175},{"value":10097343},{"value":9943964},{"value":6745408},{"value":12880580},{"value":6549352},{"value":3596677},{"value":1881503},{"value":739482},{"value":4413457},{"value":26956958},{"value":658893},{"value":9909877},{"value":736732},{"value":11594163},{"value":2942902},{"value":2839099},{"value":3548397},{"value":6596855},{"value":4649676},{"value":626562},{"value":3878051},{"value":5457173},{"value":1326813},{"value":1419561},{"value":8326289},{"value":5355866},{"value":3970239},{"value":6731484},{"value":19893297},{"value":7061530},{"value":8938175},{"value":2994079},{"value":12787209},{"value":1330089},{"value":1850326},{"value":3107126},{"value":935614},{"value":2085572},{"value":1055173},{"value":5757564},{"value":1634464},{"value":38802500},{"value":5976407},{"value":2966369},{"value":584153},{"value":4832482},{"value":19746227},{"value":2904021},{"value":6063589}];
+
+    largeData.forEach(d => {
+      if (Math.random() < 0.5) d.value *= -1;
+    });
+
+    var index = {horizontal: 0, vertical: 0};
+    var height = 150;
+    var width = 450;
+    var border = 1;
+
+    function makeScale(config) {
+
+      var direction = ["left", "right"].includes(config.orient || "bottom") ? "vertical" : "horizontal";
+      var i = index[direction];
+      var w = direction === "horizontal" ? width : height;
+      var h = direction === "horizontal" ? height : width;
+
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.id = "axis" + direction + i;
+      svg.setAttribute("width", w + "px");
+      svg.setAttribute("height", h + "px");
+      svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+      document.getElementById(direction).appendChild(svg);
+
+      const duration = 1000;
+
+      var scale = new d3plus.ColorScale()
+        .select("#axis" + direction + i)
+        .axisConfig({
+          // barConfig: {
+          //   stroke: "red",
+          // },
+          title: config.title || config.scale
+        })
+        // .axisConfig({tickFormat: d => `$${Math.round(d)}`})
+        // .legendConfig({label: d => (console.log(d), d.id)})
+        // .buckets(5)
+        .data(largeData)
+        // .data(data4)
+        .width(w)
+        .height(h)
+        // .color(["red", "orange", "white", "yellow", "green"])
+        .config(config)
+        // .labelMax("China")
+        // .labelMin("United Kingdom")
+        .bucketJoiner((a, b) => `${a} to ${b}`)
+        // .legendConfig({
+        //   direction: "vertical"
+        // })
+        // .axisConfig({
+        //   tickFormat: d => Number.isInteger(d * 1) ? d : Math.ceil(d) - 1
+        // })
+        // .labelConfig({
+        //   // fontColor: "cornflowerblue",
+        //   // fontFamily: "Comic Sans MS",
+        //   // fontSize: 12,
+        //   // fontWeight: "bold"
+        // })
+        // .rectConfig({
+        //   stroke: "red"
+        // })
+        // .duration(duration)
+        // .align("start")
+        .render();
+
+      var bounds = scale.outerBounds();
+      var square = document.createElement("div");
+      square.className = "bounds";
+      square.id = "bounds" + i;
+      square.style.width = bounds.width + "px";
+      square.style.height = bounds.height + "px";
+      square.style.left = bounds.x + (direction === "vertical" ? width : 0) + "px";
+      square.style.top = bounds.y + (i * h) + (i * border * 2) + "px";
+      document.body.appendChild(square);
+      console.log("\n");
+      index[direction]++;
+
+      // setTimeout(() => {
+      //   scale.scale("jenks").render();
+      // }, duration * 2);
+
+      // setTimeout(() => {
+      //   scale.scale("linear").render();
+      // }, duration * 4);
+
+    }
+
+    // makeScale({scale: "linear", color: ["#385676", "#3C71A6", "#20928c", "#38b977", "#fde725"]});
+    // makeScale({orient: "bottom", scale: "jenks", color: ["#385676", "#3C71A6", "#20928c", "#38b977", "#fde725"]});
+    // makeScale({orient: "bottom", scale: "jenks", color: ["#385676", "#3C71A6", "#20928c", "#38b977", "#fde725"]});
+    makeScale({scale: "linear"});
+    makeScale({
+      colorMin: "red",
+      colorMid: "white",
+      colorMax: "blue",
+      scale: "linear"
+    });
+    makeScale({
+      color: ["#506818", "#87A341", "#B0CD63", "#D0E788", "#E5F3AE", "#FCFFD5", "#FDF39F", "#E8CA81", "#DCAA58", "#C37341", "#A63626"],
+      colorMid: "#FCFFD5",
+      domain: [-13000000, 13000000],
+      // scale: "jenks",
+      // buckets: 11
+    });
+    makeScale({
+      color: ["#FCFFD5", "#FDF39F", "#E8CA81", "#DCAA58", "#C37341", "#A63626"],
+      colorMid: "#FCFFD5",
+      domain: [10000001, 13000001],
+      labelMin: "Min Label",
+      labelMax: "Max Label",
+      axisConfig: {
+        rounding: "inside"
+      }
+    });
+    // makeScale({scale: "log"});
+    // makeScale({scale: "buckets"});
+    // makeScale({scale: "quantile"});
+    // makeScale({scale: "jenks"});
+
+    // makeScale({scale: "jenks", data: data});
+    // makeScale({scale: "jenks", data: data2});
+    // makeScale({scale: "jenks", data: data3});
+    // makeScale({scale: "jenks", data: data3, buckets: [0, 0.01, 5, 15, 30, 60], color: ["#385676", "#3C71A6", "#20928c", "#38b977", "#fde725", "red"]});
+    // makeScale({scale: "jenks", bucketAxis: true, data: data});
+    // makeScale({scale: "jenks", bucketAxis: true, data: data2});
+    // makeScale({scale: "jenks", bucketAxis: true, data: data3});
+    // makeScale({scale: "jenks", bucketAxis: true, data: data3, buckets: [0, 0.01, 5, 15, 30, 60], color: ["#385676", "#3C71A6", "#20928c", "#38b977", "#fde725", "red"]});
+
+    // makeScale({scale: "linear", centered: true});
+    // makeScale({scale: "log", centered: true});
+    // makeScale({scale: "buckets", centered: true});
+    // makeScale({scale: "jenks", centered: true});
+    // makeScale({scale: "quantile", centered: true});
+    // makeScale({orient: "top"});
+    // makeScale({orient: "right"});
+    // makeScale({orient: "left"});
+    // makeScale({scale: "jenks"});
+    // makeScale({scale: "log"});
+
+    // makeScale({scale: "linear", data: data2});
+    // makeScale({scale: "linear", data: data2, color: ["red", "orange", "yellow", "green", "blue"]});
+    // makeScale({scale: "jenks", data: data2});
+    // makeScale({scale: "jenks", data: data2, color: ["purple", "yellow", "blue"]});
+    // makeScale({scale: "log", data: data2});
+
+    // makeScale({scale: "linear", data: data2, color: ["red", "white", "green"]});
+    // makeScale({
+    //   scale: "jenks",
+    //   // data: data2,
+    //   // buckets: 5,
+    //   // color: "purple"
+    //   // colorMin: "red",
+    //   // colorMax: "green",
+    //   // colorMid: "yellow",
+    //   // midpoint: 2000
+    //   // color: ["red", "white", "green"]
+    // });
+    // makeScale({scale: "jenks", data: [{value: 2000}, {value: 3000}], color: ["red", "white", "green"]});
+    // makeScale({scale: "jenks", data: [{value: -2000}, {value: 3000}], color: ["red", "white", "green"]});
+    // makeScale({scale: "jenks", data: [{value: -2000}, {value: -3000}], color: ["red", "white", "green"]});
+
+    // makeScale({scale: "jenks", bucketAxis: true});
+    // makeScale({scale: "buckets"});
+    // makeScale({scale: "buckets", bucketAxis: true});
+
+    // makeScale({orient: "left", scale: "linear"});
+    // makeScale({orient: "left", scale: "jenks"});
+    // makeScale({orient: "left", scale: "buckets"});
+
+  </script>
+
+</body>
+
+</html>

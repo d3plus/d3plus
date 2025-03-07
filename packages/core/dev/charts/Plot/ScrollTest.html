@@ -1,0 +1,47 @@
+
+<!doctype html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../build/d3plus-core.full.js"></script>
+    <!-- <script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.17.full.min.js"></script> -->
+
+  </head>
+  <body>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet velit purus. Nunc id tortor nec nulla molestie vulputate vitae et velit. Proin nec purus venenatis, rutrum tortor ut, dictum est. Sed tristique fermentum diam, sit amet blandit tellus elementum eu. Etiam non risus sapien. In ex nunc, faucibus eget nisl vel, varius suscipit nibh. Donec ultricies consequat enim, vitae fringilla odio faucibus id. Suspendisse lacinia, eros non porta finibus, odio dolor euismod risus, vel commodo sapien felis quis sem. Integer efficitur pellentesque dui quis sodales. Donec fermentum nisl sit amet accumsan rhoncus. Phasellus at dolor hendrerit, mollis diam posuere, sagittis risus.
+      </p>
+      <div id ="viz1"></div>
+      <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet velit purus. Nunc id tortor nec nulla molestie vulputate vitae et velit. Proin nec purus venenatis, rutrum tortor ut, dictum est. Sed tristique fermentum diam, sit amet blandit tellus elementum eu. Etiam non risus sapien. In ex nunc, faucibus eget nisl vel, varius suscipit nibh. Donec ultricies consequat enim, vitae fringilla odio faucibus id. Suspendisse lacinia, eros non porta finibus, odio dolor euismod risus, vel commodo sapien felis quis sem. Integer efficitur pellentesque dui quis sodales. Donec fermentum nisl sit amet accumsan rhoncus. Phasellus at dolor hendrerit, mollis diam posuere, sagittis risus.
+      </p>
+      <div id ="viz2"></div>
+
+      <script>
+
+        var data = [
+          {id: "alpha", x: 4, y:  7},
+          {id: "alpha", x: 5, y: 25},
+          {id: "alpha", x: 6, y: 13},
+          {id: "beta",  x: 4, y: 17},
+          {id: "beta",  x: 5, y:  8},
+          {id: "beta",  x: 6, y: 13}
+        ];
+
+        new d3plus.BarChart()
+          .data(data)
+          .stacked(true)
+          .select("#viz1")
+          .render();
+
+        new d3plus.BarChart()
+          .data(data)
+          .select("#viz2")
+          .render();
+
+      </script>
+
+  </body>
+
+</html>

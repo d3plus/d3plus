@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      background-size: 10px 10px;
+      background-image: linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px);
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  // var data = [
+  //   {id: "alpha", value: 50},
+  //   {id: "beta", value: 20},
+  //   {id: "gamma", value: 40}
+  // ];
+  //
+  // var area = new d3plus.Whisker()
+  //   .data(data)
+  //   .x((d, i) => i * 50 + 100)
+  //   .y(100)
+  //   .length(d => d.value)
+  //   .endpoint(d => d.id === "beta" ? "Circle" : "Rect")
+  //   .endpointConfig({
+  //     Circle: {
+  //       fill: "red",
+  //       r: () => 5
+  //     },
+  //     Line: {
+  //       stroke: "black",
+  //       strokeWidth: 3
+  //     }
+  //   })
+  //   .lineConfig({
+  //     stroke: (d, i) => (console.log(d, i), "red")
+  //   })
+  //   .orient(d => d.id === "alpha" ? "top" : d.id === "gamma" ? "right" : "bottom")
+  //   .render();
+
+    var data = [
+    {id: "alpha", value: 80},
+    {id: "beta", value: 20}
+  ];
+
+  var whiskers = new d3plus.Whisker()
+    .data(data)
+    .x((d, i) => i * 50 + 100) // x position of line origin
+    .y(100) // y position of line origin
+    .length(d => d.value) // length of line
+    .endpoint(d => d.id === "beta" ? "Circle" : "Rect") // shape class used for endpoints
+    .endpointConfig({
+      Circle: {
+        fill: "red",
+        r: 5
+      },
+      Rect: {
+        fill: "black",
+        height: 3,
+        width: 10
+      }
+    }) // shapeConfig for endpoints
+    .orient(d => d.id === "alpha" ? "top" : "bottom") // direction of whisker from origin x/y point
+    .on("mousemove", d => whiskers.hover(h => h.id === d.id))
+    .on("mouseleave", d => whiskers.hover(false))
+    .render();
+
+</script>
+
+</html>

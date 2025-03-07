@@ -1,4 +1,4 @@
-import {elem} from "../../dom/index.js";
+import {elem} from "@d3plus/dom";
 
 /**
     @function _drawSubtitle

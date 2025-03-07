@@ -2,6 +2,7 @@ import {configPrep} from "../../utils/index.js";
 import clickShape from "./click.shape.js";
 
 /**
+    @module mouseMoveShape
     @desc Tooltip logic for a specified data point.
     @param {Object} *d* The data object being interacted with.
     @param {Number} *i* The index of the data object being interacted with.

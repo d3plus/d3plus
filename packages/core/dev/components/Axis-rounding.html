@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/d3plus-axis@1"></script> -->
+
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://d3js.org/d3-time.v2.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v3.min.js"></script>
+
+    <style>
+
+      body {
+        background-color: #fafafa;
+        font-family: "Helvetica Neue";
+        margin: 0;
+        /* overflow: hidden; */
+        text-align: center;
+      }
+
+      h1, h2 {
+        margin: 10px auto;
+      }
+
+      .column {
+        display: inline-block;
+        float: left;
+        margin: 0;
+        vertical-align: top;
+      }
+
+      svg {
+        border: 1px solid green;
+        background: white;
+        display: inline-block;
+        margin: 10px;
+      }
+
+      .bounds {
+        /* border: 1px solid red; */
+        pointer-events: none;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <h1 id="title"></h1>
+    <div class="column" id="horizontal"></div>
+    <div class="column" id="vertical"></div>
+
+    <script>
+
+      const index = {horizontal: 0, vertical: 0};
+      const height = 150;
+      const border = 1;
+
+      // const widths = [200, 400, 600];
+      const widths = [600];
+
+      // const domain = [-57000000, 89000000];
+      // const domain = [-89000000, 57000000];
+      // const domain = [709941, 0];
+      // const domain = [178.62000335693358, -5.7524951171875];
+      // const domain = [520.4951171875, 620.000335693358];
+      // const domain = [-3.14, 6.12];
+      // const domain = [-0.96, 0.96];
+      // const domain = [0, 88.2];
+      const domain = [0, 4.39];
+      // const domain = [-327000, 59330000];
+      // const domain = [-950000, 4900000];
+      // const domain = [-1000, 1000];
+      // const domain = [-124612, 1482562];
+      // const domain = [0, 2373315];
+      // const domain = [12000001, 13000001];
+      
+      
+      const scale = "linear";
+
+      const formatter = new Intl.NumberFormat("en-US", {notation: "compact"});
+      const title = document.getElementById("title");
+      title.innerHTML = `${domain.map(d => formatter.format(d)).join(" to ")} Axis Test (${scale})`;
+
+      function makeAxis(config, vertical = false) {
+
+        const orient = vertical ? "vertical" : "horizontal";
+
+        const groupTitle = document.createElement("h2");
+        groupTitle.innerHTML = `rounding: <i>"${config.rounding || "none"}"</i>`
+        document.getElementById(orient).appendChild(groupTitle);
+
+        widths.forEach(width => {
+          
+          const i = index[orient];
+          const w = orient === "horizontal" ? width : height;
+          const h = orient === "horizontal" ? height : width;
+
+          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.id = "axis" + orient + i;
+          svg.setAttribute("width", w + "px");
+          svg.setAttribute("height", h + "px");
+          svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+          document.getElementById(orient).appendChild(svg);
+
+          const axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+            .select("#axis" + orient + i)
+            .width(w)
+            .height(h)
+            .scale(scale)
+            .config(config)
+            .domain(vertical ? domain.slice().reverse() : domain)
+            // .data([-2, -0.2, 0.1, 4])
+            // .roundingInsideMinPrefix("less than ")
+            // .roundingInsideMaxSuffix(" and more")
+            // .domain(domain.slice().reverse())
+            .render();
+
+          index[orient]++;
+
+        });
+
+      }
+
+      makeAxis({rounding: "inside"});
+      makeAxis({});
+      makeAxis({rounding: "outside"});
+
+    </script>
+
+  </body>
+
+</html>

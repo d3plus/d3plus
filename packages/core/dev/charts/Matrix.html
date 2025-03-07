@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+<script>
+
+  new d3plus.Matrix()
+    .config({
+      colorScale: "Trade Value",
+      colorScaleConfig: {
+        legendConfig: {
+          title: "Trade Value"
+        },
+        scale: "jenks"
+      },
+      colorScalePosition: "right",
+      column: "Importer Continent",
+      columnConfig: {
+        ticks: [],
+        title: "Importer Continent"
+      },
+      data: "https://api.oec.world/tesseract/data.jsonrecords?cube=trade_i_baci_a_17&drilldowns=Year,Exporter+Continent,Importer+Continent&measures=Trade+Value&Year=2018",
+      groupBy: ["Exporter Continent", "Importer Continent"],
+      row: "Exporter Continent",
+      // row: d => `${d["Exporter Continent"]} is an Exporter Continent with a long title that should wrap onto multiple lines of text automatically.`,
+      rowConfig: {
+        title: "Exporter Continent"
+      },
+      title: "Continent to Continent Product Trade",
+      titleConfig: {
+        fontSize: 20
+      },
+      tooltipConfig: {
+        tbody: [
+          ["Trade Value", function(d) { return Math.round(d["Trade Value"]) }]
+        ]
+      },
+      width: 900
+    })
+    .render();
+
+</script>
+
+</body>
+
+</html>

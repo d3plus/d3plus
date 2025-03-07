@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var myData = [
+    {group: "alpha", axis: "Central",    number: 170.992},
+    {group: "alpha", axis: "Kirkdale",   number: 40},
+    {group: "alpha", axis: "Kensington", number: 240},
+    {group: "alpha", axis: "Everton",    number: 90},
+    {group: "alpha", axis: "Picton",     number: 160},
+    {group: "alpha", axis: "Riverside",  number: 30},
+    {group: "beta",  axis: "Central",    number: 320},
+    {group: "beta",  axis: "Kirkdale",   number: 97.5},
+    {group: "beta",  axis: "Kensington", number: 40},
+    {group: "beta",  axis: "Everton",    number: 110},
+    {group: "beta",  axis: "Picton",     number: 40},
+    {group: "beta",  axis: "Riverside",  number: 110}
+  ];
+
+  new d3plus.Radar()
+    .config({
+    data: [
+      {
+        clusterName: 'Human Resources',
+        numberOfJobs: 14978
+      },
+      {
+        clusterName: 'Arts, Audio/Video Technology & Communications',
+        numberOfJobs: 2870
+      },
+      {
+        clusterName: 'Transportation, Distribution & Logistics',
+        numberOfJobs: 2026
+      },
+      {
+        clusterName: 'Energy and Natural Resources',
+        numberOfJobs: 201
+      },
+      {
+        clusterName: 'Architecture & Construction',
+        numberOfJobs: 114
+      },
+      {
+        clusterName: 'Information Technology',
+        numberOfJobs: 162963
+      },
+      {
+        clusterName: 'Finance',
+        numberOfJobs: 32681
+      },
+      {
+        clusterName: 'Government & Public Administration',
+        numberOfJobs: 897
+      },
+      {
+        clusterName: 'Education & Training',
+        numberOfJobs: 40
+      },
+      {
+        clusterName: 'Hospitality & Tourism',
+        numberOfJobs: 4
+      },
+      {
+        clusterName: 'Product Management / Analytics',
+        numberOfJobs: 13824
+      },
+      {
+        clusterName: 'Law, Public Safety, Corrections & Security',
+        numberOfJobs: 827
+      },
+      {
+        clusterName: 'Science, Technology, Engineering & Mathematics',
+        numberOfJobs: 698
+      },
+      {
+        clusterName: 'Business Management / Operations',
+        numberOfJobs: 82049
+      },
+      {
+        clusterName: 'Marketing',
+        numberOfJobs: 26101
+      },
+      {
+        clusterName: 'Human / Social Services',
+        numberOfJobs: 717
+      },
+      {
+        clusterName: 'Manufacturing',
+        numberOfJobs: 439
+      },
+      {
+        clusterName: 'Health Science',
+        numberOfJobs: 753
+      }
+    ],
+    groupBy: 'id',
+    metric: 'clusterName',
+    value: 'numberOfJobs'
+  })
+    .render();
+
+</script>
+
+</html>

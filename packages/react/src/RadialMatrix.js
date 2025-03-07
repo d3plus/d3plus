@@ -1,5 +1,5 @@
 import React from "react";
-import {RadialMatrix as type} from "d3plus-matrix";
+import {RadialMatrix as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

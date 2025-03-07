@@ -1,8 +1,9 @@
 import {select} from "d3-selection";
-import {createPopper} from "@popperjs/core/dist/esm/popper";
+import {createPopper} from '@popperjs/core';
 
-import {colorDefaults} from "../color/index.js";
-import {prefix, stylize} from "../dom/index.js";
+import {colorDefaults} from "@d3plus/color";
+import {prefix, stylize} from "@d3plus/dom";
+
 import {accessor, BaseClass, constant} from "../utils/index.js";
 
 /**
@@ -239,7 +240,6 @@ export default class Tooltip extends BaseClass {
 
         this._popperClasses[id] = createPopper(referenceObject, tooltip, {
           placement: "top",
-          placements: ["top", "bottom"],
           modifiers: [
             {
               name: "arrow",
@@ -265,6 +265,7 @@ export default class Tooltip extends BaseClass {
               options: {
                 behavior: "flip",
                 boundary: "viewport",
+                fallbackPlacements: ["bottom"],
                 padding: 5
               }
             },
@@ -272,7 +273,8 @@ export default class Tooltip extends BaseClass {
               name: "update",
               enabled: true,
               phase: "afterWrite",
-              fn({state}) {
+              fn(x) {
+                const {state} = x;
                 const arrowElement = state.elements.arrow;
                 const arrowStyles = state.styles.arrow;
                 const flipped = state.modifiersData.flip._skip;

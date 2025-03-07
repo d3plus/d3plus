@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  const domain = [2018, 2020];
+  const dataSet = [];
+
+  for (let i = domain[0]; i <= domain[1]; i++) {
+    // dataSet.push(i);
+    for (let m = 1; m <= 12; m++) {
+      dataSet.push(new Date(`${m}/01/${i}`));
+    }
+  }
+
+  const bottom = new d3plus.AxisBottom()
+    .domain([dataSet[0], dataSet[dataSet.length - 1]])
+    .data(dataSet)
+    .width(450)
+    .height(200)
+    .scale("time")
+    .shapeConfig({labelConfig: {padding: 10}})
+    .render();
+
+  // function getExtent(extent, res) {
+  //   const [start, end] = extent;
+  //   let curr = start;
+  //   const ret = [];
+  //   while (curr <= end) {
+  //     ret.push(curr);
+  //     curr = new Date(curr);
+  //     curr[`set${res}`](curr[`get${res}`]() + 1);
+  //   }
+  //   return ret;
+  // }
+
+  // const domain = [new Date("01/01/1995"), new Date("01/01/2020")];
+  // const dataSet = getExtent(yearlyExtent, "FullYear");
+
+  // const bottom = new d3plus.AxisBottom()
+  //   .data(dataSet)
+  //   .width(900)
+  //   .height(200)
+  //   .render();
+
+</script>
+
+</html>

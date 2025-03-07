@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  var tmap = new d3plus.Treemap()
+    .data("../../data.json")
+    .groupBy(["group", "item"])
+    // .data([
+    //   {
+    //     id: 'alpha',
+    //     value: 29
+    //   },
+    //   {
+    //     id: 'beta',
+    //     value: 10
+    //   },
+    //   {
+    //     id: 'gamma',
+    //     value: 2
+    //   },
+    //   {
+    //     id: 'delta',
+    //     value: 29
+    //   },
+    //   {
+    //     id: 'eta',
+    //     value: 25
+    //   }
+    // ])
+    // .groupBy("id")
+    .legend(true)
+    .sum("value")
+    .render();
+
+</script>
+
+</html>

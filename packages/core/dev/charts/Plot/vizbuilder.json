@@ -1,0 +1,812 @@
+[
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US06",
+    "State": "California",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 458
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US06",
+    "State": "California",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 443
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US13",
+    "State": "Georgia",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 417
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US06",
+    "State": "California",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 372
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US45",
+    "State": "South Carolina",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 312
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US45",
+    "State": "South Carolina",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 290
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US26",
+    "State": "Michigan",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 267
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US48",
+    "State": "Texas",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 261
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US06",
+    "State": "California",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 247
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US13",
+    "State": "Georgia",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 244
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US26",
+    "State": "Michigan",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 238
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US13",
+    "State": "Georgia",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 220
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US24",
+    "State": "Maryland",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 205
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US45",
+    "State": "South Carolina",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 188
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US48",
+    "State": "Texas",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 182
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US12",
+    "State": "Florida",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 172
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US45",
+    "State": "South Carolina",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 168
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US12",
+    "State": "Florida",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 167
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US48",
+    "State": "Texas",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 161
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US13",
+    "State": "Georgia",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 154
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US24",
+    "State": "Maryland",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 154
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US48",
+    "State": "Texas",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 135
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US37",
+    "State": "North Carolina",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 130
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US34",
+    "State": "New Jersey",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 120
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US34",
+    "State": "New Jersey",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 119
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US36",
+    "State": "New York",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 109
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US37",
+    "State": "North Carolina",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 108
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US12",
+    "State": "Florida",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 106
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US37",
+    "State": "North Carolina",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 101
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US36",
+    "State": "New York",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 97
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US37",
+    "State": "North Carolina",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 94
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US34",
+    "State": "New Jersey",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 90
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US34",
+    "State": "New Jersey",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 90
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US08",
+    "State": "Colorado",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 88
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US08",
+    "State": "Colorado",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 85
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US11",
+    "State": "District of Columbia",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 82
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US36",
+    "State": "New York",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 81
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US11",
+    "State": "District of Columbia",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 79
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US36",
+    "State": "New York",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 79
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US25",
+    "State": "Massachusetts",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 75
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US25",
+    "State": "Massachusetts",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 75
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US51",
+    "State": "Virginia",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 74
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US51",
+    "State": "Virginia",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 74
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US08",
+    "State": "Colorado",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 69
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US08",
+    "State": "Colorado",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 66
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US51",
+    "State": "Virginia",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 66
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US24",
+    "State": "Maryland",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 65
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US24",
+    "State": "Maryland",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 65
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US17",
+    "State": "Illinois",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 61
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US17",
+    "State": "Illinois",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 61
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US11",
+    "State": "District of Columbia",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 59
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US51",
+    "State": "Virginia",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 59
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US25",
+    "State": "Massachusetts",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 57
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US39",
+    "State": "Ohio",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 57
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US25",
+    "State": "Massachusetts",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 55
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US18",
+    "State": "Indiana",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 54
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US39",
+    "State": "Ohio",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 52
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US29",
+    "State": "Missouri",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 51
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US29",
+    "State": "Missouri",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 50
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US21",
+    "State": "Kentucky",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 48
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US26",
+    "State": "Michigan",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 47
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US29",
+    "State": "Missouri",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 46
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US11",
+    "State": "District of Columbia",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 45
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US39",
+    "State": "Ohio",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 44
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US39",
+    "State": "Ohio",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 43
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US42",
+    "State": "Pennsylvania",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 43
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US17",
+    "State": "Illinois",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 40
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US21",
+    "State": "Kentucky",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 38
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US20",
+    "State": "Kansas",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 35
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US20",
+    "State": "Kansas",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 34
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US20",
+    "State": "Kansas",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 33
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US20",
+    "State": "Kansas",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 32
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US18",
+    "State": "Indiana",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 31
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US40",
+    "State": "Oklahoma",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 27
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US40",
+    "State": "Oklahoma",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 26
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US40",
+    "State": "Oklahoma",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 26
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US42",
+    "State": "Pennsylvania",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 26
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US26",
+    "State": "Michigan",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 25
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US42",
+    "State": "Pennsylvania",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 25
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US42",
+    "State": "Pennsylvania",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 24
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US29",
+    "State": "Missouri",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 22
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US12",
+    "State": "Florida",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 17
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US18",
+    "State": "Indiana",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 17
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US01",
+    "State": "Alabama",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 16
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US18",
+    "State": "Indiana",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 13
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US32",
+    "State": "Nevada",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 12
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US22",
+    "State": "Louisiana",
+    "ID Year": 2014,
+    "Year": "2014",
+    "Total Population": 6
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US22",
+    "State": "Louisiana",
+    "ID Year": 2015,
+    "Year": "2015",
+    "Total Population": 6
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US22",
+    "State": "Louisiana",
+    "ID Year": 2016,
+    "Year": "2016",
+    "Total Population": 6
+  },
+  {
+    "ID Nation": "01000US",
+    "Nation": "United States",
+    "ID State": "04000US22",
+    "State": "Louisiana",
+    "ID Year": 2017,
+    "Year": "2017",
+    "Total Population": 6
+  }
+]

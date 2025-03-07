@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../build/d3plus-core.full.js"></script>
+
+    <style>
+
+      body {
+        /* background-color: black; */
+        margin: 0;
+        /* overflow: hidden; */
+      }
+
+      .bounds {
+        border: 1px solid red;
+        position: absolute;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <svg width=600 height=600>
+      <g id="my-axis"></g>
+      <g id="my-axis2" transform="translate(0, 0)"></g>
+    </svg>
+
+    <div class="bounds" id="bounds"></div>
+    <div class="bounds" id="bounds2"></div>
+
+    <script>
+
+      var bottom = new d3plus.AxisLeft()
+        .config({select: "#my-axis"})
+        // .domain(["06/12/2010", "06/12/2016"])
+        // .domain([2013, 2014, 2015])
+        // .domain(["201222", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"])
+        .domain(["Net job growth", "Employment rate", "Working age change", "Fourth"])
+        // .scalePadding(0.5)
+        .scale("point")
+        // .domain([2013, 2014])
+        // .domain([0, 1000000000])
+        // .labels([0, 3, 6, 10])
+        .width(600)
+        // .range([0, 177])
+        .height(250)
+        // .shapeConfig({
+        //   labelConfig: {
+        //     fontFamily: () => "Open Sans",
+        //     fontSize: () => 30
+        //   }
+        // })
+        // .title("My Title")
+        // .titleConfig({
+        //   fontSize: 20
+        // })
+        // .tickFormat(d => d)
+        // .range([100, 500])
+        // .scale("time")
+        // .locale("et-EE")
+        // .gridLog(false)
+        // .gridSize(500)
+        // .shapeConfig({
+        //   // fill: "#979797",
+        //   // fontColor: "white",
+        //   labelConfig: {
+        //     fontFamily: "Comic Sans MS",
+        //     fontSize: 8
+        //     // fontColor: "white", // this doesn't work!
+        //   },
+        //   // stroke: "#979797"
+        // })
+        .render();
+
+      var bounds = bottom.outerBounds();
+      var square = document.getElementById("bounds");
+      square.style.width = bounds.width + "px";
+      square.style.height = bounds.height + "px";
+      square.style.left = bounds.x + "px";
+      square.style.top = bounds.y + "px";
+      console.log(bounds);
+
+      // var bottom = new d3plus.AxisTop()
+      //   .config({select: "#my-axis2"})
+      //   .domain([0, 10])
+      //   .width(600)
+      //   .height(100)
+      //   .range([100, 500])
+      //   // .shapeConfig({
+      //   //   fill: "#979797",
+      //   //   fontColor: "white",
+      //   //   labelConfig: {
+      //   //     fontColor: "white", // this doesn't work!
+      //   //   },
+      //   //   stroke: "#979797"
+      //   // })
+      //   .render();
+      //
+      // const bounds2 = bottom.outerBounds();
+      // const square2 = document.getElementById("bounds2");
+      // square2.style.width = bounds2.width + "px";
+      // square2.style.height = bounds2.height + "px";
+      // square2.style.left = bounds2.x + "px";
+      // square2.style.top = bounds2.y + 200 + "px";
+      // console.log(bounds2);
+
+    </script>
+
+  </body>
+
+</html>

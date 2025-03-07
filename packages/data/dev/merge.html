@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-data.full.js"></script>
+
+</head>
+
+<body>
+
+  <script>
+
+    var parent = {parent: true};
+
+    var obj1 = {name: "Dave", value: 10, parent};
+    var obj2 = {name: "Dave", value: 20, parent};
+    var merged = d3plus.merge([obj1, obj2]);
+    console.log(merged);
+
+  </script>
+
+</body>
+
+</html>

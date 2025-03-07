@@ -1,9 +1,10 @@
-import {unique} from "../../utils/index.js";
+import {unique} from "@d3plus/data";
 
 const cartesian = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 
 /**
- * @private
+    @module matrixData
+    @private
  */
 export default function() {
 

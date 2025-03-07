@@ -1,8 +1,8 @@
-import {assign, isObject} from "../dom/index.js";
+import {assign, isObject} from "@d3plus/dom";
+import {findLocale, translateLocale as dictionaries} from "@d3plus/locales";
+
 import RESET from "./RESET.js";
 import uuid from "./uuid.js";
-
-import {findLocale, translateLocale as dictionaries} from "../locales/index.js";
 
 /**
     @desc Recursive function that resets nested Object configs.

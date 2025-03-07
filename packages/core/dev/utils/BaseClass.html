@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../build/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <script>
+
+    var tester = new d3plus.BaseClass();
+
+    // console.log(tester._configDefault);
+    tester.config({
+      color: "green",
+      locale: "zh",
+      on: {
+        click: "Farts",
+        end: d => console.log(d)
+      },
+      // on: {
+      //   Path: {
+      //     fill: "#888"
+      //   }
+      // }
+      // windowObject: window
+      // shapeConfig: {
+      //   Circle: {
+      //     fill: "red"
+      //   }
+      // }
+    });
+    // console.log(tester._locale);
+    console.log(tester._configDefault.locale);
+
+    // console.log("\non");
+    // console.log(tester._on);
+    console.log(tester.locale());
+    // tester.config({on: d3plus.RESET});
+    tester.config({locale: d3plus.RESET});
+    // tester.config({shapeConfig: {fill: "die", Circle: {fill: "D3PLUS-COMMON-RESET", stroke: "blue"}}})
+    console.log(tester.locale());
+    // tester.config({on: {
+    //     Path: {
+    //       fill: "D3PLUS-COMMON-RESET"
+    //     }
+    //   }});
+    // console.log(tester._on);
+
+    // console.log("\ncolor");
+    // console.log(tester._color);
+    // tester.config({color: d3plus.RESET});
+    // console.log(tester._color);
+
+    // tester.config({
+    //   shapeConfig: {
+    //     Path: {
+    //       color: "red"
+    //     }
+    //   }
+    // });
+
+  </script>
+
+</body>
+
+</html>

@@ -5,14 +5,15 @@ import {scaleLinear, scaleThreshold} from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {Axis} from "../components/index.js";
-import {colorDefaults, colorLighter} from "../color/index.js";
-import {assign, elem, textWidth} from "../dom/index.js";
-import {formatAbbreviate} from "../format/index.js";
-import ckmeans from "../math/ckmeans.js";
-import {Rect} from "../shape/index.js";
-import {TextBox} from "../text/index.js";
-import {accessor, BaseClass, constant, unique} from "../utils/index.js";
+import {colorDefaults, colorLighter} from "@d3plus/color";
+import {unique} from "@d3plus/data";
+import {assign, elem, textWidth} from "@d3plus/dom";
+import {formatAbbreviate} from "@d3plus/format";
+import {ckmeans} from "@d3plus/math";
+
+import {Axis, TextBox} from "../components/index.js";
+import {Rect} from "../shapes/index.js";
+import {accessor, BaseClass, constant} from "../utils/index.js";
 
 import Legend from "./Legend.js";
 

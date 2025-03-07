@@ -6,7 +6,6 @@ export {default as Donut} from "./Donut";
 export {default as Geomap} from "./Geomap";
 export {default as LinePlot} from "./LinePlot";
 export {default as Matrix} from "./Matrix";
-export {default as Message} from "./Message";
 export {default as Network} from "./Network";
 export {default as Pack} from "./Pack";
 export {default as Pie} from "./Pie";

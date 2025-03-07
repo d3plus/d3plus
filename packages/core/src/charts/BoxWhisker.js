@@ -1,4 +1,4 @@
-import {assign} from "../dom/index.js";
+import {assign} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 
 import {default as Plot} from "./Plot.js";

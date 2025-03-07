@@ -1,5 +1,5 @@
 import React from "react";
-import {Network as type} from "d3plus-network";
+import {Network as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

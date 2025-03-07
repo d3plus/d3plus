@@ -1,5 +1,5 @@
 import React from "react";
-import {Radar as type} from "d3plus-plot";
+import {Radar as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

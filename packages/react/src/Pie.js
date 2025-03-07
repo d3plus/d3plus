@@ -1,5 +1,5 @@
 import React from "react";
-import {Pie as type} from "d3plus-hierarchy";
+import {Pie as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**

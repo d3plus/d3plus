@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../build/d3plus-core.full.js"></script>
+
+</head>
+
+<body></body>
+
+<script>
+
+var plot = new d3plus.Plot()
+	.annotations([
+		{
+			data: [
+      	{
+        	id: 'Trend',
+     	 	  x: 10000000,
+     	 	  y: -2.5
+     	 	},
+     	 	{
+     	 	  id: 'Trend',
+     	 	  x: 1000000000000,
+     	 	  y: 2
+     	 	},
+     	 	{
+     	 	  id: 'Baseline',
+     	 	  x: 10000000,
+     	 	  y: 0
+     	 	},
+     	 	{
+     	 	  id: 'Baseline',
+     	 	  x: 1000000000000,
+     	 	  y: 0
+     	 	}
+   		],
+   		shape: 'Line',
+   		stroke: d => d['id'] === 'Trend' ? '#6A994E' : '#c3c3c3',
+   		strokeDasharray: '10',
+   		strokeWidth: 2
+		}
+	])
+	.data([
+      'https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=economy_foreign_trade_ent&drilldowns=State&measures=Trade+Value&parents=false&sparse=false',
+      'https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=complexity_eci&drilldowns=State&measures=ECI&parents=false&sparse=false'
+	])
+  .groupBy('State ID')
+  .label(d => d.State)
+  .legend(false)
+  // change to 'Circle' to see the magic hahaha
+  .shape('Rect')
+  .x('Trade Value')
+  .xConfig({
+  	domain: [
+    	10000000,
+    	1000000000000
+    ],
+    scale: 'log'
+  })
+  .y('ECI')
+  .yConfig({
+  	domain: [
+    	-2.5,
+    	2
+    ]
+  })
+  .render()
+
+setTimeout(() => {
+  plot.annotations([
+  	{
+			data: [
+      	{
+        	id: 'Trend',
+     	 	  x: 10000000,
+     	 	  y: -2.5
+     	 	},
+     	 	{
+     	 	  id: 'Trend',
+     	 	  x: 1000000000000,
+     	 	  y: 2
+     	 	}
+   		],
+   		shape: 'Line',
+   		stroke: d => d['id'] === 'Trend' ? '#6A994E' : '#c3c3c3',
+   		strokeDasharray: '10',
+   		strokeWidth: 2
+		}
+	]).render();
+}, 2000);
+
+
+setTimeout(() => {
+  plot.annotations([]).render();
+}, 4000);
+
+
+</script>
+
+</html>

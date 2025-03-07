@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../build/d3plus-core.full.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300|Palanquin:300,400,600,700|Source+Sans+Pro:300,400" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <script>
+
+      var config = {
+        "legend": false,
+        // "duration": 0,
+        "xConfig": {"title": "Year"},
+        "yConfig": {"scale": "linear", "title": "Total Population"},
+        "tooltipConfig": {"tbody": [["Year", null], ["Total Population", null]]},
+        "discrete": "x",
+        "confidence": [],
+        "groupBy": ["State"],
+        "x": "Year",
+        "y": "Total Population",
+        "colorScaleConfig": {
+          "color": [
+            "#cfdfeb",
+            "#b0cde1",
+            "#90bad8",
+            "#6ea7d2",
+            "#4c96cb",
+            "#3182bd",
+            "#004374"
+          ]
+        },
+        "colorScalePosition": "bottom",
+        "detectResizeDelay": 100,
+        // "shapeConfig": {"hoverOpacity": 1},
+        "zoomScroll": true,
+        "zoom": false,
+        "title": "Total Population by Year, by State, for All States, Female, Software publishing, and Black"
+      };
+
+      new d3plus.StackedArea()
+        .data("./vizbuilder.json")
+        .config(config)
+        .yConfig({
+          shapeConfig: {
+            labelConfig: {
+              fontFamily: () => "Source Sans Pro"
+            }
+          }
+        })
+        // .label(false)
+        .render();
+
+    </script>
+  </body>
+
+</html>

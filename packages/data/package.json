@@ -1,0 +1,42 @@
+{
+  "name": "@d3plus/data",
+  "version": "3.0.0",
+  "description": "JavaScript data loading, manipulation, and analysis functions.",
+  "license": "MIT",
+  "type": "module",
+  "exports": "./index.js",
+  "main": "build/d3plus-data.full.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "files": [
+    "build",
+    "es"
+  ],
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git",
+    "directory": "packages/data"
+  },
+  "keywords": [
+    "data",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build.js",
+    "dev": "node ../../scripts/dev.js",
+    "pretest": "npm run build",
+    "test": "eslint index.js src && eslint --global=it test && mocha 'test/**/*-test.js'"
+  },
+  "dependencies": {
+    "@d3plus/dom": "^3.0.0",
+    "d3-array": "^3.2.4",
+    "d3-collection": "^1.0.7",
+    "d3-request": "^1.0.6"
+  }
+}

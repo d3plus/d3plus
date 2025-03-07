@@ -1,5 +1,5 @@
 import React from "react";
-import {AreaPlot as type} from "d3plus-plot";
+import {AreaPlot as type} from "@d3plus/core";
 import Viz from "./Viz.js";
 
 /**
