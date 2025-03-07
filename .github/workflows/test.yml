@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Lint Code and Run Tests
 
 on:
   push:
@@ -11,10 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     defaults:
       run:
         working-directory: ./packages/core
@@ -24,8 +20,8 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
       - name: Install Dependencies
-        run: npm ci
+        run: npm i
       - name: Lint Code
         run: npm test
