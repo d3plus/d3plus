@@ -1,0 +1,45 @@
+{
+  "name": "d3plus",
+  "version": "3.0.0",
+  "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://d3plus.org",
+  "workspaces": [
+    "packages/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git"
+  },
+  "keywords": [
+    "charts",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "scripts": {
+    "docs": "node scripts/docs/docs.js",
+    "prepublishOnly": "npm run test",
+    "release": "node scripts/release.js",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@octokit/rest": "^19.0.7",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-swc": "^0.4.0",
+    "@swc/core": "^1.11.7",
+    "chalk": "^5.4.1",
+    "eslint": "^9.21.0",
+    "jsdoc-to-markdown": "^9.1.1",
+    "jsdom": "^26.0.0",
+    "live-server": "^1.2.0",
+    "mocha": "^10.2.0",
+    "rollup": "^4.34.9",
+    "shelljs": "^0.8.4",
+    "uglify-js": "^3.19.3"
+  }
+}
