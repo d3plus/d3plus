@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: 20.x
       - run: yarn install
-      - run: yarn test
+      - run: npm test
