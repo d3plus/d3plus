@@ -44,25 +44,27 @@ export default function(script) {
 
     message = msg;
 
-    process.stdout.write(`[ ${chalk.dim("wait")} ] ${message}`);
+    process.stdout.write(`[ ${chalk.dim("····")} ] ${message}`);
 
-    let tick = 0;
-
-    interval = setInterval(() => {
-      const arr = Array(4);
-      frames.forEach((f, i) => {
-        const index = (i + tick % frames.length) % frames.length;
-        if (index < arr.length) arr[index] = f;
-      });
-      process.stdout.write(`\r[ ${chalk.yellow(arr.join(""))} ] ${message}`);
-      tick++;
-    }, 50);
+    if (process.env.GITHUB_ACTIONS !== "true") {
+      let tick = 0;
+  
+      interval = setInterval(() => {
+        const arr = Array(4);
+        frames.forEach((f, i) => {
+          const index = (i + tick % frames.length) % frames.length;
+          if (index < arr.length) arr[index] = f;
+        });
+        process.stdout.write(`\r[ ${chalk.rgb(...color)(arr.join(""))} ] ${message}`);
+        tick++;
+      }, 50);
+    }
 
   };
 
   Logger.update = msg => {
     if (msg) message = msg;
-    process.stdout.write(`\r[ ${chalk.gray("wait")} ] ${message}`);
+    process.stdout.write(`\r[ ${chalk.gray("····")} ] ${message}`);
   };
 
   Logger.warn = msg => {
