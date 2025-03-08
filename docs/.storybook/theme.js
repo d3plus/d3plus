@@ -2,8 +2,8 @@ import {create} from "@storybook/theming";
 
 export default create({
 
-  colorPrimary: "#6A994E",
-  colorSecondary: "#6A994E",
+  colorPrimary: "rgb(36, 114, 200)",
+  colorSecondary: "rgb(36, 114, 200)",
 
   // Typography
   fontBase: "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
