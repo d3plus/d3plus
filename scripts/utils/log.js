@@ -59,6 +59,9 @@ export default function(script) {
         tick++;
       }, 50);
     }
+    else {
+      interval = true;
+    }
 
   };
 
