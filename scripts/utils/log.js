@@ -44,7 +44,7 @@ export default function(script) {
 
     message = msg;
 
-    process.stdout.write(`[ ${chalk.dim("····")} ] ${message}`);
+    process.stdout.write(`\r[ ${chalk.dim("····")} ] ${message}`);
 
     if (process.env.GITHUB_ACTIONS !== "true") {
       let tick = 0;
