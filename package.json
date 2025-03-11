@@ -37,7 +37,7 @@
     "eslint": "^9.21.0",
     "jsdoc-to-markdown": "^9.1.1",
     "jsdom": "^26.0.0",
-    "live-server": "^1.2.0",
+    "live-server": "^1.2.2",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9",
     "shelljs": "^0.8.4",
