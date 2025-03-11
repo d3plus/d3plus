@@ -22,12 +22,11 @@
   ],
   "scripts": {
     "docs": "node scripts/docs/docs.js",
-    "prepublishOnly": "npm run test",
     "release": "node scripts/release.js",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
-    "@octokit/rest": "^19.0.7",
+    "@octokit/rest": "^21.1.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^6.0.2",
@@ -39,7 +38,7 @@
     "jsdoc-to-markdown": "^9.1.1",
     "jsdom": "^26.0.0",
     "live-server": "^1.2.0",
-    "mocha": "^10.2.0",
+    "mocha": "^11.1.0",
     "rollup": "^4.34.9",
     "shelljs": "^0.8.4",
     "uglify-js": "^3.19.3"
