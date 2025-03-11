@@ -63,18 +63,6 @@ rollup({log})
 
   })
   .then(() => {
-
-    log.timer("creating .zip distribution");
-    const files = [
-      "LICENSE", "README.md",
-      `build/${fileName}.js`, `build/${fileName}.min.js`,
-      `build/${fileName}.full.js`, `build/${fileName}.full.min.js`
-    ];
-    shell.rm("-f", `build/${fileName}.zip`);
-    return shell.exec(`zip -j -q build/${fileName}.zip -- ${files.join(" ")}`, {async: true});
-
-  })
-  .then(() => {
     log.exit();
     shell.exit(0);
   })
