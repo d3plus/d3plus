@@ -16,15 +16,15 @@ import shell from "shelljs";
 
     @example
 
-        const execAsync = require('execAsync');
-        execAsync('ls -al', { silent: true, cwd: '/Users/admin/' });
+        import execAsync from './utils/execAsync';
+        execAsync('ls -al', {silent: true, cwd: '/Users/admin/'});
 
     @param {String} cmd - The shell command to execute
     @param {Object} opts - Any opts to pass in to exec (see shell.js docs and Node's native `exec` documentation)
     @returns {String.<Promise>} - Resolves with the command results from `stdout`
     @private
 **/
-function execAsync(cmd, opts = {}) {
+export default function execAsync(cmd, opts = {stdio: "inherit"}) {
   return new Promise((resolve, reject) => {
     shell.exec(cmd, opts, (code, stdout, stderr) => {
       if (code !== 0) return reject(new Error(stderr.length ? stderr : stdout), code);
@@ -32,5 +32,3 @@ function execAsync(cmd, opts = {}) {
     });
   });
 }
-
-export default execAsync;
