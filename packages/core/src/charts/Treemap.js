@@ -44,7 +44,7 @@ export default class Treemap extends Viz {
         return `${rank}${this._drawLabel(d, i)}, ${this._sum(d, i)}.`;
       },
       labelConfig: {
-        fontMax: 40,
+        fontMax: 32,
         fontMin: 8,
         fontResize: true,
         padding: 5
