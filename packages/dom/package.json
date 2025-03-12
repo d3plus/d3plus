@@ -4,7 +4,7 @@
   "description": "JavaScript functions for manipulating and analyzing DOM elements.",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./es/index.js",
   "main": "build/d3plus-dom.full.js",
   "engines": {
     "node": ">=18"

@@ -4,7 +4,7 @@
   "description": "International localizations for number, date, and UI labels.",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./es/index.js",
   "main": "build/d3plus-locales.full.js",
   "engines": {
     "node": ">=18"

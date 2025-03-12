@@ -35,6 +35,10 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 * [trimLeft](#trimLeft) - Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
 * [trimRight](#trimRight) - Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
 
+##### 
+* [fontFamily](#fontFamily) - The default fallback font list used for all text labels as an Array of Strings.
+* [fontFamilyStringify](#fontFamilyStringify) - Converts an Array of font-family names into a CSS font-family string.
+
 ---
 
 <a name="stringify"></a>
@@ -201,5 +205,25 @@ This is a global function
 
 ---
 
+<a name="fontFamily"></a>
+#### **fontFamily** [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.js#L1)
 
-###### <sub>Documentation generated on Fri, 07 Mar 2025 16:27:09 GMT</sub>
+The default fallback font list used for all text labels as an Array of Strings.
+
+
+This is a global constant
+
+---
+
+<a name="fontFamilyStringify"></a>
+#### **fontFamilyStringify** [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.js#L8)
+
+Converts an Array of font-family names into a CSS font-family string.
+
+
+This is a global constant
+
+---
+
+
+###### <sub>Documentation generated on Wed, 12 Mar 2025 20:01:48 GMT</sub>

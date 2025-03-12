@@ -4,7 +4,7 @@
   "description": "Mathematical functions to aid in calculating visualizations.",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./es/index.js",
   "main": "build/d3plus-math.full.js",
   "engines": {
     "node": ">=18"

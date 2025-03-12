@@ -4,7 +4,7 @@
   "description": "A smart SVG text box with line wrapping and automatic font size scaling.",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./es/index.js",
   "main": "build/d3plus-text.full.js",
   "engines": {
     "node": ">=18"
@@ -34,7 +34,7 @@
     "test": "eslint index.js src && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/dom": "^3.0.0",
+    "@d3plus/dom": "3.0.0",
     "d3-array": "^3.2.4",
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1"

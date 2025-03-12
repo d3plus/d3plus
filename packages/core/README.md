@@ -882,7 +882,7 @@ This is a static method of [<code>Pie</code>](#Pie)
 ---
 
 <a name="Plot"></a>
-#### **Plot** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot.js#L128)
+#### **Plot** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot.js#L129)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Viz</code>](#Viz).
@@ -1921,7 +1921,7 @@ This is a static method of [<code>Treemap</code>](#Treemap)
 ---
 
 <a name="Viz"></a>
-#### **Viz** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L76)
+#### **Viz** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L78)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -1957,6 +1957,7 @@ This is a global class, and extends all of the methods and functionality of [<co
     * [.downloadPosition([*value*])](#Viz.downloadPosition) ↩︎
     * [.duration([*ms*])](#Viz.duration) ↩︎
     * [.filter([*value*])](#Viz.filter) ↩︎
+    * [.fontFamily([*value*])](#Viz.fontFamily) ↩︎
     * [.groupBy([*value*])](#Viz.groupBy) ↩︎
     * [.height([*value*])](#Viz.height) ↩︎
     * [.hiddenColor([*value*])](#Viz.hiddenColor) ↩︎
@@ -2037,7 +2038,7 @@ The behavior to be used when calculating the position and size of each shape's l
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.render" href="#Viz.render">#</a> Viz.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L551)
+<a name="Viz.render" href="#Viz.render">#</a> Viz.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L553)
 
 Draws the visualization given the specified configuration.
 
@@ -2045,7 +2046,7 @@ Draws the visualization given the specified configuration.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.active" href="#Viz.active">#</a> Viz.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L754)
+<a name="Viz.active" href="#Viz.active">#</a> Viz.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L757)
 
 If *value* is specified, sets the active method to the specified function and returns the current class instance.
 
@@ -2053,7 +2054,7 @@ If *value* is specified, sets the active method to the specified function and re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.aggs" href="#Viz.aggs">#</a> Viz.**aggs**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L772)
+<a name="Viz.aggs" href="#Viz.aggs">#</a> Viz.**aggs**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L775)
 
 If *value* is specified, sets the aggregation method for each key in the object and returns the current class instance.
 
@@ -2061,7 +2062,7 @@ If *value* is specified, sets the aggregation method for each key in the object 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.ariaHidden" href="#Viz.ariaHidden">#</a> Viz.**ariaHidden**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L782)
+<a name="Viz.ariaHidden" href="#Viz.ariaHidden">#</a> Viz.**ariaHidden**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L785)
 
 Sets the "aria-hidden" attribute of the containing SVG element. The default value is "false", but it you need to hide the SVG from screen readers set this property to "true".
 
@@ -2069,7 +2070,7 @@ Sets the "aria-hidden" attribute of the containing SVG element. The default valu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.attribution" href="#Viz.attribution">#</a> Viz.**attribution**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L792)
+<a name="Viz.attribution" href="#Viz.attribution">#</a> Viz.**attribution**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L795)
 
 Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
 
@@ -2077,7 +2078,7 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.attributionStyle" href="#Viz.attributionStyle">#</a> Viz.**attributionStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L802)
+<a name="Viz.attributionStyle" href="#Viz.attributionStyle">#</a> Viz.**attributionStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L805)
 
 If *value* is specified, sets the config method for the back button and returns the current class instance.
 
@@ -2085,7 +2086,7 @@ If *value* is specified, sets the config method for the back button and returns 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.backConfig" href="#Viz.backConfig">#</a> Viz.**backConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L812)
+<a name="Viz.backConfig" href="#Viz.backConfig">#</a> Viz.**backConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L815)
 
 If *value* is specified, sets the config method for the back button and returns the current class instance.
 
@@ -2093,7 +2094,7 @@ If *value* is specified, sets the config method for the back button and returns 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.cache" href="#Viz.cache">#</a> Viz.**cache**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L822)
+<a name="Viz.cache" href="#Viz.cache">#</a> Viz.**cache**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L825)
 
 Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.
 
@@ -2101,7 +2102,7 @@ Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful wh
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.color" href="#Viz.color">#</a> Viz.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L832)
+<a name="Viz.color" href="#Viz.color">#</a> Viz.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L835)
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -2109,7 +2110,7 @@ Defines the main color to be used for each data point in a visualization. Can be
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScale" href="#Viz.colorScale">#</a> Viz.**colorScale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L842)
+<a name="Viz.colorScale" href="#Viz.colorScale">#</a> Viz.**colorScale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L845)
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -2117,7 +2118,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScaleConfig" href="#Viz.colorScaleConfig">#</a> Viz.**colorScaleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L852)
+<a name="Viz.colorScaleConfig" href="#Viz.colorScaleConfig">#</a> Viz.**colorScaleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L855)
 
 A pass-through to the config method of ColorScale.
 
@@ -2125,7 +2126,7 @@ A pass-through to the config method of ColorScale.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScalePadding" href="#Viz.colorScalePadding">#</a> Viz.**colorScalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L862)
+<a name="Viz.colorScalePadding" href="#Viz.colorScalePadding">#</a> Viz.**colorScalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L865)
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2133,7 +2134,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScalePosition" href="#Viz.colorScalePosition">#</a> Viz.**colorScalePosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L872)
+<a name="Viz.colorScalePosition" href="#Viz.colorScalePosition">#</a> Viz.**colorScalePosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L875)
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -2141,7 +2142,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScaleMaxSize" href="#Viz.colorScaleMaxSize">#</a> Viz.**colorScaleMaxSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L882)
+<a name="Viz.colorScaleMaxSize" href="#Viz.colorScaleMaxSize">#</a> Viz.**colorScaleMaxSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L885)
 
 Sets the maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -2149,7 +2150,7 @@ Sets the maximum pixel size for drawing the color scale: width for horizontal sc
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.data" href="#Viz.data">#</a> Viz.**data**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L901)
+<a name="Viz.data" href="#Viz.data">#</a> Viz.**data**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L904)
 
 Sets the primary data array to be used when drawing the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -2165,7 +2166,7 @@ If *data* is not specified, this method returns the current primary data array, 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.dataCutoff" href="#Viz.dataCutoff">#</a> Viz.**dataCutoff**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L922)
+<a name="Viz.dataCutoff" href="#Viz.dataCutoff">#</a> Viz.**dataCutoff**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L925)
 
 If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).
 
@@ -2173,7 +2174,7 @@ If the number of visible data points exceeds this number, the default hover beha
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.depth" href="#Viz.depth">#</a> Viz.**depth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L932)
+<a name="Viz.depth" href="#Viz.depth">#</a> Viz.**depth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L935)
 
 If *value* is specified, sets the depth to the specified number and returns the current class instance. The *value* should correspond with an index in the [groupBy](#groupBy) array.
 
@@ -2181,7 +2182,7 @@ If *value* is specified, sets the depth to the specified number and returns the 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectResize" href="#Viz.detectResize">#</a> Viz.**detectResize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L942)
+<a name="Viz.detectResize" href="#Viz.detectResize">#</a> Viz.**detectResize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L945)
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -2189,7 +2190,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectResizeDelay" href="#Viz.detectResizeDelay">#</a> Viz.**detectResizeDelay**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L952)
+<a name="Viz.detectResizeDelay" href="#Viz.detectResizeDelay">#</a> Viz.**detectResizeDelay**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L955)
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -2197,7 +2198,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectVisible" href="#Viz.detectVisible">#</a> Viz.**detectVisible**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L962)
+<a name="Viz.detectVisible" href="#Viz.detectVisible">#</a> Viz.**detectVisible**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L965)
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -2205,7 +2206,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectVisibleInterval" href="#Viz.detectVisibleInterval">#</a> Viz.**detectVisibleInterval**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L972)
+<a name="Viz.detectVisibleInterval" href="#Viz.detectVisibleInterval">#</a> Viz.**detectVisibleInterval**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L975)
 
 The interval, in milliseconds, for checking if the visualization is visible on the page.
 
@@ -2213,7 +2214,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.discrete" href="#Viz.discrete">#</a> Viz.**discrete**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L982)
+<a name="Viz.discrete" href="#Viz.discrete">#</a> Viz.**discrete**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L985)
 
 If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.
 
@@ -2221,7 +2222,7 @@ If *value* is specified, sets the discrete accessor to the specified method name
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadButton" href="#Viz.downloadButton">#</a> Viz.**downloadButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L992)
+<a name="Viz.downloadButton" href="#Viz.downloadButton">#</a> Viz.**downloadButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L995)
 
 Shows a button that allows for downloading the current visualization.
 
@@ -2229,7 +2230,7 @@ Shows a button that allows for downloading the current visualization.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadConfig" href="#Viz.downloadConfig">#</a> Viz.**downloadConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1002)
+<a name="Viz.downloadConfig" href="#Viz.downloadConfig">#</a> Viz.**downloadConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1005)
 
 Sets specific options of the saveElement function used when downloading the visualization.
 
@@ -2237,7 +2238,7 @@ Sets specific options of the saveElement function used when downloading the visu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadPosition" href="#Viz.downloadPosition">#</a> Viz.**downloadPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1012)
+<a name="Viz.downloadPosition" href="#Viz.downloadPosition">#</a> Viz.**downloadPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1015)
 
 Defines which control group to add the download button into.
 
@@ -2245,7 +2246,7 @@ Defines which control group to add the download button into.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.duration" href="#Viz.duration">#</a> Viz.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1022)
+<a name="Viz.duration" href="#Viz.duration">#</a> Viz.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1025)
 
 If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
 
@@ -2253,7 +2254,7 @@ If *ms* is specified, sets the animation duration to the specified number and re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.filter" href="#Viz.filter">#</a> Viz.**filter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1032)
+<a name="Viz.filter" href="#Viz.filter">#</a> Viz.**filter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1035)
 
 If *value* is specified, sets the filter to the specified function and returns the current class instance.
 
@@ -2261,7 +2262,15 @@ If *value* is specified, sets the filter to the specified function and returns t
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.groupBy" href="#Viz.groupBy">#</a> Viz.**groupBy**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1046)
+<a name="Viz.fontFamily" href="#Viz.fontFamily">#</a> Viz.**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1045)
+
+If *value* is specified, sets the filter to the specified function and returns the current class instance.
+
+
+This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
+
+
+<a name="Viz.groupBy" href="#Viz.groupBy">#</a> Viz.**groupBy**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1081)
 
 If *value* is specified, sets the group accessor(s) to the specified string, function, or array of values and returns the current class instance.
 
@@ -2276,7 +2285,7 @@ function value(d) {
 ```
 
 
-<a name="Viz.height" href="#Viz.height">#</a> Viz.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1070)
+<a name="Viz.height" href="#Viz.height">#</a> Viz.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1105)
 
 If *value* is specified, sets the overall height to the specified number and returns the current class instance.
 
@@ -2284,7 +2293,7 @@ If *value* is specified, sets the overall height to the specified number and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hiddenColor" href="#Viz.hiddenColor">#</a> Viz.**hiddenColor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1080)
+<a name="Viz.hiddenColor" href="#Viz.hiddenColor">#</a> Viz.**hiddenColor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1115)
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -2292,7 +2301,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hiddenOpacity" href="#Viz.hiddenOpacity">#</a> Viz.**hiddenOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1090)
+<a name="Viz.hiddenOpacity" href="#Viz.hiddenOpacity">#</a> Viz.**hiddenOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1125)
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -2300,7 +2309,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hover" href="#Viz.hover">#</a> Viz.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1100)
+<a name="Viz.hover" href="#Viz.hover">#</a> Viz.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1135)
 
 If *value* is specified, sets the hover method to the specified function and returns the current class instance.
 
@@ -2308,7 +2317,7 @@ If *value* is specified, sets the hover method to the specified function and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.label" href="#Viz.label">#</a> Viz.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1138)
+<a name="Viz.label" href="#Viz.label">#</a> Viz.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1173)
 
 If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.
 
@@ -2316,7 +2325,7 @@ If *value* is specified, sets the label accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legend" href="#Viz.legend">#</a> Viz.**legend**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1148)
+<a name="Viz.legend" href="#Viz.legend">#</a> Viz.**legend**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1183)
 
 If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.
 
@@ -2324,7 +2333,7 @@ If *value* is specified, toggles the legend based on the specified boolean and r
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendConfig" href="#Viz.legendConfig">#</a> Viz.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1158)
+<a name="Viz.legendConfig" href="#Viz.legendConfig">#</a> Viz.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1193)
 
 If *value* is specified, the object is passed to the legend's config method.
 
@@ -2332,7 +2341,7 @@ If *value* is specified, the object is passed to the legend's config method.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendFilterInvert" href="#Viz.legendFilterInvert">#</a> Viz.**legendFilterInvert**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1168)
+<a name="Viz.legendFilterInvert" href="#Viz.legendFilterInvert">#</a> Viz.**legendFilterInvert**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1203)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -2340,7 +2349,7 @@ Defines the click functionality of categorical legend squares. When set to false
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendPadding" href="#Viz.legendPadding">#</a> Viz.**legendPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1178)
+<a name="Viz.legendPadding" href="#Viz.legendPadding">#</a> Viz.**legendPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1213)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2348,7 +2357,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendPosition" href="#Viz.legendPosition">#</a> Viz.**legendPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1188)
+<a name="Viz.legendPosition" href="#Viz.legendPosition">#</a> Viz.**legendPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1223)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -2356,7 +2365,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendSort" href="#Viz.legendSort">#</a> Viz.**legendSort**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1198)
+<a name="Viz.legendSort" href="#Viz.legendSort">#</a> Viz.**legendSort**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1233)
 
 A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.
 
@@ -2364,7 +2373,7 @@ A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendTooltip" href="#Viz.legendTooltip">#</a> Viz.**legendTooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1208)
+<a name="Viz.legendTooltip" href="#Viz.legendTooltip">#</a> Viz.**legendTooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1243)
 
 If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.
 
@@ -2372,7 +2381,7 @@ If *value* is specified, sets the config method for the legend tooltip and retur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.loadingHTML" href="#Viz.loadingHTML">#</a> Viz.**loadingHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1218)
+<a name="Viz.loadingHTML" href="#Viz.loadingHTML">#</a> Viz.**loadingHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1253)
 
 Sets the inner HTML of the status message that is displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -2380,7 +2389,7 @@ Sets the inner HTML of the status message that is displayed when loading AJAX re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.loadingMessage" href="#Viz.loadingMessage">#</a> Viz.**loadingMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1228)
+<a name="Viz.loadingMessage" href="#Viz.loadingMessage">#</a> Viz.**loadingMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1263)
 
 Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -2388,7 +2397,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.messageMask" href="#Viz.messageMask">#</a> Viz.**messageMask**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1238)
+<a name="Viz.messageMask" href="#Viz.messageMask">#</a> Viz.**messageMask**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1273)
 
 Sets the color of the mask used underneath the status message that is displayed when loading AJAX requests and displaying errors. Additionally, `false` will turn off the mask completely.
 
@@ -2396,7 +2405,7 @@ Sets the color of the mask used underneath the status message that is displayed 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.messageStyle" href="#Viz.messageStyle">#</a> Viz.**messageStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1248)
+<a name="Viz.messageStyle" href="#Viz.messageStyle">#</a> Viz.**messageStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1283)
 
 Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -2404,7 +2413,7 @@ Defines the CSS style properties for the status message that is displayed when l
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.noDataHTML" href="#Viz.noDataHTML">#</a> Viz.**noDataHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1258)
+<a name="Viz.noDataHTML" href="#Viz.noDataHTML">#</a> Viz.**noDataHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1293)
 
 Sets the inner HTML of the status message that is displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -2412,7 +2421,7 @@ Sets the inner HTML of the status message that is displayed when no data is supp
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.noDataMessage" href="#Viz.noDataMessage">#</a> Viz.**noDataMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1268)
+<a name="Viz.noDataMessage" href="#Viz.noDataMessage">#</a> Viz.**noDataMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1303)
 
 Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
 
@@ -2420,7 +2429,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.resizeContainer" href="#Viz.resizeContainer">#</a> Viz.**resizeContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1278)
+<a name="Viz.resizeContainer" href="#Viz.resizeContainer">#</a> Viz.**resizeContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1313)
 
 If using resize detection, this method allow a custom override of the element to which the resize detection function gets attached.
 
@@ -2428,7 +2437,7 @@ If using resize detection, this method allow a custom override of the element to
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.scrollContainer" href="#Viz.scrollContainer">#</a> Viz.**scrollContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1288)
+<a name="Viz.scrollContainer" href="#Viz.scrollContainer">#</a> Viz.**scrollContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1323)
 
 If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
 
@@ -2436,7 +2445,7 @@ If using scroll or visibility detection, this method allow a custom override of 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.select" href="#Viz.select">#</a> Viz.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1298)
+<a name="Viz.select" href="#Viz.select">#</a> Viz.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1333)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element, which is `undefined` by default.
 
@@ -2444,7 +2453,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.shape" href="#Viz.shape">#</a> Viz.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1308)
+<a name="Viz.shape" href="#Viz.shape">#</a> Viz.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1343)
 
 If *value* is specified, sets the shape accessor to the specified function or number and returns the current class instance.
 
@@ -2452,7 +2461,7 @@ If *value* is specified, sets the shape accessor to the specified function or nu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.shapeConfig" href="#Viz.shapeConfig">#</a> Viz.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1318)
+<a name="Viz.shapeConfig" href="#Viz.shapeConfig">#</a> Viz.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1353)
 
 If *value* is specified, sets the config method for each shape and returns the current class instance.
 
@@ -2460,7 +2469,7 @@ If *value* is specified, sets the config method for each shape and returns the c
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitle" href="#Viz.subtitle">#</a> Viz.**subtitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1328)
+<a name="Viz.subtitle" href="#Viz.subtitle">#</a> Viz.**subtitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1363)
 
 If *value* is specified, sets the subtitle accessor to the specified function or string and returns the current class instance.
 
@@ -2468,7 +2477,7 @@ If *value* is specified, sets the subtitle accessor to the specified function or
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitleConfig" href="#Viz.subtitleConfig">#</a> Viz.**subtitleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1338)
+<a name="Viz.subtitleConfig" href="#Viz.subtitleConfig">#</a> Viz.**subtitleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1373)
 
 If *value* is specified, sets the config method for the subtitle and returns the current class instance.
 
@@ -2476,7 +2485,7 @@ If *value* is specified, sets the config method for the subtitle and returns the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitlePadding" href="#Viz.subtitlePadding">#</a> Viz.**subtitlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1348)
+<a name="Viz.subtitlePadding" href="#Viz.subtitlePadding">#</a> Viz.**subtitlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1383)
 
 Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2484,7 +2493,7 @@ Tells the subtitle whether or not to use the internal padding defined by the vis
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.svgDesc" href="#Viz.svgDesc">#</a> Viz.**svgDesc**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1358)
+<a name="Viz.svgDesc" href="#Viz.svgDesc">#</a> Viz.**svgDesc**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1393)
 
 If *value* is specified, sets the description accessor to the specified string and returns the current class instance.
 
@@ -2492,7 +2501,7 @@ If *value* is specified, sets the description accessor to the specified string a
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.svgTitle" href="#Viz.svgTitle">#</a> Viz.**svgTitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1368)
+<a name="Viz.svgTitle" href="#Viz.svgTitle">#</a> Viz.**svgTitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1403)
 
 If *value* is specified, sets the title accessor to the specified string and returns the current class instance.
 
@@ -2500,7 +2509,7 @@ If *value* is specified, sets the title accessor to the specified string and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.threshold" href="#Viz.threshold">#</a> Viz.**threshold**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1378)
+<a name="Viz.threshold" href="#Viz.threshold">#</a> Viz.**threshold**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1413)
 
 If *value* is specified, sets the threshold for buckets to the specified function or string, and returns the current class instance.
 
@@ -2508,7 +2517,7 @@ If *value* is specified, sets the threshold for buckets to the specified functio
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.thresholdKey" href="#Viz.thresholdKey">#</a> Viz.**thresholdKey**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1397)
+<a name="Viz.thresholdKey" href="#Viz.thresholdKey">#</a> Viz.**thresholdKey**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1432)
 
 If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.
 
@@ -2516,7 +2525,7 @@ If *value* is specified, sets the accesor for the value used in the threshold al
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.thresholdName" href="#Viz.thresholdName">#</a> Viz.**thresholdName**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1416)
+<a name="Viz.thresholdName" href="#Viz.thresholdName">#</a> Viz.**thresholdName**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1451)
 
 If *value* is specified, sets the label for the bucket item, and returns the current class instance.
 
@@ -2524,7 +2533,7 @@ If *value* is specified, sets the label for the bucket item, and returns the cur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.time" href="#Viz.time">#</a> Viz.**time**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1426)
+<a name="Viz.time" href="#Viz.time">#</a> Viz.**time**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1461)
 
 If *value* is specified, sets the time accessor to the specified function or string and returns the current class instance.
 
@@ -2532,7 +2541,7 @@ If *value* is specified, sets the time accessor to the specified function or str
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timeFilter" href="#Viz.timeFilter">#</a> Viz.**timeFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1456)
+<a name="Viz.timeFilter" href="#Viz.timeFilter">#</a> Viz.**timeFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1491)
 
 If *value* is specified, sets the time filter to the specified function and returns the current class instance.
 
@@ -2540,7 +2549,7 @@ If *value* is specified, sets the time filter to the specified function and retu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timeline" href="#Viz.timeline">#</a> Viz.**timeline**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1466)
+<a name="Viz.timeline" href="#Viz.timeline">#</a> Viz.**timeline**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1501)
 
 If *value* is specified, toggles the timeline based on the specified boolean and returns the current class instance.
 
@@ -2548,7 +2557,7 @@ If *value* is specified, toggles the timeline based on the specified boolean and
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelineConfig" href="#Viz.timelineConfig">#</a> Viz.**timelineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1476)
+<a name="Viz.timelineConfig" href="#Viz.timelineConfig">#</a> Viz.**timelineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1511)
 
 If *value* is specified, sets the config method for the timeline and returns the current class instance.
 
@@ -2556,7 +2565,7 @@ If *value* is specified, sets the config method for the timeline and returns the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelineDefault" href="#Viz.timelineDefault">#</a> Viz.**timelineDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1486)
+<a name="Viz.timelineDefault" href="#Viz.timelineDefault">#</a> Viz.**timelineDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1521)
 
 Sets the starting time or range for the timeline. The value provided can either be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -2564,7 +2573,7 @@ Sets the starting time or range for the timeline. The value provided can either 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelinePadding" href="#Viz.timelinePadding">#</a> Viz.**timelinePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1501)
+<a name="Viz.timelinePadding" href="#Viz.timelinePadding">#</a> Viz.**timelinePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1536)
 
 Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2572,7 +2581,7 @@ Tells the timeline whether or not to use the internal padding defined by the vis
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.title" href="#Viz.title">#</a> Viz.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1511)
+<a name="Viz.title" href="#Viz.title">#</a> Viz.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1546)
 
 If *value* is specified, sets the title accessor to the specified function or string and returns the current class instance.
 
@@ -2580,7 +2589,7 @@ If *value* is specified, sets the title accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.titleConfig" href="#Viz.titleConfig">#</a> Viz.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1521)
+<a name="Viz.titleConfig" href="#Viz.titleConfig">#</a> Viz.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1556)
 
 If *value* is specified, sets the config method for the title and returns the current class instance.
 
@@ -2588,7 +2597,7 @@ If *value* is specified, sets the config method for the title and returns the cu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.titlePadding" href="#Viz.titlePadding">#</a> Viz.**titlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1531)
+<a name="Viz.titlePadding" href="#Viz.titlePadding">#</a> Viz.**titlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1566)
 
 Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2596,7 +2605,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.tooltip" href="#Viz.tooltip">#</a> Viz.**tooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1541)
+<a name="Viz.tooltip" href="#Viz.tooltip">#</a> Viz.**tooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1576)
 
 If *value* is specified, toggles the tooltip based on the specified boolean and returns the current class instance.
 
@@ -2604,7 +2613,7 @@ If *value* is specified, toggles the tooltip based on the specified boolean and 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.tooltipConfig" href="#Viz.tooltipConfig">#</a> Viz.**tooltipConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1551)
+<a name="Viz.tooltipConfig" href="#Viz.tooltipConfig">#</a> Viz.**tooltipConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1586)
 
 If *value* is specified, sets the config method for the tooltip and returns the current class instance.
 
@@ -2612,7 +2621,7 @@ If *value* is specified, sets the config method for the tooltip and returns the 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.total" href="#Viz.total">#</a> Viz.**total**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1561)
+<a name="Viz.total" href="#Viz.total">#</a> Viz.**total**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1596)
 
 If *value* is specified, sets the total accessor to the specified function or string and returns the current class instance.
 
@@ -2620,7 +2629,7 @@ If *value* is specified, sets the total accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalConfig" href="#Viz.totalConfig">#</a> Viz.**totalConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1577)
+<a name="Viz.totalConfig" href="#Viz.totalConfig">#</a> Viz.**totalConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1612)
 
 If *value* is specified, sets the config method for the total and returns the current class instance.
 
@@ -2628,7 +2637,7 @@ If *value* is specified, sets the config method for the total and returns the cu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalFormat" href="#Viz.totalFormat">#</a> Viz.**totalFormat**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1587)
+<a name="Viz.totalFormat" href="#Viz.totalFormat">#</a> Viz.**totalFormat**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1622)
 
 Formatter function for the value in the total bar.
 
@@ -2636,7 +2645,7 @@ Formatter function for the value in the total bar.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalPadding" href="#Viz.totalPadding">#</a> Viz.**totalPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1597)
+<a name="Viz.totalPadding" href="#Viz.totalPadding">#</a> Viz.**totalPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1632)
 
 Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2644,7 +2653,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.width" href="#Viz.width">#</a> Viz.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1607)
+<a name="Viz.width" href="#Viz.width">#</a> Viz.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1642)
 
 If *value* is specified, sets the overallwidth to the specified number and returns the current class instance.
 
@@ -2652,7 +2661,7 @@ If *value* is specified, sets the overallwidth to the specified number and retur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoom" href="#Viz.zoom">#</a> Viz.**zoom**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1617)
+<a name="Viz.zoom" href="#Viz.zoom">#</a> Viz.**zoom**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1652)
 
 Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
 
@@ -2660,7 +2669,7 @@ Toggles the ability to zoom/pan the visualization. Certain parameters for zoomin
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushHandleSize" href="#Viz.zoomBrushHandleSize">#</a> Viz.**zoomBrushHandleSize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1627)
+<a name="Viz.zoomBrushHandleSize" href="#Viz.zoomBrushHandleSize">#</a> Viz.**zoomBrushHandleSize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1662)
 
 The pixel stroke-width of the zoom brush area.
 
@@ -2668,7 +2677,7 @@ The pixel stroke-width of the zoom brush area.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushHandleStyle" href="#Viz.zoomBrushHandleStyle">#</a> Viz.**zoomBrushHandleStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1637)
+<a name="Viz.zoomBrushHandleStyle" href="#Viz.zoomBrushHandleStyle">#</a> Viz.**zoomBrushHandleStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1672)
 
 An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -2676,7 +2685,7 @@ An object containing CSS key/value pairs that is used to style the outer handle 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushSelectionStyle" href="#Viz.zoomBrushSelectionStyle">#</a> Viz.**zoomBrushSelectionStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1647)
+<a name="Viz.zoomBrushSelectionStyle" href="#Viz.zoomBrushSelectionStyle">#</a> Viz.**zoomBrushSelectionStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1682)
 
 An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -2684,7 +2693,7 @@ An object containing CSS key/value pairs that is used to style the inner selecti
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyle" href="#Viz.zoomControlStyle">#</a> Viz.**zoomControlStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1657)
+<a name="Viz.zoomControlStyle" href="#Viz.zoomControlStyle">#</a> Viz.**zoomControlStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1692)
 
 An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2692,7 +2701,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyleActive" href="#Viz.zoomControlStyleActive">#</a> Viz.**zoomControlStyleActive**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1667)
+<a name="Viz.zoomControlStyleActive" href="#Viz.zoomControlStyleActive">#</a> Viz.**zoomControlStyleActive**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1702)
 
 An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2700,7 +2709,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyleHover" href="#Viz.zoomControlStyleHover">#</a> Viz.**zoomControlStyleHover**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1677)
+<a name="Viz.zoomControlStyleHover" href="#Viz.zoomControlStyleHover">#</a> Viz.**zoomControlStyleHover**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1712)
 
 An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2708,7 +2717,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomFactor" href="#Viz.zoomFactor">#</a> Viz.**zoomFactor**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1687)
+<a name="Viz.zoomFactor" href="#Viz.zoomFactor">#</a> Viz.**zoomFactor**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1722)
 
 The multiplier that is used in with the control buttons when zooming in and out.
 
@@ -2716,7 +2725,7 @@ The multiplier that is used in with the control buttons when zooming in and out.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomMax" href="#Viz.zoomMax">#</a> Viz.**zoomMax**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1697)
+<a name="Viz.zoomMax" href="#Viz.zoomMax">#</a> Viz.**zoomMax**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1732)
 
 If *value* is specified, sets the max zoom scale to the specified number and returns the current class instance. If *value* is not specified, returns the current max zoom scale.
 
@@ -2724,7 +2733,7 @@ If *value* is specified, sets the max zoom scale to the specified number and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomPan" href="#Viz.zoomPan">#</a> Viz.**zoomPan**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1707)
+<a name="Viz.zoomPan" href="#Viz.zoomPan">#</a> Viz.**zoomPan**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1742)
 
 If *value* is specified, toggles panning to the specified boolean and returns the current class instance. If *value* is not specified, returns the current panning value.
 
@@ -2732,7 +2741,7 @@ If *value* is specified, toggles panning to the specified boolean and returns th
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomPadding" href="#Viz.zoomPadding">#</a> Viz.**zoomPadding**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1717)
+<a name="Viz.zoomPadding" href="#Viz.zoomPadding">#</a> Viz.**zoomPadding**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1752)
 
 A pixel value to be used to pad all sides of a zoomed area.
 
@@ -2740,7 +2749,7 @@ A pixel value to be used to pad all sides of a zoomed area.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomScroll" href="#Viz.zoomScroll">#</a> Viz.**zoomScroll**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1727)
+<a name="Viz.zoomScroll" href="#Viz.zoomScroll">#</a> Viz.**zoomScroll**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1762)
 
 If *value* is specified, toggles scroll zooming to the specified boolean and returns the current class instance. If *value* is not specified, returns the current scroll zooming value.
 
@@ -2824,7 +2833,7 @@ Creates an SVG scale based on an array of data.
 
 
 
-<a name="Axis.render" href="#Axis.render">#</a> Axis.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L365)
+<a name="Axis.render" href="#Axis.render">#</a> Axis.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L364)
 
 Renders the current Axis to the page. If a *callback* is specified, it will be called once the legend is done drawing.
 
@@ -2832,7 +2841,7 @@ Renders the current Axis to the page. If a *callback* is specified, it will be c
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.align" href="#Axis.align">#</a> Axis.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1025)
+<a name="Axis.align" href="#Axis.align">#</a> Axis.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1024)
 
 If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance.
 
@@ -2840,7 +2849,7 @@ If *value* is specified, sets the horizontal alignment to the specified value an
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.barConfig" href="#Axis.barConfig">#</a> Axis.**barConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1035)
+<a name="Axis.barConfig" href="#Axis.barConfig">#</a> Axis.**barConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1034)
 
 If *value* is specified, sets the axis line style and returns the current class instance.
 
@@ -2848,7 +2857,7 @@ If *value* is specified, sets the axis line style and returns the current class 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.data" href="#Axis.data">#</a> Axis.**data**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1045)
+<a name="Axis.data" href="#Axis.data">#</a> Axis.**data**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1044)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2856,7 +2865,7 @@ An array of data points, which helps determine which ticks should be shown and w
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.domain" href="#Axis.domain">#</a> Axis.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1055)
+<a name="Axis.domain" href="#Axis.domain">#</a> Axis.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1054)
 
 If *value* is specified, sets the scale domain of the axis and returns the current class instance.
 
@@ -2864,7 +2873,7 @@ If *value* is specified, sets the scale domain of the axis and returns the curre
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.duration" href="#Axis.duration">#</a> Axis.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1065)
+<a name="Axis.duration" href="#Axis.duration">#</a> Axis.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1064)
 
 If *value* is specified, sets the transition duration of the axis and returns the current class instance.
 
@@ -2872,7 +2881,7 @@ If *value* is specified, sets the transition duration of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.grid" href="#Axis.grid">#</a> Axis.**grid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1075)
+<a name="Axis.grid" href="#Axis.grid">#</a> Axis.**grid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1074)
 
 If *value* is specified, sets the grid values of the axis and returns the current class instance.
 
@@ -2880,7 +2889,7 @@ If *value* is specified, sets the grid values of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridConfig" href="#Axis.gridConfig">#</a> Axis.**gridConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1085)
+<a name="Axis.gridConfig" href="#Axis.gridConfig">#</a> Axis.**gridConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1084)
 
 If *value* is specified, sets the grid config of the axis and returns the current class instance.
 
@@ -2888,7 +2897,7 @@ If *value* is specified, sets the grid config of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridLog" href="#Axis.gridLog">#</a> Axis.**gridLog**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1095)
+<a name="Axis.gridLog" href="#Axis.gridLog">#</a> Axis.**gridLog**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1094)
 
 If *value* is specified, sets the grid behavior of the axis when scale is logarithmic and returns the current class instance.
 
@@ -2896,7 +2905,7 @@ If *value* is specified, sets the grid behavior of the axis when scale is logari
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridSize" href="#Axis.gridSize">#</a> Axis.**gridSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1105)
+<a name="Axis.gridSize" href="#Axis.gridSize">#</a> Axis.**gridSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1104)
 
 If *value* is specified, sets the grid size of the axis and returns the current class instance.
 
@@ -2904,7 +2913,7 @@ If *value* is specified, sets the grid size of the axis and returns the current 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.height" href="#Axis.height">#</a> Axis.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1115)
+<a name="Axis.height" href="#Axis.height">#</a> Axis.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1114)
 
 If *value* is specified, sets the overall height of the axis and returns the current class instance.
 
@@ -2912,7 +2921,7 @@ If *value* is specified, sets the overall height of the axis and returns the cur
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labels" href="#Axis.labels">#</a> Axis.**labels**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1125)
+<a name="Axis.labels" href="#Axis.labels">#</a> Axis.**labels**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1124)
 
 If *value* is specified, sets the visible tick labels of the axis and returns the current class instance.
 
@@ -2920,7 +2929,7 @@ If *value* is specified, sets the visible tick labels of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labelOffset" href="#Axis.labelOffset">#</a> Axis.**labelOffset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1135)
+<a name="Axis.labelOffset" href="#Axis.labelOffset">#</a> Axis.**labelOffset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1134)
 
 If *value* is specified, sets whether offsets will be used to position some labels further away from the axis in order to allow space for the text.
 
@@ -2928,7 +2937,7 @@ If *value* is specified, sets whether offsets will be used to position some labe
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labelRotation" href="#Axis.labelRotation">#</a> Axis.**labelRotation**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1145)
+<a name="Axis.labelRotation" href="#Axis.labelRotation">#</a> Axis.**labelRotation**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1144)
 
 If *value* is specified, sets whether whether horizontal axis labels are rotated -90 degrees.
 
@@ -2936,7 +2945,7 @@ If *value* is specified, sets whether whether horizontal axis labels are rotated
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.maxSize" href="#Axis.maxSize">#</a> Axis.**maxSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1155)
+<a name="Axis.maxSize" href="#Axis.maxSize">#</a> Axis.**maxSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1154)
 
 If *value* is specified, sets the maximum size allowed for the space that contains the axis tick labels and title.
 
@@ -2944,7 +2953,7 @@ If *value* is specified, sets the maximum size allowed for the space that contai
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.minSize" href="#Axis.minSize">#</a> Axis.**minSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1165)
+<a name="Axis.minSize" href="#Axis.minSize">#</a> Axis.**minSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1164)
 
 If *value* is specified, sets the minimum size alloted for the space that contains the axis tick labels and title.
 
@@ -2952,7 +2961,7 @@ If *value* is specified, sets the minimum size alloted for the space that contai
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.orient" href="#Axis.orient">#</a> Axis.**orient**([*orient*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1175)
+<a name="Axis.orient" href="#Axis.orient">#</a> Axis.**orient**([*orient*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1174)
 
 If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.
 
@@ -2960,7 +2969,7 @@ If *orient* is specified, sets the orientation of the shape and returns the curr
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.outerBounds" href="#Axis.outerBounds">#</a> Axis.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1202)
+<a name="Axis.outerBounds" href="#Axis.outerBounds">#</a> Axis.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1201)
 
 If called after the elements have been drawn to DOM, will returns the outer bounds of the axis content.
 
@@ -2973,7 +2982,7 @@ This is a static method of [<code>Axis</code>](#Axis)
 ```
 
 
-<a name="Axis.padding" href="#Axis.padding">#</a> Axis.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1212)
+<a name="Axis.padding" href="#Axis.padding">#</a> Axis.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1211)
 
 If *value* is specified, sets the padding between each tick label to the specified number and returns the current class instance.
 
@@ -2981,7 +2990,7 @@ If *value* is specified, sets the padding between each tick label to the specifi
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.paddingInner" href="#Axis.paddingInner">#</a> Axis.**paddingInner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1222)
+<a name="Axis.paddingInner" href="#Axis.paddingInner">#</a> Axis.**paddingInner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1221)
 
 If *value* is specified, sets the inner padding of band scale to the specified number and returns the current class instance.
 
@@ -2989,7 +2998,7 @@ If *value* is specified, sets the inner padding of band scale to the specified n
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.paddingOuter" href="#Axis.paddingOuter">#</a> Axis.**paddingOuter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1232)
+<a name="Axis.paddingOuter" href="#Axis.paddingOuter">#</a> Axis.**paddingOuter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1231)
 
 If *value* is specified, sets the outer padding of band scales to the specified number and returns the current class instance.
 
@@ -2997,7 +3006,7 @@ If *value* is specified, sets the outer padding of band scales to the specified 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.range" href="#Axis.range">#</a> Axis.**range**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1242)
+<a name="Axis.range" href="#Axis.range">#</a> Axis.**range**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1241)
 
 If *value* is specified, sets the scale range (in pixels) of the axis and returns the current class instance. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.
 
@@ -3005,7 +3014,7 @@ If *value* is specified, sets the scale range (in pixels) of the axis and return
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.rounding" href="#Axis.rounding">#</a> Axis.**rounding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1252)
+<a name="Axis.rounding" href="#Axis.rounding">#</a> Axis.**rounding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1251)
 
 Sets the rounding method, so that more evenly spaced ticks appear at the extents of the scale. Can be set to "none" (default), "outside", or "inside".
 
@@ -3013,7 +3022,7 @@ Sets the rounding method, so that more evenly spaced ticks appear at the extents
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMinPrefix" href="#Axis.roundingInsideMinPrefix">#</a> Axis.**roundingInsideMinPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1262)
+<a name="Axis.roundingInsideMinPrefix" href="#Axis.roundingInsideMinPrefix">#</a> Axis.**roundingInsideMinPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1261)
 
 Sets the prefix used for the minimum value of "inside" rounding scales.
 
@@ -3021,7 +3030,7 @@ Sets the prefix used for the minimum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMinSuffix" href="#Axis.roundingInsideMinSuffix">#</a> Axis.**roundingInsideMinSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1272)
+<a name="Axis.roundingInsideMinSuffix" href="#Axis.roundingInsideMinSuffix">#</a> Axis.**roundingInsideMinSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1271)
 
 Sets the suffix used for the minimum value of "inside" rounding scales.
 
@@ -3029,7 +3038,7 @@ Sets the suffix used for the minimum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMaxPrefix" href="#Axis.roundingInsideMaxPrefix">#</a> Axis.**roundingInsideMaxPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1282)
+<a name="Axis.roundingInsideMaxPrefix" href="#Axis.roundingInsideMaxPrefix">#</a> Axis.**roundingInsideMaxPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1281)
 
 Sets the prefix used for the maximum value of "inside" rounding scales.
 
@@ -3037,7 +3046,7 @@ Sets the prefix used for the maximum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMaxSuffix" href="#Axis.roundingInsideMaxSuffix">#</a> Axis.**roundingInsideMaxSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1292)
+<a name="Axis.roundingInsideMaxSuffix" href="#Axis.roundingInsideMaxSuffix">#</a> Axis.**roundingInsideMaxSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1291)
 
 Sets the suffix used for the maximum value of "inside" rounding scales.
 
@@ -3045,7 +3054,7 @@ Sets the suffix used for the maximum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.scale" href="#Axis.scale">#</a> Axis.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1302)
+<a name="Axis.scale" href="#Axis.scale">#</a> Axis.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1301)
 
 If *value* is specified, sets the scale of the axis and returns the current class instance.
 
@@ -3053,7 +3062,7 @@ If *value* is specified, sets the scale of the axis and returns the current clas
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.scalePadding" href="#Axis.scalePadding">#</a> Axis.**scalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1312)
+<a name="Axis.scalePadding" href="#Axis.scalePadding">#</a> Axis.**scalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1311)
 
 Sets the "padding" property of the scale, often used in point scales.
 
@@ -3061,7 +3070,7 @@ Sets the "padding" property of the scale, often used in point scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.select" href="#Axis.select">#</a> Axis.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1322)
+<a name="Axis.select" href="#Axis.select">#</a> Axis.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1321)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -3069,7 +3078,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.shape" href="#Axis.shape">#</a> Axis.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1332)
+<a name="Axis.shape" href="#Axis.shape">#</a> Axis.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1331)
 
 If *value* is specified, sets the tick shape constructor and returns the current class instance.
 
@@ -3077,7 +3086,7 @@ If *value* is specified, sets the tick shape constructor and returns the current
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.shapeConfig" href="#Axis.shapeConfig">#</a> Axis.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1342)
+<a name="Axis.shapeConfig" href="#Axis.shapeConfig">#</a> Axis.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1341)
 
 If *value* is specified, sets the tick style of the axis and returns the current class instance.
 
@@ -3085,7 +3094,7 @@ If *value* is specified, sets the tick style of the axis and returns the current
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickFormat" href="#Axis.tickFormat">#</a> Axis.**tickFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1352)
+<a name="Axis.tickFormat" href="#Axis.tickFormat">#</a> Axis.**tickFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1351)
 
 If *value* is specified, sets the tick formatter and returns the current class instance.
 
@@ -3093,7 +3102,7 @@ If *value* is specified, sets the tick formatter and returns the current class i
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.ticks" href="#Axis.ticks">#</a> Axis.**ticks**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1362)
+<a name="Axis.ticks" href="#Axis.ticks">#</a> Axis.**ticks**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1361)
 
 If *value* is specified, sets the tick values of the axis and returns the current class instance.
 
@@ -3101,7 +3110,7 @@ If *value* is specified, sets the tick values of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickSize" href="#Axis.tickSize">#</a> Axis.**tickSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1372)
+<a name="Axis.tickSize" href="#Axis.tickSize">#</a> Axis.**tickSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1371)
 
 If *value* is specified, sets the tick size of the axis and returns the current class instance.
 
@@ -3109,7 +3118,7 @@ If *value* is specified, sets the tick size of the axis and returns the current 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickSuffix" href="#Axis.tickSuffix">#</a> Axis.**tickSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1382)
+<a name="Axis.tickSuffix" href="#Axis.tickSuffix">#</a> Axis.**tickSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1381)
 
 Sets the behavior of the abbreviations when you are using linear scale. This method accepts two options: "normal" (uses formatAbbreviate to determinate the abbreviation) and "smallest" (uses suffix from the smallest tick as reference in every tick).
 
@@ -3117,7 +3126,7 @@ Sets the behavior of the abbreviations when you are using linear scale. This met
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.timeLocale" href="#Axis.timeLocale">#</a> Axis.**timeLocale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1392)
+<a name="Axis.timeLocale" href="#Axis.timeLocale">#</a> Axis.**timeLocale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1391)
 
 Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).
 
@@ -3125,7 +3134,7 @@ Defines a custom locale object to be used in time scale. This object must includ
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.title" href="#Axis.title">#</a> Axis.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1402)
+<a name="Axis.title" href="#Axis.title">#</a> Axis.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1401)
 
 If *value* is specified, sets the title of the axis and returns the current class instance.
 
@@ -3133,7 +3142,7 @@ If *value* is specified, sets the title of the axis and returns the current clas
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.titleConfig" href="#Axis.titleConfig">#</a> Axis.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1412)
+<a name="Axis.titleConfig" href="#Axis.titleConfig">#</a> Axis.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1411)
 
 If *value* is specified, sets the title configuration of the axis and returns the current class instance.
 
@@ -3141,7 +3150,7 @@ If *value* is specified, sets the title configuration of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.width" href="#Axis.width">#</a> Axis.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1422)
+<a name="Axis.width" href="#Axis.width">#</a> Axis.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1421)
 
 If *value* is specified, sets the overall width of the axis and returns the current class instance.
 
@@ -3215,7 +3224,7 @@ Shorthand method for creating an axis where the ticks are drawn above the vertic
 ---
 
 <a name="ColorScale"></a>
-#### **ColorScale** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L19)
+#### **ColorScale** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L20)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -3263,7 +3272,7 @@ Creates an SVG scale based on an array of data. If *data* is specified, immediat
 
 
 
-<a name="ColorScale.render" href="#ColorScale.render">#</a> ColorScale.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L116)
+<a name="ColorScale.render" href="#ColorScale.render">#</a> ColorScale.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L117)
 
 Renders the current ColorScale to the page. If a *callback* is specified, it will be called once the ColorScale is done drawing.
 
@@ -3271,7 +3280,7 @@ Renders the current ColorScale to the page. If a *callback* is specified, it wil
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.axisConfig" href="#ColorScale.axisConfig">#</a> ColorScale.**axisConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L537)
+<a name="ColorScale.axisConfig" href="#ColorScale.axisConfig">#</a> ColorScale.**axisConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L538)
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -3279,7 +3288,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.align" href="#ColorScale.align">#</a> ColorScale.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L547)
+<a name="ColorScale.align" href="#ColorScale.align">#</a> ColorScale.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L548)
 
 If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance. If *value* is not specified, returns the current horizontal alignment.
 
@@ -3287,7 +3296,7 @@ If *value* is specified, sets the horizontal alignment to the specified value an
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.buckets" href="#ColorScale.buckets">#</a> ColorScale.**buckets**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L557)
+<a name="ColorScale.buckets" href="#ColorScale.buckets">#</a> ColorScale.**buckets**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L558)
 
 The number of discrete buckets to create in a bucketed color scale. Will be overridden by any custom Array of colors passed to the `color` method. Optionally, users can supply an Array of values used to separate buckets, such as `[0, 10, 25, 50, 90]` for a percentage scale. This value would create 4 buckets, with each value representing the break point between each bucket (so 5 values makes 4 buckets).
 
@@ -3295,7 +3304,7 @@ The number of discrete buckets to create in a bucketed color scale. Will be over
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.bucketAxis" href="#ColorScale.bucketAxis">#</a> ColorScale.**bucketAxis**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L567)
+<a name="ColorScale.bucketAxis" href="#ColorScale.bucketAxis">#</a> ColorScale.**bucketAxis**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L568)
 
 Determines whether or not to use an Axis to display bucket scales (both "buckets" and "jenks"). When set to `false`, bucketed scales will use the `Legend` class to display squares for each range of data. When set to `true`, bucketed scales will be displayed on an `Axis`, similar to "linear" scales.
 
@@ -3303,7 +3312,7 @@ Determines whether or not to use an Axis to display bucket scales (both "buckets
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.bucketFormat" href="#ColorScale.bucketFormat">#</a> ColorScale.**bucketFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L577)
+<a name="ColorScale.bucketFormat" href="#ColorScale.bucketFormat">#</a> ColorScale.**bucketFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L578)
 
 A function for formatting the labels associated to each bucket in a bucket-type scale ("jenks", "quantile", etc). The function is passed four arguments: the start value of the current bucket, it's index in the full Array of buckets, the full Array of buckets, and an Array of every value present in the data used to construct the buckets. Keep in mind that the end value for the bucket is not actually the next bucket in the list, but includes every value up until that next bucket value (less than, but not equal to). By default, d3plus will make the end value slightly less than it's current value, so that it does not overlap with the start label for the next bucket.
 
@@ -3311,7 +3320,7 @@ A function for formatting the labels associated to each bucket in a bucket-type 
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.bucketJoiner" href="#ColorScale.bucketJoiner">#</a> ColorScale.**bucketJoiner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L587)
+<a name="ColorScale.bucketJoiner" href="#ColorScale.bucketJoiner">#</a> ColorScale.**bucketJoiner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L588)
 
 A function that receives the minimum and maximum values of a bucket, and is expected to return the full label.
 
@@ -3319,7 +3328,7 @@ A function that receives the minimum and maximum values of a bucket, and is expe
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.centered" href="#ColorScale.centered">#</a> ColorScale.**centered**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L598)
+<a name="ColorScale.centered" href="#ColorScale.centered">#</a> ColorScale.**centered**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L599)
 
 Determines whether or not to display a midpoint centered Axis. Does not apply to quantile scales.
 
@@ -3327,7 +3336,7 @@ Determines whether or not to display a midpoint centered Axis. Does not apply to
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.color" href="#ColorScale.color">#</a> ColorScale.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L608)
+<a name="ColorScale.color" href="#ColorScale.color">#</a> ColorScale.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L609)
 
 Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` to only use just this specified color. If a single color is given as a String, then the scale is interpolated by lightening that color. Otherwise, the function expects an Array of color values to be used in order for the scale.
 
@@ -3335,7 +3344,7 @@ Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` t
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.colorMax" href="#ColorScale.colorMax">#</a> ColorScale.**colorMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L618)
+<a name="ColorScale.colorMax" href="#ColorScale.colorMax">#</a> ColorScale.**colorMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L619)
 
 Defines the color to be used for numbers greater than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
 
@@ -3343,7 +3352,7 @@ Defines the color to be used for numbers greater than the value of the `midpoint
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.colorMid" href="#ColorScale.colorMid">#</a> ColorScale.**colorMid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L628)
+<a name="ColorScale.colorMid" href="#ColorScale.colorMid">#</a> ColorScale.**colorMid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L629)
 
 Defines the color to be used for the midpoint of a diverging scale, based on the current value of the `midpoint` method (defaults to `0`). Colors in between this value and the values of `colorMin` and `colorMax` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
 
@@ -3351,7 +3360,7 @@ Defines the color to be used for the midpoint of a diverging scale, based on the
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.colorMin" href="#ColorScale.colorMin">#</a> ColorScale.**colorMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L638)
+<a name="ColorScale.colorMin" href="#ColorScale.colorMin">#</a> ColorScale.**colorMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L639)
 
 Defines the color to be used for numbers less than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
 
@@ -3359,7 +3368,7 @@ Defines the color to be used for numbers less than the value of the `midpoint` o
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.data" href="#ColorScale.data">#</a> ColorScale.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L648)
+<a name="ColorScale.data" href="#ColorScale.data">#</a> ColorScale.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L649)
 
 If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape key will be drawn for each object in the array.
 
@@ -3367,7 +3376,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.domain" href="#ColorScale.domain">#</a> ColorScale.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L658)
+<a name="ColorScale.domain" href="#ColorScale.domain">#</a> ColorScale.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L659)
 
 In a linear scale, this Array of 2 values defines the min and max values used in the color scale. Any values outside of this range will be mapped to the nearest color value.
 
@@ -3375,7 +3384,7 @@ In a linear scale, this Array of 2 values defines the min and max values used in
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.duration" href="#ColorScale.duration">#</a> ColorScale.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L668)
+<a name="ColorScale.duration" href="#ColorScale.duration">#</a> ColorScale.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L669)
 
 If *value* is specified, sets the transition duration of the ColorScale and returns the current class instance. If *value* is not specified, returns the current duration.
 
@@ -3383,7 +3392,7 @@ If *value* is specified, sets the transition duration of the ColorScale and retu
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.height" href="#ColorScale.height">#</a> ColorScale.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L678)
+<a name="ColorScale.height" href="#ColorScale.height">#</a> ColorScale.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L679)
 
 If *value* is specified, sets the overall height of the ColorScale and returns the current class instance. If *value* is not specified, returns the current height value.
 
@@ -3391,7 +3400,7 @@ If *value* is specified, sets the overall height of the ColorScale and returns t
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.labelConfig" href="#ColorScale.labelConfig">#</a> ColorScale.**labelConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L688)
+<a name="ColorScale.labelConfig" href="#ColorScale.labelConfig">#</a> ColorScale.**labelConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L689)
 
 A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
 
@@ -3399,7 +3408,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.labelMin" href="#ColorScale.labelMin">#</a> ColorScale.**labelMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L698)
+<a name="ColorScale.labelMin" href="#ColorScale.labelMin">#</a> ColorScale.**labelMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L699)
 
 Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
 
@@ -3407,7 +3416,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.labelMax" href="#ColorScale.labelMax">#</a> ColorScale.**labelMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L708)
+<a name="ColorScale.labelMax" href="#ColorScale.labelMax">#</a> ColorScale.**labelMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L709)
 
 Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
 
@@ -3415,7 +3424,7 @@ Defines a text label to be displayed off of the end of the maximum point in the 
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.legendConfig" href="#ColorScale.legendConfig">#</a> ColorScale.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L718)
+<a name="ColorScale.legendConfig" href="#ColorScale.legendConfig">#</a> ColorScale.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L719)
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -3423,7 +3432,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.midpoint" href="#ColorScale.midpoint">#</a> ColorScale.**midpoint**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L728)
+<a name="ColorScale.midpoint" href="#ColorScale.midpoint">#</a> ColorScale.**midpoint**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L729)
 
 The number value to be used as the anchor for `colorMid`, and defines the center point of the diverging color scale.
 
@@ -3431,7 +3440,7 @@ The number value to be used as the anchor for `colorMid`, and defines the center
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.orient" href="#ColorScale.orient">#</a> ColorScale.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L738)
+<a name="ColorScale.orient" href="#ColorScale.orient">#</a> ColorScale.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L739)
 
 Sets the flow of the items inside the ColorScale. If no value is passed, the current flow will be returned.
 
@@ -3439,7 +3448,7 @@ Sets the flow of the items inside the ColorScale. If no value is passed, the cur
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.outerBounds" href="#ColorScale.outerBounds">#</a> ColorScale.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L748)
+<a name="ColorScale.outerBounds" href="#ColorScale.outerBounds">#</a> ColorScale.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L749)
 
 If called after the elements have been drawn to DOM, will returns the outer bounds of the ColorScale content.
 
@@ -3452,7 +3461,7 @@ This is a static method of [<code>ColorScale</code>](#ColorScale)
 ```
 
 
-<a name="ColorScale.padding" href="#ColorScale.padding">#</a> ColorScale.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L758)
+<a name="ColorScale.padding" href="#ColorScale.padding">#</a> ColorScale.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L759)
 
 If *value* is specified, sets the padding between each key to the specified number and returns the current class instance. If *value* is not specified, returns the current padding value.
 
@@ -3460,7 +3469,7 @@ If *value* is specified, sets the padding between each key to the specified numb
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.rectConfig" href="#ColorScale.rectConfig">#</a> ColorScale.**rectConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L768)
+<a name="ColorScale.rectConfig" href="#ColorScale.rectConfig">#</a> ColorScale.**rectConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L769)
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -3468,7 +3477,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.scale" href="#ColorScale.scale">#</a> ColorScale.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L778)
+<a name="ColorScale.scale" href="#ColorScale.scale">#</a> ColorScale.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L779)
 
 If *value* is specified, sets the scale of the ColorScale and returns the current class instance. If *value* is not specified, returns the current scale value.
 
@@ -3476,7 +3485,7 @@ If *value* is specified, sets the scale of the ColorScale and returns the curren
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.select" href="#ColorScale.select">#</a> ColorScale.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L788)
+<a name="ColorScale.select" href="#ColorScale.select">#</a> ColorScale.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L789)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -3484,7 +3493,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.size" href="#ColorScale.size">#</a> ColorScale.**size**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L798)
+<a name="ColorScale.size" href="#ColorScale.size">#</a> ColorScale.**size**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L799)
 
 The height of horizontal color scales, and width when positioned vertical.
 
@@ -3492,7 +3501,7 @@ The height of horizontal color scales, and width when positioned vertical.
 This is a static method of [<code>ColorScale</code>](#ColorScale), and is chainable with other methods of this Class.
 
 
-<a name="ColorScale.value" href="#ColorScale.value">#</a> ColorScale.**value**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L812)
+<a name="ColorScale.value" href="#ColorScale.value">#</a> ColorScale.**value**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L813)
 
 If *value* is specified, sets the value accessor to the specified function or string and returns the current class instance. If *value* is not specified, returns the current value accessor.
 
@@ -3507,7 +3516,7 @@ function value(d) {
 ```
 
 
-<a name="ColorScale.width" href="#ColorScale.width">#</a> ColorScale.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L822)
+<a name="ColorScale.width" href="#ColorScale.width">#</a> ColorScale.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale.js#L823)
 
 If *value* is specified, sets the overall width of the ColorScale and returns the current class instance. If *value* is not specified, returns the current width value.
 
@@ -4139,7 +4148,7 @@ Draws the timeline.
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonPadding" href="#Timeline.buttonPadding">#</a> Timeline.**buttonPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L527)
+<a name="Timeline.buttonPadding" href="#Timeline.buttonPadding">#</a> Timeline.**buttonPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L529)
 
 If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
 
@@ -4147,7 +4156,7 @@ If *value* is specified, sets the button padding and returns the current class i
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.brushing" href="#Timeline.brushing">#</a> Timeline.**brushing**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L537)
+<a name="Timeline.brushing" href="#Timeline.brushing">#</a> Timeline.**brushing**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L539)
 
 If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
 
@@ -4155,7 +4164,7 @@ If *value* is specified, toggles the brushing value and returns the current clas
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.brushFilter" href="#Timeline.brushFilter">#</a> Timeline.**brushFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L551)
+<a name="Timeline.brushFilter" href="#Timeline.brushFilter">#</a> Timeline.**brushFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L553)
 
 If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
 
@@ -4170,7 +4179,7 @@ function() {
 ```
 
 
-<a name="Timeline.brushMin" href="#Timeline.brushMin">#</a> Timeline.**brushMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L561)
+<a name="Timeline.brushMin" href="#Timeline.brushMin">#</a> Timeline.**brushMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L563)
 
 Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods. Value passed can either be a static Number, or a function that is expected to return a Number.
 
@@ -4178,7 +4187,7 @@ Sets the minimum number of "ticks" to allow to be highlighted when using "ticks"
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonAlign" href="#Timeline.buttonAlign">#</a> Timeline.**buttonAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L571)
+<a name="Timeline.buttonAlign" href="#Timeline.buttonAlign">#</a> Timeline.**buttonAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L573)
 
 If *value* is specified, toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`. If *value* is not specified, returns the current button value.
 
@@ -4186,7 +4195,7 @@ If *value* is specified, toggles the horizontal alignment of the button timeline
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonBehavior" href="#Timeline.buttonBehavior">#</a> Timeline.**buttonBehavior**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L581)
+<a name="Timeline.buttonBehavior" href="#Timeline.buttonBehavior">#</a> Timeline.**buttonBehavior**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L583)
 
 If *value* is specified, toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`. If *value* is not specified, returns the current button value.
 
@@ -4194,7 +4203,7 @@ If *value* is specified, toggles the style of the timeline. Accepted values are 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonHeight" href="#Timeline.buttonHeight">#</a> Timeline.**buttonHeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L591)
+<a name="Timeline.buttonHeight" href="#Timeline.buttonHeight">#</a> Timeline.**buttonHeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L593)
 
 If *value* is specified, sets the button height and returns the current class instance. If *value* is not specified, returns the current button height.
 
@@ -4202,7 +4211,7 @@ If *value* is specified, sets the button height and returns the current class in
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.handleConfig" href="#Timeline.handleConfig">#</a> Timeline.**handleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L601)
+<a name="Timeline.handleConfig" href="#Timeline.handleConfig">#</a> Timeline.**handleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L603)
 
 If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
 
@@ -4210,7 +4219,7 @@ If *value* is specified, sets the handle style and returns the current class ins
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.handleSize" href="#Timeline.handleSize">#</a> Timeline.**handleSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L611)
+<a name="Timeline.handleSize" href="#Timeline.handleSize">#</a> Timeline.**handleSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L613)
 
 If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.
 
@@ -4218,7 +4227,7 @@ If *value* is specified, sets the handle size and returns the current class inst
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.on" href="#Timeline.on">#</a> Timeline.**on**([*typename*], [*listener*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L622)
+<a name="Timeline.on" href="#Timeline.on">#</a> Timeline.**on**([*typename*], [*listener*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L624)
 
 Adds or removes a *listener* for the specified brush event *typename*. If a *listener* is not specified, returns the currently-assigned listener for the specified event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -4226,7 +4235,7 @@ Adds or removes a *listener* for the specified brush event *typename*. If a *lis
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.playButton" href="#Timeline.playButton">#</a> Timeline.**playButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L632)
+<a name="Timeline.playButton" href="#Timeline.playButton">#</a> Timeline.**playButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L634)
 
 Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.
 
@@ -4234,7 +4243,7 @@ Determines the visibility of the play button to the left the of timeline, which 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.playButtonConfig" href="#Timeline.playButtonConfig">#</a> Timeline.**playButtonConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L642)
+<a name="Timeline.playButtonConfig" href="#Timeline.playButtonConfig">#</a> Timeline.**playButtonConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L644)
 
 The config Object for the Rect class used to create the playButton.
 
@@ -4242,7 +4251,7 @@ The config Object for the Rect class used to create the playButton.
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.playButtonInterval" href="#Timeline.playButtonInterval">#</a> Timeline.**playButtonInterval**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L652)
+<a name="Timeline.playButtonInterval" href="#Timeline.playButtonInterval">#</a> Timeline.**playButtonInterval**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L654)
 
 The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.
 
@@ -4250,7 +4259,7 @@ The value, in milliseconds, to use when cycling through the available time perio
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.selectionConfig" href="#Timeline.selectionConfig">#</a> Timeline.**selectionConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L662)
+<a name="Timeline.selectionConfig" href="#Timeline.selectionConfig">#</a> Timeline.**selectionConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L664)
 
 If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.
 
@@ -4258,7 +4267,7 @@ If *value* is specified, sets the selection style and returns the current class 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.selection" href="#Timeline.selection">#</a> Timeline.**selection**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L672)
+<a name="Timeline.selection" href="#Timeline.selection">#</a> Timeline.**selection**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L674)
 
 If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.
 
@@ -4266,7 +4275,7 @@ If *value* is specified, sets the selection and returns the current class instan
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.snapping" href="#Timeline.snapping">#</a> Timeline.**snapping**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L682)
+<a name="Timeline.snapping" href="#Timeline.snapping">#</a> Timeline.**snapping**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline.js#L684)
 
 If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
 
@@ -4276,7 +4285,7 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 ---
 
 <a name="Tooltip"></a>
-#### **Tooltip** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L25)
+#### **Tooltip** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L26)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -4308,6 +4317,7 @@ This is a global class, and extends all of the methods and functionality of [<co
     * [.theadStyle([*value*])](#Tooltip.theadStyle)
     * [.title([*value*])](#Tooltip.title)
     * [.titleStyle([*value*])](#Tooltip.titleStyle)
+    * [.tooltipStyle([*value*])](#Tooltip.tooltipStyle)
     * [.trStyle([*value*])](#Tooltip.trStyle)
     * [.tdStyle([*value*])](#Tooltip.tdStyle)
     * [.width([*value*])](#Tooltip.width)
@@ -4321,7 +4331,7 @@ Creates HTML tooltips in the body of a webpage.
 
 
 
-<a name="Tooltip.arrow" href="#Tooltip.arrow">#</a> Tooltip.**arrow**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L338)
+<a name="Tooltip.arrow" href="#Tooltip.arrow">#</a> Tooltip.**arrow**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L334)
 
 Sets the inner HTML content of the arrow element, which by default is empty.
 
@@ -4336,7 +4346,7 @@ default accessor
 ```
 
 
-<a name="Tooltip.arrowStyle" href="#Tooltip.arrowStyle">#</a> Tooltip.**arrowStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L355)
+<a name="Tooltip.arrowStyle" href="#Tooltip.arrowStyle">#</a> Tooltip.**arrowStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L351)
 
 If *value* is specified, sets the arrow styles to the specified values and returns this generator. If *value* is not specified, returns the current arrow styles.
 
@@ -4355,7 +4365,7 @@ default styles
 ```
 
 
-<a name="Tooltip.background" href="#Tooltip.background">#</a> Tooltip.**background**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L364)
+<a name="Tooltip.background" href="#Tooltip.background">#</a> Tooltip.**background**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L360)
 
 If *value* is specified, sets the background accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current background accessor.
 
@@ -4363,7 +4373,7 @@ If *value* is specified, sets the background accessor to the specified function 
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.body" href="#Tooltip.body">#</a> Tooltip.**body**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L377)
+<a name="Tooltip.body" href="#Tooltip.body">#</a> Tooltip.**body**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L373)
 
 If *value* is specified, sets the body accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current body accessor.
 
@@ -4378,7 +4388,7 @@ function value(d) {
 ```
 
 
-<a name="Tooltip.bodyStyle" href="#Tooltip.bodyStyle">#</a> Tooltip.**bodyStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L392)
+<a name="Tooltip.bodyStyle" href="#Tooltip.bodyStyle">#</a> Tooltip.**bodyStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L387)
 
 If *value* is specified, sets the body styles to the specified values and returns this generator. If *value* is not specified, returns the current body styles.
 
@@ -4388,14 +4398,13 @@ default styles
 
 ```js
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "400"
 }
 ```
 
 
-<a name="Tooltip.border" href="#Tooltip.border">#</a> Tooltip.**border**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L401)
+<a name="Tooltip.border" href="#Tooltip.border">#</a> Tooltip.**border**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L396)
 
 If *value* is specified, sets the border accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border accessor.
 
@@ -4403,7 +4412,7 @@ If *value* is specified, sets the border accessor to the specified function or s
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.borderRadius" href="#Tooltip.borderRadius">#</a> Tooltip.**borderRadius**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L410)
+<a name="Tooltip.borderRadius" href="#Tooltip.borderRadius">#</a> Tooltip.**borderRadius**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L405)
 
 If *value* is specified, sets the border-radius accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border-radius accessor.
 
@@ -4411,7 +4420,7 @@ If *value* is specified, sets the border-radius accessor to the specified functi
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.className" href="#Tooltip.className">#</a> Tooltip.**className**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L419)
+<a name="Tooltip.className" href="#Tooltip.className">#</a> Tooltip.**className**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L414)
 
 If *value* is specified, sets the class name to the specified string and returns this generator. If *value* is not specified, returns the current class name.
 
@@ -4419,7 +4428,7 @@ If *value* is specified, sets the class name to the specified string and returns
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.data" href="#Tooltip.data">#</a> Tooltip.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L428)
+<a name="Tooltip.data" href="#Tooltip.data">#</a> Tooltip.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L423)
 
 If *data* is specified, sets the data array to the specified array and returns this generator. If *data* is not specified, returns the current data array.
 
@@ -4427,7 +4436,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.footer" href="#Tooltip.footer">#</a> Tooltip.**footer**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L441)
+<a name="Tooltip.footer" href="#Tooltip.footer">#</a> Tooltip.**footer**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L436)
 
 If *value* is specified, sets the footer accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current footer accessor.
 
@@ -4442,7 +4451,7 @@ function value(d) {
 ```
 
 
-<a name="Tooltip.footerStyle" href="#Tooltip.footerStyle">#</a> Tooltip.**footerStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L456)
+<a name="Tooltip.footerStyle" href="#Tooltip.footerStyle">#</a> Tooltip.**footerStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L450)
 
 If *value* is specified, sets the footer styles to the specified values and returns this generator. If *value* is not specified, returns the current footer styles.
 
@@ -4452,14 +4461,13 @@ default styles
 
 ```js
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "400"
 }
 ```
 
 
-<a name="Tooltip.height" href="#Tooltip.height">#</a> Tooltip.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L465)
+<a name="Tooltip.height" href="#Tooltip.height">#</a> Tooltip.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L459)
 
 If *value* is specified, sets the height accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current height accessor.
 
@@ -4467,7 +4475,7 @@ If *value* is specified, sets the height accessor to the specified function or s
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.id" href="#Tooltip.id">#</a> Tooltip.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L478)
+<a name="Tooltip.id" href="#Tooltip.id">#</a> Tooltip.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L472)
 
 If *value* is specified, sets the id accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current id accessor.
 
@@ -4482,7 +4490,7 @@ function value(d, i) {
 ```
 
 
-<a name="Tooltip.offset" href="#Tooltip.offset">#</a> Tooltip.**offset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L487)
+<a name="Tooltip.offset" href="#Tooltip.offset">#</a> Tooltip.**offset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L481)
 
 If *value* is specified, sets the offset accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current offset accessor.
 
@@ -4490,7 +4498,7 @@ If *value* is specified, sets the offset accessor to the specified function or n
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.padding" href="#Tooltip.padding">#</a> Tooltip.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L496)
+<a name="Tooltip.padding" href="#Tooltip.padding">#</a> Tooltip.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L490)
 
 If *value* is specified, sets the padding accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current padding accessor.
 
@@ -4498,7 +4506,7 @@ If *value* is specified, sets the padding accessor to the specified function or 
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.pointerEvents" href="#Tooltip.pointerEvents">#</a> Tooltip.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L505)
+<a name="Tooltip.pointerEvents" href="#Tooltip.pointerEvents">#</a> Tooltip.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L499)
 
 If *value* is specified, sets the pointer-events accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current pointer-events accessor.
 
@@ -4506,7 +4514,7 @@ If *value* is specified, sets the pointer-events accessor to the specified funct
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.position" href="#Tooltip.position">#</a> Tooltip.**position**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L518)
+<a name="Tooltip.position" href="#Tooltip.position">#</a> Tooltip.**position**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L512)
 
 If *value* is specified, sets the position accessor to the specified function or array and returns this generator. If *value* is not specified, returns the current position accessor. If *value* is an HTMLElement, anchors the Tooltip to that HTMLElement. If *value* is a selection string, anchors the Tooltip to the HTMLElement selected by that string. Otherwise, coordinate points must be in reference to the client viewport, not the overall page.
 
@@ -4521,7 +4529,7 @@ default accessor
 ```
 
 
-<a name="Tooltip.tableStyle" href="#Tooltip.tableStyle">#</a> Tooltip.**tableStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L533)
+<a name="Tooltip.tableStyle" href="#Tooltip.tableStyle">#</a> Tooltip.**tableStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L527)
 
 If *value* is specified, sets the table styles to the specified values and returns this generator. If *value* is not specified, returns the current table styles.
 
@@ -4538,7 +4546,7 @@ default styles
 ```
 
 
-<a name="Tooltip.tbody" href="#Tooltip.tbody">#</a> Tooltip.**tbody**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L542)
+<a name="Tooltip.tbody" href="#Tooltip.tbody">#</a> Tooltip.**tbody**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L536)
 
 If *value* is specified, sets the contents of the table body to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table body data.
 
@@ -4546,7 +4554,7 @@ If *value* is specified, sets the contents of the table body to the specified ar
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.tbodyStyle" href="#Tooltip.tbodyStyle">#</a> Tooltip.**tbodyStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L558)
+<a name="Tooltip.tbodyStyle" href="#Tooltip.tbodyStyle">#</a> Tooltip.**tbodyStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L551)
 
 If *value* is specified, sets the table body styles to the specified values and returns this generator. If *value* is not specified, returns the current table body styles.
 
@@ -4556,7 +4564,6 @@ default styles
 
 ```js
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
@@ -4564,7 +4571,7 @@ default styles
 ```
 
 
-<a name="Tooltip.thead" href="#Tooltip.thead">#</a> Tooltip.**thead**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L567)
+<a name="Tooltip.thead" href="#Tooltip.thead">#</a> Tooltip.**thead**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L560)
 
 If *value* is specified, sets the contents of the table head to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table head data.
 
@@ -4572,7 +4579,7 @@ If *value* is specified, sets the contents of the table head to the specified ar
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.theadStyle" href="#Tooltip.theadStyle">#</a> Tooltip.**theadStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L583)
+<a name="Tooltip.theadStyle" href="#Tooltip.theadStyle">#</a> Tooltip.**theadStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L575)
 
 If *value* is specified, sets the table head styles to the specified values and returns this generator. If *value* is not specified, returns the current table head styles.
 
@@ -4582,7 +4589,6 @@ default styles
 
 ```js
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
@@ -4590,7 +4596,7 @@ default styles
 ```
 
 
-<a name="Tooltip.title" href="#Tooltip.title">#</a> Tooltip.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L596)
+<a name="Tooltip.title" href="#Tooltip.title">#</a> Tooltip.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L588)
 
 If *value* is specified, sets the title accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current title accessor.
 
@@ -4605,7 +4611,7 @@ function value(d) {
 ```
 
 
-<a name="Tooltip.titleStyle" href="#Tooltip.titleStyle">#</a> Tooltip.**titleStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L612)
+<a name="Tooltip.titleStyle" href="#Tooltip.titleStyle">#</a> Tooltip.**titleStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L603)
 
 If *value* is specified, sets the title styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.
 
@@ -4615,7 +4621,6 @@ default styles
 
 ```js
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "14px",
   "font-weight": "600",
   "padding-bottom": "5px"
@@ -4623,7 +4628,25 @@ default styles
 ```
 
 
-<a name="Tooltip.trStyle" href="#Tooltip.trStyle">#</a> Tooltip.**trStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L625)
+<a name="Tooltip.tooltipStyle" href="#Tooltip.tooltipStyle">#</a> Tooltip.**tooltipStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L619)
+
+If *value* is specified, sets the overall tooltip styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.
+
+
+This is a static method of [<code>Tooltip</code>](#Tooltip)
+default styles
+
+```js
+{
+  "font-family": "'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
+  "font-size": "14px",
+  "font-weight": "600",
+  "padding-bottom": "5px"
+}
+```
+
+
+<a name="Tooltip.trStyle" href="#Tooltip.trStyle">#</a> Tooltip.**trStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L632)
 
 An object with CSS keys and values to be applied to all <tr> elements inside of each <tbody>.
 
@@ -4638,7 +4661,7 @@ default styles
 ```
 
 
-<a name="Tooltip.tdStyle" href="#Tooltip.tdStyle">#</a> Tooltip.**tdStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L634)
+<a name="Tooltip.tdStyle" href="#Tooltip.tdStyle">#</a> Tooltip.**tdStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L641)
 
 An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
 
@@ -4646,7 +4669,7 @@ An object with CSS keys and values to be applied to all <td> elements inside of 
 This is a static method of [<code>Tooltip</code>](#Tooltip)
 
 
-<a name="Tooltip.width" href="#Tooltip.width">#</a> Tooltip.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L643)
+<a name="Tooltip.width" href="#Tooltip.width">#</a> Tooltip.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L650)
 
 If *value* is specified, sets the width accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current width accessor.
 
@@ -4656,7 +4679,7 @@ This is a static method of [<code>Tooltip</code>](#Tooltip)
 ---
 
 <a name="Area"></a>
-#### **Area** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L13)
+#### **Area** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L13)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -4683,7 +4706,7 @@ Creates SVG areas based on an array of data.
 
 
 
-<a name="Area.render" href="#Area.render">#</a> Area.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L114)
+<a name="Area.render" href="#Area.render">#</a> Area.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L114)
 
 Draws the area polygons.
 
@@ -4691,7 +4714,7 @@ Draws the area polygons.
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.curve" href="#Area.curve">#</a> Area.**curve**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L167)
+<a name="Area.curve" href="#Area.curve">#</a> Area.**curve**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L167)
 
 If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.
 
@@ -4699,7 +4722,7 @@ If *value* is specified, sets the area curve to the specified string and returns
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.defined" href="#Area.defined">#</a> Area.**defined**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L177)
+<a name="Area.defined" href="#Area.defined">#</a> Area.**defined**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L177)
 
 If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.
 
@@ -4707,7 +4730,7 @@ If *value* is specified, sets the defined accessor to the specified function and
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.x" href="#Area.x">#</a> Area.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L187)
+<a name="Area.x" href="#Area.x">#</a> Area.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L187)
 
 If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x accessor.
 
@@ -4715,7 +4738,7 @@ If *value* is specified, sets the x accessor to the specified function or number
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.x0" href="#Area.x0">#</a> Area.**x0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L200)
+<a name="Area.x0" href="#Area.x0">#</a> Area.**x0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L200)
 
 If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x0 accessor.
 
@@ -4723,7 +4746,7 @@ If *value* is specified, sets the x0 accessor to the specified function or numbe
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.x1" href="#Area.x1">#</a> Area.**x1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L213)
+<a name="Area.x1" href="#Area.x1">#</a> Area.**x1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L213)
 
 If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x1 accessor.
 
@@ -4731,7 +4754,7 @@ If *value* is specified, sets the x1 accessor to the specified function or numbe
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.y" href="#Area.y">#</a> Area.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L223)
+<a name="Area.y" href="#Area.y">#</a> Area.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L223)
 
 If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y accessor.
 
@@ -4739,7 +4762,7 @@ If *value* is specified, sets the y accessor to the specified function or number
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.y0" href="#Area.y0">#</a> Area.**y0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L236)
+<a name="Area.y0" href="#Area.y0">#</a> Area.**y0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L236)
 
 If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y0 accessor.
 
@@ -4747,7 +4770,7 @@ If *value* is specified, sets the y0 accessor to the specified function or numbe
 This is a static method of [<code>Area</code>](#Area), and is chainable with other methods of this Class.
 
 
-<a name="Area.y1" href="#Area.y1">#</a> Area.**y1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Area.js#L249)
+<a name="Area.y1" href="#Area.y1">#</a> Area.**y1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Area.js#L249)
 
 If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y1 accessor.
 
@@ -4757,7 +4780,7 @@ This is a static method of [<code>Area</code>](#Area), and is chainable with oth
 ---
 
 <a name="Bar"></a>
-#### **Bar** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L5)
+#### **Bar** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L5)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -4782,7 +4805,7 @@ Creates SVG areas based on an array of data.
 
 
 
-<a name="Bar.render" href="#Bar.render">#</a> Bar.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L45)
+<a name="Bar.render" href="#Bar.render">#</a> Bar.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L45)
 
 Draws the bars.
 
@@ -4790,7 +4813,7 @@ Draws the bars.
 This is a static method of [<code>Bar</code>](#Bar), and is chainable with other methods of this Class.
 
 
-<a name="Bar.height" href="#Bar.height">#</a> Bar.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L164)
+<a name="Bar.height" href="#Bar.height">#</a> Bar.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L164)
 
 If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
 
@@ -4805,7 +4828,7 @@ function(d) {
 ```
 
 
-<a name="Bar.width" href="#Bar.width">#</a> Bar.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L178)
+<a name="Bar.width" href="#Bar.width">#</a> Bar.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L178)
 
 If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
 
@@ -4820,7 +4843,7 @@ function(d) {
 ```
 
 
-<a name="Bar.x0" href="#Bar.x0">#</a> Bar.**x0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L188)
+<a name="Bar.x0" href="#Bar.x0">#</a> Bar.**x0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L188)
 
 If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance.
 
@@ -4828,7 +4851,7 @@ If *value* is specified, sets the x0 accessor to the specified function or numbe
 This is a static method of [<code>Bar</code>](#Bar), and is chainable with other methods of this Class.
 
 
-<a name="Bar.x1" href="#Bar.x1">#</a> Bar.**x1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L201)
+<a name="Bar.x1" href="#Bar.x1">#</a> Bar.**x1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L201)
 
 If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance.
 
@@ -4836,7 +4859,7 @@ If *value* is specified, sets the x1 accessor to the specified function or numbe
 This is a static method of [<code>Bar</code>](#Bar), and is chainable with other methods of this Class.
 
 
-<a name="Bar.y0" href="#Bar.y0">#</a> Bar.**y0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L211)
+<a name="Bar.y0" href="#Bar.y0">#</a> Bar.**y0**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L211)
 
 If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance.
 
@@ -4844,7 +4867,7 @@ If *value* is specified, sets the y0 accessor to the specified function or numbe
 This is a static method of [<code>Bar</code>](#Bar), and is chainable with other methods of this Class.
 
 
-<a name="Bar.y1" href="#Bar.y1">#</a> Bar.**y1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Bar.js#L224)
+<a name="Bar.y1" href="#Bar.y1">#</a> Bar.**y1**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.js#L224)
 
 If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance.
 
@@ -4854,7 +4877,7 @@ This is a static method of [<code>Bar</code>](#Bar), and is chainable with other
 ---
 
 <a name="Box"></a>
-#### **Box** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L15)
+#### **Box** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L15)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -4887,7 +4910,7 @@ Creates SVG box based on an array of data.
 
 
 
-<a name="Box.render" href="#Box.render">#</a> Box.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L64)
+<a name="Box.render" href="#Box.render">#</a> Box.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L64)
 
 Draws the Box.
 
@@ -4895,7 +4918,7 @@ Draws the Box.
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.active" href="#Box.active">#</a> Box.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L230)
+<a name="Box.active" href="#Box.active">#</a> Box.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L230)
 
 Sets the highlight accessor to the Shape class's active function.
 
@@ -4903,7 +4926,7 @@ Sets the highlight accessor to the Shape class's active function.
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.data" href="#Box.data">#</a> Box.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L243)
+<a name="Box.data" href="#Box.data">#</a> Box.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L243)
 
 If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.
 
@@ -4911,7 +4934,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.hover" href="#Box.hover">#</a> Box.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L253)
+<a name="Box.hover" href="#Box.hover">#</a> Box.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L253)
 
 Sets the highlight accessor to the Shape class's hover function.
 
@@ -4919,7 +4942,7 @@ Sets the highlight accessor to the Shape class's hover function.
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.medianConfig" href="#Box.medianConfig">#</a> Box.**medianConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L266)
+<a name="Box.medianConfig" href="#Box.medianConfig">#</a> Box.**medianConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L266)
 
 If *value* is specified, sets the config method for median and returns the current class instance.
 
@@ -4927,7 +4950,7 @@ If *value* is specified, sets the config method for median and returns the curre
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.orient" href="#Box.orient">#</a> Box.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L276)
+<a name="Box.orient" href="#Box.orient">#</a> Box.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L276)
 
 If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.
 
@@ -4935,7 +4958,7 @@ If *value* is specified, sets the orientation to the specified value. If *value*
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.outlier" href="#Box.outlier">#</a> Box.**outlier**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L286)
+<a name="Box.outlier" href="#Box.outlier">#</a> Box.**outlier**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L286)
 
 If *value* is specified, sets the outlier accessor to the specified function or string and returns the current class instance.
 
@@ -4943,7 +4966,7 @@ If *value* is specified, sets the outlier accessor to the specified function or 
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.outlierConfig" href="#Box.outlierConfig">#</a> Box.**outlierConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L296)
+<a name="Box.outlierConfig" href="#Box.outlierConfig">#</a> Box.**outlierConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L296)
 
 If *value* is specified, sets the config method for each outlier point and returns the current class instance.
 
@@ -4951,7 +4974,7 @@ If *value* is specified, sets the config method for each outlier point and retur
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.rectConfig" href="#Box.rectConfig">#</a> Box.**rectConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L306)
+<a name="Box.rectConfig" href="#Box.rectConfig">#</a> Box.**rectConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L306)
 
 If *value* is specified, sets the config method for rect shape and returns the current class instance.
 
@@ -4959,7 +4982,7 @@ If *value* is specified, sets the config method for rect shape and returns the c
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.rectWidth" href="#Box.rectWidth">#</a> Box.**rectWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L320)
+<a name="Box.rectWidth" href="#Box.rectWidth">#</a> Box.**rectWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L320)
 
 If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
 
@@ -4974,7 +4997,7 @@ function(d) {
 ```
 
 
-<a name="Box.select" href="#Box.select">#</a> Box.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L330)
+<a name="Box.select" href="#Box.select">#</a> Box.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L330)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -4982,7 +5005,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.whiskerConfig" href="#Box.whiskerConfig">#</a> Box.**whiskerConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L340)
+<a name="Box.whiskerConfig" href="#Box.whiskerConfig">#</a> Box.**whiskerConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L340)
 
 If *value* is specified, sets the config method for whisker and returns the current class instance.
 
@@ -4990,7 +5013,7 @@ If *value* is specified, sets the config method for whisker and returns the curr
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.whiskerMode" href="#Box.whiskerMode">#</a> Box.**whiskerMode**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L350)
+<a name="Box.whiskerMode" href="#Box.whiskerMode">#</a> Box.**whiskerMode**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L350)
 
 Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `"tukey"`, `"extent"`, or a Number representing a quantile.
 
@@ -4998,7 +5021,7 @@ Determines the value used for each whisker. Can be passed a single value to appl
 This is a static method of [<code>Box</code>](#Box), and is chainable with other methods of this Class.
 
 
-<a name="Box.x" href="#Box.x">#</a> Box.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L364)
+<a name="Box.x" href="#Box.x">#</a> Box.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L364)
 
 If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.
 
@@ -5013,7 +5036,7 @@ function(d) {
 ```
 
 
-<a name="Box.y" href="#Box.y">#</a> Box.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Box.js#L378)
+<a name="Box.y" href="#Box.y">#</a> Box.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.js#L378)
 
 If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.
 
@@ -5030,7 +5053,7 @@ function(d) {
 ---
 
 <a name="Circle"></a>
-#### **Circle** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Circle.js#L6)
+#### **Circle** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Circle.js#L6)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -5050,7 +5073,7 @@ Creates SVG circles based on an array of data.
 
 
 
-<a name="Circle.render" href="#Circle.render">#</a> Circle.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Circle.js#L48)
+<a name="Circle.render" href="#Circle.render">#</a> Circle.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Circle.js#L48)
 
 Draws the circles.
 
@@ -5058,7 +5081,7 @@ Draws the circles.
 This is a static method of [<code>Circle</code>](#Circle), and is chainable with other methods of this Class.
 
 
-<a name="Circle.r" href="#Circle.r">#</a> Circle.**r**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Circle.js#L99)
+<a name="Circle.r" href="#Circle.r">#</a> Circle.**r**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Circle.js#L99)
 
 If *value* is specified, sets the radius accessor to the specified function or number and returns the current class instance.
 
@@ -5075,7 +5098,7 @@ function(d) {
 ---
 
 <a name="Image"></a>
-#### **Image** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L6)
+#### **Image** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L6)
 
 
 This is a global class
@@ -5130,7 +5153,7 @@ image().data([data])(function() { alert("draw complete!"); })
 ```
 
 
-<a name="Image.render" href="#Image.render">#</a> Image.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L46)
+<a name="Image.render" href="#Image.render">#</a> Image.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L46)
 
 Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.
 
@@ -5138,7 +5161,7 @@ Renders the current Image to the page. If a *callback* is specified, it will be 
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.data" href="#Image.data">#</a> Image.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L110)
+<a name="Image.data" href="#Image.data">#</a> Image.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L110)
 
 If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. An <image> tag will be drawn for each object in the array.
 
@@ -5146,7 +5169,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.duration" href="#Image.duration">#</a> Image.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L120)
+<a name="Image.duration" href="#Image.duration">#</a> Image.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L120)
 
 If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
 
@@ -5154,7 +5177,7 @@ If *ms* is specified, sets the animation duration to the specified number and re
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.height" href="#Image.height">#</a> Image.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L134)
+<a name="Image.height" href="#Image.height">#</a> Image.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L134)
 
 If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
 
@@ -5169,7 +5192,7 @@ function(d) {
 ```
 
 
-<a name="Image.id" href="#Image.id">#</a> Image.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L148)
+<a name="Image.id" href="#Image.id">#</a> Image.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L148)
 
 If *value* is specified, sets the id accessor to the specified function and returns the current class instance.
 
@@ -5184,7 +5207,7 @@ function(d) {
 ```
 
 
-<a name="Image.opacity" href="#Image.opacity">#</a> Image.**opacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L158)
+<a name="Image.opacity" href="#Image.opacity">#</a> Image.**opacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L158)
 
 Sets the opacity of the image.
 
@@ -5192,7 +5215,7 @@ Sets the opacity of the image.
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.pointerEvents" href="#Image.pointerEvents">#</a> Image.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L168)
+<a name="Image.pointerEvents" href="#Image.pointerEvents">#</a> Image.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L168)
 
 If *value* is specified, sets the pointer-events accessor to the specified function or string and returns the current class instance.
 
@@ -5200,7 +5223,7 @@ If *value* is specified, sets the pointer-events accessor to the specified funct
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.select" href="#Image.select">#</a> Image.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L178)
+<a name="Image.select" href="#Image.select">#</a> Image.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L178)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -5208,7 +5231,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Image</code>](#Image), and is chainable with other methods of this Class.
 
 
-<a name="Image.url" href="#Image.url">#</a> Image.**url**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L192)
+<a name="Image.url" href="#Image.url">#</a> Image.**url**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L192)
 
 If *value* is specified, sets the URL accessor to the specified function and returns the current class instance.
 
@@ -5223,7 +5246,7 @@ function(d) {
 ```
 
 
-<a name="Image.width" href="#Image.width">#</a> Image.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L206)
+<a name="Image.width" href="#Image.width">#</a> Image.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L206)
 
 If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
 
@@ -5238,7 +5261,7 @@ function(d) {
 ```
 
 
-<a name="Image.x" href="#Image.x">#</a> Image.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L220)
+<a name="Image.x" href="#Image.x">#</a> Image.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L220)
 
 If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.
 
@@ -5253,7 +5276,7 @@ function(d) {
 ```
 
 
-<a name="Image.y" href="#Image.y">#</a> Image.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Image.js#L234)
+<a name="Image.y" href="#Image.y">#</a> Image.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.js#L234)
 
 If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.
 
@@ -5270,7 +5293,7 @@ function(d) {
 ---
 
 <a name="Line"></a>
-#### **Line** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Line.js#L12)
+#### **Line** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Line.js#L12)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -5291,7 +5314,7 @@ Creates SVG lines based on an array of data.
 
 
 
-<a name="Line.render" href="#Line.render">#</a> Line.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Line.js#L85)
+<a name="Line.render" href="#Line.render">#</a> Line.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Line.js#L85)
 
 Draws the lines.
 
@@ -5299,7 +5322,7 @@ Draws the lines.
 This is a static method of [<code>Line</code>](#Line), and is chainable with other methods of this Class.
 
 
-<a name="Line.curve" href="#Line.curve">#</a> Line.**curve**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Line.js#L190)
+<a name="Line.curve" href="#Line.curve">#</a> Line.**curve**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Line.js#L190)
 
 If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.
 
@@ -5307,7 +5330,7 @@ If *value* is specified, sets the area curve to the specified string and returns
 This is a static method of [<code>Line</code>](#Line), and is chainable with other methods of this Class.
 
 
-<a name="Line.defined" href="#Line.defined">#</a> Line.**defined**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Line.js#L200)
+<a name="Line.defined" href="#Line.defined">#</a> Line.**defined**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Line.js#L200)
 
 If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.
 
@@ -5317,7 +5340,7 @@ This is a static method of [<code>Line</code>](#Line), and is chainable with oth
 ---
 
 <a name="Path"></a>
-#### **Path** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Path.js#L6)
+#### **Path** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Path.js#L6)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -5337,7 +5360,7 @@ Creates SVG Paths based on an array of data.
 
 
 
-<a name="Path.render" href="#Path.render">#</a> Path.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Path.js#L49)
+<a name="Path.render" href="#Path.render">#</a> Path.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Path.js#L49)
 
 Draws the paths.
 
@@ -5345,7 +5368,7 @@ Draws the paths.
 This is a static method of [<code>Path</code>](#Path), and is chainable with other methods of this Class.
 
 
-<a name="Path.d" href="#Path.d">#</a> Path.**d**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Path.js#L87)
+<a name="Path.d" href="#Path.d">#</a> Path.**d**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Path.js#L87)
 
 If *value* is specified, sets the "d" attribute accessor to the specified function or number and returns the current class instance.
 
@@ -5362,7 +5385,7 @@ function(d) {
 ---
 
 <a name="Rect"></a>
-#### **Rect** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Rect.js#L4)
+#### **Rect** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Rect.js#L4)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Shape</code>](#Shape).
@@ -5383,7 +5406,7 @@ Creates SVG rectangles based on an array of data. See [this example](https://d3p
 
 
 
-<a name="Rect.render" href="#Rect.render">#</a> Rect.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Rect.js#L31)
+<a name="Rect.render" href="#Rect.render">#</a> Rect.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Rect.js#L31)
 
 Draws the rectangles.
 
@@ -5391,7 +5414,7 @@ Draws the rectangles.
 This is a static method of [<code>Rect</code>](#Rect), and is chainable with other methods of this Class.
 
 
-<a name="Rect.height" href="#Rect.height">#</a> Rect.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Rect.js#L96)
+<a name="Rect.height" href="#Rect.height">#</a> Rect.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Rect.js#L96)
 
 If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
 
@@ -5406,7 +5429,7 @@ function(d) {
 ```
 
 
-<a name="Rect.width" href="#Rect.width">#</a> Rect.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Rect.js#L110)
+<a name="Rect.width" href="#Rect.width">#</a> Rect.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Rect.js#L110)
 
 If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
 
@@ -5423,7 +5446,7 @@ function(d) {
 ---
 
 <a name="Shape"></a>
-#### **Shape** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L18)
+#### **Shape** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L19)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -5482,7 +5505,7 @@ An abstracted class for generating shapes.
 
 
 
-<a name="Shape.render" href="#Shape.render">#</a> Shape.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L538)
+<a name="Shape.render" href="#Shape.render">#</a> Shape.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L539)
 
 Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.
 
@@ -5490,7 +5513,7 @@ Renders the current Shape to the page. If a *callback* is specified, it will be 
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.active" href="#Shape.active">#</a> Shape.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L702)
+<a name="Shape.active" href="#Shape.active">#</a> Shape.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L703)
 
 If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.
 
@@ -5498,7 +5521,7 @@ If *value* is specified, sets the highlight accessor to the specified function a
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.activeOpacity" href="#Shape.activeOpacity">#</a> Shape.**activeOpacity**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L721)
+<a name="Shape.activeOpacity" href="#Shape.activeOpacity">#</a> Shape.**activeOpacity**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L722)
 
 When shapes are active, this is the opacity of any shape that is not active.
 
@@ -5506,7 +5529,7 @@ When shapes are active, this is the opacity of any shape that is not active.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.activeStyle" href="#Shape.activeStyle">#</a> Shape.**activeStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L731)
+<a name="Shape.activeStyle" href="#Shape.activeStyle">#</a> Shape.**activeStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L732)
 
 The style to apply to active shapes.
 
@@ -5514,7 +5537,7 @@ The style to apply to active shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.ariaLabel" href="#Shape.ariaLabel">#</a> Shape.**ariaLabel**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L741)
+<a name="Shape.ariaLabel" href="#Shape.ariaLabel">#</a> Shape.**ariaLabel**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L742)
 
 If *value* is specified, sets the aria-label attribute to the specified function or string and returns the current class instance.
 
@@ -5522,7 +5545,7 @@ If *value* is specified, sets the aria-label attribute to the specified function
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.backgroundImage" href="#Shape.backgroundImage">#</a> Shape.**backgroundImage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L753)
+<a name="Shape.backgroundImage" href="#Shape.backgroundImage">#</a> Shape.**backgroundImage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L754)
 
 If *value* is specified, sets the background-image accessor to the specified function or string and returns the current class instance.
 
@@ -5530,7 +5553,7 @@ If *value* is specified, sets the background-image accessor to the specified fun
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.data" href="#Shape.data">#</a> Shape.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L765)
+<a name="Shape.data" href="#Shape.data">#</a> Shape.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L766)
 
 If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape will be drawn for each object in the array.
 
@@ -5538,7 +5561,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.discrete" href="#Shape.discrete">#</a> Shape.**discrete**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L777)
+<a name="Shape.discrete" href="#Shape.discrete">#</a> Shape.**discrete**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L778)
 
 Determines if either the X or Y position is discrete along a Line, which helps in determining the nearest data point on a line for a hit area event.
 
@@ -5546,7 +5569,7 @@ Determines if either the X or Y position is discrete along a Line, which helps i
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.duration" href="#Shape.duration">#</a> Shape.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L787)
+<a name="Shape.duration" href="#Shape.duration">#</a> Shape.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L788)
 
 If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
 
@@ -5554,7 +5577,7 @@ If *ms* is specified, sets the animation duration to the specified number and re
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.fill" href="#Shape.fill">#</a> Shape.**fill**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L799)
+<a name="Shape.fill" href="#Shape.fill">#</a> Shape.**fill**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L800)
 
 If *value* is specified, sets the fill accessor to the specified function or string and returns the current class instance.
 
@@ -5562,7 +5585,7 @@ If *value* is specified, sets the fill accessor to the specified function or str
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.fillOpacity" href="#Shape.fillOpacity">#</a> Shape.**fillOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L811)
+<a name="Shape.fillOpacity" href="#Shape.fillOpacity">#</a> Shape.**fillOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L812)
 
 Defines the "fill-opacity" attribute for the shapes.
 
@@ -5570,7 +5593,7 @@ Defines the "fill-opacity" attribute for the shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.hover" href="#Shape.hover">#</a> Shape.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L823)
+<a name="Shape.hover" href="#Shape.hover">#</a> Shape.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L824)
 
 If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.
 
@@ -5578,7 +5601,7 @@ If *value* is specified, sets the highlight accessor to the specified function a
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.hoverStyle" href="#Shape.hoverStyle">#</a> Shape.**hoverStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L842)
+<a name="Shape.hoverStyle" href="#Shape.hoverStyle">#</a> Shape.**hoverStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L843)
 
 The style to apply to hovered shapes.
 
@@ -5586,7 +5609,7 @@ The style to apply to hovered shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.hoverOpacity" href="#Shape.hoverOpacity">#</a> Shape.**hoverOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L852)
+<a name="Shape.hoverOpacity" href="#Shape.hoverOpacity">#</a> Shape.**hoverOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L853)
 
 If *value* is specified, sets the hover opacity to the specified function and returns the current class instance.
 
@@ -5594,7 +5617,7 @@ If *value* is specified, sets the hover opacity to the specified function and re
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.hitArea" href="#Shape.hitArea">#</a> Shape.**hitArea**([*bounds*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L871)
+<a name="Shape.hitArea" href="#Shape.hitArea">#</a> Shape.**hitArea**([*bounds*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L872)
 
 If *bounds* is specified, sets the mouse hit area to the specified function and returns the current class instance. If *bounds* is not specified, returns the current mouse hit area accessor.
 
@@ -5614,7 +5637,7 @@ function(d, i, shape) {
 ```
 
 
-<a name="Shape.id" href="#Shape.id">#</a> Shape.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L881)
+<a name="Shape.id" href="#Shape.id">#</a> Shape.**id**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L882)
 
 If *value* is specified, sets the id accessor to the specified function and returns the current class instance.
 
@@ -5622,7 +5645,7 @@ If *value* is specified, sets the id accessor to the specified function and retu
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.label" href="#Shape.label">#</a> Shape.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L891)
+<a name="Shape.label" href="#Shape.label">#</a> Shape.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L892)
 
 If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.
 
@@ -5630,7 +5653,7 @@ If *value* is specified, sets the label accessor to the specified function or st
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.labelBounds" href="#Shape.labelBounds">#</a> Shape.**labelBounds**([*bounds*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L910)
+<a name="Shape.labelBounds" href="#Shape.labelBounds">#</a> Shape.**labelBounds**([*bounds*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L911)
 
 If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.
 
@@ -5650,7 +5673,7 @@ function(d, i, shape) {
 ```
 
 
-<a name="Shape.labelConfig" href="#Shape.labelConfig">#</a> Shape.**labelConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L920)
+<a name="Shape.labelConfig" href="#Shape.labelConfig">#</a> Shape.**labelConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L921)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -5658,7 +5681,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.opacity" href="#Shape.opacity">#</a> Shape.**opacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L930)
+<a name="Shape.opacity" href="#Shape.opacity">#</a> Shape.**opacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L931)
 
 If *value* is specified, sets the opacity accessor to the specified function or number and returns the current class instance.
 
@@ -5666,7 +5689,7 @@ If *value* is specified, sets the opacity accessor to the specified function or 
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.pointerEvents" href="#Shape.pointerEvents">#</a> Shape.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L940)
+<a name="Shape.pointerEvents" href="#Shape.pointerEvents">#</a> Shape.**pointerEvents**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L941)
 
 If *value* is specified, sets the pointerEvents accessor to the specified function or string and returns the current class instance.
 
@@ -5674,7 +5697,7 @@ If *value* is specified, sets the pointerEvents accessor to the specified functi
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.role" href="#Shape.role">#</a> Shape.**role**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L950)
+<a name="Shape.role" href="#Shape.role">#</a> Shape.**role**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L951)
 
 If *value* is specified, sets the role attribute to the specified function or string and returns the current class instance.
 
@@ -5682,7 +5705,7 @@ If *value* is specified, sets the role attribute to the specified function or st
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.rotate" href="#Shape.rotate">#</a> Shape.**rotate**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L962)
+<a name="Shape.rotate" href="#Shape.rotate">#</a> Shape.**rotate**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L963)
 
 If *value* is specified, sets the rotate accessor to the specified function or number and returns the current class instance.
 
@@ -5690,7 +5713,7 @@ If *value* is specified, sets the rotate accessor to the specified function or n
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.rx" href="#Shape.rx">#</a> Shape.**rx**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L972)
+<a name="Shape.rx" href="#Shape.rx">#</a> Shape.**rx**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L973)
 
 Defines the "rx" attribute for the shapes.
 
@@ -5698,7 +5721,7 @@ Defines the "rx" attribute for the shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.ry" href="#Shape.ry">#</a> Shape.**ry**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L982)
+<a name="Shape.ry" href="#Shape.ry">#</a> Shape.**ry**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L983)
 
 Defines the "rx" attribute for the shapes.
 
@@ -5706,7 +5729,7 @@ Defines the "rx" attribute for the shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.scale" href="#Shape.scale">#</a> Shape.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L992)
+<a name="Shape.scale" href="#Shape.scale">#</a> Shape.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L993)
 
 If *value* is specified, sets the scale accessor to the specified function or string and returns the current class instance.
 
@@ -5714,7 +5737,7 @@ If *value* is specified, sets the scale accessor to the specified function or st
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.select" href="#Shape.select">#</a> Shape.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1002)
+<a name="Shape.select" href="#Shape.select">#</a> Shape.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1003)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -5722,7 +5745,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.shapeRendering" href="#Shape.shapeRendering">#</a> Shape.**shapeRendering**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1016)
+<a name="Shape.shapeRendering" href="#Shape.shapeRendering">#</a> Shape.**shapeRendering**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1017)
 
 If *value* is specified, sets the shape-rendering accessor to the specified function or string and returns the current class instance.
 
@@ -5737,7 +5760,7 @@ function(d) {
 ```
 
 
-<a name="Shape.sort" href="#Shape.sort">#</a> Shape.**sort**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1026)
+<a name="Shape.sort" href="#Shape.sort">#</a> Shape.**sort**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1027)
 
 If *value* is specified, sets the sort comparator to the specified function and returns the current class instance.
 
@@ -5745,7 +5768,7 @@ If *value* is specified, sets the sort comparator to the specified function and 
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.stroke" href="#Shape.stroke">#</a> Shape.**stroke**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1036)
+<a name="Shape.stroke" href="#Shape.stroke">#</a> Shape.**stroke**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1037)
 
 If *value* is specified, sets the stroke accessor to the specified function or string and returns the current class instance.
 
@@ -5753,7 +5776,7 @@ If *value* is specified, sets the stroke accessor to the specified function or s
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.strokeDasharray" href="#Shape.strokeDasharray">#</a> Shape.**strokeDasharray**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1046)
+<a name="Shape.strokeDasharray" href="#Shape.strokeDasharray">#</a> Shape.**strokeDasharray**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1047)
 
 Defines the "stroke-dasharray" attribute for the shapes.
 
@@ -5761,7 +5784,7 @@ Defines the "stroke-dasharray" attribute for the shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.strokeLinecap" href="#Shape.strokeLinecap">#</a> Shape.**strokeLinecap**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1056)
+<a name="Shape.strokeLinecap" href="#Shape.strokeLinecap">#</a> Shape.**strokeLinecap**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1057)
 
 Defines the "stroke-linecap" attribute for the shapes. Accepted values are `"butt"`, `"round"`, and `"square"`.
 
@@ -5769,7 +5792,7 @@ Defines the "stroke-linecap" attribute for the shapes. Accepted values are `"but
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.strokeOpacity" href="#Shape.strokeOpacity">#</a> Shape.**strokeOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1066)
+<a name="Shape.strokeOpacity" href="#Shape.strokeOpacity">#</a> Shape.**strokeOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1067)
 
 Defines the "stroke-opacity" attribute for the shapes.
 
@@ -5777,7 +5800,7 @@ Defines the "stroke-opacity" attribute for the shapes.
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.strokeWidth" href="#Shape.strokeWidth">#</a> Shape.**strokeWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1076)
+<a name="Shape.strokeWidth" href="#Shape.strokeWidth">#</a> Shape.**strokeWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1077)
 
 If *value* is specified, sets the stroke-width accessor to the specified function or string and returns the current class instance.
 
@@ -5785,7 +5808,7 @@ If *value* is specified, sets the stroke-width accessor to the specified functio
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.textAnchor" href="#Shape.textAnchor">#</a> Shape.**textAnchor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1086)
+<a name="Shape.textAnchor" href="#Shape.textAnchor">#</a> Shape.**textAnchor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1087)
 
 If *value* is specified, sets the text-anchor accessor to the specified function or string and returns the current class instance.
 
@@ -5793,7 +5816,7 @@ If *value* is specified, sets the text-anchor accessor to the specified function
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.texture" href="#Shape.texture">#</a> Shape.**texture**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1096)
+<a name="Shape.texture" href="#Shape.texture">#</a> Shape.**texture**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1097)
 
 Defines the texture used inside of each shape. This uses the [textures.js](https://riccardoscalco.it/textures/) package, and expects either a simple string (`"lines"` or `"circles"`) or a more complex Object containing the various properties of the texture (ie. `{texture: "lines", orientation: "3/8", stroke: "darkorange"}`). If multiple textures are necessary, provide an accsesor Function that returns the correct String/Object for each given data point and index.
 
@@ -5801,7 +5824,7 @@ Defines the texture used inside of each shape. This uses the [textures.js](https
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.textureDefault" href="#Shape.textureDefault">#</a> Shape.**textureDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1106)
+<a name="Shape.textureDefault" href="#Shape.textureDefault">#</a> Shape.**textureDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1107)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -5809,7 +5832,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.vectorEffect" href="#Shape.vectorEffect">#</a> Shape.**vectorEffect**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1116)
+<a name="Shape.vectorEffect" href="#Shape.vectorEffect">#</a> Shape.**vectorEffect**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1117)
 
 If *value* is specified, sets the vector-effect accessor to the specified function or string and returns the current class instance.
 
@@ -5817,7 +5840,7 @@ If *value* is specified, sets the vector-effect accessor to the specified functi
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.verticalAlign" href="#Shape.verticalAlign">#</a> Shape.**verticalAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1126)
+<a name="Shape.verticalAlign" href="#Shape.verticalAlign">#</a> Shape.**verticalAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1127)
 
 If *value* is specified, sets the vertical alignment accessor to the specified function or string and returns the current class instance.
 
@@ -5825,7 +5848,7 @@ If *value* is specified, sets the vertical alignment accessor to the specified f
 This is a static method of [<code>Shape</code>](#Shape), and is chainable with other methods of this Class.
 
 
-<a name="Shape.x" href="#Shape.x">#</a> Shape.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1140)
+<a name="Shape.x" href="#Shape.x">#</a> Shape.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1141)
 
 If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.
 
@@ -5840,7 +5863,7 @@ function(d) {
 ```
 
 
-<a name="Shape.y" href="#Shape.y">#</a> Shape.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Shape.js#L1154)
+<a name="Shape.y" href="#Shape.y">#</a> Shape.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.js#L1155)
 
 If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.
 
@@ -5857,7 +5880,7 @@ function(d) {
 ---
 
 <a name="Whisker"></a>
-#### **Whisker** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L13)
+#### **Whisker** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L13)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -5887,7 +5910,7 @@ Creates SVG whisker based on an array of data.
 
 
 
-<a name="Whisker.render" href="#Whisker.render">#</a> Whisker.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L49)
+<a name="Whisker.render" href="#Whisker.render">#</a> Whisker.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L49)
 
 Draws the whisker.
 
@@ -5895,7 +5918,7 @@ Draws the whisker.
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.active" href="#Whisker.active">#</a> Whisker.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L137)
+<a name="Whisker.active" href="#Whisker.active">#</a> Whisker.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L137)
 
 Sets the highlight accessor to the Shape class's active function.
 
@@ -5903,7 +5926,7 @@ Sets the highlight accessor to the Shape class's active function.
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.data" href="#Whisker.data">#</a> Whisker.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L148)
+<a name="Whisker.data" href="#Whisker.data">#</a> Whisker.**data**([*data*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L148)
 
 If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.
 
@@ -5911,7 +5934,7 @@ If *data* is specified, sets the data array to the specified array and returns t
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.endpoint" href="#Whisker.endpoint">#</a> Whisker.**endpoint**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L158)
+<a name="Whisker.endpoint" href="#Whisker.endpoint">#</a> Whisker.**endpoint**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L158)
 
 If *value* is specified, sets the endpoint accessor to the specified function or string and returns the current class instance.
 
@@ -5919,7 +5942,7 @@ If *value* is specified, sets the endpoint accessor to the specified function or
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.endpointConfig" href="#Whisker.endpointConfig">#</a> Whisker.**endpointConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L168)
+<a name="Whisker.endpointConfig" href="#Whisker.endpointConfig">#</a> Whisker.**endpointConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L168)
 
 If *value* is specified, sets the config method for each endpoint and returns the current class instance.
 
@@ -5927,7 +5950,7 @@ If *value* is specified, sets the config method for each endpoint and returns th
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.hover" href="#Whisker.hover">#</a> Whisker.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L178)
+<a name="Whisker.hover" href="#Whisker.hover">#</a> Whisker.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L178)
 
 Sets the highlight accessor to the Shape class's hover function.
 
@@ -5935,7 +5958,7 @@ Sets the highlight accessor to the Shape class's hover function.
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.length" href="#Whisker.length">#</a> Whisker.**length**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L189)
+<a name="Whisker.length" href="#Whisker.length">#</a> Whisker.**length**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L189)
 
 If *value* is specified, sets the length accessor for whisker and returns the current class instance.
 
@@ -5943,7 +5966,7 @@ If *value* is specified, sets the length accessor for whisker and returns the cu
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.lineConfig" href="#Whisker.lineConfig">#</a> Whisker.**lineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L199)
+<a name="Whisker.lineConfig" href="#Whisker.lineConfig">#</a> Whisker.**lineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L199)
 
 If *value* is specified, sets the config method for line shape and returns the current class instance.
 
@@ -5951,7 +5974,7 @@ If *value* is specified, sets the config method for line shape and returns the c
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.orient" href="#Whisker.orient">#</a> Whisker.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L209)
+<a name="Whisker.orient" href="#Whisker.orient">#</a> Whisker.**orient**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L209)
 
 If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.
 
@@ -5959,7 +5982,7 @@ If *value* is specified, sets the orientation to the specified value. If *value*
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.select" href="#Whisker.select">#</a> Whisker.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L219)
+<a name="Whisker.select" href="#Whisker.select">#</a> Whisker.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L219)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -5967,7 +5990,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Whisker</code>](#Whisker), and is chainable with other methods of this Class.
 
 
-<a name="Whisker.x" href="#Whisker.x">#</a> Whisker.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L233)
+<a name="Whisker.x" href="#Whisker.x">#</a> Whisker.**x**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L233)
 
 If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.
 
@@ -5982,7 +6005,7 @@ function(d) {
 ```
 
 
-<a name="Whisker.y" href="#Whisker.y">#</a> Whisker.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shape/Whisker.js#L247)
+<a name="Whisker.y" href="#Whisker.y">#</a> Whisker.**y**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.js#L247)
 
 If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.
 
@@ -6078,7 +6101,7 @@ For example, if we wanted to only change the string &quot;Back&quot; and allow a
 ---
 
 <a name="defaultPadding"></a>
-#### d3plus.**defaultPadding**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L43)
+#### d3plus.**defaultPadding**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L45)
 
 Default padding logic that will return false if the screen is less than 600 pixels wide.
 
@@ -6088,7 +6111,7 @@ This is a global function
 ---
 
 <a name="listify"></a>
-#### d3plus.**listify**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L50)
+#### d3plus.**listify**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L52)
 
 Turns an array of values into a list string.
 
@@ -6098,7 +6121,7 @@ This is a global function
 ---
 
 <a name="_thresholdFunction"></a>
-#### d3plus.**_thresholdFunction**(data) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L541)
+#### d3plus.**_thresholdFunction**(data) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L543)
 
 Applies the threshold algorithm according to the type of chart used.
 
@@ -6108,7 +6131,7 @@ This is a global function
 ---
 
 <a name="generateReference"></a>
-#### d3plus.**generateReference**(position) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L14)
+#### d3plus.**generateReference**(position) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L15)
 
 Creates a reference element for popper.
 
@@ -6193,4 +6216,4 @@ This is a global constant
 ---
 
 
-###### <sub>Documentation generated on Fri, 07 Mar 2025 16:27:09 GMT</sub>
+###### <sub>Documentation generated on Wed, 12 Mar 2025 20:01:47 GMT</sub>
