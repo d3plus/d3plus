@@ -5,7 +5,7 @@ import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
 import {fontExists, parseSides, rtl as detectRTL, textWidth} from "@d3plus/dom";
-import {strip, textSplit, textWrap, trim, trimRight} from "@d3plus/text";
+import {fontFamily, strip, textSplit, textWrap, trim, trimRight} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
 
@@ -37,7 +37,7 @@ export default class TextBox extends BaseClass {
     this._duration = 0;
     this._ellipsis = (text, line) => line ? `${text.replace(/\.|,$/g, "")}...` : "";
     this._fontColor = constant("black");
-    this._fontFamily = constant(["Roboto", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]);
+    this._fontFamily = constant(fontFamily);
     this._fontMax = constant(50);
     this._fontMin = constant(8);
     this._fontOpacity = constant(1);
@@ -455,7 +455,7 @@ function(text, line) {
   /**
       @memberof TextBox
       @desc Defines the font-family to be used. The value passed can be either a *String* name of a font, a comma-separated list of font-family fallbacks, an *Array* of fallbacks, or a *Function* that returns either a *String* or an *Array*. If supplying multiple fallback fonts, the [fontExists](#fontExists) function will be used to determine the first available font on the client's machine.
-      @param {Array|Function|String} [*value* = ["Roboto", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]]
+      @param {Array|Function|String} [*value* = ["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]]
       @chainable
   */
   fontFamily(_) {
