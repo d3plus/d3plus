@@ -5,6 +5,7 @@
 
   <meta charset="utf-8">
   <script src="../../../build/d3plus-core.full.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
 </head>
 
@@ -17,6 +18,9 @@
   var tmap = new d3plus.Treemap()
     .data("../../data.json")
     .groupBy(["group", "item"])
+    // .fontFamily("Comic Sans MS")
+    .width(600)
+    .height(400)
     // .data([
     //   {
     //     id: 'alpha',

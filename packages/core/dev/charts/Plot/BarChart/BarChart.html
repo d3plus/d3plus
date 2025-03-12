@@ -5,8 +5,10 @@
 <head>
 
   <meta charset="utf-8">
-  <!-- <script src="../../build/d3plus-core.full.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/d3plus-plot@1"></script>
+  <script src="../../../build/d3plus-core.full.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/d3plus-plot@1"></script> -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
 
 </head>
 
@@ -153,12 +155,18 @@ var fruits = [
   {year: 2011, parent: "fruits", group: "Oranges", value: 6}
 ];
 
-new d3plus.BarChart()
+const barchart = new d3plus.BarChart()
   .config({
     // axisPersist: false,
     data: fruits,
+    // fontFamily: ["Inter", "Comic Sans MS"],
+    fontFamily: ["Comic Sans MS"],
     groupBy: ["group"],
     // label: d => d.parent,
+    legend: true,
+    tooltipConfig: {
+      tbody: d => [["Year", d.year],["Value", d.value]]
+    },
     y: "group",
     x: d => d.value,
     ySort: (a, b) => {
@@ -168,6 +176,7 @@ new d3plus.BarChart()
     // legendPosition: "bottom",
     discrete: "y",
     time: "year",
+    width: 600
     // shapeConfig: {
     //   // label: () => "",
     //   Bar: {
