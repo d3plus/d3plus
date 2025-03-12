@@ -7,7 +7,6 @@ module.exports = {
   ],
 
   addons: [
-    "@storybook/addon-links", 
     "@storybook/addon-controls", 
     {
       name: '@storybook/addon-docs',

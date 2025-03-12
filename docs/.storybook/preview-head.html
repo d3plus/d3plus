@@ -8,33 +8,8 @@
 
 <style>
 
-  .sbdocs-h1, .sbdocs-h2, .sbdocs-h3, .sbdocs-h4, .sbdocs-h5, .sbdocs-h6,
-  button {
-    font-family: 'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif !important;
-  }
-  .css-16d4d7t, .css-1h4ytzj * .token,
-  code, pre, textarea {
+  pre {
     font-family: 'Roboto Mono', monospace !important;
-  }
-  .css-zgt7u1 {
-    padding: 30px 20px !important;
-  }
-
-  .sb-main-padded.sb-show-main {
-    background: white;
-    height: 100vh;
-    overflow: hidden;
-    padding: 25px;
-  }
-
-  #storybook-root {
-    display: flex;
-    height: 100%;
-  }
-
-  #storybook-root .docblock-source {
-    margin: 0;
-    width: 100%;
   }
 
   .sbdocs-wrapper {
@@ -45,12 +20,37 @@
     max-width: calc(100% - 15rem) !important;
   }
 
-  .docblock-argstable, .sbdocs-preview {
+  /* kill margins */
+  .docblock-argstable, /* control block */
+  .sbdocs-preview { /* chart/code block */
     margin: 0 !important;
   }
 
-  .toc-link {
-    color: rgb(36, 114, 200) !important;
+  /* kill paddings */
+  .docs-story > div:first-child { /* viz container */
+    padding: 10px !important;
+  }
+
+  /* move hide/show code button */
+  .docs-story > div:last-child {
+    background: none !important;
+    left: 0px !important;
+    right: auto !important;
+  }
+  .docblock-code-toggle {
+    border-left-color: initial !important;
+    border-right-color: rgba(38, 85, 115, 0.15) !important;
+    border-radius: 0px 4px 0px !important;
+    border-style: solid solid none none !important;
+    border-width: 1px 1px 0px 0px !important;
+  }
+
+  /* removes inner viz padding */
+  .innerZoomElementWrapper > div:first-child {
+    border: none !important;
+  }
+  .viz > svg {
+    display: block;
   }
 
 </style>
