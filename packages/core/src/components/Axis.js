@@ -186,7 +186,6 @@ export default class Axis extends BaseClass {
       labelBounds: d => d.labelBounds,
       labelConfig: {
         fontColor: "#999",
-        fontFamily: new TextBox().fontFamily(),
         fontResize: false,
         fontSize: constant(14),
         padding: 5,
