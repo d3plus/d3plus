@@ -12,6 +12,8 @@ import {colorAssign, colorContrast} from "@d3plus/color";
 import {addToQueue, merge, unique} from "@d3plus/data";
 import {assign, date, getSize, inViewport} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
+import {fontFamily, fontFamilyStringify} from "@d3plus/text";
+
 import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../components/index.js";
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 // import {Rect} from "../shape/index.js";
@@ -97,7 +99,7 @@ export default class Viz extends BaseClass {
       border: "1px solid rgba(0, 0, 0, 0.25)",
       color: "rgba(0, 0, 0, 0.75)",
       display: "block",
-      font: "400 11px/11px 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+      font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
       margin: "5px",
       opacity: 0.75,
       padding: "4px 6px 3px"
@@ -137,6 +139,7 @@ export default class Viz extends BaseClass {
     this._downloadConfig = {type: "png"};
     this._downloadPosition = "top";
     this._duration = 600;
+    this._fontFamily = fontFamily;
     this._hidden = [];
     this._hiddenColor = constant("#aaa");
     this._hiddenOpacity = constant(0.5);
@@ -169,7 +172,7 @@ export default class Viz extends BaseClass {
     this._legendTooltip = {};
 
     this._loadingHTML = () => `
-    <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%); font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
       <strong>${this._translate("Loading Visualization")}</strong>
       <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this._translate("Powered by D3plus")}</a></sub>
     </div>`;
@@ -188,7 +191,7 @@ export default class Viz extends BaseClass {
     };
 
     this._noDataHTML = () => `
-    <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%); font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
       <strong>${this._translate("No Data Available")}</strong>
     </div>`;
 
@@ -218,7 +221,6 @@ export default class Viz extends BaseClass {
           if (c !== undefined && c !== null) {
             const scale = this._colorScaleClass._colorScale;
             const colors = this._colorScaleClass.color();
-            console.log(scale.domain(), scale.range());
             if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
             else if (!scale.domain().length) return scale.range()[scale.range().length - 1];
             return scale(c);
@@ -304,7 +306,7 @@ export default class Viz extends BaseClass {
     this._zoomBrushHandleSize = 1;
     this._zoomBrushHandleStyle = {
       fill: "#444"
-    };
+  };
     this._zoomBrushSelectionStyle = {
       "fill": "#777",
       "stroke-width": 0
@@ -314,7 +316,7 @@ export default class Viz extends BaseClass {
       "border": "1px solid rgba(0, 0, 0, 0.75)",
       "color": "rgba(0, 0, 0, 0.75)",
       "display": "block",
-      "font": "900 15px/21px 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+      "font": `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
       "height": "20px",
       "margin": "5px",
       "opacity": 0.75,
@@ -609,6 +611,7 @@ export default class Viz extends BaseClass {
     const parent = select(this._select.node().parentNode);
     const position = parent.style("position");
     if (position === "static") parent.style("position", "relative");
+    parent.style("font-family", fontFamilyStringify(this._fontFamily));
 
     // sets initial opacity to 1, if it has not already been set
     if (this._select.attr("opacity") === null) this._select.attr("opacity", 1);
@@ -1031,6 +1034,38 @@ If *data* is not specified, this method returns the current primary data array, 
   */
   filter(_) {
     return arguments.length ? (this._filter = _, this) : this._filter;
+  }
+
+  /**
+      @memberof Viz
+      @desc If *value* is specified, sets the filter to the specified function and returns the current class instance.
+      @param {Function} [*value*]
+      @chainable
+  */
+  fontFamily(_) {
+    if (arguments.length) {
+      const labelConfig = {fontFamily: _};
+
+      const axisConfig = {titleConfig: labelConfig, shapeConfig: {labelConfig}};
+
+      this.shapeConfig({labelConfig});
+      this.colorScaleConfig({axisConfig});
+
+      ["axis", "column", "row", "timeline", "x", "y", "x2", "y2"].forEach(axis => {
+        const method = `${axis}Config`;
+        if (this[method]) this[method](axisConfig);
+      });
+      ["back", "title", "total", "subtitle"].forEach(label => {
+        const method = `${label}Config`;
+        if (this[method]) this[method](labelConfig);
+      });
+
+      this.tooltipConfig({tooltipStyle: {"font-family": fontFamilyStringify(_)}});
+
+      this._fontFamily = _;
+      return this;
+    }
+    return this._fontFamily;
   }
 
   /**
