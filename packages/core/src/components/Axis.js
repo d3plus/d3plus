@@ -187,7 +187,7 @@ export default class Axis extends BaseClass {
       labelConfig: {
         fontColor: "#999",
         fontResize: false,
-        fontSize: constant(14),
+        fontSize: constant(12),
         padding: 5,
         textAnchor: () => {
           const rtl = detectRTL(this._select.node());
