@@ -16,18 +16,23 @@ const log = Logger("build compile");
 
 const {name} = JSON.parse(shell.cat("package.json"));
 const fileName = name.slice(1).replace("/", "-");
+const jsxExists = name === "@d3plus/react";
 
 shell.config.silent = true;
 
-log.timer("transpiling ES6 for modules");
-shell.rm("-rf", "build");
-shell.mkdir("-p", "build");
+log.timer("transpiling to ES6 modules in /es");
 shell.rm("-rf", "es");
 shell.mkdir("-p", "es");
 
-shell.ls("-R", "src/**/*.js").concat(["index.js"])
+shell.ls("-R", "src/**/*.@(js|jsx)").concat(["index.js"])
   .forEach(file => {
-    const {code} = transformFileSync(file);
+    const {code} = transformFileSync(file, {
+      jsc: {
+        parser: {
+          jsx: jsxExists
+        }
+      }
+    });
     file.split("/")
       .filter(folder => !folder.includes("."))
       .reduce((dir, folder) => {
@@ -38,11 +43,20 @@ shell.ls("-R", "src/**/*.js").concat(["index.js"])
     fs.writeFileSync(`es/${file}`, code);
   });
 
+if (jsxExists) {
+  log.exit();
+  shell.exit(0);
+}
+
+log.timer("building CommonJS files in /build");
+shell.rm("-rf", "build");
+shell.mkdir("-p", "build");
+
 rollup({log})
   .then(() => rollup({deps: true, log}))
   .then(() => {
 
-    log.timer("uglifying builds");
+    log.timer("uglifying/minifying builds");
 
     const params = {
       output: {
