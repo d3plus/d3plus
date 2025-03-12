@@ -3,6 +3,7 @@ import {createPopper} from '@popperjs/core';
 
 import {colorDefaults} from "@d3plus/color";
 import {prefix, stylize} from "@d3plus/dom";
+import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
 
@@ -53,21 +54,17 @@ export default class Tooltip extends BaseClass {
     this._background = constant(colorDefaults.light);
     this._body = accessor("body", "");
     this._bodyStyle = {
-      "color": colorDefaults.dark,
-      "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
       "font-size": "12px",
       "font-weight": "400",
       "z-index": "1"
     };
-    this._border = constant("1px solid rgba(0, 0, 0, 0.1)");
-    this._borderRadius = constant("2px");
+    this._border = constant("1px solid rgba(0, 0, 0, 0.25)");
+    this._borderRadius = constant("4px");
     this._className = "d3plus-tooltip";
     this._data = [];
     this._footer = accessor("footer", "");
     this._footerStyle = {
-      "color": colorDefaults.dark,
-      "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
-      "font-size": "12px",
+      "font-size": "9px",
       "font-weight": "400",
       "margin-top": "5px",
       "z-index": "1"
@@ -87,32 +84,31 @@ export default class Tooltip extends BaseClass {
     };
     this._tbody = [];
     this._tbodyStyle = {
-      "color": colorDefaults.dark,
-      "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
       "font-size": "12px",
       "text-align": "center"
     };
     this._thead = [];
     this._theadStyle = {
-      "color": colorDefaults.dark,
-      "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
       "font-size": "12px",
       "font-weight": "600",
       "text-align": "center"
     };
     this._title = accessor("title", "");
     this._titleStyle = {
-      "color": colorDefaults.dark,
-      "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
-      "font-size": "16px",
+      "font-size": "14px",
       "font-weight": "600",
       "margin-bottom": "5px"
     };
+    this._tooltipStyle = {
+      "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
+      "color": colorDefaults.dark,
+      "font-family": fontFamilyStringify(fontFamily)
+    };
     this._trStyle = {
-      "border-top": "1px solid rgba(0, 0, 0, 0.1)"
+      "border-top": (d, i) => i ? "1px solid rgba(0, 0, 0, 0.1)" : "none"
     };
     this._tdStyle = {};
-    this._width = constant("auto");
+    this._width = constant("150px");
   }
 
   /**
@@ -130,6 +126,7 @@ export default class Tooltip extends BaseClass {
       .attr("class", this._className);
 
     const update = tooltips.merge(enter);
+    stylize(update, this._tooltipStyle);
 
     /**
         Creates DIV elements with a unique class and styles.
@@ -178,10 +175,7 @@ export default class Tooltip extends BaseClass {
         .style("padding", that._padding)
         .style("width", that._width)
         .style("height", that._height)
-        .style("border", function(d, i) {
-          const b = select(this).style("border");
-          return b !== "0px none rgb(0, 0, 0)" ? b : that._border(d, i);
-        });
+        .style("border", that._border);
     }
 
     divElement("title");
@@ -278,13 +272,14 @@ export default class Tooltip extends BaseClass {
                 const arrowElement = state.elements.arrow;
                 const arrowStyles = state.styles.arrow;
                 const flipped = state.modifiersData.flip._skip;
+                const border = parseFloat(arrowElement.style.borderRightWidth, 10);
                 if (flipped) {
                   arrowElement.style.transform = `${arrowStyles.transform}rotate(225deg)`;
-                  arrowElement.style.top = `-${arrowHeight / 2}px`;
+                  arrowElement.style.top = `-${arrowHeight / 2 + border}px`;
                 }
                 else {
                   arrowElement.style.transform = `${arrowStyles.transform}rotate(45deg)`;
-                  arrowElement.style.bottom = `-${arrowHeight / 2}px`;
+                  arrowElement.style.bottom = `-${arrowHeight / 2 + border}px`;
                 }
               }
             }
@@ -385,7 +380,6 @@ function value(d) {
       @param {Object} [*value*]
       @example <caption>default styles</caption>
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "400"
 }
@@ -449,7 +443,6 @@ function value(d) {
       @param {Object} [*value*]
       @example <caption>default styles</caption>
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "400"
 }
@@ -550,7 +543,6 @@ function value(d, i) {
       @param {Object} [*value*]
       @example <caption>default styles</caption>
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
@@ -575,7 +567,6 @@ function value(d, i) {
       @param {Object} [*value*]
       @example <caption>default styles</caption>
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
@@ -604,7 +595,6 @@ function value(d) {
       @param {Object} [*value*]
       @example <caption>default styles</caption>
 {
-  "font-family": "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "14px",
   "font-weight": "600",
   "padding-bottom": "5px"
@@ -612,6 +602,22 @@ function value(d) {
   */
   titleStyle(_) {
     return arguments.length ? (this._titleStyle = Object.assign(this._titleStyle, _), this) : this._titleStyle;
+  }
+
+  /**
+      @memberof Tooltip
+      @desc If *value* is specified, sets the overall tooltip styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.
+      @param {Object} [*value*]
+      @example <caption>default styles</caption>
+{
+  "font-family": "'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
+  "font-size": "14px",
+  "font-weight": "600",
+  "padding-bottom": "5px"
+}
+  */
+  tooltipStyle(_) {
+    return arguments.length ? (this._tooltipStyle = Object.assign(this._tooltipStyle, _), this) : this._tooltipStyle;
   }
 
   /**
