@@ -1,3 +1,4 @@
+export {fontFamily, fontFamilyStringify} from "./src/fontFamily.js";
 export {default as stringify} from "./src/stringify.js";
 export {default as strip} from "./src/strip.js";
 export {default as textSplit} from "./src/textSplit.js";
