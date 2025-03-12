@@ -395,9 +395,11 @@ export default class Timeline extends Axis {
     if (["auto", "buttons"].includes(this._buttonBehavior)) {
       let maxLabel = 0;
       ticks.forEach((d, i) => {
+
+        const {fontFamily, fontSize} = this._shapeConfig.labelConfig
   
-        const f = this._shapeConfig.labelConfig.fontFamily(d, i),
-              s = this._shapeConfig.labelConfig.fontSize(d, i);
+        const f = typeof fontFamily === "function" ? fontFamily(d, i) : fontFamily,
+              s = typeof fontSize === "function" ? fontSize(d, i) : fontSize;
   
         const wrap = textWrap()
           .fontFamily(f)
