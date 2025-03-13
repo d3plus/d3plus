@@ -1,12 +1,3 @@
-// export GITHUB_TOKEN=xxx
-// git config --global credential.helper osxkeychain
-
-/**
-    @module d3plus-release
-    @summary Publishes a release for a module.
-    @desc If the version number in the package.json has been bumped, this script will compile the release, publish it to NPM, update README documentation, and tag and publish release notes on Github.
-**/
-
 import fs from "node:fs";
 import {Octokit} from "@octokit/rest";
 import shell from "shelljs";
@@ -48,7 +39,7 @@ const catcher = ({code}) => {
 };
 
 catcher(shell.exec("npm test", shellOpts));
-catcher(shell.exec("npm run build", shellOpts));
+catcher(shell.exec("npm run build:umd", shellOpts));
 catcher(shell.exec("npm run docs", shellOpts));
 
 log.timer("compiling release notes");

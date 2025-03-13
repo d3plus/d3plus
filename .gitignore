@@ -1,5 +1,6 @@
 .DS_Store
-build
+docs/build
+umd
 es
 node_modules
 npm-debug.log

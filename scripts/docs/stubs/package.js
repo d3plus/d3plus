@@ -9,7 +9,7 @@ export default function(packageJSON) {
     });
   }
 
-  const commonJSFile = name === "@d3plus/react" ? undefined : `./build/d3plus-${folderName}.full.js`;
+  const isReact = name === "@d3plus/react";
 
   const obj = {
     name,
@@ -18,10 +18,10 @@ export default function(packageJSON) {
     license: "MIT",
     type: "module",
     exports: "./es/index.js",
-    browser: commonJSFile,
+    browser: isReact ? undefined : `./umd/d3plus-${folderName}.full.js`,
     engines: {node: ">=18"},
     sideEffects: false,
-    files: name === "@d3plus/react" ? ["es"] : ["build", "es"],
+    files: isReact ? ["es"] : ["umd", "es"],
     homepage: "https://d3plus.org",
     repository: {
       type: "git",
@@ -30,9 +30,10 @@ export default function(packageJSON) {
     },
     keywords,
     scripts: {
-      build: "node ../../scripts/build.js",
+      "build:esm": "node ../../scripts/build-esm.js",
+      "build:umd": isReact ? undefined : "node ../../scripts/build-umd.js",
       dev: "node ../../scripts/dev.js",
-      test: name === "@d3plus/react" 
+      test: isReact 
         ? "eslint index.js src/**/*.jsx" 
         : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
     },

@@ -1,9 +1,3 @@
-/**
-    @module d3plus-dev
-    @summary Spins up the development environment.
-    @desc Initializes the development server, which will open a connection on `localhost:4000` and continuously watch the `./src` directory for file changes. When a change is detected, it will rebundle the full javascript build and refresh any open web browsers.
-**/
-
 import {join} from "node:path";
 import chokidar from "chokidar";
 import liveServer from "live-server";
@@ -27,12 +21,12 @@ chokidar.watch(join(process.env.INIT_CWD, "packages"), {
 
         const shellOpts = {
           async: false, 
-          env: {...process.env, FORCE_COLOR: true, SUBPROCESS: true, ESM: true},
+          env: {...process.env, FORCE_COLOR: true, SUBPROCESS: true},
           shell: true, 
           stdio: "inherit"
         };
         
-        const {stdout} = shell.exec(`npm run build -w @d3plus/${folder}`, shellOpts);
+        const {stdout} = shell.exec(`npm run build:esm -w @d3plus/${folder}`, shellOpts);
         log.done();
         console.log(stdout);
         log.timer("watching for changes...");
@@ -55,7 +49,7 @@ else {
       logLevel: 0,
       root: "dev",
       port,
-      watch: ["../**/build", "dev"]
+      watch: ["umd", "dev"]
     })
     .on("listening", () => {
       log.done();

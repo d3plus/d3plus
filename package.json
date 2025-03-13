@@ -22,8 +22,9 @@
   ],
   "scripts": {
     "docs": "node scripts/docs/docs.js",
+    "pretest": "npm run build:esm --workspaces --if-present",
     "release": "node scripts/release.js",
-    "test": "npm run test --workspaces --if-present && npm run build --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@octokit/rest": "^21.1.1",

@@ -70,7 +70,7 @@ To start testing code live in a browser, with auto-compiling and hot reloading, 
 npm run dev -w @d3plus/<package_name>
 ```
 
-If everything is set up correctly, your default browser will open `http://localhost:4000/` and show the contents of the `dev` directory, including the `build` directory which stores a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo). 
+If everything is set up correctly, your default browser will open `http://localhost:4000/` and show the contents of the `dev` directory, including the `umd` directory which stores a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo). 
 
 Most packages contain HTML files to copy/modify for testing, but here is the minimum boilerplate HTML that needs to be there:
 
@@ -79,7 +79,7 @@ Most packages contain HTML files to copy/modify for testing, but here is the min
 <html>
   <head>
     <meta charset="utf-8">
-    <script src="/build/d3plus-<package_name>.full.js"></script>
+    <script src="/umd/d3plus-<package_name>.full.js"></script>
   </head>
   <body>
 
@@ -92,7 +92,7 @@ Most packages contain HTML files to copy/modify for testing, but here is the min
 </html>
 ```
 
-The development server will recreate the `build` directory any time the current package or any of it's dependent packages source files are modified. Once the rebuild has finished, your browser will hot reload (as well as when any `dev` file is changed).
+The development server will recreate the `umd` directory any time the current package or any of it's dependent packages source files are modified. Once the rebuild has finished, your browser will hot reload (as well as when any `dev` file is changed).
 
 ### Code Documentation
 

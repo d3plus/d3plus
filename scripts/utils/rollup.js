@@ -43,7 +43,7 @@ export default async function(opts = {}) {
     onwarn: () => {}
   };
 
-  const folder = `${env === "development" ? "dev/" : ""}build/`;
+  const folder = `${env === "development" ? "dev/" : ""}umd/`;
   const filePath = `${folder}${fileName}${opts.deps ? ".full" : ""}.js`;
 
   const output = {
