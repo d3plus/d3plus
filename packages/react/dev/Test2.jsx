@@ -2,12 +2,13 @@ import React, {useEffect, useState} from "react";
 import {Treemap} from "../index.jsx";
 
 const defaultConfig = {
-  data: "./data.json",
-  dataFormat: resp => resp.filter(d => d.value > 9),
-  title: "Hi Felipe!"
+  data: [
+    {id: "Dave", value: 10},
+    {id: "Alex", value: 9}
+  ]
 };
 
-const Test = () => {
+const Test2 = () => {
 
   const [config, setConfig] = useState(defaultConfig);
 
@@ -21,7 +22,7 @@ const Test = () => {
   //   }, 3000);
   // }, []);
 
-  return <Treemap config={config} callback={() => console.log("callback!")} />;
+  return <Treemap config={config} />;
 };
 
-export default Test;
+export default Test2;

@@ -4,6 +4,7 @@ import {D3plusContext} from "../index.jsx";
 import "@mantine/core/styles.css";
 import {createTheme, MantineProvider} from "@mantine/core";
 import Test from "./Test.jsx";
+import Test2 from "./Test2.jsx";
 
 export const theme = createTheme({
   /* Put your mantine theme override here */
@@ -27,6 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <MantineProvider theme={theme}>
       <div style={boxStyle}>
         <Test />
+      </div>
+      <div style={boxStyle}>
+        <Test2 />
       </div>
     </MantineProvider>
   </D3plusContext.Provider>

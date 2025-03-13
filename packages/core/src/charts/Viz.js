@@ -4,11 +4,12 @@ import {brush} from "d3-brush";
 import {color} from "d3-color";
 import {queue} from "d3-queue";
 import {select} from "d3-selection";
+import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
 
 import lrucache from "lrucache";
 
-import {colorAssign, colorContrast} from "@d3plus/color";
+import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
 import {addToQueue, merge, unique} from "@d3plus/data";
 import {assign, date, getSize, inViewport} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
@@ -118,6 +119,10 @@ export default class Viz extends BaseClass {
     this._cache = true;
 
     this._color = (d, i) => this._groupBy[0](d, i);
+    this._colorDefaults = {
+      ...colorDefaults, 
+      scale: scaleOrdinal().range(colorDefaults.scale.range())
+    };
     this._colorScaleClass = new ColorScale();
     this._colorScaleConfig = {
       axisConfig: {
@@ -228,7 +233,7 @@ export default class Viz extends BaseClass {
         }
         const c = this._color(d, i);
         if (color(c)) return c;
-        return colorAssign(typeof c === "string" ? c : JSON.stringify(c));
+        return colorAssign(typeof c === "string" ? c : JSON.stringify(c), this._colorDefaults);
       },
       labelConfig: {
         fontColor: (d, i) => {
