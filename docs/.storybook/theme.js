@@ -6,8 +6,8 @@ export default create({
   colorSecondary: "rgb(36, 114, 200)",
 
   // Typography
-  fontBase: "'Roboto', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
-  fontCode: "'Roboto Mono', monospace",
+  fontBase: "'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
+  fontCode: "ui-monospace, monospace",
 
   brandTitle: "<span class=\"logo-d3\">D3</span>plus",
   brandUrl: "https://d3plus.org",
