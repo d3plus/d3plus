@@ -2,7 +2,7 @@ import {select} from "d3-selection";
 import {createPopper} from '@popperjs/core';
 
 import {colorDefaults} from "@d3plus/color";
-import {prefix, stylize} from "@d3plus/dom";
+import {elem, prefix, stylize} from "@d3plus/dom";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
@@ -119,7 +119,8 @@ export default class Tooltip extends BaseClass {
 
     const that = this;
 
-    const tooltips = select("body").selectAll(`.${this._className}`)
+    const portal = elem("div#d3plus-portal");
+    const tooltips = portal.selectAll(`.${this._className}`)
       .data(this._data, this._id);
 
     const enter = tooltips.enter().append("div")
