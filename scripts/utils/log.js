@@ -15,7 +15,6 @@ export default function(script) {
 ${chalk.bold.rgb(...color)(name)} - ${chalk.rgb(...color)(script)}`);
   }
   else {
-    shell.exec("clear");
     shell.echo(`
   
       ${chalk.bold.rgb(...color)(`${name} v${version}`)}
