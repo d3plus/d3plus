@@ -9,6 +9,8 @@ export default function(packageJSON) {
     });
   }
 
+  const commonJSFile = name === "@d3plus/react" ? undefined : `./build/d3plus-${folderName}.full.js`;
+
   const obj = {
     name,
     version,
@@ -16,7 +18,7 @@ export default function(packageJSON) {
     license: "MIT",
     type: "module",
     exports: "./es/index.js",
-    main: name === "@d3plus/react" ? undefined : `build/d3plus-${folderName}.full.js`,
+    browser: commonJSFile,
     engines: {node: ">=18"},
     sideEffects: false,
     files: name === "@d3plus/react" ? ["es"] : ["build", "es"],
@@ -27,16 +29,12 @@ export default function(packageJSON) {
       directory: `packages/${folderName}`
     },
     keywords,
-    scripts: name === "@d3plus/react" ? {
-      "build": "node ../../scripts/build.js",
-      "dev": "vite serve dev",
-      "pretest": "npm run build",
-      "test": "eslint src"
-    } : {
+    scripts: {
       build: "node ../../scripts/build.js",
       dev: "node ../../scripts/dev.js",
-      pretest: "npm run build",
-      test: "eslint index.js src && eslint --global=it test && mocha 'test/**/*-test.js'"
+      test: name === "@d3plus/react" 
+        ? "eslint index.js src/**/*.jsx" 
+        : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
     },
     dependencies
   };

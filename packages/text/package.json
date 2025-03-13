@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "exports": "./es/index.js",
-  "main": "build/d3plus-text.full.js",
+  "browser": "./build/d3plus-text.full.js",
   "engines": {
     "node": ">=18"
   },
@@ -30,8 +30,7 @@
   "scripts": {
     "build": "node ../../scripts/build.js",
     "dev": "node ../../scripts/dev.js",
-    "pretest": "npm run build",
-    "test": "eslint index.js src && eslint --global=it test && mocha 'test/**/*-test.js'"
+    "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/dom": "3.0.0",

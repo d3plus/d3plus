@@ -43,7 +43,7 @@ shell.ls("-R", "src/**/*.@(js|jsx)").concat(["index.js"])
     fs.writeFileSync(`es/${file}`, code);
   });
 
-if (jsxExists) {
+if (jsxExists || process.env.ESM) {
   log.exit();
   shell.exit(0);
 }

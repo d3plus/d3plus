@@ -10,14 +10,19 @@ export default function(script) {
 
   const Logger = {};
 
-  shell.exec("clear");
-
-  shell.echo(`
-
-    ${chalk.bold.rgb(...color)(`${name} v${version}`)}
-    ${chalk.rgb(...color)(script)}
-
-  `);
+  if (process.env.SUBPROCESS) {
+    shell.echo(`
+${chalk.bold.rgb(...color)(name)} - ${chalk.rgb(...color)(script)}`);
+  }
+  else {
+    shell.exec("clear");
+    shell.echo(`
+  
+      ${chalk.bold.rgb(...color)(`${name} v${version}`)}
+      ${chalk.rgb(...color)(script)}
+  
+    `);
+  }
 
   let interval, message = "";
 

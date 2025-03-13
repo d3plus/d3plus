@@ -348,7 +348,6 @@ export default class Viz extends BaseClass {
    */
   _preDraw() {
     const that = this;
-
     // based on the groupBy, determine the draw depth and current depth id
     this._drawDepth = this._depth !== void 0
       ? min([this._depth >= 0 ? this._depth : 0, this._groupBy.length - 1])

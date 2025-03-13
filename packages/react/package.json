@@ -27,9 +27,8 @@
   ],
   "scripts": {
     "build": "node ../../scripts/build.js",
-    "dev": "vite serve dev",
-    "pretest": "npm run build",
-    "test": "eslint src"
+    "dev": "node ../../scripts/dev.js",
+    "test": "eslint index.js src/**/*.jsx"
   },
   "dependencies": {
     "@d3plus/core": "3.0.0"
