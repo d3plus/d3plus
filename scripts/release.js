@@ -67,7 +67,7 @@ github.repos.createRelease({
   })
   .then(() => {
     log.timer("publishing npm package");
-    return shell.exec("npm publish ./", shellOpts);
+    return shell.exec("npm publish --workspaces --access=public", shellOpts);
   })
   .then(() => {
     log.exit();
