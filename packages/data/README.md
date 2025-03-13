@@ -4,7 +4,7 @@ JavaScript data loading, manipulation, and analysis functions.
 
 ## Installing
 
-If using npm, `npm install @d3plus/data`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/data@3.0.0/+esm).
+If using npm, `npm install @d3plus/data`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/data@3.0.0-alpha.0/+esm).
 
 ```js
 import modules from "@d3plus/data";
@@ -13,7 +13,7 @@ import modules from "@d3plus/data";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/data@3.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/data@3.0.0-alpha.0"></script>
 <script>
   console.log(d3plus);
 </script>
@@ -21,7 +21,7 @@ In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled versio
 
 ## Examples
 
-Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [d3plus-react](https://github.com/d3plus/d3plus-react/).
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using @d3plus/react.
 
 ## API Reference
 
@@ -132,4 +132,4 @@ returns this
 ---
 
 
-###### <sub>Documentation generated on Thu, 13 Mar 2025 18:49:19 GMT</sub>
+###### <sub>Documentation generated on Thu, 13 Mar 2025 19:58:29 GMT</sub>
