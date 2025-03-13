@@ -70,33 +70,34 @@ ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", 
 
 export const TrendlineUsingAnnotations = Template.bind()
 TrendlineUsingAnnotations.args = {
-  data: [
-    "https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=economy_foreign_trade_ent&drilldowns=State&measures=Trade+Value&parents=false&sparse=false",
-    "https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=complexity_eci&drilldowns=State&measures=ECI&parents=false&sparse=false"
-  ],
+  data: "https://datausa.io/api/data?measures=Adult%20Obesity,Average%20Commute%20Time&drilldowns=State&year=2022",
+  dataFormat: funcify(
+    resp => resp.data.filter(d => d["ID State"] !== "04000US72"),
+    'resp => resp.data.filter(d => d["ID State"] !== "04000US72")'
+  ),
   groupBy: "State",
   annotations: [
     {
       data: [
         {
           "id": "Trend",
-          "x": 10000000,
-          "y": -2.5
+          "x": 16,
+          "y": 0.4
         },
         {
           "id": "Trend",
-          "x": 1000000000000,
-          "y": 2
+          "x": 34,
+          "y": 0.25
         },
         {
           "id": "Baseline",
-          "x": 10000000,
-          "y": 0
+          "x": 16,
+          "y": 0.3
         },
         {
           "id": "Baseline",
-          "x": 1000000000000,
-          "y": 0
+          "x": 34,
+          "y": 0.3
         }
       ],
       shape: "Line",
@@ -108,8 +109,8 @@ TrendlineUsingAnnotations.args = {
       strokeWidth: 2
     }
   ],
-  x: "Trade Value",
-  y: "ECI"
+  x: "Average Commute Time",
+  y: "Adult Obesity"
 };
 TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}};
 

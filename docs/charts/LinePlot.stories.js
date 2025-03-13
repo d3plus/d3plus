@@ -408,146 +408,6 @@ export const DottedLinePredictions = Template.bind({});
 DottedLinePredictions.args = {
   data: [
     {
-      "Year": 2006,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 227746107622,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2006,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 243328728338,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2007,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 250510781866,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2007,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 266075508173,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2008,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 273451264785,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2008,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 284982624365,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2009,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 206734904705,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2009,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 220133846133,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2010,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 282348541534,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2010,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 293914911217,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2011,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 331884428040,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2011,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 343550107823,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2012,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 351687026850,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2012,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 361886624083,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2013,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 356069934491,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2013,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 373619307190,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2014,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 369627996773,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2014,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 389499264277,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2015,
-      "Flow ID": 1,
-      "Flow": "Imports",
-      "Trade Value": 375484880972,
-      "Type": "Observed"
-    },
-    {
-      "Year": 2015,
-      "Flow ID": 2,
-      "Flow": "Exports",
-      "Trade Value": 372557671308,
-      "Type": "Observed"
-    },
-    {
       "Year": 2016,
       "Flow ID": 1,
       "Flow": "Imports",
@@ -677,10 +537,14 @@ DottedLinePredictions.parameters = {controls: {include: ["shapeConfig"]}};
 
 export const QuarterlyData = Template.bind({});
 QuarterlyData.args = {
-  data: "https://api.datamexico.org/tesseract/data.jsonrecords?cube=fdi_9_quarter_investment&drilldowns=Quarter,Investment+Type&measures=Investment",
-  groupBy: "Investment Type",
+  data: "https://api.datasaudi.sa/tesseract/data.jsonrecords?cube=gastat_gdp&drilldowns=Economic+Activity+Section,Quarter&measures=GDP&locale=en&Economic%20Activity%20Section=3",
+  groupBy: "Economic Activity Section",
   time: "Quarter",
+  title: "Saudi Manufacturing GDP Over Time",
   x: "Quarter",
-  y: "Investment"
+  y: "GDP",
+  yConfig: {
+    title: "Billions of SAR"
+  }
 };
 QuarterlyData.parameters = {controls: {include: ["time"]}};
