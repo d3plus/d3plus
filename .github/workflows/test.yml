@@ -10,6 +10,8 @@ jobs:
   test:
 
     runs-on: macos-latest
+    env:
+      FORCE_COLOR: "1"
 
     steps:
       - uses: actions/checkout@v4
