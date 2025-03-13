@@ -14,7 +14,6 @@ const defaultConfig = {
 
 const Test = () => {
 
-  const [title, setTitle] = useState("Hi Felipe!");
   const [config, setConfig] = useState(defaultConfig);
 
   useEffect(() => {
@@ -27,9 +26,7 @@ const Test = () => {
     }, 3000);
   }, []);
 
-  config.title = title;
-
-  return <Treemap config={config} />;
+  return <Treemap config={config} callback={() => console.log("callback!")} />;
 };
 
 export default Test;
