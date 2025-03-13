@@ -9,7 +9,6 @@
 
 import fs from "node:fs";
 import {Octokit} from "@octokit/rest";
-import execAsync from "./utils/execAsync.js";
 import shell from "shelljs";
 
 const version = process.argv[2];
@@ -25,64 +24,62 @@ if (!token) {
 }
 
 import Logger from "./utils/log.js";
-shell.config.silent = true;
 const log = Logger(`release v${version}`);
 
-const github = new Octokit({auth: token});
-const prerelease = version.split(".")[2].includes("alpha") || version.split(".")[2].includes("beta");
-
 const packageJSON = JSON.parse(shell.cat("package.json"));
+if (packageJSON.version !== version) {
+  packageJSON.version = version;
+  fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 2));
+}
 
-let commits = "";
+const shellOpts = {
+  async: false, 
+  env: {...process.env, FORCE_COLOR: true, SUBPROCESS: true},
+  shell: true, 
+  stdio: "inherit"
+};
 
-log.timer("running linting and tests");
-execAsync("npm test")
-  .then(() => {
-    log.timer("compiling documentation");
-    if (packageJSON.version !== version) {
-      packageJSON.version = version;
-      fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 2));
-    }
-    return execAsync("npm run docs");
-  })
-  .then(() => {
-    log.timer("compiling release notes");
-    return execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD");
-  })
-  .then(() => {
-    log.timer("commiting all modified files for release");
-    return execAsync("git add --all");
-  })
-  .then(() => execAsync(`git commit -m "compiles v${version}"`))
-  .then(() => {
-    log.timer("tagging latest commit");
-    return execAsync(`git tag v${version}`);
-  })
-  .then(() => {
-    log.timer("pushing to commit and tag to the repository");
-    return execAsync("git push origin --follow-tags");
-  })
-  .then(() => {
-    log.timer("publishing release notes");
-    return github.repos.createRelease({
-      owner: "d3plus",
-      repo: "d3plus",
-      tag_name: `v${version}`,
-      name: `v${version}`,
-      body: commits,
-      prerelease
-    });
+const catcher = ({code}) => {
+  if (code) {
+    log.fail();
+    log.exit();
+    shell.exit(1);
+  }
+};
+
+catcher(shell.exec("npm test", shellOpts));
+catcher(shell.exec("npm run build", shellOpts));
+catcher(shell.exec("npm run docs", shellOpts));
+
+log.timer("compiling release notes");
+const {stdout: commits} = shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", {async: false, silent: true});
+
+log.timer("commiting all modified files for release");
+shell.exec("git add --all", shellOpts);
+shell.exec(`git commit -m "compiles v${version}"`, shellOpts);
+
+log.timer("tagging latest commit");
+shell.exec(`git tag v${version}`, shellOpts);
+
+log.timer("pushing commit and tag to the repository");
+shell.exec("git push origin --follow-tags", shellOpts);
+
+log.timer("publishing release notes");
+const github = new Octokit({auth: token});
+github.repos.createRelease({
+    owner: "d3plus",
+    repo: "d3plus",
+    tag_name: `v${version}`,
+    name: `v${version}`,
+    body: commits,
+    prerelease: version.includes("-")
   })
   .then(() => {
     log.timer("publishing npm package");
-    return execAsync("npm publish ./");
+    return shell.exec("npm publish ./", shellOpts);
   })
   .then(() => {
     log.exit();
     shell.exit(0);
   })
-  .catch(err => {
-    log.fail(err);
-    log.exit();
-    shell.exit(1);
-  });
+  .catch(catcher);
