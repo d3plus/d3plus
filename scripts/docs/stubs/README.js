@@ -22,7 +22,7 @@ In vanilla JavaScript, a \`d3plus\` global is exported from the pre-bundled vers
 
 ## Examples
 
-Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [d3plus-react](https://github.com/d3plus/d3plus-react/).
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using @d3plus/react.
 
 ## API Reference
 
