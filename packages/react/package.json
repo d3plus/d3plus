@@ -28,7 +28,7 @@
   "scripts": {
     "build:esm": "node ../../scripts/build-esm.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.jsx src/**/*.jsx"
+    "test": "eslint"
   },
   "dependencies": {
     "@d3plus/core": "3.0.0"

@@ -34,7 +34,7 @@ export default function(packageJSON) {
       "build:umd": isReact ? undefined : "node ../../scripts/build-umd.js",
       dev: "node ../../scripts/dev.js",
       test: isReact 
-        ? "eslint index.jsx src/**/*.jsx" 
+        ? "eslint" 
         : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
     },
     dependencies

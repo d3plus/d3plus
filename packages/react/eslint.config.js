@@ -1,6 +1,6 @@
 import react from "eslint-plugin-react";
 export default {
-  files: ["index.js", "src/**/*.js", "src/**/*.jsx"],
+  files: ["index.jsx", "src/**/*.jsx"],
   plugins: {
     react
   },
