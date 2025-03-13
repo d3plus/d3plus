@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as plotArgTypes } from "./Plot.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { LinePlot as D3plusLinePlot } from "d3plus-react";
+import { LinePlot as D3plusLinePlot } from "@d3plus/react";
 export const LinePlot = ({ config }) => <D3plusLinePlot config={config} />;
 
 export const argTypes = assign(

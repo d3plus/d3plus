@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Pack as D3plusPack } from "d3plus-react";
+import { Pack as D3plusPack } from "@d3plus/react";
 export const Pack = ({ config }) => <D3plusPack config={config} />;
 
 export const argTypes = assign(

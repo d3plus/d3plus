@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Treemap as D3plusTreemap } from "d3plus-react";
+import { Treemap as D3plusTreemap } from "@d3plus/react";
 export const Treemap = ({ config }) => <D3plusTreemap config={config} />;
 
 export const argTypes = assign(

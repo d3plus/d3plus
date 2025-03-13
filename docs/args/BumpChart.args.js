@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as plotArgTypes } from "./Plot.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { BumpChart as D3plusBumpChart } from "d3plus-react";
+import { BumpChart as D3plusBumpChart } from "@d3plus/react";
 export const BumpChart = ({ config }) => <D3plusBumpChart config={config} />;
 
 export const argTypes = assign(

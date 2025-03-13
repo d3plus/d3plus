@@ -9,27 +9,27 @@ import { Meta } from '@storybook/blocks';
 D3plus is available as a series of modules, which can be seen in the [Github orgnization](https://github.com/d3plus). For example, to install only the text-wrapping module:
 
 ```sh
-npm install d3plus-text
+npm install @d3plus/core
 ```
 
 You can then import named functions and classes as ES modules:
 
 ```js
-import {TextBox} from "d3plus-text";
+import {TextBox} from "@d3plus/core";
 ```
 
 ## React Components
 
-If you are looking to use the charts in a React environment, the `d3plus-react` module wraps each chart class in a thin React component:
+If you are looking to use the charts in a React environment, the `@d3plus/react` module wraps each chart class in a thin React component:
 
 ```sh
-npm install d3plus-react
+npm install @d3plus/react
 ```
 
 A valid d3plus `config` _Object_ needs to be provided to the `config` prop of every visualization.
 
 ```jsx
-import {Treemap} from "d3plus-react";
+import {Treemap} from "@d3plus/react";
 
 const methods = {
   groupBy: "id",
@@ -48,7 +48,7 @@ Additionally, a global set of styles can be set using the `D3plusContext` Provid
 ```jsx
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {D3plusContext} from "d3plus-react";
+import {D3plusContext} from "@d3plus/react";
 import App from "src/App.jsx";
 
 const globalConfig = {
@@ -71,7 +71,7 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 Additionally, each module is available from a CDN for vanilla JavaScript environments (bundled with all dependencies):
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/d3plus-text@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3plus-core@3"></script>
 ```
 
 A global `d3plus` object is exported, which contains all of the available methods and classes:
@@ -80,10 +80,4 @@ A global `d3plus` object is exported, which contains all of the available method
 <script>
   console.log(d3plus.TextBox);
 </script>
-```
-
-Additionally, a library-wide bundle is also made available, if you are looking to use more than one d3plus module at the same time:
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/d3plus@2"></script>
 ```

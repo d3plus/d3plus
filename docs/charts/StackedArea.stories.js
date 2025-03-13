@@ -2,7 +2,7 @@ import React from "react";
 import {argTypes, StackedArea as Viz} from "../args/StackedArea.args";
 import configify from "../helpers/configify";
 import funcify from "../helpers/funcify";
-import {formatAbbreviate} from "d3plus-format";
+import {formatAbbreviate} from "@d3plus/format";
 
 export default {
   title: "Charts/Stacked Area",

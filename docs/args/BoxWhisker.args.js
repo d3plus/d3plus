@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as plotArgTypes } from "./Plot.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { BoxWhisker as D3plusBoxWhisker } from "d3plus-react";
+import { BoxWhisker as D3plusBoxWhisker } from "@d3plus/react";
 export const BoxWhisker = ({ config }) => <D3plusBoxWhisker config={config} />;
 
 export const argTypes = assign(

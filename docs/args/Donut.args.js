@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as pieArgTypes } from "./Pie.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Donut as D3plusDonut } from "d3plus-react";
+import { Donut as D3plusDonut } from "@d3plus/react";
 export const Donut = ({ config }) => <D3plusDonut config={config} />;
 
 export const argTypes = assign(

@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Plot as D3plusPlot } from "d3plus-react";
+import { Plot as D3plusPlot } from "@d3plus/react";
 export const Plot = ({ config }) => <D3plusPlot config={config} />;
 
 export const argTypes = assign(
@@ -190,7 +190,7 @@ Set this value to \`0\` to disable the behavior entirely.`
         defaultValue: {
           summary: "object",
           detail: `import {colorAssign} from "d3plus-color";
-import {constant} from "d3plus-common";
+import {constant} from "@d3plus/dom";
 
 {
   fill: function fill(d, i) {

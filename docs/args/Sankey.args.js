@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as networkArgTypes } from "./Network.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Sankey as D3plusSankey} from "d3plus-react";
+import { Sankey as D3plusSankey} from "@d3plus/react";
 export const Sankey = ({ config }) => <D3plusSankey config={config} />;
 
 export const argTypes = assign(

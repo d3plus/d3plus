@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Radar as D3plusRadar } from "d3plus-react";
+import { Radar as D3plusRadar } from "@d3plus/react";
 export const Radar = ({ config }) => <D3plusRadar config={config} />;
 
 export const argTypes = assign(

@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Pie as D3plusPie } from "d3plus-react";
+import { Pie as D3plusPie } from "@d3plus/react";
 export const Pie = ({ config }) => <D3plusPie config={config} />;
 
 export const argTypes = assign(

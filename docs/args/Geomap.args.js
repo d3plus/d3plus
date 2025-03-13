@@ -1,9 +1,9 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 import * as projections from "d3-geo-projection";
 
-import { Geomap as D3plusGeomap } from "d3plus-react";
+import { Geomap as D3plusGeomap } from "@d3plus/react";
 
 const excludedKeys = [
   "geoArmadillo",

@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Tree as D3plusTree } from "d3plus-react";
+import { Tree as D3plusTree } from "@d3plus/react";
 export const Tree = ({ config }) => <D3plusTree config={config} />;
 
 export const argTypes = assign(

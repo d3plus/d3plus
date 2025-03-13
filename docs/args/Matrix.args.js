@@ -1,8 +1,8 @@
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Matrix as D3plusMatrix } from "d3plus-react";
+import { Matrix as D3plusMatrix } from "@d3plus/react";
 export const Matrix = ({ config }) => <D3plusMatrix config={config} />;
 
 export const argTypes = assign(

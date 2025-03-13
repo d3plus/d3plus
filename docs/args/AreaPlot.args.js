@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as plotArgTypes } from "./Plot.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { AreaPlot as D3plusArea } from "d3plus-react";
+import { AreaPlot as D3plusArea } from "@d3plus/react";
 export const AreaPlot = ({ config }) => <D3plusArea config={config} />;
 
 export const argTypes = assign(

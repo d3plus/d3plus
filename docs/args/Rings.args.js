@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as networkArgTypes } from "./Network.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { Rings as D3plusRings } from "d3plus-react";
+import { Rings as D3plusRings } from "@d3plus/react";
 export const Rings = ({ config }) => <D3plusRings config={config} />;
 
 export const argTypes = assign(

@@ -1,5 +1,5 @@
-import {formatLocale} from "d3plus-format";
-import {BaseClass} from "d3plus-common";
+import {formatLocale} from "@d3plus/locales";
+import {BaseClass} from "@d3plus/core";
 const SampleClass = new BaseClass();
 
 export default {

@@ -1,8 +1,8 @@
 import React from "react";
 import { argTypes as matrixArgTypes } from "./Matrix.args";
-import { assign } from "d3plus-common";
+import { assign } from "@d3plus/dom";
 
-import { RadialMatrix as D3plusRadialMatrix } from "d3plus-react";
+import { RadialMatrix as D3plusRadialMatrix } from "@d3plus/react";
 export const RadialMatrix = ({ config }) => <D3plusRadialMatrix config={config} />;
 
 export const argTypes = assign(

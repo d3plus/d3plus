@@ -1,5 +1,5 @@
 import BaseClass from "./BaseClass.args";
-import {Viz} from "d3plus-viz";
+import {Viz} from "@d3plus/core";
 const SampleViz = new Viz();
 
 export default {
@@ -162,7 +162,7 @@ Setting to \`false\` disables the color scale behavior entirely, reverting back 
         defaultValue: {
           summary: "object",
           detail: `import {color} from "d3-color";
-import {colorAssign, colorContrast} from "d3plus-color";
+import {colorAssign, colorContrast} from "@d3plus/color";
 
 {
   ariaLabel(d, i) {
@@ -528,7 +528,7 @@ function label(d, i, depth) {
         category: "Timeline",
         defaultValue: {
           summary: "function",
-          detail: `import {date} from "d3plus-axis";
+          detail: `import {date} from "@d3plus/dom";
 import {max} from "d3-array";
 
 function(d, i) {
@@ -664,7 +664,7 @@ By default, this padding is only applied on screens larger than 600 pixels wide.
         category: "Total",
         defaultValue: {
           summary: "function",
-          detail: `import {formatAbbreviate} from "d3plus-format";
+          detail: `import {formatAbbreviate} from "@d3plus/format";
 
 function(d) {
   const t = this._translate;
