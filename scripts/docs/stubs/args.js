@@ -37,9 +37,9 @@ export default function(component, methods) {
 
 import React from "react";
 import Viz from "./Viz.args";
-import { assign } from "d3plus-common";
+import {assign} from "@d3plus/dom";
 
-import { ${component} as D3plus${component} } from "d3plus-react";
+import {${component} as D3plus${component}} from "@d3plus/react";
 export const ${component} = ({ config }) => <D3plus${component} config={config} />;
 
 export const argTypes = assign(
