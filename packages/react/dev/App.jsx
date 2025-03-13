@@ -22,7 +22,7 @@ const boxStyle = {
   verticalAlign: "middle"
 };
 
-ReactDOM.createRoot(document.getElementById("viz")).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <D3plusContext.Provider value={globalConfig}>
       <MantineProvider theme={theme}>
