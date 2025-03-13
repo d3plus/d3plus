@@ -23,13 +23,11 @@ const boxStyle = {
 };
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <D3plusContext.Provider value={globalConfig}>
-      <MantineProvider theme={theme}>
-        <div style={boxStyle}>
-          <Test />
-        </div>
-      </MantineProvider>
-    </D3plusContext.Provider>
-  </React.StrictMode>
+  <D3plusContext.Provider value={globalConfig}>
+    <MantineProvider theme={theme}>
+      <div style={boxStyle}>
+        <Test />
+      </div>
+    </MantineProvider>
+  </D3plusContext.Provider>
 );

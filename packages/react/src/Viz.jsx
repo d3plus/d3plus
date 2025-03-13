@@ -1,59 +1,43 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef} from "react";
 import {assign} from "@d3plus/dom";
 
 import D3plusContext from "./D3plusContext.jsx";
 
 /**
     @function Viz
-    @desc Creates SVG paths and coordinate points based on an array of data. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started using the geomap generator.
 */
 const Viz = ({
   className = "viz",
   config,
   dataFormat,
+  instance,
   linksFormat,
   nodesFormat,
-  topojsonFormat,
-  type: Constructor
+  topojsonFormat
 }) => {
 
   const {forceUpdate} = config;
 
   const globalConfig = useContext(D3plusContext);
   const container = useRef(null);
-  const [viz, setViz] = useState(null);
 
-  /**
-      @memberof Viz
-      @desc Sets visualization config, accounting for dataFormat, linksFormat, nodesFormat or topojsonFormat, and renders the visualization.
-      @private
-  */
-  const renderViz = () => {
+  useEffect(() => {
+    if (container.current) {
 
-    if (viz) {
-      const c = assign({}, globalConfig, config);
-      viz.config(c);
+      const c = assign({select: container.current}, globalConfig, config);
 
-      if (dataFormat && c.data) viz.data(c.data, dataFormat);
-      if (linksFormat && c.links) viz.links(c.links, linksFormat);
-      if (nodesFormat && c.nodes) viz.nodes(c.nodes, nodesFormat);
-      if (topojsonFormat && c.topojson) viz.topojson(c.topojson, topojsonFormat);
+      instance.config(c);
+
+      if (dataFormat && c.data) instance.data(c.data, dataFormat);
+      if (linksFormat && c.links) instance.links(c.links, linksFormat);
+      if (nodesFormat && c.nodes) instance.nodes(c.nodes, nodesFormat);
+      if (topojsonFormat && c.topojson) instance.topojson(c.topojson, topojsonFormat);
 
       // ADD CALLBACK
-      viz.render();
+      instance.render();
+      
     }
-
-  };
-
-  // first mount
-  useEffect(() => {
-    setViz(new Constructor().select(container.current));
-  }, [container]);
-
-  useEffect(renderViz, [viz]);
-
-  if (forceUpdate) renderViz();
-  else useEffect(renderViz, [JSON.stringify(globalConfig), JSON.stringify(config)]);
+  }, forceUpdate ? undefined : [JSON.stringify(globalConfig), JSON.stringify(config)]);
 
   return <div className={className} ref={container}></div>;
 
