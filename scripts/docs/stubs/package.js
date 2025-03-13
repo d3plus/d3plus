@@ -17,7 +17,7 @@ export default function(packageJSON) {
     description,
     license: "MIT",
     type: "module",
-    exports: "./es/index.js",
+    exports: `./es/index.${isReact ? "jsx" : "js"}`,
     browser: isReact ? undefined : `./umd/d3plus-${folderName}.full.js`,
     engines: {node: ">=18"},
     sideEffects: false,
@@ -34,7 +34,7 @@ export default function(packageJSON) {
       "build:umd": isReact ? undefined : "node ../../scripts/build-umd.js",
       dev: "node ../../scripts/dev.js",
       test: isReact 
-        ? "eslint index.js src/**/*.jsx" 
+        ? "eslint index.jsx src/**/*.jsx" 
         : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
     },
     dependencies

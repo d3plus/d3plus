@@ -4,7 +4,7 @@
   "description": "React components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
-  "exports": "./es/index.js",
+  "exports": "./es/index.jsx",
   "engines": {
     "node": ">=18"
   },
@@ -28,7 +28,7 @@
   "scripts": {
     "build:esm": "node ../../scripts/build-esm.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.js src/**/*.jsx"
+    "test": "eslint index.jsx src/**/*.jsx"
   },
   "dependencies": {
     "@d3plus/core": "3.0.0"
