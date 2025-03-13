@@ -558,7 +558,7 @@ export default class Viz extends BaseClass {
     // Appends a fullscreen SVG to the BODY if a container has not been provided through .select().
     if (this._select === void 0 || this._select.node().tagName.toLowerCase() !== "svg") {
       const parent = this._select === void 0 ? select("body").append("div") : this._select;
-      const svg = parent.append("svg");
+      const svg = parent.select(".d3plus-viz").size() ? parent.select(".d3plus-viz") : parent.append("svg");
       this.select(svg.node());
     }
 
