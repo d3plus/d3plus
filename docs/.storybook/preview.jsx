@@ -3,7 +3,7 @@ import { Anchor, Canvas, Controls, Description, DocsContext, Subheading, Subtitl
 import theme from "./theme.js";
 
 const replacer = (key, value) => {
-  if (value instanceof Array && typeof value[0] === "object") {
+  if (!["annotations"].includes(key) && value instanceof Array && typeof value[0] === "object") {
     return value.map(d => JSON.stringify(d));
   }
   return value;
@@ -25,9 +25,9 @@ const preview = {
               const stringifiedArgs = JSON.stringify(moduleExport.args);
               const compName = component.__docgenInfo.displayName.replace(/_args_[A-z]+/g, "");
               const code = useMemo(() => {
-                return `import {${compName}} from "d3plus-react";
-${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "d3plus-format";\n` : ""}
-const myChart = () => <${component.name} config={${JSON.stringify(moduleExport.args, replacer, 2)
+                return `import {${compName}} from "@d3plus/react";
+${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "@d3plus/format";\n` : ""}
+<${component.name} config={${JSON.stringify(moduleExport.args, replacer, 2)
                   // "data" cleanup
                   .replace(/\"(\{[^\}]+\})\"/g, "$1")
                   .replace(/\\"([A-z0-9]+)\\"\:/g, "$1:")
@@ -51,7 +51,7 @@ const myChart = () => <${component.name} config={${JSON.stringify(moduleExport.a
                   <Canvas
                     of={moduleExport}
                     withToolbar={false}
-                    story={{height: `${moduleExport.args.height || 400}px`}}
+                    story={{height: `${moduleExport.args.height || 350}px`}}
                     source={{
                       code,
                       language: "jsx"
