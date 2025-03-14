@@ -4,7 +4,7 @@ Color functions that extent the ability of d3-color.
 
 ## Installing
 
-If using npm, `npm install @d3plus/color`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/color@3.0.0-alpha.0/+esm).
+If using npm, `npm install @d3plus/color`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/color).
 
 ```js
 import modules from "@d3plus/color";
@@ -127,4 +127,4 @@ This is a global namespace
 ---
 
 
-###### <sub>Documentation generated on Thu, 13 Mar 2025 19:58:28 GMT</sub>
+###### <sub>Documentation generated on Fri, 14 Mar 2025 13:57:17 GMT</sub>

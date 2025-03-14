@@ -5,7 +5,7 @@ ${description}
 
 ## Installing
 
-If using npm, \`npm install ${name}\`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/${name}@${version}/+esm).
+If using npm, \`npm install ${name}\`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/${name}).
 
 \`\`\`js
 import modules from "${name}";
