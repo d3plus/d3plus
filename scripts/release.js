@@ -39,8 +39,8 @@ const catcher = ({code}) => {
 };
 
 catcher(shell.exec("npm test", shellOpts));
-catcher(shell.exec("npm run build:umd --workspaces --if-present", shellOpts));
 catcher(shell.exec("npm run docs", shellOpts));
+catcher(shell.exec("npm run build:umd --workspaces --if-present", shellOpts));
 
 log.timer("compiling release notes");
 const {stdout: commits} = shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", {async: false, silent: true});
