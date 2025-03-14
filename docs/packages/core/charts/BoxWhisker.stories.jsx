@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, BoxWhisker as Viz} from "../args/BoxWhisker.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, BoxWhisker as Viz} from "../../../args/core/charts/BoxWhisker.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Box Whisker",
+  title: "Core/Charts/Box & Whisker",
   component: Viz,
   argTypes
 };

@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Pack as Viz} from "../args/Pack.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Pack as Viz} from "../../../args/core/charts/Pack.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Bubble Pack",
+  title: "Core/Charts/Bubble Pack",
   component: Viz,
   argTypes
 };

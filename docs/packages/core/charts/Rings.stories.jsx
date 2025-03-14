@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Rings as Viz} from "../args/Rings.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Rings as Viz} from "../../../args/core/charts/Rings.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Rings",
+  title: "Core/Charts/Rings",
   component: Viz,
   argTypes
 };

@@ -1,9 +1,9 @@
 import React from "react";
-import {argTypes, Donut as Viz} from "../args/Donut.args";
-import configify from "../helpers/configify";
+import {argTypes, Donut as Viz} from "../../../args/core/charts/Donut.args";
+import configify from "../../../helpers/configify";
 
 export default {
-  title: "Charts/Donut Chart",
+  title: "Core/Charts/Donut Chart",
   component: Viz,
   argTypes
 };

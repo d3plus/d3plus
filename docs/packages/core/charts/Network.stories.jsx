@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Network as Viz} from "../args/Network.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Network as Viz} from "../../../args/core/charts/Network.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Network",
+  title: "Core/Charts/Network",
   component: Viz,
   argTypes
 };

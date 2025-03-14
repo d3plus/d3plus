@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Geomap as Viz} from "../args/Geomap.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Geomap as Viz} from "../../../args/core/charts/Geomap.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Coordinate Point Map",
+  title: "Core/Charts/Coordinate Point Map",
   component: Viz,
   argTypes
 };

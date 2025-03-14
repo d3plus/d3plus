@@ -1,9 +1,9 @@
 import React from "react";
-import {argTypes, Sankey as Viz} from "../args/Sankey.args";
-import configify from "../helpers/configify";
+import {argTypes, Sankey as Viz} from "../../../args/core/charts/Sankey.args";
+import configify from "../../../helpers/configify";
 
 export default {
-  title: "Charts/Sankey",
+  title: "Core/Charts/Sankey",
   component: Viz,
   argTypes
 };

@@ -1,9 +1,9 @@
 import React from "react";
-import {argTypes, Pie as Viz} from "../args/Pie.args";
-import configify from "../helpers/configify";
+import {argTypes, Pie as Viz} from "../../../args/core/charts/Pie.args";
+import configify from "../../../helpers/configify";
 
 export default {
-  title: "Charts/Pie Chart",
+  title: "Core/Charts/Pie Chart",
   component: Viz,
   argTypes
 };

@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Matrix as Viz} from "../args/Matrix.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, RadialMatrix as Viz} from "../../../args/core/charts/RadialMatrix.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Matrix",
+  title: "Core/Charts/Radial Matrix",
   component: Viz,
   argTypes
 };

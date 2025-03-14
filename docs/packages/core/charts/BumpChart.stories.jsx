@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, BumpChart as Viz} from "../args/BumpChart.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, BumpChart as Viz} from "../../../args/core/charts/BumpChart.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Bump Chart",
+  title: "Core/Charts/Bump Chart",
   component: Viz,
   argTypes
 };

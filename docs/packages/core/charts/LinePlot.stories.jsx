@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, LinePlot as Viz} from "../args/LinePlot.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, LinePlot as Viz} from "../../../args/core/charts/LinePlot.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Line Plot",
+  title: "Core/Charts/Line Plot",
   component: Viz,
   argTypes
 };

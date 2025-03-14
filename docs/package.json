@@ -22,9 +22,8 @@
   "devDependencies": {
     "@storybook/addon-controls": "^8.6.4",
     "@storybook/addon-docs": "^8.6.4",
-    "@storybook/addon-webpack5-compiler-swc": "^2.1.0",
+    "@storybook/nextjs": "^8.6.4",
     "@storybook/react": "^8.6.4",
-    "@storybook/react-webpack5": "^8.6.4",
     "@storybook/theming": "^8.6.4",
     "remark-gfm": "^4.0.1",
     "storybook": "^8.6.4"

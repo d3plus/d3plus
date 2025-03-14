@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Radar as Viz} from "../args/Radar.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Radar as Viz} from "../../../args/core/charts/Radar.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Radar Plot",
+  title: "Core/Charts/Radar Plot",
   component: Viz,
   argTypes
 };

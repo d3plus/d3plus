@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Priestley as Viz} from "../args/Priestley.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Priestley as Viz} from "../../../args/core/charts/Priestley.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Priestley",
+  title: "Core/Charts/Priestley",
   component: Viz,
   argTypes
 };

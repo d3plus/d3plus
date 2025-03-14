@@ -1,11 +1,11 @@
 import React from "react";
-import {argTypes, BarChart as Viz} from "../args/BarChart.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, BarChart as Viz} from "../../../args/core/charts/BarChart.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 import {formatAbbreviate} from "@d3plus/format";
 
 export default {
-  title: "Charts/Bar Chart",
+  title: "Core/Charts/Bar Chart",
   component: Viz,
   argTypes
 };

@@ -1,9 +1,9 @@
 import React from "react";
-import {argTypes, Treemap as Viz} from "../args/Treemap.args";
-import configify from "../helpers/configify";
+import {argTypes, Treemap as Viz} from "../../../args/core/charts/Treemap.args";
+import configify from "../../../helpers/configify";
 
 export default {
-  title: "Charts/Treemap",
+  title: "Core/Charts/Treemap",
   component: Viz,
   argTypes
 };

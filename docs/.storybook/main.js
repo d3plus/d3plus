@@ -3,7 +3,7 @@ import remarkGfm from "remark-gfm";
 module.exports = {
   stories: [
     "../docs/**/*.mdx", 
-    "../charts/**/*.stories.@(mdx|js|jsx|ts|tsx)"
+    "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)"
   ],
 
   addons: [
@@ -17,11 +17,10 @@ module.exports = {
           },
         },
       },
-    }, 
-    "@storybook/addon-webpack5-compiler-swc"
+    }
   ],
 
-  framework: "@storybook/react-webpack5",
+  framework: "@storybook/nextjs",
 
   docs: {
     defaultName: "D3plus"
@@ -35,6 +34,7 @@ module.exports = {
 
   core: {
     disableTelemetry: true, // 👈 Disables telemetry
+    disableWhatsNewNotifications: true,
   }
 
 };

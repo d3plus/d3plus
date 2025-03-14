@@ -1,10 +1,10 @@
 import React from "react";
-import {argTypes, Plot as Viz} from "../args/Plot.args";
-import configify from "../helpers/configify";
-import funcify from "../helpers/funcify";
+import {argTypes, Plot as Viz} from "../../../args/core/charts/Plot.args";
+import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Charts/Scatter Plot",
+  title: "Core/Charts/Scatter Plot",
   component: Viz,
   argTypes
 };
