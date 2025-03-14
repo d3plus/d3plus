@@ -26,3 +26,24 @@
   }
 
 </style>
+
+<script id="storybook-mod-expand-all-folders" type="text/javascript">
+  var clickCollapsedItemsUntilNoneLeft = () => {
+    setTimeout(() => {
+      try {
+        var itemsLeftToClick = Array.from(
+          document.querySelectorAll('#storybook-explorer-tree button#core-charts[aria-expanded="false"]')
+        );
+        if (itemsLeftToClick.length > 0) {
+          itemsLeftToClick.forEach(item => item.click());
+          clickCollapsedItemsUntilNoneLeft();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 200);
+  };
+
+  window.removeEventListener('load', clickCollapsedItemsUntilNoneLeft);
+  window.addEventListener('load', clickCollapsedItemsUntilNoneLeft);
+</script>
