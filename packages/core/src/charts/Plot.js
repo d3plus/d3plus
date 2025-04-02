@@ -731,9 +731,9 @@ export default class Plot extends Viz {
 
     const defaultX2Config = x2Exists ? {data: x2Data} : defaultConfig;
     const defaultY2Config = y2Exists ? {data: y2Data} : defaultConfig;
-    const showX = this._discrete === "x" && this._width > this._discreteCutoff || this._width > this._xCutoff;
-    const showY = this._discrete === "y" && this._height > this._discreteCutoff || this._height > this._yCutoff;
-
+    const showX = this._discrete === "x" ? this._width > this._discreteCutoff && this._width > this._xCutoff : this._width > this._xCutoff;
+    const showY = this._discrete === "y" ? this._height > this._discreteCutoff && this._height > this._yCutoff : this._height > this._yCutoff;
+    
     const yC = {
       data: yData,
       locale: this._locale,
@@ -838,7 +838,7 @@ export default class Plot extends Viz {
         labelConfig: {
           padding: 0,
           rotate: 0,
-          textAnchor: d => d.id === xTicks[0] ? "start" : "end"
+          textAnchor: d => xTicks && d.id === xTicks[0] ? "start" : "end"
         },
         labelRotation: false
       };
@@ -1073,12 +1073,12 @@ export default class Plot extends Viz {
     const transform = `translate(${this._margin.left}, ${this._margin.top + x2Height + topOffset})`;
     const x2Transform = `translate(${this._margin.left}, ${this._margin.top + topOffset})`;
 
-    const xGroup = showX && elem("g.d3plus-plot-x-axis", {parent, transition, enter: {transform}, update: {transform}});
+    const xGroup = elem("g.d3plus-plot-x-axis", {parent, transition, enter: {transform}, update: {transform, opacity: showX ? 1 : 0}});
     const x2Group = x2Exists && elem("g.d3plus-plot-x2-axis", {parent, transition, enter: {transform: x2Transform}, update: {transform: x2Transform}});
 
     const xTrans = xOffsetLeft > yWidth ? xOffsetLeft - yWidth : 0;
     const yTransform = `translate(${this._margin.left + xTrans}, ${this._margin.top + topOffset})`;
-    const yGroup = showY && elem("g.d3plus-plot-y-axis", {parent, transition, enter: {transform: yTransform}, update: {transform: yTransform}});
+    const yGroup = elem("g.d3plus-plot-y-axis", {parent, transition, enter: {transform: yTransform}, update: {transform: yTransform, opacity: showY ? 1 : 0}});
 
     const y2Transform = `translate(-${this._margin.right}, ${this._margin.top + topOffset})`;
     const y2Group = y2Exists && elem("g.d3plus-plot-y2-axis", {parent, transition, enter: {transform: y2Transform}, update: {transform: y2Transform}});
@@ -1088,7 +1088,7 @@ export default class Plot extends Viz {
       .height(height - (x2Height + topOffset + verticalMargin))
       .maxSize(height / 2)
       .range(xRange)
-      .select(showX ? xGroup.node() : undefined)
+      .select(xGroup.node())
       .ticks(xTicks)
       .width(width)
       .config(xC)
@@ -1129,7 +1129,7 @@ export default class Plot extends Viz {
       .height(height)
       .maxSize(width / 2)
       .range(yRange)
-      .select(showY ? yGroup.node() : undefined)
+      .select(yGroup.node())
       .ticks(yTicks)
       .width(xRange[xRange.length - 1])
       .config(yC)
@@ -1206,6 +1206,9 @@ export default class Plot extends Viz {
       }
     };
 
+    let yOffset = this._xAxis.barConfig()["stroke-width"];
+    if (yOffset) yOffset /= 2;
+
     new shapes.Rect()
       .data([{}])
       .select(rectGroup.node())
@@ -1274,9 +1277,6 @@ export default class Plot extends Viz {
       this._previousAnnotations[layer] = annotationShapes;
 
     });
-
-    let yOffset = this._xAxis.barConfig()["stroke-width"];
-    if (yOffset) yOffset /= 2;
 
     const discrete = this._discrete || "x";
     

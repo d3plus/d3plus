@@ -36,7 +36,7 @@
         "State ID": d3.mean
       },
       locale: "es-MX",
-      data: dataArray,
+      // data: dataArray,
       // data: dataArray.filter(d => [11].includes(d["State ID"])),
       groupBy: ["State ID"],
       size: "Trade Value",
@@ -50,7 +50,19 @@
       xConfig: {
         title: false,
         scale: "linear"
-      }
+      },
+      annotations: [
+        {
+          data: [
+            {id: "test", r: 30, x: 3, y: -0.2}
+          ],
+          r: d => d.r,
+          shape: "Circle"
+        }
+      ],
+      xDomain: [-1, 5],
+      yDomain: [-1, -0.1],
+      noDataMessage: false
     })
     .render(() => console.timeEnd("draw"));
 
