@@ -12,7 +12,7 @@ function _elementSize(element, s) {
 
     let val  = window[`inner${s.charAt(0).toUpperCase() + s.slice(1)}`];
     const elem = select(element);
-
+    
     if (s === "width") {
       val -= parseFloat(elem.style("margin-left"), 10);
       val -= parseFloat(elem.style("margin-right"), 10);
@@ -30,9 +30,14 @@ function _elementSize(element, s) {
 
   }
   else {
-
     const val = parseFloat(select(element).style(s), 10);
-    if (typeof val === "number" && val > 0) return val;
+    if (typeof val === "number" && val > 0) {
+      if (s === "height") {
+        val -= parseFloat(select(element).style("padding-top"), 10);
+        val -= parseFloat(select(element).style("padding-bottom"), 10);
+      }
+      return val;
+    }
     else return _elementSize(element.parentNode, s);
 
   }
