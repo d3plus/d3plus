@@ -8,6 +8,7 @@ import {zoomTransform} from "d3-zoom";
 
 import {assign, elem} from "@d3plus/dom";
 import {addToQueue} from "@d3plus/data";
+import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
 import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz";
@@ -316,14 +317,14 @@ export default class Network extends Viz {
       }
       else if (nodePositions.length > 2) {
         const hull = polygonHull(nodePositions);
-        const rect = shapes.largestRect(hull, {verbose: true});
+        const rect = largestRect(hull, {verbose: true});
         angle = rect.angle;
         cx = rect.cx;
         cy = rect.cy;
       }
 
       nodes.forEach(n => {
-        const p = shapes.pointRotate([n.vx, n.vy], -1 * (Math.PI / 180 * angle), [cx, cy]);
+        const p = pointRotate([n.vx, n.vy], -1 * (Math.PI / 180 * angle), [cx, cy]);
         n.fx = p[0];
         n.fy = p[1];
       });
@@ -357,7 +358,7 @@ export default class Network extends Viz {
     let rMax = this._sizeMax || max([1, min(
       merge(nodes
         .map(n1 => nodes
-          .map(n2 => n1 === n2 ? null : shapes.pointDistance([n1.x, n1.y], [n2.x, n2.y]))
+          .map(n2 => n1 === n2 ? null : pointDistance([n1.x, n1.y], [n2.x, n2.y]))
         )
       )
     ) / 2]);
