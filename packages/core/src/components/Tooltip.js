@@ -356,7 +356,7 @@ export default class Tooltip extends BaseClass {
   /**
       @memberof Tooltip
       @desc If *value* is specified, sets the background accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current background accessor.
-      @param {Function|String} [*value* = "#f7f7f7"]
+      @param {Function|String} [*value* = colorDefaults.light]
   */
   background(_) {
     return arguments.length ? (this._background = typeof _ === "function" ? _ : constant(_), this) : this._background;
