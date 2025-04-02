@@ -4,12 +4,41 @@
     <meta charset="utf-8">
     <script src="/umd/d3plus-color.full.js"></script>
   </head>
+  <style>
+    div {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 12px;
+      height: 50px;
+      margin: 25px;
+      text-align: center;
+      width: 76px;
+    }
+  </style>
   <body>
-
+    <section id="section-1"></section>
+    <section id="section-2"></section>
   </body>
   <script>
 
-    console.log(d3plus);
+    console.log(d3plus.colorDefaults);
+    const makeBox = (section, name, color) => {
+      const box = document.createElement("div")
+      box.style.backgroundColor = color;
+      box.style.color = d3plus.colorContrast(color);
+      box.innerHTML = name;
+      document.querySelector(`#section-${section}`).appendChild(box);
+    };
+    makeBox(1, "dark", d3plus.colorDefaults.dark);
+    makeBox(1, "light", d3plus.colorDefaults.light);
+    makeBox(1, "missing", d3plus.colorDefaults.missing);
+    makeBox(1, "off", d3plus.colorDefaults.off);
+    makeBox(1, "on", d3plus.colorDefaults.on);
+
+    d3plus.colorDefaults.scale.range().forEach((color, i) => {
+      makeBox(2, ``, color);
+    });
+
 
   </script>
 </html>

@@ -1,4 +1,5 @@
 import {scaleOrdinal} from "d3-scale";
+import {theme as openColor} from "open-color/open-color.js";
 
 /**
     @namespace {Object} colorDefaults
@@ -6,38 +7,38 @@ import {scaleOrdinal} from "d3-scale";
       *
       * | Name | Default | Description |
       * |---|---|---|
-      * | dark | "#555555" | Used in the [contrast](#contrast) function when the color given is very light. |
-      * | light | "#f7f7f7" | Used in the [contrast](#contrast) function when the color given is very dark. |
-      * | missing | "#cccccc" | Used in the [assign](#assign) function when the value passed is `null` or `undefined`. |
-      * | off | "#C44536" | Used in the [assign](#assign) function when the value passed is `false`. |
-      * | on | "#6A994E" | Used in the [assign](#assign) function when the value passed is `true`. |
-      * | scale | "#4281A4", "#F6AE2D", "#C44536", "#2A9D8F", "#6A994E", "#CEB54A", "#5E548E", "#C08497", "#99582A", "#8C8C99", "#1D3557", "#D08C60", "#6D2E46", "#8BB19C", "#52796F", "#5E60CE", "#985277", "#5C374C" | An ordinal scale used in the [assign](#assign) function for non-valid color strings and numbers. |
+      * | dark | gray-7 | Used in the [contrast](#contrast) function when the color given is very light. |
+      * | light | gray-0 | Used in the [contrast](#contrast) function when the color given is very dark. |
+      * | missing | gray-4 | Used in the [assign](#assign) function when the value passed is `null` or `undefined`. |
+      * | off | red-9 | Used in the [assign](#assign) function when the value passed is `false`. |
+      * | on | green-9 | Used in the [assign](#assign) function when the value passed is `true`. |
+      * | scale | [indigo-900, yellow-600, red-900, green-900, orange-600, grape-900, cyan-600, pink-600, lime-600, blue-300, pink-300, lime-300, violet-300, cyan-100, orange-100, green-100, grape-100, red-100] | An ordinal scale used in the [assign](#assign) function for non-valid color strings and numbers. |
 */
 const defaults = {
-  dark: "#555555",
-  light: "#f7f7f7",
-  missing: "#cccccc",
-  off: "#C44536",
-  on: "#6A994E",
+  dark: openColor.colors.gray[700],
+  light: openColor.colors.gray[50],
+  missing: openColor.colors.gray[400],
+  off: openColor.colors.red[900],
+  on: openColor.colors.green[900],
   scale: scaleOrdinal().range([
-    "#4281A4",
-    "#F6AE2D",
-    "#C44536",
-    "#2A9D8F",
-    "#6A994E",
-    "#CEB54A",
-    "#5E548E",
-    "#C08497",
-    "#99582A",
-    "#8C8C99",
-    "#1D3557",
-    "#D08C60",
-    "#6D2E46",
-    "#8BB19C",
-    "#52796F",
-    "#5E60CE",
-    "#985277",
-    "#5C374C"
+    openColor.colors.indigo[900],
+    openColor.colors.yellow[600],
+    openColor.colors.red[900],
+    openColor.colors.green[900],
+    openColor.colors.orange[600],
+    openColor.colors.grape[900],
+    openColor.colors.cyan[600],
+    openColor.colors.pink[600],
+    openColor.colors.lime[600],
+    openColor.colors.blue[300],
+    openColor.colors.pink[300],
+    openColor.colors.lime[300],
+    openColor.colors.violet[300],
+    openColor.colors.cyan[100],
+    openColor.colors.orange[100],
+    openColor.colors.green[100],
+    openColor.colors.grape[100],
+    openColor.colors.red[100],
   ])
 };
 
