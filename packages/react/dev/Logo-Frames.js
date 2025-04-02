@@ -110,4 +110,3 @@ export const icon = {
   xConfig: hiddenAxis,
   yConfig: hiddenAxis
 };
-]

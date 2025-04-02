@@ -4,7 +4,8 @@ import {timeFormat, timeFormatDefaultLocale} from "d3-time-format";
 import * as scales from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
-import {theme as openColor} from "open-color/open-color.js";
+import pkg from 'open-color/open-color.js';
+const {theme: openColor} = pkg;
 
 import {colorDefaults} from "@d3plus/color";
 import {assign, attrize, date, elem, rtl as detectRTL} from "@d3plus/dom";

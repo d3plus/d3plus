@@ -4,7 +4,8 @@ import {deviation, extent, max, mean, merge, min, range, sum} from "d3-array";
 import {nest} from "d3-collection";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
-import {theme as openColor} from "open-color/open-color.js";
+import pkg from 'open-color/open-color.js';
+const {theme: openColor} = pkg;
 
 import {colorAssign, colorContrast, colorDefaults, colorLegible} from "@d3plus/color";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
