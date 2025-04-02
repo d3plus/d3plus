@@ -410,7 +410,7 @@ export default class Plot extends Viz {
   _draw(callback) {
 
     if (!this._filteredData.length && !this._annotations.length) return this;
-
+    
     /* Determines whether or not any of the x or y axes are a "time" axis. */
     const firstElemTime = this._time ? this._time(this._filteredData[0], 0) : false;
     const x2Time = this._x2Time = firstElemTime && this._x2(this._filteredData[0], 0) === firstElemTime,
@@ -1247,6 +1247,7 @@ export default class Plot extends Viz {
       const annotationShapes = annotationData.map(d => d.shape);
       annotationData.forEach(annotation => {
         new shapes[annotation.shape]()
+          .duration(this._duration)
           .config(annotation)
           .config({
             x: d => d.x2 ? x(d.x2, "x2") : x(d.x),
