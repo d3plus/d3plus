@@ -583,7 +583,7 @@ export default class Shape extends BaseClass {
         const t = textures[textureClass]();
         for (const k in config) {
           if ({}.hasOwnProperty.call(t, k) && k in t) {
-            if (k === "d") t[k](() => config[k]);
+            if (k === "d" && typeof k === "function") t[k](() => config[k]);
             else config[k] instanceof Array ? t[k].apply(null, config[k]) : t[k](config[k]);
           }
         }
