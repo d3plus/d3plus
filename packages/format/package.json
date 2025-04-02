@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/format",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "description": "JavaScript formatters for localized numbers and dates.",
   "license": "MIT",
   "type": "module",
@@ -34,7 +34,7 @@
     "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/locales": "3.0.0-alpha.1",
+    "@d3plus/locales": "3.0.0-alpha.2",
     "d3-format": "^3.1.0",
     "d3-time": "^3.1.0",
     "d3-time-format": "^4.1.0"

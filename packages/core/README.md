@@ -13,7 +13,7 @@ import modules from "@d3plus/core";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/core@3.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/core@3.0.0-alpha.2"></script>
 <script>
   console.log(d3plus);
 </script>
@@ -6216,4 +6216,4 @@ This is a global constant
 ---
 
 
-###### <sub>Documentation generated on Wed, 02 Apr 2025 20:15:51 GMT</sub>
+###### <sub>Documentation generated on Wed, 02 Apr 2025 20:59:31 GMT</sub>

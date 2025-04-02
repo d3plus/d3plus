@@ -13,7 +13,7 @@ import modules from "@d3plus/color";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/color@3.0.0-alpha.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/color@3.0.0-alpha.2"></script>
 <script>
   console.log(d3plus);
 </script>
@@ -127,4 +127,4 @@ This is a global namespace
 ---
 
 
-###### <sub>Documentation generated on Wed, 02 Apr 2025 20:15:50 GMT</sub>
+###### <sub>Documentation generated on Wed, 02 Apr 2025 20:59:30 GMT</sub>

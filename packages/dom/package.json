@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/dom",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "description": "JavaScript functions for manipulating and analyzing DOM elements.",
   "license": "MIT",
   "type": "module",
