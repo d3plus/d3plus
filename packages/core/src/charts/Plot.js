@@ -4,6 +4,7 @@ import {deviation, extent, max, mean, merge, min, range, sum} from "d3-array";
 import {nest} from "d3-collection";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
+import {theme as openColor} from "open-color/open-color.js";
 
 import {colorAssign, colorContrast, colorDefaults, colorLegible} from "@d3plus/color";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
@@ -331,7 +332,7 @@ export default class Plot extends Viz {
           if (this._discrete && this._discrete.charAt(0) === "x") return "transparent";
           const range = this._xAxis.range();
           // hides left-most x gridline so it doesn't overlap with the y axis
-          return range[0] === this._xAxis._getPosition.bind(this._xAxis)(d.id) ? "transparent" : "#eee";
+          return range[0] === this._xAxis._getPosition.bind(this._xAxis)(d.id) ? "transparent" : openColor.colors.gray[200];
         }
       }
     };
@@ -353,7 +354,7 @@ export default class Plot extends Viz {
           if (this._discrete && this._discrete.charAt(0) === "y") return "transparent";
           const range = this._yAxis.range();
           // hides bottom-most y gridline so it doesn't overlap with the x axis
-          return range[range.length - 1] === this._yAxis._getPosition.bind(this._yAxis)(d.id) ? "transparent" : "#eee";
+          return range[range.length - 1] === this._yAxis._getPosition.bind(this._yAxis)(d.id) ? "transparent" : openColor.colors.gray[200];
         }
       }
     };

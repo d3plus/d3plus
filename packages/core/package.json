@@ -55,13 +55,14 @@
     "d3-polygon": "^3.0.1",
     "d3-queue": "^3.0.7",
     "d3-sankey": "^0.12.3",
-    "d3-selection": "^3.0.0",
     "d3-scale": "^4.0.2",
+    "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-tile": "^1.0.0",
     "d3-transition": "^3.0.1",
     "d3-zoom": "^3.0.0",
     "lrucache": "^1.0.3",
+    "open-color": "^1.9.1",
     "textures": "^1.2.3",
     "topojson-client": "^3.1.0"
   }
