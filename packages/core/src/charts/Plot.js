@@ -409,7 +409,7 @@ export default class Plot extends Viz {
   */
   _draw(callback) {
 
-    if (!this._filteredData.length) return this;
+    if (!this._filteredData.length && !this._annotations.length) return this;
 
     /* Determines whether or not any of the x or y axes are a "time" axis. */
     const firstElemTime = this._time ? this._time(this._filteredData[0], 0) : false;
