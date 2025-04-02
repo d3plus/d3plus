@@ -4,6 +4,7 @@ import {timeFormat, timeFormatDefaultLocale} from "d3-time-format";
 import * as scales from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
+import {theme as openColor} from "open-color/open-color.js";
 
 import {colorDefaults} from "@d3plus/color";
 import {assign, attrize, date, elem, rtl as detectRTL} from "@d3plus/dom";
@@ -152,14 +153,14 @@ export default class Axis extends BaseClass {
 
     this._align = "middle";
     this._barConfig = {
-      "stroke": "#999",
+      "stroke": openColor.colors.gray[600],
       "stroke-width": 1
     };
     this._data = [];
     this._domain = [0, 10];
     this._duration = 600;
     this._gridConfig = {
-      "stroke": "#eee",
+      "stroke": colorDefaults.light,
       "stroke-width": 1
     };
     this._gridLog = false;
@@ -180,12 +181,12 @@ export default class Axis extends BaseClass {
     this._scalePadding = 0.5;
     this._shape = "Line";
     this._shapeConfig = {
-      fill: "#999",
+      fill: openColor.colors.gray[600],
       height: d => d.tick ? 8 : 0,
       label: d => d.text,
       labelBounds: d => d.labelBounds,
       labelConfig: {
-        fontColor: "#999",
+        fontColor: openColor.colors.gray[600],
         fontResize: false,
         fontSize: constant(12),
         padding: 5,
@@ -198,7 +199,7 @@ export default class Axis extends BaseClass {
         verticalAlign: () => this._orient === "bottom" ? "top" : this._orient === "top" ? "bottom" : "middle"
       },
       r: d => d.tick ? 4 : 0,
-      stroke: "#999",
+      stroke: openColor.colors.gray[600],
       strokeWidth: 1,
       width: d => d.tick ? 8 : 0
     };
