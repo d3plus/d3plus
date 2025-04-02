@@ -13,7 +13,7 @@ import modules from "@d3plus/dom";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/dom@3.0.0-alpha.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/dom@3.0.0-alpha.1"></script>
 <script>
   console.log(d3plus);
 </script>
@@ -173,4 +173,4 @@ This is a global function
 ---
 
 
-###### <sub>Documentation generated on Fri, 14 Mar 2025 13:57:18 GMT</sub>
+###### <sub>Documentation generated on Wed, 02 Apr 2025 20:15:51 GMT</sub>
