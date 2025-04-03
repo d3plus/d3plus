@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {assign} from "@d3plus/dom";
 
 import D3plusContext from "./D3plusContext.jsx";
@@ -13,19 +13,19 @@ export default ({
   callback,
   className = "viz",
   config,
-  instance,
+  vizClass,
 }) => {
 
   const {forceUpdate} = config;
 
   const globalConfig = useContext(D3plusContext);
   const container = useRef(null);
+  const [instance] = useState(() => new vizClass());
 
   useEffect(() => {
     if (container.current) {
 
       const c = assign({select: container.current}, globalConfig, config);
-
       instance.config(c);
 
       ["data", "links", "nodes", "topojson"].forEach(method => {

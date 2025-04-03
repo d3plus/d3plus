@@ -5,6 +5,7 @@ import "@mantine/core/styles.css";
 import {createTheme, MantineProvider} from "@mantine/core";
 import Treemap from "./Treemap.jsx";
 import Icon from "./Icon.jsx";
+import Logo from "./Logo.jsx";
 
 export const theme = createTheme({
   /* Put your mantine theme override here */
@@ -27,11 +28,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <D3plusContext.Provider value={globalConfig}>
     <MantineProvider theme={theme}>
       <div style={boxStyle}>
+        <Logo />
+      </div>
+      {/* <div style={boxStyle}>
         <Icon />
-      </div>
-      <div style={boxStyle}>
+      </div> */}
+      {/* <div style={boxStyle}>
         <Treemap />
-      </div>
+      </div> */}
     </MantineProvider>
   </D3plusContext.Provider>
 );
