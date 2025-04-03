@@ -740,7 +740,7 @@ export default class Plot extends Viz {
       rounding: this._yDomain ? "none" : "outside",
       scalePadding: y.padding ? y.padding() : 0
     };
-    if (!showX) {
+    if (!showX && showY) {
       yC.barConfig = {stroke: "transparent"};
       yC.tickSize = 0;
       yC.shapeConfig = {
@@ -825,7 +825,7 @@ export default class Plot extends Viz {
       rounding: this._xDomain ? "none" : "outside",
       scalePadding: x.padding ? x.padding() : 0
     };
-    if (!showY) {
+    if (!showY && showX) {
       xC.barConfig = {stroke: "transparent"};
       xC.tickSize = 0;
       xC.shapeConfig = {
