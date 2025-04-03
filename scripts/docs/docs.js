@@ -29,12 +29,16 @@ async function generateMarkdown() {
 
     log.timer(`updating package.json for ${name}`);
     packageJSON.version = version;
-
-
-    log.timer(`writing JSDOC comments to README.md for ${name}`);
     packageJSON = packageStub(packageJSON);
     fs.writeFileSync(`${folder}/package.json`, JSON.stringify(packageJSON, null, 2));
 
+    if (name === "@d3plus/docs") {
+      log.done();
+      shell.echo("");
+      continue;
+    }
+
+    log.timer(`writing JSDOC comments to README.md for ${name}`);
     const readmeContent = readmeStub(packageJSON);
     new shell.ShellString(readmeContent).to(template);
 

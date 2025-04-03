@@ -38,7 +38,7 @@ const catcher = ({code}) => {
   }
 };
 
-catcher(shell.exec("npm test", shellOpts));
+catcher(shell.exec("npm test --if-present", shellOpts));
 catcher(shell.exec("npm run docs", shellOpts));
 catcher(shell.exec("npm run build:umd --workspaces --if-present", shellOpts));
 

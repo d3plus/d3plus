@@ -42,6 +42,13 @@ if (name === "react") {
   log.done();
   log.timer("watching for changes...");
 }
+else if (name === "docs") {
+  log.timer(`running Storybook on port ${port}`);
+  const shellOpts = {async: true, stdio: "inherit"};
+  shell.exec(`storybook dev --docs --ci --no-version-updates --port=${port}`, shellOpts);
+  log.done();
+  log.timer("watching for changes...");
+}
 else {
   log.timer(`running live-server on port ${port}`);
   liveServer

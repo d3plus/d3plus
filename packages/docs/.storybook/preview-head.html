@@ -1,0 +1,69 @@
+<title>D3plus</title>
+
+<!-- Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+<style>
+
+  pre {
+    font-family: ui-monospace, monospace !important;
+  }
+
+  .sbdocs-wrapper {
+    padding: 2rem !important;
+  }
+
+  .sbdocs-content {
+    max-width: calc(100% - 15rem) !important;
+  }
+
+  /* kill margins */
+  .docblock-argstable, /* control block */
+  .sbdocs-preview { /* chart/code block */
+    margin: 0 !important;
+  }
+
+  /* kill paddings */
+  .docs-story > div:first-child { /* viz container */
+    padding: 10px !important;
+  }
+
+  /* move hide/show code button */
+  .docs-story > div:last-child {
+    background: none !important;
+    left: 0px !important;
+    right: auto !important;
+  }
+  .docblock-code-toggle {
+    border-left-color: initial !important;
+    border-right-color: rgba(38, 85, 115, 0.15) !important;
+    border-radius: 0px 4px 0px !important;
+    border-style: solid solid none none !important;
+    border-width: 1px 1px 0px 0px !important;
+  }
+
+  /* removes inner viz padding */
+  .innerZoomElementWrapper > div:first-child {
+    border: none !important;
+  }
+  .viz > svg {
+    display: block;
+  }
+
+  .d3plus-logo .d3plus-plot-x-axis .bar,
+  .d3plus-logo .d3plus-plot-y-axis .bar {
+    transition: opacity 0.2s;
+  }
+
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-46067436-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-46067436-1');
+</script>
