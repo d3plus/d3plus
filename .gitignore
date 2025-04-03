@@ -1,5 +1,5 @@
 .DS_Store
-docs/build
+build
 umd
 es
 node_modules
