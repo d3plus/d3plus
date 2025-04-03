@@ -42,6 +42,7 @@ import touchstartBody from "./events/touchstart.body.js";
 
 /**
  * Default padding logic that will return false if the screen is less than 600 pixels wide.
+ * @private
  */
 function defaultPadding() {
   return typeof window !== "undefined" ? window.innerWidth > 600 : true;
@@ -49,6 +50,7 @@ function defaultPadding() {
 
 /**
  * Turns an array of values into a list string.
+ * @private
  */
 function listify(n) {
   return n.reduce((str, item, i) => {
@@ -543,6 +545,7 @@ export default class Viz extends BaseClass {
   /**
    * Applies the threshold algorithm according to the type of chart used.
    * @param {Array} data The data to process.
+   * @private
    */
   _thresholdFunction(data) {
     return data;

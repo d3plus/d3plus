@@ -10,7 +10,7 @@ import {accessor, BaseClass, constant} from "../utils/index.js";
 /**
  * Creates a reference element for popper.
  * @param {Number[]} position
- * @prrivate
+ * @private
  */
 function generateReference(position = [0, 0]) {
   return () => ({

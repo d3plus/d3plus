@@ -72,7 +72,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 ##### 
 * [defaultPadding](#defaultPadding) - Default padding logic that will return false if the screen is less than 600 pixels wide.
 * [listify](#listify) - Turns an array of values into a list string.
-* [_thresholdFunction](#_thresholdFunction) - Applies the threshold algorithm according to the type of chart used.
 * [generateReference](#generateReference) - Creates a reference element for popper.
 * [accessor](#accessor) - Wraps an object key in a simple accessor function.
 * [configPrep](#configPrep) - Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
@@ -2038,7 +2037,7 @@ The behavior to be used when calculating the position and size of each shape's l
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.render" href="#Viz.render">#</a> Viz.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L557)
+<a name="Viz.render" href="#Viz.render">#</a> Viz.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L558)
 
 Draws the visualization given the specified configuration.
 
@@ -2046,7 +2045,7 @@ Draws the visualization given the specified configuration.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.active" href="#Viz.active">#</a> Viz.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L761)
+<a name="Viz.active" href="#Viz.active">#</a> Viz.**active**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L762)
 
 If *value* is specified, sets the active method to the specified function and returns the current class instance.
 
@@ -2054,7 +2053,7 @@ If *value* is specified, sets the active method to the specified function and re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.aggs" href="#Viz.aggs">#</a> Viz.**aggs**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L779)
+<a name="Viz.aggs" href="#Viz.aggs">#</a> Viz.**aggs**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L780)
 
 If *value* is specified, sets the aggregation method for each key in the object and returns the current class instance.
 
@@ -2062,7 +2061,7 @@ If *value* is specified, sets the aggregation method for each key in the object 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.ariaHidden" href="#Viz.ariaHidden">#</a> Viz.**ariaHidden**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L789)
+<a name="Viz.ariaHidden" href="#Viz.ariaHidden">#</a> Viz.**ariaHidden**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L790)
 
 Sets the "aria-hidden" attribute of the containing SVG element. The default value is "false", but it you need to hide the SVG from screen readers set this property to "true".
 
@@ -2070,7 +2069,7 @@ Sets the "aria-hidden" attribute of the containing SVG element. The default valu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.attribution" href="#Viz.attribution">#</a> Viz.**attribution**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L799)
+<a name="Viz.attribution" href="#Viz.attribution">#</a> Viz.**attribution**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L800)
 
 Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
 
@@ -2078,7 +2077,7 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.attributionStyle" href="#Viz.attributionStyle">#</a> Viz.**attributionStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L809)
+<a name="Viz.attributionStyle" href="#Viz.attributionStyle">#</a> Viz.**attributionStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L810)
 
 If *value* is specified, sets the config method for the back button and returns the current class instance.
 
@@ -2086,7 +2085,7 @@ If *value* is specified, sets the config method for the back button and returns 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.backConfig" href="#Viz.backConfig">#</a> Viz.**backConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L819)
+<a name="Viz.backConfig" href="#Viz.backConfig">#</a> Viz.**backConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L820)
 
 If *value* is specified, sets the config method for the back button and returns the current class instance.
 
@@ -2094,7 +2093,7 @@ If *value* is specified, sets the config method for the back button and returns 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.cache" href="#Viz.cache">#</a> Viz.**cache**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L829)
+<a name="Viz.cache" href="#Viz.cache">#</a> Viz.**cache**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L830)
 
 Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.
 
@@ -2102,7 +2101,7 @@ Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful wh
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.color" href="#Viz.color">#</a> Viz.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L839)
+<a name="Viz.color" href="#Viz.color">#</a> Viz.**color**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L840)
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -2110,7 +2109,7 @@ Defines the main color to be used for each data point in a visualization. Can be
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScale" href="#Viz.colorScale">#</a> Viz.**colorScale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L849)
+<a name="Viz.colorScale" href="#Viz.colorScale">#</a> Viz.**colorScale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L850)
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -2118,7 +2117,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScaleConfig" href="#Viz.colorScaleConfig">#</a> Viz.**colorScaleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L859)
+<a name="Viz.colorScaleConfig" href="#Viz.colorScaleConfig">#</a> Viz.**colorScaleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L860)
 
 A pass-through to the config method of ColorScale.
 
@@ -2126,7 +2125,7 @@ A pass-through to the config method of ColorScale.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScalePadding" href="#Viz.colorScalePadding">#</a> Viz.**colorScalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L869)
+<a name="Viz.colorScalePadding" href="#Viz.colorScalePadding">#</a> Viz.**colorScalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L870)
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2134,7 +2133,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScalePosition" href="#Viz.colorScalePosition">#</a> Viz.**colorScalePosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L879)
+<a name="Viz.colorScalePosition" href="#Viz.colorScalePosition">#</a> Viz.**colorScalePosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L880)
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -2142,7 +2141,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.colorScaleMaxSize" href="#Viz.colorScaleMaxSize">#</a> Viz.**colorScaleMaxSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L889)
+<a name="Viz.colorScaleMaxSize" href="#Viz.colorScaleMaxSize">#</a> Viz.**colorScaleMaxSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L890)
 
 Sets the maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -2150,7 +2149,7 @@ Sets the maximum pixel size for drawing the color scale: width for horizontal sc
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.data" href="#Viz.data">#</a> Viz.**data**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L908)
+<a name="Viz.data" href="#Viz.data">#</a> Viz.**data**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L909)
 
 Sets the primary data array to be used when drawing the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -2166,7 +2165,7 @@ If *data* is not specified, this method returns the current primary data array, 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.dataCutoff" href="#Viz.dataCutoff">#</a> Viz.**dataCutoff**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L929)
+<a name="Viz.dataCutoff" href="#Viz.dataCutoff">#</a> Viz.**dataCutoff**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L930)
 
 If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).
 
@@ -2174,7 +2173,7 @@ If the number of visible data points exceeds this number, the default hover beha
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.depth" href="#Viz.depth">#</a> Viz.**depth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L939)
+<a name="Viz.depth" href="#Viz.depth">#</a> Viz.**depth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L940)
 
 If *value* is specified, sets the depth to the specified number and returns the current class instance. The *value* should correspond with an index in the [groupBy](#groupBy) array.
 
@@ -2182,7 +2181,7 @@ If *value* is specified, sets the depth to the specified number and returns the 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectResize" href="#Viz.detectResize">#</a> Viz.**detectResize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L949)
+<a name="Viz.detectResize" href="#Viz.detectResize">#</a> Viz.**detectResize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L950)
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -2190,7 +2189,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectResizeDelay" href="#Viz.detectResizeDelay">#</a> Viz.**detectResizeDelay**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L959)
+<a name="Viz.detectResizeDelay" href="#Viz.detectResizeDelay">#</a> Viz.**detectResizeDelay**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L960)
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -2198,7 +2197,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectVisible" href="#Viz.detectVisible">#</a> Viz.**detectVisible**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L969)
+<a name="Viz.detectVisible" href="#Viz.detectVisible">#</a> Viz.**detectVisible**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L970)
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -2206,7 +2205,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.detectVisibleInterval" href="#Viz.detectVisibleInterval">#</a> Viz.**detectVisibleInterval**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L979)
+<a name="Viz.detectVisibleInterval" href="#Viz.detectVisibleInterval">#</a> Viz.**detectVisibleInterval**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L980)
 
 The interval, in milliseconds, for checking if the visualization is visible on the page.
 
@@ -2214,7 +2213,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.discrete" href="#Viz.discrete">#</a> Viz.**discrete**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L989)
+<a name="Viz.discrete" href="#Viz.discrete">#</a> Viz.**discrete**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L990)
 
 If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.
 
@@ -2222,7 +2221,7 @@ If *value* is specified, sets the discrete accessor to the specified method name
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadButton" href="#Viz.downloadButton">#</a> Viz.**downloadButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L999)
+<a name="Viz.downloadButton" href="#Viz.downloadButton">#</a> Viz.**downloadButton**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1000)
 
 Shows a button that allows for downloading the current visualization.
 
@@ -2230,7 +2229,7 @@ Shows a button that allows for downloading the current visualization.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadConfig" href="#Viz.downloadConfig">#</a> Viz.**downloadConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1009)
+<a name="Viz.downloadConfig" href="#Viz.downloadConfig">#</a> Viz.**downloadConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1010)
 
 Sets specific options of the saveElement function used when downloading the visualization.
 
@@ -2238,7 +2237,7 @@ Sets specific options of the saveElement function used when downloading the visu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.downloadPosition" href="#Viz.downloadPosition">#</a> Viz.**downloadPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1019)
+<a name="Viz.downloadPosition" href="#Viz.downloadPosition">#</a> Viz.**downloadPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1020)
 
 Defines which control group to add the download button into.
 
@@ -2246,7 +2245,7 @@ Defines which control group to add the download button into.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.duration" href="#Viz.duration">#</a> Viz.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1029)
+<a name="Viz.duration" href="#Viz.duration">#</a> Viz.**duration**([*ms*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1030)
 
 If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
 
@@ -2254,7 +2253,7 @@ If *ms* is specified, sets the animation duration to the specified number and re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.filter" href="#Viz.filter">#</a> Viz.**filter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1039)
+<a name="Viz.filter" href="#Viz.filter">#</a> Viz.**filter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1040)
 
 If *value* is specified, sets the filter to the specified function and returns the current class instance.
 
@@ -2262,7 +2261,7 @@ If *value* is specified, sets the filter to the specified function and returns t
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.fontFamily" href="#Viz.fontFamily">#</a> Viz.**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1049)
+<a name="Viz.fontFamily" href="#Viz.fontFamily">#</a> Viz.**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1050)
 
 If *value* is specified, sets the filter to the specified function and returns the current class instance.
 
@@ -2270,7 +2269,7 @@ If *value* is specified, sets the filter to the specified function and returns t
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.groupBy" href="#Viz.groupBy">#</a> Viz.**groupBy**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1085)
+<a name="Viz.groupBy" href="#Viz.groupBy">#</a> Viz.**groupBy**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1086)
 
 If *value* is specified, sets the group accessor(s) to the specified string, function, or array of values and returns the current class instance.
 
@@ -2285,7 +2284,7 @@ function value(d) {
 ```
 
 
-<a name="Viz.height" href="#Viz.height">#</a> Viz.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1109)
+<a name="Viz.height" href="#Viz.height">#</a> Viz.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1110)
 
 If *value* is specified, sets the overall height to the specified number and returns the current class instance.
 
@@ -2293,7 +2292,7 @@ If *value* is specified, sets the overall height to the specified number and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hiddenColor" href="#Viz.hiddenColor">#</a> Viz.**hiddenColor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1119)
+<a name="Viz.hiddenColor" href="#Viz.hiddenColor">#</a> Viz.**hiddenColor**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1120)
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -2301,7 +2300,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hiddenOpacity" href="#Viz.hiddenOpacity">#</a> Viz.**hiddenOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1129)
+<a name="Viz.hiddenOpacity" href="#Viz.hiddenOpacity">#</a> Viz.**hiddenOpacity**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1130)
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -2309,7 +2308,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.hover" href="#Viz.hover">#</a> Viz.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1139)
+<a name="Viz.hover" href="#Viz.hover">#</a> Viz.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1140)
 
 If *value* is specified, sets the hover method to the specified function and returns the current class instance.
 
@@ -2317,7 +2316,7 @@ If *value* is specified, sets the hover method to the specified function and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.label" href="#Viz.label">#</a> Viz.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1177)
+<a name="Viz.label" href="#Viz.label">#</a> Viz.**label**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1178)
 
 If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.
 
@@ -2325,7 +2324,7 @@ If *value* is specified, sets the label accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legend" href="#Viz.legend">#</a> Viz.**legend**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1187)
+<a name="Viz.legend" href="#Viz.legend">#</a> Viz.**legend**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1188)
 
 If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.
 
@@ -2333,7 +2332,7 @@ If *value* is specified, toggles the legend based on the specified boolean and r
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendConfig" href="#Viz.legendConfig">#</a> Viz.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1197)
+<a name="Viz.legendConfig" href="#Viz.legendConfig">#</a> Viz.**legendConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1198)
 
 If *value* is specified, the object is passed to the legend's config method.
 
@@ -2341,7 +2340,7 @@ If *value* is specified, the object is passed to the legend's config method.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendFilterInvert" href="#Viz.legendFilterInvert">#</a> Viz.**legendFilterInvert**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1207)
+<a name="Viz.legendFilterInvert" href="#Viz.legendFilterInvert">#</a> Viz.**legendFilterInvert**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1208)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -2349,7 +2348,7 @@ Defines the click functionality of categorical legend squares. When set to false
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendPadding" href="#Viz.legendPadding">#</a> Viz.**legendPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1217)
+<a name="Viz.legendPadding" href="#Viz.legendPadding">#</a> Viz.**legendPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1218)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2357,7 +2356,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendPosition" href="#Viz.legendPosition">#</a> Viz.**legendPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1227)
+<a name="Viz.legendPosition" href="#Viz.legendPosition">#</a> Viz.**legendPosition**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1228)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -2365,7 +2364,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendSort" href="#Viz.legendSort">#</a> Viz.**legendSort**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1237)
+<a name="Viz.legendSort" href="#Viz.legendSort">#</a> Viz.**legendSort**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1238)
 
 A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.
 
@@ -2373,7 +2372,7 @@ A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.legendTooltip" href="#Viz.legendTooltip">#</a> Viz.**legendTooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1247)
+<a name="Viz.legendTooltip" href="#Viz.legendTooltip">#</a> Viz.**legendTooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1248)
 
 If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.
 
@@ -2381,7 +2380,7 @@ If *value* is specified, sets the config method for the legend tooltip and retur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.loadingHTML" href="#Viz.loadingHTML">#</a> Viz.**loadingHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1257)
+<a name="Viz.loadingHTML" href="#Viz.loadingHTML">#</a> Viz.**loadingHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1258)
 
 Sets the inner HTML of the status message that is displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -2389,7 +2388,7 @@ Sets the inner HTML of the status message that is displayed when loading AJAX re
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.loadingMessage" href="#Viz.loadingMessage">#</a> Viz.**loadingMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1267)
+<a name="Viz.loadingMessage" href="#Viz.loadingMessage">#</a> Viz.**loadingMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1268)
 
 Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -2397,7 +2396,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.messageMask" href="#Viz.messageMask">#</a> Viz.**messageMask**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1277)
+<a name="Viz.messageMask" href="#Viz.messageMask">#</a> Viz.**messageMask**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1278)
 
 Sets the color of the mask used underneath the status message that is displayed when loading AJAX requests and displaying errors. Additionally, `false` will turn off the mask completely.
 
@@ -2405,7 +2404,7 @@ Sets the color of the mask used underneath the status message that is displayed 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.messageStyle" href="#Viz.messageStyle">#</a> Viz.**messageStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1287)
+<a name="Viz.messageStyle" href="#Viz.messageStyle">#</a> Viz.**messageStyle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1288)
 
 Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -2413,7 +2412,7 @@ Defines the CSS style properties for the status message that is displayed when l
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.noDataHTML" href="#Viz.noDataHTML">#</a> Viz.**noDataHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1297)
+<a name="Viz.noDataHTML" href="#Viz.noDataHTML">#</a> Viz.**noDataHTML**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1298)
 
 Sets the inner HTML of the status message that is displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -2421,7 +2420,7 @@ Sets the inner HTML of the status message that is displayed when no data is supp
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.noDataMessage" href="#Viz.noDataMessage">#</a> Viz.**noDataMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1307)
+<a name="Viz.noDataMessage" href="#Viz.noDataMessage">#</a> Viz.**noDataMessage**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1308)
 
 Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
 
@@ -2429,7 +2428,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.resizeContainer" href="#Viz.resizeContainer">#</a> Viz.**resizeContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1317)
+<a name="Viz.resizeContainer" href="#Viz.resizeContainer">#</a> Viz.**resizeContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1318)
 
 If using resize detection, this method allow a custom override of the element to which the resize detection function gets attached.
 
@@ -2437,7 +2436,7 @@ If using resize detection, this method allow a custom override of the element to
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.scrollContainer" href="#Viz.scrollContainer">#</a> Viz.**scrollContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1327)
+<a name="Viz.scrollContainer" href="#Viz.scrollContainer">#</a> Viz.**scrollContainer**(*selector*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1328)
 
 If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
 
@@ -2445,7 +2444,7 @@ If using scroll or visibility detection, this method allow a custom override of 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.select" href="#Viz.select">#</a> Viz.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1337)
+<a name="Viz.select" href="#Viz.select">#</a> Viz.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1338)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element, which is `undefined` by default.
 
@@ -2453,7 +2452,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.shape" href="#Viz.shape">#</a> Viz.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1347)
+<a name="Viz.shape" href="#Viz.shape">#</a> Viz.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1348)
 
 If *value* is specified, sets the shape accessor to the specified function or number and returns the current class instance.
 
@@ -2461,7 +2460,7 @@ If *value* is specified, sets the shape accessor to the specified function or nu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.shapeConfig" href="#Viz.shapeConfig">#</a> Viz.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1357)
+<a name="Viz.shapeConfig" href="#Viz.shapeConfig">#</a> Viz.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1358)
 
 If *value* is specified, sets the config method for each shape and returns the current class instance.
 
@@ -2469,7 +2468,7 @@ If *value* is specified, sets the config method for each shape and returns the c
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitle" href="#Viz.subtitle">#</a> Viz.**subtitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1367)
+<a name="Viz.subtitle" href="#Viz.subtitle">#</a> Viz.**subtitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1368)
 
 If *value* is specified, sets the subtitle accessor to the specified function or string and returns the current class instance.
 
@@ -2477,7 +2476,7 @@ If *value* is specified, sets the subtitle accessor to the specified function or
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitleConfig" href="#Viz.subtitleConfig">#</a> Viz.**subtitleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1377)
+<a name="Viz.subtitleConfig" href="#Viz.subtitleConfig">#</a> Viz.**subtitleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1378)
 
 If *value* is specified, sets the config method for the subtitle and returns the current class instance.
 
@@ -2485,7 +2484,7 @@ If *value* is specified, sets the config method for the subtitle and returns the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.subtitlePadding" href="#Viz.subtitlePadding">#</a> Viz.**subtitlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1387)
+<a name="Viz.subtitlePadding" href="#Viz.subtitlePadding">#</a> Viz.**subtitlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1388)
 
 Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2493,7 +2492,7 @@ Tells the subtitle whether or not to use the internal padding defined by the vis
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.svgDesc" href="#Viz.svgDesc">#</a> Viz.**svgDesc**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1397)
+<a name="Viz.svgDesc" href="#Viz.svgDesc">#</a> Viz.**svgDesc**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1398)
 
 If *value* is specified, sets the description accessor to the specified string and returns the current class instance.
 
@@ -2501,7 +2500,7 @@ If *value* is specified, sets the description accessor to the specified string a
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.svgTitle" href="#Viz.svgTitle">#</a> Viz.**svgTitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1407)
+<a name="Viz.svgTitle" href="#Viz.svgTitle">#</a> Viz.**svgTitle**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1408)
 
 If *value* is specified, sets the title accessor to the specified string and returns the current class instance.
 
@@ -2509,7 +2508,7 @@ If *value* is specified, sets the title accessor to the specified string and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.threshold" href="#Viz.threshold">#</a> Viz.**threshold**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1417)
+<a name="Viz.threshold" href="#Viz.threshold">#</a> Viz.**threshold**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1418)
 
 If *value* is specified, sets the threshold for buckets to the specified function or string, and returns the current class instance.
 
@@ -2517,7 +2516,7 @@ If *value* is specified, sets the threshold for buckets to the specified functio
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.thresholdKey" href="#Viz.thresholdKey">#</a> Viz.**thresholdKey**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1436)
+<a name="Viz.thresholdKey" href="#Viz.thresholdKey">#</a> Viz.**thresholdKey**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1437)
 
 If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.
 
@@ -2525,7 +2524,7 @@ If *value* is specified, sets the accesor for the value used in the threshold al
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.thresholdName" href="#Viz.thresholdName">#</a> Viz.**thresholdName**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1455)
+<a name="Viz.thresholdName" href="#Viz.thresholdName">#</a> Viz.**thresholdName**([value]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1456)
 
 If *value* is specified, sets the label for the bucket item, and returns the current class instance.
 
@@ -2533,7 +2532,7 @@ If *value* is specified, sets the label for the bucket item, and returns the cur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.time" href="#Viz.time">#</a> Viz.**time**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1465)
+<a name="Viz.time" href="#Viz.time">#</a> Viz.**time**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1466)
 
 If *value* is specified, sets the time accessor to the specified function or string and returns the current class instance.
 
@@ -2541,7 +2540,7 @@ If *value* is specified, sets the time accessor to the specified function or str
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timeFilter" href="#Viz.timeFilter">#</a> Viz.**timeFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1495)
+<a name="Viz.timeFilter" href="#Viz.timeFilter">#</a> Viz.**timeFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1496)
 
 If *value* is specified, sets the time filter to the specified function and returns the current class instance.
 
@@ -2549,7 +2548,7 @@ If *value* is specified, sets the time filter to the specified function and retu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timeline" href="#Viz.timeline">#</a> Viz.**timeline**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1505)
+<a name="Viz.timeline" href="#Viz.timeline">#</a> Viz.**timeline**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1506)
 
 If *value* is specified, toggles the timeline based on the specified boolean and returns the current class instance.
 
@@ -2557,7 +2556,7 @@ If *value* is specified, toggles the timeline based on the specified boolean and
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelineConfig" href="#Viz.timelineConfig">#</a> Viz.**timelineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1515)
+<a name="Viz.timelineConfig" href="#Viz.timelineConfig">#</a> Viz.**timelineConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1516)
 
 If *value* is specified, sets the config method for the timeline and returns the current class instance.
 
@@ -2565,7 +2564,7 @@ If *value* is specified, sets the config method for the timeline and returns the
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelineDefault" href="#Viz.timelineDefault">#</a> Viz.**timelineDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1525)
+<a name="Viz.timelineDefault" href="#Viz.timelineDefault">#</a> Viz.**timelineDefault**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1526)
 
 Sets the starting time or range for the timeline. The value provided can either be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -2573,7 +2572,7 @@ Sets the starting time or range for the timeline. The value provided can either 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.timelinePadding" href="#Viz.timelinePadding">#</a> Viz.**timelinePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1540)
+<a name="Viz.timelinePadding" href="#Viz.timelinePadding">#</a> Viz.**timelinePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1541)
 
 Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2581,7 +2580,7 @@ Tells the timeline whether or not to use the internal padding defined by the vis
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.title" href="#Viz.title">#</a> Viz.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1550)
+<a name="Viz.title" href="#Viz.title">#</a> Viz.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1551)
 
 If *value* is specified, sets the title accessor to the specified function or string and returns the current class instance.
 
@@ -2589,7 +2588,7 @@ If *value* is specified, sets the title accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.titleConfig" href="#Viz.titleConfig">#</a> Viz.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1560)
+<a name="Viz.titleConfig" href="#Viz.titleConfig">#</a> Viz.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1561)
 
 If *value* is specified, sets the config method for the title and returns the current class instance.
 
@@ -2597,7 +2596,7 @@ If *value* is specified, sets the config method for the title and returns the cu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.titlePadding" href="#Viz.titlePadding">#</a> Viz.**titlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1570)
+<a name="Viz.titlePadding" href="#Viz.titlePadding">#</a> Viz.**titlePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1571)
 
 Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2605,7 +2604,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.tooltip" href="#Viz.tooltip">#</a> Viz.**tooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1580)
+<a name="Viz.tooltip" href="#Viz.tooltip">#</a> Viz.**tooltip**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1581)
 
 If *value* is specified, toggles the tooltip based on the specified boolean and returns the current class instance.
 
@@ -2613,7 +2612,7 @@ If *value* is specified, toggles the tooltip based on the specified boolean and 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.tooltipConfig" href="#Viz.tooltipConfig">#</a> Viz.**tooltipConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1590)
+<a name="Viz.tooltipConfig" href="#Viz.tooltipConfig">#</a> Viz.**tooltipConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1591)
 
 If *value* is specified, sets the config method for the tooltip and returns the current class instance.
 
@@ -2621,7 +2620,7 @@ If *value* is specified, sets the config method for the tooltip and returns the 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.total" href="#Viz.total">#</a> Viz.**total**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1600)
+<a name="Viz.total" href="#Viz.total">#</a> Viz.**total**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1601)
 
 If *value* is specified, sets the total accessor to the specified function or string and returns the current class instance.
 
@@ -2629,7 +2628,7 @@ If *value* is specified, sets the total accessor to the specified function or st
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalConfig" href="#Viz.totalConfig">#</a> Viz.**totalConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1616)
+<a name="Viz.totalConfig" href="#Viz.totalConfig">#</a> Viz.**totalConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1617)
 
 If *value* is specified, sets the config method for the total and returns the current class instance.
 
@@ -2637,7 +2636,7 @@ If *value* is specified, sets the config method for the total and returns the cu
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalFormat" href="#Viz.totalFormat">#</a> Viz.**totalFormat**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1626)
+<a name="Viz.totalFormat" href="#Viz.totalFormat">#</a> Viz.**totalFormat**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1627)
 
 Formatter function for the value in the total bar.
 
@@ -2645,7 +2644,7 @@ Formatter function for the value in the total bar.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.totalPadding" href="#Viz.totalPadding">#</a> Viz.**totalPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1636)
+<a name="Viz.totalPadding" href="#Viz.totalPadding">#</a> Viz.**totalPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1637)
 
 Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -2653,7 +2652,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.width" href="#Viz.width">#</a> Viz.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1646)
+<a name="Viz.width" href="#Viz.width">#</a> Viz.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1647)
 
 If *value* is specified, sets the overallwidth to the specified number and returns the current class instance.
 
@@ -2661,7 +2660,7 @@ If *value* is specified, sets the overallwidth to the specified number and retur
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoom" href="#Viz.zoom">#</a> Viz.**zoom**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1656)
+<a name="Viz.zoom" href="#Viz.zoom">#</a> Viz.**zoom**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1657)
 
 Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
 
@@ -2669,7 +2668,7 @@ Toggles the ability to zoom/pan the visualization. Certain parameters for zoomin
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushHandleSize" href="#Viz.zoomBrushHandleSize">#</a> Viz.**zoomBrushHandleSize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1666)
+<a name="Viz.zoomBrushHandleSize" href="#Viz.zoomBrushHandleSize">#</a> Viz.**zoomBrushHandleSize**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1667)
 
 The pixel stroke-width of the zoom brush area.
 
@@ -2677,7 +2676,7 @@ The pixel stroke-width of the zoom brush area.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushHandleStyle" href="#Viz.zoomBrushHandleStyle">#</a> Viz.**zoomBrushHandleStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1676)
+<a name="Viz.zoomBrushHandleStyle" href="#Viz.zoomBrushHandleStyle">#</a> Viz.**zoomBrushHandleStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1677)
 
 An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -2685,7 +2684,7 @@ An object containing CSS key/value pairs that is used to style the outer handle 
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomBrushSelectionStyle" href="#Viz.zoomBrushSelectionStyle">#</a> Viz.**zoomBrushSelectionStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1686)
+<a name="Viz.zoomBrushSelectionStyle" href="#Viz.zoomBrushSelectionStyle">#</a> Viz.**zoomBrushSelectionStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1687)
 
 An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -2693,7 +2692,7 @@ An object containing CSS key/value pairs that is used to style the inner selecti
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyle" href="#Viz.zoomControlStyle">#</a> Viz.**zoomControlStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1696)
+<a name="Viz.zoomControlStyle" href="#Viz.zoomControlStyle">#</a> Viz.**zoomControlStyle**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1697)
 
 An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2701,7 +2700,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyleActive" href="#Viz.zoomControlStyleActive">#</a> Viz.**zoomControlStyleActive**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1706)
+<a name="Viz.zoomControlStyleActive" href="#Viz.zoomControlStyleActive">#</a> Viz.**zoomControlStyleActive**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1707)
 
 An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2709,7 +2708,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomControlStyleHover" href="#Viz.zoomControlStyleHover">#</a> Viz.**zoomControlStyleHover**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1716)
+<a name="Viz.zoomControlStyleHover" href="#Viz.zoomControlStyleHover">#</a> Viz.**zoomControlStyleHover**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1717)
 
 An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
 
@@ -2717,7 +2716,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomFactor" href="#Viz.zoomFactor">#</a> Viz.**zoomFactor**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1726)
+<a name="Viz.zoomFactor" href="#Viz.zoomFactor">#</a> Viz.**zoomFactor**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1727)
 
 The multiplier that is used in with the control buttons when zooming in and out.
 
@@ -2725,7 +2724,7 @@ The multiplier that is used in with the control buttons when zooming in and out.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomMax" href="#Viz.zoomMax">#</a> Viz.**zoomMax**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1736)
+<a name="Viz.zoomMax" href="#Viz.zoomMax">#</a> Viz.**zoomMax**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1737)
 
 If *value* is specified, sets the max zoom scale to the specified number and returns the current class instance. If *value* is not specified, returns the current max zoom scale.
 
@@ -2733,7 +2732,7 @@ If *value* is specified, sets the max zoom scale to the specified number and ret
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomPan" href="#Viz.zoomPan">#</a> Viz.**zoomPan**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1746)
+<a name="Viz.zoomPan" href="#Viz.zoomPan">#</a> Viz.**zoomPan**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1747)
 
 If *value* is specified, toggles panning to the specified boolean and returns the current class instance. If *value* is not specified, returns the current panning value.
 
@@ -2741,7 +2740,7 @@ If *value* is specified, toggles panning to the specified boolean and returns th
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomPadding" href="#Viz.zoomPadding">#</a> Viz.**zoomPadding**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1756)
+<a name="Viz.zoomPadding" href="#Viz.zoomPadding">#</a> Viz.**zoomPadding**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1757)
 
 A pixel value to be used to pad all sides of a zoomed area.
 
@@ -2749,7 +2748,7 @@ A pixel value to be used to pad all sides of a zoomed area.
 This is a static method of [<code>Viz</code>](#Viz), and is chainable with other methods of this Class.
 
 
-<a name="Viz.zoomScroll" href="#Viz.zoomScroll">#</a> Viz.**zoomScroll**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1766)
+<a name="Viz.zoomScroll" href="#Viz.zoomScroll">#</a> Viz.**zoomScroll**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L1767)
 
 If *value* is specified, toggles scroll zooming to the specified boolean and returns the current class instance. If *value* is not specified, returns the current scroll zooming value.
 
@@ -6120,16 +6119,6 @@ This is a global function
 
 ---
 
-<a name="_thresholdFunction"></a>
-#### d3plus.**_thresholdFunction**(data) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Viz.js#L547)
-
-Applies the threshold algorithm according to the type of chart used.
-
-
-This is a global function
-
----
-
 <a name="generateReference"></a>
 #### d3plus.**generateReference**(position) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.js#L15)
 
@@ -6216,4 +6205,4 @@ This is a global constant
 ---
 
 
-###### <sub>Documentation generated on Wed, 02 Apr 2025 20:59:31 GMT</sub>
+###### <sub>Documentation generated on Thu, 03 Apr 2025 19:02:46 GMT</sub>
