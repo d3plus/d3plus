@@ -79,5 +79,3 @@ This is a global function
 
 ---
 
-
-###### <sub>Documentation generated on Wed, 02 Apr 2025 20:59:31 GMT</sub>
