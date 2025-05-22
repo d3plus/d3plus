@@ -64,9 +64,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ---
 
-{{/modules}}
-
-###### <sub>Documentation generated on {{currentDate}}</sub>
-`;
+{{/modules}}`;
 
 }
