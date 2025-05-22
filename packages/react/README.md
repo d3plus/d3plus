@@ -27,7 +27,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ##### 
 * [D3plusContext](#D3plusContext) - A React context instance used to provide global config options via a provider (D3plusContext.Provider).
-* [Viz](#Viz)
+* [Renderer](#Renderer)
 
 ---
 
@@ -41,13 +41,11 @@ This is a global function
 
 ---
 
-<a name="Viz"></a>
-#### d3plus.**Viz**(config, [className], [callback]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/react/src/Viz.jsx#L6)
+<a name="Renderer"></a>
+#### d3plus.**Renderer**(config, [className], [callback]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/react/src/Renderer.jsx#L6)
 
 
 This is a global function
 
 ---
 
-
-###### <sub>Documentation generated on Wed, 02 Apr 2025 20:59:31 GMT</sub>

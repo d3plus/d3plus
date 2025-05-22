@@ -4,23 +4,23 @@ import {assign} from "@d3plus/dom";
 import D3plusContext from "./D3plusContext.jsx";
 
 /**
-    @function Viz
+    @function Renderer
     @param {Object} config An object containing method/value pairs to be passed to the visualization's .config( ) method.
-    @param {String} [className = "viz"] The class attribute value used for the root/wrapper <div> element.
+    @param {String} [className = "renderer"] The class attribute value used for the root/wrapper <div> element.
     @param {Function} [callback] A function to be invoked at the end of each render cycle (passed directly to the render method).
 */
 export default ({
   callback,
-  className = "viz",
+  className = "renderer",
   config,
-  vizClass,
+  constructor,
 }) => {
 
   const {forceUpdate} = config;
 
   const globalConfig = useContext(D3plusContext);
   const container = useRef(null);
-  const [instance] = useState(() => new vizClass());
+  const [instance] = useState(() => new constructor());
 
   useEffect(() => {
     if (container.current) {
