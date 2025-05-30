@@ -5,6 +5,7 @@
 */
 
 import fs from "node:fs";
+import path from "node:path";
 import jsdoc2md from "jsdoc-to-markdown";
 import shell from "shelljs";
 
@@ -14,6 +15,7 @@ const log = Logger("documentation");
 import readmeStub from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
 import packageStub from "./stubs/package.js";
+import storiesStub from "./stubs/stories.js";
 
 shell.config.silent = true;
 const {version} = JSON.parse(shell.cat("package.json"));
@@ -59,32 +61,37 @@ async function generateMarkdown() {
     
     fs.writeFileSync(`${folder}/README.md`, outputRender);
 
-    // if (folder.includes("core")) {
-    //   log.timer(`writing JSDOC comments to Storybook Args for ${name}`);
-    //   const outputObject = await jsdoc2md
-    //     .getJsdocData({
-    //       files: `${folder}/src/**/*.+(js|jsx)`,
-    //       noCache: true
-    //     })
-    //     .then(arr => arr.filter(d => 
-    //       d.params && d.params.length && 
-    //       d.memberof && !d.memberof.includes("<anonymous>") && 
-    //       d.access !== "private" && !d.undocumented)
-    //     )
-    //     .then(arr => arr.reduce((obj, d) => {
-    //       if (!obj[d.memberof]) obj[d.memberof] = [];
-    //       obj[d.memberof].push(d);
-    //       return obj;
-    //     }, {}));
+    log.timer(`writing JSDOC comments to Storybook Args for ${name}`);
+    const publicDocs = await jsdoc2md
+      .getJsdocData({
+        files: `${folder}/src/**/*.+(js|jsx)`,
+        noCache: true
+      })
+      .then(arr => arr.filter(d => !["package"].includes(d.kind) && d.access !== "private" && !d.undocumented));
 
-    //   const keys = Object.keys(outputObject);
-    //   for (let i = 0; i < keys.length; i++) {
-    //     const methods = outputObject[keys[i]];
-    //     const contents = argsStub(keys[i], methods);
-    //     if (keys[i] === "Pie") console.log(contents);
-    //   }
+    const stories = publicDocs.filter(d => !d.memberof);
+    stories.forEach(story => {
 
-    // }
+      const {kind, meta, name} = story;
+      const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
+      const [, packageName, filePath] = regex.exec(meta.path);
+      
+      // if (kind === "class") {
+        const argsPath = path.join(folder, `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`);
+        const argsContent = argsStub(story, publicDocs, stories);
+        const argsFolder = path.dirname(argsPath);
+        shell.mkdir("-p", argsFolder);
+        fs.writeFileSync(argsPath, argsContent);
+      // }
+
+      const storyPath = path.join(folder, `../docs/packages/${packageName}${filePath || ""}/${name}.stories.jsx`);
+      const existingContent = fs.existsSync(storyPath) ? fs.readFileSync(storyPath, {encoding: "utf8"}) : "";
+      const storyContent = storiesStub(story, packageName, filePath || "", existingContent);
+      const storyFolder = path.dirname(storyPath);
+      shell.mkdir("-p", storyFolder);
+      fs.writeFileSync(storyPath, storyContent);
+
+    });
 
     log.done();
     shell.echo("");
