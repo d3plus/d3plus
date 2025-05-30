@@ -14,7 +14,7 @@ const angleStep = 5; // step size for angles (in degrees); has linear impact on 
 const polyCache = {};
 
 /**
-    @typedef {Object} LargestRect
+    @typedef {Object} largestRect
     @desc The returned Object of the largestRect function.
     @property {Number} width The width of the rectangle
     @property {Number} height The height of the rectangle
@@ -41,7 +41,7 @@ const polyCache = {};
     @param {Number} [options.tolerance = 0.02] The simplification tolerance factor, between 0 and 1. A larger tolerance corresponds to more extensive simplification.
     @param {Array} [options.origin] The center point of the rectangle. If specified, the rectangle will be fixed at that point, otherwise the algorithm optimizes across all possible points. The given value can be either a two dimensional array specifying the x and y coordinate of the origin or an array of two dimensional points specifying multiple possible center points of the rectangle.
     @param {Boolean} [options.cache] Whether or not to cache the result, which would be used in subsequent calculations to preserve consistency and speed up calculation time.
-    @return {LargestRect}
+    @return {largestRect}
 */
 export default function(poly, options = {}) {
 

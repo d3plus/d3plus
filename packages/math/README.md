@@ -42,7 +42,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 * [largestRect](#largestRect) - Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
 
 ##### 
-* [LargestRect](#LargestRect) - The returned Object of the largestRect function.
+* [largestRect](#largestRect) - The returned Object of the largestRect function.
 
 ---
 
@@ -190,8 +190,8 @@ This is a global function
 
 ---
 
-<a name="LargestRect"></a>
-#### **LargestRect** [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.js#L16)
+<a name="largestRect"></a>
+#### **largestRect** [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.js#L16)
 
 The returned Object of the largestRect function.
 

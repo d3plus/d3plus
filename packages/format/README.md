@@ -27,9 +27,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ##### 
 * [format](#format) - An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
-
-The new specifier strings added by d3plus-format are:
- - `.3~a` - abbreviated decimal notation with a numeric suffix (ie. "k", "M", "B", etc). This is an alias of the `formatAbbreviate` function.
 * [formatAbbreviate](#formatAbbreviate) - Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
 * [formatDate](#formatDate) - A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 * [formatDefaultLocale](#formatDefaultLocale) - An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
@@ -40,9 +37,6 @@ The new specifier strings added by d3plus-format are:
 #### d3plus.**format**(specifier) [<>](https://github.com/d3plus/d3plus/blob/main/packages/format/src/format.js#L4)
 
 An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
-
-The new specifier strings added by d3plus-format are:
- - `.3~a` - abbreviated decimal notation with a numeric suffix (ie. "k", "M", "B", etc). This is an alias of the `formatAbbreviate` function.
 
 
 This is a global function
