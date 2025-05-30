@@ -46,6 +46,7 @@ const globalConfig = {
     }
   },
   columnConfig: axisConfig,
+  fontColor: tickColor,
   legendConfig: {
     shapeConfig: {
       labelConfig: {
