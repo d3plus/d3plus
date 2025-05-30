@@ -1,6 +1,64 @@
 import React, {useContext, useMemo} from "react";
 import { Anchor, Canvas, Controls, Description, DocsContext, Subheading, Subtitle, Title } from '@storybook/blocks';
 import theme from "./theme.js";
+import {D3plusContext} from "@d3plus/react";
+const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const tickColor = darkMode ? "#dee2e6" : "#495057";
+const gridColor = darkMode ? "#495057" : "#dee2e6";
+
+const axisConfig = {
+  barConfig: {
+    stroke: tickColor
+  },
+  gridConfig: {
+    stroke: gridColor
+  },
+  shapeConfig: {
+    fill: tickColor,
+    labelConfig: {
+      fontColor: tickColor
+    },
+    stroke: tickColor
+  },
+  titleConfig: {
+    fontColor: tickColor
+  }
+};
+const globalConfig = {
+  axisConfig,
+  colorScaleConfig: {
+    axisConfig: {
+      barConfig: {
+        stroke: tickColor
+      },
+      gridConfig: {
+        stroke: gridColor
+      },
+      shapeConfig: {
+        labelConfig: {
+          fontColor: tickColor
+        },
+        stroke: tickColor
+      },
+      titleConfig: {
+        fontColor: tickColor
+      }
+    }
+  },
+  columnConfig: axisConfig,
+  legendConfig: {
+    shapeConfig: {
+      labelConfig: {
+        fontColor: tickColor
+      }
+    }
+  },
+  rowConfig: axisConfig,
+  xConfig: axisConfig,
+  x2Config: axisConfig,
+  yConfig: axisConfig,
+  y2Config: axisConfig
+};
 
 const replacer = (key, value) => {
   if (!["annotations"].includes(key) && value instanceof Array && typeof value[0] === "object") {
@@ -10,6 +68,13 @@ const replacer = (key, value) => {
 }
 
 const preview = {
+  decorators: [
+    (Story) => (
+      <D3plusContext.Provider value={globalConfig}>
+        <Story />
+      </D3plusContext.Provider>
+    )
+  ],
   parameters: {
     docs: {
       page: () => {
@@ -47,7 +112,6 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
               return (
                 <Anchor storyId={story.id}>
                   <Subheading>{story.name}</Subheading>
-                  <Description />
                   <Canvas
                     of={moduleExport}
                     withToolbar={false}

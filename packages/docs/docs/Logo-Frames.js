@@ -1,4 +1,8 @@
 import {colorDefaults, colorLegible} from "@d3plus/color";
+const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const background = darkMode ? "#1B1C1D" : "white";
+const tickColor = darkMode ? "#dee2e6" : "#495057";
+const gridColor = darkMode ? "#495057" : "#dee2e6";
 const colors = colorDefaults.scale.range();
 const dColor = colors[0];
 const dAccent = colorLegible(dColor);
@@ -32,32 +36,46 @@ export const sharedConfig = {
 
 const hiddenAxis = {
   barConfig: {
-    opacity: 0
+    opacity: 0,
+    stroke: tickColor
   },
   gridConfig: {
-    opacity: 0
+    opacity: 0,
+    stroke: gridColor
   },
   shapeConfig: {
-    opacity: 0
+    fill: tickColor,
+    opacity: 0,
+    labelConfig: {
+      fontColor: tickColor
+    },
+    stroke: tickColor
   }
 }
 
 const visibleAxis = {
   barConfig: {
-    opacity: 1
+    opacity: 1,
+    stroke: tickColor
   },
   gridConfig: {
-    opacity: 1
+    opacity: 1,
+    stroke: gridColor
   },
   shapeConfig: {
+    fill: tickColor,
     duration: 250,
-    opacity: 1
+    opacity: 1,
+    labelConfig: {
+      fontColor: tickColor
+    },
+    stroke: tickColor
   }
 }
 
 const dCircles = [
   {id: "curve", r: cellSize * 5, x: arcCenter, y: middle, fill: dColor},
-  {id: "curve-mask", r: cellSize * 3, x: arcCenter, y: middle, fill: "white"}
+  {id: "curve-mask", r: cellSize * 3, x: arcCenter, y: middle, fill: background}
 ];
 
 const threeLabelConfig = {
@@ -104,9 +122,9 @@ export const icon = {
 
     {
       data: [
-        {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: iconDCenter - 2.65, y: middle, fill: "white"},
+        {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: iconDCenter - 2.65, y: middle, fill: background},
         {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: iconDCenter - 1.5, y: middle, fill: dColor},
-        // {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: iconDCenter - 0.45, y: middle, fill: "white"},
+        // {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: iconDCenter - 0.45, y: middle, fill: background},
         {id: "3", height: cellSize * 36, width: cellSize * 9, x: iconThreeCenter, y: middle, fill: "transparent"},
       ],
       fill: d => d.fill,
@@ -125,7 +143,7 @@ export const icon = {
         return copy;
       }),
       shape: "Line",
-      stroke: "white",
+      stroke: background,
       strokeWidth: cellSize * 1.5
     }
   ],
@@ -146,9 +164,9 @@ export const animationFrames = [
 
       {
         data: [
-          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: "white"},
+          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: background},
           {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: arcCenter - 1.5, y: middle, fill: dColor},
-          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: "white"},
+          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: background},
           {id: "3", height: cellSize * 36, width: cellSize * 9, x: threeCenter, y: middle, fill: "transparent"},
         ],
         fill: d => d.fill,
@@ -277,9 +295,9 @@ export const animationFrames = [
 
       {
         data: [
-          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: "white"},
+          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: background},
           {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: arcCenter - 1.5, y: middle, fill: dColor},
-          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: "white"},
+          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: background},
           {id: "3", height: cellSize * 36, width: cellSize * 9, x: threeCenter, y: middle, fill: "transparent"},
         ],
         fill: d => d.fill,
