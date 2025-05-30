@@ -36,15 +36,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 ##### 
 * [colorDefaults](#colorDefaults) - A set of default color values used when assigning colors based on data.
 
-| Name | Default | Description |
-|---|---|---|
-| dark | gray-7 | Used in the [contrast](#contrast) function when the color given is very light. |
-| light | gray-0 | Used in the [contrast](#contrast) function when the color given is very dark. |
-| missing | gray-4 | Used in the [assign](#assign) function when the value passed is `null` or `undefined`. |
-| off | red-9 | Used in the [assign](#assign) function when the value passed is `false`. |
-| on | green-9 | Used in the [assign](#assign) function when the value passed is `true`. |
-| scale | [indigo-900, yellow-600, red-900, green-900, orange-600, grape-900, cyan-600, pink-600, lime-600, blue-300, pink-300, lime-300, violet-300, cyan-100, orange-100, green-100, grape-100, red-100] | An ordinal scale used in the [assign](#assign) function for non-valid color strings and numbers. |
-
 ---
 
 <a name="colorAdd"></a>
@@ -111,15 +102,6 @@ This is a global function
 #### **colorDefaults** [<>](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.js#L5)
 
 A set of default color values used when assigning colors based on data.
-
-| Name | Default | Description |
-|---|---|---|
-| dark | gray-7 | Used in the [contrast](#contrast) function when the color given is very light. |
-| light | gray-0 | Used in the [contrast](#contrast) function when the color given is very dark. |
-| missing | gray-4 | Used in the [assign](#assign) function when the value passed is `null` or `undefined`. |
-| off | red-9 | Used in the [assign](#assign) function when the value passed is `false`. |
-| on | green-9 | Used in the [assign](#assign) function when the value passed is `true`. |
-| scale | [indigo-900, yellow-600, red-900, green-900, orange-600, grape-900, cyan-600, pink-600, lime-600, blue-300, pink-300, lime-300, violet-300, cyan-100, orange-100, green-100, grape-100, red-100] | An ordinal scale used in the [assign](#assign) function for non-valid color strings and numbers. |
 
 
 This is a global namespace
