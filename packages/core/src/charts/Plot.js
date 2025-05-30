@@ -326,6 +326,7 @@ export default class Plot extends Viz {
 
     this._x = accessor("x");
     this._xAxis = new AxisBottom().align("end");
+    this._xKey = "x";
     this._xTest = new AxisBottom().align("end").gridSize(0);
     this._xConfig = {
       gridConfig: {
@@ -348,6 +349,7 @@ export default class Plot extends Viz {
 
     this._y = accessor("y");
     this._yAxis = new AxisLeft().align("start");
+    this._yKey = "y";
     this._yTest = new AxisLeft().align("start").gridSize(0);
     this._yConfig = {
       gridConfig: {
@@ -1583,16 +1585,6 @@ Additionally, each config object can also contain an optional "layer" key, which
 
   /**
       @memberof Plot
-      @desc Sets the discrete axis to the specified string. If *value* is not specified, returns the current discrete axis.
-      @param {String} *value*
-      @chainable
-  */
-  discrete(_) {
-    return arguments.length ? (this._discrete = _, this) : this._discrete;
-  }
-
-  /**
-      @memberof Plot
       @desc When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
       @param {Number} *value*
       @chainable
@@ -1748,8 +1740,8 @@ Additionally, each config object can also contain an optional "layer" key, which
 
   /**
       @memberof Plot
-      @desc Sets the x accessor to the specified function or number. If *value* is not specified, returns the current x accessor.
-      @param {Function|Number} *value*
+      @desc Sets the x accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x accessor.
+      @param {Function|String} *value*
       @chainable
   */
   x(_) {
@@ -1766,8 +1758,8 @@ Additionally, each config object can also contain an optional "layer" key, which
 
   /**
        @memberof Plot
-       @desc Sets the x2 accessor to the specified function or number. If *value* is not specified, returns the current x2 accessor.
-       @param {Function|Number} *value*
+       @desc Sets the x2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x2 accessor.
+       @param {Function|String} *value*
        @chainable
    */
   x2(_) {
@@ -1854,8 +1846,8 @@ Additionally, each config object can also contain an optional "layer" key, which
 
   /**
       @memberof Plot
-      @desc Sets the y accessor to the specified function or number. If *value* is not specified, returns the current y accessor.
-      @param {Function|Number} *value*
+      @desc Sets the y accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y accessor.
+      @param {Function|String} *value*
       @chainable
   */
   y(_) {
@@ -1872,8 +1864,8 @@ Additionally, each config object can also contain an optional "layer" key, which
 
   /**
        @memberof Plot
-       @desc Sets the y2 accessor to the specified function or number. If *value* is not specified, returns the current y2 accessor.
-       @param {Function|Number} *value*
+       @desc Sets the y2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y2 accessor.
+       @param {Function|String} *value*
        @chainable
    */
   y2(_) {

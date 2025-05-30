@@ -1,5 +1,4 @@
 import {constant} from "../utils/index.js";
-
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -32,7 +31,6 @@ export default class BarChart extends Plot {
       return defaultLegend.bind(this)(config, arr);
     };
     this._shape = constant("Bar");
-    this.x("x");
 
   }
 

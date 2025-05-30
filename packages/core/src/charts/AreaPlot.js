@@ -25,7 +25,6 @@ export default class AreaPlot extends Plot {
     this._baseline = 0;
     this._discrete = "x";
     this._shape = constant("Area");
-    this.x("x");
 
   }
 

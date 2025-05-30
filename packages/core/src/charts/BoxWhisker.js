@@ -24,7 +24,6 @@ export default class BoxWhisker extends Plot {
     super();
     this._discrete = "x";
     this._shape = constant("Box");
-    this.x("x");
 
     this._tooltipConfig = assign(this._tooltipConfig, {
       title: (d, i) => {

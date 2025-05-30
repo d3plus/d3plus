@@ -10,7 +10,6 @@ import {default as Plot} from "./Plot.js";
 new d3plus.Plot()
   .discrete("x")
   .shape("Line")
-  .x("x")
   .y2(d => this._y(d))
   .yConfig({
     tickFormat: val => {
@@ -45,7 +44,6 @@ export default class BumpChart extends Plot {
     super();
     this._discrete = "x";
     this._shape = constant("Line");
-    this.x("x");
     this.y2(d => this._y(d));
 
     this.yConfig({
