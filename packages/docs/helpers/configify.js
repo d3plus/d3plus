@@ -6,7 +6,7 @@ export default function(args, argTypes) {
   return Object.keys(args).reduce((acc, key) => {
    const _acc = acc;
    if (
-     args[key] !== undefined &&
+     args[key] !== undefined && argTypes[key] !== undefined &&
      (argTypes[key].defaultValue === undefined ||
         typeof argTypes[key].defaultValue === "function"
         ? argTypes[key].defaultValue !== args[key]
