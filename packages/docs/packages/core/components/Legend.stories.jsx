@@ -25,3 +25,25 @@ const Template = (args) => <Legend config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {color: "red", id: "alpha"},
+    {color: "orange", id: "beta"},
+    {color: "green", id: "gamma"},
+    {color: "blue", id: "delta"},
+    {color: "purple", id: "epsilon"}
+  ],
+  label: d => d.id,
+  shapeConfig: {
+    fill: d => d.color,
+    r: 10,
+    height: 20,
+    width: 20
+  },
+  shape: "Rect",
+  title: "A Basic Legend",
+  height: 100,
+  width: 500,
+};
+BasicExample.parameters = {controls: {include: ["shape", "title"]}};

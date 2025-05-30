@@ -25,3 +25,13 @@ const Template = (args) => <Timeline config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  align: "start",
+  brushing: false,
+  domain: [2012, 2020],
+  height: 100,
+  playButton: true,
+  width: 400
+};
+BasicExample.parameters = {controls: {include: ["domain", "playButton"]}};

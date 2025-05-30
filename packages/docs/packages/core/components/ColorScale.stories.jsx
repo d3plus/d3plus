@@ -25,3 +25,20 @@ const Template = (args) => <ColorScale config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const LinearScale = Template.bind({});
+LinearScale.args = {
+  data: [
+    {value: 200},
+    {value: 1000},
+    {value: 2000},
+    {value: 2010},
+    {value: 2020},
+    {value: 2030},
+    {value: 2040},
+    {value: 2100},
+    {value: 6400}
+  ],
+  height: 100,
+  width: 500
+};
+LinearScale.parameters = {controls: {include: []}};
