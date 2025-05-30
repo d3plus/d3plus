@@ -4,6 +4,7 @@ import {D3plusContext} from "../index.jsx";
 import "@mantine/core/styles.css";
 import {createTheme, MantineProvider} from "@mantine/core";
 import Treemap from "./Treemap.jsx";
+import TextBox from "./TextBox.jsx";
 import Icon from "./Icon.jsx";
 import Logo from "./Logo.jsx";
 
@@ -27,15 +28,18 @@ const boxStyle = {
 ReactDOM.createRoot(document.getElementById("root")).render(
   <D3plusContext.Provider value={globalConfig}>
     <MantineProvider theme={theme}>
-      <div style={boxStyle}>
+      {/* <div style={boxStyle}>
         <Logo />
       </div>
-      {/* <div style={boxStyle}>
+      <div style={boxStyle}>
         <Icon />
       </div> */}
-      {/* <div style={boxStyle}>
+      <div style={boxStyle}>
+        <TextBox />
+      </div>
+      <div style={boxStyle}>
         <Treemap />
-      </div> */}
+      </div>
     </MantineProvider>
   </D3plusContext.Provider>
 );

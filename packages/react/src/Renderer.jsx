@@ -40,6 +40,8 @@ export default ({
     }
   }, forceUpdate ? undefined : [JSON.stringify(globalConfig), JSON.stringify(config)]);
 
-  return <div className={className} ref={container}></div>;
+  return <div className={className}>
+    <svg ref={container} width="100%" height="100%"></svg>
+  </div>;
 
 };
