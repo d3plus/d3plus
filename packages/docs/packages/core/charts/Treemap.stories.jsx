@@ -1,14 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, Treemap as Viz} from "../../../args/core/charts/Treemap.args";
+
+import {argTypes, Treemap} from "../../../args/core/charts/Treemap.args";
 import configify from "../../../helpers/configify";
+import funcify from "../../../helpers/funcify";
 
 export default {
   title: "Core/Charts/Treemap",
-  component: Viz,
-  argTypes
+  component: Treemap,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <Treemap config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {

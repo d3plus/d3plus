@@ -1,15 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, Matrix as Viz} from "../../../args/core/charts/Matrix.args";
+
+import {argTypes, Matrix} from "../../../args/core/charts/Matrix.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
 export default {
   title: "Core/Charts/Matrix",
-  component: Viz,
-  argTypes
+  component: Matrix,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a simple rows/columns Matrix view of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/getting-started/) for help getting started using the Matrix class.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <Matrix config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {

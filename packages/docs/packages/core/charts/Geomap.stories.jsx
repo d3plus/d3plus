@@ -1,18 +1,32 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, Geomap as Viz} from "../../../args/core/charts/Geomap.args";
+
+import {argTypes, Geomap} from "../../../args/core/charts/Geomap.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Core/Charts/Choropleth Map",
-  component: Viz,
-  argTypes
+  title: "Core/Charts/Geomap",
+  component: Geomap,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <Geomap config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
-export const BasicExample = Template.bind({});
-BasicExample.args = {
+export const ChoroplethMap = Template.bind({});
+ChoroplethMap.args = {
   data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
   groupBy: "ID State",
   colorScale: "Diabetes Prevalence",
@@ -27,7 +41,29 @@ BasicExample.args = {
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/State.json"
 };
-BasicExample.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "projection", "topojson"]}};
+ChoroplethMap.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "projection", "topojson"]}};
+
+export const CoordinatePointMap = Template.bind({});
+CoordinatePointMap.args = {
+  data: "/data/city_coords.json",
+  groupBy: "slug",
+  colorScale: "dma_code",
+  label: funcify(
+    d => d.city + ", " + d.region,
+    `d => d.city + ", " + d.region`
+  ),
+  point: funcify(
+    d => [d.longitude, d.latitude],
+    "d => [d.longitude, d.latitude]"
+  ),
+  pointSize: funcify(
+    d => d.dma_code,
+    "d => d.dma_code"
+  ),
+  pointSizeMin: 1,
+  pointSizeMax: 10
+};
+CoordinatePointMap.parameters = {controls: {include: ["point", "pointSize", "pointSizeMin", "pointSizeMax"]}};
 
 export const ChangingProjection = Template.bind({});
 ChangingProjection.args = {

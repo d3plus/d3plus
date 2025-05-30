@@ -1,15 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, BoxWhisker as Viz} from "../../../args/core/charts/BoxWhisker.args";
+
+import {argTypes, BoxWhisker} from "../../../args/core/charts/BoxWhisker.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Core/Charts/Box & Whisker",
-  component: Viz,
-  argTypes
+  title: "Core/Charts/BoxWhisker",
+  component: BoxWhisker,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a simple box and whisker based on an array of data.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <BoxWhisker config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {

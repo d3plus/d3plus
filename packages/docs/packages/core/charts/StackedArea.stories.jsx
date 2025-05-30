@@ -1,16 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, StackedArea as Viz} from "../../../args/core/charts/StackedArea.args";
+
+import {argTypes, StackedArea} from "../../../args/core/charts/StackedArea.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
-import {formatAbbreviate} from "@d3plus/format";
 
 export default {
-  title: "Core/Charts/Stacked Area",
-  component: Viz,
-  argTypes
+  title: "Core/Charts/StackedArea",
+  component: StackedArea,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a stacked area plot based on an array of data.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <StackedArea config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {

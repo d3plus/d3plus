@@ -1,15 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, LinePlot as Viz} from "../../../args/core/charts/LinePlot.args";
+
+import {argTypes, LinePlot} from "../../../args/core/charts/LinePlot.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
 export default {
-  title: "Core/Charts/Line Plot",
-  component: Viz,
-  argTypes
+  title: "Core/Charts/LinePlot",
+  component: LinePlot,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a line plot based on an array of data.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <LinePlot config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {

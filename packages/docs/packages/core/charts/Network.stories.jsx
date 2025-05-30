@@ -1,15 +1,29 @@
+// WARNING: do not edit the top part of this file directly, it is generated
+// from the source code. Scroll down to the next WARNING and places stories below it.
+
 import React from "react";
-import {argTypes, Network as Viz} from "../../../args/core/charts/Network.args";
+
+import {argTypes, Network} from "../../../args/core/charts/Network.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
 export default {
   title: "Core/Charts/Network",
-  component: Viz,
-  argTypes
+  component: Network,
+  argTypes,
+  parameters: {
+    docs: {
+      description: {
+        component: "Creates a network visualization based on a defined set of nodes and edges. [Click here](http://d3plus.org/examples/d3plus-network/getting-started/) for help getting started using the Network class.",
+      },
+    },
+  }
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
+const Template = (args) => <Network config={configify(args, argTypes)} />;
+  
+// WARNING: do not edit above this line of code directly, it is generated
+// from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
