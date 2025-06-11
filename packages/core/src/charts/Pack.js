@@ -65,8 +65,10 @@ export default class Pack extends Viz {
     const defaultMouseMoveShape = this._on["mousemove.shape"];
     this._on["mousemove.shape"] = (d, i, x, event) => {
       if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);
-      this.hover(h => recursionCircles(d, [d]).includes(h));
+      const hoverData = recursionCircles(d, [d]);
+      this.hover(h => hoverData.includes(h));
     };
+
     this._pack = pack();
     this._packOpacity = constant(0.25);
     this._shape = constant("Circle");
@@ -106,15 +108,15 @@ export default class Pack extends Viz {
       .size([diameter, diameter])(
         hierarchy({key: nestedData.key, values: nestedData}, d => d.values).sum(this._sum).sort(this._sort)
       )
-      .descendants();
-
-    packData.forEach((d, i) => {
-      d.__d3plus__ = true;
-      d.i = i;
-      d.id = d.parent ? d.parent.data.key : null;
-      d.data.__d3plusOpacity__ = d.height ? this._packOpacity(d.data, i) : 1;
-      d.data.__d3plusTooltip__ = !d.height ? true : false;
-    });
+      .descendants()
+      .filter((d, i) => {
+        d.__d3plus__ = true;
+        d.i = i;
+        d.id = d.parent ? d.parent.data.key : "root";
+        d.data.__d3plusOpacity__ = d.height ? this._packOpacity(d.data, i) : 1;
+        d.data.__d3plusTooltip__ = !d.height ? true : false;
+        return !d.children || d.children.length > 1;
+      });
 
     this._shapes.push(
       new Circle()

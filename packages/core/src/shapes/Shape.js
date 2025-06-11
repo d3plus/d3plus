@@ -14,6 +14,23 @@ import {strip} from "@d3plus/text";
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 
+/**
+ * @param {*} nodeList 
+ * @param {*} classNames  
+ * @private
+ */
+function findLastIndexWithClass(nodeList, classNames) {
+  for (let x = 0; x < classNames.length; x++) {
+    const className = classNames[x];
+    for (let i = nodeList.length - 1; i >= 0; i--) { // Iterate backwards
+      if (nodeList[i].classList.contains(className)) { // Check for the class
+        return i; // Return the index if found
+      }
+    }
+  }
+  return 0; // Return -1 if no element is found with the class
+}
+
 import Image from "./Image.js";
 
 /**
@@ -352,9 +369,15 @@ export default class Shape extends BaseClass {
 
         if (!d) d = {};
         if (!d.parentNode) d.parentNode = this.parentNode;
+        if (!d.dataIndex) d.dataIndex = i;
+        const dataIndex = d.dataIndex;
         const parent = d.parentNode;
 
-        if (select(this).classed("d3plus-textBox")) d = d.data;
+        const d3plusType = select(this).classed("d3plus-textBox") ? "textBox" 
+          : select(this).classed("d3plus-Image") ? "Image" 
+          : "Shape";
+
+        if (d3plusType === "textBox") d = d.data;
         if (d.__d3plusShape__ || d.__d3plus__) {
           while (d && (d.__d3plusShape__ || d.__d3plus__)) {
             i = d.i;
@@ -363,8 +386,14 @@ export default class Shape extends BaseClass {
         }
         else i = that._data.indexOf(d);
 
-        const group = !that._hover || typeof that._hover !== "function" || !that._hover(d, i) ? parent : that._hoverGroup.node();
-        if (group !== this.parentNode) group.appendChild(this);
+        const notHovering = !that._hover || typeof that._hover !== "function" || !that._hover(d, i);
+        const group = notHovering ? parent : that._hoverGroup.node();
+        if (group !== this.parentNode) {
+          const offset = d3plusType === "textBox" ? findLastIndexWithClass(group.childNodes, ["d3plus-Image", "d3plus-Shape"])
+            : d3plusType === "Image" ? findLastIndexWithClass(group.childNodes, ["d3plus-Shape"]) : 0;
+
+          group.insertBefore(this, group.childNodes[offset + dataIndex]);
+        }
         if (this.className.baseVal.includes("d3plus-Shape")) {
           if (parent === group) select(this).call(that._applyStyle.bind(that));
           else select(this).call(that._updateStyle.bind(that, select(this), that._hoverStyle));
