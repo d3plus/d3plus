@@ -1,5 +1,6 @@
 import {Meta} from '@storybook/blocks';
 import Logo from "./Logo.jsx";
+import HomeChart from "./HomeChart.jsx";
 
 <Meta title="Introduction" />
 
@@ -11,42 +12,30 @@ import Logo from "./Logo.jsx";
   <Logo />
 </div>
 
-D3plus is an open-source visualization library that attempts to streamline the creation of beautiful data visualizations with only a few lines of code. D3plus acts as an abstraction on top of the popular D3 library. Think of D3plus as a shortcut to great visualizations. After only setting a few parameters specific to your data, D3plus will handle all the generic things that are normally taken for granted, such as setting up mouse events, color assignment, and label placement.
+D3plus is an open-source visualization library, written in JavaScript, that streamlines the creation of SVG data visualizations. After providing a configuration object that details the specifics of the data at hand, D3plus will create a visualization that includes all of the repeatable, generic things out of the box, such as setting up tooltips, color assignments, and label placements.
 
-## ES Modules
+<HomeChart />
 
-D3plus is available as a series of modules, which can be seen in the [Github orgnization](https://github.com/d3plus). For example, to install only the text-wrapping module:
+## React Components
 
-```sh
-npm install @d3plus/core
-```
-
-You can then import named functions and classes as ES modules:
-
-```js
-import {TextBox} from "@d3plus/core";
-```
-
-## React
-
-If you are looking to use the charts in a React environment, the `@d3plus/react` module wraps each chart class in a thin React component:
+While the underlying library is written in JavaScript, we supply a wrapper package for rendering charts and components in a React environment:
 
 ```sh
 npm install @d3plus/react
 ```
 
-A valid d3plus `config` _Object_ needs to be provided to the `config` prop of every visualization.
+An _Object_ containing configuration information about the data and visual representation at hand then needs to be passed to the `config` prop of every visualization. The options available in this configuration _Object_ vary by visualization type, and the most commonly used methods are shown in the examples on this site. Full documentation of all available methods is available in each packages README file.
 
 ```jsx
 import {Treemap} from "@d3plus/react";
 
 const methods = {
-  groupBy: "id",
   data: [
     {id: "alpha", value: 29},
     {id: "beta",  value: 10}
   ],
-  size: d => d.value
+  groupBy: "id",
+  size: "value"
 };
 
 <Treemap config={methods} />
@@ -61,9 +50,7 @@ import {D3plusContext} from "@d3plus/react";
 import App from "src/App.jsx";
 
 const globalConfig = {
-  shapeConfig: {
-    fill: "red"
-  }
+  title: "Shared Title for All Visualizations"
 };
 
 ReactDOM.createRoot(document.getElementById("viz")).render(
@@ -75,7 +62,34 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 );
 ```
 
-## Script Tag
+## ES Modules
+
+Under the hood, D3plus is broken out into multiple packages based on the functionality offered by the exported code. These packages include:
+
+* [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)
+* [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)
+* [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)
+* [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)
+* [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)
+* [@d3plus/export](https://www.npmjs.com/package/@d3plus/export)
+* [@d3plus/format](https://www.npmjs.com/package/@d3plus/format)
+* [@d3plus/locales](https://www.npmjs.com/package/@d3plus/locales)
+* [@d3plus/math](https://www.npmjs.com/package/@d3plus/math)
+* [@d3plus/text](https://www.npmjs.com/package/@d3plus/text)
+
+For example, if you are interested in using the `formatAbbreviate` function used internally for prettifying numbers:
+
+```sh
+npm install @d3plus/format
+```
+
+You can then import named functions and classes as ES modules:
+
+```js
+import {formatAbbreviate} from "@d3plus/format";
+```
+
+## Script Tags
 
 Additionally, each module is available from a CDN for vanilla JavaScript environments (bundled with all dependencies):
 
@@ -87,7 +101,16 @@ A global `d3plus` object is exported, which contains all of the available method
 
 ```html
 <script>
-  console.log(d3plus.TextBox);
+  new d3plus.Treemap()
+    .config({
+      data: [
+        {id: "alpha", value: 29},
+        {id: "beta",  value: 10}
+      ],
+      groupBy: "id",
+      size: "value"
+    })
+    .render();
 </script>
 ```
 
