@@ -30,7 +30,7 @@ function _elementSize(element, s) {
 
   }
   else {
-    const val = parseFloat(select(element).style(s), 10);
+    let val = parseFloat(select(element).style(s), 10);
     if (typeof val === "number" && val > 0) {
       if (s === "height") {
         val -= parseFloat(select(element).style("padding-top"), 10);
