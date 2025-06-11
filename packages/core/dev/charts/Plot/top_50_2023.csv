@@ -1,0 +1,51 @@
+artist_name,track_name,tempo,danceability,popularity,is_explicit,time_signature,album_release_date,genres,valence,energy,loudness,acousticness,instrumentalness,liveness,speechiness,key,mode,duration_ms
+Taylor Swift,Cruel Summer,169.994,0.552,99,FALSE,4,2019-08-23,['pop'],0.564,0.702,-5.707,0.117,2.06E-05,0.105,0.157,9,1,178427
+Arctic Monkeys,I Wanna Be Yours,67.528,0.464,96,FALSE,4,2013-09-09,"['garage rock', 'modern rock', 'permanent wave', 'rock', 'sheffield indie']",0.479,0.417,-9.345,0.136,0.022,0.0974,0.0256,0,0,183956
+Harry Styles,As It Was,173.93,0.52,95,FALSE,4,2022-05-20,['pop'],0.662,0.731,-5.338,0.342,0.00101,0.311,0.0557,6,0,167303
+The Weeknd,Starboy,186.003,0.679,95,TRUE,4,2016-11-25,"['canadian contemporary r&b', 'canadian pop', 'pop']",0.486,0.587,-7.015,0.141,6.35E-06,0.137,0.276,7,1,230453
+Olivia Rodrigo,vampire,138.005,0.511,95,TRUE,4,2023-09-08,['pop'],0.35,0.532,-5.745,0.177,0.0,0.291,0.0578,5,1,219724
+Miley Cyrus,Flowers,118.048,0.706,94,FALSE,4,2023-08-18,['pop'],0.632,0.691,-4.775,0.0584,6.99E-05,0.0232,0.0633,0,1,200600
+David Kushner,Daylight,130.09,0.508,94,FALSE,4,2023-04-14,"['gen z singer-songwriter', 'singer-songwriter pop']",0.324,0.43,-9.475,0.83,0.000441,0.093,0.0335,2,0,212954
+Myke Towers,LALA,91.986,0.708,93,TRUE,4,2023-03-23,"['reggaeton', 'trap latino', 'urbano latino']",0.607,0.737,-4.045,0.0739,0.00162,0.0955,0.0436,1,1,197920
+Doja Cat,Paint The Town Red,99.974,0.864,93,TRUE,4,2023-09-20,"['dance pop', 'pop']",0.726,0.556,-7.683,0.255,3.85E-06,0.112,0.194,2,0,230480
+The Neighbourhood,Sweater Weather,124.053,0.612,93,FALSE,4,2013-04-19,"['modern alternative rock', 'modern rock', 'pop']",0.398,0.807,-2.81,0.0495,0.0177,0.101,0.0336,10,1,240400
+SZA,Snooze,143.008,0.559,93,TRUE,4,2022-12-09,"['pop', 'r&b', 'rap']",0.392,0.551,-7.231,0.141,0.0,0.11,0.132,5,1,201800
+The Weeknd,Blinding Lights,171.005,0.514,93,FALSE,4,2020-03-20,"['canadian contemporary r&b', 'canadian pop', 'pop']",0.334,0.73,-5.934,0.00146,9.54E-05,0.0897,0.0598,1,1,200040
+Jimin,Like Crazy,120.001,0.629,93,FALSE,4,2023-03-24,['k-pop'],0.362,0.733,-5.445,0.0025,0.0,0.357,0.0419,7,1,212241
+Taylor Swift,Anti-Hero,97.008,0.637,92,FALSE,4,2022-10-21,['pop'],0.533,0.643,-6.571,0.13,1.8E-06,0.142,0.0519,4,1,200690
+David Guetta,I'm Good (Blue),128.04,0.561,92,TRUE,4,2022-08-26,"['big room', 'dance pop', 'edm', 'pop', 'pop dance']",0.304,0.965,-3.673,0.00383,7.07E-06,0.371,0.0343,7,0,175238
+OneRepublic,I Ain't Worried,139.994,0.704,92,FALSE,4,2022-05-13,"['piano rock', 'pop']",0.825,0.797,-5.927,0.0826,0.000745,0.0546,0.0475,0,1,148486
+"Tyler, The Creator",See You Again (feat. Kali Uchis),78.558,0.558,92,TRUE,4,2017-07-21,"['hip hop', 'rap']",0.62,0.559,-9.222,0.371,7.49E-06,0.109,0.0959,6,1,180387
+Metro Boomin,Creepin' (with The Weeknd & 21 Savage),97.95,0.715,91,TRUE,4,2022-12-02,['rap'],0.172,0.62,-6.005,0.417,0.0,0.0822,0.0484,1,0,221520
+Eminem,Mockingbird,84.039,0.637,91,TRUE,4,2004-11-12,"['detroit hip hop', 'hip hop', 'rap']",0.254,0.678,-3.798,0.209,0.0,0.156,0.266,0,1,250760
+d4vd,Romantic Homicide,132.052,0.571,91,FALSE,4,2022-07-20,['bedroom pop'],0.216,0.544,-10.613,0.453,0.00805,0.322,0.0299,6,1,132631
+Jung Kook,Seven (feat. Latto) (Explicit Ver.),124.987,0.79,90,TRUE,4,2023-11-03,['k-pop'],0.872,0.831,-4.185,0.312,0.0,0.0797,0.044,11,1,183551
+Rema,Calm Down (with Selena Gomez),107.008,0.799,90,FALSE,4,2023-04-27,"['afrobeats', 'nigerian pop']",0.811,0.802,-5.196,0.429,0.00128,0.171,0.0371,11,1,239318
+d4vd,Here With Me,132.025,0.571,90,FALSE,4,2023-05-26,['bedroom pop'],0.299,0.458,-9.283,0.544,9.27E-05,0.123,0.0258,4,1,242485
+Stephen Sanchez,Until I Found You (with Em Beihold) - Em Beihold Version,101.19,0.551,90,FALSE,3,2022-04-22,['gen z singer-songwriter'],0.342,0.55,-5.339,0.777,0.0,0.202,0.0286,10,1,176440
+Yng Lvcas,La Bebe - Remix,169.922,0.812,89,TRUE,4,2023-03-17,"['reggaeton', 'urbano mexicano']",0.559,0.479,-5.678,0.213,1.21E-06,0.0756,0.333,2,0,234353
+Bad Bunny,Me Porto Bonito,92.005,0.911,89,TRUE,4,2022-05-06,"['reggaeton', 'trap latino', 'urbano latino']",0.425,0.712,-5.105,0.0901,2.68E-05,0.0933,0.0817,1,0,178567
+KAROL G,TQG,179.974,0.72,88,TRUE,4,2023-02-24,"['reggaeton', 'reggaeton colombiano', 'trap latino', 'urbano latino']",0.607,0.63,-3.547,0.673,0.0,0.0936,0.277,4,0,199440
+Bizarrap,"Quevedo: Bzrp Music Sessions, Vol. 52",128.033,0.621,88,FALSE,4,2022-07-06,"['argentine hip hop', 'pop venezolano', 'trap argentino', 'trap latino', 'urbano latino']",0.55,0.782,-5.548,0.0125,0.033,0.23,0.044,2,1,198938
+Ozuna,Hey Mor,98.002,0.901,87,FALSE,4,2022-10-07,"['puerto rican pop', 'reggaeton', 'trap latino', 'urbano latino']",0.399,0.589,-6.713,0.00302,0.000237,0.0992,0.289,1,0,196600
+Feid,CLASSY 101,100.065,0.859,87,TRUE,4,2023-03-31,"['colombian pop', 'pop reggaeton', 'reggaeton', 'reggaeton colombiano', 'trap latino', 'urbano latino']",0.672,0.658,-4.79,0.145,0.0,0.12,0.159,11,1,195987
+NewJeans,OMG,126.956,0.804,87,FALSE,4,2023-01-02,"['k-pop', 'k-pop girl group']",0.739,0.771,-4.067,0.357,3.07E-06,0.108,0.0433,9,0,212253
+SZA,Kill Bill,88.98,0.644,86,FALSE,4,2022-12-08,"['pop', 'r&b', 'rap']",0.418,0.735,-5.747,0.0521,0.144,0.161,0.0391,8,1,153947
+Eslabon Armado,Ella Baila Sola,147.989,0.668,86,FALSE,3,2023-04-28,"['corrido', 'corridos tumbados', 'sad sierreno', 'sierreno']",0.834,0.758,-5.176,0.483,1.89E-05,0.0837,0.0332,5,0,165671
+Bizarrap,"Shakira: Bzrp Music Sessions, Vol. 53",122.104,0.778,85,FALSE,4,2023-01-11,"['argentine hip hop', 'pop venezolano', 'trap argentino', 'trap latino', 'urbano latino']",0.498,0.632,-5.6,0.274,0.0,0.0915,0.0493,2,0,218289
+The Weeknd,Die For You,133.629,0.586,85,FALSE,4,2016-11-24,"['canadian contemporary r&b', 'canadian pop', 'pop']",0.508,0.525,-7.163,0.111,0.0,0.134,0.0615,1,0,260253
+Grupo Frontera,un x100to,83.827,0.571,85,FALSE,4,2023-08-25,['musica chihuahuense'],0.542,0.72,-4.089,0.213,0.0,0.271,0.0458,9,1,194563
+Manuel Turizo,La Bachata,124.98,0.835,85,FALSE,4,2023-03-17,"['colombian pop', 'latin pop', 'reggaeton', 'reggaeton colombiano', 'trap latino', 'urbano latino']",0.85,0.679,-5.329,0.583,1.98E-06,0.218,0.0364,7,0,162638
+The Weeknd,Die For You (with Ariana Grande) - Remix,67.033,0.575,85,FALSE,4,2023-03-14,"['canadian contemporary r&b', 'canadian pop', 'pop']",0.506,0.5,-7.594,0.227,0.0,0.335,0.0707,1,0,232857
+Sam Smith,Unholy (feat. Kim Petras),131.199,0.712,84,FALSE,4,2023-01-27,"['pop', 'uk pop']",0.206,0.463,-7.399,0.011,2.96E-06,0.301,0.0797,2,1,156943
+PinkPantheress,Boy's a liar Pt. 2,132.962,0.696,84,TRUE,4,2023-11-10,['bedroom pop'],0.857,0.809,-8.254,0.252,0.000128,0.248,0.05,5,1,131013
+Morgan Wallen,Last Night,203.759,0.492,84,TRUE,4,2023-03-03,['contemporary country'],0.478,0.675,-5.456,0.467,0.0,0.142,0.0389,6,1,163855
+Bad Bunny,WHERE SHE GOES,143.992,0.651,84,TRUE,4,2023-10-13,"['reggaeton', 'trap latino', 'urbano latino']",0.223,0.799,-4.02,0.143,0.634,0.112,0.0611,9,0,231704
+Yandel,Yandel 150,167.968,0.783,83,TRUE,4,2023-01-13,"['latin hip hop', 'reggaeton', 'trap latino', 'urbano latino']",0.58,0.729,-3.549,0.0492,0.000272,0.1,0.0691,6,0,216148
+JVKE,golden hour,94.467,0.515,83,FALSE,3,2022-09-23,"['modern indie pop', 'pov: indie', 'singer-songwriter pop']",0.153,0.593,-4.801,0.653,0.162,0.25,0.0322,4,1,209260
+Peso Pluma,PRC,138.078,0.784,82,TRUE,3,2023-06-29,"['corridos tumbados', 'sad sierreno']",0.893,0.826,-6.34,0.0965,7.09E-05,0.123,0.0538,7,0,184066
+Natanael Cano,AMG,136.175,0.772,81,TRUE,3,2023-06-30,"['corrido', 'corridos tumbados', 'musica mexicana', 'sad sierreno', 'sierreno']",0.786,0.73,-6.657,0.152,0.000107,0.274,0.0972,11,0,174943
+Taylor Swift,Blank Space,96.006,0.753,78,FALSE,4,2014-10-27,['pop'],0.583,0.678,-5.421,0.085,1.64E-06,0.13,0.0644,5,1,231827
+RAYE,Escapism.,96.107,0.538,76,TRUE,4,2023-02-03,"['uk contemporary r&b', 'uk pop']",0.25,0.742,-5.355,0.138,4.67E-05,0.0934,0.114,2,1,272373
+FIFTY FIFTY,Cupid - Twin Ver.,120.018,0.783,75,FALSE,4,2023-09-22,['k-pop girl group'],0.726,0.592,-8.332,0.435,4.15E-06,0.347,0.0331,11,0,174253
+Tom Odell,Another Love,122.769,0.445,72,TRUE,4,2013-06-24,['chill pop'],0.131,0.537,-8.532,0.695,1.65E-05,0.0944,0.04,4,0,244360

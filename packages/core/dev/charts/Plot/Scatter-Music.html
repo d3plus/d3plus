@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+</head>
+
+<body></body>
+
+<script>
+
+  const config = {
+    data: "./top_50_2023.csv",
+    groupBy: "track_name",
+    x: "tempo",
+    y: "danceability",
+    shape: d => d.time_signature === 4 ? "Rect" : "Circle",
+    size: "popularity",
+    shapeConfig: {
+      fill: d => d.is_explicit ? "red" : "green",
+      label: d => `${d.artist_name} - ${d.track_name}`,
+      labelBounds: (d, i, x) => {
+        console.log(d, i, x);
+        const height = 40;
+        const width = 200;
+        const s = x.r || x.width / 2;
+        const xPos = d.tempo > 200 ? -width - (s + 2) : s + 2;
+        return {x: xPos, y: -height / 2 + 1, width, height};
+      },
+      labelConfig: {
+        fontColor: "#444",
+        textAnchor: d => d.tempo > 200 ? "end" : "start",
+        verticalAlign: "middle"
+      }
+    }
+  };
+
+  new d3plus.Plot()
+    .config(config)
+    .render();
+
+</script>
+
+</html>
