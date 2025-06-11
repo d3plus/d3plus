@@ -73,14 +73,14 @@ export const argTypes = assign(
       defaultValue: {
         mouseenter: "() => {\n  }",
         "mousemove.legend": "(d, i, x, event) => {\n  defaultMouseMoveLegend(d, i, x, event);\n  const ids = this._ids(d, i);\n  const hoverData = recursionCircles(d);\n  this.hover((h)=>{\n      const hover = Object.keys(h).filter((key)=>key !== \"value\").every((key)=>d[key] && d[key].includes(h[key]));\n      if (hover) hoverData.push(h);\n      else if (ids.includes(h.key)) hoverData.push(...recursionCircles(h, [\n          h\n      ]));\n      return hoverData.includes(h);\n  });\n}",
-        "mousemove.shape": "(d, i, x, event) => {\n  if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);\n  this.hover((h)=>recursionCircles(d, [\n          d\n      ]).includes(h));\n}"
+        "mousemove.shape": "(d, i, x, event) => {\n  if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);\n  const hoverData = recursionCircles(d, [\n      d\n  ]);\n  this.hover((h)=>hoverData.includes(h));\n}"
       },
       table: {
         defaultValue: {
           summary: {
             mouseenter: "() => {\n  }",
             "mousemove.legend": "(d, i, x, event) => {\n  defaultMouseMoveLegend(d, i, x, event);\n  const ids = this._ids(d, i);\n  const hoverData = recursionCircles(d);\n  this.hover((h)=>{\n      const hover = Object.keys(h).filter((key)=>key !== \"value\").every((key)=>d[key] && d[key].includes(h[key]));\n      if (hover) hoverData.push(h);\n      else if (ids.includes(h.key)) hoverData.push(...recursionCircles(h, [\n          h\n      ]));\n      return hoverData.includes(h);\n  });\n}",
-            "mousemove.shape": "(d, i, x, event) => {\n  if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);\n  this.hover((h)=>recursionCircles(d, [\n          d\n      ]).includes(h));\n}"
+            "mousemove.shape": "(d, i, x, event) => {\n  if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);\n  const hoverData = recursionCircles(d, [\n      d\n  ]);\n  this.hover((h)=>hoverData.includes(h));\n}"
           }
         }
       },
