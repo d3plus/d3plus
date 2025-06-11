@@ -5,6 +5,7 @@ on:
     branches:
       - "main"
     paths:
+      - ".github/workflows/deploy-storybook.yml"
       - "packages/docs/**"
       
 permissions:
@@ -22,20 +23,12 @@ jobs:
         working-directory: ./packages/docs
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Build
-      shell: bash
-      run: npm i
-    - name: Build
-      shell: bash
-      run: npm run build
-    - name: Upload
-      uses: actions/upload-pages-artifact@v3
+    - uses: actions/checkout@v4
+    - run: yarn install
+    - run: npm run build
+    - uses: actions/upload-pages-artifact@v3
       with: 
         path: packages/docs/build
-    - id: deploy
-      name: Deploy
-      uses: actions/deploy-pages@v4
+    - uses: actions/deploy-pages@v4
       with:
         token: ${{ github.token }}
