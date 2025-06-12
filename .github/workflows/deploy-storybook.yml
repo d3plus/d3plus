@@ -25,6 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: npm i
+      shell: bash
     - run: npm run build
     - uses: actions/upload-pages-artifact@v3
       with: 
