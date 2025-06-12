@@ -13,7 +13,7 @@ import modules from "@d3plus/format";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/format@3.0.0-alpha.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/format@3.0.0-alpha.5"></script>
 <script>
   console.log(d3plus);
 </script>
