@@ -50,7 +50,7 @@ module.exports = {
   
   webpackFinal: async (config) => {
     config.resolve.modules = [
-      "/node_modules",
+      "../../../node_modules",
         ...(config.resolve.modules || [])
     ];
     return config;
