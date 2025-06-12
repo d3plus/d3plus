@@ -24,12 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - run: npm i
+    - run: npm run build
+    - uses: actions/upload-pages-artifact@v3
+      with: 
+        path: packages/docs/build
+    - uses: actions/deploy-pages@v4
       with:
-        node-version: 20
-    - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
-      with:
-        install_command: npm i # default: npm ci
-        build_command: npm run build # default: npm run build-storybook
-        path: packages/docs/build # default: dist/storybook
-        checkout: false # default: true
+        token: ${{ github.token }}
