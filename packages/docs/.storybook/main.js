@@ -46,6 +46,14 @@ module.exports = {
   core: {
     disableTelemetry: true, // 👈 Disables telemetry
     disableWhatsNewNotifications: true,
+  },
+  
+  webpackFinal: async (config) => {
+    config.resolve.modules = [
+      "/node_modules",
+        ...(config.resolve.modules || [])
+    ];
+    return config;
   }
 
 };
