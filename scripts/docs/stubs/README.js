@@ -1,4 +1,4 @@
-export default function({name, description, version}) {
+export default function({name, description}) {
   return `# ${name}
   
 ${description}
@@ -14,7 +14,7 @@ import modules from "${name}";
 In vanilla JavaScript, a \`d3plus\` global is exported from the pre-bundled version:
 
 \`\`\`html
-<script src="https://cdn.jsdelivr.net/npm/${name}@${version}"></script>
+<script src="https://cdn.jsdelivr.net/npm/${name}"></script>
 <script>
   console.log(d3plus);
 </script>
