@@ -30,7 +30,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.8.2",
-    "vite": "^6.2.5"
+    "vite": "^6.2.5",
+    "webpack": "^5.98.0"
   },
   "devDependencies": {
     "@storybook/addon-controls": "^8.6.12",
