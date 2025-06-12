@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/react",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "description": "React components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
@@ -31,7 +31,7 @@
     "test": "eslint"
   },
   "dependencies": {
-    "@d3plus/core": "3.0.0-alpha.3"
+    "@d3plus/core": "3.0.0-alpha.4"
   },
   "devDependencies": {
     "@mantine/core": "^7.8.1",

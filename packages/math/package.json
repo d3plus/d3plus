@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/math",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "description": "Mathematical functions to aid in calculating visualizations.",
   "license": "MIT",
   "type": "module",

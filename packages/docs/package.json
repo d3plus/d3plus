@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/docs",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "description": "Documentation and examples for the d3plus visualization library.",
   "license": "MIT",
   "homepage": "https://d3plus.org",
@@ -15,11 +15,11 @@
     "dev": "node ../../scripts/dev.js"
   },
   "dependencies": {
-    "@d3plus/core": "3.0.0-alpha.3",
-    "@d3plus/dom": "3.0.0-alpha.3",
-    "@d3plus/format": "3.0.0-alpha.3",
-    "@d3plus/locales": "3.0.0-alpha.3",
-    "@d3plus/react": "3.0.0-alpha.3",
+    "@d3plus/core": "3.0.0-alpha.4",
+    "@d3plus/dom": "3.0.0-alpha.4",
+    "@d3plus/format": "3.0.0-alpha.4",
+    "@d3plus/locales": "3.0.0-alpha.4",
+    "@d3plus/react": "3.0.0-alpha.4",
     "@storybook/blocks": "^8.6.12",
     "@storybook/components": "^8.6.12",
     "@storybook/icons": "^1.4.0",

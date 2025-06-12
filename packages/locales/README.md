@@ -13,7 +13,7 @@ import modules from "@d3plus/locales";
 In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@d3plus/locales@3.0.0-alpha.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@d3plus/locales@3.0.0-alpha.4"></script>
 <script>
   console.log(d3plus);
 </script>
