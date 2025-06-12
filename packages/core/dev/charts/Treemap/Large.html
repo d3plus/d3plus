@@ -14,7 +14,7 @@
 
 <script>
 
-var dataURL = "https://datausa.io/api/data?measures=Population&drilldowns=State&Year=2018,2017";
+var dataURL = "https://datausa.io/api/data?measures=Population&drilldowns=State,Year&Year=2018,2017";
 
 function dataFormat(response) {
 
@@ -40,26 +40,27 @@ function dataFormat(response) {
 
 }
 
-  new d3plus.Treemap()
-    .data(dataURL, dataFormat)
+  const viz = new d3plus.Treemap()
+    .data(dataURL)
     .config({
-      aggs: {
-        "Growth": function(arr, callback) {
-          var current = arr.reduce(function(sum, d) {
-            return sum + d.Population;
-          }, 0);
-          var previous = arr.reduce(function(sum, d) {
-            return sum + d.Previous;
-          }, 0);
-          return (current - previous) / previous * 100;
-        }
-      },
-      colorScale: "Growth",
-      colorScaleConfig: {
-        data: [{Growth: -2}, {Growth: 2}]
-      },
+      // aggs: {
+      //   "Growth": function(arr, callback) {
+      //     var current = arr.reduce(function(sum, d) {
+      //       return sum + d.Population;
+      //     }, 0);
+      //     var previous = arr.reduce(function(sum, d) {
+      //       return sum + d.Previous;
+      //     }, 0);
+      //     return (current - previous) / previous * 100;
+      //   }
+      // },
+      // colorScale: "Growth",
+      // colorScaleConfig: {
+      //   data: [{Growth: -2}, {Growth: 2}]
+      // },
       groupBy: "State",
       sum: "Population",
+      time: "Year",
       threshold: 0.0025,
       thresholdName: "States"
     })

@@ -1470,7 +1470,7 @@ function value(d) {
       if (typeof _ === "function") {
         this._time = _;
       }
-      else {
+      else if (_) {
         this._time = accessor(_);
         if (!this._aggs[_]) {
           this._aggs[_] = (a, c) => {
@@ -1483,6 +1483,12 @@ function value(d) {
           this._timelineSelection = false;
         }
         this._userTime = _;
+      }
+      else {
+        this._time = undefined;
+        this._userTime = undefined;
+        this._timeFilter = false;
+        this._timelineSelection = false;
       }
       return this;
     }
