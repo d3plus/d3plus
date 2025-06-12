@@ -25,7 +25,8 @@ jobs:
         fetch-depth: 0
     - uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: 20
+        cache: 'yarn'
     - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
       with:
         install_command: yarn install # default: npm ci
