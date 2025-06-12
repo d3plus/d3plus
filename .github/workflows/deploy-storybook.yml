@@ -21,14 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - uses: actions/setup-node@v4
       with:
-        node-version: 20.x
-    - run: yarn install
-    - run: npm run build -w @d3plus/docs
-    - uses: actions/upload-pages-artifact@v3
-      with: 
-        path: packages/docs/build
-    - uses: actions/deploy-pages@v4
+        node-version: '20'
+    - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
       with:
-        token: ${{ github.token }}
+        install_command: yarn install # default: npm ci
+        build_command: npm run build -w @d3plus/docs # default: npm run build-storybook
+        path: packages/docs/build # default: dist/storybook
+        checkout: false # default: true
