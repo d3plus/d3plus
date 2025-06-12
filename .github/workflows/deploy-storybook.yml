@@ -18,18 +18,18 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: ./packages/docs
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     - uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: 'yarn'
     - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
       with:
-        install_command: yarn install # default: npm ci
-        build_command: npm run build -w @d3plus/docs # default: npm run build-storybook
+        install_command: npm ci # default: npm ci
+        build_command: npm run build # default: npm run build-storybook
         path: packages/docs/build # default: dist/storybook
         checkout: false # default: true
