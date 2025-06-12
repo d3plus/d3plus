@@ -49,10 +49,12 @@ module.exports = {
   },
   
   webpackFinal: async (config) => {
-    config.resolve.modules = [
-      "../../../node_modules",
-        ...(config.resolve.modules || [])
-    ];
+    if (config.resolve) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@d3plus/react': path.resolve(__dirname, '../../react'),
+      };
+    }
     return config;
   }
 
