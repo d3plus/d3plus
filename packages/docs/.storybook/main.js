@@ -52,7 +52,7 @@ module.exports = {
     if (config.resolve) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        '@d3plus/react': path.resolve(__dirname, '../../react'),
+        '@d3plus/': path.resolve(__dirname, '../../'),
       };
     }
     return config;
