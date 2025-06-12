@@ -29,7 +29,7 @@ jobs:
         node-version: 20
     - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
       with:
-        install_command: npm ci # default: npm ci
+        install_command: npm i # default: npm ci
         build_command: npm run build # default: npm run build-storybook
         path: packages/docs/build # default: dist/storybook
         checkout: false # default: true
