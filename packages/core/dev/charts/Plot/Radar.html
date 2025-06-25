@@ -39,83 +39,10 @@
   new d3plus.Radar()
     .config({
       fontFamily: "Comic Sans MS",
-    data: [
-      {
-        clusterName: 'Human Resources',
-        numberOfJobs: 14978
-      },
-      {
-        clusterName: 'Arts, Audio/Video Technology & Communications',
-        numberOfJobs: 2870
-      },
-      {
-        clusterName: 'Transportation, Distribution & Logistics',
-        numberOfJobs: 2026
-      },
-      {
-        clusterName: 'Energy and Natural Resources',
-        numberOfJobs: 201
-      },
-      {
-        clusterName: 'Architecture & Construction',
-        numberOfJobs: 114
-      },
-      {
-        clusterName: 'Information Technology',
-        numberOfJobs: 162963
-      },
-      {
-        clusterName: 'Finance',
-        numberOfJobs: 32681
-      },
-      {
-        clusterName: 'Government & Public Administration',
-        numberOfJobs: 897
-      },
-      {
-        clusterName: 'Education & Training',
-        numberOfJobs: 40
-      },
-      {
-        clusterName: 'Hospitality & Tourism',
-        numberOfJobs: 4
-      },
-      {
-        clusterName: 'Product Management / Analytics',
-        numberOfJobs: 13824
-      },
-      {
-        clusterName: 'Law, Public Safety, Corrections & Security',
-        numberOfJobs: 827
-      },
-      {
-        clusterName: 'Science, Technology, Engineering & Mathematics',
-        numberOfJobs: 698
-      },
-      {
-        clusterName: 'Business Management / Operations',
-        numberOfJobs: 82049
-      },
-      {
-        clusterName: 'Marketing',
-        numberOfJobs: 26101
-      },
-      {
-        clusterName: 'Human / Social Services',
-        numberOfJobs: 717
-      },
-      {
-        clusterName: 'Manufacturing',
-        numberOfJobs: 439
-      },
-      {
-        clusterName: 'Health Science',
-        numberOfJobs: 753
-      }
-    ],
-    groupBy: 'id',
-    metric: 'clusterName',
-    value: 'numberOfJobs'
+      data: myData,
+      groupBy: 'group',
+      metric: 'axis',
+      value: 'number'
   })
     .render();
 
