@@ -33,13 +33,24 @@ export default function(d) {
     return date;
   }
 
-  // tests for quarterly formats (ie. "QX YYYY")
+  // tests for quarterly formats (ie. "QX YYYY" and "YYYY QX")
   const quarterPrefix = new RegExp(/^([qQ]{1}[1-4]{1}|[1-4]{1}[qQ]{1})[\s|-]{0,1}(-*\d{1,4})$/g).exec(s);
   const quarterSuffix = new RegExp(/^(-*\d{1,4})[\s|-]{0,1}([qQ]{1}[1-4]{1}|[1-4]{1}[qQ]{1})$/g).exec(s);
   if (quarterPrefix || quarterSuffix) {
     const quarter = +(quarterPrefix ? quarterPrefix[1] : quarterSuffix[2]).toLowerCase().replace("q", "");
     const year = +(quarterPrefix ? quarterPrefix[2] : quarterSuffix[1]);
     const date = new Date(year, quarter * 3 - 3, 1);
+    date.setFullYear(year);
+    return date;
+  }
+
+  // tests for monthly formats (ie. "MM-YYYY" and "YYYY-MM")
+  const monthPrefix = new RegExp(/^([-*\d]{1,2})\-(-*\d{1,4})$/g).exec(s);
+  const monthSuffix = new RegExp(/^(-*\d{1,4})\-([-*\d]{1,2})$/g).exec(s);
+  if (monthPrefix || monthSuffix) {
+    const month = +(monthPrefix ? monthPrefix[1] : monthSuffix[2]);
+    const year = +(monthPrefix ? monthPrefix[2] : monthSuffix[1]);
+    const date = new Date(year, month - 1, 1);
     date.setFullYear(year);
     return date;
   }
@@ -51,7 +62,7 @@ export default function(d) {
     return date;
   }
 
-  // falls back to Date object
-  return new Date(s);
+  // falls back to Date object, replacing hyphens with slashes
+  return new Date(s.replace(/-/g, "/"));
 
 }
