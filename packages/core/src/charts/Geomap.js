@@ -17,7 +17,7 @@ import {pointDistance} from "@d3plus/math";
 import {Circle, Path} from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
 
-import Viz from "./Viz";
+import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
 
 

@@ -20,7 +20,7 @@ import {assign, elem} from "@d3plus/dom";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import {Path} from "../shapes/index.js";
 import * as shapes from "../shapes/index.js";
-import Viz from "./Viz";
+import Viz from "./Viz.js";
 
 /**
     @class Sankey

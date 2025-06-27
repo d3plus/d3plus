@@ -8,7 +8,7 @@ import {colorLegible} from "@d3plus/color";
 import {addToQueue} from "@d3plus/data";
 import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
-import Viz from "./Viz";
+import Viz from "./Viz.js";
 
 /**
     @class Rings

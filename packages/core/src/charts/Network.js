@@ -11,7 +11,7 @@ import {addToQueue} from "@d3plus/data";
 import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
 import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
-import Viz from "./Viz";
+import Viz from "./Viz.js";
 
 /**
  * Fetches the unique ID for a data point, whether it's defined by data or nodes.
