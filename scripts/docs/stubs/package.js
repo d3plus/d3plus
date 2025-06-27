@@ -35,6 +35,7 @@ export default function(packageJSON) {
       "build:umd": (isDocs || isReact) ? undefined : "node ../../scripts/build-umd.js",
       "build": isDocs ? "storybook build --docs -o build" : undefined,
       dev: "node ../../scripts/dev.js",
+      "dev:local": isDocs ? "storybook dev --docs --ci --no-version-updates --port=4000" : undefined,
       test: isDocs ? undefined : isReact 
         ? "eslint" 
         : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
