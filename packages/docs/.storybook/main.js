@@ -1,5 +1,6 @@
 import remarkGfm from "remark-gfm";
 import path from "node:path";
+import glob from "glob";
 
 // monorepo fix
 // https://storybook.js.org/docs/faq#how-do-i-fix-module-resolution-in-special-environments
@@ -43,6 +44,27 @@ module.exports = {
   core: {
     disableTelemetry: true, // 👈 Disables telemetry
     disableWhatsNewNotifications: true,
+  },
+
+  webpackFinal: async (config) => {
+    if (config.resolve) {
+      
+      const workspacePackages = glob.sync('../*/').reduce((aliases, folder) => {
+        const name = path.basename(folder);
+        if (name !== "docs") {
+          const filename = name === "react" ? "index.jsx" : "index.js";
+          aliases[`@d3plus/${name}`] = path.resolve(__dirname, "../", folder, filename);
+        }
+        return aliases;
+      }, {});
+      console.log(workspacePackages);
+
+      config.resolve.alias = {
+        ...workspacePackages,
+        ...config.resolve.alias
+      };
+    }
+    return config;
   }
 
 };
