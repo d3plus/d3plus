@@ -21,7 +21,6 @@
     "@d3plus/format": "3.0.1",
     "@d3plus/locales": "3.0.1",
     "@d3plus/react": "3.0.1",
-    "@storybook/icons": "^1.4.0",
     "@types/react": "^19.1.0",
     "next": "^15.2.4",
     "react": "^18.2.0",
