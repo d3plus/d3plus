@@ -1,5 +1,5 @@
 import {scaleOrdinal} from "d3-scale";
-import pkg from 'open-color/open-color.js';
+import pkg from "open-color/open-color.js";
 const {theme: openColor} = pkg;
 
 /**
