@@ -15,7 +15,12 @@ const axisConfig = {
     stroke: gridColor
   },
   shapeConfig: {
-    fill: tickColor,
+    Circle: {
+      stroke: gridColor
+    },
+    Rect: {
+      fill: tickColor
+    },
     labelConfig: {
       fontColor: tickColor
     },
