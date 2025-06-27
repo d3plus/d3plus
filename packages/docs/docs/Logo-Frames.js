@@ -10,7 +10,8 @@ const threeColor = colors[1];
 const threeAccent = colorLegible(threeColor);
 const plusColor = colors[2];
 
-const height = 200;
+const mobile = window !== undefined && window.innerWidth <= 768;
+const height = mobile ? 150 : 200;
 const yAxisOffset = 35;
 const xAxisOffset = 46;
 const ySquares = 12;

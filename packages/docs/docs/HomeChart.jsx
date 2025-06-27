@@ -19,16 +19,27 @@ const Logo = () => {
 
   const code = `<Treemap config={${stringify(config)}} />`;
 
+  const mobile = window !== undefined && window.innerWidth <= 768;
+
+  const wrapperStyle = {
+    alignItems: "stretch",
+    display: "flex",
+    flexDirection: mobile ? "column" : "row",
+    height: mobile ? "auto" : "300px",
+    marginBottom: mobile ? "50px" : 0
+  };
+  const sourceStyle = {
+    marginRight: mobile ? 0 : "20px", 
+    width: mobile ? "100%" : "300px"
+  };
+  const vizStyle = {flex: `1 1 ${mobile ? "300px" : "auto"}`}
+
   return (
-    <div style={{
-      alignItems: "stretch",
-      display: "flex",
-      height: "300px"
-    }}>
-      <div style={{marginRight: "20px", width: "300px"}}>
+    <div style={wrapperStyle}>
+      <div style={sourceStyle}>
         <Source code={code} />
       </div>
-      <div style={{flex: "1 1 auto"}}>
+      <div style={vizStyle}>
         <Treemap config={config} />
       </div>
     </div>
