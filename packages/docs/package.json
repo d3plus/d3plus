@@ -12,7 +12,8 @@
   "keywords": [],
   "scripts": {
     "build": "storybook build --docs -o build",
-    "dev": "node ../../scripts/dev.js"
+    "dev": "node ../../scripts/dev.js",
+    "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000"
   },
   "dependencies": {
     "@d3plus/core": "3.0.1",
@@ -20,11 +21,7 @@
     "@d3plus/format": "3.0.1",
     "@d3plus/locales": "3.0.1",
     "@d3plus/react": "3.0.1",
-    "@storybook/blocks": "^8.6.12",
-    "@storybook/components": "^8.6.12",
     "@storybook/icons": "^1.4.0",
-    "@storybook/manager-api": "^8.6.12",
-    "@storybook/test": "^8.6.12",
     "@types/react": "^19.1.0",
     "next": "^15.2.4",
     "react": "^18.2.0",
@@ -34,12 +31,10 @@
     "webpack": "^5.98.0"
   },
   "devDependencies": {
-    "@storybook/addon-controls": "^8.6.12",
-    "@storybook/addon-docs": "^8.6.12",
-    "@storybook/nextjs": "^8.6.12",
-    "@storybook/react": "^8.6.12",
-    "@storybook/theming": "^8.6.12",
+    "@storybook/addon-docs": "9.0.11",
+    "@storybook/nextjs": "9.0.11",
+    "eslint-plugin-storybook": "9.0.11",
     "remark-gfm": "^4.0.1",
-    "storybook": "^8.6.12"
+    "storybook": "9.0.11"
   }
 }

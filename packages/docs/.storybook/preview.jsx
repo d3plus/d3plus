@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from "react";
-import { Anchor, Canvas, Controls, Description, DocsContext, Subheading, Subtitle, Title } from '@storybook/blocks';
+import { Anchor, Canvas, Controls, Description, DocsContext, Subheading, Subtitle, Title } from '@storybook/addon-docs/blocks';
 import theme from "./theme.js";
 import stringify from "../helpers/stringify.js";
 import {D3plusContext} from "@d3plus/react";

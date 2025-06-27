@@ -1,6 +1,6 @@
 import React from "react";
 import {Treemap} from "@d3plus/react";
-import {Source} from '@storybook/blocks';
+import {Source} from '@storybook/addon-docs/blocks';
 import stringify from "../helpers/stringify";
 
 const Logo = () => {
