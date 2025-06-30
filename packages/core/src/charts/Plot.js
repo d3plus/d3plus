@@ -325,8 +325,8 @@ export default class Plot extends Viz {
     });
 
     this._x = accessor("x");
-    this._xAxis = new AxisBottom().align("end");
     this._xKey = "x";
+    this._xAxis = new AxisBottom().align("end");
     this._xTest = new AxisBottom().align("end").gridSize(0);
     this._xConfig = {
       gridConfig: {
@@ -341,6 +341,7 @@ export default class Plot extends Viz {
     this._xCutoff = 150;
 
     this._x2 = accessor("x2");
+    this._x2Key = "x2";
     this._x2Axis = new AxisTop().align("start");
     this._x2Test = new AxisTop().align("start").gridSize(0);
     this._x2Config = {
@@ -348,6 +349,7 @@ export default class Plot extends Viz {
     };
 
     this._y = accessor("y");
+    this._yKey = "y";
     this._yAxis = new AxisLeft().align("start");
     this._yKey = "y";
     this._yTest = new AxisLeft().align("start").gridSize(0);
@@ -364,6 +366,7 @@ export default class Plot extends Viz {
     this._yCutoff = 150;
 
     this._y2 = accessor("y2");
+    this._y2Key = "y2";
     this._y2Axis = new AxisRight().align("end");
     this._y2Test = new AxisLeft().align("end").gridSize(0);
     this._y2Config = {};
