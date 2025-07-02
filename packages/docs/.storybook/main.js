@@ -57,7 +57,6 @@ module.exports = {
         }
         return aliases;
       }, {});
-      console.log(workspacePackages);
 
       config.resolve.alias = {
         ...workspacePackages,
