@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/data",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "JavaScript data loading, manipulation, and analysis functions.",
   "license": "MIT",
   "type": "module",
@@ -34,7 +34,7 @@
     "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/dom": "3.0.3",
+    "@d3plus/dom": "3.0.4",
     "d3-array": "^3.2.4",
     "d3-collection": "^1.0.7",
     "d3-request": "^1.0.6"

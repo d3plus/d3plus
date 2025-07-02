@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Capitalizes the first letter of each word in a phrase/sentence.",
+        component: "Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as \"and\" or \"of\", as well as acronym that should be kept uppercase such as \"CEO\" or \"TVs\".",
       },
     },
   }

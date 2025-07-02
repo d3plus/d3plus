@@ -30,7 +30,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 * [strip](#strip) - Removes all non ASCII characters from a string.
 * [textSplit](#textSplit) - Splits a given sentence into an array of words.
 * [textWrap](#textWrap) - Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
-* [titleCase](#titleCase) - Capitalizes the first letter of each word in a phrase/sentence.
+* [titleCase](#titleCase) - Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
 * [trim](#trim) - Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
 * [trimLeft](#trimLeft) - Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
 * [trimRight](#trimRight) - Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
@@ -62,7 +62,7 @@ This is a global function
 ---
 
 <a name="textSplit"></a>
-#### d3plus.**textSplit**(sentence) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.js#L51)
+#### d3plus.**textSplit**(sentence) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.js#L3)
 
 Splits a given sentence into an array of words.
 
@@ -92,7 +92,7 @@ This is a global function
     * [.width([*value*])](#textWrap.width)
 
 
-<a name="textWrap.fontFamily" href="#textWrap.fontFamily">#</a> d3plus..**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L90)
+<a name="textWrap.fontFamily" href="#textWrap.fontFamily">#</a> d3plus..**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L92)
 
 If *value* is specified, sets the font family accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current font family.
 
@@ -100,7 +100,7 @@ If *value* is specified, sets the font family accessor to the specified function
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.fontSize" href="#textWrap.fontSize">#</a> d3plus..**fontSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L99)
+<a name="textWrap.fontSize" href="#textWrap.fontSize">#</a> d3plus..**fontSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L101)
 
 If *value* is specified, sets the font size accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font size.
 
@@ -108,7 +108,7 @@ If *value* is specified, sets the font size accessor to the specified function o
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.fontWeight" href="#textWrap.fontWeight">#</a> d3plus..**fontWeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L108)
+<a name="textWrap.fontWeight" href="#textWrap.fontWeight">#</a> d3plus..**fontWeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L110)
 
 If *value* is specified, sets the font weight accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font weight.
 
@@ -116,7 +116,7 @@ If *value* is specified, sets the font weight accessor to the specified function
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.height" href="#textWrap.height">#</a> d3plus..**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L117)
+<a name="textWrap.height" href="#textWrap.height">#</a> d3plus..**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L119)
 
 If *value* is specified, sets height limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
 
@@ -124,7 +124,7 @@ If *value* is specified, sets height limit to the specified value and returns th
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.lineHeight" href="#textWrap.lineHeight">#</a> d3plus..**lineHeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L126)
+<a name="textWrap.lineHeight" href="#textWrap.lineHeight">#</a> d3plus..**lineHeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L128)
 
 If *value* is specified, sets the line height accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current line height accessor, which is 1.1 times the [font size](#textWrap.fontSize) by default.
 
@@ -132,7 +132,7 @@ If *value* is specified, sets the line height accessor to the specified function
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.maxLines" href="#textWrap.maxLines">#</a> d3plus..**maxLines**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L135)
+<a name="textWrap.maxLines" href="#textWrap.maxLines">#</a> d3plus..**maxLines**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L137)
 
 If *value* is specified, sets the maximum number of lines allowed when wrapping.
 
@@ -140,7 +140,7 @@ If *value* is specified, sets the maximum number of lines allowed when wrapping.
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.overflow" href="#textWrap.overflow">#</a> d3plus..**overflow**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L144)
+<a name="textWrap.overflow" href="#textWrap.overflow">#</a> d3plus..**overflow**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L146)
 
 If *value* is specified, sets the overflow to the specified boolean and returns this generator. If *value* is not specified, returns the current overflow value.
 
@@ -148,7 +148,7 @@ If *value* is specified, sets the overflow to the specified boolean and returns 
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.split" href="#textWrap.split">#</a> d3plus..**split**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L153)
+<a name="textWrap.split" href="#textWrap.split">#</a> d3plus..**split**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L155)
 
 If *value* is specified, sets the word split function to the specified function and returns this generator. If *value* is not specified, returns the current word split function.
 
@@ -156,7 +156,7 @@ If *value* is specified, sets the word split function to the specified function 
 This is a static method of [<code>textWrap</code>](#textWrap)
 
 
-<a name="textWrap.width" href="#textWrap.width">#</a> d3plus..**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L162)
+<a name="textWrap.width" href="#textWrap.width">#</a> d3plus..**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L164)
 
 If *value* is specified, sets width limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
 
@@ -166,9 +166,9 @@ This is a static method of [<code>textWrap</code>](#textWrap)
 ---
 
 <a name="titleCase"></a>
-#### d3plus.**titleCase**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.js#L6)
+#### d3plus.**titleCase**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.js#L7)
 
-Capitalizes the first letter of each word in a phrase/sentence.
+Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
 
 
 This is a global function
