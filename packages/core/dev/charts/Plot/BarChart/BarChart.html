@@ -165,16 +165,16 @@ const barchart = new d3plus.BarChart()
     // label: d => d.parent,
     legend: true,
     tooltipConfig: {
-      tbody: d => [["Year", d.year],["Value", d.value]]
+      tbody: d => [["Year", d.year], ["Value", d.value]]
     },
-    y: "group",
-    x: d => d.value,
-    ySort: (a, b) => {
-      // console.log(a, b);
-      return b.value - a.value;
-    },
+    x: "group",
+    y: d => d.value,
+    // ySort: (a, b) => {
+    //   // console.log(a, b);
+    //   return b.value - a.value;
+    // },
     // legendPosition: "bottom",
-    discrete: "y",
+    // discrete: "y",
     time: "year",
     width: 600
     // shapeConfig: {

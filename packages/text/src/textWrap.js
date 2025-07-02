@@ -45,13 +45,14 @@ export default function() {
         widthProg = 0;
 
     const lineData = [],
-          sizes = textWidth(words, style),
-          space = textWidth(" ", style);
+          sizes = textWidth(words, style);
 
     for (let i = 0; i < words.length; i++) {
+
       let word = words[i];
       const wordWidth = sizes[words.indexOf(word)];
-      word += sentence.slice(textProg.length + word.length).match("^( |\n)*", "g")[0];
+
+      // newline if breaking character or not enough width
       if (textProg.slice(-1) === "\n" || widthProg + wordWidth > width) {
         if (!i && !overflow) {
           truncated = true;
@@ -68,9 +69,10 @@ export default function() {
       }
       else if (!i) lineData[0] = word;
       else lineData[line - 1] += word;
+
       textProg += word;
       widthProg += wordWidth;
-      widthProg += word.match(/[\s]*$/g)[0].length * space;
+
     }
 
     return {

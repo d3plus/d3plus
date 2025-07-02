@@ -1,38 +1,29 @@
-import {suffixChars, default as textSplit} from "./textSplit.js";
+import textSplit from "./textSplit.js";
 
 const lowercase = ["a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "into", "near", "nor", "of", "on", "onto", "or", "per", "that", "the", "to", "with", "via", "vs", "vs."];
-const uppercase = ["CEO", "CFO", "CNC", "COO", "CPU", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"];
+const acronyms = ["CEO", "CFO", "CNC", "COO", "CPU", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"]
+const uppercase = acronyms.reduce((arr, d) => (arr.push(`${d}s`), arr), acronyms.map(d => d.toLowerCase()));
 
 /**
     @function titleCase
-    @desc Capitalizes the first letter of each word in a phrase/sentence.
+    @desc Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
     @param {String} str The string to apply the title case logic.
 */
 export default function(str) {
 
-  if (str === void 0) return "";
+  if (str === undefined) return "";
 
-  const smalls = lowercase.map(s =>  s.toLowerCase());
+  return textSplit(str)
+    .reduce((str, word, i) => {
+      
+      let formattedWord = word;
+      const trimmedWord = word.toLowerCase().slice(0, -1);
 
-  let bigs = uppercase.slice();
-  bigs = bigs.concat(bigs.map(b => `${b}s`));
-  const biglow = bigs.map(b => b.toLowerCase());
+      const exempt = uppercase.includes(trimmedWord) || (lowercase.includes(trimmedWord) && i !== 0 && word.toLowerCase() !== trimmedWord);
+      if (!exempt) formattedWord = word.charAt(0).toUpperCase() + word.slice(1);
 
-  const split = textSplit(str);
-  return split.map((s, i) => {
-    if (s) {
-      const lower = s.toLowerCase();
-      const stripped = suffixChars.includes(lower.charAt(lower.length - 1)) ? lower.slice(0, -1) : lower;
-      const bigindex = biglow.indexOf(stripped);
-      if (bigindex >= 0) return bigs[bigindex];
-      else if (smalls.includes(stripped) && i !== 0 && i !== split.length - 1) return lower;
-      else return s.charAt(0).toUpperCase() + s.substr(1).toLowerCase();
-    }
-    else return "";
-  }).reduce((ret, s, i) => {
-    if (i && str.charAt(ret.length) === " ") ret += " ";
-    ret += s;
-    return ret;
-  }, "");
+      return str + formattedWord;
+
+    }, "");
 
 }

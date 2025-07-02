@@ -58,14 +58,19 @@
 
 <script>
 
-  var wrapper = d3plus.textWrap().overflow(true);
-  var string = "veryLongTextWithoutAnyLimitCharacterThatShouldBeTruncatedWhenUsingOverflow";
-  var result = wrapper(string);
-  console.log(result);
-  var result2 = wrapper(string + " " + string);
-  console.log(result2);
+  // const string = "Here is a long string with some text to wrap.";
+  // const string = "veryLongTextWithoutAnyLimitCharacterThatShouldBeTruncatedWhenUsingOverflow";
+  const string = "“里句。”";
+  console.log(d3plus.textSplit(string));
 
-  console.log(d3plus.strip("hére's myō tūxt والاجتماعية"));
+  var wrapper = d3plus.textWrap().width(100).overflow(true);
+  var result = wrapper(string);
+  console.log(result.lines);
+  
+  // var result2 = wrapper(string + " " + string);
+  // console.log(result2);
+
+  // console.log(d3plus.strip("hére's myō tūxt والاجتماعية"));
 
   // console.log(d3plus.fontExists("Pathway Gothic One"));
   // setTimeout(() => {
