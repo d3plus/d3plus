@@ -1094,7 +1094,7 @@ function value(d) {
       else {
         if (!this._aggs[k]) {
           this._aggs[k] = (a, c) => {
-            const v = unique(a.map(c).map(String));
+            const v = unique(a.map(c));
             return v.length === 1 ? v[0] : v;
           };
         }
