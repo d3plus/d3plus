@@ -7,10 +7,6 @@ import {default as Plot} from "./Plot.js";
     @class BoxWhisker
     @extends Plot
     @desc Creates a simple box and whisker based on an array of data.
-    @example <caption>the equivalent of calling:</caption>
-new d3plus.Plot()
-  .discrete("x")
-  .shape("Box")
 */
 export default class BoxWhisker extends Plot {
 

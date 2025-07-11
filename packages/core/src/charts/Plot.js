@@ -344,9 +344,7 @@ export default class Plot extends Viz {
     this._x2Key = "x2";
     this._x2Axis = new AxisTop().align("start");
     this._x2Test = new AxisTop().align("start").gridSize(0);
-    this._x2Config = {
-      padding: 0
-    };
+    this._x2Config = {};
 
     this._y = accessor("y");
     this._yKey = "y";
