@@ -457,10 +457,10 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "{padding: 0}",
+      defaultValue: "{}",
       table: {
         defaultValue: {
-          summary: "{padding: 0}"
+          summary: "{}"
         }
       },
       type: {
