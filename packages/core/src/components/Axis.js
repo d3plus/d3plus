@@ -12,7 +12,7 @@ import {assign, attrize, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import {formatLocale, locale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
-import {textWrap} from "@d3plus/text";
+import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
 import {TextBox} from "../components/index.js";
 import * as shapes from "../shapes/index.js";
@@ -772,7 +772,8 @@ export default class Axis extends BaseClass {
     let textData = [];
     function createTextData(offset = 1) {
 
-      const {fontFamily, fontSize} = this._shapeConfig.labelConfig;
+      const {fontSize} = this._shapeConfig.labelConfig;
+      const fontFamily = this._shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
       const fontPadding = this._shapeConfig.labelConfig.padding;
   
       /**
