@@ -82,6 +82,7 @@ export default function(data = []) {
     .locale(this._locale)
     .parent(this)
     .select(legendGroup)
+    .shape((d, i) => this._shape(d, i) === "Circle" ? "Circle" : "Rect")
     .verticalAlign(!wide ? "middle" : position)
     .width(wide ? this._width - (this._margin.left + this._margin.right + padding.left + padding.right) : this._width - (this._margin.left + this._margin.right))
     .shapeConfig(configPrep.bind(this)(this._shapeConfig, "legend"))
