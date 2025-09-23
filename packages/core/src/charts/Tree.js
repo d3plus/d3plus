@@ -2,10 +2,12 @@ import {extent, min, max} from "d3-array";
 import {hierarchy, tree} from "d3-hierarchy";
 import {scaleLinear} from "d3-scale";
 
+import {colorDefaults} from "@d3plus/color";
 import {assign, elem} from "@d3plus/dom";
 import {merge, nest} from "@d3plus/data";
 import {configPrep, constant} from "../utils/index.js";
-import {Circle, Path} from "../shapes/index.js";
+import * as shapes from "../shapes/index.js";
+import {legendLabel} from "./drawSteps/drawLegend.js";
 
 import Viz from "./Viz.js";
 
@@ -28,20 +30,28 @@ export default class Tree extends Viz {
     this._orient = "vertical";
     this._separation = (a, b) => a.parent === b.parent ? 1 : 2;
 
+    this._legendTooltip = assign(this._legendTooltip, {
+      title: legendLabel.bind(this)
+    });
+
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
       ariaLabel: (d, i) =>  this._treeData ? `${this._treeData[i].depth}. ${this._drawLabel(d, i)}.` : "",
       labelConfig: {
-        fontColor: "#444"
+        fontColor: colorDefaults.dark
       },
       Path: {
         fill: "none",
-        stroke: "#ccc",
-        strokeWidth: 1
+        stroke: colorDefaults.missing,
+        strokeWidth: 2
       },
-      r: constant(5),
-      width: constant(10),
-      height: constant(10)
+      r: constant(7),
+      width: constant(12),
+      height: constant(12)
+    });
+
+    this._tooltipConfig = assign(this._tooltipConfig, {
+      title: (d, i, x) => (this._drawLabel(d, i, x.depth - 1))
     });
 
     this._tree = tree();
@@ -56,13 +66,16 @@ export default class Tree extends Viz {
 
     super._draw(callback);
 
-    const height = this._orient === "vertical"
+    const isVertical = this._orient === "vertical";
+    const isHorizontal = this._orient === "horizontal";
+
+    const height = isVertical
             ? this._height - this._margin.top - this._margin.bottom
             : this._width - this._margin.left - this._margin.right,
-          left = this._orient === "vertical" ? "left" : "top",
+          left = isVertical ? "left" : "top",
           that = this,
           transform = `translate(${this._margin.left}, ${this._margin.top})`,
-          width = this._orient === "horizontal"
+          width = isHorizontal
             ? this._height - this._margin.top - this._margin.bottom
             : this._width - this._margin.left - this._margin.right;
 
@@ -98,7 +111,7 @@ export default class Tree extends Viz {
 
     const yExtent = extent(treeData, d => d.y);
     this._labelHeight = min([
-      this._orient === "vertical" ? 50 : 100,
+      isVertical ? 50 : 100,
       (yExtent[1] - rBufferRoot - rBufferEnd) / (this._groupBy.length + 1)
     ]);
 
@@ -115,7 +128,7 @@ export default class Tree extends Viz {
 
     treeData.forEach(d => {
       const val = yScale(d.y);
-      if (this._orient === "horizontal") {
+      if (isHorizontal) {
         d.y = d.x;
         d.x = val;
       }
@@ -123,9 +136,9 @@ export default class Tree extends Viz {
     });
 
     const elemObject = {parent: this._select, enter: {transform}, update: {transform}};
-
-    this._shapes.push(new Path()
-      .data(treeData.filter(d => d.depth > 1))
+    
+    this._shapes.push(new shapes.Path()
+      .data(treeData.filter(d => d.depth > 1).map(d => assign({}, d)))
       .select(elem("g.d3plus-Tree-Links", elemObject).node())
       .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
       .config({
@@ -135,68 +148,75 @@ export default class Tree extends Viz {
 
           if (typeof r === "function") r = r(d.data, d.i);
 
-          const px = d.parent.x - d.x + (this._orient === "vertical" ? 0 : r),
-                py = d.parent.y - d.y + (this._orient === "vertical" ? r : 0),
-                x = this._orient === "vertical" ? 0 : -r,
-                y = this._orient === "vertical" ? -r : 0;
+          const px = d.parent.x - d.x + (isVertical ? 0 : r),
+                py = d.parent.y - d.y + (isVertical ? r : 0),
+                x = isVertical ? 0 : -r,
+                y = isVertical ? -r : 0;
 
-          return this._orient === "vertical"
+          return isVertical
             ? `M${x},${y}C${x},${(y + py) / 2} ${px},${(y + py) / 2} ${px},${py}`
             : `M${x},${y}C${(x + px) / 2},${y} ${(x + px) / 2},${py} ${px},${py}`;
 
         },
-        id: (d, i) => this._ids(d, i).join("-")
+        id: (d, i) => this._ids(d, i)[d.depth - 1]
       })
       .render());
 
-    this._shapes.push(new Circle()
-      .data(treeData)
-      .select(elem("g.d3plus-Tree-Shapes", elemObject).node())
-      .config(configPrep.bind(this)(this._shapeConfig, "shape", "Circle"))
-      .config({
-        id: (d, i) => this._ids(d, i).join("-"),
-        label: (d, i) => {
-          if (this._label) return this._label(d.data, i);
-          const ids = this._ids(d, i).slice(0, d.depth);
-          return ids[ids.length - 1];
-        },
-        labelConfig: {
-          textAnchor: d => this._orient === "vertical" ? "middle"
-          : d.data.children && d.data.depth !== this._groupBy.length ? "end" : "start",
-          verticalAlign: d => this._orient === "vertical" ? d.data.depth === 1 ? "bottom" : "top" : "middle"
-        },
-        hitArea: (d, i, s) => {
+    const shapeConfig = {
+      id: (d, i) => this._ids(d, i)[d.depth - 1],
+      label: (d, i) => {
+        if (this._label) return this._label(d.data, i);
+        const ids = this._ids(d, i).slice(0, d.depth);
+        return ids[ids.length - 1];
+      },
+      labelConfig: {
+        textAnchor: (d, i, x) => isVertical ? "middle" : x.children && x.depth !== this._drawDepth + 1 ? "end" : "start",
+        verticalAlign: (d, i, x) => isVertical ? x.depth === 1 ? "bottom" : "top" : "middle"
+      },
+      hitArea: (d, i, s) => {
 
-          const h = this._labelHeight,
-                w = this._labelWidths[d.depth - 1];
+        const h = this._labelHeight,
+              offset = s.r ? s.r : isVertical ? s.height / 2 : s.width / 2,
+              w = this._labelWidths[d.depth - 1];
+              
+        return {
+          width: isVertical ? w : offset * 2 + w,
+          height: isHorizontal ? h : offset * 2 + h,
+          x: isVertical ? -w / 2 : d.children && d.depth !== this._groupBy.length ? -(offset + w) : -offset,
+          y: isHorizontal ? -h / 2 : d.children && d.depth !== this._groupBy.length ? -(offset + this._labelHeight) : -offset
+        };
 
-          return {
-            width: this._orient === "vertical" ? w : s.r * 2 + w,
-            height: this._orient === "horizontal" ? h : s.r * 2 + h,
-            x: this._orient === "vertical" ? -w / 2 : d.children && d.depth !== this._groupBy.length ? -(s.r + w) : -s.r,
-            y: this._orient === "horizontal" ? -h / 2 : d.children && d.depth !== this._groupBy.length ? -(s.r + this._labelHeight) : -s.r
-          };
+      },
+      labelBounds: (d, i, s) => {
 
-        },
-        labelBounds: (d, i, s) => {
+        const h = this._labelHeight,
+              height = isVertical ? "height" : "width",
+              offset = s.r ? s.r : isVertical ? s.height / 2 : s.width / 2,
+              w = this._labelWidths[d.depth - 1],
+              width = isVertical ? "width" : "height",
+              x = isVertical ? "x" : "y",
+              y = isVertical ? "y" : "x";
 
-          const h = this._labelHeight,
-                height = this._orient === "vertical" ? "height" : "width",
-                w = this._labelWidths[d.depth - 1],
-                width = this._orient === "vertical" ? "width" : "height",
-                x = this._orient === "vertical" ? "x" : "y",
-                y = this._orient === "vertical" ? "y" : "x";
+        return {
+          [width]: w,
+          [height]: h,
+          [x]: -w / 2,
+          [y]: d.children && d.depth !== this._groupBy.length ? -(offset + h) : offset
+        };
 
-          return {
-            [width]: w,
-            [height]: h,
-            [x]: -w / 2,
-            [y]: d.children && d.depth !== this._groupBy.length ? -(s.r + h) : s.r
-          };
+      }
+    };
 
-        }
-      })
-      .render());
+    const shapeData = nest(treeData, d => this._shape(d.data));
+
+    shapeData.forEach(({key, values}) => {
+      this._shapes.push(new shapes[key]()
+        .data(values)
+        .select(elem(`g.d3plus-Tree-${key}`, elemObject).node())
+        .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
+        .config(shapeConfig)
+        .render());
+    });
 
     return this;
 
