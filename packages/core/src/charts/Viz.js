@@ -1077,13 +1077,9 @@ If *data* is not specified, this method returns the current primary data array, 
 
   /**
       @memberof Viz
-      @desc If *value* is specified, sets the group accessor(s) to the specified string, function, or array of values and returns the current class instance.
+      @desc Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
       @param {String|Function|Array} [*value*]
       @chainable
-      @example
-function value(d) {
-  return d.id;
-}
   */
   groupBy(_) {
     if (!arguments.length) return this._groupBy;
@@ -1343,8 +1339,8 @@ function value(d) {
 
   /**
       @memberof Viz
-      @desc If *value* is specified, sets the shape accessor to the specified function or number and returns the current class instance.
-      @param {Function|String} [*value*]
+      @desc Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
+      @param {'Circle'|'Rect'|Function} [*value*]
       @chainable
   */
   shape(_) {
