@@ -4,15 +4,7 @@
  */
 export default function(args, argTypes) {
   return Object.keys(args).reduce((acc, key) => {
-   const _acc = acc;
-   if (
-     args[key] !== undefined && argTypes[key] !== undefined &&
-     (argTypes[key].defaultValue === undefined ||
-        typeof argTypes[key].defaultValue === "function"
-        ? argTypes[key].defaultValue !== args[key]
-        : JSON.stringify(argTypes[key].defaultValue) !== JSON.stringify(args[key])
-      )
-   ) _acc[key] = args[key];
-   return _acc;
+   if (args[key] !== undefined && argTypes[key] !== undefined) acc[key] = args[key];
+   return acc;
  }, {});
 }
