@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   p1: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The first point, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -23,7 +23,7 @@ export const argTypes = {
   },
   p2: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The second point, which should always be an `[x, y]` formatted Array.",
     table: {

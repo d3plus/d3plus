@@ -23,12 +23,32 @@ export const argTypes = assign(
    */
   
   {
+    legendTooltip: {
+      control: {
+        type: "object"
+      },
+      defaultValue: "assign(this._legendTooltip, {title: legendLabel.bind(this)})",
+      description: "If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.",
+      table: {
+        defaultValue: {
+          summary: "assign(this._legendTooltip, {title: legendLabel.bind(this)})"
+        }
+      },
+      type: {
+        required: false,
+        summary: "object"
+      }
+    },
     orient: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "vertical",
-      description: "Accepts either \"vertical\" or \"horizontal\".",
+      description: "Changes the orientation of the entire Tree, either \"vertical\" (top to bottom) or \"horizontal\" (left to right).",
+      options: [
+        "vertical",
+        "horizontal"
+      ],
       table: {
         defaultValue: {
           summary: "vertical"
@@ -36,12 +56,13 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "'vertical' | 'horizontal'"
       }
     },
     separation: {
       control: {},
       defaultValue: "(a, b) => a.parent === b.parent ? 1 : 2",
+      description: "If *value* is specified, sets the separation accessor to the specified function. If *value* is not specified, returns the current separation accessor.\n\nFrom the [d3-hierarchy documentation](https://github.com/d3/d3-hierarchy#tree_separation):\n> The separation accessor is used to separate neighboring nodes. The separation function is passed two nodes a and b, and must return the desired separation. The nodes are typically siblings, though the nodes may be more distantly related if the layout decides to place such nodes adjacent.",
       table: {
         defaultValue: {
           detail: "(a, b) => a.parent === b.parent ? 1 : 2",
@@ -58,6 +79,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -65,17 +87,35 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
       control: {
         type: "object"
       },
-      defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: #444}, Path: {fill: none, stroke: #ccc, strokeWidth: 1}, r: 5, width: 10, height: 10})",
+      defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: colorDefaults.dark}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
-          detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: #444}, Path: {fill: none, stroke: #ccc, strokeWidth: 1}, r: 5, width: 10, height: 10})",
+          detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: colorDefaults.dark}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
+          summary: "function"
+        }
+      },
+      type: {
+        required: false,
+        summary: "object"
+      }
+    },
+    tooltipConfig: {
+      control: {
+        type: "object"
+      },
+      defaultValue: "assign(this._tooltipConfig, {title: (d, i, x) => (this._drawLabel(d, i, x.depth - 1))})",
+      description: "If *value* is specified, sets the config method for the tooltip and returns the current class instance.",
+      table: {
+        defaultValue: {
+          detail: "assign(this._tooltipConfig, {title: (d, i, x) => (this._drawLabel(d, i, x.depth - 1))})",
           summary: "function"
         }
       },

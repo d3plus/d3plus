@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "x",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "x"
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Box",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Box"
@@ -50,7 +52,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     tooltipConfig: {
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._tooltipConfig, {title: (d, i) => {\n  if (!d) return \"\";\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._label) return this._label(d, i);\n  const l = this._ids(d, i).slice(0, this._drawDepth);\n  return l[l.length - 1];\n}})",
+      description: "If *value* is specified, sets the config method for the tooltip and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._tooltipConfig, {title: (d, i) => {\n  if (!d) return \"\";\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._label) return this._label(d, i);\n  const l = this._ids(d, i).slice(0, this._drawDepth);\n  return l[l.length - 1];\n}})",

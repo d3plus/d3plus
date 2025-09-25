@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 2,
+      description: "The pixel padding in between each cell.",
       table: {
         defaultValue: {
           summary: 2
@@ -42,6 +43,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"column\"]",
+      description: "Determines which key in your data should be used for each column in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's column value.",
       table: {
         defaultValue: {
           detail: "d => d[\"column\"]",
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({orient: top}, defaultAxisConfig)",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.",
       table: {
         defaultValue: {
           summary: "assign({orient: top}, defaultAxisConfig)"
@@ -70,8 +73,9 @@ export const argTypes = assign(
     },
     columnList: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "A manual list of IDs to be used for columns.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -85,6 +89,7 @@ export const argTypes = assign(
     columnSort: {
       control: {},
       defaultValue: "(a, b) => `${a}`.localeCompare(`${b}`)",
+      description: "A sort comparator function that is run on the unique set of column values.",
       table: {
         defaultValue: {
           detail: "(a, b) => `${a}`.localeCompare(`${b}`)",
@@ -101,6 +106,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(d, i) => `${getProp.bind(this)(row, d, i)} / ${getProp.bind(this)(column, d, i)}`",
+      description: "If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(d, i) => `${getProp.bind(this)(row, d, i)} / ${getProp.bind(this)(column, d, i)}`",
@@ -119,6 +125,7 @@ export const argTypes = assign(
       defaultValue: {
         "mousemove.shape": "(d, i, x, event) => {\n  defaultMouseMoveShape(d, i, x, event);\n  const row = getProp.bind(this)(\"row\", d, i);\n  const column = getProp.bind(this)(\"column\", d, i);\n  this.hover((h, ii)=>getProp.bind(this)(\"row\", h, ii) === row || getProp.bind(this)(\"column\", h, ii) === column);\n}"
       },
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: {
@@ -136,6 +143,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"row\"]",
+      description: "Determines which key in your data should be used for each row in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's row value.",
       table: {
         defaultValue: {
           detail: "d => d[\"row\"]",
@@ -152,6 +160,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({orient: left}, defaultAxisConfig)",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the row labels.",
       table: {
         defaultValue: {
           summary: "assign({orient: left}, defaultAxisConfig)"
@@ -164,8 +173,9 @@ export const argTypes = assign(
     },
     rowList: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "A manual list of IDs to be used for rows.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -179,6 +189,7 @@ export const argTypes = assign(
     rowSort: {
       control: {},
       defaultValue: "(a, b) => `${a}`.localeCompare(`${b}`)",
+      description: "A sort comparator function that is run on the unique set of row values.",
       table: {
         defaultValue: {
           detail: "(a, b) => `${a}`.localeCompare(`${b}`)",

@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the baseline for the x/y plot. If *value* is not specified, returns the current baseline.",
       table: {
         defaultValue: {
           summary: 0
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "x",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "x"
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Area",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Area"
@@ -65,7 +68,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     }
   }

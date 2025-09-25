@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "If *value* is specified, sets the inner and outer padding accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current padding accessor.",
       table: {
         defaultValue: {
           summary: 1
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
+      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
@@ -57,6 +59,7 @@ export const argTypes = assign(
     legendSort: {
       control: {},
       defaultValue: "(a, b) => this._sum(b) - this._sum(a)",
+      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._sum(b) - this._sum(a)",
@@ -72,10 +75,11 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "assign({}, this._legendTooltip, {tbody: [\n\n]})",
+      defaultValue: "assign({}, this._legendTooltip, {tbody: [  ]})",
+      description: "If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.",
       table: {
         defaultValue: {
-          summary: "assign({}, this._legendTooltip, {tbody: [\n\n]})"
+          summary: "assign({}, this._legendTooltip, {tbody: [  ]})"
         }
       },
       type: {
@@ -88,6 +92,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({}, this._shapeConfig, {ariaLabel: (d, i) => {\n  const rank = this._rankData ? `${this._rankData.indexOf(d) + 1}. ` : \"\";\n  return `${rank}${this._drawLabel(d, i)}, ${this._sum(d, i)}.`;\n}, labelConfig: {fontMax: 32, fontMin: 8, fontResize: true, padding: 5}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign({}, this._shapeConfig, {ariaLabel: (d, i) => {\n  const rank = this._rankData ? `${this._rankData.indexOf(d) + 1}. ` : \"\";\n  return `${rank}${this._drawLabel(d, i)}, ${this._sum(d, i)}.`;\n}, labelConfig: {fontMax: 32, fontMin: 8, fontResize: true, padding: 5}})",
@@ -101,9 +106,10 @@ export const argTypes = assign(
     },
     sort: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "(a, b) => {\n  const aggA = isAggregated(a);\n  const aggB = isAggregated(b);\n  return aggA && !aggB ? 1 : !aggA && aggB ? -1 : b.value - a.value;\n}",
+      description: "If *comparator* is specified, sets the sort order for the treemap using the specified comparator function. If *comparator* is not specified, returns the current group sort order, which defaults to descending order by the associated input data's numeric value attribute.",
       table: {
         defaultValue: {
           detail: "(a, b) => {\n  const aggA = isAggregated(a);\n  const aggB = isAggregated(b);\n  return aggA && !aggB ? 1 : !aggA && aggB ? -1 : b.value - a.value;\n}",
@@ -120,6 +126,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"value\"]",
+      description: "If *value* is specified, sets the sum accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current sum accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"value\"]",
@@ -136,6 +143,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "this._sum",
+      description: "If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "this._sum"
@@ -151,6 +159,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "treemapSquarify",
+      description: "Sets the tiling method used when calcuating the size and position of the rectangles.\r\n\r\nCan either be a string referring to a d3-hierarchy [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling), or a custom function in the same format.",
       table: {
         defaultValue: {
           summary: "treemapSquarify"
@@ -165,10 +174,11 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "assign({}, this._tooltipConfig, {tbody: [\n[\n() => this._translate(Share),\n(d, i, x) => `${formatAbbreviate(x.share * 100, this._locale)}%`\n]\n]})",
+      defaultValue: "assign({}, this._tooltipConfig, {tbody: [ [\n  () => this._translate(Share),\n(d, i, x) => `${formatAbbreviate(x.share * 100, this._locale)}%`\n] ]})",
+      description: "If *value* is specified, sets the config method for the tooltip and returns the current class instance.",
       table: {
         defaultValue: {
-          detail: "assign({}, this._tooltipConfig, {tbody: [\n[\n() => this._translate(Share),\n(d, i, x) => `${formatAbbreviate(x.share * 100, this._locale)}%`\n]\n]})",
+          detail: "assign({}, this._tooltipConfig, {tbody: [ [\n  () => this._translate(Share),\n(d, i, x) => `${formatAbbreviate(x.share * 100, this._locale)}%`\n] ]})",
           summary: "function"
         }
       },

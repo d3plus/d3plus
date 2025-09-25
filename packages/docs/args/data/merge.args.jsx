@@ -23,7 +23,7 @@ export const argTypes = {
   },
   objects: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The Array of objects to be merged together.",
     table: {

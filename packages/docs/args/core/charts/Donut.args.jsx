@@ -27,10 +27,11 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      defaultValue: "() => min([\nthis._width - this._margin.left - this._margin.right,\nthis._height - this._margin.top - this._margin.bottom\n]) / 4",
+      defaultValue: "() => min([\n  this._width - this._margin.left - this._margin.right,\nthis._height - this._margin.top - this._margin.bottom\n]) / 4",
+      description: "The pixel value, or function that returns a pixel value, that is used as the inner radius of the Pie (creating a Donut).",
       table: {
         defaultValue: {
-          detail: "() => min([\nthis._width - this._margin.left - this._margin.right,\nthis._height - this._margin.top - this._margin.bottom\n]) / 4",
+          detail: "() => min([\n  this._width - this._margin.left - this._margin.right,\nthis._height - this._margin.top - this._margin.bottom\n]) / 4",
           summary: "function"
         }
       },
@@ -44,6 +45,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 2,
+      description: "The padding between each arc, set as a pixel number value.\n\nBy default the value is \\`0\\`, which shows no padding between each arc.\n\nIf \\`padAngle\\` is defined, the \\`padPixel\\` value will not be considered.",
       table: {
         defaultValue: {
           summary: 2

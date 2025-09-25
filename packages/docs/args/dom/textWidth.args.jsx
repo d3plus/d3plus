@@ -23,7 +23,7 @@ export const argTypes = {
   },
   text: {
     control: {
-      type: "text"
+      type: "object"
     },
     description: "Can be either a single string or an array of strings to analyze.",
     table: {

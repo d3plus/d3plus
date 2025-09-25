@@ -86,9 +86,7 @@ export const argTypes = {
     }
   },
   "params.parent": {
-    control: {
-      type: "d3selection"
-    },
+    control: {},
     defaultValue: "d3.select(\"body\")",
     description: "The parent element for this new element to be appended to.",
     table: {

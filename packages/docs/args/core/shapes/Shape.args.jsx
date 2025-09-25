@@ -24,6 +24,7 @@ export const argTypes = assign(
   {
     active: {
       control: {},
+      description: "If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -39,7 +40,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.25,
-      description: "= 0.25",
+      description: "When shapes are active, this is the opacity of any shape that is not active.",
       table: {
         defaultValue: {
           summary: 0.25
@@ -55,6 +56,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{stroke: (d, i) => {\n  let c = this._fill(d, i);\n  if ([\n      \"transparent\",\n      \"none\"\n  ].includes(c)) c = this._stroke(d, i);\n  return color(c).darker(1);\n}, stroke-width: (d, i) => {\n  const s = this._strokeWidth(d, i) || 1;\n  return s * 3;\n}}",
+      description: "The style to apply to active shapes.",
       table: {
         defaultValue: {
           detail: "{stroke: (d, i) => {\n  let c = this._fill(d, i);\n  if ([\n      \"transparent\",\n      \"none\"\n  ].includes(c)) c = this._stroke(d, i);\n  return color(c).darker(1);\n}, stroke-width: (d, i) => {\n  const s = this._strokeWidth(d, i) || 1;\n  return s * 3;\n}}",
@@ -71,6 +73,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "",
+      description: "If *value* is specified, sets the aria-label attribute to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: ""
@@ -86,6 +89,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets the background-image accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: false
@@ -98,12 +102,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -115,6 +120,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Determines if either the X or Y position is discrete along a Line, which helps in determining the nearest data point on a line for a hit area event.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -130,6 +136,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.",
       table: {
         defaultValue: {
           summary: 600
@@ -145,6 +152,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "black",
+      description: "If *value* is specified, sets the fill accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "black"
@@ -160,6 +168,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "Defines the \"fill-opacity\" attribute for the shapes.",
       table: {
         defaultValue: {
           summary: 1
@@ -172,7 +181,7 @@ export const argTypes = assign(
     },
     hitArea: {
       control: {},
-      description: "The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`.",
+      description: "If *bounds* is specified, sets the mouse hit area to the specified function and returns the current class instance. If *bounds* is not specified, returns the current mouse hit area accessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -185,6 +194,7 @@ export const argTypes = assign(
     },
     hover: {
       control: {},
+      description: "If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -200,6 +210,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.5,
+      description: "If *value* is specified, sets the hover opacity to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0.5
@@ -215,6 +226,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{stroke: (d, i) => {\n  let c = this._fill(d, i);\n  if ([\n      \"transparent\",\n      \"none\"\n  ].includes(c)) c = this._stroke(d, i);\n  return color(c).darker(0.5);\n}, stroke-width: (d, i) => {\n  const s = this._strokeWidth(d, i) || 1;\n  return s * 2;\n}}",
+      description: "The style to apply to hovered shapes.",
       table: {
         defaultValue: {
           detail: "{stroke: (d, i) => {\n  let c = this._fill(d, i);\n  if ([\n      \"transparent\",\n      \"none\"\n  ].includes(c)) c = this._stroke(d, i);\n  return color(c).darker(0.5);\n}, stroke-width: (d, i) => {\n  const s = this._strokeWidth(d, i) || 1;\n  return s * 2;\n}}",
@@ -229,6 +241,7 @@ export const argTypes = assign(
     id: {
       control: {},
       defaultValue: "(d, i) => d.id !== void0 ? d.id : i",
+      description: "If *value* is specified, sets the id accessor to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(d, i) => d.id !== void0 ? d.id : i",
@@ -242,9 +255,10 @@ export const argTypes = assign(
     },
     label: {
       control: {
-        type: "text"
+        type: "object"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: false
@@ -257,7 +271,7 @@ export const argTypes = assign(
     },
     labelBounds: {
       control: {},
-      description: "The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`. If an array is returned from the function, each value will be used in conjunction with each label.",
+      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -273,6 +287,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontColor: (d, i) => colorContrast(this._fill(d, i)), fontSize: 12, padding: 5}",
+      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
       table: {
         defaultValue: {
           detail: "{fontColor: (d, i) => colorContrast(this._fill(d, i)), fontSize: 12, padding: 5}",
@@ -289,6 +304,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "If *value* is specified, sets the opacity accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 1
@@ -304,6 +320,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "visiblePainted",
+      description: "If *value* is specified, sets the pointerEvents accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "visiblePainted"
@@ -316,6 +333,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -331,6 +349,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "presentation",
+      description: "If *value* is specified, sets the role attribute to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "presentation"
@@ -346,6 +365,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "If *value* is specified, sets the rotate accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0
@@ -361,6 +381,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Defines the \"rx\" attribute for the shapes.",
       table: {
         defaultValue: {
           summary: 0
@@ -376,6 +397,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Defines the \"rx\" attribute for the shapes.",
       table: {
         defaultValue: {
           summary: 0
@@ -391,6 +413,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "If *value* is specified, sets the scale accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 1
@@ -406,6 +429,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3.select(\"body\").append(\"svg\")",
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
       table: {
         defaultValue: {
           summary: "d3.select(\"body\").append(\"svg\")"
@@ -421,6 +445,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "geometricPrecision",
+      description: "If *value* is specified, sets the shape-rendering accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "geometricPrecision"
@@ -432,10 +457,9 @@ export const argTypes = assign(
       }
     },
     sort: {
-      control: {
-        type: "false"
-      },
+      control: {},
       defaultValue: "[]",
+      description: "If *value* is specified, sets the sort comparator to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "[]"
@@ -451,6 +475,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(d, i) => color(this._fill(d, i)).darker(1).formatHex()",
+      description: "If *value* is specified, sets the stroke accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(d, i) => color(this._fill(d, i)).darker(1).formatHex()",
@@ -467,6 +492,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "0",
+      description: "Defines the \"stroke-dasharray\" attribute for the shapes.",
       table: {
         defaultValue: {
           summary: "0"
@@ -482,6 +508,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "butt",
+      description: "Defines the \"stroke-linecap\" attribute for the shapes. Accepted values are `\"butt\"`, `\"round\"`, and `\"square\"`.",
       table: {
         defaultValue: {
           summary: "butt"
@@ -497,6 +524,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "Defines the \"stroke-opacity\" attribute for the shapes.",
       table: {
         defaultValue: {
           summary: 1
@@ -512,6 +540,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "If *value* is specified, sets the stroke-width accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0
@@ -524,9 +553,10 @@ export const argTypes = assign(
     },
     textAnchor: {
       control: {
-        type: "text"
+        type: "object"
       },
       defaultValue: "start",
+      description: "If *value* is specified, sets the text-anchor accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "start"
@@ -539,9 +569,10 @@ export const argTypes = assign(
     },
     texture: {
       control: {
-        type: "text"
+        type: "object"
       },
       defaultValue: false,
+      description: "Defines the texture used inside of each shape. This uses the [textures.js](https://riccardoscalco.it/textures/) package, and expects either a simple string (`\"lines\"` or `\"circles\"`) or a more complex Object containing the various properties of the texture (ie. `{texture: \"lines\", orientation: \"3/8\", stroke: \"darkorange\"}`). If multiple textures are necessary, provide an accsesor Function that returns the correct String/Object for each given data point and index.",
       table: {
         defaultValue: {
           summary: false
@@ -557,6 +588,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "A series of global texture methods to be used for all textures (ie. `{stroke: \"darkorange\", strokeWidth: 2}`).",
       table: {
         defaultValue: {
           summary: "{}"
@@ -572,6 +604,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "non-scaling-stroke",
+      description: "If *value* is specified, sets the vector-effect accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "non-scaling-stroke"
@@ -584,9 +617,10 @@ export const argTypes = assign(
     },
     verticalAlign: {
       control: {
-        type: "text"
+        type: "object"
       },
       defaultValue: "top",
+      description: "If *value* is specified, sets the vertical alignment accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "top"
@@ -602,6 +636,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -618,6 +653,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"y\"]",
+      description: "If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"]",

@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   p: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The point to be checked, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -23,7 +23,7 @@ export const argTypes = {
   },
   s1: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -38,7 +38,7 @@ export const argTypes = {
   },
   s2: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {

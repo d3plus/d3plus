@@ -21,7 +21,7 @@ export const argTypes = {
   },
   arr: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The Array of objects to be filtered.",
     table: {

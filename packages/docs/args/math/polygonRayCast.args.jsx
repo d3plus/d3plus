@@ -24,7 +24,7 @@ export const argTypes = {
   },
   origin: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.",
     table: {
@@ -39,7 +39,7 @@ export const argTypes = {
   },
   poly: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The polygon to test against, which should be an `[x, y]` formatted Array.",
     table: {

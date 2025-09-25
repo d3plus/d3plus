@@ -27,7 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "middle",
-      description: "Supports `\"left\"` and `\"center\"` and `\"right\"`.",
+      description: "If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "middle"
@@ -43,6 +43,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{stroke: openColor.colors.gray.600, stroke-width: 1}",
+      description: "If *value* is specified, sets the axis line style and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{stroke: openColor.colors.gray.600, stroke-width: 1}"
@@ -55,12 +56,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -70,12 +72,13 @@ export const argTypes = assign(
     },
     domain: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n0,\n10\n]",
+      defaultValue: "[\n  0,\n10\n]",
+      description: "If *value* is specified, sets the scale domain of the axis and returns the current class instance.",
       table: {
         defaultValue: {
-          summary: "[\n0,\n10\n]"
+          summary: "[\n  0,\n10\n]"
         }
       },
       type: {
@@ -88,6 +91,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "If *value* is specified, sets the transition duration of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 600
@@ -100,8 +104,9 @@ export const argTypes = assign(
     },
     grid: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "If *value* is specified, sets the grid values of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -117,6 +122,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{stroke: colorDefaults.light, stroke-width: 1}",
+      description: "If *value* is specified, sets the grid config of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{stroke: colorDefaults.light, stroke-width: 1}"
@@ -132,6 +138,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets the grid behavior of the axis when scale is logarithmic and returns the current class instance.",
       table: {
         defaultValue: {
           summary: false
@@ -146,6 +153,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "If *value* is specified, sets the grid size of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -161,6 +169,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
+      description: "If *value* is specified, sets the overall height of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 400
@@ -176,6 +185,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets whether offsets will be used to position some labels further away from the axis in order to allow space for the text.",
       table: {
         defaultValue: {
           summary: false
@@ -191,6 +201,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets whether whether horizontal axis labels are rotated -90 degrees.",
       table: {
         defaultValue: {
           summary: false
@@ -203,8 +214,9 @@ export const argTypes = assign(
     },
     labels: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "If *value* is specified, sets the visible tick labels of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -219,6 +231,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "If *value* is specified, sets the maximum size allowed for the space that contains the axis tick labels and title.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -233,6 +246,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "If *value* is specified, sets the minimum size alloted for the space that contains the axis tick labels and title.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -248,7 +262,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "bottom",
-      description: "Supports `\"top\"`, `\"right\"`, `\"bottom\"`, and `\"left\"` orientations.",
+      description: "If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.",
       table: {
         defaultValue: {
           summary: "bottom"
@@ -264,6 +278,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "If *value* is specified, sets the padding between each tick label to the specified number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 5
@@ -279,6 +294,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.1,
+      description: "If *value* is specified, sets the inner padding of band scale to the specified number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0.1
@@ -294,6 +310,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.1,
+      description: "If *value* is specified, sets the outer padding of band scales to the specified number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0.1
@@ -306,8 +323,9 @@ export const argTypes = assign(
     },
     range: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "If *value* is specified, sets the scale range (in pixels) of the axis and returns the current class instance. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -320,6 +338,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Renders the current Axis to the page. If a *callback* is specified, it will be called once the legend is done drawing.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -335,6 +354,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "none",
+      description: "Sets the rounding method, so that more evenly spaced ticks appear at the extents of the scale. Can be set to \"none\" (default), \"outside\", or \"inside\".",
       table: {
         defaultValue: {
           summary: "none"
@@ -350,6 +370,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "",
+      description: "Sets the prefix used for the maximum value of \"inside\" rounding scales.",
       table: {
         defaultValue: {
           summary: ""
@@ -365,6 +386,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "+",
+      description: "Sets the suffix used for the maximum value of \"inside\" rounding scales.",
       table: {
         defaultValue: {
           summary: "+"
@@ -380,6 +402,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "< ",
+      description: "Sets the prefix used for the minimum value of \"inside\" rounding scales.",
       table: {
         defaultValue: {
           summary: "< "
@@ -395,6 +418,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "",
+      description: "Sets the suffix used for the minimum value of \"inside\" rounding scales.",
       table: {
         defaultValue: {
           summary: ""
@@ -410,6 +434,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "linear",
+      description: "If *value* is specified, sets the scale of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "linear"
@@ -425,6 +450,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.5,
+      description: "Sets the \"padding\" property of the scale, often used in point scales.",
       table: {
         defaultValue: {
           summary: 0.5
@@ -440,6 +466,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3.select(\"body\").append(\"svg\")",
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
       table: {
         defaultValue: {
           summary: "d3.select(\"body\").append(\"svg\")"
@@ -455,6 +482,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Line",
+      description: "If *value* is specified, sets the tick shape constructor and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "Line"
@@ -470,6 +498,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: openColor.colors.gray.600, height: (d) => d.tick ? 8 : 0, label: (d) => d.text, labelBounds: (d) => d.labelBounds, labelConfig: {fontColor: openColor.colors.gray.600, fontResize: false, fontSize: 12, padding: 5, textAnchor: () => {\n  const rtl = detectRTL(this._select.node());\n  return this._orient === \"left\" ? rtl ? \"start\" : \"end\" : this._orient === \"right\" ? rtl ? \"end\" : \"start\" : this._labelRotation ? this._orient === \"bottom\" ? \"end\" : \"start\" : \"middle\";\n}, verticalAlign: () => this._orient === bottom ? top : this._orient === top ? bottom : middle}, r: (d) => d.tick ? 4 : 0, stroke: openColor.colors.gray.600, strokeWidth: 1, width: (d) => d.tick ? 8 : 0}",
+      description: "If *value* is specified, sets the tick style of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "{fill: openColor.colors.gray.600, height: (d) => d.tick ? 8 : 0, label: (d) => d.text, labelBounds: (d) => d.labelBounds, labelConfig: {fontColor: openColor.colors.gray.600, fontResize: false, fontSize: 12, padding: 5, textAnchor: () => {\n  const rtl = detectRTL(this._select.node());\n  return this._orient === \"left\" ? rtl ? \"start\" : \"end\" : this._orient === \"right\" ? rtl ? \"end\" : \"start\" : this._labelRotation ? this._orient === \"bottom\" ? \"end\" : \"start\" : \"middle\";\n}, verticalAlign: () => this._orient === bottom ? top : this._orient === top ? bottom : middle}, r: (d) => d.tick ? 4 : 0, stroke: openColor.colors.gray.600, strokeWidth: 1, width: (d) => d.tick ? 8 : 0}",
@@ -483,6 +512,7 @@ export const argTypes = assign(
     },
     tickFormat: {
       control: {},
+      description: "If *value* is specified, sets the tick formatter and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -498,6 +528,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 8,
+      description: "If *value* is specified, sets the tick size of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 8
@@ -513,6 +544,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "normal",
+      description: "Sets the behavior of the abbreviations when you are using linear scale. This method accepts two options: \"normal\" (uses formatAbbreviate to determinate the abbreviation) and \"smallest\" (uses suffix from the smallest tick as reference in every tick).",
       table: {
         defaultValue: {
           summary: "normal"
@@ -525,8 +557,9 @@ export const argTypes = assign(
     },
     ticks: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "If *value* is specified, sets the tick values of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -542,6 +575,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "undefined",
+      description: "Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -556,6 +590,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the title of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -571,6 +606,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontColor: colorDefaults.dark, fontSize: 12, textAnchor: middle}",
+      description: "If *value* is specified, sets the title configuration of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{fontColor: colorDefaults.dark, fontSize: 12, textAnchor: middle}"
@@ -586,6 +622,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
+      description: "If *value* is specified, sets the overall width of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 400

@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   elem: {
-    control: {
-      type: "htmlelement"
-    },
+    control: {},
     description: "A single element to be saved to one file.",
     table: {
       defaultValue: {

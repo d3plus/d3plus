@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   polyA: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA.",
     table: {
@@ -23,7 +23,7 @@ export const argTypes = {
   },
   polyB: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "An Array of `[x, y]` points to be used as the containing polygon.",
     table: {

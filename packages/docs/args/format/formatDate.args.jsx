@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   d: {
-    control: {
-      type: "date"
-    },
+    control: {},
     description: "The date string to be formatted.",
     table: {
       defaultValue: {
@@ -23,7 +21,7 @@ export const argTypes = {
   },
   dataArray: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The full array of ordered Date Objects.",
     table: {

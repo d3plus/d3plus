@@ -49,7 +49,7 @@ export const argTypes = {
   },
   path: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.",
     table: {

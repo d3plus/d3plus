@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   arr: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The array of values to test against.",
     table: {

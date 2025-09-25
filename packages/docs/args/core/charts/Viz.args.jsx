@@ -24,6 +24,7 @@ export const argTypes = assign(
   {
     active: {
       control: {},
+      description: "If *value* is specified, sets the active method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -39,6 +40,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "If *value* is specified, sets the aggregation method for each key in the object and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -54,6 +56,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Sets the \"aria-hidden\" attribute of the containing SVG element. The default value is \"false\", but it you need to hide the SVG from screen readers set this property to \"true\".",
       table: {
         defaultValue: {
           summary: true
@@ -66,10 +69,10 @@ export const argTypes = assign(
     },
     attribution: {
       control: {
-        type: "htmlstring"
+        type: "boolean"
       },
       defaultValue: false,
-      description: "= false",
+      description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
       table: {
         defaultValue: {
           summary: false
@@ -85,6 +88,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.25), color: rgba(0, 0, 0, 0.75), display: block, font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`, margin: 5px, opacity: 0.75, padding: 4px 6px 3px}",
+      description: "If *value* is specified, sets the config method for the back button and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.25), color: rgba(0, 0, 0, 0.75), display: block, font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`, margin: 5px, opacity: 0.75, padding: 4px 6px 3px}"
@@ -100,6 +104,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontSize: 10, padding: 5, resize: false}",
+      description: "If *value* is specified, sets the config method for the back button and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{fontSize: 10, padding: 5, resize: false}"
@@ -115,6 +120,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.",
       table: {
         defaultValue: {
           summary: true
@@ -130,6 +136,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(d, i) => this._groupBy.0(d, i)",
+      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.",
       table: {
         defaultValue: {
           detail: "(d, i) => this._groupBy.0(d, i)",
@@ -145,6 +152,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -160,6 +168,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{axisConfig: {rounding: inside}, scale: jenks}",
+      description: "A pass-through to the config method of ColorScale.",
       table: {
         defaultValue: {
           summary: "{axisConfig: {rounding: inside}, scale: jenks}"
@@ -175,6 +184,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "Sets the maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
       table: {
         defaultValue: {
           summary: 600
@@ -190,6 +200,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -205,6 +216,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "() => this._width > this._height * 1.5 ? right : bottom",
+      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
       table: {
         defaultValue: {
           detail: "() => this._width > this._height * 1.5 ? right : bottom",
@@ -218,13 +230,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "Sets the primary data array to be used when drawing the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with \"url\" and \"headers\" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nIf *data* is not specified, this method returns the current primary data array, which defaults to an empty array (`[]`);",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -237,6 +249,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 100,
+      description: "If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).",
       table: {
         defaultValue: {
           summary: 100
@@ -251,6 +264,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "If *value* is specified, sets the depth to the specified number and returns the current class instance. The *value* should correspond with an index in the [groupBy](#groupBy) array.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -266,7 +280,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "= true",
+      description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
       table: {
         defaultValue: {
           summary: true
@@ -282,7 +296,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
-      description: "= 400",
+      description: "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
       table: {
         defaultValue: {
           summary: 400
@@ -298,7 +312,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "= true",
+      description: "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
       table: {
         defaultValue: {
           summary: true
@@ -314,7 +328,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1000,
-      description: "= 1000",
+      description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
       table: {
         defaultValue: {
           summary: 1000
@@ -329,6 +343,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -344,6 +359,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Shows a button that allows for downloading the current visualization.",
       table: {
         defaultValue: {
           summary: false
@@ -359,6 +375,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{type: png}",
+      description: "Sets specific options of the saveElement function used when downloading the visualization.",
       table: {
         defaultValue: {
           summary: "{type: png}"
@@ -374,6 +391,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "top",
+      description: "Defines which control group to add the download button into.",
       table: {
         defaultValue: {
           summary: "top"
@@ -389,6 +407,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.",
       table: {
         defaultValue: {
           summary: 600
@@ -401,6 +420,7 @@ export const argTypes = assign(
     },
     filter: {
       control: {},
+      description: "If *value* is specified, sets the filter to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -414,6 +434,7 @@ export const argTypes = assign(
     fontFamily: {
       control: {},
       defaultValue: "fontFamily",
+      description: "If *value* is specified, sets the filter to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "fontFamily"
@@ -426,12 +447,13 @@ export const argTypes = assign(
     },
     groupBy: {
       control: {
-        type: "text"
+        type: "object"
       },
-      defaultValue: "[\nd => d[\"id\"]\n]",
+      defaultValue: "[ d => d[\"id\"] ]",
+      description: "Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is \"id\"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.",
       table: {
         defaultValue: {
-          detail: "[\nd => d[\"id\"]\n]",
+          detail: "[ d => d[\"id\"] ]",
           summary: "function"
         }
       },
@@ -445,6 +467,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "window.innerHeight",
+      description: "If *value* is specified, sets the overall height to the specified number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "window.innerHeight"
@@ -460,6 +483,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "#aaa",
+      description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {
         defaultValue: {
           summary: "#aaa"
@@ -475,6 +499,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.5,
+      description: "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {
         defaultValue: {
           summary: 0.5
@@ -487,6 +512,7 @@ export const argTypes = assign(
     },
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -501,6 +527,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -516,6 +543,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "\"auto\"",
+      description: "The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values \"outside\" or \"inside\" can be set for Bar shapes, whose \"auto\" default will calculate the best position dynamically based on the available space.",
       table: {
         defaultValue: {
           summary: "\"auto\""
@@ -531,6 +559,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "(config, arr) => {\n  const maxGrouped = max(arr, (d, i)=>{\n      const id = this._groupBy[this._legendDepth].bind(this)(d, i);\n      return id instanceof Array ? id.length : 1;\n  });\n  return arr.length > 1 && maxGrouped <= 2;\n}",
+      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(config, arr) => {\n  const maxGrouped = max(arr, (d, i)=>{\n      const id = this._groupBy[this._legendDepth].bind(this)(d, i);\n      return id instanceof Array ? id.length : 1;\n  });\n  return arr.length > 1 && maxGrouped <= 2;\n}",
@@ -547,6 +576,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{label: legendLabel.bind(this), shapeConfig: {ariaLabel: legendLabel.bind(this), labelConfig: {fontColor: undefined, fontResize: false, padding: 0}}}",
+      description: "If *value* is specified, the object is passed to the legend's config method.",
       table: {
         defaultValue: {
           summary: "{label: legendLabel.bind(this), shapeConfig: {ariaLabel: legendLabel.bind(this), labelConfig: {fontColor: undefined, fontResize: false, padding: 0}}}"
@@ -562,6 +592,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
       table: {
         defaultValue: {
           summary: false
@@ -577,6 +608,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -592,6 +624,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "() => this._width > this._height * 1.5 ? right : bottom",
+      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
       table: {
         defaultValue: {
           detail: "() => this._width > this._height * 1.5 ? right : bottom",
@@ -606,6 +639,7 @@ export const argTypes = assign(
     legendSort: {
       control: {},
       defaultValue: "(a, b) => this._drawLabel(a).localeCompare(this._drawLabel(b))",
+      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._drawLabel(a).localeCompare(this._drawLabel(b))",
@@ -622,6 +656,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -637,6 +672,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(Loading Visualization)}</strong>\n      <sub style=\"bottom: 0; display: block; line-height: 1; margin-top: 5px;\"><a href=\"https://d3plus.org\" target=\"_blank\">${this._translate(Powered by D3plus)}</a></sub>\n    </div>`",
+      description: "Sets the inner HTML of the status message that is displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
       table: {
         defaultValue: {
           detail: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(Loading Visualization)}</strong>\n      <sub style=\"bottom: 0; display: block; line-height: 1; margin-top: 5px;\"><a href=\"https://d3plus.org\" target=\"_blank\">${this._translate(Powered by D3plus)}</a></sub>\n    </div>`",
@@ -653,6 +689,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
       table: {
         defaultValue: {
           summary: true
@@ -665,9 +702,10 @@ export const argTypes = assign(
     },
     messageMask: {
       control: {
-        type: "boolean"
+        type: "text"
       },
       defaultValue: "rgba(0, 0, 0, 0.05)",
+      description: "Sets the color of the mask used underneath the status message that is displayed when loading AJAX requests and displaying errors. Additionally, `false` will turn off the mask completely.",
       table: {
         defaultValue: {
           summary: "rgba(0, 0, 0, 0.05)"
@@ -683,6 +721,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{bottom: 0, left: 0, position: absolute, right: 0, text-align: center, top: 0}",
+      description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
       table: {
         defaultValue: {
           summary: "{bottom: 0, left: 0, position: absolute, right: 0, text-align: center, top: 0}"
@@ -698,6 +737,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(No Data Available)}</strong>\n    </div>`",
+      description: "Sets the inner HTML of the status message that is displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
       table: {
         defaultValue: {
           detail: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(No Data Available)}</strong>\n    </div>`",
@@ -714,6 +754,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
       table: {
         defaultValue: {
           summary: true
@@ -729,6 +770,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "{click.shape: clickShape.bind(this), click.legend: clickLegend.bind(this), mouseenter: mouseenter.bind(this), mouseleave: mouseleave.bind(this), mousemove.shape: mousemoveShape.bind(this), mousemove.legend: mousemoveLegend.bind(this)}",
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: "{click.shape: clickShape.bind(this), click.legend: clickLegend.bind(this), mouseenter: mouseenter.bind(this), mouseleave: mouseleave.bind(this), mousemove.shape: mousemoveShape.bind(this), mousemove.legend: mousemoveLegend.bind(this)}"
@@ -743,6 +785,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
+      description: "If *value* is specified, sets the parent config used by the wrapper and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -755,7 +798,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
-      description: "An optional callback function that, if passed, will be called after animation is complete.",
+      description: "Draws the visualization given the specified configuration.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -771,6 +814,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "typeofwindow === undefined ?  : window",
+      description: "If using resize detection, this method allow a custom override of the element to which the resize detection function gets attached.",
       table: {
         defaultValue: {
           summary: "typeofwindow === undefined ?  : window"
@@ -786,6 +830,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "typeofwindow === undefined ?  : window",
+      description: "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
       table: {
         defaultValue: {
           summary: "typeofwindow === undefined ?  : window"
@@ -800,6 +845,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element, which is `undefined` by default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -815,6 +861,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Rect",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Rect"
@@ -822,7 +869,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -830,6 +877,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{ariaLabel: (d, i) => this._drawLabel(d, i), fill: (d, i) => {\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._colorScale) {\n      const c = this._colorScale(d, i);\n      if (c !== undefined && c !== null) {\n          const scale = this._colorScaleClass._colorScale;\n          const colors = this._colorScaleClass.color();\n          if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;\n          else if (!scale.domain().length) return scale.range()[scale.range().length - 1];\n          return scale(c);\n      }\n  }\n  const c = this._color(d, i);\n  if (color(c)) return c;\n  return colorAssign(typeof c === \"string\" ? c : JSON.stringify(c), this._colorDefaults);\n}, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return colorContrast(c);\n}}, opacity: 1, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return color(c).darker(0.25);\n}, role: presentation, strokeWidth: 0}",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "{ariaLabel: (d, i) => this._drawLabel(d, i), fill: (d, i) => {\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._colorScale) {\n      const c = this._colorScale(d, i);\n      if (c !== undefined && c !== null) {\n          const scale = this._colorScaleClass._colorScale;\n          const colors = this._colorScaleClass.color();\n          if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;\n          else if (!scale.domain().length) return scale.range()[scale.range().length - 1];\n          return scale(c);\n      }\n  }\n  const c = this._color(d, i);\n  if (color(c)) return c;\n  return colorAssign(typeof c === \"string\" ? c : JSON.stringify(c), this._colorDefaults);\n}, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return colorContrast(c);\n}}, opacity: 1, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return color(c).darker(0.25);\n}, role: presentation, strokeWidth: 0}",
@@ -845,6 +893,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the subtitle accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -860,6 +909,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{ariaHidden: true, fontSize: 12, padding: 5, resize: false, textAnchor: middle}",
+      description: "If *value* is specified, sets the config method for the subtitle and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{ariaHidden: true, fontSize: 12, padding: 5, resize: false, textAnchor: middle}"
@@ -875,6 +925,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -890,6 +941,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "",
+      description: "If *value* is specified, sets the description accessor to the specified string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: ""
@@ -905,6 +957,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "",
+      description: "If *value* is specified, sets the title accessor to the specified string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: ""
@@ -920,6 +973,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.0001,
+      description: "If *value* is specified, sets the threshold for buckets to the specified function or string, and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0.0001
@@ -935,6 +989,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "undefined",
+      description: "If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -950,6 +1005,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "() => this._translate(Values)",
+      description: "If *value* is specified, sets the label for the bucket item, and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "() => this._translate(Values)",
@@ -965,6 +1021,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the time accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -977,6 +1034,7 @@ export const argTypes = assign(
     },
     timeFilter: {
       control: {},
+      description: "If *value* is specified, sets the time filter to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -992,6 +1050,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "If *value* is specified, toggles the timeline based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           summary: true
@@ -1007,6 +1066,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{brushing: false, padding: 5}",
+      description: "If *value* is specified, sets the config method for the timeline and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{brushing: false, padding: 5}"
@@ -1019,8 +1079,9 @@ export const argTypes = assign(
     },
     timelineDefault: {
       control: {
-        type: "date"
+        type: "object"
       },
+      description: "Sets the starting time or range for the timeline. The value provided can either be a single Date/String, or an Array of 2 values representing the min and max.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1036,6 +1097,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -1050,6 +1112,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the title accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1065,6 +1128,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{ariaHidden: true, fontSize: 16, padding: 5, resize: false, textAnchor: middle}",
+      description: "If *value* is specified, sets the config method for the title and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{ariaHidden: true, fontSize: 16, padding: 5, resize: false, textAnchor: middle}"
@@ -1080,6 +1144,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -1095,6 +1160,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "If *value* is specified, toggles the tooltip based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           summary: true
@@ -1110,6 +1176,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{pointerEvents: none, titleStyle: {max-width: 200px}}",
+      description: "If *value* is specified, sets the config method for the tooltip and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{pointerEvents: none, titleStyle: {max-width: 200px}}"
@@ -1122,8 +1189,9 @@ export const argTypes = assign(
     },
     total: {
       control: {
-        type: "boolean"
+        type: "text"
       },
+      description: "If *value* is specified, sets the total accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1139,6 +1207,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontSize: 10, padding: 5, resize: false, textAnchor: middle}",
+      description: "If *value* is specified, sets the config method for the total and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{fontSize: 10, padding: 5, resize: false, textAnchor: middle}"
@@ -1152,6 +1221,7 @@ export const argTypes = assign(
     totalFormat: {
       control: {},
       defaultValue: "(d) => `${this._translate(Total)}: ${formatAbbreviate(d, this._locale)}`",
+      description: "Formatter function for the value in the total bar.",
       table: {
         defaultValue: {
           detail: "(d) => `${this._translate(Total)}: ${formatAbbreviate(d, this._locale)}`",
@@ -1168,6 +1238,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "defaultPadding",
+      description: "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
       table: {
         defaultValue: {
           summary: "defaultPadding"
@@ -1183,6 +1254,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "window.innerWidth",
+      description: "If *value* is specified, sets the overallwidth to the specified number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "window.innerWidth"
@@ -1198,7 +1270,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
-      description: "= false",
+      description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
       table: {
         defaultValue: {
           summary: false
@@ -1214,7 +1286,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
-      description: "= 1",
+      description: "The pixel stroke-width of the zoom brush area.",
       table: {
         defaultValue: {
           summary: 1
@@ -1230,6 +1302,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: #444}",
+      description: "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
       table: {
         defaultValue: {
           summary: "{fill: #444}"
@@ -1245,6 +1318,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: #777, stroke-width: 0}",
+      description: "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
       table: {
         defaultValue: {
           summary: "{fill: #777, stroke-width: 0}"
@@ -1260,6 +1334,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.75), color: rgba(0, 0, 0, 0.75), display: block, font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`, height: 20px, margin: 5px, opacity: 0.75, padding: 0, text-align: center, width: 20px}",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
       table: {
         defaultValue: {
           summary: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.75), color: rgba(0, 0, 0, 0.75), display: block, font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`, height: 20px, margin: 5px, opacity: 0.75, padding: 0, text-align: center, width: 20px}"
@@ -1275,6 +1350,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{background: rgba(0, 0, 0, 0.75), color: rgba(255, 255, 255, 0.75), opacity: 1}",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
       table: {
         defaultValue: {
           summary: "{background: rgba(0, 0, 0, 0.75), color: rgba(255, 255, 255, 0.75), opacity: 1}"
@@ -1290,6 +1366,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{cursor: pointer, opacity: 1}",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
       table: {
         defaultValue: {
           summary: "{cursor: pointer, opacity: 1}"
@@ -1305,7 +1382,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 2,
-      description: "= 2",
+      description: "The multiplier that is used in with the control buttons when zooming in and out.",
       table: {
         defaultValue: {
           summary: 2
@@ -1321,7 +1398,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 16,
-      description: "= 16",
+      description: "If *value* is specified, sets the max zoom scale to the specified number and returns the current class instance. If *value* is not specified, returns the current max zoom scale.",
       table: {
         defaultValue: {
           summary: 16
@@ -1337,7 +1414,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 20,
-      description: "= 20",
+      description: "A pixel value to be used to pad all sides of a zoomed area.",
       table: {
         defaultValue: {
           summary: 20
@@ -1353,7 +1430,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "= true",
+      description: "If *value* is specified, toggles panning to the specified boolean and returns the current class instance. If *value* is not specified, returns the current panning value.",
       table: {
         defaultValue: {
           summary: true
@@ -1369,6 +1446,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "If *value* is specified, toggles scroll zooming to the specified boolean and returns the current class instance. If *value* is not specified, returns the current scroll zooming value.",
       table: {
         defaultValue: {
           summary: true

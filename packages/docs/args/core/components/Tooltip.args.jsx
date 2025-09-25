@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"arrow\"]",
+      description: "Sets the inner HTML content of the arrow element, which by default is empty.",
       table: {
         defaultValue: {
           detail: "d => d[\"arrow\"]",
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{content: , background: inherit, border: inherit, border-width: 0 1px 1px 0, height: 10px, position: absolute, transform: rotate(45deg), width: 10px, z-index: -1}",
+      description: "If *value* is specified, sets the arrow styles to the specified values and returns this generator. If *value* is not specified, returns the current arrow styles.",
       table: {
         defaultValue: {
           summary: "{content: , background: inherit, border: inherit, border-width: 0 1px 1px 0, height: 10px, position: absolute, transform: rotate(45deg), width: 10px, z-index: -1}"
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "colorDefaults.light",
+      description: "If *value* is specified, sets the background accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current background accessor.",
       table: {
         defaultValue: {
           summary: "colorDefaults.light"
@@ -73,6 +76,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"body\"]",
+      description: "If *value* is specified, sets the body accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current body accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"body\"]",
@@ -89,6 +93,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{font-size: 12px, font-weight: 400, z-index: 1}",
+      description: "If *value* is specified, sets the body styles to the specified values and returns this generator. If *value* is not specified, returns the current body styles.",
       table: {
         defaultValue: {
           summary: "{font-size: 12px, font-weight: 400, z-index: 1}"
@@ -104,6 +109,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "1px solid rgba(0, 0, 0, 0.25)",
+      description: "If *value* is specified, sets the border accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border accessor.",
       table: {
         defaultValue: {
           summary: "1px solid rgba(0, 0, 0, 0.25)"
@@ -119,6 +125,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "4px",
+      description: "If *value* is specified, sets the border-radius accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border-radius accessor.",
       table: {
         defaultValue: {
           summary: "4px"
@@ -134,6 +141,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3plus-tooltip",
+      description: "If *value* is specified, sets the class name to the specified string and returns this generator. If *value* is not specified, returns the current class name.",
       table: {
         defaultValue: {
           summary: "d3plus-tooltip"
@@ -146,12 +154,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *data* is specified, sets the data array to the specified array and returns this generator. If *data* is not specified, returns the current data array.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -164,6 +173,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"footer\"]",
+      description: "If *value* is specified, sets the footer accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current footer accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"footer\"]",
@@ -180,6 +190,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{font-size: 9px, font-weight: 400, margin-top: 5px, z-index: 1}",
+      description: "If *value* is specified, sets the footer styles to the specified values and returns this generator. If *value* is not specified, returns the current footer styles.",
       table: {
         defaultValue: {
           summary: "{font-size: 9px, font-weight: 400, margin-top: 5px, z-index: 1}"
@@ -195,6 +206,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "auto",
+      description: "If *value* is specified, sets the height accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current height accessor.",
       table: {
         defaultValue: {
           summary: "auto"
@@ -210,6 +222,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(d, i) => `${i}`",
+      description: "If *value* is specified, sets the id accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current id accessor.",
       table: {
         defaultValue: {
           detail: "(d, i) => `${i}`",
@@ -226,6 +239,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "If *value* is specified, sets the offset accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current offset accessor.",
       table: {
         defaultValue: {
           summary: 5
@@ -241,6 +255,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "10px",
+      description: "If *value* is specified, sets the padding accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current padding accessor.",
       table: {
         defaultValue: {
           summary: "10px"
@@ -256,6 +271,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "auto",
+      description: "If *value* is specified, sets the pointer-events accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current pointer-events accessor.",
       table: {
         defaultValue: {
           summary: "auto"
@@ -268,12 +284,13 @@ export const argTypes = assign(
     },
     position: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "(d) => [\nd.x,\nd.y\n]",
+      defaultValue: "(d) => [\n  d.x,\nd.y\n]",
+      description: "If *value* is specified, sets the position accessor to the specified function or array and returns this generator. If *value* is not specified, returns the current position accessor. If *value* is an HTMLElement, anchors the Tooltip to that HTMLElement. If *value* is a selection string, anchors the Tooltip to the HTMLElement selected by that string. Otherwise, coordinate points must be in reference to the client viewport, not the overall page.",
       table: {
         defaultValue: {
-          detail: "(d) => [\nd.x,\nd.y\n]",
+          detail: "(d) => [\n  d.x,\nd.y\n]",
           summary: "function"
         }
       },
@@ -287,6 +304,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{border-collapse: collapse, border-spacing: 0, width: 100%}",
+      description: "If *value* is specified, sets the table styles to the specified values and returns this generator. If *value* is not specified, returns the current table styles.",
       table: {
         defaultValue: {
           summary: "{border-collapse: collapse, border-spacing: 0, width: 100%}"
@@ -299,12 +317,13 @@ export const argTypes = assign(
     },
     tbody: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *value* is specified, sets the contents of the table body to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table body data.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -317,6 +336,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{font-size: 12px, text-align: center}",
+      description: "If *value* is specified, sets the table body styles to the specified values and returns this generator. If *value* is not specified, returns the current table body styles.",
       table: {
         defaultValue: {
           summary: "{font-size: 12px, text-align: center}"
@@ -332,6 +352,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -344,12 +365,13 @@ export const argTypes = assign(
     },
     thead: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *value* is specified, sets the contents of the table head to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table head data.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -362,6 +384,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{font-size: 12px, font-weight: 600, text-align: center}",
+      description: "If *value* is specified, sets the table head styles to the specified values and returns this generator. If *value* is not specified, returns the current table head styles.",
       table: {
         defaultValue: {
           summary: "{font-size: 12px, font-weight: 600, text-align: center}"
@@ -377,6 +400,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"title\"]",
+      description: "If *value* is specified, sets the title accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current title accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"title\"]",
@@ -393,6 +417,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{font-size: 14px, font-weight: 600, margin-bottom: 5px}",
+      description: "If *value* is specified, sets the title styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.",
       table: {
         defaultValue: {
           summary: "{font-size: 14px, font-weight: 600, margin-bottom: 5px}"
@@ -408,6 +433,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25), color: colorDefaults.dark, font-family: fontFamilyStringify(fontFamily)}",
+      description: "If *value* is specified, sets the overall tooltip styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.",
       table: {
         defaultValue: {
           summary: "{box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25), color: colorDefaults.dark, font-family: fontFamilyStringify(fontFamily)}"
@@ -423,6 +449,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{border-top: (d, i) => i ? 1px solid rgba(0, 0, 0, 0.1) : none}",
+      description: "An object with CSS keys and values to be applied to all <tr> elements inside of each <tbody>.",
       table: {
         defaultValue: {
           detail: "{border-top: (d, i) => i ? 1px solid rgba(0, 0, 0, 0.1) : none}",
@@ -439,6 +466,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "150px",
+      description: "If *value* is specified, sets the width accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current width accessor.",
       table: {
         defaultValue: {
           summary: "150px"

@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{scale: time}",
+      description: "If *value* is specified, sets the config method for the axis and returns the current class instance. If *value* is not specified, returns the current axis configuration.",
       table: {
         defaultValue: {
           summary: "{scale: time}"
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "end",
+      description: "If *value* is specified, sets the end accessor to the specified function or key and returns the current class instance. If *value* is not specified, returns the current end accessor.",
       table: {
         defaultValue: {
           summary: "end"
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.05,
+      description: "Sets the [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space in between each rectangle.",
       table: {
         defaultValue: {
           summary: 0.05
@@ -73,6 +76,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.05,
+      description: "Sets the [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space around the outer rectangles.",
       table: {
         defaultValue: {
           summary: 0.05
@@ -88,6 +92,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({}, this._shapeConfig, {ariaLabel: (d, i) => `${this._drawLabel(d, i)}, ${this._start(d, i)} - ${this._end(d, i)}.`})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign({}, this._shapeConfig, {ariaLabel: (d, i) => `${this._drawLabel(d, i)}, ${this._start(d, i)} - ${this._end(d, i)}.`})",
@@ -104,6 +109,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "start",
+      description: "If *value* is specified, sets the start accessor to the specified function or key and returns the current class instance. If *value* is not specified, returns the current start accessor.",
       table: {
         defaultValue: {
           summary: "start"

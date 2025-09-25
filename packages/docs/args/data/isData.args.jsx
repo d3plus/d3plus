@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   dataItem: {
-    control: {
-      type: "*"
-    },
+    control: {},
     description: "The value to be tested",
     table: {
       defaultValue: {

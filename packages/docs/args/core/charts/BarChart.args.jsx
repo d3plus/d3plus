@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the baseline for the x/y plot. If *value* is not specified, returns the current baseline.",
       table: {
         defaultValue: {
           summary: 0
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "x",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "x"
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "(config, arr) => {\n  const legendIds = arr.map(this._groupBy[this._legendDepth].bind(this)).sort().join();\n  const barIds = this._filteredData.map(this._groupBy[this._legendDepth].bind(this)).sort().join();\n  if (legendIds === barIds) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
+      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(config, arr) => {\n  const legendIds = arr.map(this._groupBy[this._legendDepth].bind(this)).sort().join();\n  const barIds = this._filteredData.map(this._groupBy[this._legendDepth].bind(this)).sort().join();\n  if (legendIds === barIds) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
@@ -74,6 +77,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Bar",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Bar"
@@ -81,7 +85,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     }
   }

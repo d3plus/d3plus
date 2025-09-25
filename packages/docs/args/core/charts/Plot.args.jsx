@@ -25,13 +25,13 @@ export const argTypes = assign(
   {
     annotations: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the \"shape\", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).\n\nAdditionally, each config object can also contain an optional \"layer\" key, which defines whether the annotations will be displayed in \"front\" or in \"back\" of the primary visualization shapes. This value defaults to \"back\" if not present.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -44,6 +44,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).",
       table: {
         defaultValue: {
           summary: false
@@ -59,6 +60,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{duration: 0, fill: transparent}",
+      description: "A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).",
       table: {
         defaultValue: {
           summary: "{duration: 0, fill: transparent}"
@@ -74,7 +76,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "= 0",
+      description: "Sets the pixel space between each bar in a group of bars.",
       table: {
         defaultValue: {
           summary: 0
@@ -89,6 +91,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "Sets the baseline for the x/y plot. If *value* is not specified, returns the current baseline.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -104,6 +107,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({}, defaultBuffers, {Bar: false, Line: false})",
+      description: "Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).",
       table: {
         defaultValue: {
           summary: "assign({}, defaultBuffers, {Bar: false, Line: false})"
@@ -115,9 +119,8 @@ export const argTypes = assign(
       }
     },
     confidence: {
-      control: {
-        type: "array.<string>"
-      },
+      control: {},
+      description: "Sets the confidence to the specified array of lower and upper bounds.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -133,6 +136,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
+      description: "If *value* is specified, sets the config method for each shape rendered as a confidence interval and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
@@ -149,6 +153,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 100,
+      description: "When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
       table: {
         defaultValue: {
           summary: 100
@@ -164,6 +169,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "Sets the pixel space between groups of bars.",
       table: {
         defaultValue: {
           summary: 5
@@ -179,6 +185,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{strokeDasharray: 1 1}",
+      description: "The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.",
       table: {
         defaultValue: {
           summary: "{strokeDasharray: 1 1}"
@@ -194,6 +201,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "auto",
+      description: "The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values \"outside\" or \"inside\" can be set for Bar shapes, whose \"auto\" default will calculate the best position dynamically based on the available space.",
       table: {
         defaultValue: {
           summary: "auto"
@@ -209,6 +217,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Draws labels on the right side of any Line shapes that are drawn on the plot.",
       table: {
         defaultValue: {
           summary: false
@@ -224,6 +233,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
+      description: "Shape config for the Circle shapes drawn by the lineMarkers method.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
@@ -240,6 +250,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Draws circle markers on each vertex of a Line.",
       table: {
         defaultValue: {
           summary: false
@@ -255,6 +266,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -262,7 +274,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -270,6 +282,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {Area: {label: (d, i) => this._stacked ? this._drawLabel(d, i) : false, labelBounds: (d, i, aes) => {\n  let r = largestRect(aes.points, {\n      angle: range(-20, 20, 5)\n  });\n  if (!r || r.height < 20 || r.width < 50) r = largestRect(aes.points, {\n      angle: range(-80, 80, 5)\n  });\n  if (!r) return null;\n  const x = min(aes.points, (d)=>d[0]);\n  const y = max(aes.points.filter((d)=>d[0] === x), (d)=>d[1]);\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - x,\n      y: r.cy - r.height / 2 - y\n  };\n}, labelConfig: {fontMin: 6, fontResize: true, padding: 10}}, ariaLabel: (d, i) => {\n  let ariaLabelStr = \"\";\n  if (d.nested) ariaLabelStr = `${this._drawLabel(d.data, d.i)}`;\n  else {\n      ariaLabelStr = `${this._drawLabel(d, i)}`;\n      if (this._x(d, i) !== undefined) ariaLabelStr += `, x: ${this._x(d, i)}`;\n      if (this._y(d, i) !== undefined) ariaLabelStr += `, y: ${this._y(d, i)}`;\n      if (this._x2(d, i) !== undefined) ariaLabelStr += `, x2: ${this._x2(d, i)}`;\n      if (this._y2(d, i) !== undefined) ariaLabelStr += `, y2: ${this._y2(d, i)}`;\n  }\n  return `${ariaLabelStr}.`;\n}, Bar: {labelBounds(, , ) {\n{\n  const padding = 1;\n  const width = this._discrete === \"y\" ? \"width\" : \"height\";\n  const height = this._discrete === \"y\" ? \"height\" : \"width\";\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const range = this[`_${nonDiscrete}Axis`]._d3Scale.range();\n  const space = Math.abs(range[1] - range[0]);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  if (outside.bind(this)(d, i)) {\n      return {\n          [width]: space - s[width],\n          [height]: s[height],\n          x: invert ? -s.width / 2 : negative ? -space : s.width + padding,\n          y: invert ? negative ? s.height + padding : -space : -s.height / 2 + 1\n      };\n  }\n  return {\n      [width]: s[width],\n      [height]: s[height],\n      x: invert ? -s.width / 2 : negative ? this._stacked ? padding - s.width : padding - s.width : -padding,\n      y: invert ? negative ? this._stacked ? padding : padding : -s.height + padding : -s.height / 2 + padding\n  };\n}\n}, labelConfig: {fontMax: 16, fontMin: 6, fontResize: true, fontColor(, ) {\n{\n  return outside.bind(this)(d, i) ? this._backgroundConfig.fill === \"transparent\" ? colorDefaults.dark : colorContrast(this._backgroundConfig.fill) : colorContrast(typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill);\n}\n}, fontStroke(, ) {\n{\n  return outside.bind(this)(d, i) ? this._backgroundConfig.fill === \"transparent\" ? colorDefaults.dark : colorContrast(this._backgroundConfig.fill) : \"transparent\";\n}\n}, fontStrokeWidth(, ) {\n{\n  return outside.bind(this)(d, i) ? 0.1 : 0;\n}\n}, padding: 3, textAnchor(, ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  const anchor = invert ? \"middle\" : outside.bind(this)(d, i) ? negative ? \"end\" : \"start\" : negative ? \"start\" : \"end\";\n  return rtl() ? anchor === \"start\" ? \"end\" : anchor === \"end\" ? \"start\" : anchor : anchor;\n}\n}, verticalAlign(, ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  return invert ? outside.bind(this)(d, i) ? negative ? \"top\" : \"bottom\" : negative ? \"bottom\" : \"top\" : \"middle\";\n}\n}}}, Circle: {r: defaultSize.bind(this)}, Line: {curve: () => this._discrete ? `monotone${this._discrete.charAt(0).toUpperCase()}` : linear, fill: none, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return colorLegible(c);\n}, fontResize: false, padding: 5, textAnchor: start, verticalAlign: middle}, strokeWidth: 2}, Rect: {height: (d) => defaultSize.bind(this)(d) * 2, width: (d) => defaultSize.bind(this)(d) * 2}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {Area: {label: (d, i) => this._stacked ? this._drawLabel(d, i) : false, labelBounds: (d, i, aes) => {\n  let r = largestRect(aes.points, {\n      angle: range(-20, 20, 5)\n  });\n  if (!r || r.height < 20 || r.width < 50) r = largestRect(aes.points, {\n      angle: range(-80, 80, 5)\n  });\n  if (!r) return null;\n  const x = min(aes.points, (d)=>d[0]);\n  const y = max(aes.points.filter((d)=>d[0] === x), (d)=>d[1]);\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - x,\n      y: r.cy - r.height / 2 - y\n  };\n}, labelConfig: {fontMin: 6, fontResize: true, padding: 10}}, ariaLabel: (d, i) => {\n  let ariaLabelStr = \"\";\n  if (d.nested) ariaLabelStr = `${this._drawLabel(d.data, d.i)}`;\n  else {\n      ariaLabelStr = `${this._drawLabel(d, i)}`;\n      if (this._x(d, i) !== undefined) ariaLabelStr += `, x: ${this._x(d, i)}`;\n      if (this._y(d, i) !== undefined) ariaLabelStr += `, y: ${this._y(d, i)}`;\n      if (this._x2(d, i) !== undefined) ariaLabelStr += `, x2: ${this._x2(d, i)}`;\n      if (this._y2(d, i) !== undefined) ariaLabelStr += `, y2: ${this._y2(d, i)}`;\n  }\n  return `${ariaLabelStr}.`;\n}, Bar: {labelBounds(, , ) {\n{\n  const padding = 1;\n  const width = this._discrete === \"y\" ? \"width\" : \"height\";\n  const height = this._discrete === \"y\" ? \"height\" : \"width\";\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const range = this[`_${nonDiscrete}Axis`]._d3Scale.range();\n  const space = Math.abs(range[1] - range[0]);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  if (outside.bind(this)(d, i)) {\n      return {\n          [width]: space - s[width],\n          [height]: s[height],\n          x: invert ? -s.width / 2 : negative ? -space : s.width + padding,\n          y: invert ? negative ? s.height + padding : -space : -s.height / 2 + 1\n      };\n  }\n  return {\n      [width]: s[width],\n      [height]: s[height],\n      x: invert ? -s.width / 2 : negative ? this._stacked ? padding - s.width : padding - s.width : -padding,\n      y: invert ? negative ? this._stacked ? padding : padding : -s.height + padding : -s.height / 2 + padding\n  };\n}\n}, labelConfig: {fontMax: 16, fontMin: 6, fontResize: true, fontColor(, ) {\n{\n  return outside.bind(this)(d, i) ? this._backgroundConfig.fill === \"transparent\" ? colorDefaults.dark : colorContrast(this._backgroundConfig.fill) : colorContrast(typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill);\n}\n}, fontStroke(, ) {\n{\n  return outside.bind(this)(d, i) ? this._backgroundConfig.fill === \"transparent\" ? colorDefaults.dark : colorContrast(this._backgroundConfig.fill) : \"transparent\";\n}\n}, fontStrokeWidth(, ) {\n{\n  return outside.bind(this)(d, i) ? 0.1 : 0;\n}\n}, padding: 3, textAnchor(, ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  const anchor = invert ? \"middle\" : outside.bind(this)(d, i) ? negative ? \"end\" : \"start\" : negative ? \"start\" : \"end\";\n  return rtl() ? anchor === \"start\" ? \"end\" : anchor === \"end\" ? \"start\" : anchor : anchor;\n}\n}, verticalAlign(, ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = this[`_${nonDiscrete}`](d, i) < 0;\n  return invert ? outside.bind(this)(d, i) ? negative ? \"top\" : \"bottom\" : negative ? \"bottom\" : \"top\" : \"middle\";\n}\n}}}, Circle: {r: defaultSize.bind(this)}, Line: {curve: () => this._discrete ? `monotone${this._discrete.charAt(0).toUpperCase()}` : linear, fill: none, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return colorLegible(c);\n}, fontResize: false, padding: 5, textAnchor: start, verticalAlign: middle}, strokeWidth: 2}, Rect: {height: (d) => defaultSize.bind(this)(d) * 2, width: (d) => defaultSize.bind(this)(d) * 2}})",
@@ -284,6 +297,7 @@ export const argTypes = assign(
     shapeSort: {
       control: {},
       defaultValue: "(a, b) => this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b)",
+      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. \"Circle\", \"Line\", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b)",
@@ -299,7 +313,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "= 10",
+      description: "Sets the size of bubbles to the given Number, data key, or function.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -315,7 +329,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 20,
-      description: "= 20",
+      description: "Sets the size scale maximum to the specified number.",
       table: {
         defaultValue: {
           summary: 20
@@ -331,7 +345,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
-      description: "= 5",
+      description: "Sets the size scale minimum to the specified number.",
       table: {
         defaultValue: {
           summary: 5
@@ -347,7 +361,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "sqrt",
-      description: "= \"sqrt\"",
+      description: "Sets the size scale to the specified string.",
       table: {
         defaultValue: {
           summary: "sqrt"
@@ -363,7 +377,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "stackOffsetDiverging",
-      description: "= \"descending\"",
+      description: "Sets the stack offset. If *value* is not specified, returns the current stack offset function.",
       table: {
         defaultValue: {
           summary: "stackOffsetDiverging"
@@ -376,10 +390,10 @@ export const argTypes = assign(
     },
     stackOrder: {
       control: {
-        type: "text"
+        type: "object"
       },
       defaultValue: "stackOrderDescending",
-      description: "= \"none\"",
+      description: "Sets the stack order. If *value* is not specified, returns the current stack order function.",
       table: {
         defaultValue: {
           summary: "stackOrderDescending"
@@ -394,7 +408,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "= false",
+      description: "If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -410,6 +424,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._timelineConfig, {brushing: true, brushMin: () => this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1})",
+      description: "If *value* is specified, sets the config method for the timeline and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._timelineConfig, {brushing: true, brushMin: () => this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1})",
@@ -426,6 +441,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "Sets the x accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -442,6 +458,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"x2\"]",
+      description: "Sets the x2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x2 accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"x2\"]",
@@ -458,6 +475,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -470,8 +488,9 @@ export const argTypes = assign(
     },
     x2Domain: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "Sets the x2 domain to the specified array. If *value* is not specified, returns the current x2 domain. Additionally, if either value of the array is undefined, it will be calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -484,6 +503,7 @@ export const argTypes = assign(
     },
     x2Sort: {
       control: {},
+      description: "Defines a custom sorting comparitor function to be used for discrete x2 axes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -499,6 +519,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  return range[0] === this._xAxis._getPosition.bind(this._xAxis)(d.id) ? \"transparent\" : openColor.colors.gray[200];\n}}}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
           detail: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  return range[0] === this._xAxis._getPosition.bind(this._xAxis)(d.id) ? \"transparent\" : openColor.colors.gray[200];\n}}}",
@@ -515,6 +536,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 150,
+      description: "When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
       table: {
         defaultValue: {
           summary: 150
@@ -527,8 +549,9 @@ export const argTypes = assign(
     },
     xDomain: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "Sets the x domain to the specified array. If *value* is not specified, returns the current x domain. Additionally, if either value of the array is undefined, it will be calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -541,6 +564,7 @@ export const argTypes = assign(
     },
     xSort: {
       control: {},
+      description: "Defines a custom sorting comparitor function to be used for discrete x axes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -556,6 +580,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"y\"]",
+      description: "Sets the y accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"]",
@@ -572,6 +597,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"y2\"]",
+      description: "Sets the y2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y2 accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"y2\"]",
@@ -588,6 +614,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -600,8 +627,9 @@ export const argTypes = assign(
     },
     y2Domain: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "Sets the y2 domain to the specified array. If *value* is not specified, returns the current y2 domain. Additionally, if either value of the array is undefined, it will be calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -614,6 +642,7 @@ export const argTypes = assign(
     },
     y2Sort: {
       control: {},
+      description: "Defines a custom sorting comparitor function to be used for discrete y2 axes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -629,6 +658,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  return range[range.length - 1] === this._yAxis._getPosition.bind(this._yAxis)(d.id) ? \"transparent\" : openColor.colors.gray[200];\n}}}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\nNote:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
           detail: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  return range[range.length - 1] === this._yAxis._getPosition.bind(this._yAxis)(d.id) ? \"transparent\" : openColor.colors.gray[200];\n}}}",
@@ -645,6 +675,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 150,
+      description: "When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
       table: {
         defaultValue: {
           summary: 150
@@ -657,8 +688,9 @@ export const argTypes = assign(
     },
     yDomain: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "Sets the y domain to the specified array. If *value* is not specified, returns the current y domain. Additionally, if either value of the array is undefined, it will be calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -671,6 +703,7 @@ export const argTypes = assign(
     },
     ySort: {
       control: {},
+      description: "Defines a custom sorting comparitor function to be used for discrete y axes.",
       table: {
         defaultValue: {
           summary: "undefined"

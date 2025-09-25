@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   arrayOfArray: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "Array of elements",
     table: {

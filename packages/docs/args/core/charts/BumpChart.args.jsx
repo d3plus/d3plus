@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "x",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "x"
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Line",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Line"
@@ -50,7 +52,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     y2: {
@@ -58,6 +60,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(d) => this._y(d)",
+      description: "Sets the y2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y2 accessor.",
       table: {
         defaultValue: {
           detail: "(d) => this._y(d)",
@@ -74,6 +77,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{tickFormat: (val) => {\n  const data = this._formattedData;\n  const xMax = data[data.length - 1].x instanceof Date ? data[data.length - 1].x.getTime() : data[data.length - 1].x;\n  const endData = data.filter((d)=>(d.x instanceof Date ? d.x.getTime() : d.x) === xMax);\n  const d = endData.find((d)=>d.y === val);\n  return d ? this._drawLabel(d, d.i) : \"\";\n}}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
           detail: "{tickFormat: (val) => {\n  const data = this._formattedData;\n  const xMax = data[data.length - 1].x instanceof Date ? data[data.length - 1].x.getTime() : data[data.length - 1].x;\n  const endData = data.filter((d)=>(d.x instanceof Date ? d.x.getTime() : d.x) === xMax);\n  const d = endData.find((d)=>d.y === val);\n  return d ? this._drawLabel(d, d.i) : \"\";\n}}",
@@ -88,6 +92,7 @@ export const argTypes = assign(
     y2Sort: {
       control: {},
       defaultValue: "(a, b) => this._y(b) - this._y(a)",
+      description: "Defines a custom sorting comparitor function to be used for discrete y2 axes.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._y(b) - this._y(a)",
@@ -104,6 +109,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{tickFormat: (val) => {\n  const data = this._formattedData;\n  const xMin = data[0].x instanceof Date ? data[0].x.getTime() : data[0].x;\n  const startData = data.filter((d)=>(d.x instanceof Date ? d.x.getTime() : d.x) === xMin);\n  const d = startData.find((d)=>d.y === val);\n  return d ? this._drawLabel(d, d.i) : \"\";\n}}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\nNote:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
           detail: "{tickFormat: (val) => {\n  const data = this._formattedData;\n  const xMin = data[0].x instanceof Date ? data[0].x.getTime() : data[0].x;\n  const startData = data.filter((d)=>(d.x instanceof Date ? d.x.getTime() : d.x) === xMin);\n  const d = startData.find((d)=>d.y === val);\n  return d ? this._drawLabel(d, d.i) : \"\";\n}}",
@@ -118,6 +124,7 @@ export const argTypes = assign(
     ySort: {
       control: {},
       defaultValue: "(a, b) => this._y(b) - this._y(a)",
+      description: "Defines a custom sorting comparitor function to be used for discrete y axes.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._y(b) - this._y(a)",

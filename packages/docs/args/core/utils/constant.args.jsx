@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   value: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The value to be returned from the function.",
     table: {

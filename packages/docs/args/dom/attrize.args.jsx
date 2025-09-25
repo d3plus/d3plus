@@ -22,9 +22,7 @@ export const argTypes = {
     }
   },
   elem: {
-    control: {
-      type: "d3selection"
-    },
+    control: {},
     description: "The D3 element to apply the styles to.",
     table: {
       defaultValue: {

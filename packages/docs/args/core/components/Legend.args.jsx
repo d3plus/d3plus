@@ -24,6 +24,7 @@ export const argTypes = assign(
   {
     active: {
       control: {},
+      description: "If *value* is specified, sets the active method for all shapes to the specified function and returns the current class instance. If *value* is not specified, returns the current active method.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -39,7 +40,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "center",
-      description: "Supports `\"left\"` and `\"center\"` and `\"right\"`.",
+      description: "If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance. If *value* is not specified, returns the current horizontal alignment.",
       table: {
         defaultValue: {
           summary: "center"
@@ -52,12 +53,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape key will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -70,6 +72,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "row",
+      description: "Sets the flow of the items inside the legend. If no value is passed, the current flow will be returned.",
       table: {
         defaultValue: {
           summary: "row"
@@ -85,6 +88,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "If *value* is specified, sets the transition duration of the legend and returns the current class instance. If *value* is not specified, returns the current duration.",
       table: {
         defaultValue: {
           summary: 600
@@ -100,6 +104,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 200,
+      description: "If *value* is specified, sets the overall height of the legend and returns the current class instance. If *value* is not specified, returns the current height value.",
       table: {
         defaultValue: {
           summary: 200
@@ -112,6 +117,7 @@ export const argTypes = assign(
     },
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method for all shapes to the specified function and returns the current class instance. If *value* is not specified, returns the current hover method.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -125,6 +131,7 @@ export const argTypes = assign(
     id: {
       control: {},
       defaultValue: "d => d[\"id\"]",
+      description: "If *value* is specified, sets the id accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current id accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"id\"]",
@@ -141,6 +148,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"id\"]",
+      description: "If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance. If *value* is not specified, returns the current label accessor, which is the [id](#shape.id) accessor by default.",
       table: {
         defaultValue: {
           detail: "d => d[\"id\"]",
@@ -157,6 +165,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "If *value* is specified, sets the padding between each key to the specified number and returns the current class instance. If *value* is not specified, returns the current padding value.",
       table: {
         defaultValue: {
           summary: 5
@@ -169,6 +178,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Renders the current Legend to the page. If a *callback* is specified, it will be called once the legend is done drawing.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -184,6 +194,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3.select(\"body\").append(\"svg\")",
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
       table: {
         defaultValue: {
           summary: "d3.select(\"body\").append(\"svg\")"
@@ -199,6 +210,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Rect",
+      description: "If *value* is specified, sets the shape accessor to the specified function or string and returns the current class instance. If *value* is not specified, returns the current shape accessor.",
       table: {
         defaultValue: {
           summary: "Rect"
@@ -214,6 +226,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: d => d[\"color\"], height: 12, hitArea: (dd, i) => {\n  const d = this._lineData[i], h = max([\n      d.height,\n      d.shapeHeight\n  ]);\n  return {\n      width: d.width + d.shapeWidth,\n      height: h,\n      x: -d.shapeWidth / 2,\n      y: -h / 2\n  };\n}, labelBounds: (dd, i) => {\n  const d = this._lineData[i];\n  let x = d.shapeWidth / 2;\n  if (d.shape === \"Circle\") x -= d.shapeR / 2;\n  const height = max([\n      d.shapeHeight,\n      d.height\n  ]);\n  const rtlMod = this._rtl ? d.shapeWidth + d.width + this._padding * 2 : 0;\n  return {\n      width: d.width,\n      height,\n      x: x + padding - rtlMod,\n      y: -height / 2\n  };\n}, labelConfig: {fontColor: colorDefaults.dark, fontFamily: this._titleClass.fontFamily(), fontResize: false, fontSize: 10, verticalAlign: middle}, opacity: 1, r: 6, width: 12, x: (d, i) => {\n  const datum = this._lineData[i];\n  const y = datum.y;\n  const pad = this._align === \"left\" || this._align === \"right\" && this._direction === \"column\" ? 0 : this._align === \"center\" ? (this._outerBounds.width - this._rowWidth(this._lineData.filter((l)=>y === l.y))) / 2 : this._outerBounds.width - this._rowWidth(this._lineData.filter((l)=>y === l.y));\n  const prevWords = this._lineData.slice(0, i).filter((l)=>y === l.y);\n  const rtlMod = this._rtl ? datum.width + this._padding : 0;\n  return this._rowWidth(prevWords) + this._padding * (prevWords.length ? datum.sentence ? 2 : 1 : 0) + this._outerBounds.x + datum.shapeWidth / 2 + pad + rtlMod;\n}, y: (d, i) => {\n  const ld = this._lineData[i];\n  return ld.y + this._titleHeight + this._outerBounds.y + max(this._lineData.filter((l)=>ld.y === l.y).map((l)=>l.height).concat(this._data.map((l, x)=>this._fetchConfig(\"height\", l, x)))) / 2;\n}}",
+      description: "If *config* is specified, sets the methods that correspond to the key/value pairs for each shape and returns the current class instance. If *config* is not specified, returns the current shape configuration.",
       table: {
         defaultValue: {
           detail: "{fill: d => d[\"color\"], height: 12, hitArea: (dd, i) => {\n  const d = this._lineData[i], h = max([\n      d.height,\n      d.shapeHeight\n  ]);\n  return {\n      width: d.width + d.shapeWidth,\n      height: h,\n      x: -d.shapeWidth / 2,\n      y: -h / 2\n  };\n}, labelBounds: (dd, i) => {\n  const d = this._lineData[i];\n  let x = d.shapeWidth / 2;\n  if (d.shape === \"Circle\") x -= d.shapeR / 2;\n  const height = max([\n      d.shapeHeight,\n      d.height\n  ]);\n  const rtlMod = this._rtl ? d.shapeWidth + d.width + this._padding * 2 : 0;\n  return {\n      width: d.width,\n      height,\n      x: x + padding - rtlMod,\n      y: -height / 2\n  };\n}, labelConfig: {fontColor: colorDefaults.dark, fontFamily: this._titleClass.fontFamily(), fontResize: false, fontSize: 10, verticalAlign: middle}, opacity: 1, r: 6, width: 12, x: (d, i) => {\n  const datum = this._lineData[i];\n  const y = datum.y;\n  const pad = this._align === \"left\" || this._align === \"right\" && this._direction === \"column\" ? 0 : this._align === \"center\" ? (this._outerBounds.width - this._rowWidth(this._lineData.filter((l)=>y === l.y))) / 2 : this._outerBounds.width - this._rowWidth(this._lineData.filter((l)=>y === l.y));\n  const prevWords = this._lineData.slice(0, i).filter((l)=>y === l.y);\n  const rtlMod = this._rtl ? datum.width + this._padding : 0;\n  return this._rowWidth(prevWords) + this._padding * (prevWords.length ? datum.sentence ? 2 : 1 : 0) + this._outerBounds.x + datum.shapeWidth / 2 + pad + rtlMod;\n}, y: (d, i) => {\n  const ld = this._lineData[i];\n  return ld.y + this._titleHeight + this._outerBounds.y + max(this._lineData.filter((l)=>ld.y === l.y).map((l)=>l.height).concat(this._data.map((l, x)=>this._fetchConfig(\"height\", l, x)))) / 2;\n}}",
@@ -229,6 +242,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the title of the legend and returns the current class instance. If *value* is not specified, returns the current title.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -244,6 +258,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontSize: 12}",
+      description: "If *value* is specified, sets the title configuration of the legend and returns the current class instance. If *value* is not specified, returns the current title configuration.",
       table: {
         defaultValue: {
           summary: "{fontSize: 12}"
@@ -259,7 +274,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "middle",
-      description: "Supports `\"top\"` and `\"middle\"` and `\"bottom\"`.",
+      description: "If *value* is specified, sets the vertical alignment to the specified value and returns the current class instance. If *value* is not specified, returns the current vertical alignment.",
       table: {
         defaultValue: {
           summary: "middle"
@@ -275,6 +290,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
+      description: "If *value* is specified, sets the overall width of the legend and returns the current class instance. If *value* is not specified, returns the current width value.",
       table: {
         defaultValue: {
           summary: 400

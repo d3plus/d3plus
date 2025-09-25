@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => this._buttonBehaviorCurrent === buttons ? 0 : 1})",
+      description: "If *value* is specified, sets the axis line style and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => this._buttonBehaviorCurrent === buttons ? 0 : 1})",
@@ -41,6 +42,7 @@ export const argTypes = assign(
     brushFilter: {
       control: {},
       defaultValue: "(event) => !event.button && event.detail < 2",
+      description: "If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.",
       table: {
         defaultValue: {
           detail: "(event) => !event.button && event.detail < 2",
@@ -57,6 +59,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "Sets the minimum number of \"ticks\" to allow to be highlighted when using \"ticks\" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods. Value passed can either be a static Number, or a function that is expected to return a Number.",
       table: {
         defaultValue: {
           summary: 1
@@ -72,6 +75,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.",
       table: {
         defaultValue: {
           summary: true
@@ -87,6 +91,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "middle",
+      description: "If *value* is specified, toggles the horizontal alignment of the button timeline. Accepted values are `\"start\"`, `\"middle\"` and `\"end\"`. If *value* is not specified, returns the current button value.",
       table: {
         defaultValue: {
           summary: "middle"
@@ -102,6 +107,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "auto",
+      description: "If *value* is specified, toggles the style of the timeline. Accepted values are `\"auto\"`, `\"buttons\"` and `\"ticks\"`. If *value* is not specified, returns the current button value.",
       table: {
         defaultValue: {
           summary: "auto"
@@ -117,6 +123,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 24,
+      description: "If *value* is specified, sets the button height and returns the current class instance. If *value* is not specified, returns the current button height.",
       table: {
         defaultValue: {
           summary: 24
@@ -132,6 +139,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 10,
+      description: "If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.",
       table: {
         defaultValue: {
           summary: 10
@@ -144,12 +152,13 @@ export const argTypes = assign(
     },
     domain: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n2001,\n2010\n]",
+      defaultValue: "[\n  2001,\n2010\n]",
+      description: "If *value* is specified, sets the scale domain of the axis and returns the current class instance.",
       table: {
         defaultValue: {
-          summary: "[\n2001,\n2010\n]"
+          summary: "[\n  2001,\n2010\n]"
         }
       },
       type: {
@@ -162,6 +171,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "If *value* is specified, sets the grid size of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0
@@ -177,6 +187,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: colorDefaults.light, stroke: #228be6, stroke-width: 2, rx: 2, ry: 2}",
+      description: "If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.",
       table: {
         defaultValue: {
           summary: "{fill: colorDefaults.light, stroke: #228be6, stroke-width: 2, rx: 2, ry: 2}"
@@ -192,6 +203,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 6,
+      description: "If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.",
       table: {
         defaultValue: {
           summary: 6
@@ -207,6 +219,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 100,
+      description: "If *value* is specified, sets the overall height of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 100
@@ -222,6 +235,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "If *value* is specified, sets whether offsets will be used to position some labels further away from the axis in order to allow space for the text.",
       table: {
         defaultValue: {
           summary: false
@@ -237,6 +251,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "{}",
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -252,7 +267,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "bottom",
-      description: "Supports `\"top\"`, `\"right\"`, `\"bottom\"`, and `\"left\"` orientations.",
+      description: "If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.",
       table: {
         defaultValue: {
           summary: "bottom"
@@ -268,6 +283,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.",
       table: {
         defaultValue: {
           summary: true
@@ -283,6 +299,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => this._playTimer ? &#x23f8;&#xFE0E; : ⏵, textAnchor: middle, verticalAlign: middle}",
+      description: "The config Object for the Rect class used to create the playButton.",
       table: {
         defaultValue: {
           detail: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => this._playTimer ? &#x23f8;&#xFE0E; : ⏵, textAnchor: middle, verticalAlign: middle}",
@@ -299,6 +316,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1000,
+      description: "The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.",
       table: {
         defaultValue: {
           summary: 1000
@@ -311,6 +329,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Draws the timeline.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -323,8 +342,9 @@ export const argTypes = assign(
     },
     selection: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -340,6 +360,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: #228be6, fill-opacity: () => this._buttonBehaviorCurrent === buttons ? 0.3 : 1, stroke-width: 0}",
+      description: "If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.",
       table: {
         defaultValue: {
           detail: "{fill: #228be6, fill-opacity: () => this._buttonBehaviorCurrent === buttons ? 0.3 : 1, stroke-width: 0}",
@@ -356,6 +377,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Rect",
+      description: "If *value* is specified, sets the tick shape constructor and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "Rect"
@@ -371,6 +393,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign({}, this._shapeConfig, {labelBounds: (d) => this._buttonBehaviorCurrent === buttons ? {x: d.labelBounds.x, y: -this._buttonHeight / 2 + 1, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds, labelConfig: {fontColor: colorDefaults.dark, fontSize: () => 12, verticalAlign: () => this._buttonBehaviorCurrent === buttons ? middle : top}, fill: () => this._buttonBehaviorCurrent === buttons ? #fff : colorMid, stroke: () => this._buttonBehaviorCurrent === buttons ? colorMid : transparent, height: (d) => this._buttonBehaviorCurrent === buttons ? this._buttonHeight : d.tick ? this._handleSize : 0, width: (d) => this._buttonBehaviorCurrent === buttons ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(Number).includes(d.id) ? 2 : 1 : 0, y: (d) => this._buttonBehaviorCurrent === buttons ? this._align === middle ? this._height / 2 : this._align === start ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y, rx: (d) => this._buttonBehaviorCurrent === buttons ? 0 : this._domain.map(Number).includes(d.id) ? 1 : 0, ry: (d) => this._buttonBehaviorCurrent === buttons ? 0 : this._domain.map(Number).includes(d.id) ? 1 : 0})",
+      description: "If *value* is specified, sets the tick style of the axis and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign({}, this._shapeConfig, {labelBounds: (d) => this._buttonBehaviorCurrent === buttons ? {x: d.labelBounds.x, y: -this._buttonHeight / 2 + 1, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds, labelConfig: {fontColor: colorDefaults.dark, fontSize: () => 12, verticalAlign: () => this._buttonBehaviorCurrent === buttons ? middle : top}, fill: () => this._buttonBehaviorCurrent === buttons ? #fff : colorMid, stroke: () => this._buttonBehaviorCurrent === buttons ? colorMid : transparent, height: (d) => this._buttonBehaviorCurrent === buttons ? this._buttonHeight : d.tick ? this._handleSize : 0, width: (d) => this._buttonBehaviorCurrent === buttons ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(Number).includes(d.id) ? 2 : 1 : 0, y: (d) => this._buttonBehaviorCurrent === buttons ? this._align === middle ? this._height / 2 : this._align === start ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y, rx: (d) => this._buttonBehaviorCurrent === buttons ? 0 : this._domain.map(Number).includes(d.id) ? 1 : 0, ry: (d) => this._buttonBehaviorCurrent === buttons ? 0 : this._domain.map(Number).includes(d.id) ? 1 : 0})",
@@ -387,6 +410,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.",
       table: {
         defaultValue: {
           summary: true

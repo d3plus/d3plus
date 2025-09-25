@@ -27,6 +27,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Sets the center node to be the node with the given id.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -39,6 +40,7 @@ export const argTypes = assign(
     },
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -51,13 +53,13 @@ export const argTypes = assign(
     },
     links: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "A predefined *Array* of edges that connect each object passed to the [node](#Rings.node) method. The `source` and `target` keys in each link need to map to the nodes in one of three ways:\n1. The index of the node in the nodes array (as in [this](http://d3plus.org/examples/d3plus-network/getting-started/) example).\n2. The actual node *Object* itself.\n3. A *String* value matching the `id` of the node.\n\nThe value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -70,6 +72,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
       table: {
         defaultValue: {
           summary: false
@@ -82,8 +85,9 @@ export const argTypes = assign(
     },
     nodeGroupBy: {
       control: {
-        type: "text"
+        type: "object"
       },
+      description: "If *value* is specified, sets the node group accessor(s) to the specified string, function, or array of values and returns the current class instance. This method overrides the default .groupBy() function from being used with the data passed to .nodes(). If *value* is not specified, returns the current node group accessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -96,13 +100,13 @@ export const argTypes = assign(
     },
     nodes: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "The list of nodes to be used for drawing the rings network. The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -120,6 +124,7 @@ export const argTypes = assign(
         "mouseleave.shape": "() => {\n  this.hover(false);\n}",
         "mousemove.shape": "(d, i, x, event) => {\n  defaultMouseMove(d, i, x, event);\n  if (this._focus && this._focus === d.id) {\n      this.hover(false);\n      this._on.mouseenter.bind(this)(d, i, x, event);\n      this._focus = undefined;\n  } else {\n      const id = this._nodeGroupBy && this._nodeGroupBy[this._drawDepth](d, i) ? this._nodeGroupBy[this._drawDepth](d, i) : this._id(d, i), links = this._linkLookup[id], node = this._nodeLookup[id];\n      const filterIds = [\n          node.id\n      ];\n      const xDomain = [\n          node.x - node.r,\n          node.x + node.r\n      ], yDomain = [\n          node.y - node.r,\n          node.y + node.r\n      ];\n      links.forEach((l)=>{\n          filterIds.push(l.id);\n          if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;\n          if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;\n          if (l.y - l.r < yDomain[0]) yDomain[0] = l.y - l.r;\n          if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;\n      });\n      this.hover((h, x)=>{\n          if (h.source && h.target) return h.source.id === node.id || h.target.id === node.id;\n          else return filterIds.includes(this._ids(h, x)[this._drawDepth]);\n      });\n  }\n}"
       },
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: {
@@ -140,6 +145,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -147,7 +153,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -155,6 +161,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => {\n  const validSize = this._size ? `, ${this._size(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validSize}.`;\n}, labelConfig: {duration: 0, fontMin: 1, fontResize: true, labelPadding: 0, textAnchor: middle, verticalAlign: middle}, Path: {fill: none, label: false, stroke: #eee, strokeWidth: 1}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => {\n  const validSize = this._size ? `, ${this._size(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validSize}.`;\n}, labelConfig: {duration: 0, fontMin: 1, fontResize: true, labelPadding: 0, textAnchor: middle, verticalAlign: middle}, Path: {fill: none, label: false, stroke: #eee, strokeWidth: 1}})",
@@ -170,6 +177,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the size accessor to the specified function or data key and returns the current class instance. If *value* is not specified, returns the current size accessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -184,6 +192,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "If *value* is specified, sets the size scale maximum to the specified number and returns the current class instance. If *value* is not specified, returns the current size scale maximum. By default, the maximum size is determined by half the distance of the two closest nodes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -199,6 +208,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "If *value* is specified, sets the size scale minimum to the specified number and returns the current class instance. If *value* is not specified, returns the current size scale minimum.",
       table: {
         defaultValue: {
           summary: 5
@@ -214,6 +224,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "sqrt",
+      description: "If *value* is specified, sets the size scale to the specified string and returns the current class instance. If *value* is not specified, returns the current size scale.",
       table: {
         defaultValue: {
           summary: "sqrt"

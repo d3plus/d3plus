@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "linear",
+      description: "If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.",
       table: {
         defaultValue: {
           summary: "linear"
@@ -40,6 +41,7 @@ export const argTypes = assign(
     defined: {
       control: {},
       defaultValue: "() => true",
+      description: "If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.",
       table: {
         defaultValue: {
           detail: "() => true",
@@ -54,7 +56,7 @@ export const argTypes = assign(
     labelBounds: {
       control: {},
       defaultValue: "(d, i, aes) => {\n  const r = largestRect(aes.points);\n  if (!r) return null;\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - this._x(d, i),\n      y: r.cy - r.height / 2 - this._y(d, i)\n  };\n}",
-      description: "The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`. If an array is returned from the function, each value will be used in conjunction with each label.",
+      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
       table: {
         defaultValue: {
           detail: "(d, i, aes) => {\n  const r = largestRect(aes.points);\n  if (!r) return null;\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - this._x(d, i),\n      y: r.cy - r.height / 2 - this._y(d, i)\n  };\n}",
@@ -71,6 +73,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})",
+      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
       table: {
         defaultValue: {
           summary: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})"
@@ -83,6 +86,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Draws the area polygons.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -98,6 +102,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -114,6 +119,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x0 accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -130,6 +136,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "null",
+      description: "If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x1 accessor.",
       table: {
         defaultValue: {
           summary: "null"
@@ -145,6 +152,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 0
@@ -160,6 +168,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y0 accessor.",
       table: {
         defaultValue: {
           summary: 0
@@ -175,6 +184,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"y\"]",
+      description: "If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y1 accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"]",

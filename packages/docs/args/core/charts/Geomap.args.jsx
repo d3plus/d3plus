@@ -24,8 +24,9 @@ export const argTypes = assign(
   {
     fitFilter: {
       control: {
-        type: "number"
+        type: "object"
       },
+      description: "Topojson files sometimes include small geographies that negatively impact how the library determines the default zoom level (for example, a small island or territory far off the coast that is barely visible to the eye). The fitFilter method can be used to remove specific geographies from the logic used to determine the zooming.\n\nThe *value* passed can be a single id to remove, an array of ids, or a filter function. Take a look at the [Choropleth Example](http://d3plus.org/examples/d3plus-geomap/getting-started/) to see it in action.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -40,6 +41,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If the topojson being used to determine the zoom fit (either the main [topojson](#Geomap.topojson) object or the [fitObject](#Geomap.fitObject)) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use for the zoom fit.\n\nIf not specified, the first key in the *Array* returned from using `Object.keys` on the topojson will be used.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -55,7 +57,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: false,
-      description: "= `undefined`",
+      description: "The topojson to be used for the initial projection [fit extent](https://github.com/d3/d3-geo#projection_fitExtent). The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function needs to return the final Topojson *Object*.",
       table: {
         defaultValue: {
           summary: false
@@ -71,6 +73,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
       table: {
         defaultValue: {
           summary: false
@@ -86,6 +89,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "#d4dadc",
+      description: "The color visible behind any shapes drawn on the map projection. By default, a color value matching the color used in the map tiles is used to help mask the loading time needed to render the tiles. Any value CSS color value may be used, including hexidecimal, rgb, rgba, and color strings like `\"blue\"` and `\"transparent\"`.",
       table: {
         defaultValue: {
           summary: "#d4dadc"
@@ -98,9 +102,10 @@ export const argTypes = assign(
     },
     point: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "d => d[\"point\"]",
+      description: "The accessor to be used when detecting coordinate points in the objects passed to the [data](https://d3plus.org/docs/#Viz.data) method. Values are expected to be in the format `[longitude, latitude]`, which is in-line with d3's expected coordinate mapping.",
       table: {
         defaultValue: {
           detail: "d => d[\"point\"]",
@@ -117,6 +122,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "The accessor or static value to be used for sizing coordinate points.",
       table: {
         defaultValue: {
           summary: 1
@@ -132,6 +138,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 10,
+      description: "The maximum pixel radius used in the scale for sizing coordinate points.",
       table: {
         defaultValue: {
           summary: 10
@@ -147,6 +154,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "The minimum pixel radius used in the scale for sizing coordinate points.",
       table: {
         defaultValue: {
           summary: 5
@@ -162,7 +170,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3Geo.geoMercator()",
-      description: "= \"geoMercator\"",
+      description: "Sets the map projection used when displaying topojson and coordinate points. All of the projections exported from [d3-geo](https://github.com/d3/d3-geo#projections), [d3-geo-projection](https://github.com/d3/d3-geo-projection#api-reference), and [d3-composite-projections](http://geoexamples.com/d3-composite-projections/) are accepted, whether as the string name (ie. \"geoMercator\") or the generator function itself. Map tiles are only usable when the projection is set to Mercator (which is also the default value).",
       table: {
         defaultValue: {
           summary: "d3Geo.geoMercator()"
@@ -178,6 +186,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "parseSides(20)",
+      description: "The outer padding between the edge of the visualization and the shapes drawn. The value passed can be either a single number to be used on all sides, or a CSS string pattern (ie. `\"20px 0 10px\"`).",
       table: {
         defaultValue: {
           summary: "parseSides(20)"
@@ -190,9 +199,10 @@ export const argTypes = assign(
     },
     projectionRotate: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "[0, 0]",
+      description: "An array that corresponds to the value passed to the projection's [rotate](https://github.com/d3/d3-geo#projection_rotate) function. Use this method to shift the centerpoint of a map.",
       table: {
         defaultValue: {
           summary: "[0, 0]"
@@ -208,6 +218,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -215,7 +226,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -223,6 +234,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => `${this._drawLabel(d, i)}, ${this._pointSize(d, i)}`, hoverOpacity: 1, Path: {ariaLabel: (d, i) => {\n  const validColorScale = this._colorScale ? `, ${this._colorScale(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validColorScale}.`;\n}, fill: (d, i) => {\n  if (this._colorScale && !this._coordData.features.includes(d)) {\n      const c = this._colorScale(d);\n      if (c !== undefined && c !== null) {\n          if (this._colorScaleClass._colorScale) {\n              return this._colorScaleClass._colorScale(c);\n          } else {\n              let color = this._colorScaleClass.color();\n              if (color instanceof Array) color = color[color.length - 1];\n              return color;\n          }\n      }\n  }\n  return this._topojsonFill(d, i);\n}, on: {mouseenter: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseenter.bind(this)(d, i, x, event) : null, mousemove.shape: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mousemove.shape.bind(this)(d, i, x, event) : null, mouseleave: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseleave.bind(this)(d, i, x, event) : null}, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.Path.fill === \"function\" ? this._shapeConfig.Path.fill(d, i) : this._shapeConfig.Path.fill;\n  return color(c).darker();\n}, strokeWidth: 1}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => `${this._drawLabel(d, i)}, ${this._pointSize(d, i)}`, hoverOpacity: 1, Path: {ariaLabel: (d, i) => {\n  const validColorScale = this._colorScale ? `, ${this._colorScale(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validColorScale}.`;\n}, fill: (d, i) => {\n  if (this._colorScale && !this._coordData.features.includes(d)) {\n      const c = this._colorScale(d);\n      if (c !== undefined && c !== null) {\n          if (this._colorScaleClass._colorScale) {\n              return this._colorScaleClass._colorScale(c);\n          } else {\n              let color = this._colorScaleClass.color();\n              if (color instanceof Array) color = color[color.length - 1];\n              return color;\n          }\n      }\n  }\n  return this._topojsonFill(d, i);\n}, on: {mouseenter: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseenter.bind(this)(d, i, x, event) : null, mousemove.shape: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mousemove.shape.bind(this)(d, i, x, event) : null, mouseleave: (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseleave.bind(this)(d, i, x, event) : null}, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.Path.fill === \"function\" ? this._shapeConfig.Path.fill(d, i) : this._shapeConfig.Path.fill;\n  return color(c).darker();\n}, strokeWidth: 1}})",
@@ -239,6 +251,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png",
+      description: "By default, d3plus uses the `light_all` style provided by [CARTO](https://carto.com/location-data-services/basemaps/) for it's map tiles. The [tileUrl](https://d3plus.org/docs/#Geomap.tileUrl) method changes the base URL used for fetching the tiles, as long as the string passed contains `{x}`, `{y}`, and `{z}` variables enclosed in curly brackets for the zoom logic to load the correct tiles.",
       table: {
         defaultValue: {
           summary: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png"
@@ -254,6 +267,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Toggles the visibility of the map tiles.",
       table: {
         defaultValue: {
           summary: true
@@ -269,7 +283,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: false,
-      description: "= []",
+      description: "The topojson to be used for drawing geographical paths. The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final Topojson *Obejct*.",
       table: {
         defaultValue: {
           summary: false
@@ -285,7 +299,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "#f5f5f3",
-      description: "= string",
+      description: "The function is used to set default color of the map.",
       table: {
         defaultValue: {
           summary: "#f5f5f3"
@@ -298,12 +312,13 @@ export const argTypes = assign(
     },
     topojsonFilter: {
       control: {
-        type: "number"
+        type: "object"
       },
-      defaultValue: "(d) => ![\n010\n].includes(d.id)",
+      defaultValue: "(d) => ![ 010 ].includes(d.id)",
+      description: "If the [topojson](#Geomap.topojson) being used contains boundaries that should not be shown, this method can be used to filter them out of the final output. The *value* passed can be a single id to remove, an array of ids, or a filter function.",
       table: {
         defaultValue: {
-          detail: "(d) => ![\n010\n].includes(d.id)",
+          detail: "(d) => ![ 010 ].includes(d.id)",
           summary: "function"
         }
       },
@@ -317,7 +332,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"id\"]",
-      description: "= \"id\"",
+      description: "The accessor used to map each topojson geometry to it's corresponding [data](https://d3plus.org/docs/#Viz.data) point.",
       table: {
         defaultValue: {
           detail: "d => d[\"id\"]",
@@ -333,6 +348,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If the [topojson](#Geomap.topojson) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use.\n\nIf not specified, the first key in the *Array* returned from using `Object.keys` on the topojson will be used.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -348,7 +364,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "= false",
+      description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
       table: {
         defaultValue: {
           summary: true

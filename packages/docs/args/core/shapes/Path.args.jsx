@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"path\"]",
+      description: "If *value* is specified, sets the \"d\" attribute accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"path\"]",
@@ -41,7 +42,7 @@ export const argTypes = assign(
     labelBounds: {
       control: {},
       defaultValue: "(d, i, aes) => {\n  const r = largestRect(aes.points, {\n      angle: this._labelConfig.rotate ? this._labelConfig.rotate(d, i) : 0\n  });\n  return r ? {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2,\n      y: r.cy - r.height / 2\n  } : false;\n}",
-      description: "The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`. If an array is returned from the function, each value will be used in conjunction with each label.",
+      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
       table: {
         defaultValue: {
           detail: "(d, i, aes) => {\n  const r = largestRect(aes.points, {\n      angle: this._labelConfig.rotate ? this._labelConfig.rotate(d, i) : 0\n  });\n  return r ? {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2,\n      y: r.cy - r.height / 2\n  } : false;\n}",
@@ -58,6 +59,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})",
+      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
       table: {
         defaultValue: {
           summary: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})"
@@ -70,6 +72,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Draws the paths.",
       table: {
         defaultValue: {
           summary: "undefined"

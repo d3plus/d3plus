@@ -27,7 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "right",
-      description: "Supports `\"top\"`, `\"right\"`, `\"bottom\"`, and `\"left\"` orientations.",
+      description: "If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.",
       table: {
         defaultValue: {
           summary: "right"

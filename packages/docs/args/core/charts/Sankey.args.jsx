@@ -25,6 +25,7 @@ export const argTypes = assign(
   {
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -37,10 +38,10 @@ export const argTypes = assign(
     },
     links: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "d => d[\"links\"]",
-      description: "= []",
+      description: "A predefined *Array* of edges that connect each object passed to the [node](#Sankey.node) method. The `source` and `target` keys in each link need to map to the nodes in one of one way:\n1. A *String* value matching the `id` of the node.\n\nThe value passed should be an *Array* of data. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.",
       table: {
         defaultValue: {
           detail: "d => d[\"links\"]",
@@ -57,6 +58,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "source",
+      description: "The key inside of each link Object that references the source node.",
       table: {
         defaultValue: {
           summary: "source"
@@ -72,6 +74,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "target",
+      description: "The key inside of each link Object that references the target node.",
       table: {
         defaultValue: {
           summary: "target"
@@ -87,6 +90,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
       table: {
         defaultValue: {
           summary: false
@@ -102,6 +106,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "sankeyAligns.justify",
+      description: "Sets the nodeAlign property of the sankey layout, which can either be \"left\", \"right\", \"center\", or \"justify\".",
       table: {
         defaultValue: {
           summary: "sankeyAligns.justify"
@@ -117,6 +122,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"id\"]",
+      description: "If *value* is specified, sets the node id accessor(s) to the specified array of values and returns the current class instance. If *value* is not specified, returns the current node group accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"id\"]",
@@ -133,6 +139,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 8,
+      description: "If *value* is specified, sets the padding of the node and returns the current class instance. If *value* is not specified, returns the current nodePadding. By default, the nodePadding size is 8.",
       table: {
         defaultValue: {
           summary: 8
@@ -148,6 +155,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 30,
+      description: "If *value* is specified, sets the width of the node and returns the current class instance. If *value* is not specified, returns the current nodeWidth. By default, the nodeWidth size is 30.",
       table: {
         defaultValue: {
           summary: 30
@@ -160,10 +168,10 @@ export const argTypes = assign(
     },
     nodes: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "d => d[\"nodes\"]",
-      description: "= []",
+      description: "The list of nodes to be used for drawing the network. The value passed must be an *Array* of data.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.",
       table: {
         defaultValue: {
           detail: "d => d[\"nodes\"]",
@@ -184,6 +192,7 @@ export const argTypes = assign(
         "mouseleave.shape": "() => {\n  this.hover(false);\n}",
         "mousemove.shape": "(d, i, x, event) => {\n  defaultMouseMove(d, i, x, event);\n  if (this._focus && this._focus === d.id) {\n      this.hover(false);\n      this._on.mouseenter.bind(this)(d, i, x, event);\n      this._focus = undefined;\n  } else {\n      const id = this._nodeId(d, i), node = this._nodeLookup[id], nodeLookup = Object.keys(this._nodeLookup).reduce((all, item)=>{\n          all[this._nodeLookup[item]] = !isNaN(item) ? parseInt(item, 10) : item;\n          return all;\n      }, {});\n      const links = this._linkLookup[node];\n      const filterIds = [\n          id\n      ];\n      links.forEach((l)=>{\n          filterIds.push(nodeLookup[l]);\n      });\n      this.hover((h, x)=>{\n          if (h.source && h.target) {\n              return h.source.id === id || h.target.id === id;\n          } else {\n              return filterIds.includes(this._nodeId(h, x));\n          }\n      });\n  }\n}"
       },
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: {
@@ -203,6 +212,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Rect",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Rect"
@@ -210,7 +220,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -218,6 +228,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {Path: {fill: none, hoverStyle: {stroke-width: (d) => Math.max(1, Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2)}, label: false, stroke: #DBDBDB, strokeOpacity: 0.5, strokeWidth: (d) => Math.max(1, Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2)}, Rect: {}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {Path: {fill: none, hoverStyle: {stroke-width: (d) => Math.max(1, Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2)}, label: false, stroke: #DBDBDB, strokeOpacity: 0.5, strokeWidth: (d) => Math.max(1, Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2)}, Rect: {}})",
@@ -234,6 +245,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "If *value* is specified, sets the width of the links and returns the current class instance. If *value* is not specified, returns the current value accessor.",
       table: {
         defaultValue: {
           summary: 1

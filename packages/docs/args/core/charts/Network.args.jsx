@@ -24,6 +24,7 @@ export const argTypes = assign(
   {
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -35,10 +36,9 @@ export const argTypes = assign(
       }
     },
     linkSize: {
-      control: {
-        type: "name"
-      },
+      control: {},
       defaultValue: 1,
+      description: "Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.",
       table: {
         defaultValue: {
           summary: 1
@@ -54,6 +54,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "Defines the minimum pixel stroke width used in link sizing.",
       table: {
         defaultValue: {
           summary: 1
@@ -69,6 +70,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "sqrt",
+      description: "Sets the specific type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.",
       table: {
         defaultValue: {
           summary: "sqrt"
@@ -81,13 +83,13 @@ export const argTypes = assign(
     },
     links: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "A predefined *Array* of edges that connect each object passed to the [node](#Network.node) method. The `source` and `target` keys in each link need to map to the nodes in one of three ways:\n1. The index of the node in the nodes array (as in [this](http://d3plus.org/examples/d3plus-network/getting-started/) example).\n2. The actual node *Object* itself.\n3. A *String* value matching the `id` of the node.\n\nThe value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -100,6 +102,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
       table: {
         defaultValue: {
           summary: false
@@ -112,12 +115,13 @@ export const argTypes = assign(
     },
     nodeGroupBy: {
       control: {
-        type: "text"
+        type: "object"
       },
-      defaultValue: "[\nd => d[\"id\"]\n]",
+      defaultValue: "[ d => d[\"id\"] ]",
+      description: "If *value* is specified, sets the node group accessor(s) to the specified string, function, or array of values and returns the current class instance. This method overrides the default .groupBy() function from being used with the data passed to .nodes(). If *value* is not specified, returns the current node group accessor.",
       table: {
         defaultValue: {
-          detail: "[\nd => d[\"id\"]\n]",
+          detail: "[ d => d[\"id\"] ]",
           summary: "function"
         }
       },
@@ -128,13 +132,13 @@ export const argTypes = assign(
     },
     nodes: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
-      description: "= []",
+      defaultValue: "[  ]",
+      description: "The list of nodes to be used for drawing the network. The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -153,6 +157,7 @@ export const argTypes = assign(
         "mouseleave.shape": "() => {\n  this.hover(false);\n}",
         "mousemove.shape": "(d, i, x, event) => {\n  defaultMouseMove(d, i, x, event);\n  const id = getNodeId.bind(this)(d, i), links = this._linkLookup[id] || [], node = this._nodeLookup[id];\n  const filterIds = [\n      id\n  ];\n  const xDomain = [\n      node.x - node.r,\n      node.x + node.r\n  ], yDomain = [\n      node.y - node.r,\n      node.y + node.r\n  ];\n  links.forEach((l)=>{\n      filterIds.push(l.id);\n      if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;\n      if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;\n      if (l.y - l.r < yDomain[0]) yDomain[0] = l.y - l.r;\n      if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;\n  });\n  this.hover((h, x)=>{\n      if (h.source && h.target) return h.source.id === id || h.target.id === id;\n      else return filterIds.includes(`${this._ids(h, x)[this._drawDepth]}`);\n  });\n}"
       },
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: {
@@ -174,6 +179,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -181,7 +187,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -189,6 +195,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => {\n  const validSize = this._size ? `, ${this._size(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validSize}.`;\n}, labelConfig: {duration: 0, fontMin: 1, fontResize: true, labelPadding: 0, textAnchor: middle, verticalAlign: middle}, Path: {fill: none, label: false, stroke: #eee}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => {\n  const validSize = this._size ? `, ${this._size(d, i)}` : \"\";\n  return `${this._drawLabel(d, i)}${validSize}.`;\n}, labelConfig: {duration: 0, fontMin: 1, fontResize: true, labelPadding: 0, textAnchor: middle, verticalAlign: middle}, Path: {fill: none, label: false, stroke: #eee}})",
@@ -204,6 +211,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "If *value* is specified, sets the size accessor to the specified function or data key and returns the current class instance. If *value* is not specified, returns the current size accessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -218,6 +226,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "Defines the maximum pixel radius used in size scaling. By default, the maximum size is determined by half the distance of the two closest nodes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -233,6 +242,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "Defines the minimum pixel radius used in size scaling.",
       table: {
         defaultValue: {
           summary: 5
@@ -248,6 +258,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "sqrt",
+      description: "Sets the specific type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of nodes in the network.",
       table: {
         defaultValue: {
           summary: "sqrt"
@@ -263,6 +274,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "If *value* is specified, sets the x accessor to the specified function or string matching a key in the data and returns the current class instance. The data passed to .data() takes priority over the .nodes() data array. If *value* is not specified, returns the current x accessor. By default, the x and y positions are determined dynamically based on default force layout properties.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -279,6 +291,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"y\"]",
+      description: "If *value* is specified, sets the y accessor to the specified function or string matching a key in the data and returns the current class instance. The data passed to .data() takes priority over the .nodes() data array. If *value* is not specified, returns the current y accessor. By default, the x and y positions are determined dynamically based on default force layout properties.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"]",
@@ -295,7 +308,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "= false",
+      description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
       table: {
         defaultValue: {
           summary: true

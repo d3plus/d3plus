@@ -23,6 +23,17 @@ const hiddenMethods = {
   Treemap: ["shape", "zoom"]
 };
 
+function isWrappedInQuotes(str) {
+  // Matches a string starting and ending with either single or double quotes
+  // The \1 backreference ensures the closing quote matches the opening one
+  const regex = /^(['"]).*\1$/;
+  return regex.test(str);
+}
+
+function removeStartEndQuotes(str) {
+  return str.replace(/^['"]|['"]$/g, '');
+}
+
 const hasParent = ({augments}) => augments && augments.length ? augments[0] : false;
 
 export default function(story, allMethods, stories) {
@@ -92,7 +103,7 @@ export default function(story, allMethods, stories) {
   const disabledMethods = hiddenMethods[name] || [];
 
   const myMethods = story.kind === "class" 
-    ? allMethods.filter(d => d.params && d.params.length && ((overrides.hasOwnProperty(d.name) && ancestorClasses.includes(d.memberof)) || d.memberof === name)).map(d => ({...d.params[0], name: d.name}))
+    ? allMethods.filter(d => d.params && d.params.length && ((overrides.hasOwnProperty(d.name) && ancestorClasses.includes(d.memberof)) || d.memberof === name)).map(d => ({...d.params[0], name: d.name, description: d.description}))
     : story.params;
 
   const formattedMethods = (myMethods || [])
@@ -100,15 +111,31 @@ export default function(story, allMethods, stories) {
 
         const {name, optional, type} = d;
         const defaultvalue = overrides.hasOwnProperty(name) ? overrides[name] : d.defaultvalue;
+
         const types = type.names.map(t => t.toLowerCase());
-        const controlMaps = {string: "text"}
-        const control = types.find(t => t !== "function");
 
         const argObject = {
           type: {required: !optional, summary: types.join(" | ")},
-          control: { type: controlMaps[control] || control },
+          control: { type: undefined },
           description: d.description
         }
+
+        if (type.names.some(isWrappedInQuotes)) {
+          const evals = [undefined, null, true, false].map(String);
+          argObject.options = type.names.map(name => {
+            if (isWrappedInQuotes(name)) return removeStartEndQuotes(name);
+            else if (evals.includes(name)) return eval(name);
+            return false;
+          }).filter(Boolean);
+          argObject.control.type = argObject.options.length < 5 ? "radio" : "select";
+        }
+        else {
+          if (types.includes("object") || types.includes("array")) argObject.control.type = "object";
+          else if (types.includes("number")) argObject.control.type = "number";
+          else if (types.includes("string")) argObject.control.type = "text";
+          else if (types.includes("boolean")) argObject.control.type = "boolean";
+        }
+
         if (defaultvalue !== undefined) {
           argObject.defaultValue = defaultvalue;
           const funcDefault = typeof defaultvalue === "string" && defaultvalue.includes("=>");
@@ -242,9 +269,9 @@ const formatAst = ast => {
     case "ParenthesisExpression":
       return `(${formatAst(ast.expression)})`;
     case "ArrayExpression":
-      return `[
-${ast.elements.map(d => formatAst(d.expression)).join(",\n")}
-]`;
+      return ast.elements.length > 1 ? `[
+  ${ast.elements.map(d => formatAst(d.expression)).join(",\n")}
+]` : `[ ${ast.elements.map(d => formatAst(d.expression)).join(",\n")} ]`;
     case "BinaryExpression":
       return `${formatAst(ast.left)} ${ast.operator} ${formatAst(ast.right)}`;
     case "Computed":

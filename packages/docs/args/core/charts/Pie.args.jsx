@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "The pixel value, or function that returns a pixel value, that is used as the inner radius of the Pie (creating a Donut).",
       table: {
         defaultValue: {
           summary: 0
@@ -43,6 +44,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
+      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
@@ -57,6 +59,7 @@ export const argTypes = assign(
     legendSort: {
       control: {},
       defaultValue: "(a, b) => this._value(b) - this._value(a)",
+      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._value(b) - this._value(a)",
@@ -72,6 +75,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      description: "The padding between each arc, set as a radian value between \\`0\\` and \\`1\\`.\n\nIf set, this will override any previously set padPixel value.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -87,6 +91,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "The padding between each arc, set as a pixel number value.\n\nBy default the value is \\`0\\`, which shows no padding between each arc.\n\nIf \\`padAngle\\` is defined, the \\`padPixel\\` value will not be considered.",
       table: {
         defaultValue: {
           summary: 0
@@ -102,6 +107,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._pieData ? `${++this._pieData.i.index}. ${this._drawLabel(d, i)}, ${this._value(d, i)}.` : , Path: {labelConfig: {fontResize: true}}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._pieData ? `${++this._pieData.i.index}. ${this._drawLabel(d, i)}, ${this._value(d, i)}.` : , Path: {labelConfig: {fontResize: true}}})",
@@ -116,6 +122,7 @@ export const argTypes = assign(
     sort: {
       control: {},
       defaultValue: "(a, b) => this._value(b) - this._value(a)",
+      description: "A comparator function that sorts the Pie slices.",
       table: {
         defaultValue: {
           detail: "(a, b) => this._value(b) - this._value(a)",
@@ -132,7 +139,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"value\"]",
-      description: "= d => d.value",
+      description: "The accessor key for each data point used to calculate the size of each Pie section.",
       table: {
         defaultValue: {
           detail: "d => d[\"value\"]",

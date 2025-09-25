@@ -28,6 +28,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{shapeConfig: {fill: none, labelConfig: {fontColor: #999, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: #eee, strokeWidth: 1}}",
+      description: "Sets the config method used for the radial spokes, circles, and labels.",
       table: {
         defaultValue: {
           detail: "{shapeConfig: {fill: none, labelConfig: {fontColor: #999, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: #eee, strokeWidth: 1}}",
@@ -44,6 +45,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "metric",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "metric"
@@ -59,6 +61,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"metric\"]",
+      description: "Defines the value used as axis. If *value* is specified, sets the accessor to the specified metric function. If *value* is not specified, returns the current metric accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"metric\"]",
@@ -75,6 +78,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 100,
+      description: "Determines how much pixel spaces to give the outer labels.",
       table: {
         defaultValue: {
           summary: 100
@@ -90,6 +94,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Path",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Path"
@@ -97,7 +102,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     value: {
@@ -105,6 +110,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"value\"]",
+      description: "If *value* is specified, sets the value accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current value accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"value\"]",

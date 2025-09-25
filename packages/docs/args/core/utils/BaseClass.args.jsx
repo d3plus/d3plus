@@ -11,6 +11,7 @@ export const argTypes = {
     control: {
       type: "object"
     },
+    description: "If *value* is specified, sets the methods that correspond to the key/value pairs and returns this class. If *value* is not specified, returns the current configuration.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -26,6 +27,7 @@ export const argTypes = {
       type: "object"
     },
     defaultValue: "\"en-US\"",
+    description: "Sets the locale used for all text and number formatting. This method supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be defined as a complex Object (like in d3plus-format), a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale from d3plus-format.",
     table: {
       defaultValue: {
         summary: "\"en-US\""
@@ -40,6 +42,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
+    description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -52,6 +55,7 @@ export const argTypes = {
   },
   translate: {
     control: {},
+    description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
     table: {
       defaultValue: {
         summary: "undefined"

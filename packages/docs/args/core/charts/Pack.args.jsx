@@ -25,6 +25,7 @@ export const argTypes = assign(
   {
     hover: {
       control: {},
+      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -40,6 +41,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "If *value* is specified, sets the opacity accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current pack opacity accessor.",
       table: {
         defaultValue: {
           summary: 1
@@ -55,6 +57,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
+      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "(config, arr) => {\n  if (arr.length === this._filteredData.length) return false;\n  return defaultLegend.bind(this)(config, arr);\n}",
@@ -75,6 +78,7 @@ export const argTypes = assign(
         "mousemove.legend": "(d, i, x, event) => {\n  defaultMouseMoveLegend(d, i, x, event);\n  const ids = this._ids(d, i);\n  const hoverData = recursionCircles(d);\n  this.hover((h)=>{\n      const hover = Object.keys(h).filter((key)=>key !== \"value\").every((key)=>d[key] && d[key].includes(h[key]));\n      if (hover) hoverData.push(h);\n      else if (ids.includes(h.key)) hoverData.push(...recursionCircles(h, [\n          h\n      ]));\n      return hoverData.includes(h);\n  });\n}",
         "mousemove.shape": "(d, i, x, event) => {\n  if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);\n  const hoverData = recursionCircles(d, [\n      d\n  ]);\n  this.hover((h)=>hoverData.includes(h));\n}"
       },
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: {
@@ -94,6 +98,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.25,
+      description: "If *value* is specified, sets the padding accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current pack opacity accessor.",
       table: {
         defaultValue: {
           summary: 0.25
@@ -109,6 +114,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Circle",
+      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
           summary: "Circle"
@@ -116,7 +122,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function | string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -124,6 +130,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "assign(this._shapeConfig, {Circle: {label: (d) => d.parent && !d.children ? d.id : false, labelConfig: {fontResize: true}, opacity: (d) => d.__d3plusOpacity__}})",
+      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "assign(this._shapeConfig, {Circle: {label: (d) => d.parent && !d.children ? d.id : false, labelConfig: {fontResize: true}, opacity: (d) => d.__d3plusOpacity__}})",
@@ -137,9 +144,10 @@ export const argTypes = assign(
     },
     sort: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "(a, b) => b.value - a.value",
+      description: "If *comparator* is specified, sets the sort order for the pack using the specified comparator function. If *comparator* is not specified, returns the current group sort order, which defaults to descending order by the associated input data's numeric value attribute.",
       table: {
         defaultValue: {
           detail: "(a, b) => b.value - a.value",
@@ -156,6 +164,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"value\"]",
+      description: "If *value* is specified, sets the sum accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current sum accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"value\"]",

@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "false",
+      description: "If *value* is specified, sets the aria-hidden attribute to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "false"
@@ -39,9 +40,10 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "[]",
+      description: "Sets the data array to the specified array. A text box will be drawn for each object in the array.",
       table: {
         defaultValue: {
           summary: "[]"
@@ -57,6 +59,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the animation delay to the specified number in milliseconds.",
       table: {
         defaultValue: {
           summary: 0
@@ -72,6 +75,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the animation duration to the specified number in milliseconds.",
       table: {
         defaultValue: {
           summary: 0
@@ -87,6 +91,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "(text, line) => line ? `${text.replace(/\\.|,$/g, )}...` : ",
+      description: "Sets the function that handles what to do when a line is truncated. It should return the new value for the line, and is passed 2 arguments: the String of text for the line in question, and the number of the line. By default, an ellipsis is added to the end of any line except if it is the first word that cannot fit (in that case, an empty string is returned).",
       table: {
         defaultValue: {
           detail: "(text, line) => line ? `${text.replace(/\\.|,$/g, )}...` : ",
@@ -103,6 +108,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "black",
+      description: "Sets the font color to the specified accessor function or static string, which is inferred from the [DOM selection](#textBox.select) by default.",
       table: {
         defaultValue: {
           summary: "black"
@@ -115,9 +121,10 @@ export const argTypes = assign(
     },
     fontFamily: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "fontFamily",
+      description: "Defines the font-family to be used. The value passed can be either a *String* name of a font, a comma-separated list of font-family fallbacks, an *Array* of fallbacks, or a *Function* that returns either a *String* or an *Array*. If supplying multiple fallback fonts, the [fontExists](#fontExists) function will be used to determine the first available font on the client's machine.",
       table: {
         defaultValue: {
           summary: "fontFamily"
@@ -133,6 +140,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 50,
+      description: "Sets the maximum font size to the specified accessor function or static number (which corresponds to pixel units), which is used when [dynamically resizing fonts](#textBox.fontResize).",
       table: {
         defaultValue: {
           summary: 50
@@ -148,6 +156,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 8,
+      description: "Sets the minimum font size to the specified accessor function or static number (which corresponds to pixel units), which is used when [dynamically resizing fonts](#textBox.fontResize).",
       table: {
         defaultValue: {
           summary: 8
@@ -163,6 +172,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1,
+      description: "Sets the font opacity to the specified accessor function or static number between 0 and 1.",
       table: {
         defaultValue: {
           summary: 1
@@ -178,6 +188,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Toggles font resizing, which can either be defined as a static boolean for all data points, or an accessor function that returns a boolean. See [this example](http://d3plus.org/examples/d3plus-text/resizing-text/) for a side-by-side comparison.",
       table: {
         defaultValue: {
           summary: false
@@ -193,6 +204,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 10,
+      description: "Sets the font size to the specified accessor function or static number (which corresponds to pixel units), which is inferred from the [DOM selection](#textBox.select) by default.",
       table: {
         defaultValue: {
           summary: 10
@@ -208,6 +220,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "transparent",
+      description: "Sets the font stroke color for the rendered text.",
       table: {
         defaultValue: {
           summary: "transparent"
@@ -223,6 +236,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the font stroke width for the rendered text.",
       table: {
         defaultValue: {
           summary: 0
@@ -238,6 +252,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
+      description: "Sets the font weight to the specified accessor function or static number, which is inferred from the [DOM selection](#textBox.select) by default.",
       table: {
         defaultValue: {
           summary: 400
@@ -253,6 +268,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"height\"] || 200",
+      description: "Sets the height for each box to the specified accessor function or static number.",
       table: {
         defaultValue: {
           detail: "d => d[\"height\"] || 200",
@@ -269,6 +285,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "defaultHtmlLookup",
+      description: "Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles",
       table: {
         defaultValue: {
           summary: "defaultHtmlLookup"
@@ -284,6 +301,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "(d, i) => d.id || `${i}`",
+      description: "Defines the unique id for each box to the specified accessor function or static number.",
       table: {
         defaultValue: {
           detail: "(d, i) => d.id || `${i}`",
@@ -300,6 +318,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "(d, i) => this._fontSize(d, i) * 1.2",
+      description: "Sets the line height to the specified accessor function or static number, which is 1.2 times the [font size](#textBox.fontSize) by default.",
       table: {
         defaultValue: {
           detail: "(d, i) => this._fontSize(d, i) * 1.2",
@@ -316,6 +335,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "null",
+      description: "Restricts the maximum number of lines to wrap onto, which is null (unlimited) by default.",
       table: {
         defaultValue: {
           summary: "null"
@@ -331,6 +351,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "{}",
+      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -346,6 +367,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Sets the text overflow to the specified accessor function or static boolean.",
       table: {
         defaultValue: {
           summary: false
@@ -361,6 +383,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the padding to the specified accessor function, CSS shorthand string, or static number, which is 0 by default.",
       table: {
         defaultValue: {
           summary: 0
@@ -376,6 +399,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "auto",
+      description: "Sets the pointer-events to the specified accessor function or static string.",
       table: {
         defaultValue: {
           summary: "auto"
@@ -388,6 +412,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -403,6 +428,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "Sets the rotate percentage for each box to the specified accessor function or static string.",
       table: {
         defaultValue: {
           summary: 0
@@ -414,13 +440,12 @@ export const argTypes = assign(
       }
     },
     rotateAnchor: {
-      control: {
-        type: "array.<number>"
-      },
-      defaultValue: "(d) => [\nd.w / 2,\nd.h / 2\n]",
+      control: {},
+      defaultValue: "(d) => [\n  d.w / 2,\nd.h / 2\n]",
+      description: "Sets the anchor point around which to rotate the text box.",
       table: {
         defaultValue: {
-          detail: "(d) => [\nd.w / 2,\nd.h / 2\n]",
+          detail: "(d) => [\n  d.w / 2,\nd.h / 2\n]",
           summary: "function"
         }
       },
@@ -433,6 +458,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Sets the SVG container element to the specified d3 selector or DOM element. If not explicitly specified, an SVG element will be added to the page for use.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -446,6 +472,7 @@ export const argTypes = assign(
     split: {
       control: {},
       defaultValue: "textSplit",
+      description: "Sets the word split behavior to the specified function, which when passed a string is expected to return that string split into an array of words.",
       table: {
         defaultValue: {
           summary: "textSplit"
@@ -461,6 +488,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"text\"]",
+      description: "Sets the text for each box to the specified accessor function or static string.",
       table: {
         defaultValue: {
           detail: "d => d[\"text\"]",
@@ -477,6 +505,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "start",
+      description: "Sets the horizontal text anchor to the specified accessor function or static string, whose values are analagous to the SVG [text-anchor](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor) property.",
       table: {
         defaultValue: {
           summary: "start"
@@ -492,6 +521,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "top",
+      description: "Sets the vertical alignment to the specified accessor function or static string. Accepts `\"top\"`, `\"middle\"`, and `\"bottom\"`.",
       table: {
         defaultValue: {
           summary: "top"
@@ -507,6 +537,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"width\"] || 200",
+      description: "Sets the width for each box to the specified accessor function or static number.",
       table: {
         defaultValue: {
           detail: "d => d[\"width\"] || 200",
@@ -523,6 +554,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"x\"]",
+      description: "Sets the x position for each box to the specified accessor function or static number. The number given should correspond to the left side of the textBox.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"]",
@@ -539,6 +571,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"y\"]",
+      description: "Sets the y position for each box to the specified accessor function or static number. The number given should correspond to the top side of the textBox.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"]",

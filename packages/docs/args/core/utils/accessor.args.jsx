@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   def: {
-    control: {
-      type: "*"
-    },
+    control: {},
     description: "A default value to be returned if the key is not present.",
     table: {
       defaultValue: {

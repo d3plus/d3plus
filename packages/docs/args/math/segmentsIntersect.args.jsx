@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   p1: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The first point of the first line segment, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -23,7 +23,7 @@ export const argTypes = {
   },
   p2: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The first point of the second line segment, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -38,7 +38,7 @@ export const argTypes = {
   },
   q1: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The second point of the first line segment, which should always be an `[x, y]` formatted Array.",
     table: {
@@ -53,7 +53,7 @@ export const argTypes = {
   },
   q2: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The second point of the second line segment, which should always be an `[x, y]` formatted Array.",
     table: {

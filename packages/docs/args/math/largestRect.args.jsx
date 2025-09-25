@@ -24,7 +24,7 @@ export const argTypes = {
   },
   poly: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "An Array of points that represent a polygon.",
     table: {

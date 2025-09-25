@@ -27,7 +27,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "middle",
-      description: "Supports `\"left\"` and `\"center\"` and `\"right\"`.",
+      description: "If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance. If *value* is not specified, returns the current horizontal alignment.",
       table: {
         defaultValue: {
           summary: "middle"
@@ -43,6 +43,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{gridSize: 0}",
+      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
       table: {
         defaultValue: {
           summary: "{gridSize: 0}"
@@ -58,6 +59,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
+      description: "Determines whether or not to use an Axis to display bucket scales (both \"buckets\" and \"jenks\"). When set to `false`, bucketed scales will use the `Legend` class to display squares for each range of data. When set to `true`, bucketed scales will be displayed on an `Axis`, similar to \"linear\" scales.",
       table: {
         defaultValue: {
           summary: false
@@ -71,6 +73,7 @@ export const argTypes = assign(
     bucketFormat: {
       control: {},
       defaultValue: "(tick, i, ticks, allValues) => {\n  const format = this._axisConfig.tickFormat ? this._axisConfig.tickFormat : formatAbbreviate;\n  const next = ticks[i + 1];\n  const prev = i ? ticks[i - 1] : false;\n  const last = i === ticks.length - 1;\n  if (tick === next || last) {\n      const suffix = last && tick < max(allValues) ? \"+\" : \"\";\n      return `${format(tick)}${suffix}`;\n  } else {\n      const mod = next ? next / 100 : tick / 100;\n      const pow = mod >= 1 || mod <= -1 ? Math.round(mod).toString().length - 1 : mod.toString().split(\".\")[1].replace(/([1-9])[1-9].*$/, \"$1\").length * -1;\n      const ten = Math.pow(10, pow);\n      const prevValue = prev === tick && i === 1 ? format(min([\n          tick + ten,\n          allValues.find((d)=>d > tick && d < next)\n      ])) : format(tick);\n      const nextValue = tick && i === 1 ? format(next) : format(max([\n          next - ten,\n          allValues.reverse().find((d)=>d > tick && d < next)\n      ]));\n      return this._bucketJoiner(prevValue, nextValue);\n  }\n}",
+      description: "A function for formatting the labels associated to each bucket in a bucket-type scale (\"jenks\", \"quantile\", etc). The function is passed four arguments: the start value of the current bucket, it's index in the full Array of buckets, the full Array of buckets, and an Array of every value present in the data used to construct the buckets. Keep in mind that the end value for the bucket is not actually the next bucket in the list, but includes every value up until that next bucket value (less than, but not equal to). By default, d3plus will make the end value slightly less than it's current value, so that it does not overlap with the start label for the next bucket.",
       table: {
         defaultValue: {
           detail: "(tick, i, ticks, allValues) => {\n  const format = this._axisConfig.tickFormat ? this._axisConfig.tickFormat : formatAbbreviate;\n  const next = ticks[i + 1];\n  const prev = i ? ticks[i - 1] : false;\n  const last = i === ticks.length - 1;\n  if (tick === next || last) {\n      const suffix = last && tick < max(allValues) ? \"+\" : \"\";\n      return `${format(tick)}${suffix}`;\n  } else {\n      const mod = next ? next / 100 : tick / 100;\n      const pow = mod >= 1 || mod <= -1 ? Math.round(mod).toString().length - 1 : mod.toString().split(\".\")[1].replace(/([1-9])[1-9].*$/, \"$1\").length * -1;\n      const ten = Math.pow(10, pow);\n      const prevValue = prev === tick && i === 1 ? format(min([\n          tick + ten,\n          allValues.find((d)=>d > tick && d < next)\n      ])) : format(tick);\n      const nextValue = tick && i === 1 ? format(next) : format(max([\n          next - ten,\n          allValues.reverse().find((d)=>d > tick && d < next)\n      ]));\n      return this._bucketJoiner(prevValue, nextValue);\n  }\n}",
@@ -85,6 +88,7 @@ export const argTypes = assign(
     bucketJoiner: {
       control: {},
       defaultValue: "(a, b) => a !== b ? `${a} - ${b}` : `${a}`",
+      description: "A function that receives the minimum and maximum values of a bucket, and is expected to return the full label.",
       table: {
         defaultValue: {
           detail: "(a, b) => a !== b ? `${a} - ${b}` : `${a}`",
@@ -98,9 +102,10 @@ export const argTypes = assign(
     },
     buckets: {
       control: {
-        type: "number"
+        type: "object"
       },
       defaultValue: 5,
+      description: "The number of discrete buckets to create in a bucketed color scale. Will be overridden by any custom Array of colors passed to the `color` method. Optionally, users can supply an Array of values used to separate buckets, such as `[0, 10, 25, 50, 90]` for a percentage scale. This value would create 4 buckets, with each value representing the break point between each bucket (so 5 values makes 4 buckets).",
       table: {
         defaultValue: {
           summary: 5
@@ -116,6 +121,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
+      description: "Determines whether or not to display a midpoint centered Axis. Does not apply to quantile scales.",
       table: {
         defaultValue: {
           summary: true
@@ -128,12 +134,13 @@ export const argTypes = assign(
     },
     color: {
       control: {
-        type: "text"
+        type: "object"
       },
-      defaultValue: "[\n#54478C,\n#2C699A,\n#0DB39E,\n#83E377,\n#EFEA5A\n]",
+      defaultValue: "[\n  #54478C,\n#2C699A,\n#0DB39E,\n#83E377,\n#EFEA5A\n]",
+      description: "Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` to only use just this specified color. If a single color is given as a String, then the scale is interpolated by lightening that color. Otherwise, the function expects an Array of color values to be used in order for the scale.",
       table: {
         defaultValue: {
-          summary: "[\n#54478C,\n#2C699A,\n#0DB39E,\n#83E377,\n#EFEA5A\n]"
+          summary: "[\n  #54478C,\n#2C699A,\n#0DB39E,\n#83E377,\n#EFEA5A\n]"
         }
       },
       type: {
@@ -146,6 +153,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "colorDefaults.on",
+      description: "Defines the color to be used for numbers greater than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.",
       table: {
         defaultValue: {
           summary: "colorDefaults.on"
@@ -161,6 +169,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "colorDefaults.light",
+      description: "Defines the color to be used for the midpoint of a diverging scale, based on the current value of the `midpoint` method (defaults to `0`). Colors in between this value and the values of `colorMin` and `colorMax` will be interpolated, unless a custom Array of colors has been specified using the `color` method.",
       table: {
         defaultValue: {
           summary: "colorDefaults.light"
@@ -176,6 +185,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "colorDefaults.off",
+      description: "Defines the color to be used for numbers less than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.",
       table: {
         defaultValue: {
           summary: "colorDefaults.off"
@@ -188,12 +198,13 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
-      defaultValue: "[\n\n]",
+      defaultValue: "[  ]",
+      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape key will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "[\n\n]"
+          summary: "[  ]"
         }
       },
       type: {
@@ -203,8 +214,9 @@ export const argTypes = assign(
     },
     domain: {
       control: {
-        type: "array"
+        type: "object"
       },
+      description: "In a linear scale, this Array of 2 values defines the min and max values used in the color scale. Any values outside of this range will be mapped to the nearest color value.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -220,6 +232,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
+      description: "If *value* is specified, sets the transition duration of the ColorScale and returns the current class instance. If *value* is not specified, returns the current duration.",
       table: {
         defaultValue: {
           summary: 600
@@ -235,6 +248,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 200,
+      description: "If *value* is specified, sets the overall height of the ColorScale and returns the current class instance. If *value* is not specified, returns the current height value.",
       table: {
         defaultValue: {
           summary: 200
@@ -250,6 +264,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fontColor: colorDefaults.dark, fontSize: 12}",
+      description: "A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.",
       table: {
         defaultValue: {
           summary: "{fontColor: colorDefaults.dark, fontSize: 12}"
@@ -264,6 +279,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -278,6 +294,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      description: "Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -293,6 +310,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{shapeConfig: {stroke: colorDefaults.dark, strokeWidth: 1}}",
+      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
       table: {
         defaultValue: {
           summary: "{shapeConfig: {stroke: colorDefaults.dark, strokeWidth: 1}}"
@@ -308,6 +326,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
+      description: "The number value to be used as the anchor for `colorMid`, and defines the center point of the diverging color scale.",
       table: {
         defaultValue: {
           summary: 0
@@ -323,6 +342,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "bottom",
+      description: "Sets the flow of the items inside the ColorScale. If no value is passed, the current flow will be returned.",
       table: {
         defaultValue: {
           summary: "bottom"
@@ -338,6 +358,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
+      description: "If *value* is specified, sets the padding between each key to the specified number and returns the current class instance. If *value* is not specified, returns the current padding value.",
       table: {
         defaultValue: {
           summary: 5
@@ -353,6 +374,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{stroke: #999, strokeWidth: 1}",
+      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
       table: {
         defaultValue: {
           summary: "{stroke: #999, strokeWidth: 1}"
@@ -365,6 +387,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Renders the current ColorScale to the page. If a *callback* is specified, it will be called once the ColorScale is done drawing.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -380,7 +403,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "linear",
-      description: "Can either be \"linear\", \"jenks\", or \"buckets\".",
+      description: "If *value* is specified, sets the scale of the ColorScale and returns the current class instance. If *value* is not specified, returns the current scale value.",
       table: {
         defaultValue: {
           summary: "linear"
@@ -396,6 +419,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3.select(\"body\").append(\"svg\")",
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
       table: {
         defaultValue: {
           summary: "d3.select(\"body\").append(\"svg\")"
@@ -411,6 +435,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 10,
+      description: "The height of horizontal color scales, and width when positioned vertical.",
       table: {
         defaultValue: {
           summary: 10
@@ -426,6 +451,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"value\"]",
+      description: "If *value* is specified, sets the value accessor to the specified function or string and returns the current class instance. If *value* is not specified, returns the current value accessor.",
       table: {
         defaultValue: {
           detail: "d => d[\"value\"]",
@@ -442,6 +468,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
+      description: "If *value* is specified, sets the overall width of the ColorScale and returns the current class instance. If *value* is not specified, returns the current width value.",
       table: {
         defaultValue: {
           summary: 400

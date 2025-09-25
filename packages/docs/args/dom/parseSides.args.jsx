@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   sides: {
     control: {
-      type: "text"
+      type: "number"
     },
     description: "The CSS shorthand string to expand.",
     table: {

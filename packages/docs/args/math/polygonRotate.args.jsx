@@ -23,7 +23,7 @@ export const argTypes = {
   },
   origin: {
     control: {
-      type: "array"
+      type: "object"
     },
     defaultValue: "[0, 0]",
     description: "The origin point of the rotation, which should be an `[x, y]` formatted Array.",
@@ -39,7 +39,7 @@ export const argTypes = {
   },
   poly: {
     control: {
-      type: "array"
+      type: "object"
     },
     description: "The polygon to be rotated, which should be an Array of `[x, y]` values.",
     table: {

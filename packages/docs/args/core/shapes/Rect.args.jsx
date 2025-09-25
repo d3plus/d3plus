@@ -27,6 +27,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"height\"]",
+      description: "If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"height\"]",
@@ -41,7 +42,7 @@ export const argTypes = assign(
     labelBounds: {
       control: {},
       defaultValue: "(d, i, s) => ({width: s.width, height: s.height, x: -s.width / 2, y: -s.height / 2})",
-      description: "The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`. If an array is returned from the function, each value will be used in conjunction with each label.",
+      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
       table: {
         defaultValue: {
           detail: "(d, i, s) => ({width: s.width, height: s.height, x: -s.width / 2, y: -s.height / 2})",
@@ -55,6 +56,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Draws the rectangles.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -70,6 +72,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"width\"]",
+      description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"width\"]",

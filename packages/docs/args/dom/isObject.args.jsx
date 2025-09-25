@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   item: {
-    control: {
-      type: "*"
-    },
+    control: {},
     table: {
       defaultValue: {
         summary: "undefined"

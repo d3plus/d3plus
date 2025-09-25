@@ -9,9 +9,10 @@ export const Image = ({ config }) => <D3plusImage config={config} />;
 export const argTypes = {
   data: {
     control: {
-      type: "array"
+      type: "object"
     },
     defaultValue: "[]",
+    description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. An <image> tag will be drawn for each object in the array.",
     table: {
       defaultValue: {
         summary: "[]"
@@ -27,6 +28,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 600,
+    description: "If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.",
     table: {
       defaultValue: {
         summary: 600
@@ -41,6 +43,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
+    description: "If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -53,6 +56,7 @@ export const argTypes = {
   },
   id: {
     control: {},
+    description: "If *value* is specified, sets the id accessor to the specified function and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -68,6 +72,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 1,
+    description: "Sets the opacity of the image.",
     table: {
       defaultValue: {
         summary: 1
@@ -83,6 +88,7 @@ export const argTypes = {
       type: "text"
     },
     defaultValue: "\"auto\"",
+    description: "If *value* is specified, sets the pointer-events accessor to the specified function or string and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "\"auto\""
@@ -95,6 +101,7 @@ export const argTypes = {
   },
   render: {
     control: {},
+    description: "Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -110,6 +117,7 @@ export const argTypes = {
       type: "text"
     },
     defaultValue: "d3.select(\"body\").append(\"svg\")",
+    description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
     table: {
       defaultValue: {
         summary: "d3.select(\"body\").append(\"svg\")"
@@ -122,6 +130,7 @@ export const argTypes = {
   },
   url: {
     control: {},
+    description: "If *value* is specified, sets the URL accessor to the specified function and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -136,6 +145,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
+    description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -150,6 +160,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
+    description: "If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -164,6 +175,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
+    description: "If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.",
     table: {
       defaultValue: {
         summary: "undefined"

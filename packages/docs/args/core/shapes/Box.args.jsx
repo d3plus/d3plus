@@ -24,6 +24,7 @@ export const argTypes = assign(
   {
     active: {
       control: {},
+      description: "Sets the highlight accessor to the Shape class's active function.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -36,9 +37,10 @@ export const argTypes = assign(
     },
     data: {
       control: {
-        type: "array"
+        type: "object"
       },
       defaultValue: "[]",
+      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.",
       table: {
         defaultValue: {
           summary: "[]"
@@ -51,6 +53,7 @@ export const argTypes = assign(
     },
     hover: {
       control: {},
+      description: "Sets the highlight accessor to the Shape class's hover function.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -66,6 +69,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: black}",
+      description: "If *value* is specified, sets the config method for median and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{fill: black}"
@@ -81,7 +85,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"orient\"] || vertical",
-      description: "Accepts \"vertical\" or \"horizontal\"",
+      description: "If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.",
       table: {
         defaultValue: {
           detail: "d => d[\"orient\"] || vertical",
@@ -98,6 +102,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d => d[\"outlier\"] || Circle",
+      description: "If *value* is specified, sets the outlier accessor to the specified function or string and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"outlier\"] || Circle",
@@ -114,6 +119,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{Circle: {r: d => d[\"r\"] || 5}, Rect: {height: (d, i) => this._orient(d, i) === vertical ? 5 : 20, width: (d, i) => this._orient(d, i) === vertical ? 20 : 5}}",
+      description: "If *value* is specified, sets the config method for each outlier point and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "{Circle: {r: d => d[\"r\"] || 5}, Rect: {height: (d, i) => this._orient(d, i) === vertical ? 5 : 20, width: (d, i) => this._orient(d, i) === vertical ? 20 : 5}}",
@@ -130,6 +136,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{fill: white, stroke: black, strokeWidth: 1}",
+      description: "If *value* is specified, sets the config method for rect shape and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{fill: white, stroke: black, strokeWidth: 1}"
@@ -145,6 +152,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 50,
+      description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           summary: 50
@@ -157,6 +165,7 @@ export const argTypes = assign(
     },
     render: {
       control: {},
+      description: "Draws the Box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -172,6 +181,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "d3.select(\"body\").append(\"svg\")",
+      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
       table: {
         defaultValue: {
           summary: "d3.select(\"body\").append(\"svg\")"
@@ -187,6 +197,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: "{}",
+      description: "If *value* is specified, sets the config method for whisker and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -199,12 +210,13 @@ export const argTypes = assign(
     },
     whiskerMode: {
       control: {
-        type: "text"
+        type: "number"
       },
-      defaultValue: "[\ntukey,\ntukey\n]",
+      defaultValue: "[\n  tukey,\ntukey\n]",
+      description: "Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `\"tukey\"`, `\"extent\"`, or a Number representing a quantile.",
       table: {
         defaultValue: {
-          summary: "[\ntukey,\ntukey\n]"
+          summary: "[\n  tukey,\ntukey\n]"
         }
       },
       type: {
@@ -217,6 +229,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"x\"] || 250",
+      description: "If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"x\"] || 250",
@@ -233,6 +246,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: "d => d[\"y\"] || 250",
+      description: "If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.",
       table: {
         defaultValue: {
           detail: "d => d[\"y\"] || 250",
