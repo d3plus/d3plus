@@ -25,3 +25,43 @@ const Template = (args) => <Tree config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {parent: "Group 1", id: "alpha"},
+    {parent: "Group 1", id: "beta"},
+    {parent: "Group 1", id: "gamma"},
+    {parent: "Group 2", id: "delta"},
+    {parent: "Group 2", id: "eta"}
+  ],
+  groupBy: ["parent", "id"]
+};
+BasicExample.parameters = {controls: {include: ["groupBy"]}};
+
+export const HorizontalOrientation = Template.bind({});
+HorizontalOrientation.args = {
+  data: [
+    {parent: "Group 1", id: "alpha"},
+    {parent: "Group 1", id: "beta"},
+    {parent: "Group 1", id: "gamma"},
+    {parent: "Group 2", id: "delta"},
+    {parent: "Group 2", id: "eta"}
+  ],
+  groupBy: ["parent", "id"],
+  orient: "horizontal"
+};
+HorizontalOrientation.parameters = {controls: {include: ["orient"]}};
+
+export const ChangingShapes = Template.bind({});
+ChangingShapes.args = {
+  data: [
+    {parent: "Group 1", id: "alpha"},
+    {parent: "Group 1", id: "beta"},
+    {parent: "Group 1", id: "gamma"},
+    {parent: "Group 2", id: "delta"},
+    {parent: "Group 2", id: "eta"}
+  ],
+  groupBy: ["parent", "id"],
+  shape: funcify(d => d.parent === "Group 1" ? "Rect" : "Circle", 'd => d.parent === "Group 1" ? "Rect" : "Circle"')
+};
+ChangingShapes.parameters = {controls: {include: ["shape"]}};

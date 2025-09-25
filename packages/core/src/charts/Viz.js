@@ -1340,7 +1340,7 @@ If *data* is not specified, this method returns the current primary data array, 
   /**
       @memberof Viz
       @desc Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
-      @param {'Circle'|'Rect'|Function} [*value*]
+      @param {String|Function} [*value*]
       @chainable
   */
   shape(_) {
