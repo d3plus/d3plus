@@ -33,6 +33,7 @@ export default class Tree extends Viz {
     this._legendTooltip = assign(this._legendTooltip, {
       title: legendLabel.bind(this)
     });
+    this._previousShapes = [];
 
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
@@ -208,8 +209,10 @@ export default class Tree extends Viz {
     };
 
     const shapeData = nest(treeData, d => this._shape(d.data));
+    const dataShapes = shapeData.map(d => d.key);
+    const exitShapes = this._previousShapes.filter(d => !dataShapes.includes(d));
 
-    shapeData.forEach(({key, values}) => {
+    (shapeData.concat(exitShapes.map(key => ({key, values: []})))).forEach(({key, values}) => {
       this._shapes.push(new shapes[key]()
         .data(values)
         .select(elem(`g.d3plus-Tree-${key}`, elemObject).node())
@@ -217,6 +220,8 @@ export default class Tree extends Viz {
         .config(shapeConfig)
         .render());
     });
+    
+    this._previousShapes = dataShapes;
 
     return this;
 
@@ -224,8 +229,8 @@ export default class Tree extends Viz {
 
   /**
       @memberof Tree
-      @desc If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.
-      @param {String} [*value* = "vertical"] Accepts either "vertical" or "horizontal".
+      @desc Changes the orientation of the entire Tree, either "vertical" (top to bottom) or "horizontal" (left to right).
+      @param {'vertical'|'horizontal'} [*value* = "vertical"] Accepts either "vertical" or "horizontal".
   */
   orient(_) {
     return arguments.length ? (this._orient = _, this) : this._orient;
