@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/core",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "license": "MIT",
   "type": "module",
@@ -34,13 +34,13 @@
     "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/color": "3.0.7",
-    "@d3plus/data": "3.0.7",
-    "@d3plus/dom": "3.0.7",
-    "@d3plus/format": "3.0.7",
-    "@d3plus/locales": "3.0.7",
-    "@d3plus/math": "3.0.7",
-    "@d3plus/text": "3.0.7",
+    "@d3plus/color": "3.0.8",
+    "@d3plus/data": "3.0.8",
+    "@d3plus/dom": "3.0.8",
+    "@d3plus/format": "3.0.8",
+    "@d3plus/locales": "3.0.8",
+    "@d3plus/math": "3.0.8",
+    "@d3plus/text": "3.0.8",
     "@popperjs/core": "^2.11.8",
     "d3-array": "^3.2.4",
     "d3-brush": "^3.0.0",
