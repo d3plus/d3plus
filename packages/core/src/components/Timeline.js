@@ -513,7 +513,9 @@ export default class Timeline extends Axis {
       this._ticksWidth = maxLabel * ticks.length;
     }
 
-    const playButtonWidth = this._playButton ? this._buttonHeight : 0;
+    const playButtonWidth = this._playButton
+      ? this._playButtonConfig.width || this._buttonHeight
+      : 0;
     const space = this._width - playButtonWidth;
 
     this._buttonBehaviorCurrent =
@@ -644,7 +646,7 @@ export default class Timeline extends Axis {
                       : this._height - this._buttonHeight - this._margin.bottom
                     : this._outerBounds.y,
                 width: playButtonWidth,
-                height: playButtonWidth,
+                height: this._buttonHeight,
               },
             ]
           : []
