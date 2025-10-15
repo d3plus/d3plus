@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
