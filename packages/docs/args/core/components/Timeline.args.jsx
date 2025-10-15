@@ -26,11 +26,11 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => this._buttonBehaviorCurrent === buttons ? 0 : 1})",
+      defaultValue: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => (this._buttonBehaviorCurrent === buttons ? 0 : 1)})",
       description: "If *value* is specified, sets the axis line style and returns the current class instance.",
       table: {
         defaultValue: {
-          detail: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => this._buttonBehaviorCurrent === buttons ? 0 : 1})",
+          detail: "assign({}, this._barConfig, {stroke: () => this._buttonBehaviorCurrent === buttons ? transparent : colorMid, stroke-width: () => (this._buttonBehaviorCurrent === buttons ? 0 : 1)})",
           summary: "function"
         }
       },
@@ -298,11 +298,11 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => this._playTimer ? &#x23f8;&#xFE0E; : ⏵, textAnchor: middle, verticalAlign: middle}",
+      defaultValue: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => (this._playTimer ? ⏸ : ⏵), textAnchor: middle, verticalAlign: middle}",
       description: "The config Object for the Rect class used to create the playButton.",
       table: {
         defaultValue: {
-          detail: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => this._playTimer ? &#x23f8;&#xFE0E; : ⏵, textAnchor: middle, verticalAlign: middle}",
+          detail: "{fontColor: colorDefaults.dark, fontSize: 15, text: () => (this._playTimer ? ⏸ : ⏵), textAnchor: middle, verticalAlign: middle}",
           summary: "function"
         }
       },
