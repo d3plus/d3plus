@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
@@ -97,6 +95,6 @@ export const Rect = (props) => <Renderer className="shape" constructor={RectClas
 export const Shape = (props) => <Renderer className="shape" constructor={ShapeClass} {...props} />;
 export const Whisker = (props) => <Renderer className="shape" constructor={WhiskerClass} {...props} />;
 
-export const BaseClass = (props) => <Renderer className="util" constructor={BaseClass} {...props} />;
+export const BaseClass = (props) => <Renderer className="util" constructor={BaseClassClass} {...props} />;
 
 export {default as D3plusContext} from "./src/D3plusContext.jsx";
