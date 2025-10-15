@@ -11,7 +11,7 @@ import {closest} from "@d3plus/math";
 import {textWrap} from "@d3plus/text";
 
 import {Axis, TextBox} from "../components/index.js";
-import {constant} from "../utils/index.js";
+import {configPrep, constant} from "../utils/index.js";
 
 const colorMid = "#bbb";
 
@@ -650,7 +650,7 @@ export default class Timeline extends Axis {
           : []
       )
       .select(playButtonGroup.node())
-      .config(this._playButtonConfig)
+      .config(configPrep.bind(this)(this._playButtonConfig))
       .render();
 
     return this;

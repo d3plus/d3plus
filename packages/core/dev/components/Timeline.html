@@ -38,6 +38,12 @@
     .brushing(false)
     .playButton(true)
     .align("end")
+    .playButtonConfig({
+      fontSize: 8,
+      text() {
+        return this._playTimer ? "Pause" : "Play";
+      },
+    })
     // .title("Yearly (Single)")
     // .shapeConfig({
     //   fill() {
