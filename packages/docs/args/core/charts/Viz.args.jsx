@@ -1065,11 +1065,11 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      defaultValue: "{brushing: false, padding: 5}",
+      defaultValue: "{padding: 5}",
       description: "If *value* is specified, sets the config method for the timeline and returns the current class instance.",
       table: {
         defaultValue: {
-          summary: "{brushing: false, padding: 5}"
+          summary: "{padding: 5}"
         }
       },
       type: {
