@@ -1,4 +1,3 @@
-
 import {group, max, merge as arrayMerge, min, range, rollup} from "d3-array";
 import {brush} from "d3-brush";
 import {color} from "d3-color";
@@ -15,7 +14,13 @@ import {assign, date, getSize, inViewport} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
-import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../components/index.js";
+import {
+  ColorScale,
+  Legend,
+  TextBox,
+  Timeline,
+  Tooltip,
+} from "../components/index.js";
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 // import {Rect} from "../shape/index.js";
 
@@ -84,14 +89,12 @@ function accessorFetch(acc, d, i) {
     @desc Creates an x/y plot based on an array of data. If *data* is specified, immediately draws the tree map based on the specified array and returns the current class instance. If *data* is not specified on instantiation, it can be passed/updated after instantiation using the [data](#treemap.data) method. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
 */
 export default class Viz extends BaseClass {
-
   /**
       @memberof Viz
       @desc Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
-
     super();
 
     this._aggs = {};
@@ -105,35 +108,41 @@ export default class Viz extends BaseClass {
       font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
       margin: "5px",
       opacity: 0.75,
-      padding: "4px 6px 3px"
+      padding: "4px 6px 3px",
     };
     this._backClass = new TextBox()
       .on("click", () => {
         if (this._history.length) this.config(this._history.pop()).render();
-        else this.depth(this._drawDepth - 1).filter(false).render();
+        else
+          this.depth(this._drawDepth - 1)
+            .filter(false)
+            .render();
       })
-      .on("mousemove", () => this._backClass.select().style("cursor", "pointer"));
+      .on("mousemove", () =>
+        this._backClass.select().style("cursor", "pointer")
+      );
     this._backConfig = {
       fontSize: 10,
       padding: 5,
-      resize: false
+      resize: false,
     };
     this._cache = true;
 
     this._color = (d, i) => this._groupBy[0](d, i);
     this._colorDefaults = {
-      ...colorDefaults, 
-      scale: scaleOrdinal().range(colorDefaults.scale.range())
+      ...colorDefaults,
+      scale: scaleOrdinal().range(colorDefaults.scale.range()),
     };
     this._colorScaleClass = new ColorScale();
     this._colorScaleConfig = {
       axisConfig: {
         rounding: "inside",
       },
-      scale: "jenks"
+      scale: "jenks",
     };
     this._colorScalePadding = defaultPadding;
-    this._colorScalePosition = () => this._width > this._height * 1.5 ? "right" : "bottom";
+    this._colorScalePosition = () =>
+      this._width > this._height * 1.5 ? "right" : "bottom";
     this._colorScaleMaxSize = 600;
 
     this._data = [];
@@ -168,20 +177,24 @@ export default class Viz extends BaseClass {
         labelConfig: {
           fontColor: undefined,
           fontResize: false,
-          padding: 0
-        }
-      }
+          padding: 0,
+        },
+      },
     };
     this._legendFilterInvert = constant(false);
     this._legendPadding = defaultPadding;
-    this._legendPosition = () => this._width > this._height * 1.5 ? "right" : "bottom";
-    this._legendSort = (a, b) => this._drawLabel(a).localeCompare(this._drawLabel(b));
+    this._legendPosition = () =>
+      this._width > this._height * 1.5 ? "right" : "bottom";
+    this._legendSort = (a, b) =>
+      this._drawLabel(a).localeCompare(this._drawLabel(b));
     this._legendTooltip = {};
 
     this._loadingHTML = () => `
     <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
       <strong>${this._translate("Loading Visualization")}</strong>
-      <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this._translate("Powered by D3plus")}</a></sub>
+      <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this._translate(
+        "Powered by D3plus"
+      )}</a></sub>
     </div>`;
 
     this._loadingMessage = true;
@@ -189,12 +202,12 @@ export default class Viz extends BaseClass {
     this._messageClass = new Message();
     this._messageMask = "rgba(0, 0, 0, 0.05)";
     this._messageStyle = {
-      "bottom": "0",
-      "left": "0",
-      "position": "absolute",
-      "right": "0",
+      bottom: "0",
+      left: "0",
+      position: "absolute",
+      right: "0",
       "text-align": "center",
-      "top": "0"
+      top: "0",
     };
 
     this._noDataHTML = () => `
@@ -206,10 +219,10 @@ export default class Viz extends BaseClass {
     this._on = {
       "click.shape": clickShape.bind(this),
       "click.legend": clickLegend.bind(this),
-      "mouseenter": mouseenter.bind(this),
-      "mouseleave": mouseleave.bind(this),
+      mouseenter: mouseenter.bind(this),
+      mouseleave: mouseleave.bind(this),
       "mousemove.shape": mousemoveShape.bind(this),
-      "mousemove.legend": mousemoveLegend.bind(this)
+      "mousemove.legend": mousemoveLegend.bind(this),
     };
     this._queue = [];
     this._resizeContainer = typeof window === "undefined" ? "" : window;
@@ -228,28 +241,41 @@ export default class Viz extends BaseClass {
           if (c !== undefined && c !== null) {
             const scale = this._colorScaleClass._colorScale;
             const colors = this._colorScaleClass.color();
-            if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
-            else if (!scale.domain().length) return scale.range()[scale.range().length - 1];
+            if (!scale)
+              return colors instanceof Array
+                ? colors[colors.length - 1]
+                : colors;
+            else if (!scale.domain().length)
+              return scale.range()[scale.range().length - 1];
             return scale(c);
           }
         }
         const c = this._color(d, i);
         if (color(c)) return c;
-        return colorAssign(typeof c === "string" ? c : JSON.stringify(c), this._colorDefaults);
+        return colorAssign(
+          typeof c === "string" ? c : JSON.stringify(c),
+          this._colorDefaults
+        );
       },
       labelConfig: {
         fontColor: (d, i) => {
-          const c = typeof this._shapeConfig.fill === "function" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;
+          const c =
+            typeof this._shapeConfig.fill === "function"
+              ? this._shapeConfig.fill(d, i)
+              : this._shapeConfig.fill;
           return colorContrast(c);
-        }
+        },
       },
       opacity: constant(1),
       stroke: (d, i) => {
-        const c = typeof this._shapeConfig.fill === "function" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;
+        const c =
+          typeof this._shapeConfig.fill === "function"
+            ? this._shapeConfig.fill(d, i)
+            : this._shapeConfig.fill;
         return color(c).darker(0.25);
       },
       role: "presentation",
-      strokeWidth: constant(0)
+      strokeWidth: constant(0),
     };
     this._solo = [];
 
@@ -259,7 +285,7 @@ export default class Viz extends BaseClass {
       fontSize: 12,
       padding: 5,
       resize: false,
-      textAnchor: "middle"
+      textAnchor: "middle",
     };
     this._subtitlePadding = defaultPadding;
 
@@ -269,8 +295,7 @@ export default class Viz extends BaseClass {
     this._timeline = true;
     this._timelineClass = new Timeline().align("end");
     this._timelineConfig = {
-      brushing: false,
-      padding: 5
+      padding: 5,
     };
     this._timelinePadding = defaultPadding;
 
@@ -284,7 +309,7 @@ export default class Viz extends BaseClass {
       fontSize: 16,
       padding: 5,
       resize: false,
-      textAnchor: "middle"
+      textAnchor: "middle",
     };
     this._titlePadding = defaultPadding;
 
@@ -293,8 +318,8 @@ export default class Viz extends BaseClass {
     this._tooltipConfig = {
       pointerEvents: "none",
       titleStyle: {
-        "max-width": "200px"
-      }
+        "max-width": "200px",
+      },
     };
 
     this._totalClass = new TextBox();
@@ -302,9 +327,10 @@ export default class Viz extends BaseClass {
       fontSize: 10,
       padding: 5,
       resize: false,
-      textAnchor: "middle"
+      textAnchor: "middle",
     };
-    this._totalFormat = d => `${this._translate("Total")}: ${formatAbbreviate(d, this._locale)}`;
+    this._totalFormat = d =>
+      `${this._translate("Total")}: ${formatAbbreviate(d, this._locale)}`;
     this._totalPadding = defaultPadding;
 
     this._zoom = false;
@@ -312,40 +338,39 @@ export default class Viz extends BaseClass {
     this._zoomBrush = brush();
     this._zoomBrushHandleSize = 1;
     this._zoomBrushHandleStyle = {
-      fill: "#444"
-  };
+      fill: "#444",
+    };
     this._zoomBrushSelectionStyle = {
-      "fill": "#777",
-      "stroke-width": 0
+      fill: "#777",
+      "stroke-width": 0,
     };
     this._zoomControlStyle = {
-      "background": "rgba(255, 255, 255, 0.75)",
-      "border": "1px solid rgba(0, 0, 0, 0.75)",
-      "color": "rgba(0, 0, 0, 0.75)",
-      "display": "block",
-      "font": `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
-      "height": "20px",
-      "margin": "5px",
-      "opacity": 0.75,
-      "padding": 0,
+      background: "rgba(255, 255, 255, 0.75)",
+      border: "1px solid rgba(0, 0, 0, 0.75)",
+      color: "rgba(0, 0, 0, 0.75)",
+      display: "block",
+      font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
+      height: "20px",
+      margin: "5px",
+      opacity: 0.75,
+      padding: 0,
       "text-align": "center",
-      "width": "20px"
+      width: "20px",
     };
     this._zoomControlStyleActive = {
       background: "rgba(0, 0, 0, 0.75)",
       color: "rgba(255, 255, 255, 0.75)",
-      opacity: 1
+      opacity: 1,
     };
     this._zoomControlStyleHover = {
       cursor: "pointer",
-      opacity: 1
+      opacity: 1,
     };
     this._zoomFactor = 2;
     this._zoomMax = 16;
     this._zoomPadding = 20;
     this._zoomPan = true;
     this._zoomScroll = true;
-
   }
 
   /**
@@ -356,20 +381,26 @@ export default class Viz extends BaseClass {
   _preDraw() {
     const that = this;
     // based on the groupBy, determine the draw depth and current depth id
-    this._drawDepth = this._depth !== void 0
-      ? min([this._depth >= 0 ? this._depth : 0, this._groupBy.length - 1])
-      : this._groupBy.length - 1;
+    this._drawDepth =
+      this._depth !== void 0
+        ? min([this._depth >= 0 ? this._depth : 0, this._groupBy.length - 1])
+        : this._groupBy.length - 1;
 
     // Returns the current unique ID for a data point, coerced to a String.
     this._id = (d, i) => {
-      const groupByDrawDepth = accessorFetch(this._groupBy[this._drawDepth], d, i);
-      return typeof groupByDrawDepth === "number" ? `${groupByDrawDepth}` : groupByDrawDepth;
+      const groupByDrawDepth = accessorFetch(
+        this._groupBy[this._drawDepth],
+        d,
+        i
+      );
+      return typeof groupByDrawDepth === "number"
+        ? `${groupByDrawDepth}`
+        : groupByDrawDepth;
     };
 
     // Returns an array of the current unique groupBy ID for a data point, coerced to Strings.
-    this._ids = (d, i) => this._groupBy
-      .map(g => `${accessorFetch(g, d, i)}`)
-      .filter(Boolean);
+    this._ids = (d, i) =>
+      this._groupBy.map(g => `${accessorFetch(g, d, i)}`).filter(Boolean);
 
     this._drawLabel = (d, i, depth = this._drawDepth) => {
       if (!d) return "";
@@ -378,71 +409,88 @@ export default class Viz extends BaseClass {
         i = d.i;
       }
       if (d._isAggregation) {
-        return `${this._thresholdName(d, i)} < ${formatAbbreviate(d._threshold * 100, this._locale)}%`;
+        return `${this._thresholdName(d, i)} < ${formatAbbreviate(
+          d._threshold * 100,
+          this._locale
+        )}%`;
       }
-      if (this._label && depth === this._drawDepth) return `${this._label(d, i)}`;
+      if (this._label && depth === this._drawDepth)
+        return `${this._label(d, i)}`;
       const l = that._ids(d, i).slice(0, depth + 1);
-      const n = l.reverse().find(ll => !(ll instanceof Array)) || l[l.length - 1];
+      const n =
+        l.reverse().find(ll => !(ll instanceof Array)) || l[l.length - 1];
       return n instanceof Array ? listify(n) : `${n}`;
     };
 
     // set the default timeFilter if it has not been specified
     if (this._time && !this._timeFilter && this._data.length) {
-
       const dates = this._data.map(this._time).map(date);
-      const d = this._data[0], i = 0;
+      const d = this._data[0],
+        i = 0;
 
-      if (this._discrete && `_${this._discrete}` in this && this[`_${this._discrete}`](d, i) === this._time(d, i)) {
+      if (
+        this._discrete &&
+        `_${this._discrete}` in this &&
+        this[`_${this._discrete}`](d, i) === this._time(d, i)
+      ) {
         this._timeFilter = () => true;
-      }
-      else {
+      } else {
         const latestTime = +max(dates);
         this._timeFilter = (d, i) => +date(this._time(d, i)) === latestTime;
       }
-
     }
 
     this._filteredData = [];
     this._legendData = [];
     let flatData = [];
     if (this._data.length) {
-
-      flatData = this._timeFilter ? this._data.filter(this._timeFilter) : this._data;
+      flatData = this._timeFilter
+        ? this._data.filter(this._timeFilter)
+        : this._data;
       if (this._filter) flatData = flatData.filter(this._filter);
       const nestKeys = [];
-      for (let i = 0; i <= this._drawDepth; i++) nestKeys.push(this._groupBy[i]);
-      if (this._discrete && `_${this._discrete}` in this) nestKeys.push(this[`_${this._discrete}`]);
-      if (this._discrete && `_${this._discrete}2` in this) nestKeys.push(this[`_${this._discrete}2`]);
+      for (let i = 0; i <= this._drawDepth; i++)
+        nestKeys.push(this._groupBy[i]);
+      if (this._discrete && `_${this._discrete}` in this)
+        nestKeys.push(this[`_${this._discrete}`]);
+      if (this._discrete && `_${this._discrete}2` in this)
+        nestKeys.push(this[`_${this._discrete}2`]);
 
-      const tree = rollup(flatData, leaves => {
+      const tree = rollup(
+        flatData,
+        leaves => {
+          const index = this._data.indexOf(leaves[0]);
+          const shape = this._shape(leaves[0], index);
+          const id = this._id(leaves[0], index);
 
-        const index = this._data.indexOf(leaves[0]);
-        const shape = this._shape(leaves[0], index);
-        const id = this._id(leaves[0], index);
+          const d = merge(leaves, this._aggs);
 
-        const d = merge(leaves, this._aggs);
-
-        if (!this._hidden.includes(id) && (!this._solo.length || this._solo.includes(id))) {
-          if (!this._discrete && shape === "Line") this._filteredData = this._filteredData.concat(leaves);
-          else this._filteredData.push(d);
-        }
-        this._legendData.push(d);
-
-      }, ...nestKeys);
+          if (
+            !this._hidden.includes(id) &&
+            (!this._solo.length || this._solo.includes(id))
+          ) {
+            if (!this._discrete && shape === "Line")
+              this._filteredData = this._filteredData.concat(leaves);
+            else this._filteredData.push(d);
+          }
+          this._legendData.push(d);
+        },
+        ...nestKeys
+      );
 
       this._filteredData = this._thresholdFunction(this._filteredData, tree);
-
     }
 
     // overrides the hoverOpacity of shapes if data is larger than cutoff
     const uniqueIds = group(this._filteredData, this._id).size;
     if (uniqueIds > this._dataCutoff) {
-      if (this._userHover === undefined) this._userHover = this._shapeConfig.hoverOpacity || 0.5;
-      if (this._userDuration === undefined) this._userDuration = this._shapeConfig.duration || 600;
+      if (this._userHover === undefined)
+        this._userHover = this._shapeConfig.hoverOpacity || 0.5;
+      if (this._userDuration === undefined)
+        this._userDuration = this._shapeConfig.duration || 600;
       this._shapeConfig.hoverOpacity = 1;
       this._shapeConfig.duration = 0;
-    }
-    else if (this._userHover !== undefined) {
+    } else if (this._userHover !== undefined) {
       this._shapeConfig.hoverOpacity = this._userHover;
       this._shapeConfig.duration = this._userDuration;
     }
@@ -452,11 +500,10 @@ export default class Viz extends BaseClass {
         container: this._select.node().parentNode,
         html: this._noDataHTML(this),
         mask: false,
-        style: this._messageStyle
+        style: this._messageStyle,
       });
       this._select.transition().duration(this._duration).attr("opacity", 0);
     }
-
   }
 
   /**
@@ -465,16 +512,23 @@ export default class Viz extends BaseClass {
       @private
   */
   _draw() {
-
     // Sanitizes user input for legendPosition and colorScalePosition
     let legendPosition = this._legendPosition.bind(this)(this.config());
-    if (![false, "top", "bottom", "left", "right"].includes(legendPosition)) legendPosition = "bottom";
+    if (![false, "top", "bottom", "left", "right"].includes(legendPosition))
+      legendPosition = "bottom";
     let colorScalePosition = this._colorScalePosition.bind(this)(this.config());
-    if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition)) colorScalePosition = "bottom";
+    if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition))
+      colorScalePosition = "bottom";
 
     // Draws legend and colorScale if they are positioned "left" or "right"
-    if (legendPosition === "left" || legendPosition === "right") drawLegend.bind(this)(this._legendData);
-    if (colorScalePosition === "left" || colorScalePosition === "right" || colorScalePosition === false) drawColorScale.bind(this)(this._filteredData);
+    if (legendPosition === "left" || legendPosition === "right")
+      drawLegend.bind(this)(this._legendData);
+    if (
+      colorScalePosition === "left" ||
+      colorScalePosition === "right" ||
+      colorScalePosition === false
+    )
+      drawColorScale.bind(this)(this._filteredData);
 
     // Draws all of the top/bottom UI elements
     drawBack.bind(this)();
@@ -484,8 +538,10 @@ export default class Viz extends BaseClass {
     drawTimeline.bind(this)(this._filteredData);
 
     // Draws legend and colorScale if they are positioned "top" or "bottom"
-    if (legendPosition === "top" || legendPosition === "bottom") drawLegend.bind(this)(this._legendData);
-    if (colorScalePosition === "top" || colorScalePosition === "bottom") drawColorScale.bind(this)(this._filteredData);
+    if (legendPosition === "top" || legendPosition === "bottom")
+      drawLegend.bind(this)(this._legendData);
+    if (colorScalePosition === "top" || colorScalePosition === "bottom")
+      drawColorScale.bind(this)(this._filteredData);
 
     this._shapes = [];
 
@@ -539,7 +595,6 @@ export default class Viz extends BaseClass {
     //   .width(testWidth)
     //   .height(testWidth)
     //   .render());
-
   }
 
   /**
@@ -558,21 +613,25 @@ export default class Viz extends BaseClass {
       @chainable
   */
   render(callback) {
-
     // Resets margins and padding
     this._margin = {bottom: 0, left: 0, right: 0, top: 0};
     this._padding = {bottom: 0, left: 0, right: 0, top: 0};
 
     // Appends a fullscreen SVG to the BODY if a container has not been provided through .select().
-    if (this._select === void 0 || this._select.node().tagName.toLowerCase() !== "svg") {
-      const parent = this._select === void 0 ? select("body").append("div") : this._select;
-      const svg = parent.select(".d3plus-viz").size() ? parent.select(".d3plus-viz") : parent.append("svg");
+    if (
+      this._select === void 0 ||
+      this._select.node().tagName.toLowerCase() !== "svg"
+    ) {
+      const parent =
+        this._select === void 0 ? select("body").append("div") : this._select;
+      const svg = parent.select(".d3plus-viz").size()
+        ? parent.select(".d3plus-viz")
+        : parent.append("svg");
       this.select(svg.node());
     }
 
     /** detects width and height and sets SVG properties */
     function setSVGSize() {
-
       const display = this._select.style("display");
       this._select.style("display", "none");
 
@@ -585,34 +644,50 @@ export default class Viz extends BaseClass {
 
       if (this._autoWidth) {
         this.width(w);
-        this._select.style("width", `${this._width}px`).attr("width", `${this._width}px`);
+        this._select
+          .style("width", `${this._width}px`)
+          .attr("width", `${this._width}px`);
       }
       if (this._autoHeight) {
         this.height(h);
-        this._select.style("height", `${this._height}px`).attr("height", `${this._height}px`);
+        this._select
+          .style("height", `${this._height}px`)
+          .attr("height", `${this._height}px`);
       }
-
     }
 
     // Calculates the width and/or height of the Viz based on the this._select, if either has not been defined.
-    if ((!this._width || !this._height) && (!this._detectVisible || inViewport(this._select.node()))) {
+    if (
+      (!this._width || !this._height) &&
+      (!this._detectVisible || inViewport(this._select.node()))
+    ) {
       this._autoWidth = this._width === undefined;
       this._autoHeight = this._height === undefined;
       setSVGSize.bind(this)();
     }
 
     this._select
-        .attr("class", "d3plus-viz")
-        .attr("aria-hidden", this._ariaHidden)
-        .attr("aria-labelledby", `${this._uuid}-title ${this._uuid}-desc`)
-        .attr("role", "img")
-        .attr("xmlns", "http://www.w3.org/2000/svg")
-        .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
-      .transition().duration(this._duration)
-        .style("width", this._width !== undefined ? `${this._width}px` : undefined)
-        .style("height", this._height !== undefined ? `${this._height}px` : undefined)
-        .attr("width", this._width !== undefined ? `${this._width}px` : undefined)
-        .attr("height", this._height !== undefined ? `${this._height}px` : undefined);
+      .attr("class", "d3plus-viz")
+      .attr("aria-hidden", this._ariaHidden)
+      .attr("aria-labelledby", `${this._uuid}-title ${this._uuid}-desc`)
+      .attr("role", "img")
+      .attr("xmlns", "http://www.w3.org/2000/svg")
+      .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
+      .transition()
+      .duration(this._duration)
+      .style(
+        "width",
+        this._width !== undefined ? `${this._width}px` : undefined
+      )
+      .style(
+        "height",
+        this._height !== undefined ? `${this._height}px` : undefined
+      )
+      .attr("width", this._width !== undefined ? `${this._width}px` : undefined)
+      .attr(
+        "height",
+        this._height !== undefined ? `${this._height}px` : undefined
+      );
 
     // sets "position: relative" on the SVG parent if currently undefined
     const parent = select(this._select.node().parentNode);
@@ -625,12 +700,18 @@ export default class Viz extends BaseClass {
 
     // Updates the <title> tag if already exists else creates a new <title> tag on this.select.
     const svgTitle = this._select.selectAll("title").data([0]);
-    const svgTitleEnter = svgTitle.enter().append("title").attr("id", `${this._uuid}-title`);
+    const svgTitleEnter = svgTitle
+      .enter()
+      .append("title")
+      .attr("id", `${this._uuid}-title`);
     svgTitle.merge(svgTitleEnter).text(this._svgTitle);
 
     // Updates the <desc> tag if already exists else creates a new <desc> tag on this.select.
     const svgDesc = this._select.selectAll("desc").data([0]);
-    const svgDescEnter = svgDesc.enter().append("desc").attr("id", `${this._uuid}-desc`);
+    const svgDescEnter = svgDesc
+      .enter()
+      .append("desc")
+      .attr("id", `${this._uuid}-desc`);
     svgDesc.merge(svgDescEnter).text(this._svgDesc);
 
     this._visiblePoll = clearInterval(this._visiblePoll);
@@ -639,27 +720,23 @@ export default class Viz extends BaseClass {
     select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
     select(this._resizeContainer).on(`resize.${this._uuid}`, null);
     if (this._detectVisible && this._select.style("visibility") === "hidden") {
-
       this._visiblePoll = setInterval(() => {
         if (this._select.style("visibility") !== "hidden") {
           this._visiblePoll = clearInterval(this._visiblePoll);
           this.render(callback);
         }
       }, this._detectVisibleInterval);
-
-    }
-    else if (this._detectVisible && this._select.style("display") === "none") {
-
+    } else if (
+      this._detectVisible &&
+      this._select.style("display") === "none"
+    ) {
       this._visiblePoll = setInterval(() => {
         if (this._select.style("display") !== "none") {
           this._visiblePoll = clearInterval(this._visiblePoll);
           this.render(callback);
         }
       }, this._detectVisibleInterval);
-
-    }
-    else if (this._detectVisible && !inViewport(this._select.node())) {
-
+    } else if (this._detectVisible && !inViewport(this._select.node())) {
       select(this._scrollContainer).on(`scroll.${this._uuid}`, () => {
         if (!this._scrollPoll) {
           this._scrollPoll = setTimeout(() => {
@@ -671,9 +748,7 @@ export default class Viz extends BaseClass {
           }, this._detectVisibleInterval);
         }
       });
-
-    }
-    else {
+    } else {
       const q = queue();
 
       this._queue.forEach(p => {
@@ -690,33 +765,51 @@ export default class Viz extends BaseClass {
           container: this._select.node().parentNode,
           html: this._loadingHTML(this),
           mask: this._filteredData ? this._messageMask : false,
-          style: this._messageStyle
+          style: this._messageStyle,
         });
       }
 
       q.awaitAll(() => {
-
         // creates a data table as DOM elements inside of the SVG for accessibility
         // only if this._ariaHidden is set to true
-        const columns = this._data instanceof Array && this._data.length > 0 ? Object.keys(this._data[0]) : [];
-        const svgTable = this._select.selectAll("g.data-table")
-          .data(!this._ariaHidden && this._data instanceof Array && this._data.length ? [0] : []);
-        const svgTableEnter = svgTable.enter().append("g")
+        const columns =
+          this._data instanceof Array && this._data.length > 0
+            ? Object.keys(this._data[0])
+            : [];
+        const svgTable = this._select
+          .selectAll("g.data-table")
+          .data(
+            !this._ariaHidden &&
+              this._data instanceof Array &&
+              this._data.length
+              ? [0]
+              : []
+          );
+        const svgTableEnter = svgTable
+          .enter()
+          .append("g")
           .attr("class", "data-table")
           .attr("role", "table");
         svgTable.exit().remove();
-        const rows = svgTable.merge(svgTableEnter)
+        const rows = svgTable
+          .merge(svgTableEnter)
           .selectAll("text")
-          .data(this._data instanceof Array ? range(0, this._data.length + 1) : []);
+          .data(
+            this._data instanceof Array ? range(0, this._data.length + 1) : []
+          );
         rows.exit().remove();
-        const cells = rows.merge(rows.enter().append("text").attr("role", "row"))
+        const cells = rows
+          .merge(rows.enter().append("text").attr("role", "row"))
           .selectAll("tspan")
-          .data((d, i) => columns.map(c => ({
-            role: i ? "cell" : "columnheader",
-            text: i ? this._data[i - 1][c] : c
-          })));
+          .data((d, i) =>
+            columns.map(c => ({
+              role: i ? "cell" : "columnheader",
+              text: i ? this._data[i - 1][c] : c,
+            }))
+          );
         cells.exit().remove();
-        cells.merge(cells.enter().append("tspan"))
+        cells
+          .merge(cells.enter().append("tspan"))
           .attr("role", d => d.role)
           .attr("dy", "-1000px")
           .html(d => d.text);
@@ -727,9 +820,16 @@ export default class Viz extends BaseClass {
         zoomControls.bind(this)();
         drawAttribution.bind(this)();
 
-        if (this._messageClass._isVisible && (!this._noDataMessage || this._filteredData.length)) {
+        if (
+          this._messageClass._isVisible &&
+          (!this._noDataMessage || this._filteredData.length)
+        ) {
           this._messageClass.hide();
-          if (this._select.attr("opacity") === "0") this._select.transition().duration(this._duration).attr("opacity", 1);
+          if (this._select.attr("opacity") === "0")
+            this._select
+              .transition()
+              .duration(this._duration)
+              .attr("opacity", 1);
         }
 
         if (this._detectResize && (this._autoWidth || this._autoHeight)) {
@@ -745,14 +845,12 @@ export default class Viz extends BaseClass {
 
         if (callback) setTimeout(callback, this._duration + 100);
       });
-
     }
 
     // Attaches touchstart event listener to the BODY to hide the tooltip when the user touches any element without data
     select("body").on(`touchstart.${this._uuid}`, touchstartBody.bind(this));
 
     return this;
-
   }
 
   /**
@@ -762,7 +860,6 @@ export default class Viz extends BaseClass {
       @chainable
   */
   active(_) {
-
     this._active = _;
 
     if (this._shapeConfig.activeOpacity !== 1) {
@@ -780,7 +877,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   aggs(_) {
-    return arguments.length ? (this._aggs = assign(this._aggs, _), this) : this._aggs;
+    return arguments.length
+      ? ((this._aggs = assign(this._aggs, _)), this)
+      : this._aggs;
   }
 
   /**
@@ -790,7 +889,7 @@ export default class Viz extends BaseClass {
       @chainable
   */
   ariaHidden(_) {
-    return arguments.length ? (this._ariaHidden = _, this) : this._ariaHidden;
+    return arguments.length ? ((this._ariaHidden = _), this) : this._ariaHidden;
   }
 
   /**
@@ -800,7 +899,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   attribution(_) {
-    return arguments.length ? (this._attribution = _, this) : this._attribution;
+    return arguments.length
+      ? ((this._attribution = _), this)
+      : this._attribution;
   }
 
   /**
@@ -810,7 +911,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   attributionStyle(_) {
-    return arguments.length ? (this._attributionStyle = assign(this._attributionStyle, _), this) : this._attributionStyle;
+    return arguments.length
+      ? ((this._attributionStyle = assign(this._attributionStyle, _)), this)
+      : this._attributionStyle;
   }
 
   /**
@@ -820,7 +923,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   backConfig(_) {
-    return arguments.length ? (this._backConfig = assign(this._backConfig, _), this) : this._backConfig;
+    return arguments.length
+      ? ((this._backConfig = assign(this._backConfig, _)), this)
+      : this._backConfig;
   }
 
   /**
@@ -830,7 +935,7 @@ export default class Viz extends BaseClass {
       @chainable
   */
   cache(_) {
-    return arguments.length ? (this._cache = _, this) : this._cache;
+    return arguments.length ? ((this._cache = _), this) : this._cache;
   }
 
   /**
@@ -840,7 +945,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   color(_) {
-    return arguments.length ? (this._color = !_ || typeof _ === "function" ? _ : accessor(_), this) : this._color;
+    return arguments.length
+      ? ((this._color = !_ || typeof _ === "function" ? _ : accessor(_)), this)
+      : this._color;
   }
 
   /**
@@ -850,7 +957,10 @@ export default class Viz extends BaseClass {
       @chainable
   */
   colorScale(_) {
-    return arguments.length ? (this._colorScale = !_ || typeof _ === "function" ? _ : accessor(_), this) : this._colorScale;
+    return arguments.length
+      ? ((this._colorScale = !_ || typeof _ === "function" ? _ : accessor(_)),
+        this)
+      : this._colorScale;
   }
 
   /**
@@ -860,7 +970,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   colorScaleConfig(_) {
-    return arguments.length ? (this._colorScaleConfig = assign(this._colorScaleConfig, _), this) : this._colorScaleConfig;
+    return arguments.length
+      ? ((this._colorScaleConfig = assign(this._colorScaleConfig, _)), this)
+      : this._colorScaleConfig;
   }
 
   /**
@@ -870,7 +982,10 @@ export default class Viz extends BaseClass {
       @chainable
   */
   colorScalePadding(_) {
-    return arguments.length ? (this._colorScalePadding = typeof _ === "function" ? _ : constant(_), this) : this._colorScalePadding;
+    return arguments.length
+      ? ((this._colorScalePadding = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._colorScalePadding;
   }
 
   /**
@@ -880,7 +995,10 @@ export default class Viz extends BaseClass {
       @chainable
   */
   colorScalePosition(_) {
-    return arguments.length ? (this._colorScalePosition = typeof _ === "function" ? _ : constant(_), this) : this._colorScalePosition;
+    return arguments.length
+      ? ((this._colorScalePosition = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._colorScalePosition;
   }
 
   /**
@@ -890,7 +1008,9 @@ export default class Viz extends BaseClass {
       @chainable
   */
   colorScaleMaxSize(_) {
-    return arguments.length ? (this._colorScaleMaxSize = _, this) : this._colorScaleMaxSize;
+    return arguments.length
+      ? ((this._colorScaleMaxSize = _), this)
+      : this._colorScaleMaxSize;
   }
 
   /**
@@ -913,7 +1033,10 @@ If *data* is not specified, this method returns the current primary data array, 
       addToQueue.bind(this)(_, f, "data");
       this._hidden = [];
       this._solo = [];
-      if (this._userData && JSON.stringify(_) !== JSON.stringify(this._userData)) {
+      if (
+        this._userData &&
+        JSON.stringify(_) !== JSON.stringify(this._userData)
+      ) {
         this._timeFilter = false;
         this._timelineSelection = false;
       }
@@ -930,7 +1053,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   dataCutoff(_) {
-    return arguments.length ? (this._dataCutoff = _, this) : this._dataCutoff;
+    return arguments.length ? ((this._dataCutoff = _), this) : this._dataCutoff;
   }
 
   /**
@@ -940,7 +1063,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   depth(_) {
-    return arguments.length ? (this._depth = _, this) : this._depth;
+    return arguments.length ? ((this._depth = _), this) : this._depth;
   }
 
   /**
@@ -950,7 +1073,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   detectResize(_) {
-    return arguments.length ? (this._detectResize = _, this) : this._detectResize;
+    return arguments.length
+      ? ((this._detectResize = _), this)
+      : this._detectResize;
   }
 
   /**
@@ -960,7 +1085,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   detectResizeDelay(_) {
-    return arguments.length ? (this._detectResizeDelay = _, this) : this._detectResizeDelay;
+    return arguments.length
+      ? ((this._detectResizeDelay = _), this)
+      : this._detectResizeDelay;
   }
 
   /**
@@ -970,7 +1097,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   detectVisible(_) {
-    return arguments.length ? (this._detectVisible = _, this) : this._detectVisible;
+    return arguments.length
+      ? ((this._detectVisible = _), this)
+      : this._detectVisible;
   }
 
   /**
@@ -980,7 +1109,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   detectVisibleInterval(_) {
-    return arguments.length ? (this._detectVisibleInterval = _, this) : this._detectVisibleInterval;
+    return arguments.length
+      ? ((this._detectVisibleInterval = _), this)
+      : this._detectVisibleInterval;
   }
 
   /**
@@ -990,7 +1121,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   discrete(_) {
-    return arguments.length ? (this._discrete = _, this) : this._discrete;
+    return arguments.length ? ((this._discrete = _), this) : this._discrete;
   }
 
   /**
@@ -1000,7 +1131,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   downloadButton(_) {
-    return arguments.length ? (this._downloadButton = _, this) : this._downloadButton;
+    return arguments.length
+      ? ((this._downloadButton = _), this)
+      : this._downloadButton;
   }
 
   /**
@@ -1010,7 +1143,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   downloadConfig(_) {
-    return arguments.length ? (this._downloadConfig = assign(this._downloadConfig, _), this) : this._downloadConfig;
+    return arguments.length
+      ? ((this._downloadConfig = assign(this._downloadConfig, _)), this)
+      : this._downloadConfig;
   }
 
   /**
@@ -1020,7 +1155,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   downloadPosition(_) {
-    return arguments.length ? (this._downloadPosition = _, this) : this._downloadPosition;
+    return arguments.length
+      ? ((this._downloadPosition = _), this)
+      : this._downloadPosition;
   }
 
   /**
@@ -1030,7 +1167,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   duration(_) {
-    return arguments.length ? (this._duration = _, this) : this._duration;
+    return arguments.length ? ((this._duration = _), this) : this._duration;
   }
 
   /**
@@ -1040,7 +1177,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   filter(_) {
-    return arguments.length ? (this._filter = _, this) : this._filter;
+    return arguments.length ? ((this._filter = _), this) : this._filter;
   }
 
   /**
@@ -1058,16 +1195,20 @@ If *data* is not specified, this method returns the current primary data array, 
       this.shapeConfig({labelConfig});
       this.colorScaleConfig({axisConfig});
 
-      ["axis", "column", "row", "timeline", "x", "y", "x2", "y2"].forEach(axis => {
-        const method = `${axis}Config`;
-        if (this[method]) this[method](axisConfig);
-      });
+      ["axis", "column", "row", "timeline", "x", "y", "x2", "y2"].forEach(
+        axis => {
+          const method = `${axis}Config`;
+          if (this[method]) this[method](axisConfig);
+        }
+      );
       ["back", "title", "total", "subtitle"].forEach(label => {
         const method = `${label}Config`;
         if (this[method]) this[method](labelConfig);
       });
 
-      this.tooltipConfig({tooltipStyle: {"font-family": fontFamilyStringify(_)}});
+      this.tooltipConfig({
+        tooltipStyle: {"font-family": fontFamilyStringify(_)},
+      });
 
       this._fontFamily = _;
       return this;
@@ -1085,18 +1226,21 @@ If *data* is not specified, this method returns the current primary data array, 
     if (!arguments.length) return this._groupBy;
     this._groupByRaw = _;
     if (!(_ instanceof Array)) _ = [_];
-    return this._groupBy = _.map(k => {
-      if (typeof k === "function") return k;
-      else {
-        if (!this._aggs[k]) {
-          this._aggs[k] = (a, c) => {
-            const v = unique(a.map(c));
-            return v.length === 1 ? v[0] : v;
-          };
+    return (
+      (this._groupBy = _.map(k => {
+        if (typeof k === "function") return k;
+        else {
+          if (!this._aggs[k]) {
+            this._aggs[k] = (a, c) => {
+              const v = unique(a.map(c));
+              return v.length === 1 ? v[0] : v;
+            };
+          }
+          return accessor(k);
         }
-        return accessor(k);
-      }
-    }), this;
+      })),
+      this
+    );
   }
 
   /**
@@ -1106,7 +1250,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   height(_) {
-    return arguments.length ? (this._height = _, this) : this._height;
+    return arguments.length ? ((this._height = _), this) : this._height;
   }
 
   /**
@@ -1116,7 +1260,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   hiddenColor(_) {
-    return arguments.length ? (this._hiddenColor = typeof _ === "function" ? _ : constant(_), this) : this._hiddenColor;
+    return arguments.length
+      ? ((this._hiddenColor = typeof _ === "function" ? _ : constant(_)), this)
+      : this._hiddenColor;
   }
 
   /**
@@ -1126,7 +1272,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   hiddenOpacity(_) {
-    return arguments.length ? (this._hiddenOpacity = typeof _ === "function" ? _ : constant(_), this) : this._hiddenOpacity;
+    return arguments.length
+      ? ((this._hiddenOpacity = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._hiddenOpacity;
   }
 
   /**
@@ -1136,13 +1285,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   hover(_) {
-
-    let hoverFunction = this._hover = _;
+    let hoverFunction = (this._hover = _);
 
     if (this._shapeConfig.hoverOpacity !== 1) {
-
       if (typeof _ === "function") {
-
         let shapeData = arrayMerge(this._shapes.map(s => s.data()));
         shapeData = shapeData.concat(this._legendClass.data());
         const activeData = _ ? shapeData.filter(_) : [];
@@ -1155,13 +1301,13 @@ If *data* is not specified, this method returns the current primary data array, 
         });
         activeIds = activeIds.filter((id, i) => activeIds.indexOf(id) === i);
 
-        if (activeIds.length) hoverFunction = (d, i) => activeIds.includes(JSON.stringify(this._ids(d, i)));
-
+        if (activeIds.length)
+          hoverFunction = (d, i) =>
+            activeIds.includes(JSON.stringify(this._ids(d, i)));
       }
 
       this._shapes.forEach(s => s.hover(hoverFunction));
       if (this._legend) this._legendClass.hover(hoverFunction);
-
     }
 
     return this;
@@ -1174,7 +1320,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   label(_) {
-    return arguments.length ? (this._label = typeof _ === "function" ? _ : constant(_), this) : this._label;
+    return arguments.length
+      ? ((this._label = typeof _ === "function" ? _ : constant(_)), this)
+      : this._label;
   }
 
   /**
@@ -1184,7 +1332,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legend(_) {
-    return arguments.length ? (this._legend = typeof _ === "function" ? _ : constant(_), this) : this._legend;
+    return arguments.length
+      ? ((this._legend = typeof _ === "function" ? _ : constant(_)), this)
+      : this._legend;
   }
 
   /**
@@ -1194,7 +1344,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendConfig(_) {
-    return arguments.length ? (this._legendConfig = assign(this._legendConfig, _), this) : this._legendConfig;
+    return arguments.length
+      ? ((this._legendConfig = assign(this._legendConfig, _)), this)
+      : this._legendConfig;
   }
 
   /**
@@ -1204,7 +1356,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendFilterInvert(_) {
-    return arguments.length ? (this._legendFilterInvert = typeof _ === "function" ? _ : constant(_), this) : this._legendFilterInvert;
+    return arguments.length
+      ? ((this._legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._legendFilterInvert;
   }
 
   /**
@@ -1214,7 +1369,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendPadding(_) {
-    return arguments.length ? (this._legendPadding = typeof _ === "function" ? _ : constant(_), this) : this._legendPadding;
+    return arguments.length
+      ? ((this._legendPadding = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._legendPadding;
   }
 
   /**
@@ -1224,7 +1382,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendPosition(_) {
-    return arguments.length ? (this._legendPosition = typeof _ === "function" ? _ : constant(_), this) : this._legendPosition;
+    return arguments.length
+      ? ((this._legendPosition = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._legendPosition;
   }
 
   /**
@@ -1234,7 +1395,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendSort(_) {
-    return arguments.length ? (this._legendSort = _, this) : this._legendSort;
+    return arguments.length ? ((this._legendSort = _), this) : this._legendSort;
   }
 
   /**
@@ -1244,7 +1405,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   legendTooltip(_) {
-    return arguments.length ? (this._legendTooltip = assign(this._legendTooltip, _), this) : this._legendTooltip;
+    return arguments.length
+      ? ((this._legendTooltip = assign(this._legendTooltip, _)), this)
+      : this._legendTooltip;
   }
 
   /**
@@ -1254,7 +1417,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   loadingHTML(_) {
-    return arguments.length ? (this._loadingHTML = typeof _ === "function" ? _ : constant(_), this) : this._loadingHTML;
+    return arguments.length
+      ? ((this._loadingHTML = typeof _ === "function" ? _ : constant(_)), this)
+      : this._loadingHTML;
   }
 
   /**
@@ -1264,7 +1429,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   loadingMessage(_) {
-    return arguments.length ? (this._loadingMessage = _, this) : this._loadingMessage;
+    return arguments.length
+      ? ((this._loadingMessage = _), this)
+      : this._loadingMessage;
   }
 
   /**
@@ -1274,7 +1441,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   messageMask(_) {
-    return arguments.length ? (this._messageMask = _, this) : this._messageMask;
+    return arguments.length
+      ? ((this._messageMask = _), this)
+      : this._messageMask;
   }
 
   /**
@@ -1284,7 +1453,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   messageStyle(_) {
-    return arguments.length ? (this._messageStyle = assign(this._messageStyle, _), this) : this._messageStyle;
+    return arguments.length
+      ? ((this._messageStyle = assign(this._messageStyle, _)), this)
+      : this._messageStyle;
   }
 
   /**
@@ -1294,7 +1465,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   noDataHTML(_) {
-    return arguments.length ? (this._noDataHTML = typeof _ === "function" ? _ : constant(_), this) : this._noDataHTML;
+    return arguments.length
+      ? ((this._noDataHTML = typeof _ === "function" ? _ : constant(_)), this)
+      : this._noDataHTML;
   }
 
   /**
@@ -1304,7 +1477,9 @@ If *data* is not specified, this method returns the current primary data array, 
      @chainable
   */
   noDataMessage(_) {
-    return arguments.length ? (this._noDataMessage = _, this) : this._noDataMessage;
+    return arguments.length
+      ? ((this._noDataMessage = _), this)
+      : this._noDataMessage;
   }
 
   /**
@@ -1314,7 +1489,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   resizeContainer(_) {
-    return arguments.length ? (this._resizeContainer = _, this) : this._resizeContainer;
+    return arguments.length
+      ? ((this._resizeContainer = _), this)
+      : this._resizeContainer;
   }
 
   /**
@@ -1324,7 +1501,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   scrollContainer(_) {
-    return arguments.length ? (this._scrollContainer = _, this) : this._scrollContainer;
+    return arguments.length
+      ? ((this._scrollContainer = _), this)
+      : this._scrollContainer;
   }
 
   /**
@@ -1334,7 +1513,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   select(_) {
-    return arguments.length ? (this._select = select(_), this) : this._select;
+    return arguments.length ? ((this._select = select(_)), this) : this._select;
   }
 
   /**
@@ -1344,7 +1523,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   shape(_) {
-    return arguments.length ? (this._shape = typeof _ === "function" ? _ : constant(_), this) : this._shape;
+    return arguments.length
+      ? ((this._shape = typeof _ === "function" ? _ : constant(_)), this)
+      : this._shape;
   }
 
   /**
@@ -1354,7 +1535,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   shapeConfig(_) {
-    return arguments.length ? (this._shapeConfig = assign(this._shapeConfig, _), this) : this._shapeConfig;
+    return arguments.length
+      ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
+      : this._shapeConfig;
   }
 
   /**
@@ -1364,9 +1547,11 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   subtitle(_) {
-    return arguments.length ? (this._subtitle = typeof _ === "function" ? _ : constant(_), this) : this._subtitle;
+    return arguments.length
+      ? ((this._subtitle = typeof _ === "function" ? _ : constant(_)), this)
+      : this._subtitle;
   }
-    
+
   /**
       @memberof Viz
       @desc If *value* is specified, sets the config method for the subtitle and returns the current class instance.
@@ -1374,9 +1559,11 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   subtitleConfig(_) {
-    return arguments.length ? (this._subtitleConfig = assign(this._subtitleConfig, _), this) : this._subtitleConfig;
+    return arguments.length
+      ? ((this._subtitleConfig = assign(this._subtitleConfig, _)), this)
+      : this._subtitleConfig;
   }
-    
+
   /**
       @memberof Viz
       @desc Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
@@ -1384,7 +1571,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   subtitlePadding(_) {
-    return arguments.length ? (this._subtitlePadding = typeof _ === "function" ? _ : constant(_), this) : this._subtitlePadding;
+    return arguments.length
+      ? ((this._subtitlePadding = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._subtitlePadding;
   }
 
   /**
@@ -1394,7 +1584,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   svgDesc(_) {
-    return arguments.length ? (this._svgDesc = _, this) : this._svgDesc;
+    return arguments.length ? ((this._svgDesc = _), this) : this._svgDesc;
   }
 
   /**
@@ -1404,7 +1594,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   svgTitle(_) {
-    return arguments.length ? (this._svgTitle = _, this) : this._svgTitle;
+    return arguments.length ? ((this._svgTitle = _), this) : this._svgTitle;
   }
 
   /**
@@ -1417,13 +1607,11 @@ If *data* is not specified, this method returns the current primary data array, 
     if (arguments.length) {
       if (typeof _ === "function") {
         this._threshold = _;
-      }
-      else if (isFinite(_) && !isNaN(_)) {
+      } else if (isFinite(_) && !isNaN(_)) {
         this._threshold = constant(_ * 1);
       }
       return this;
-    }
-    else return this._threshold;
+    } else return this._threshold;
   }
 
   /**
@@ -1436,13 +1624,11 @@ If *data* is not specified, this method returns the current primary data array, 
     if (arguments.length) {
       if (typeof key === "function") {
         this._thresholdKey = key;
-      }
-      else {
+      } else {
         this._thresholdKey = accessor(key);
       }
       return this;
-    }
-    else return this._thresholdKey;
+    } else return this._thresholdKey;
   }
 
   /**
@@ -1452,7 +1638,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
    */
   thresholdName(_) {
-    return arguments.length ? (this._thresholdName = typeof _ === "function" ? _ : constant(_), this) : this._thresholdName;
+    return arguments.length
+      ? ((this._thresholdName = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._thresholdName;
   }
 
   /**
@@ -1465,8 +1654,7 @@ If *data* is not specified, this method returns the current primary data array, 
     if (arguments.length) {
       if (typeof _ === "function") {
         this._time = _;
-      }
-      else if (_) {
+      } else if (_) {
         this._time = accessor(_);
         if (!this._aggs[_]) {
           this._aggs[_] = (a, c) => {
@@ -1474,21 +1662,22 @@ If *data* is not specified, this method returns the current primary data array, 
             return v.length === 1 ? v[0] : v;
           };
         }
-        if (this._userTime && JSON.stringify(_) !== JSON.stringify(this._userTime)) {
+        if (
+          this._userTime &&
+          JSON.stringify(_) !== JSON.stringify(this._userTime)
+        ) {
           this._timeFilter = false;
           this._timelineSelection = false;
         }
         this._userTime = _;
-      }
-      else {
+      } else {
         this._time = undefined;
         this._userTime = undefined;
         this._timeFilter = false;
         this._timelineSelection = false;
       }
       return this;
-    }
-    else return this._time;
+    } else return this._time;
   }
 
   /**
@@ -1498,7 +1687,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   timeFilter(_) {
-    return arguments.length ? (this._timeFilter = _, this) : this._timeFilter;
+    return arguments.length ? ((this._timeFilter = _), this) : this._timeFilter;
   }
 
   /**
@@ -1508,7 +1697,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   timeline(_) {
-    return arguments.length ? (this._timeline = _, this) : this._timeline;
+    return arguments.length ? ((this._timeline = _), this) : this._timeline;
   }
 
   /**
@@ -1518,7 +1707,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   timelineConfig(_) {
-    return arguments.length ? (this._timelineConfig = assign(this._timelineConfig, _), this) : this._timelineConfig;
+    return arguments.length
+      ? ((this._timelineConfig = assign(this._timelineConfig, _)), this)
+      : this._timelineConfig;
   }
 
   /**
@@ -1532,8 +1723,7 @@ If *data* is not specified, this method returns the current primary data array, 
       if (!(_ instanceof Array)) _ = [_, _];
       this._timelineDefault = _.map(date);
       return this;
-    }
-    else return this._timelineDefault;
+    } else return this._timelineDefault;
   }
 
   /**
@@ -1543,7 +1733,10 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   timelinePadding(_) {
-    return arguments.length ? (this._timelinePadding = typeof _ === "function" ? _ : constant(_), this) : this._timelinePadding;
+    return arguments.length
+      ? ((this._timelinePadding = typeof _ === "function" ? _ : constant(_)),
+        this)
+      : this._timelinePadding;
   }
 
   /**
@@ -1553,7 +1746,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   title(_) {
-    return arguments.length ? (this._title = typeof _ === "function" ? _ : constant(_), this) : this._title;
+    return arguments.length
+      ? ((this._title = typeof _ === "function" ? _ : constant(_)), this)
+      : this._title;
   }
 
   /**
@@ -1563,7 +1758,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   titleConfig(_) {
-    return arguments.length ? (this._titleConfig = assign(this._titleConfig, _), this) : this._titleConfig;
+    return arguments.length
+      ? ((this._titleConfig = assign(this._titleConfig, _)), this)
+      : this._titleConfig;
   }
 
   /**
@@ -1573,7 +1770,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   titlePadding(_) {
-    return arguments.length ? (this._titlePadding = typeof _ === "function" ? _ : constant(_), this) : this._titlePadding;
+    return arguments.length
+      ? ((this._titlePadding = typeof _ === "function" ? _ : constant(_)), this)
+      : this._titlePadding;
   }
 
   /**
@@ -1583,7 +1782,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   tooltip(_) {
-    return arguments.length ? (this._tooltip = typeof _ === "function" ? _ : constant(_), this) : this._tooltip;
+    return arguments.length
+      ? ((this._tooltip = typeof _ === "function" ? _ : constant(_)), this)
+      : this._tooltip;
   }
 
   /**
@@ -1593,7 +1794,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   tooltipConfig(_) {
-    return arguments.length ? (this._tooltipConfig = assign(this._tooltipConfig, _), this) : this._tooltipConfig;
+    return arguments.length
+      ? ((this._tooltipConfig = assign(this._tooltipConfig, _)), this)
+      : this._tooltipConfig;
   }
 
   /**
@@ -1608,8 +1811,7 @@ If *data* is not specified, this method returns the current primary data array, 
       else if (_) this._total = accessor(_);
       else this._total = false;
       return this;
-    }
-    else return this._total;
+    } else return this._total;
   }
 
   /**
@@ -1619,7 +1821,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   totalConfig(_) {
-    return arguments.length ? (this._totalConfig = assign(this._totalConfig, _), this) : this._totalConfig;
+    return arguments.length
+      ? ((this._totalConfig = assign(this._totalConfig, _)), this)
+      : this._totalConfig;
   }
 
   /**
@@ -1629,7 +1833,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   totalFormat(_) {
-    return arguments.length ? (this._totalFormat = _, this) : this._totalFormat;
+    return arguments.length
+      ? ((this._totalFormat = _), this)
+      : this._totalFormat;
   }
 
   /**
@@ -1639,7 +1845,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   totalPadding(_) {
-    return arguments.length ? (this._totalPadding = typeof _ === "function" ? _ : constant(_), this) : this._totalPadding;
+    return arguments.length
+      ? ((this._totalPadding = typeof _ === "function" ? _ : constant(_)), this)
+      : this._totalPadding;
   }
 
   /**
@@ -1649,7 +1857,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   width(_) {
-    return arguments.length ? (this._width = _, this) : this._width;
+    return arguments.length ? ((this._width = _), this) : this._width;
   }
 
   /**
@@ -1659,7 +1867,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoom(_) {
-    return arguments.length ? (this._zoom = _, this) : this._zoom;
+    return arguments.length ? ((this._zoom = _), this) : this._zoom;
   }
 
   /**
@@ -1669,7 +1877,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomBrushHandleSize(_) {
-    return arguments.length ? (this._zoomBrushHandleSize = _, this) : this._zoomBrushHandleSize;
+    return arguments.length
+      ? ((this._zoomBrushHandleSize = _), this)
+      : this._zoomBrushHandleSize;
   }
 
   /**
@@ -1679,7 +1889,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomBrushHandleStyle(_) {
-    return arguments.length ? (this._zoomBrushHandleStyle = _, this) : this._zoomBrushHandleStyle;
+    return arguments.length
+      ? ((this._zoomBrushHandleStyle = _), this)
+      : this._zoomBrushHandleStyle;
   }
 
   /**
@@ -1689,7 +1901,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomBrushSelectionStyle(_) {
-    return arguments.length ? (this._zoomBrushSelectionStyle = _, this) : this._zoomBrushSelectionStyle;
+    return arguments.length
+      ? ((this._zoomBrushSelectionStyle = _), this)
+      : this._zoomBrushSelectionStyle;
   }
 
   /**
@@ -1699,7 +1913,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomControlStyle(_) {
-    return arguments.length ? (this._zoomControlStyle = _, this) : this._zoomControlStyle;
+    return arguments.length
+      ? ((this._zoomControlStyle = _), this)
+      : this._zoomControlStyle;
   }
 
   /**
@@ -1709,7 +1925,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomControlStyleActive(_) {
-    return arguments.length ? (this._zoomControlStyleActive = _, this) : this._zoomControlStyleActive;
+    return arguments.length
+      ? ((this._zoomControlStyleActive = _), this)
+      : this._zoomControlStyleActive;
   }
 
   /**
@@ -1719,7 +1937,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomControlStyleHover(_) {
-    return arguments.length ? (this._zoomControlStyleHover = _, this) : this._zoomControlStyleHover;
+    return arguments.length
+      ? ((this._zoomControlStyleHover = _), this)
+      : this._zoomControlStyleHover;
   }
 
   /**
@@ -1729,7 +1949,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomFactor(_) {
-    return arguments.length ? (this._zoomFactor = _, this) : this._zoomFactor;
+    return arguments.length ? ((this._zoomFactor = _), this) : this._zoomFactor;
   }
 
   /**
@@ -1739,7 +1959,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomMax(_) {
-    return arguments.length ? (this._zoomMax = _, this) : this._zoomMax;
+    return arguments.length ? ((this._zoomMax = _), this) : this._zoomMax;
   }
 
   /**
@@ -1749,7 +1969,7 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomPan(_) {
-    return arguments.length ? (this._zoomPan = _, this) : this._zoomPan;
+    return arguments.length ? ((this._zoomPan = _), this) : this._zoomPan;
   }
 
   /**
@@ -1759,7 +1979,9 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomPadding(_) {
-    return arguments.length ? (this._zoomPadding = _, this) : this._zoomPadding;
+    return arguments.length
+      ? ((this._zoomPadding = _), this)
+      : this._zoomPadding;
   }
 
   /**
@@ -1769,7 +1991,6 @@ If *data* is not specified, this method returns the current primary data array, 
       @chainable
   */
   zoomScroll(_) {
-    return arguments.length ? (this._zoomScroll = _, this) : this._zoomScroll;
+    return arguments.length ? ((this._zoomScroll = _), this) : this._zoomScroll;
   }
-
 }
