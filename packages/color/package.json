@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/color",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "description": "Color functions that extent the ability of d3-color.",
   "license": "MIT",
   "type": "module",
