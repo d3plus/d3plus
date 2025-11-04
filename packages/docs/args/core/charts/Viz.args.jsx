@@ -809,22 +809,6 @@ export const argTypes = assign(
         summary: "function"
       }
     },
-    resizeContainer: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "typeofwindow === undefined ?  : window",
-      description: "If using resize detection, this method allow a custom override of the element to which the resize detection function gets attached.",
-      table: {
-        defaultValue: {
-          summary: "typeofwindow === undefined ?  : window"
-        }
-      },
-      type: {
-        required: true,
-        summary: "string | htmlelement"
-      }
-    },
     scrollContainer: {
       control: {
         type: "text"
