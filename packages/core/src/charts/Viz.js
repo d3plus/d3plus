@@ -45,6 +45,15 @@ import mousemoveLegend from "./events/mousemove.legend.js";
 import mousemoveShape from "./events/mousemove.shape.js";
 import touchstartBody from "./events/touchstart.body.js";
 
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
+}
+
 /**
  * Default padding logic that will return false if the screen is less than 600 pixels wide.
  * @private
@@ -225,7 +234,12 @@ export default class Viz extends BaseClass {
       "mousemove.legend": mousemoveLegend.bind(this),
     };
     this._queue = [];
-    this._resizeContainer = typeof window === "undefined" ? "" : window;
+    this._resizeObserver = new ResizeObserver(
+      debounce(() => {
+        this._setSVGSize();
+        this.render(this._callback);
+      }, this._detectResizeDelay)
+    );
     this._scrollContainer = typeof window === "undefined" ? "" : window;
     this._shape = constant("Rect");
     this._shapes = [];
@@ -607,12 +621,42 @@ export default class Viz extends BaseClass {
   }
 
   /**
+   * Detects width and height and sets SVG properties
+   * @private
+   */
+  _setSVGSize() {
+    const display = this._select.style("display");
+    this._select.style("display", "none");
+
+    let [w, h] = getSize(this._select.node().parentNode);
+    w -= parseFloat(this._select.style("border-left-width"), 10);
+    w -= parseFloat(this._select.style("border-right-width"), 10);
+    h -= parseFloat(this._select.style("border-top-width"), 10);
+    h -= parseFloat(this._select.style("border-bottom-width"), 10);
+    this._select.style("display", display);
+
+    if (this._autoWidth) {
+      this.width(w);
+      this._select
+        .style("width", `${this._width}px`)
+        .attr("width", `${this._width}px`);
+    }
+    if (this._autoHeight) {
+      this.height(h);
+      this._select
+        .style("height", `${this._height}px`)
+        .attr("height", `${this._height}px`);
+    }
+  }
+
+  /**
       @memberof Viz
       @desc Draws the visualization given the specified configuration.
       @param {Function} [*callback*] An optional callback function that, if passed, will be called after animation is complete.
       @chainable
   */
   render(callback) {
+    this._callback = callback;
     // Resets margins and padding
     this._margin = {bottom: 0, left: 0, right: 0, top: 0};
     this._padding = {bottom: 0, left: 0, right: 0, top: 0};
@@ -630,32 +674,6 @@ export default class Viz extends BaseClass {
       this.select(svg.node());
     }
 
-    /** detects width and height and sets SVG properties */
-    function setSVGSize() {
-      const display = this._select.style("display");
-      this._select.style("display", "none");
-
-      let [w, h] = getSize(this._select.node().parentNode);
-      w -= parseFloat(this._select.style("border-left-width"), 10);
-      w -= parseFloat(this._select.style("border-right-width"), 10);
-      h -= parseFloat(this._select.style("border-top-width"), 10);
-      h -= parseFloat(this._select.style("border-bottom-width"), 10);
-      this._select.style("display", display);
-
-      if (this._autoWidth) {
-        this.width(w);
-        this._select
-          .style("width", `${this._width}px`)
-          .attr("width", `${this._width}px`);
-      }
-      if (this._autoHeight) {
-        this.height(h);
-        this._select
-          .style("height", `${this._height}px`)
-          .attr("height", `${this._height}px`);
-      }
-    }
-
     // Calculates the width and/or height of the Viz based on the this._select, if either has not been defined.
     if (
       (!this._width || !this._height) &&
@@ -663,7 +681,7 @@ export default class Viz extends BaseClass {
     ) {
       this._autoWidth = this._width === undefined;
       this._autoHeight = this._height === undefined;
-      setSVGSize.bind(this)();
+      this._setSVGSize();
     }
 
     this._select
@@ -718,7 +736,6 @@ export default class Viz extends BaseClass {
     this._resizePoll = clearTimeout(this._resizePoll);
     this._scrollPoll = clearTimeout(this._scrollPoll);
     select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
-    select(this._resizeContainer).on(`resize.${this._uuid}`, null);
     if (this._detectVisible && this._select.style("visibility") === "hidden") {
       this._visiblePoll = setInterval(() => {
         if (this._select.style("visibility") !== "hidden") {
@@ -833,14 +850,9 @@ export default class Viz extends BaseClass {
         }
 
         if (this._detectResize && (this._autoWidth || this._autoHeight)) {
-          select(this._resizeContainer).on(`resize.${this._uuid}`, () => {
-            this._resizePoll = clearTimeout(this._resizePoll);
-            this._resizePoll = setTimeout(() => {
-              this._resizePoll = clearTimeout(this._resizePoll);
-              setSVGSize.bind(this)();
-              this.render(callback);
-            }, this._detectResizeDelay);
-          });
+          this._resizeObserver.observe(this._select.node().parentNode);
+        } else {
+          this._resizeObserver.unobserve(this._select.node().parentNode);
         }
 
         if (callback) setTimeout(callback, this._duration + 100);
@@ -1480,18 +1492,6 @@ If *data* is not specified, this method returns the current primary data array, 
     return arguments.length
       ? ((this._noDataMessage = _), this)
       : this._noDataMessage;
-  }
-
-  /**
-      @memberof Viz
-      @desc If using resize detection, this method allow a custom override of the element to which the resize detection function gets attached.
-      @param {String|HTMLElement} *selector*
-      @chainable
-  */
-  resizeContainer(_) {
-    return arguments.length
-      ? ((this._resizeContainer = _), this)
-      : this._resizeContainer;
   }
 
   /**
