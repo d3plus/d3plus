@@ -8,16 +8,15 @@ import load from "./load.js";
   @param {Function} [data] An optional data formatter/callback
   @param {String} data The internal Viz method to be modified
 */
-export default function(_, f, key) {
-  if (!(_ instanceof Array)) _ = [_];
-  const needToLoad = _.find(isData);
+export default function (_, f, key) {
+  const paths = _ instanceof Array ? _ : [_];
+  const needToLoad = paths.find(isData);
   if (needToLoad) {
     const prev = this._queue.find(q => q[3] === key);
-    const d = [load.bind(this), _, f, key];
+    const d = [load.bind(this), paths, f, key];
     if (prev) this._queue[this._queue.indexOf(prev)] = d;
     else this._queue.push(d);
-  }
-  else {
+  } else {
     this[`_${key}`] = _;
   }
 }
