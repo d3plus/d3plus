@@ -1,62 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../umd/d3plus-core.full.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 50px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
 
-  <meta charset="utf-8">
-  <script src="../../umd/d3plus-core.full.js"></script>
+  <body></body>
 
-  <style>
+  <script>
+    var popData = [
+      {id: "04000US01", population: 4830620, growth: -48},
+      {id: "04000US08", population: 5278906, growth: 52},
+      {id: "04000US16", population: 1616547, growth: -16},
+      {id: "04000US24", population: 5930538, growth: 59},
+      {id: "04000US29", population: 6045448, growth: -60},
+      {id: "04000US30", population: 1014699, growth: 10},
+      {id: "04000US35", population: 2084117, growth: -20},
+      {id: "04000US40", population: 3849733, growth: 38},
+      {id: "04000US47", population: 6499615, growth: -64},
+      {id: "04000US56", population: 579679, growth: 5},
+    ];
 
-    body {
-      margin: 50px;
-      overflow: hidden;
-    }
+    // var diverging = ["#AC0D0D", "#F48B29", "#FFAB73", "#F0C929", "#EDE682", "#ADE498", "#40A8C4", "#07689F"];
+    // var sequential = ["#EDE682", "#ADE498", "#40A8C4", "#07689F"];
 
-  </style>
-
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-var popData = [
-  {id: "04000US01", population: 4830620, growth: -48},
-  {id: "04000US08", population: 5278906, growth: 52},
-  {id: "04000US16", population: 1616547, growth: -16},
-  {id: "04000US24", population: 5930538, growth: 59},
-  {id: "04000US29", population: 6045448, growth: -60},
-  {id: "04000US30", population: 1014699, growth: 10},
-  {id: "04000US35", population: 2084117, growth: -20},
-  {id: "04000US40", population: 3849733, growth: 38},
-  {id: "04000US47", population: 6499615, growth: -64},
-  {id: "04000US56", population: 579679, growth: 5}
-];
-
-// var diverging = ["#AC0D0D", "#F48B29", "#FFAB73", "#F0C929", "#EDE682", "#ADE498", "#40A8C4", "#07689F"];
-// var sequential = ["#EDE682", "#ADE498", "#40A8C4", "#07689F"];
-
-var chart = new d3plus.Geomap()
-  .config({
-    colorScale: "population",
-    // colorScaleConfig: {
-    //   color: sequential,
-    //   scale: "linear"
-    // },
-    // colorScalePosition: "bottom",
-    data: popData,
-    // height: 600,
-    projection: "geoAlbersUsa",
-    shapeConfig: {
-      fill: "D3PLUS-COMMON-RESET"
-    },
-    topojson: "https://datausa.io/topojson/State.json"
-  })
-  .render();
-
-</script>
-
+    var chart = new d3plus.Geomap()
+      .config({
+        // colorScale: "population",
+        // colorScaleConfig: {
+        //   color: sequential,
+        //   scale: "linear"
+        // },
+        // colorScalePosition: "bottom",
+        // data: popData,
+        // height: 600,
+        projection: "geoAlbersUsa",
+        // shapeConfig: {
+        //   fill: "D3PLUS-COMMON-RESET",
+        // },
+        // topojson: "https://datausa.io/topojson/State.json",
+        // groupBy: "State",
+        // data: [
+        //   {State: "Massachusetts", Population: 10},
+        //   {State: "Vermont", Population: 6},
+        // ],
+        // topojsonId: d => d.properties.id,
+        topojson: {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          url: "http://localhost:4000/v1/geographies/topojson",
+          body: JSON.stringify([
+            {country: "USA", level: 1},
+            // {country: "USA", level: 1, name: "Massachusetts"},
+            // {country: "USA", level: 1, name: "Vermont"},
+          ]),
+        },
+      })
+      .render();
+  </script>
 </html>

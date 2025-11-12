@@ -5,4 +5,4 @@
 */
 export default dataItem =>
   typeof dataItem === "string" ||
-  typeof dataItem === "object" && dataItem.url && dataItem.headers;
+  (typeof dataItem === "object" && dataItem.url);
