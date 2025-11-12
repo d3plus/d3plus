@@ -5,13 +5,18 @@ import {zoomTransform} from "d3-zoom";
 import * as d3GeoCore from "d3-geo";
 import * as d3GeoProjection from "d3-geo-projection";
 import * as d3CompositeProjections from "d3-composite-projections";
-const d3Geo = Object.assign({}, d3GeoCore, d3GeoProjection, d3CompositeProjections);
+const d3Geo = Object.assign(
+  {},
+  d3GeoCore,
+  d3GeoProjection,
+  d3CompositeProjections
+);
 
 import * as scales from "d3-scale";
 import {tile} from "d3-tile";
 import {feature} from "topojson-client";
 
-import {load} from "@d3plus/data";
+import {addToQueue} from "@d3plus/data";
 import {assign, parseSides} from "@d3plus/dom";
 import {pointDistance} from "@d3plus/math";
 import {Circle, Path} from "../shapes/index.js";
@@ -19,7 +24,6 @@ import {accessor, configPrep, constant} from "../utils/index.js";
 
 import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
-
 
 /**
  * @name findAttribution
@@ -49,14 +53,12 @@ function topo2feature(topo, key) {
     @desc Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.
 */
 export default class Geomap extends Viz {
-
   /**
       @memberof Geomap
       @desc Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
-
     super();
 
     this._fitObject = false;
@@ -78,7 +80,9 @@ export default class Geomap extends Viz {
       hoverOpacity: 1,
       Path: {
         ariaLabel: (d, i) => {
-          const validColorScale = this._colorScale ? `, ${this._colorScale(d, i)}` : "";
+          const validColorScale = this._colorScale
+            ? `, ${this._colorScale(d, i)}`
+            : "";
           return `${this._drawLabel(d, i)}${validColorScale}.`;
         },
         fill: (d, i) => {
@@ -87,8 +91,7 @@ export default class Geomap extends Viz {
             if (c !== undefined && c !== null) {
               if (this._colorScaleClass._colorScale) {
                 return this._colorScaleClass._colorScale(c);
-              }
-              else {
+              } else {
                 let color = this._colorScaleClass.color();
                 if (color instanceof Array) color = color[color.length - 1];
                 return color;
@@ -98,21 +101,35 @@ export default class Geomap extends Viz {
           return this._topojsonFill(d, i);
         },
         on: {
-          "mouseenter": (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseenter.bind(this)(d, i, x, event) : null,
-          "mousemove.shape": (d, i, x, event) => !this._coordData.features.includes(d) ? this._on["mousemove.shape"].bind(this)(d, i, x, event) : null,
-          "mouseleave": (d, i, x, event) => !this._coordData.features.includes(d) ? this._on.mouseleave.bind(this)(d, i, x, event) : null
+          mouseenter: (d, i, x, event) =>
+            !this._coordData.features.includes(d)
+              ? this._on.mouseenter.bind(this)(d, i, x, event)
+              : null,
+          "mousemove.shape": (d, i, x, event) =>
+            !this._coordData.features.includes(d)
+              ? this._on["mousemove.shape"].bind(this)(d, i, x, event)
+              : null,
+          mouseleave: (d, i, x, event) =>
+            !this._coordData.features.includes(d)
+              ? this._on.mouseleave.bind(this)(d, i, x, event)
+              : null,
         },
         stroke: (d, i) => {
-          const c = typeof this._shapeConfig.Path.fill === "function" ? this._shapeConfig.Path.fill(d, i) : this._shapeConfig.Path.fill;
+          const c =
+            typeof this._shapeConfig.Path.fill === "function"
+              ? this._shapeConfig.Path.fill(d, i)
+              : this._shapeConfig.Path.fill;
           return color(c).darker();
         },
-        strokeWidth: 1
-      }
+        strokeWidth: 1,
+      },
     });
 
     this._tiles = true;
     this._tileGen = tile();
-    this.tileUrl("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png");
+    this.tileUrl(
+      "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png"
+    );
 
     this._topojson = false;
     this._topojsonFill = constant("#f5f5f3");
@@ -121,55 +138,69 @@ export default class Geomap extends Viz {
 
     this._zoom = true;
     this._zoomSet = false;
-
   }
 
   /**
       Renders map tiles based on the current zoom level.
       @private
   */
-  _renderTiles(transform = zoomTransform(this._container.node()), duration = 0) {
-
+  _renderTiles(
+    transform = zoomTransform(this._container.node()),
+    duration = 0
+  ) {
     let tileData = [];
     if (this._tiles) {
-
       tileData = this._tileGen
         .extent(this._zoomBehavior.translateExtent())
         .scale(this._projection.scale() * (2 * Math.PI) * transform.k)
-        .translate(transform.apply(this._projection.translate()))
-        ();
+        .translate(transform.apply(this._projection.translate()))();
 
-      this._tileGroup.transition().duration(duration).attr("transform", transform);
-
+      this._tileGroup
+        .transition()
+        .duration(duration)
+        .attr("transform", transform);
     }
 
-    const images = this._tileGroup.selectAll("image.d3plus-geomap-tile")
+    const images = this._tileGroup
+      .selectAll("image.d3plus-geomap-tile")
       .data(tileData, ([x, y, z]) => `${x}-${y}-${z}`);
 
-    images.exit().transition().duration(duration)
-      .attr("opacity", 0).remove();
+    images.exit().transition().duration(duration).attr("opacity", 0).remove();
 
     const scale = tileData.scale / transform.k;
 
-    const tileEnter = images.enter().append("image")
+    const tileEnter = images
+      .enter()
+      .append("image")
       .attr("class", "d3plus-geomap-tile");
 
     tileEnter
       .attr("opacity", 0)
-      .transition().duration(duration)
+      .transition()
+      .duration(duration)
       .attr("opacity", 1);
 
-    images.merge(tileEnter)
+    images
+      .merge(tileEnter)
       .attr("width", scale)
       .attr("height", scale)
-      .attr("xlink:href", ([x, y, z]) => this._tileUrl
-        .replace("{s}", ["a", "b", "c"][Math.random() * 3 | 0])
-        .replace("{z}", z)
-        .replace("{x}", x)
-        .replace("{y}", y))
-      .attr("x", ([x]) => x * scale + tileData.translate[0] * scale - transform.x / transform.k)
-      .attr("y", ([, y]) => y * scale + tileData.translate[1] * scale - transform.y / transform.k);
-
+      .attr("xlink:href", ([x, y, z]) =>
+        this._tileUrl
+          .replace("{s}", ["a", "b", "c"][(Math.random() * 3) | 0])
+          .replace("{z}", z)
+          .replace("{x}", x)
+          .replace("{y}", y)
+      )
+      .attr(
+        "x",
+        ([x]) =>
+          x * scale + tileData.translate[0] * scale - transform.x / transform.k
+      )
+      .attr(
+        "y",
+        ([, y]) =>
+          y * scale + tileData.translate[1] * scale - transform.y / transform.k
+      );
   }
 
   /**
@@ -177,14 +208,15 @@ export default class Geomap extends Viz {
       @private
   */
   _draw(callback) {
-
     super._draw(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
-          width = this._width - this._margin.left - this._margin.right;
+      width = this._width - this._margin.left - this._margin.right;
 
     this._container = this._select.selectAll("svg.d3plus-geomap").data([0]);
-    this._container = this._container.enter().append("svg")
+    this._container = this._container
+      .enter()
+      .append("svg")
       .attr("class", "d3plus-geomap")
       .attr("opacity", 0)
       .attr("width", width)
@@ -193,47 +225,65 @@ export default class Geomap extends Viz {
       .attr("y", this._margin.top)
       .style("background-color", this._ocean || "transparent")
       .merge(this._container);
-    this._container.transition(this._transition)
+    this._container
+      .transition(this._transition)
       .attr("opacity", 1)
       .attr("width", width)
       .attr("height", height)
       .attr("x", this._margin.left)
       .attr("y", this._margin.top);
 
-    const ocean = this._container.selectAll("rect.d3plus-geomap-ocean").data([0]);
-    ocean.enter().append("rect")
+    const ocean = this._container
+      .selectAll("rect.d3plus-geomap-ocean")
+      .data([0]);
+    ocean
+      .enter()
+      .append("rect")
       .attr("class", "d3plus-geomap-ocean")
       .merge(ocean)
       .attr("width", width)
       .attr("height", height)
       .attr("fill", this._ocean || "transparent");
 
-    this._tileGroup = this._container.selectAll("g.d3plus-geomap-tileGroup").data([0]);
-    this._tileGroup = this._tileGroup.enter().append("g")
+    this._tileGroup = this._container
+      .selectAll("g.d3plus-geomap-tileGroup")
+      .data([0]);
+    this._tileGroup = this._tileGroup
+      .enter()
+      .append("g")
       .attr("class", "d3plus-geomap-tileGroup")
       .merge(this._tileGroup);
 
-    this._zoomGroup = this._container.selectAll("g.d3plus-geomap-zoomGroup").data([0]);
-    this._zoomGroup = this._zoomGroup.enter().append("g")
+    this._zoomGroup = this._container
+      .selectAll("g.d3plus-geomap-zoomGroup")
+      .data([0]);
+    this._zoomGroup = this._zoomGroup
+      .enter()
+      .append("g")
       .attr("class", "d3plus-geomap-zoomGroup")
       .merge(this._zoomGroup);
 
-    let pathGroup = this._zoomGroup.selectAll("g.d3plus-geomap-paths").data([0]);
-    pathGroup = pathGroup.enter().append("g")
+    let pathGroup = this._zoomGroup
+      .selectAll("g.d3plus-geomap-paths")
+      .data([0]);
+    pathGroup = pathGroup
+      .enter()
+      .append("g")
       .attr("class", "d3plus-geomap-paths")
       .merge(pathGroup);
 
-    const coordData = this._coordData = this._topojson
+    const coordData = (this._coordData = this._topojson
       ? topo2feature(this._topojson, this._topojsonKey)
-      : {type: "FeatureCollection", features: []};
+      : {type: "FeatureCollection", features: []});
 
-    if (this._topojsonFilter) coordData.features = coordData.features.filter(this._topojsonFilter);
+    if (this._topojsonFilter)
+      coordData.features = coordData.features.filter(this._topojsonFilter);
 
-    const path = this._path = d3Geo.geoPath()
-      .projection(this._projection);
+    const path = (this._path = d3Geo.geoPath().projection(this._projection));
 
-    const pointData = this._filteredData
-      .filter((d, i) => this._point(d, i) instanceof Array);
+    const pointData = this._filteredData.filter(
+      (d, i) => this._point(d, i) instanceof Array
+    );
 
     const pathData = this._filteredData
       .filter((d, i) => !(this._point(d, i) instanceof Array))
@@ -248,129 +298,170 @@ export default class Geomap extends Viz {
         __d3plus__: true,
         data: pathData[id],
         feature,
-        id
+        id,
       });
       return arr;
     }, []);
 
-    const r = scales[`scale${this._pointSizeScale.charAt(0).toUpperCase()}${this._pointSizeScale.slice(1)}`]()
+    const r = scales[
+      `scale${this._pointSizeScale
+        .charAt(0)
+        .toUpperCase()}${this._pointSizeScale.slice(1)}`
+    ]()
       .domain(extent(pointData, (d, i) => this._pointSize(d, i)))
       .range([this._pointSizeMin, this._pointSizeMax]);
 
     if (!this._zoomSet) {
-
-      const fitData = this._fitObject ? topo2feature(this._fitObject, this._fitKey) : coordData;
+      const fitData = this._fitObject
+        ? topo2feature(this._fitObject, this._fitKey)
+        : coordData;
 
       this._extentBounds = {
         type: "FeatureCollection",
-        features: this._fitFilter ? fitData.features.filter(this._fitFilter) : fitData.features.slice()
+        features: this._fitFilter
+          ? fitData.features.filter(this._fitFilter)
+          : fitData.features.slice(),
       };
-      this._extentBounds.features = this._extentBounds.features.reduce((arr, d) => {
+      this._extentBounds.features = this._extentBounds.features.reduce(
+        (arr, d) => {
+          if (d.geometry) {
+            const reduced = {
+              type: d.type,
+              id: d.id,
+              geometry: {
+                coordinates: d.geometry.coordinates,
+                type: d.geometry.type,
+              },
+            };
 
-        if (d.geometry) {
+            if (
+              d.geometry.type === "MultiPolygon" &&
+              d.geometry.coordinates.length > 1
+            ) {
+              const areas = [],
+                distances = [];
 
-          const reduced = {
-            type: d.type,
-            id: d.id,
-            geometry: {
-              coordinates: d.geometry.coordinates,
-              type: d.geometry.type
+              d.geometry.coordinates.forEach(c => {
+                reduced.geometry.coordinates = [c];
+                areas.push(path.area(reduced));
+              });
+
+              reduced.geometry.coordinates = [
+                d.geometry.coordinates[areas.indexOf(max(areas))],
+              ];
+              const center = path.centroid(reduced);
+
+              d.geometry.coordinates.forEach(c => {
+                reduced.geometry.coordinates = [c];
+                distances.push(pointDistance(path.centroid(reduced), center));
+              });
+
+              const distCutoff = quantile(
+                areas.reduce((arr, dist, i) => {
+                  if (dist) arr.push(areas[i] / dist);
+                  return arr;
+                }, []),
+                0.9
+              );
+
+              reduced.geometry.coordinates = d.geometry.coordinates.filter(
+                (c, i) => {
+                  const dist = distances[i];
+                  return dist === 0 || areas[i] / dist >= distCutoff;
+                }
+              );
             }
-          };
 
-          if (d.geometry.type === "MultiPolygon" && d.geometry.coordinates.length > 1) {
-
-            const areas = [],
-                  distances = [];
-
-            d.geometry.coordinates.forEach(c => {
-              reduced.geometry.coordinates = [c];
-              areas.push(path.area(reduced));
-            });
-
-            reduced.geometry.coordinates = [d.geometry.coordinates[areas.indexOf(max(areas))]];
-            const center = path.centroid(reduced);
-
-            d.geometry.coordinates.forEach(c => {
-              reduced.geometry.coordinates = [c];
-              distances.push(pointDistance(path.centroid(reduced), center));
-            });
-
-            const distCutoff = quantile(areas.reduce((arr, dist, i) => {
-              if (dist) arr.push(areas[i] / dist);
-              return arr;
-            }, []), 0.9);
-
-            reduced.geometry.coordinates = d.geometry.coordinates.filter((c, i) => {
-              const dist = distances[i];
-              return dist === 0 || areas[i] / dist >= distCutoff;
-            });
-
+            arr.push(reduced);
           }
-
-          arr.push(reduced);
-
-        }
-        return arr;
-
-      }, []);
+          return arr;
+        },
+        []
+      );
 
       if (!this._extentBounds.features.length && pointData.length) {
-
-        const bounds = [[undefined, undefined], [undefined, undefined]];
+        const bounds = [
+          [undefined, undefined],
+          [undefined, undefined],
+        ];
         pointData.forEach((d, i) => {
-
           const point = this._projection(this._point(d, i));
-          if (bounds[0][0] === void 0 || point[0] < bounds[0][0]) bounds[0][0] = point[0];
-          if (bounds[1][0] === void 0 || point[0] > bounds[1][0]) bounds[1][0] = point[0];
-          if (bounds[0][1] === void 0 || point[1] < bounds[0][1]) bounds[0][1] = point[1];
-          if (bounds[1][1] === void 0 || point[1] > bounds[1][1]) bounds[1][1] = point[1];
-
+          if (bounds[0][0] === void 0 || point[0] < bounds[0][0])
+            bounds[0][0] = point[0];
+          if (bounds[1][0] === void 0 || point[0] > bounds[1][0])
+            bounds[1][0] = point[0];
+          if (bounds[0][1] === void 0 || point[1] < bounds[0][1])
+            bounds[0][1] = point[1];
+          if (bounds[1][1] === void 0 || point[1] > bounds[1][1])
+            bounds[1][1] = point[1];
         });
 
         this._extentBounds = {
           type: "FeatureCollection",
-          features: [{
-            type: "Feature",
-            geometry: {
-              type: "MultiPoint",
-              coordinates: bounds.map(b => this._projection.invert(b))
-            }
-          }]
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "MultiPoint",
+                coordinates: bounds.map(b => this._projection.invert(b)),
+              },
+            },
+          ],
         };
         const maxSize = max(pointData, (d, i) => r(this._pointSize(d, i)));
         this._projectionPadding.top += maxSize;
         this._projectionPadding.right += maxSize;
         this._projectionPadding.bottom += maxSize;
         this._projectionPadding.left += maxSize;
-
       }
 
       this._zoomBehavior
-        .extent([[0, 0], [width, height]])
+        .extent([
+          [0, 0],
+          [width, height],
+        ])
         .scaleExtent([1, this._zoomMax])
-        .translateExtent([[0, 0], [width, height]]);
+        .translateExtent([
+          [0, 0],
+          [width, height],
+        ]);
 
       this._zoomSet = true;
-
     }
 
-    this._projection = this._projection
-      .fitExtent(
-        this._extentBounds.features.length ? [[this._projectionPadding.left, this._projectionPadding.top], [width - this._projectionPadding.right, height - this._projectionPadding.bottom]] : [[0, 0], [width, height]],
-        this._extentBounds.features.length ? this._extentBounds : {type: "Sphere"}
-      );
+    this._projection = this._projection.fitExtent(
+      this._extentBounds.features.length
+        ? [
+            [this._projectionPadding.left, this._projectionPadding.top],
+            [
+              width - this._projectionPadding.right,
+              height - this._projectionPadding.bottom,
+            ],
+          ]
+        : [
+            [0, 0],
+            [width, height],
+          ],
+      this._extentBounds.features.length ? this._extentBounds : {type: "Sphere"}
+    );
 
-    this._shapes.push(new Path()
-      .data(topoData)
-      .d(d => path(d.feature))
-      .select(pathGroup.node())
-      .x(0).y(0)
-      .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
-      .render());
+    this._shapes.push(
+      new Path()
+        .data(topoData)
+        .d(d => path(d.feature))
+        .select(pathGroup.node())
+        .x(0)
+        .y(0)
+        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
+        .render()
+    );
 
-    let pointGroup = this._zoomGroup.selectAll("g.d3plus-geomap-pins").data([0]);
-    pointGroup = pointGroup.enter().append("g")
+    let pointGroup = this._zoomGroup
+      .selectAll("g.d3plus-geomap-pins")
+      .data([0]);
+    pointGroup = pointGroup
+      .enter()
+      .append("g")
       .attr("class", "d3plus-geomap-pins")
       .merge(pointGroup);
 
@@ -385,16 +476,18 @@ export default class Geomap extends Viz {
 
     const events = Object.keys(this._on);
     const classEvents = events.filter(e => e.includes(".Circle")),
-          globalEvents = events.filter(e => !e.includes(".")),
-          shapeEvents = events.filter(e => e.includes(".shape"));
-    for (let e = 0; e < globalEvents.length; e++) circles.on(globalEvents[e], this._on[globalEvents[e]]);
-    for (let e = 0; e < shapeEvents.length; e++) circles.on(shapeEvents[e], this._on[shapeEvents[e]]);
-    for (let e = 0; e < classEvents.length; e++) circles.on(classEvents[e], this._on[classEvents[e]]);
+      globalEvents = events.filter(e => !e.includes(".")),
+      shapeEvents = events.filter(e => e.includes(".shape"));
+    for (let e = 0; e < globalEvents.length; e++)
+      circles.on(globalEvents[e], this._on[globalEvents[e]]);
+    for (let e = 0; e < shapeEvents.length; e++)
+      circles.on(shapeEvents[e], this._on[shapeEvents[e]]);
+    for (let e = 0; e < classEvents.length; e++)
+      circles.on(classEvents[e], this._on[classEvents[e]]);
 
     this._shapes.push(circles.render());
 
     return this;
-
   }
 
   /**
@@ -408,9 +501,9 @@ The *value* passed can be a single id to remove, an array of ids, or a filter fu
   fitFilter(_) {
     if (arguments.length) {
       this._zoomSet = false;
-      if (typeof _ === "function") return this._fitFilter = _, this;
+      if (typeof _ === "function") return (this._fitFilter = _), this;
       if (!(_ instanceof Array)) _ = [_];
-      return this._fitFilter = d => _.includes(d.id), this;
+      return (this._fitFilter = d => _.includes(d.id)), this;
     }
     return this._fitFilter;
   }
@@ -443,15 +536,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   */
   fitObject(_, f) {
     if (arguments.length) {
-      if (typeof _ === "string") {
-        const prev = this._queue.find(q => q[3] === "fitObject");
-        const d = [load.bind(this), _, f, "fitObject"];
-        if (prev) this._queue[this._queue.indexOf(prev)] = d;
-        else this._queue.push(d);
-      }
-      else {
-        this._fitObject = _;
-      }
+      addToQueue.bind(this)(_, f, "fitObject");
       this._zoomSet = false;
       return this;
     }
@@ -465,7 +550,7 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   ocean(_) {
-    return arguments.length ? (this._ocean = _, this) : this._ocean;
+    return arguments.length ? ((this._ocean = _), this) : this._ocean;
   }
 
   /**
@@ -475,7 +560,9 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   point(_) {
-    return arguments.length ? (this._point = typeof _ === "function" ? _ : constant(_), this) : this._point;
+    return arguments.length
+      ? ((this._point = typeof _ === "function" ? _ : constant(_)), this)
+      : this._point;
   }
 
   /**
@@ -485,7 +572,9 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   pointSize(_) {
-    return arguments.length ? (this._pointSize = typeof _ === "function" ? _ : constant(_), this) : this._pointSize;
+    return arguments.length
+      ? ((this._pointSize = typeof _ === "function" ? _ : constant(_)), this)
+      : this._pointSize;
   }
 
   /**
@@ -495,7 +584,9 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   pointSizeMax(_) {
-    return arguments.length ? (this._pointSizeMax = _, this) : this._pointSizeMax;
+    return arguments.length
+      ? ((this._pointSizeMax = _), this)
+      : this._pointSizeMax;
   }
 
   /**
@@ -505,7 +596,9 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   pointSizeMin(_) {
-    return arguments.length ? (this._pointSizeMin = _, this) : this._pointSizeMin;
+    return arguments.length
+      ? ((this._pointSizeMin = _), this)
+      : this._pointSizeMin;
   }
 
   /**
@@ -516,7 +609,15 @@ Additionally, a custom formatting function can be passed as a second argument to
   */
   projection(_) {
     if (arguments.length && _ !== "geoMercator") this.tiles(false);
-    return arguments.length ? (this._projection = typeof _ === "string" ? d3Geo[_] ? d3Geo[_]() : d3Geo.geoMercator() : _, this) : this._projection;
+    return arguments.length
+      ? ((this._projection =
+          typeof _ === "string"
+            ? d3Geo[_]
+              ? d3Geo[_]()
+              : d3Geo.geoMercator()
+            : _),
+        this)
+      : this._projection;
   }
 
   /**
@@ -526,7 +627,9 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   projectionPadding(_) {
-    return arguments.length ? (this._projectionPadding = parseSides(_), this) : this._projectionPadding;
+    return arguments.length
+      ? ((this._projectionPadding = parseSides(_)), this)
+      : this._projectionPadding;
   }
 
   /**
@@ -541,8 +644,7 @@ Additionally, a custom formatting function can be passed as a second argument to
       this.tiles(false);
       this._zoomSet = false;
       return this;
-    }
-    else {
+    } else {
       return this._projectionRotate;
     }
   }
@@ -591,15 +693,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   */
   topojson(_, f) {
     if (arguments.length) {
-      if (typeof _ === "string") {
-        const prev = this._queue.find(q => q[3] === "topojson");
-        const d = [load.bind(this), _, f, "topojson"];
-        if (prev) this._queue[this._queue.indexOf(prev)] = d;
-        else this._queue.push(d);
-      }
-      else {
-        this._topojson = _;
-      }
+      addToQueue.bind(this)(_, f, "topojson");
       this._zoomSet = false;
       return this;
     }
@@ -613,7 +707,11 @@ Additionally, a custom formatting function can be passed as a second argument to
       @chainable
   */
   topojsonFill(_) {
-    return arguments.length ? (this._topojsonFill = typeof _ === "function" ? _ : constant(_), this, this) : this._topojsonFill;
+    return arguments.length
+      ? ((this._topojsonFill = typeof _ === "function" ? _ : constant(_)),
+        this,
+        this)
+      : this._topojsonFill;
   }
 
   /**
@@ -625,9 +723,9 @@ Additionally, a custom formatting function can be passed as a second argument to
   topojsonFilter(_) {
     if (arguments.length) {
       this._zoomSet = false;
-      if (typeof _ === "function") return this._topojsonFilter = _, this;
+      if (typeof _ === "function") return (this._topojsonFilter = _), this;
       if (!(_ instanceof Array)) _ = [_];
-      return this._topojsonFilter = d => _.includes(d.id), this;
+      return (this._topojsonFilter = d => _.includes(d.id)), this;
     }
     return this._topojsonFilter;
   }
@@ -656,7 +754,10 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
       @chainable
   */
   topojsonId(_) {
-    return arguments.length ? (this._topojsonId = typeof _ === "function" ? _ : accessor(_), this, this) : this._topojsonId;
+    return arguments.length
+      ? ((this._topojsonId = typeof _ === "function" ? _ : accessor(_)),
+        this,
+        this)
+      : this._topojsonId;
   }
-
 }
