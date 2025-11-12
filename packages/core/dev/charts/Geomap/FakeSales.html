@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../umd/d3plus-core.full.js"></script>
+  </head>
+
+  <body></body>
+
+  <script>
+    const coordinates = {
+      Mississippi: [-90.465233, 32.290336],
+      "North Carolina": [-78.061883, 35.569026],
+      Oklahoma: [-97.029594, 34.074342],
+      Virginia: [-75.764082, 37.626802],
+      "West Virginia": [-80.283164, 38.694113],
+      Louisiana: [-91.166682, 30.299234],
+      Michigan: [-84.152638, 44.236487],
+      Massachusetts: [-70.638415, 41.397012],
+      Idaho: [-114.444725, 45.548974],
+      Florida: [-82.523996, 27.952622],
+      Nebraska: [-96.635092, 41.644933],
+      Washington: [-122.799286, 47.528816],
+      "New Mexico": [-106.350428, 33.283173],
+      "South Dakota": [-97.182337, 43.32315],
+      Texas: [-98.793018, 29.937678],
+      California: [-120.800607, 36.74771],
+      Alabama: [-86.472121, 31.46933],
+      Georgia: [-82.592474, 32.56404],
+      Pennsylvania: [-75.886393, 41.149803],
+      Missouri: [-91.690098, 38.389853],
+      Colorado: [-105.652796, 38.808489],
+      Utah: [-111.806764, 39.400996],
+      Tennessee: [-85.79448, 35.849548],
+      Wyoming: [-108.104001, 43.290928],
+      "New York": [-75.104123, 42.587187],
+      Kansas: [-95.687788, 39.309412],
+      Alaska: [-150.039744, 60.070295],
+      Nevada: [-115.135423, 36.919676],
+      Illinois: [-89.103848, 39.214022],
+      Vermont: [-72.391284, 44.095282],
+      Montana: [-113.555457, 45.797389],
+      Iowa: [-94.106803, 42.029602],
+      "South Carolina": [-81.600073, 33.475293],
+      "New Hampshire": [-71.623675, 44.100881],
+      Arizona: [-114.237436, 34.407562],
+      "New Jersey": [-74.873587, 40.066412],
+      Maryland: [-76.700183, 38.821154],
+      Maine: [-68.96152, 44.754056],
+      Hawaii: [-155.572863, 19.585907],
+      Delaware: [-75.446542, 39.268077],
+      "Rhode Island": [-71.248732, 41.530655],
+      Kentucky: [-85.02811, 37.76991],
+      Ohio: [-82.336908, 40.260194],
+      Wisconsin: [-89.420095, 45.166509],
+      Oregon: [-121.109614, 44.540867],
+      "North Dakota": [-97.023576, 47.395962],
+      Arkansas: [-91.105052, 34.613119],
+      Indiana: [-87.076754, 38.692021],
+      Minnesota: [-94.418521, 47.24502],
+      Connecticut: [-72.716128, 41.294831],
+    };
+
+    new d3plus.Geomap()
+      // .data("https://d3plus.org/data/city_coords.json")
+      .data("./fake_state_data.json")
+      .groupBy("State")
+      .colorScale("Sales")
+      .time("Sale Date")
+      .point(function (d) {
+        return coordinates[d.State];
+      })
+      // .pointSize(d => d.dma_code)
+      // .pointSizeMin(1)
+      // .pointSizeMax(20)
+      .render();
+  </script>
+</html>
