@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/export",
-  "version": "3.0.12",
+  "version": "3.0.13",
   "description": "Export methods for transforming and downloading SVG.",
   "license": "MIT",
   "type": "module",

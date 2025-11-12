@@ -205,7 +205,7 @@ Extends the Pie visualization to create a donut chart.
 ---
 
 <a name="Geomap"></a>
-#### **Geomap** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L46)
+#### **Geomap** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L50)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Viz</code>](#Viz).
@@ -241,7 +241,7 @@ Creates a geographical map with zooming, panning, image tiles, and the ability t
 
 
 
-<a name="Geomap.fitFilter" href="#Geomap.fitFilter">#</a> Geomap.**fitFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L408)
+<a name="Geomap.fitFilter" href="#Geomap.fitFilter">#</a> Geomap.**fitFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L501)
 
 Topojson files sometimes include small geographies that negatively impact how the library determines the default zoom level (for example, a small island or territory far off the coast that is barely visible to the eye). The fitFilter method can be used to remove specific geographies from the logic used to determine the zooming.
 
@@ -251,7 +251,7 @@ The *value* passed can be a single id to remove, an array of ids, or a filter fu
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.fitKey" href="#Geomap.fitKey">#</a> Geomap.**fitKey**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L426)
+<a name="Geomap.fitKey" href="#Geomap.fitKey">#</a> Geomap.**fitKey**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L519)
 
 If the topojson being used to determine the zoom fit (either the main [topojson](#Geomap.topojson) object or the [fitObject](#Geomap.fitObject)) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use for the zoom fit.
 
@@ -261,7 +261,7 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.fitObject" href="#Geomap.fitObject">#</a> Geomap.**fitObject**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L444)
+<a name="Geomap.fitObject" href="#Geomap.fitObject">#</a> Geomap.**fitObject**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L537)
 
 The topojson to be used for the initial projection [fit extent](https://github.com/d3/d3-geo#projection_fitExtent). The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
 
@@ -271,7 +271,7 @@ Additionally, a custom formatting function can be passed as a second argument to
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.ocean" href="#Geomap.ocean">#</a> Geomap.**ocean**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L467)
+<a name="Geomap.ocean" href="#Geomap.ocean">#</a> Geomap.**ocean**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L552)
 
 The color visible behind any shapes drawn on the map projection. By default, a color value matching the color used in the map tiles is used to help mask the loading time needed to render the tiles. Any value CSS color value may be used, including hexidecimal, rgb, rgba, and color strings like `"blue"` and `"transparent"`.
 
@@ -279,7 +279,7 @@ The color visible behind any shapes drawn on the map projection. By default, a c
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.point" href="#Geomap.point">#</a> Geomap.**point**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L477)
+<a name="Geomap.point" href="#Geomap.point">#</a> Geomap.**point**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L562)
 
 The accessor to be used when detecting coordinate points in the objects passed to the [data](https://d3plus.org/docs/#Viz.data) method. Values are expected to be in the format `[longitude, latitude]`, which is in-line with d3's expected coordinate mapping.
 
@@ -287,7 +287,7 @@ The accessor to be used when detecting coordinate points in the objects passed t
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.pointSize" href="#Geomap.pointSize">#</a> Geomap.**pointSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L487)
+<a name="Geomap.pointSize" href="#Geomap.pointSize">#</a> Geomap.**pointSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L574)
 
 The accessor or static value to be used for sizing coordinate points.
 
@@ -295,7 +295,7 @@ The accessor or static value to be used for sizing coordinate points.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.pointSizeMax" href="#Geomap.pointSizeMax">#</a> Geomap.**pointSizeMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L497)
+<a name="Geomap.pointSizeMax" href="#Geomap.pointSizeMax">#</a> Geomap.**pointSizeMax**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L586)
 
 The maximum pixel radius used in the scale for sizing coordinate points.
 
@@ -303,7 +303,7 @@ The maximum pixel radius used in the scale for sizing coordinate points.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.pointSizeMin" href="#Geomap.pointSizeMin">#</a> Geomap.**pointSizeMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L507)
+<a name="Geomap.pointSizeMin" href="#Geomap.pointSizeMin">#</a> Geomap.**pointSizeMin**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L598)
 
 The minimum pixel radius used in the scale for sizing coordinate points.
 
@@ -311,7 +311,7 @@ The minimum pixel radius used in the scale for sizing coordinate points.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.projection" href="#Geomap.projection">#</a> Geomap.**projection**(*projection*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L517)
+<a name="Geomap.projection" href="#Geomap.projection">#</a> Geomap.**projection**(*projection*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L610)
 
 Sets the map projection used when displaying topojson and coordinate points. All of the projections exported from [d3-geo](https://github.com/d3/d3-geo#projections), [d3-geo-projection](https://github.com/d3/d3-geo-projection#api-reference), and [d3-composite-projections](http://geoexamples.com/d3-composite-projections/) are accepted, whether as the string name (ie. "geoMercator") or the generator function itself. Map tiles are only usable when the projection is set to Mercator (which is also the default value).
 
@@ -319,7 +319,7 @@ Sets the map projection used when displaying topojson and coordinate points. All
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.projectionPadding" href="#Geomap.projectionPadding">#</a> Geomap.**projectionPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L528)
+<a name="Geomap.projectionPadding" href="#Geomap.projectionPadding">#</a> Geomap.**projectionPadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L629)
 
 The outer padding between the edge of the visualization and the shapes drawn. The value passed can be either a single number to be used on all sides, or a CSS string pattern (ie. `"20px 0 10px"`).
 
@@ -327,7 +327,7 @@ The outer padding between the edge of the visualization and the shapes drawn. Th
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.projectionRotate" href="#Geomap.projectionRotate">#</a> Geomap.**projectionRotate**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L538)
+<a name="Geomap.projectionRotate" href="#Geomap.projectionRotate">#</a> Geomap.**projectionRotate**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L641)
 
 An array that corresponds to the value passed to the projection's [rotate](https://github.com/d3/d3-geo#projection_rotate) function. Use this method to shift the centerpoint of a map.
 
@@ -335,7 +335,7 @@ An array that corresponds to the value passed to the projection's [rotate](https
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.tiles" href="#Geomap.tiles">#</a> Geomap.**tiles**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L556)
+<a name="Geomap.tiles" href="#Geomap.tiles">#</a> Geomap.**tiles**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L658)
 
 Toggles the visibility of the map tiles.
 
@@ -343,7 +343,7 @@ Toggles the visibility of the map tiles.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.tileUrl" href="#Geomap.tileUrl">#</a> Geomap.**tileUrl**([url]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L573)
+<a name="Geomap.tileUrl" href="#Geomap.tileUrl">#</a> Geomap.**tileUrl**([url]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L675)
 
 By default, d3plus uses the `light_all` style provided by [CARTO](https://carto.com/location-data-services/basemaps/) for it's map tiles. The [tileUrl](https://d3plus.org/docs/#Geomap.tileUrl) method changes the base URL used for fetching the tiles, as long as the string passed contains `{x}`, `{y}`, and `{z}` variables enclosed in curly brackets for the zoom logic to load the correct tiles.
 
@@ -351,7 +351,7 @@ By default, d3plus uses the `light_all` style provided by [CARTO](https://carto.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.topojson" href="#Geomap.topojson">#</a> Geomap.**topojson**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L592)
+<a name="Geomap.topojson" href="#Geomap.topojson">#</a> Geomap.**topojson**(*data*, [*formatter*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L694)
 
 The topojson to be used for drawing geographical paths. The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
 
@@ -361,7 +361,7 @@ Additionally, a custom formatting function can be passed as a second argument to
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.topojsonFill" href="#Geomap.topojsonFill">#</a> Geomap.**topojsonFill**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L615)
+<a name="Geomap.topojsonFill" href="#Geomap.topojsonFill">#</a> Geomap.**topojsonFill**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L709)
 
 The function is used to set default color of the map.
 
@@ -369,7 +369,7 @@ The function is used to set default color of the map.
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.topojsonFilter" href="#Geomap.topojsonFilter">#</a> Geomap.**topojsonFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L625)
+<a name="Geomap.topojsonFilter" href="#Geomap.topojsonFilter">#</a> Geomap.**topojsonFilter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L723)
 
 If the [topojson](#Geomap.topojson) being used contains boundaries that should not be shown, this method can be used to filter them out of the final output. The *value* passed can be a single id to remove, an array of ids, or a filter function.
 
@@ -377,7 +377,7 @@ If the [topojson](#Geomap.topojson) being used contains boundaries that should n
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.topojsonKey" href="#Geomap.topojsonKey">#</a> Geomap.**topojsonKey**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L643)
+<a name="Geomap.topojsonKey" href="#Geomap.topojsonKey">#</a> Geomap.**topojsonKey**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L741)
 
 If the [topojson](#Geomap.topojson) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use.
 
@@ -387,7 +387,7 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
 This is a static method of [<code>Geomap</code>](#Geomap), and is chainable with other methods of this Class.
 
 
-<a name="Geomap.topojsonId" href="#Geomap.topojsonId">#</a> Geomap.**topojsonId**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L658)
+<a name="Geomap.topojsonId" href="#Geomap.topojsonId">#</a> Geomap.**topojsonId**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap.js#L756)
 
 The accessor used to map each topojson geometry to it's corresponding [data](https://d3plus.org/docs/#Viz.data) point.
 
@@ -2738,7 +2738,7 @@ This is a static method of [<code>Viz</code>](#Viz), and is chainable with other
 ---
 
 <a name="Axis"></a>
-#### **Axis** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L139)
+#### **Axis** [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L154)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>BaseClass</code>](#BaseClass).
@@ -2796,7 +2796,7 @@ Creates an SVG scale based on an array of data.
 
 
 
-<a name="Axis.render" href="#Axis.render">#</a> Axis.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L366)
+<a name="Axis.render" href="#Axis.render">#</a> Axis.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L434)
 
 Renders the current Axis to the page. If a *callback* is specified, it will be called once the legend is done drawing.
 
@@ -2804,7 +2804,7 @@ Renders the current Axis to the page. If a *callback* is specified, it will be c
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.align" href="#Axis.align">#</a> Axis.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1027)
+<a name="Axis.align" href="#Axis.align">#</a> Axis.**align**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1349)
 
 If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance.
 
@@ -2812,7 +2812,7 @@ If *value* is specified, sets the horizontal alignment to the specified value an
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.barConfig" href="#Axis.barConfig">#</a> Axis.**barConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1037)
+<a name="Axis.barConfig" href="#Axis.barConfig">#</a> Axis.**barConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1359)
 
 If *value* is specified, sets the axis line style and returns the current class instance.
 
@@ -2820,7 +2820,7 @@ If *value* is specified, sets the axis line style and returns the current class 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.data" href="#Axis.data">#</a> Axis.**data**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1047)
+<a name="Axis.data" href="#Axis.data">#</a> Axis.**data**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1371)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2828,7 +2828,7 @@ An array of data points, which helps determine which ticks should be shown and w
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.domain" href="#Axis.domain">#</a> Axis.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1057)
+<a name="Axis.domain" href="#Axis.domain">#</a> Axis.**domain**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1381)
 
 If *value* is specified, sets the scale domain of the axis and returns the current class instance.
 
@@ -2836,7 +2836,7 @@ If *value* is specified, sets the scale domain of the axis and returns the curre
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.duration" href="#Axis.duration">#</a> Axis.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1067)
+<a name="Axis.duration" href="#Axis.duration">#</a> Axis.**duration**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1391)
 
 If *value* is specified, sets the transition duration of the axis and returns the current class instance.
 
@@ -2844,7 +2844,7 @@ If *value* is specified, sets the transition duration of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.grid" href="#Axis.grid">#</a> Axis.**grid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1077)
+<a name="Axis.grid" href="#Axis.grid">#</a> Axis.**grid**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1401)
 
 If *value* is specified, sets the grid values of the axis and returns the current class instance.
 
@@ -2852,7 +2852,7 @@ If *value* is specified, sets the grid values of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridConfig" href="#Axis.gridConfig">#</a> Axis.**gridConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1087)
+<a name="Axis.gridConfig" href="#Axis.gridConfig">#</a> Axis.**gridConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1411)
 
 If *value* is specified, sets the grid config of the axis and returns the current class instance.
 
@@ -2860,7 +2860,7 @@ If *value* is specified, sets the grid config of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridLog" href="#Axis.gridLog">#</a> Axis.**gridLog**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1097)
+<a name="Axis.gridLog" href="#Axis.gridLog">#</a> Axis.**gridLog**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1423)
 
 If *value* is specified, sets the grid behavior of the axis when scale is logarithmic and returns the current class instance.
 
@@ -2868,7 +2868,7 @@ If *value* is specified, sets the grid behavior of the axis when scale is logari
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.gridSize" href="#Axis.gridSize">#</a> Axis.**gridSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1107)
+<a name="Axis.gridSize" href="#Axis.gridSize">#</a> Axis.**gridSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1433)
 
 If *value* is specified, sets the grid size of the axis and returns the current class instance.
 
@@ -2876,7 +2876,7 @@ If *value* is specified, sets the grid size of the axis and returns the current 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.height" href="#Axis.height">#</a> Axis.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1117)
+<a name="Axis.height" href="#Axis.height">#</a> Axis.**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1443)
 
 If *value* is specified, sets the overall height of the axis and returns the current class instance.
 
@@ -2884,7 +2884,7 @@ If *value* is specified, sets the overall height of the axis and returns the cur
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labels" href="#Axis.labels">#</a> Axis.**labels**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1127)
+<a name="Axis.labels" href="#Axis.labels">#</a> Axis.**labels**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1453)
 
 If *value* is specified, sets the visible tick labels of the axis and returns the current class instance.
 
@@ -2892,7 +2892,7 @@ If *value* is specified, sets the visible tick labels of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labelOffset" href="#Axis.labelOffset">#</a> Axis.**labelOffset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1137)
+<a name="Axis.labelOffset" href="#Axis.labelOffset">#</a> Axis.**labelOffset**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1463)
 
 If *value* is specified, sets whether offsets will be used to position some labels further away from the axis in order to allow space for the text.
 
@@ -2900,7 +2900,7 @@ If *value* is specified, sets whether offsets will be used to position some labe
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.labelRotation" href="#Axis.labelRotation">#</a> Axis.**labelRotation**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1147)
+<a name="Axis.labelRotation" href="#Axis.labelRotation">#</a> Axis.**labelRotation**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1475)
 
 If *value* is specified, sets whether whether horizontal axis labels are rotated -90 degrees.
 
@@ -2908,7 +2908,7 @@ If *value* is specified, sets whether whether horizontal axis labels are rotated
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.maxSize" href="#Axis.maxSize">#</a> Axis.**maxSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1157)
+<a name="Axis.maxSize" href="#Axis.maxSize">#</a> Axis.**maxSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1487)
 
 If *value* is specified, sets the maximum size allowed for the space that contains the axis tick labels and title.
 
@@ -2916,7 +2916,7 @@ If *value* is specified, sets the maximum size allowed for the space that contai
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.minSize" href="#Axis.minSize">#</a> Axis.**minSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1167)
+<a name="Axis.minSize" href="#Axis.minSize">#</a> Axis.**minSize**(_) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1497)
 
 If *value* is specified, sets the minimum size alloted for the space that contains the axis tick labels and title.
 
@@ -2924,7 +2924,7 @@ If *value* is specified, sets the minimum size alloted for the space that contai
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.orient" href="#Axis.orient">#</a> Axis.**orient**([*orient*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1177)
+<a name="Axis.orient" href="#Axis.orient">#</a> Axis.**orient**([*orient*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1507)
 
 If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.
 
@@ -2932,7 +2932,7 @@ If *orient* is specified, sets the orientation of the shape and returns the curr
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.outerBounds" href="#Axis.outerBounds">#</a> Axis.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1204)
+<a name="Axis.outerBounds" href="#Axis.outerBounds">#</a> Axis.**outerBounds**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1532)
 
 If called after the elements have been drawn to DOM, will returns the outer bounds of the axis content.
 
@@ -2945,7 +2945,7 @@ This is a static method of [<code>Axis</code>](#Axis)
 ```
 
 
-<a name="Axis.padding" href="#Axis.padding">#</a> Axis.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1214)
+<a name="Axis.padding" href="#Axis.padding">#</a> Axis.**padding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1542)
 
 If *value* is specified, sets the padding between each tick label to the specified number and returns the current class instance.
 
@@ -2953,7 +2953,7 @@ If *value* is specified, sets the padding between each tick label to the specifi
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.paddingInner" href="#Axis.paddingInner">#</a> Axis.**paddingInner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1224)
+<a name="Axis.paddingInner" href="#Axis.paddingInner">#</a> Axis.**paddingInner**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1552)
 
 If *value* is specified, sets the inner padding of band scale to the specified number and returns the current class instance.
 
@@ -2961,7 +2961,7 @@ If *value* is specified, sets the inner padding of band scale to the specified n
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.paddingOuter" href="#Axis.paddingOuter">#</a> Axis.**paddingOuter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1234)
+<a name="Axis.paddingOuter" href="#Axis.paddingOuter">#</a> Axis.**paddingOuter**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1564)
 
 If *value* is specified, sets the outer padding of band scales to the specified number and returns the current class instance.
 
@@ -2969,7 +2969,7 @@ If *value* is specified, sets the outer padding of band scales to the specified 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.range" href="#Axis.range">#</a> Axis.**range**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1244)
+<a name="Axis.range" href="#Axis.range">#</a> Axis.**range**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1576)
 
 If *value* is specified, sets the scale range (in pixels) of the axis and returns the current class instance. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.
 
@@ -2977,7 +2977,7 @@ If *value* is specified, sets the scale range (in pixels) of the axis and return
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.rounding" href="#Axis.rounding">#</a> Axis.**rounding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1254)
+<a name="Axis.rounding" href="#Axis.rounding">#</a> Axis.**rounding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1586)
 
 Sets the rounding method, so that more evenly spaced ticks appear at the extents of the scale. Can be set to "none" (default), "outside", or "inside".
 
@@ -2985,7 +2985,7 @@ Sets the rounding method, so that more evenly spaced ticks appear at the extents
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMinPrefix" href="#Axis.roundingInsideMinPrefix">#</a> Axis.**roundingInsideMinPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1264)
+<a name="Axis.roundingInsideMinPrefix" href="#Axis.roundingInsideMinPrefix">#</a> Axis.**roundingInsideMinPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1596)
 
 Sets the prefix used for the minimum value of "inside" rounding scales.
 
@@ -2993,7 +2993,7 @@ Sets the prefix used for the minimum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMinSuffix" href="#Axis.roundingInsideMinSuffix">#</a> Axis.**roundingInsideMinSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1274)
+<a name="Axis.roundingInsideMinSuffix" href="#Axis.roundingInsideMinSuffix">#</a> Axis.**roundingInsideMinSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1608)
 
 Sets the suffix used for the minimum value of "inside" rounding scales.
 
@@ -3001,7 +3001,7 @@ Sets the suffix used for the minimum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMaxPrefix" href="#Axis.roundingInsideMaxPrefix">#</a> Axis.**roundingInsideMaxPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1284)
+<a name="Axis.roundingInsideMaxPrefix" href="#Axis.roundingInsideMaxPrefix">#</a> Axis.**roundingInsideMaxPrefix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1620)
 
 Sets the prefix used for the maximum value of "inside" rounding scales.
 
@@ -3009,7 +3009,7 @@ Sets the prefix used for the maximum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.roundingInsideMaxSuffix" href="#Axis.roundingInsideMaxSuffix">#</a> Axis.**roundingInsideMaxSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1294)
+<a name="Axis.roundingInsideMaxSuffix" href="#Axis.roundingInsideMaxSuffix">#</a> Axis.**roundingInsideMaxSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1632)
 
 Sets the suffix used for the maximum value of "inside" rounding scales.
 
@@ -3017,7 +3017,7 @@ Sets the suffix used for the maximum value of "inside" rounding scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.scale" href="#Axis.scale">#</a> Axis.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1304)
+<a name="Axis.scale" href="#Axis.scale">#</a> Axis.**scale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1644)
 
 If *value* is specified, sets the scale of the axis and returns the current class instance.
 
@@ -3025,7 +3025,7 @@ If *value* is specified, sets the scale of the axis and returns the current clas
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.scalePadding" href="#Axis.scalePadding">#</a> Axis.**scalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1314)
+<a name="Axis.scalePadding" href="#Axis.scalePadding">#</a> Axis.**scalePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1654)
 
 Sets the "padding" property of the scale, often used in point scales.
 
@@ -3033,7 +3033,7 @@ Sets the "padding" property of the scale, often used in point scales.
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.select" href="#Axis.select">#</a> Axis.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1324)
+<a name="Axis.select" href="#Axis.select">#</a> Axis.**select**([*selector*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1666)
 
 If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
 
@@ -3041,7 +3041,7 @@ If *selector* is specified, sets the SVG container element to the specified d3 s
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.shape" href="#Axis.shape">#</a> Axis.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1334)
+<a name="Axis.shape" href="#Axis.shape">#</a> Axis.**shape**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1676)
 
 If *value* is specified, sets the tick shape constructor and returns the current class instance.
 
@@ -3049,7 +3049,7 @@ If *value* is specified, sets the tick shape constructor and returns the current
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.shapeConfig" href="#Axis.shapeConfig">#</a> Axis.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1344)
+<a name="Axis.shapeConfig" href="#Axis.shapeConfig">#</a> Axis.**shapeConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1686)
 
 If *value* is specified, sets the tick style of the axis and returns the current class instance.
 
@@ -3057,7 +3057,7 @@ If *value* is specified, sets the tick style of the axis and returns the current
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickFormat" href="#Axis.tickFormat">#</a> Axis.**tickFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1354)
+<a name="Axis.tickFormat" href="#Axis.tickFormat">#</a> Axis.**tickFormat**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1698)
 
 If *value* is specified, sets the tick formatter and returns the current class instance.
 
@@ -3065,7 +3065,7 @@ If *value* is specified, sets the tick formatter and returns the current class i
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.ticks" href="#Axis.ticks">#</a> Axis.**ticks**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1364)
+<a name="Axis.ticks" href="#Axis.ticks">#</a> Axis.**ticks**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1708)
 
 If *value* is specified, sets the tick values of the axis and returns the current class instance.
 
@@ -3073,7 +3073,7 @@ If *value* is specified, sets the tick values of the axis and returns the curren
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickSize" href="#Axis.tickSize">#</a> Axis.**tickSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1374)
+<a name="Axis.tickSize" href="#Axis.tickSize">#</a> Axis.**tickSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1718)
 
 If *value* is specified, sets the tick size of the axis and returns the current class instance.
 
@@ -3081,7 +3081,7 @@ If *value* is specified, sets the tick size of the axis and returns the current 
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.tickSuffix" href="#Axis.tickSuffix">#</a> Axis.**tickSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1384)
+<a name="Axis.tickSuffix" href="#Axis.tickSuffix">#</a> Axis.**tickSuffix**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1728)
 
 Sets the behavior of the abbreviations when you are using linear scale. This method accepts two options: "normal" (uses formatAbbreviate to determinate the abbreviation) and "smallest" (uses suffix from the smallest tick as reference in every tick).
 
@@ -3089,7 +3089,7 @@ Sets the behavior of the abbreviations when you are using linear scale. This met
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.timeLocale" href="#Axis.timeLocale">#</a> Axis.**timeLocale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1394)
+<a name="Axis.timeLocale" href="#Axis.timeLocale">#</a> Axis.**timeLocale**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1738)
 
 Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).
 
@@ -3097,7 +3097,7 @@ Defines a custom locale object to be used in time scale. This object must includ
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.title" href="#Axis.title">#</a> Axis.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1404)
+<a name="Axis.title" href="#Axis.title">#</a> Axis.**title**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1748)
 
 If *value* is specified, sets the title of the axis and returns the current class instance.
 
@@ -3105,7 +3105,7 @@ If *value* is specified, sets the title of the axis and returns the current clas
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.titleConfig" href="#Axis.titleConfig">#</a> Axis.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1414)
+<a name="Axis.titleConfig" href="#Axis.titleConfig">#</a> Axis.**titleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1758)
 
 If *value* is specified, sets the title configuration of the axis and returns the current class instance.
 
@@ -3113,7 +3113,7 @@ If *value* is specified, sets the title configuration of the axis and returns th
 This is a static method of [<code>Axis</code>](#Axis), and is chainable with other methods of this Class.
 
 
-<a name="Axis.width" href="#Axis.width">#</a> Axis.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1424)
+<a name="Axis.width" href="#Axis.width">#</a> Axis.**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis.js#L1770)
 
 If *value* is specified, sets the overall width of the axis and returns the current class instance.
 

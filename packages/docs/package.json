@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/docs",
-  "version": "3.0.12",
+  "version": "3.0.13",
   "description": "Documentation and examples for the d3plus visualization library.",
   "license": "MIT",
   "homepage": "https://d3plus.org",
@@ -16,11 +16,11 @@
     "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000"
   },
   "dependencies": {
-    "@d3plus/core": "3.0.12",
-    "@d3plus/dom": "3.0.12",
-    "@d3plus/format": "3.0.12",
-    "@d3plus/locales": "3.0.12",
-    "@d3plus/react": "3.0.12",
+    "@d3plus/core": "3.0.13",
+    "@d3plus/dom": "3.0.13",
+    "@d3plus/format": "3.0.13",
+    "@d3plus/locales": "3.0.13",
+    "@d3plus/react": "3.0.13",
     "@types/react": "^19.1.0",
     "next": "^15.2.4",
     "react": "^18.2.0",
