@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../../umd/d3plus-core.full.js"></script>
+  </head>
+
+  <body>
+    <div class="viz" id="viz1"></div>
+  </body>
+
+  <script>
+    const data = [
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2016,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2017,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2018,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2019,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2020,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2021,
+        Value: 100,
+      },
+      {
+        "Internationally Reported Indicators ID": 47,
+        "Internationally Reported Indicators":
+          "Proportion of population with access to electricity",
+        Year: 2022,
+        Value: 100,
+      },
+    ];
+
+    const chart = new d3plus.BarChart()
+      .config({
+        data,
+        groupBy: ["Internationally Reported Indicators ID"],
+        height: 400,
+        // label: "Internationally Reported Indicators",
+        select: "#viz1",
+        x: "Year",
+        y: "Value",
+        time: "Year",
+        // timeline: true,
+      })
+      .render();
+  </script>
+</html>
