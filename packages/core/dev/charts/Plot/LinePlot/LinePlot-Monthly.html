@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../../umd/d3plus-core.full.js"></script>
+    <!-- <script src="https://d3plus.org/js/d3plus-plot.v0.8.full.js"></script> -->
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    const url =
+      "https://api.datasaudi.sa/tesseract/data.jsonrecords?cube=sama_bank_deposits_month&drilldowns=Group,Month&measures=Million+SAR&locale=en";
+
+    var viz = new d3plus.LinePlot()
+      .data(url, resp => {
+        return resp.data.map(d => ({
+          ...d,
+          Month: `${d.Month}-01 00:00:00`,
+        }));
+      })
+      .config({
+        x: "Month",
+        y: "Million SAR",
+        groupBy: "Group",
+        time: "Month",
+      })
+      .render();
+  </script>
+</html>

@@ -36,6 +36,8 @@ const fixFloat = d => {
   return d;
 };
 
+const maxTimezoneOffset = 1000 * 60 * 60 * 26;
+
 /**
  * Calculates ticks from a given scale (negative and/or positive)
  * @param {scale} scale A d3-scale object
@@ -74,9 +76,18 @@ function calculateStep(scale, minorTicks = false) {
  */
 function calculateTicks(scale, minorTicks = false) {
   let ticks = [];
-  const step = calculateStep.bind(this)(scale, minorTicks);
-  const domain = scale.domain();
+
+  const scaleClone = scale.copy();
+  if (this._scale === "time" && this._data.length) {
+    const oldDomain = scale.domain();
+    const newDomain = extent(this._data);
+    const range = newDomain.map(scale);
+    scaleClone.domain(newDomain).range(range);
+  }
+
+  const domain = scaleClone.domain();
   const inverted = domain[1] < domain[0];
+  const step = calculateStep.bind(this)(scaleClone, minorTicks);
 
   if (!minorTicks && this._scale === "log") {
     const roundDomain = domain.map(d =>
@@ -94,7 +105,9 @@ function calculateTicks(scale, minorTicks = false) {
 
     ticks =
       (powMod <= 1 && powers[0] === powers[1]) || invertedRound !== inverted
-        ? scale.ticks(step).filter(d => +`${d}`.replace("0.", "") % 2 === 0)
+        ? scaleClone
+            .ticks(step)
+            .filter(d => +`${d}`.replace("0.", "") % 2 === 0)
         : d3Range(powers[0], powers[1], powers[1] < powers[0] ? -1 : 1)
             .concat([powers[1]])
             .filter(d => Math.abs(d) % powMod === 0)
@@ -110,7 +123,7 @@ function calculateTicks(scale, minorTicks = false) {
                 }`.replace(/9+/g, "1")
             );
   } else {
-    ticks = scale.ticks(step);
+    ticks = scaleClone.ticks(step);
     if (
       !minorTicks &&
       !["log", "time"].includes(this._scale) &&
@@ -126,6 +139,17 @@ function calculateTicks(scale, minorTicks = false) {
         return mod === 0;
       });
     }
+  }
+
+  // for time scale, if data array has been provided, filter out ticks that are not in the array
+  if (this._scale === "time" && this._data.length) {
+    const dataNumbers = this._data.map(Number);
+    ticks = ticks.filter(t => {
+      const tn = +t;
+      return dataNumbers.find(
+        n => n >= tn - maxTimezoneOffset && n <= tn + maxTimezoneOffset
+      );
+    });
   }
 
   // forces min/max into ticks, if not present
@@ -145,8 +169,6 @@ function calculateTicks(scale, minorTicks = false) {
       ticks.push(domain[1]);
     }
   }
-
-  if (this._scale === "time" && this._data.length) ticks = this._data;
 
   return ticks;
 }
