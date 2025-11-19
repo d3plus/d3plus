@@ -79,7 +79,6 @@ function calculateTicks(scale, minorTicks = false) {
 
   const scaleClone = scale.copy();
   if (this._scale === "time" && this._data.length) {
-    const oldDomain = scale.domain();
     const newDomain = extent(this._data);
     const range = newDomain.map(scale);
     scaleClone.domain(newDomain).range(range);
