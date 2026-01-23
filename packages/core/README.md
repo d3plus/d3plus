@@ -1645,13 +1645,16 @@ This is a global class, and extends all of the methods and functionality of [<co
 * [Sankey](#Sankey) ⇐ [<code>Viz</code>](#Viz)
     * [new Sankey()](#new_Sankey_new)
     * [.hover([*value*])](#Sankey.hover) ↩︎
+    * [.iterations([*value*])](#Sankey.iterations) ↩︎
     * [.links(*links*)](#Sankey.links) ↩︎
+    * [.linkSort([*value*])](#Sankey.linkSort) ↩︎
     * [.linksSource([*value*])](#Sankey.linksSource) ↩︎
     * [.linksTarget([*value*])](#Sankey.linksTarget) ↩︎
     * [.nodeAlign([*value*])](#Sankey.nodeAlign) ↩︎
     * [.nodeId([*value*])](#Sankey.nodeId) ↩︎
     * [.nodes(*nodes*)](#Sankey.nodes) ↩︎
     * [.nodePadding([*value*])](#Sankey.nodePadding) ↩︎
+    * [.nodeSort([*value*])](#Sankey.nodeSort) ↩︎
     * [.nodeWidth([*value*])](#Sankey.nodeWidth) ↩︎
     * [.value(*value*)](#Sankey.value)
 
@@ -1664,7 +1667,7 @@ Creates a sankey visualization based on a defined set of nodes and links. [Click
 
 
 
-<a name="Sankey.hover" href="#Sankey.hover">#</a> Sankey.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L215)
+<a name="Sankey.hover" href="#Sankey.hover">#</a> Sankey.**hover**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L231)
 
 If *value* is specified, sets the hover method to the specified function and returns the current class instance.
 
@@ -1672,7 +1675,15 @@ If *value* is specified, sets the hover method to the specified function and ret
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.links" href="#Sankey.links">#</a> Sankey.**links**(*links*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L232)
+<a name="Sankey.iterations" href="#Sankey.iterations">#</a> Sankey.**iterations**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L245)
+
+A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.
+
+
+This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
+
+
+<a name="Sankey.links" href="#Sankey.links">#</a> Sankey.**links**(*links*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L258)
 
 A predefined *Array* of edges that connect each object passed to the [node](#Sankey.node) method. The `source` and `target` keys in each link need to map to the nodes in one of one way:
 1. A *String* value matching the `id` of the node.
@@ -1683,7 +1694,15 @@ The value passed should be an *Array* of data. An optional formatting function c
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.linksSource" href="#Sankey.linksSource">#</a> Sankey.**linksSource**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L246)
+<a name="Sankey.linkSort" href="#Sankey.linkSort">#</a> Sankey.**linkSort**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L272)
+
+A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.
+
+
+This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
+
+
+<a name="Sankey.linksSource" href="#Sankey.linksSource">#</a> Sankey.**linksSource**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L282)
 
 The key inside of each link Object that references the source node.
 
@@ -1691,7 +1710,7 @@ The key inside of each link Object that references the source node.
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.linksTarget" href="#Sankey.linksTarget">#</a> Sankey.**linksTarget**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L256)
+<a name="Sankey.linksTarget" href="#Sankey.linksTarget">#</a> Sankey.**linksTarget**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L294)
 
 The key inside of each link Object that references the target node.
 
@@ -1699,7 +1718,7 @@ The key inside of each link Object that references the target node.
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.nodeAlign" href="#Sankey.nodeAlign">#</a> Sankey.**nodeAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L266)
+<a name="Sankey.nodeAlign" href="#Sankey.nodeAlign">#</a> Sankey.**nodeAlign**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L306)
 
 Sets the nodeAlign property of the sankey layout, which can either be "left", "right", "center", or "justify".
 
@@ -1707,7 +1726,7 @@ Sets the nodeAlign property of the sankey layout, which can either be "left", "r
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.nodeId" href="#Sankey.nodeId">#</a> Sankey.**nodeId**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L278)
+<a name="Sankey.nodeId" href="#Sankey.nodeId">#</a> Sankey.**nodeId**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L319)
 
 If *value* is specified, sets the node id accessor(s) to the specified array of values and returns the current class instance. If *value* is not specified, returns the current node group accessor.
 
@@ -1715,7 +1734,7 @@ If *value* is specified, sets the node id accessor(s) to the specified array of 
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.nodes" href="#Sankey.nodes">#</a> Sankey.**nodes**(*nodes*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L292)
+<a name="Sankey.nodes" href="#Sankey.nodes">#</a> Sankey.**nodes**(*nodes*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L333)
 
 The list of nodes to be used for drawing the network. The value passed must be an *Array* of data.
 
@@ -1725,7 +1744,7 @@ Additionally, a custom formatting function can be passed as a second argument to
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.nodePadding" href="#Sankey.nodePadding">#</a> Sankey.**nodePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L306)
+<a name="Sankey.nodePadding" href="#Sankey.nodePadding">#</a> Sankey.**nodePadding**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L347)
 
 If *value* is specified, sets the padding of the node and returns the current class instance. If *value* is not specified, returns the current nodePadding. By default, the nodePadding size is 8.
 
@@ -1733,7 +1752,15 @@ If *value* is specified, sets the padding of the node and returns the current cl
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.nodeWidth" href="#Sankey.nodeWidth">#</a> Sankey.**nodeWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L317)
+<a name="Sankey.nodeSort" href="#Sankey.nodeSort">#</a> Sankey.**nodeSort**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L359)
+
+A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.
+
+
+This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
+
+
+<a name="Sankey.nodeWidth" href="#Sankey.nodeWidth">#</a> Sankey.**nodeWidth**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L369)
 
 If *value* is specified, sets the width of the node and returns the current class instance. If *value* is not specified, returns the current nodeWidth. By default, the nodeWidth size is 30.
 
@@ -1741,7 +1768,7 @@ If *value* is specified, sets the width of the node and returns the current clas
 This is a static method of [<code>Sankey</code>](#Sankey), and is chainable with other methods of this Class.
 
 
-<a name="Sankey.value" href="#Sankey.value">#</a> Sankey.**value**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L330)
+<a name="Sankey.value" href="#Sankey.value">#</a> Sankey.**value**(*value*) [<>](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey.js#L382)
 
 If *value* is specified, sets the width of the links and returns the current class instance. If *value* is not specified, returns the current value accessor.
 

@@ -36,6 +36,36 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    iterations: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 6,
+      description: "A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.",
+      table: {
+        defaultValue: {
+          summary: 6
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    linkSort: {
+      control: {},
+      defaultValue: "undefined",
+      description: "A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function | undefined"
+      }
+    },
     links: {
       control: {
         type: "object"
@@ -148,6 +178,20 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    nodeSort: {
+      control: {},
+      defaultValue: "undefined",
+      description: "A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function | undefined"
       }
     },
     nodeWidth: {
