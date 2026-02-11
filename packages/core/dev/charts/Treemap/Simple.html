@@ -17,33 +17,19 @@
 
   var tmap = new d3plus.Treemap()
     .data("../../data.json")
+    .data([
+      {
+    "group": "Group 3",
+    "groupNum": 3,
+    "item": "Item 7",
+    "value": 30
+  }
+    ])
     .groupBy(["group", "item"])
+    .legendPosition(false)
     // .fontFamily("Comic Sans MS")
     .width(600)
     .height(400)
-    // .data([
-    //   {
-    //     id: 'alpha',
-    //     value: 29
-    //   },
-    //   {
-    //     id: 'beta',
-    //     value: 10
-    //   },
-    //   {
-    //     id: 'gamma',
-    //     value: 2
-    //   },
-    //   {
-    //     id: 'delta',
-    //     value: 29
-    //   },
-    //   {
-    //     id: 'eta',
-    //     value: 25
-    //   }
-    // ])
-    // .groupBy("id")
     .legend(true)
     .sum("value")
     .render();

@@ -1299,7 +1299,7 @@ If *data* is not specified, this method returns the current primary data array, 
   hover(_) {
     let hoverFunction = (this._hover = _);
 
-    if (this._shapeConfig.hoverOpacity !== 1) {
+    if (this._shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
       if (typeof _ === "function") {
         let shapeData = arrayMerge(this._shapes.map(s => s.data()));
         shapeData = shapeData.concat(this._legendClass.data());
