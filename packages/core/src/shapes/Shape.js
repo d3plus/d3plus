@@ -28,7 +28,7 @@ function findLastIndexWithClass(nodeList, classNames) {
       }
     }
   }
-  return 0; // Return -1 if no element is found with the class
+  return -1; // Return -1 if no element is found with the class
 }
 
 import Image from "./Image.js";
@@ -369,8 +369,6 @@ export default class Shape extends BaseClass {
 
         if (!d) d = {};
         if (!d.parentNode) d.parentNode = this.parentNode;
-        if (!d.dataIndex) d.dataIndex = i;
-        const dataIndex = d.dataIndex;
         const parent = d.parentNode;
 
         const d3plusType = select(this).classed("d3plus-textBox") ? "textBox" 
@@ -389,10 +387,11 @@ export default class Shape extends BaseClass {
         const notHovering = !that._hover || typeof that._hover !== "function" || !that._hover(d, i);
         const group = notHovering ? parent : that._hoverGroup.node();
         if (group !== this.parentNode) {
-          const offset = d3plusType === "textBox" ? findLastIndexWithClass(group.childNodes, ["d3plus-Image", "d3plus-Shape"])
-            : d3plusType === "Image" ? findLastIndexWithClass(group.childNodes, ["d3plus-Shape"]) : 0;
-
-          group.insertBefore(this, group.childNodes[offset + dataIndex]);
+          const afterIndex = d3plusType === "textBox" ? findLastIndexWithClass(group.childNodes, ["d3plus-Image", "d3plus-Shape"])
+            : d3plusType === "Image" ? findLastIndexWithClass(group.childNodes, ["d3plus-Shape"]) : -1;
+          if (notHovering) group.appendChild(this);
+          else if (afterIndex === -1) group.prepend(this);
+          else group.childNodes[afterIndex].after(this);
         }
         if (this.className.baseVal.includes("d3plus-Shape")) {
           if (parent === group) select(this).call(that._applyStyle.bind(that));
