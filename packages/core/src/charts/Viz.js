@@ -128,7 +128,7 @@ export default class Viz extends BaseClass {
             .render();
       })
       .on("mousemove", () =>
-        this._backClass.select().style("cursor", "pointer")
+        this._backClass.select().style("cursor", "pointer"),
       );
     this._backConfig = {
       fontSize: 10,
@@ -202,7 +202,7 @@ export default class Viz extends BaseClass {
     <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
       <strong>${this._translate("Loading Visualization")}</strong>
       <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this._translate(
-        "Powered by D3plus"
+        "Powered by D3plus",
       )}</a></sub>
     </div>`;
 
@@ -238,7 +238,7 @@ export default class Viz extends BaseClass {
       debounce(() => {
         this._setSVGSize();
         this.render(this._callback);
-      }, this._detectResizeDelay)
+      }, this._detectResizeDelay),
     );
     this._scrollContainer = typeof window === "undefined" ? "" : window;
     this._shape = constant("Rect");
@@ -268,7 +268,7 @@ export default class Viz extends BaseClass {
         if (color(c)) return c;
         return colorAssign(
           typeof c === "string" ? c : JSON.stringify(c),
-          this._colorDefaults
+          this._colorDefaults,
         );
       },
       labelConfig: {
@@ -405,7 +405,7 @@ export default class Viz extends BaseClass {
       const groupByDrawDepth = accessorFetch(
         this._groupBy[this._drawDepth],
         d,
-        i
+        i,
       );
       return typeof groupByDrawDepth === "number"
         ? `${groupByDrawDepth}`
@@ -425,7 +425,7 @@ export default class Viz extends BaseClass {
       if (d._isAggregation) {
         return `${this._thresholdName(d, i)} < ${formatAbbreviate(
           d._threshold * 100,
-          this._locale
+          this._locale,
         )}%`;
       }
       if (this._label && depth === this._drawDepth)
@@ -489,7 +489,7 @@ export default class Viz extends BaseClass {
           }
           this._legendData.push(d);
         },
-        ...nestKeys
+        ...nestKeys,
       );
 
       this._filteredData = this._thresholdFunction(this._filteredData, tree);
@@ -695,16 +695,16 @@ export default class Viz extends BaseClass {
       .duration(this._duration)
       .style(
         "width",
-        this._width !== undefined ? `${this._width}px` : undefined
+        this._width !== undefined ? `${this._width}px` : undefined,
       )
       .style(
         "height",
-        this._height !== undefined ? `${this._height}px` : undefined
+        this._height !== undefined ? `${this._height}px` : undefined,
       )
       .attr("width", this._width !== undefined ? `${this._width}px` : undefined)
       .attr(
         "height",
-        this._height !== undefined ? `${this._height}px` : undefined
+        this._height !== undefined ? `${this._height}px` : undefined,
       );
 
     // sets "position: relative" on the SVG parent if currently undefined
@@ -800,7 +800,7 @@ export default class Viz extends BaseClass {
               this._data instanceof Array &&
               this._data.length
               ? [0]
-              : []
+              : [],
           );
         const svgTableEnter = svgTable
           .enter()
@@ -812,7 +812,7 @@ export default class Viz extends BaseClass {
           .merge(svgTableEnter)
           .selectAll("text")
           .data(
-            this._data instanceof Array ? range(0, this._data.length + 1) : []
+            this._data instanceof Array ? range(0, this._data.length + 1) : [],
           );
         rows.exit().remove();
         const cells = rows
@@ -822,7 +822,7 @@ export default class Viz extends BaseClass {
             columns.map(c => ({
               role: i ? "cell" : "columnheader",
               text: i ? this._data[i - 1][c] : c,
-            }))
+            })),
           );
         cells.exit().remove();
         cells
@@ -862,6 +862,18 @@ export default class Viz extends BaseClass {
     // Attaches touchstart event listener to the BODY to hide the tooltip when the user touches any element without data
     select("body").on(`touchstart.${this._uuid}`, touchstartBody.bind(this));
 
+    return this;
+  }
+
+  /**
+      @memberof Viz
+      @desc Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      @chainable
+  */
+  destroy() {
+    this._resizeObserver.disconnect();
+    this._tooltipClass.data([]).render();
+    select("body").on(`touchstart.${this._uuid}`, null);
     return this;
   }
 
@@ -1211,7 +1223,7 @@ If *data* is not specified, this method returns the current primary data array, 
         axis => {
           const method = `${axis}Config`;
           if (this[method]) this[method](axisConfig);
-        }
+        },
       );
       ["back", "title", "total", "subtitle"].forEach(label => {
         const method = `${label}Config`;
