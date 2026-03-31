@@ -8,15 +8,15 @@ import D3plusContext from "./D3plusContext.jsx";
     @param {Object} config An object containing method/value pairs to be passed to the visualization's .config( ) method.
     @param {String} [className = "renderer"] The class attribute value used for the root/wrapper <div> element.
     @param {Function} [callback] A function to be invoked at the end of each render cycle (passed directly to the render method).
+    @param {Boolean} [forceUpdate] When true, the visualization re-renders on every React render cycle instead of only when config changes.
 */
-export default ({
+export default function Renderer({
   callback,
   className = "renderer",
   config,
   constructor,
-}) => {
-
-  const {forceUpdate} = config;
+  forceUpdate,
+}) {
 
   const globalConfig = useContext(D3plusContext);
   const container = useRef(null);
@@ -36,12 +36,14 @@ export default ({
       });
 
       instance.render(callback);
-      
+
     }
+
+    return () => instance.destroy?.();
   }, forceUpdate ? undefined : [JSON.stringify(globalConfig), JSON.stringify(config)]);
 
   return <div className={className}>
     <svg ref={container} width="100%" height="100%"></svg>
   </div>;
 
-};
+}
