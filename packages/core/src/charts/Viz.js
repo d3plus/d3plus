@@ -1,12 +1,9 @@
 import {group, max, merge as arrayMerge, min, range, rollup} from "d3-array";
 import {brush} from "d3-brush";
 import {color} from "d3-color";
-import {queue} from "d3-queue";
 import {select} from "d3-selection";
 import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
-
-import lrucache from "lrucache";
 
 import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
 import {addToQueue, merge, unique} from "@d3plus/data";
@@ -90,6 +87,31 @@ function accessorFetch(acc, d, i) {
     i = d.i;
   }
   return acc(d, i);
+}
+
+/**
+    Minimal LRU cache backed by a Map (insertion-order iteration enables O(1) eviction).
+    Only .get() and .set() are used by Viz.
+    @private
+*/
+class LRU {
+  constructor(capacity) {
+    this._cap = capacity;
+    this._map = new Map();
+  }
+  get(key) {
+    if (!this._map.has(key)) return undefined;
+    const val = this._map.get(key);
+    this._map.delete(key);
+    this._map.set(key, val);
+    return val;
+  }
+  set(key, val) {
+    this._map.delete(key);
+    if (this._map.size >= this._cap)
+      this._map.delete(this._map.keys().next().value);
+    this._map.set(key, val);
+  }
 }
 
 /**
@@ -207,7 +229,7 @@ export default class Viz extends BaseClass {
     </div>`;
 
     this._loadingMessage = true;
-    this._lrucache = lrucache(10);
+    this._lrucache = new LRU(10);
     this._messageClass = new Message();
     this._messageMask = "rgba(0, 0, 0, 0.05)";
     this._messageStyle = {
@@ -625,7 +647,6 @@ export default class Viz extends BaseClass {
    * @private
    */
   _setSVGSize() {
-    const display = this._select.style("display");
     this._select.style("display", "none");
 
     let [w, h] = getSize(this._select.node().parentNode);
@@ -633,7 +654,7 @@ export default class Viz extends BaseClass {
     w -= parseFloat(this._select.style("border-right-width"), 10);
     h -= parseFloat(this._select.style("border-top-width"), 10);
     h -= parseFloat(this._select.style("border-bottom-width"), 10);
-    this._select.style("display", display);
+    this._select.style("display", "block");
 
     if (this._autoWidth) {
       this.width(w);
@@ -766,18 +787,26 @@ export default class Viz extends BaseClass {
         }
       });
     } else {
-      const q = queue();
+      const promises = [];
 
       this._queue.forEach(p => {
         const cache = this._cache
           ? this._lrucache.get(`${p[3]}_${p[1]}`)
           : undefined;
-        if (!cache) q.defer(...p);
-        else this[`_${p[3]}`] = p[2] ? p[2](cache) : cache;
+        if (!cache) {
+          promises.push(
+            new Promise(resolve => {
+              p[0](p[1], p[2], p[3], err => {
+                if (err) console.error(err);
+                resolve();
+              });
+            }),
+          );
+        } else this[`_${p[3]}`] = p[2] ? p[2](cache) : cache;
       });
       this._queue = [];
 
-      if (this._loadingMessage && q._tasks.length) {
+      if (this._loadingMessage && promises.length) {
         this._messageClass.render({
           container: this._select.node().parentNode,
           html: this._loadingHTML(this),
@@ -786,7 +815,7 @@ export default class Viz extends BaseClass {
         });
       }
 
-      q.awaitAll(() => {
+      Promise.all(promises).then(() => {
         // creates a data table as DOM elements inside of the SVG for accessibility
         // only if this._ariaHidden is set to true
         const columns =

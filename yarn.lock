@@ -3849,11 +3849,6 @@ d3-polygon@^3.0.1:
   resolved "https://registry.npmjs.org/d3-quadtree/-/d3-quadtree-3.0.1.tgz"
   integrity sha512-04xDrxQTDTCFwP5H6hRhsRcb9xxv2RzkcsygFzmkSIOJy3PeRJP7sNk3VRIbKXcog561P9oU0/rVH6vDROAgUw==
 
-d3-queue@^3.0.7:
-  version "3.0.7"
-  resolved "https://registry.npmjs.org/d3-queue/-/d3-queue-3.0.7.tgz"
-  integrity sha512-2rs+6pNFKkrJhqe1rg5znw7dKJ7KZr62j9aLZfhondkrnz6U7VRmJj1UGcbD8MRc46c7H8m4SWhab8EalBQrkw==
-
 d3-sankey@^0.12.3:
   version "0.12.3"
   resolved "https://registry.npmjs.org/d3-sankey/-/d3-sankey-0.12.3.tgz"
@@ -6366,11 +6361,6 @@ lru-cache@^5.1.1:
   integrity sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==
   dependencies:
     yallist "^3.0.2"
-
-lrucache@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/lrucache/-/lrucache-1.0.3.tgz"
-  integrity sha512-OwQTGyq+57hmefrEv3Uhhyw4Z3l+aT/Q4nkdslVqy2n/7qIa4ML0wKnYcUUo54W1RRJYLdk2xKFsTaDGEVJLDw==
 
 magic-string@^0.30.3, magic-string@^0.30.5:
   version "0.30.17"
