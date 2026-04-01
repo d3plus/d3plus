@@ -28,7 +28,7 @@
   "scripts": {
     "build:esm": "node ../../scripts/build-esm.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint"
+    "test": "eslint && mocha --import=./test/loader.mjs 'test/**/*-test.mjs'"
   },
   "dependencies": {
     "@d3plus/core": "3.0.16"
