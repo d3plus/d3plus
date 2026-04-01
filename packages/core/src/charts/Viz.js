@@ -259,7 +259,11 @@ export default class Viz extends BaseClass {
     this._resizeObserver = new ResizeObserver(
       debounce(entries => {
         const {width, height} = entries[0].contentRect;
-        if (width !== this._width || height !== this._height) {
+        if (
+          (width !== this._width || height !== this._height) &&
+          width &&
+          height
+        ) {
           this._setSVGSize(width, height);
           this.render(this._callback);
         }
