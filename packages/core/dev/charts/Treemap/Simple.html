@@ -8,6 +8,12 @@
       rel="stylesheet"
     />
     <style>
+      html,
+      body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
       div#viz {
         border: 1px solid rgba(255, 0, 0, 0.25);
         display: block;
@@ -21,7 +27,7 @@
   </head>
 
   <body>
-    <div id="viz"></div>
+    <!-- <div id="viz"></div> -->
   </body>
 
   <script>
@@ -38,11 +44,11 @@
       .groupBy(["group", "item"])
       .legendPosition(false)
       // .fontFamily("Comic Sans MS")
-      .width(600)
-      .height(400)
+      // .width(600)
+      // .height(400)
       .legend(true)
       .sum("value")
-      .select("#viz")
+      // .select("#viz")
       .render(() => console.log("callback!"));
   </script>
 </html>

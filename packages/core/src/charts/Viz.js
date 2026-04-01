@@ -265,7 +265,7 @@ export default class Viz extends BaseClass {
           height
         ) {
           this._setSVGSize(width, height);
-          this.render(this._callback);
+          if (!this._callback) this.render();
         }
       }, this._detectResizeDelay),
     );
@@ -695,7 +695,13 @@ export default class Viz extends BaseClass {
       this._select.node().tagName.toLowerCase() !== "svg"
     ) {
       const parent =
-        this._select === void 0 ? select("body").append("div") : this._select;
+        this._select === void 0
+          ? select("body")
+              .append("div")
+              .style("height", "100%")
+              .style("width", "100%")
+              .style("min-height", 150)
+          : this._select;
       const svg = parent.select(".d3plus-viz").size()
         ? parent.select(".d3plus-viz")
         : parent.append("svg");
@@ -712,6 +718,8 @@ export default class Viz extends BaseClass {
       this._setSVGSize();
     }
 
+    const parent = select(this._select.node().parentNode);
+
     this._select
       .attr("class", "d3plus-viz")
       .attr("aria-hidden", this._ariaHidden)
@@ -720,8 +728,8 @@ export default class Viz extends BaseClass {
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
       .style("position", "absolute")
-      .style("top", 0)
-      .style("left", 0)
+      .style("top", parent.style("padding-top"))
+      .style("left", parent.style("padding-left"))
       .transition()
       .duration(this._duration)
       .style(
@@ -739,7 +747,6 @@ export default class Viz extends BaseClass {
       );
 
     // sets "position: relative" on the SVG parent if currently undefined
-    const parent = select(this._select.node().parentNode);
     const position = parent.style("position");
     if (position === "static") parent.style("position", "relative");
     parent.style("font-family", fontFamilyStringify(this._fontFamily));
@@ -872,7 +879,7 @@ export default class Viz extends BaseClass {
 
         // finishes the draw cycle
         this._preDraw();
-        this._draw(callback);
+        this._draw();
         zoomControls.bind(this)();
         drawAttribution.bind(this)();
 
@@ -894,7 +901,11 @@ export default class Viz extends BaseClass {
           this._resizeObserver.unobserve(this._select.node().parentNode);
         }
 
-        if (callback) setTimeout(callback, this._duration + 100);
+        if (callback)
+          setTimeout(() => {
+            callback();
+            this._callback = undefined;
+          }, this._duration + 100);
       });
     }
 
