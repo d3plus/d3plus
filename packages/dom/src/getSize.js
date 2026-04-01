@@ -5,21 +5,21 @@ import {select} from "d3-selection";
   @private
 */
 function _elementSize(element, s) {
-
   if (!element) return undefined;
 
-  if (element.tagName === undefined || ["BODY", "HTML"].indexOf(element.tagName) >= 0) {
-
-    let val  = window[`inner${s.charAt(0).toUpperCase() + s.slice(1)}`];
+  if (
+    element.tagName === undefined ||
+    ["BODY", "HTML"].indexOf(element.tagName) >= 0
+  ) {
+    let val = window[`inner${s.charAt(0).toUpperCase() + s.slice(1)}`];
     const elem = select(element);
-    
+
     if (s === "width") {
       val -= parseFloat(elem.style("margin-left"), 10);
       val -= parseFloat(elem.style("margin-right"), 10);
       val -= parseFloat(elem.style("padding-left"), 10);
       val -= parseFloat(elem.style("padding-right"), 10);
-    }
-    else {
+    } else {
       val -= parseFloat(elem.style("margin-top"), 10);
       val -= parseFloat(elem.style("margin-bottom"), 10);
       val -= parseFloat(elem.style("padding-top"), 10);
@@ -27,19 +27,22 @@ function _elementSize(element, s) {
     }
 
     return val;
-
-  }
-  else {
-    let val = parseFloat(select(element).style(s), 10);
+  } else {
+    let val = element.getBoundingClientRect()[s];
     if (typeof val === "number" && val > 0) {
       if (s === "height") {
         val -= parseFloat(select(element).style("padding-top"), 10);
         val -= parseFloat(select(element).style("padding-bottom"), 10);
+        val -= parseFloat(select(element).style("border-top"), 10);
+        val -= parseFloat(select(element).style("border-bottom"), 10);
+      } else {
+        val -= parseFloat(select(element).style("padding-left"), 10);
+        val -= parseFloat(select(element).style("padding-right"), 10);
+        val -= parseFloat(select(element).style("border-left"), 10);
+        val -= parseFloat(select(element).style("border-right"), 10);
       }
       return val;
-    }
-    else return _elementSize(element.parentNode, s);
-
+    } else return _elementSize(element.parentNode, s);
   }
 }
 
@@ -49,6 +52,6 @@ function _elementSize(element, s) {
     @param {HTMLElement} elem The HTMLElement to find dimensions for.
     @private
 */
-export default function(elem) {
+export default function (elem) {
   return [_elementSize(elem, "width"), _elementSize(elem, "height")];
 }
