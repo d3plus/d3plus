@@ -1,13 +1,45 @@
+import {prepareWithSegments, layoutWithLines} from "@chenglou/pretext";
+
 /**
  * Strips HTML and "un-escapes" escape characters.
  * @param {String} input
  */
 function htmlDecode(input) {
   if (input.replace(/\s+/g, "") === "") return input;
-  const doc = new DOMParser().parseFromString(input.replace(/<[^>]+>/g, ""), "text/html");
+  const doc = new DOMParser().parseFromString(
+    input.replace(/<[^>]+>/g, ""),
+    "text/html",
+  );
   return doc.documentElement ? doc.documentElement.textContent : input;
 }
 
+/**
+ * Builds a CSS font shorthand string from a style object.
+ * @param {Object} styleObj
+ */
+function buildFont(styleObj) {
+  const style = styleObj["font-style"] || "normal";
+  const variant = styleObj["font-variant"] || "normal";
+  const weight = styleObj["font-weight"] || 400;
+  const size =
+    typeof styleObj["font-size"] === "string"
+      ? styleObj["font-size"]
+      : `${styleObj["font-size"] || 10}px`;
+  const family = styleObj["font-family"] || "sans-serif";
+  return `${style} ${variant} ${weight} ${size} ${family}`;
+}
+
+/**
+ * Measures the width of a single text string using pretext.
+ * @param {String} text
+ * @param {String} font CSS font shorthand
+ */
+function measureWidth(text, font) {
+  if (!text) return 0;
+  const prepared = prepareWithSegments(text, font);
+  const result = layoutWithLines(prepared, Infinity, 20);
+  return result.lines.length ? result.lines[0].width : 0;
+}
 
 /**
     @function textWidth
@@ -15,28 +47,10 @@ function htmlDecode(input) {
     @param {String|Array} text Can be either a single string or an array of strings to analyze.
     @param {Object} [style] An object of CSS font styles to apply. Accepts any of the valid [CSS font property](http://www.w3schools.com/cssref/pr_font_font.asp) values.
 */
-export default function(text, style) {
+export default function (text, style = {}) {
+  const font = buildFont(style);
 
-  style = Object.assign({
-    "font-size": 10,
-    "font-family": "sans-serif",
-    "font-style": "normal",
-    "font-weight": 400,
-    "font-variant": "normal"
-  }, style);
-
-  const context = document.createElement("canvas").getContext("2d");
-
-  const font = [];
-  font.push(style["font-style"]);
-  font.push(style["font-variant"]);
-  font.push(style["font-weight"]);
-  font.push(typeof style["font-size"] === "string" ? style["font-size"] : `${style["font-size"]}px`);
-  font.push(style["font-family"]);
-
-  context.font = font.join(" ");
-
-  if (text instanceof Array) return text.map(t => context.measureText(htmlDecode(t)).width);
-  return context.measureText(htmlDecode(text)).width;
-
+  if (text instanceof Array)
+    return text.map(t => measureWidth(htmlDecode(t), font));
+  return measureWidth(htmlDecode(text), font);
 }

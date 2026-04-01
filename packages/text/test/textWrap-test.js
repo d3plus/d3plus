@@ -9,8 +9,8 @@ it("textWrap", () => {
   const sentence = "Hello D3plus, please wrap this sentence for me.",
         testWrap = textWrap().fontFamily(font).fontSize(14)(sentence);
 
-  assert.ok(testWrap.lines[0] === "Hello D3plus, please wrap" &&
-            testWrap.lines[1] === "this sentence for me.", "returning wrapped lines");
+  assert.ok(testWrap.lines[0] === "Hello D3plus, please wrap this" &&
+            testWrap.lines[1] === "sentence for me.", "returning wrapped lines");
   assert.strictEqual(testWrap.sentence, "Hello D3plus, please wrap this sentence for me.", "returning original sentence");
   assert.strictEqual(testWrap.truncated, false, "returning truncated boolean");
 

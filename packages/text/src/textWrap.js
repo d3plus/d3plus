@@ -4,6 +4,8 @@ import defaultSplit from "./textSplit.js";
 import stringify from "./stringify.js";
 import {trimRight} from "./trim.js";
 
+const softHyphen = "\u00AD";
+
 /**
     @function textWrap
     @desc Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
@@ -58,7 +60,12 @@ export default function() {
           truncated = true;
           break;
         }
-        if (lineData.length >= line) lineData[line - 1] = trimRight(lineData[line - 1]);
+        if (lineData.length >= line) {
+          let lineText = trimRight(lineData[line - 1]);
+          // Convert trailing soft hyphen to visible hyphen at line breaks
+          if (lineText.endsWith(softHyphen)) lineText = lineText.slice(0, -1) + "-";
+          lineData[line - 1] = lineText;
+        }
         line++;
         if (lineHeight * line > height || wordWidth > width && !overflow || maxLines && line > maxLines) {
           truncated = true;
@@ -68,17 +75,26 @@ export default function() {
         lineData.push(word);
       }
       else if (!i) lineData[0] = word;
-      else lineData[line - 1] += word;
+      else {
+        // Strip soft hyphen when syllables stay on the same line
+        if (lineData[line - 1].endsWith(softHyphen)) {
+          lineData[line - 1] = lineData[line - 1].slice(0, -1);
+        }
+        lineData[line - 1] += word;
+      }
 
       textProg += word;
       widthProg += wordWidth;
 
     }
 
+    // Clean remaining soft hyphens from all lines
+    const lines = lineData.map(l => l.replaceAll(softHyphen, ""));
+
     return {
-      lines: lineData,
+      lines,
       sentence, truncated,
-      widths: textWidth(lineData, style),
+      widths: textWidth(lines, style),
       words
     };
 

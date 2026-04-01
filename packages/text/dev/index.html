@@ -1,24 +1,25 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Pathway+Gothic+One"
+      rel="stylesheet"
+    />
+    <script src="../umd/d3plus-text.full.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@d3plus/text"></script> -->
 
-<head>
-
-  <meta charset="utf-8">
-  <link href="https://fonts.googleapis.com/css?family=Pathway+Gothic+One" rel="stylesheet">
-  <script src="../umd/d3plus-text.full.js"></script>
-
-  <style>
-
-    /* latin-ext */
-    /* @font-face {
+    <style>
+      /* latin-ext */
+      /* @font-face {
       font-family: 'Pathway Gothic One';
       font-style: normal;
       font-weight: 400;
       src: url(data:font/woff2;base64,d09GMgABAAAAAAQoAA4AAAAACEQAAAPVAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbfBwaBmAAVBEICoR8hBILGgABNgIkAzAEIAWEagc6G8cGIxEmfPGE7B8HOZm8uagEPN5l2TNZFMXroHIUN44cqYu2vv/r8TzvfuV9SWb3bwFZASpiYRiMq6ta5Xpq2QGrsvKToTxrUqymR89CTldICjLNAfQLZC8A/udyeqsxde3//FzbGLf96N55awMdxYmVjTFs4+TsuICKiBq2jUojY7k4wz0LZgGKqGaKYIY1dsmTm7QHDBo4Cd/ju1TfT+AzNQUxKDZo2OGwqtJ/Av0n/TuiaAbRjBRAxKSi3KtYYhlmLNRoM82I8qzIcD6vm2t2p4piNDHBpgls/42+ADgSbmaUp/2C+tL7dQTKKsYhrFNQULFIFbRocwSzDIqWiujTL0Myo3dyNLoWNvi18cngmuC04KRg/wh+ZaR3c8EssAxz8JoMAGjr+1UUVVFkDid1ZCgKDWexIkJ1I6SFDCkQMSCIqAVYMY40gjoG+/I6rNE4nJDcwYbfnXhbLLozAQzbvl28/vBPMOzWhDsS6e3bcKJGki6Wpoqkw4vWeAqJfP0LwfEWMAJTQLkSyjQYBDCO0kZgLYAKglkvpuRhCGQdo3bCNqBBRBl2K2JCnHQ1nLgzTPWnYsPvwomxojVlB3kZZFweGddxIf4m/XT+KVD2pJkXzOvq5oLggbEOi3gKskhePthGCMY3NoWaGlszh052ZzTeJYp2tutJ5OkEzVNIZVjvBg5TlFAbS/JPySlDU3VTNaWkwMd+hYurMpqyTPwqbh9uaQi/qgVL5yfxJdzUYRe2JDXXlg2srgtV1nCYOLNHGTdxWx+PidcjrxMqm9JGjLg+q1jD18Q1eBp9sHTLPfFFvCevvI/P+rGW45rt23atKfu9feeu3WVDpYM7vX3edUy9pnxv+dS+JZfyN2xsiW+f22VO/ZLsnGyyd2wgiKc7lkiWaFuVfBsg8yV8+3J6Nn7untfj//9+uM6vBzAoIDBaP0x9N4O8ZxGBZpZpd5yLmCaHwAJfes8UO2KyI33Mi9bS4Nb43/8LZvlhEhREcATA4J4qLRzwjxpik39QzDGG6lQ40OzNXAGwu2YMhGRk2bW0zMm1Sq+vP2W32mgkgTERkiVDpmwpkGpTbz1l8iKi3h6Pfa1tD532FUkPsb4rpaHtPm8aj5lOo6cQ8znl4HPkRCmQvnayDRGYA36qz67GSI3XQyOE3g2ZSDyefnX1vvr+bQtS62XajQh5n+1cytrbdet7ZEqTIUOWYqJ6Hll8RiJzsCKpMPM7iyHORWKmAnavB70iuzcnfkIDASNl99EBZgzYXSLeD7WmI2uaGAD67iwBNQuIU2z2+MnTZwefv1gDAAA=) format('woff2');
       unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     } */
-    /* latin */
-    /* @font-face {
+      /* latin */
+      /* @font-face {
       font-family: 'Pathway Gothic One';
       font-style: normal;
       font-weight: 400;
@@ -26,60 +27,54 @@
       unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     } */
 
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
 
-    p {
-      display: block;
-      font-family: "Pathway Gothic One";
-    }
+      p {
+        display: block;
+        font-family: "Pathway Gothic One";
+      }
 
-    .box {
-      border: 1px solid red;
-      display: inline-block;
-      height: 200px;
-      margin-right: 42px;
-      width: 150px;
-    }
+      .box {
+        border: 1px solid red;
+        display: inline-block;
+        height: 200px;
+        margin-right: 42px;
+        width: 150px;
+      }
 
-    svg {
-      position: absolute;
-      top: 0;
-    }
+      svg {
+        position: absolute;
+        top: 0;
+      }
+    </style>
+  </head>
 
-  </style>
+  <body></body>
 
-</head>
+  <script>
+    const string = "Here is a <b>long string</b> with some text to wrap.";
+    // const string = "veryLongTextWithoutAnyLimitCharacterThatShouldBeTruncatedWhenUsingOverflow";
+    // const string = "“里句。”";
+    console.log(d3plus.textSplit(string));
 
-<body>
-</body>
+    var wrapper = d3plus.textWrap().width(100).overflow(true);
+    var result = wrapper(string);
+    console.log(result.lines);
 
-<script>
+    // var result2 = wrapper(string + " " + string);
+    // console.log(result2);
 
-  // const string = "Here is a long string with some text to wrap.";
-  // const string = "veryLongTextWithoutAnyLimitCharacterThatShouldBeTruncatedWhenUsingOverflow";
-  const string = "“里句。”";
-  console.log(d3plus.textSplit(string));
+    // console.log(d3plus.strip("hére's myō tūxt والاجتماعية"));
 
-  var wrapper = d3plus.textWrap().width(100).overflow(true);
-  var result = wrapper(string);
-  console.log(result.lines);
-  
-  // var result2 = wrapper(string + " " + string);
-  // console.log(result2);
+    // console.log(d3plus.fontExists("Pathway Gothic One"));
+    // setTimeout(() => {
+    //   console.log(d3plus.fontExists("Pathway Gothic One"));
+    //   draw();
+    // }, 100);
 
-  // console.log(d3plus.strip("hére's myō tūxt والاجتماعية"));
-
-  // console.log(d3plus.fontExists("Pathway Gothic One"));
-  // setTimeout(() => {
-  //   console.log(d3plus.fontExists("Pathway Gothic One"));
-  //   draw();
-  // }, 100);
-
-  // console.log("rtl", d3plus.rtl("#no-exists"));
-
-</script>
-
+    // console.log("rtl", d3plus.rtl("#no-exists"));
+  </script>
 </html>
