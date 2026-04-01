@@ -73,7 +73,7 @@ export default class BaseClass {
 
     if (!this._configDefault) {
       const config = {};
-      getAllMethods(this.__proto__).forEach(k => {
+      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
         const v = this[k]();
         if (v !== this) config[k] = isObject(v) ? assign({}, v) : v;
       });
@@ -99,7 +99,7 @@ export default class BaseClass {
     else {
 
       const config = {};
-      getAllMethods(this.__proto__).forEach(k => {
+      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
         config[k] = this[k]();
       });
       return config;
