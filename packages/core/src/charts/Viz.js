@@ -257,9 +257,12 @@ export default class Viz extends BaseClass {
     };
     this._queue = [];
     this._resizeObserver = new ResizeObserver(
-      debounce(() => {
-        this._setSVGSize();
-        this.render(this._callback);
+      debounce(entries => {
+        const {width, height} = entries[0].contentRect;
+        if (width !== this._width || height !== this._height) {
+          this._setSVGSize(width, height);
+          this.render(this._callback);
+        }
       }, this._detectResizeDelay),
     );
     this._scrollContainer = typeof window === "undefined" ? "" : window;
@@ -646,15 +649,15 @@ export default class Viz extends BaseClass {
    * Detects width and height and sets SVG properties
    * @private
    */
-  _setSVGSize() {
-    this._select.style("display", "none");
-
-    let [w, h] = getSize(this._select.node().parentNode);
+  _setSVGSize(width, height) {
+    let [w, h] =
+      width && height
+        ? [width, height]
+        : getSize(this._select.node().parentNode);
     w -= parseFloat(this._select.style("border-left-width"), 10);
     w -= parseFloat(this._select.style("border-right-width"), 10);
     h -= parseFloat(this._select.style("border-top-width"), 10);
     h -= parseFloat(this._select.style("border-bottom-width"), 10);
-    this._select.style("display", "block");
 
     if (this._autoWidth) {
       this.width(w);
@@ -712,6 +715,9 @@ export default class Viz extends BaseClass {
       .attr("role", "img")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
+      .style("position", "absolute")
+      .style("top", 0)
+      .style("left", 0)
       .transition()
       .duration(this._duration)
       .style(
