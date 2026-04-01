@@ -1,5 +1,4 @@
-import {max, min, quantile} from "d3-array";
-import {nest} from "d3-collection";
+import {groups, max, min, quantile} from "d3-array";
 import {select} from "d3-selection";
 
 import {merge} from "@d3plus/data";
@@ -72,10 +71,9 @@ export default class Box extends BaseClass {
 
     const outlierData = [];
 
-    const filteredData = nest()
-      .key((d, i) => this._orient(d, i) === "vertical" ? this._x(d, i) : this._y(d, i))
-      .entries(this._data)
-      .map(d => {
+    const filteredData = groups(this._data, (d, i) => this._orient(d, i) === "vertical" ? this._x(d, i) : this._y(d, i))
+      .map(([key, groupData]) => {
+        const d = {key, values: groupData};
         d.data = merge(d.values);
         d.i = this._data.indexOf(d.values[0]);
         d.orient = this._orient(d.data, d.i);
@@ -206,17 +204,13 @@ export default class Box extends BaseClass {
 
     // Draw outliers.
     this._whiskerEndpoint = [];
-    nest()
-      .key(d => d.outlier)
-      .entries(outlierData)
-      .forEach(shapeData => {
-        const shapeName = shapeData.key;
-        this._whiskerEndpoint.push(new shapes[shapeName]()
-          .data(shapeData.values)
-          .select(elem(`g.d3plus-Box-Outlier-${shapeName}`, {parent: this._select}).node())
-          .config(configPrep.bind(this)(this._outlierConfig, "shape", shapeName))
-          .render());
-      });
+    groups(outlierData, d => d.outlier).forEach(([shapeName, values]) => {
+      this._whiskerEndpoint.push(new shapes[shapeName]()
+        .data(values)
+        .select(elem(`g.d3plus-Box-Outlier-${shapeName}`, {parent: this._select}).node())
+        .config(configPrep.bind(this)(this._outlierConfig, "shape", shapeName))
+        .render());
+    });
 
     return this;
   }

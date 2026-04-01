@@ -1,4 +1,4 @@
-import {nest} from "d3-collection";
+import {groups} from "d3-array";
 import {select} from "d3-selection";
 
 import {assign, elem} from "@d3plus/dom";
@@ -108,21 +108,17 @@ export default class Whisker extends BaseClass {
 
     // Draw whisker endpoint.
     this._whiskerEndpoint = [];
-    nest()
-      .key(d => d.endpoint)
-      .entries(whiskerData)
-      .forEach(shapeData => {
-        const shapeName = shapeData.key;
-        this._whiskerEndpoint.push(new shapes[shapeName]()
-          .data(shapeData.values)
-          .select(elem(`g.d3plus-Whisker-Endpoint-${shapeName}`, {parent: this._select}).node())
-          .config({
-            height: d => d.orient === "top" || d.orient === "bottom" ? 5 : 20,
-            width: d => d.orient === "top" || d.orient === "bottom" ? 20 : 5
-          })
-          .config(configPrep.bind(this)(this._endpointConfig, "shape", shapeName))
-          .render());
-      });
+    groups(whiskerData, d => d.endpoint).forEach(([shapeName, values]) => {
+      this._whiskerEndpoint.push(new shapes[shapeName]()
+        .data(values)
+        .select(elem(`g.d3plus-Whisker-Endpoint-${shapeName}`, {parent: this._select}).node())
+        .config({
+          height: d => d.orient === "top" || d.orient === "bottom" ? 5 : 20,
+          width: d => d.orient === "top" || d.orient === "bottom" ? 20 : 5
+        })
+        .config(configPrep.bind(this)(this._endpointConfig, "shape", shapeName))
+        .render());
+    });
 
     return this;
 

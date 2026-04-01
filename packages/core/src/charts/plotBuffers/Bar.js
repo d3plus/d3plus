@@ -1,5 +1,4 @@
-import {max, min, sum} from "d3-array";
-import {nest} from "d3-collection";
+import {groups, max, min, sum} from "d3-array";
 
 /**
     @module barBuffer
@@ -25,10 +24,8 @@ export default function({data, x, y, x2, y2, buffer = 10}) {
 
   let negVals, posVals;
   if (this._stacked) {
-    const groupedData = nest()
-      .key(d => `${d[this._discrete]}_${d.group}`)
-      .entries(data)
-      .map(d => d.values.map(x => x[isDiscreteX ? yKey : xKey]));
+    const groupedData = groups(data, d => `${d[this._discrete]}_${d.group}`)
+      .map(([, values]) => values.map(x => x[isDiscreteX ? yKey : xKey]));
     posVals = groupedData.map(arr => sum(arr.filter(d => d > 0)));
     negVals = groupedData.map(arr => sum(arr.filter(d => d < 0)));
   }

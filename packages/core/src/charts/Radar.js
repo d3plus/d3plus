@@ -1,6 +1,5 @@
 
-import {min, max, sum} from "d3-array";
-import {nest} from "d3-collection";
+import {groups, min, max, sum} from "d3-array";
 import {pointer} from "d3-selection";
 
 import {merge} from "@d3plus/data";
@@ -59,15 +58,10 @@ export default class Radar extends Viz {
     const radius = min([height, width]) / 2 - this._outerPadding,
           transform = `translate(${width / 2}, ${height / 2})`;
 
-    const nestedAxisData = nest()
-        .key(this._metric)
-        .entries(this._filteredData),
-          nestedGroupData = nest()
-        .key(this._id)
-        .key(this._metric)
-        .entries(this._filteredData);
+    const nestedAxisData = groups(this._filteredData, this._metric),
+          nestedGroupData = groups(this._filteredData, this._id, this._metric);
 
-    const maxValue = max(nestedGroupData.map(h => h.values.map(d => sum(d.values, (x, i) => this._value(x, i)))).flat());
+    const maxValue = max(nestedGroupData.map(([, innerEntries]) => innerEntries.map(([, vals]) => sum(vals, (x, i) => this._value(x, i)))).flat());
 
     const circularAxis = Array.from(Array(this._levels).keys()).map(d => ({
       id: d,
@@ -91,7 +85,8 @@ export default class Radar extends Viz {
 
     const totalAxis = nestedAxisData.length;
     const polarAxis = nestedAxisData
-      .map((d, i) => {
+      .map(([key, values], i) => {
+        const d = {key, values};
         const width = this._outerPadding;
         const fontSize =
           this._shapeConfig.labelConfig.fontSize &&
@@ -169,10 +164,10 @@ export default class Radar extends Viz {
       .config(configPrep.bind(this)(this._axisConfig.shapeConfig, "shape", "Path"))
       .render();
 
-    const groupData = nestedGroupData.map(h => {
+    const groupData = nestedGroupData.map(([hKey, innerEntries]) => {
 
-      const q = h.values.map((d, i) => {
-        const value = sum(d.values, (x, i) => this._value(x, i));
+      const q = innerEntries.map(([, vals], i) => {
+        const value = sum(vals, (x, i) => this._value(x, i));
         const r = value / maxValue * radius,
               radians = tau / totalAxis * i;
         return {
@@ -181,17 +176,17 @@ export default class Radar extends Viz {
         };
       });
 
-      const d = `M ${q[0].x} ${q[0].y} ${q
+      const pathD = `M ${q[0].x} ${q[0].y} ${q
         .map(l => `L ${l.x} ${l.y}`)
         .join(" ")} L ${q[0].x} ${q[0].y}`;
 
       return {
-        arr: h.values.map(d => merge(d.values, this._aggs)),
-        id: h.key,
+        arr: innerEntries.map(([, vals]) => merge(vals, this._aggs)),
+        id: hKey,
         points: q,
-        d,
+        d: pathD,
         __d3plus__: true,
-        data: merge(h.values.map(d => merge(d.values, this._aggs)), this._aggs)
+        data: merge(innerEntries.map(([, vals]) => merge(vals, this._aggs)), this._aggs)
       };
 
     });

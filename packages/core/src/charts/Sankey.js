@@ -1,4 +1,4 @@
-import {nest} from "d3-collection";
+import {groups} from "d3-array";
 import {
   sankey,
   sankeyCenter,
@@ -197,28 +197,25 @@ export default class Sankey extends Viz {
         )
         .render()
     );
-    nest()
-      .key(d => d.shape)
-      .entries(nodes)
-      .forEach(d => {
-        this._shapes.push(
-          new shapes[d.key]()
-            .data(d.values)
-            .height(d => d.y1 - d.y0)
-            .width(d => d.x1 - d.x0)
-            .x(d => (d.x1 + d.x0) / 2)
-            .y(d => (d.y1 + d.y0) / 2)
-            .select(
-              elem("g.d3plus-sankey-nodes", {
-                parent: this._select,
-                enter: {transform},
-                update: {transform},
-              }).node()
-            )
-            .config(configPrep.bind(this)(this._shapeConfig, "shape", d.key))
-            .render()
-        );
-      });
+    groups(nodes, d => d.shape).forEach(([key, values]) => {
+      this._shapes.push(
+        new shapes[key]()
+          .data(values)
+          .height(d => d.y1 - d.y0)
+          .width(d => d.x1 - d.x0)
+          .x(d => (d.x1 + d.x0) / 2)
+          .y(d => (d.y1 + d.y0) / 2)
+          .select(
+            elem("g.d3plus-sankey-nodes", {
+              parent: this._select,
+              enter: {transform},
+              update: {transform},
+            }).node()
+          )
+          .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
+          .render()
+      );
+    });
     return this;
   }
 

@@ -1,5 +1,4 @@
-import {extent, sum} from "d3-array";
-import {nest} from "d3-collection";
+import {extent, groups, sum} from "d3-array";
 import {interpolatePath} from "d3-interpolate-path";
 import {select} from "d3-selection";
 import * as paths from "d3-shape";
@@ -49,8 +48,8 @@ export default class Line extends Shape {
   */
   _dataFilter(data) {
 
-    const lines = nest().key(this._id).entries(data).map(d => {
-
+    const lines = groups(data, this._id).map(([key, values]) => {
+      const d = {key, values};
       d.data = merge(d.values);
       d.i = data.indexOf(d.values[0]);
 

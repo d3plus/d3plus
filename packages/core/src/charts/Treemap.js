@@ -1,10 +1,9 @@
-import {sum} from "d3-array";
-import {nest} from "d3-collection";
+import {group, sum} from "d3-array";
 import {hierarchy, treemap} from "d3-hierarchy";
 import {treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify} from "d3-hierarchy";
 const tileMethods = {treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify};
 
-import {merge} from "@d3plus/data";
+import {merge, nestGroups} from "@d3plus/data";
 import {assign, elem} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import {Rect} from "../shapes/index.js";
@@ -78,9 +77,7 @@ export default class Treemap extends Viz {
 
     super._draw(callback);
 
-    let nestedData = nest();
-    for (let i = 0; i <= this._drawDepth; i++) nestedData.key(this._groupBy[i]);
-    nestedData = nestedData.entries(this._filteredData);
+    const nestedData = nestGroups(this._filteredData, this._groupBy.slice(0, this._drawDepth + 1));
 
     const tmapData = this._treemap
       .padding(this._layoutPadding)
@@ -203,11 +200,9 @@ export default class Treemap extends Viz {
      */
     function thresholdByDepth(branchData, depth) {
       if (depth < drawDepth) {
-        return nest()
-          .key(groupBy[depth])
-          .entries(branchData)
-          .reduce((bulk, leaf) => {
-            const subBranchData = thresholdByDepth(leaf.values, depth + 1);
+        return [...group(branchData, groupBy[depth])]
+          .reduce((bulk, [, values]) => {
+            const subBranchData = thresholdByDepth(values, depth + 1);
             return bulk.concat(subBranchData);
           }, []);
       }

@@ -1,4 +1,4 @@
-import {nest} from "d3-collection";
+import {group} from "d3-array";
 
 /**
     @function nest
@@ -11,12 +11,25 @@ export default function(data, keys) {
 
   if (!(keys instanceof Array)) keys = [keys];
 
-  const dataNest = nest();
-  for (let i = 0; i < keys.length; i++) dataNest.key(keys[i]);
-  const nestedData = dataNest.entries(data);
+  const nestedData = nestGroups(data, keys);
 
   return bubble(nestedData);
 
+}
+
+/**
+    @function nestGroups
+    @desc Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
+    @param {Array} data The data array to group.
+    @param {Array} fns An array of key accessor functions, one per nesting level.
+    @returns {Array}
+*/
+export function nestGroups(data, fns) {
+  if (!fns.length) return data;
+  return [...group(data, fns[0])].map(([key, values]) => ({
+    key,
+    values: nestGroups(values, fns.slice(1))
+  }));
 }
 
 /**

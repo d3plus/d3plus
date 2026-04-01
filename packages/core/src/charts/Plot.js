@@ -1,7 +1,6 @@
 /* eslint no-cond-assign: 0 */
 
-import {deviation, extent, max, mean, merge, min, range, sum} from "d3-array";
-import {nest} from "d3-collection";
+import {deviation, extent, groups, max, mean, merge, min, range, rollups, sum} from "d3-array";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
 import pkg from "open-color/open-color.js";
@@ -597,32 +596,32 @@ export default class Plot extends Viz {
 
       let myData =
         this._discrete === axis
-          ? nest()
-              .key(d => d[axis])
-              .rollup(leaves =>
-                leaves.length === 1
-                  ? leaves[0].data
-                  : d3plusMerge(
-                      leaves.map(d => d.data),
-                      this._aggs
-                    )
+          ? rollups(
+                filteredData,
+                leaves =>
+                  leaves.length === 1
+                    ? leaves[0].data
+                    : d3plusMerge(
+                        leaves.map(d => d.data),
+                        this._aggs
+                      ),
+                d => d[axis]
               )
-              .entries(filteredData)
               .sort((a, b) => {
                 if (this[`_${axis}Sort`])
-                  return this[`_${axis}Sort`](a.value, b.value);
+                  return this[`_${axis}Sort`](a[1], b[1]);
                 const aKey =
-                  timeData || numericValue ? parseFloat(a.key, 10) : a.key;
+                  timeData || numericValue ? parseFloat(a[0], 10) : a[0];
                 const bKey =
-                  timeData || numericValue ? parseFloat(b.key, 10) : b.key;
+                  timeData || numericValue ? parseFloat(b[0], 10) : b[0];
                 return aKey - bKey;
               })
-              .map(d =>
+              .map(([key]) =>
                 timeData
-                  ? date(d.key)
+                  ? date(key)
                   : numericValue
-                  ? parseFloat(d.key, 10)
-                  : d.key
+                  ? parseFloat(key, 10)
+                  : key
               )
           : unique(
               filteredData
@@ -656,12 +655,10 @@ export default class Plot extends Viz {
         ["Area", "Bar"].includes(d.shape)
       );
 
-      const groupValues = nest()
-        .key(d => d.group)
-        .entries(stackedData)
-        .reduce((obj, d) => {
-          if (!obj[d.key]) obj[d.key] = 0;
-          obj[d.key] += sum(d.values, dd => dd[opp]);
+      const groupValues = groups(stackedData, d => d.group)
+        .reduce((obj, [key, values]) => {
+          if (!obj[key]) obj[key] = 0;
+          obj[key] += sum(values, dd => dd[opp]);
           return obj;
         }, {});
 
@@ -679,10 +676,8 @@ export default class Plot extends Viz {
       discreteKeys = Array.from(new Set(axisData.map(d => d.discrete)));
       stackKeys = Array.from(new Set(axisData.map(d => d.id)));
 
-      stackData = nest()
-        .key(d => d.discrete)
-        .entries(axisData)
-        .map(d => d.values);
+      stackData = groups(axisData, d => d.discrete)
+        .map(([, values]) => values);
 
       stackData.forEach(g => {
         const ids = Array.from(new Set(g.map(d => d.id)));
@@ -888,41 +883,37 @@ export default class Plot extends Viz {
         .domain(domains.y2.reverse())
         .range(range(0, height + 1, height / (domains.y2.length - 1)));
 
-    const shapeData = nest()
-      .key(d => d.shape)
-      .entries(data)
-      .sort((a, b) => this._shapeSort(a.key, b.key));
+    const shapeData = groups(data, d => d.shape)
+      .sort(([a], [b]) => this._shapeSort(a, b));
 
     const oppScale = this._discrete === "x" ? yScale : xScale;
     if (oppScale !== "Point") {
-      const allShapeData = nest()
-        .key(d => d.shape)
-        .entries(axisData);
+      const allShapeData = groups(axisData, d => d.shape);
 
-      allShapeData.forEach(d => {
-        if (["Bar", "Box"].includes(d.key)) {
+      allShapeData.forEach(([key, values]) => {
+        if (["Bar", "Box"].includes(key)) {
           discreteBuffer(this._discrete === "x" ? x : y, data, this._discrete);
         }
-        if (this._buffer[d.key]) {
-          const res = this._buffer[d.key].bind(this)({
-            data: d.values,
+        if (this._buffer[key]) {
+          const res = this._buffer[key].bind(this)({
+            data: values,
             x,
             y,
             yScale: yConfigScale,
             xScale: xConfigScale,
-            config: this._shapeConfig[d.key],
+            config: this._shapeConfig[key],
           });
           x = res[0];
           y = res[1];
-          const res2 = this._buffer[d.key].bind(this)({
-            data: d.values,
+          const res2 = this._buffer[key].bind(this)({
+            data: values,
             x: x2,
             y: y2,
             yScale: y2ConfigScale,
             xScale: x2ConfigScale,
             x2: true,
             y2: true,
-            config: this._shapeConfig[d.key],
+            config: this._shapeConfig[key],
           });
           x2 = res2[0];
           y2 = res2[1];
@@ -1117,9 +1108,7 @@ export default class Plot extends Viz {
           : true;
       });
 
-      const lineData = nest()
-        .key(d => d.id)
-        .entries(labelData);
+      const lineData = groups(labelData, d => d.id);
 
       if (lineData.length) {
         const userConfig = configPrep.bind(this)(
@@ -1170,8 +1159,8 @@ export default class Plot extends Viz {
         };
 
         labelWidths = lineData
-          .map(group => {
-            let d = group.values[group.values.length - 1];
+          .map(([lineKey, lineValues]) => {
+            let d = lineValues[lineValues.length - 1];
             let i;
             while (d.__d3plus__ && d.data) {
               d = d.data;
@@ -1211,14 +1200,14 @@ export default class Plot extends Viz {
               "font-weight": fontWeight,
             });
 
-            const coords = group.values.map(d => [
+            const coords = lineValues.map(d => [
               xEstimate(d.x),
               yEstimate(d.y),
             ]);
-            const myMaxX = max(group.values.map(d => xEstimate(d.x)));
-            const labelY = group.values.find(d => xEstimate(d.x) === myMaxX).y;
+            const myMaxX = max(lineValues.map(d => xEstimate(d.x)));
+            const labelY = lineValues.find(d => xEstimate(d.x) === myMaxX).y;
             return {
-              id: group.key,
+              id: lineKey,
               labelWidth: labelWidth + labelPadding * 2,
               spaceNeeded: labelWidth + labelPadding * 4,
               value: labelY,
@@ -1227,7 +1216,7 @@ export default class Plot extends Viz {
               fontSize,
               fontColor,
               maxX: myMaxX,
-              xValue: max(group.values, d => d.x),
+              xValue: max(lineValues, d => d.x),
               coords,
             };
           })
@@ -1508,10 +1497,8 @@ export default class Plot extends Viz {
 
     let labelPositions = {};
     if (labelWidths) {
-      nest()
-        .key(d => d.xValue)
-        .entries(labelWidths)
-        .forEach(({values}) => {
+      groups(labelWidths, d => d.xValue)
+        .forEach(([, values]) => {
           const minFontSize = max(values.map(d => d.fontSize));
           const yBuckets = range(yRange[0], yRange[1], minFontSize).reverse();
           const bumpLimit = (yRange[1] - yRange[0]) / 8;
@@ -1715,7 +1702,8 @@ export default class Plot extends Viz {
     };
 
     const events = Object.keys(this._on);
-    shapeData.forEach(d => {
+    shapeData.forEach(([key, values]) => {
+      const d = {key, values};
       const shapeConfigInner = Object.assign({}, shapeConfig);
       if (this._stacked && ["Area", "Bar"].includes(d.key)) {
         const scale = opp === "x" ? x : y;
@@ -1766,15 +1754,12 @@ export default class Plot extends Viz {
 
         let barSize = space || 1;
 
-        const groups = nest()
-          .key(d => d[this._discrete])
-          .key(d => d.group)
-          .entries(d.values);
+        const barGroups = groups(d.values, d => d[this._discrete], d => d.group);
 
-        const ids = merge(groups.map(d => d.values.map(v => v.key)));
+        const ids = merge(barGroups.map(([, innerEntries]) => innerEntries.map(([k]) => k)));
         const uniqueIds = Array.from(new Set(ids));
 
-        if (max(groups.map(d => d.values.length)) === 1) {
+        if (max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1) {
           s[this._discrete]((d, i) => shapeConfig[this._discrete](d, i));
         } else {
           barSize =
@@ -1923,7 +1908,7 @@ export default class Plot extends Viz {
       }
     });
 
-    const dataShapes = shapeData.map(d => d.key);
+    const dataShapes = shapeData.map(([key]) => key);
     if (dataShapes.includes("Line")) {
       if (this._confidence) dataShapes.push("Area");
       if (this._lineMarkers) dataShapes.push("Circle");

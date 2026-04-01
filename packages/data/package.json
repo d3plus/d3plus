@@ -36,7 +36,6 @@
   "dependencies": {
     "@d3plus/dom": "3.0.16",
     "d3-array": "^3.2.4",
-    "d3-collection": "^1.0.7",
     "d3-fetch": "^3.0.1"
   }
 }

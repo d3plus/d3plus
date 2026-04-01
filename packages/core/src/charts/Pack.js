@@ -1,7 +1,7 @@
-import {nest} from "d3-collection";
 import {hierarchy, pack} from "d3-hierarchy";
 
 import {assign, elem} from "@d3plus/dom";
+import {nestGroups} from "@d3plus/data";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import {Circle} from "../shapes/index.js";
 import Viz from "./Viz.js";
@@ -99,9 +99,7 @@ export default class Pack extends Viz {
     const diameter = Math.min(height, width);
     const transform = `translate(${(width - diameter) / 2}, ${(height - diameter) / 2})`;
 
-    let nestedData = nest();
-    for (let i = 0; i <= this._drawDepth; i++) nestedData.key(this._groupBy[i]);
-    nestedData = nestedData.entries(this._filteredData);
+    const nestedData = nestGroups(this._filteredData, this._groupBy.slice(0, this._drawDepth + 1));
 
     const packData = this._pack
       .padding(this._layoutPadding)

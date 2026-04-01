@@ -1,6 +1,5 @@
 
-import {extent, max, mean, min, merge} from "d3-array";
-import {nest} from "d3-collection";
+import {extent, groups, max, mean, min, merge} from "d3-array";
 import {forceLink, forceManyBody, forceSimulation} from "d3-force";
 import {polygonHull} from "d3-polygon";
 import * as scales from "d3-scale";
@@ -466,12 +465,12 @@ export default class Network extends Viz {
       select: elem("g.d3plus-network-nodes", {parent, duration, enter: {transform}, update: {transform}}).node()
     };
 
-    nest().key(d => d.shape).entries(nodes).forEach(d => {
-      this._shapes.push(new shapes[d.key]()
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", d.key))
+    groups(nodes, d => d.shape).forEach(([key, values]) => {
+      this._shapes.push(new shapes[key]()
+        .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
         .config(shapeConfig)
-        .config(shapeConfig[d.key] || {})
-        .data(d.values)
+        .config(shapeConfig[key] || {})
+        .data(values)
         .render());
     });
 

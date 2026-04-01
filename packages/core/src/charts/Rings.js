@@ -1,6 +1,5 @@
 
-import {extent, max, min} from "d3-array";
-import {nest} from "d3-collection";
+import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
 
 import {assign, elem} from "@d3plus/dom";
@@ -463,11 +462,11 @@ export default class Rings extends Viz {
       select: elem("g.d3plus-rings-nodes", {parent: this._select, duration, enter: {transform}, update: {transform}}).node()
     };
 
-    nest().key(d => d.shape).entries(nodes).forEach(d => {
-      this._shapes.push(new shapes[d.key]()
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", d.key))
+    groups(nodes, d => d.shape).forEach(([key, values]) => {
+      this._shapes.push(new shapes[key]()
+        .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
         .config(shapeConfig)
-        .data(d.values)
+        .data(values)
         .render());
     });
 

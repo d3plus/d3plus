@@ -44,7 +44,6 @@
     "@popperjs/core": "^2.11.8",
     "d3-array": "^3.2.4",
     "d3-brush": "^3.0.0",
-    "d3-collection": "^1.0.7",
     "d3-color": "^3.1.0",
     "d3-composite-projections": "^1.4.0",
     "d3-force": "^3.0.0",

@@ -1,10 +1,10 @@
 
 import {min, max, range} from "d3-array";
-import {nest} from "d3-collection";
 import {scaleBand} from "d3-scale";
 
 import {Axis} from "../components/index.js";
 import {assign, date, elem} from "@d3plus/dom";
+import {nestGroups} from "@d3plus/data";
 import {Rect} from "../shapes/index.js";
 import {accessor, configPrep} from "../utils/index.js";
 import Viz from "./Viz.js";
@@ -60,9 +60,9 @@ export default class Priestley extends Viz {
 
     let nestedData;
     if (this._groupBy.length > 1 && this._drawDepth > 0) {
-      const dataNest = nest();
-      for (let i = 0; i < this._drawDepth; i++) dataNest.key(d => this._groupBy[i](d.data, d.i));
-      nestedData = dataNest.entries(data);
+      const keyFns = [];
+      for (let i = 0; i < this._drawDepth; i++) keyFns.push(d => this._groupBy[i](d.data, d.i));
+      nestedData = nestGroups(data, keyFns);
     }
     else nestedData = [{values: data}];
 
