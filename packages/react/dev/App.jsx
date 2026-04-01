@@ -16,13 +16,12 @@ const globalConfig = {};
 
 const boxStyle = {
   border: "1px solid rgba(255, 0, 0, 0.25)",
-  display: "block", 
-  height: "500px", 
-  margin: "auto 10%", 
-  padding: "20px", 
+  display: "block",
+  height: 500,
+  margin: "auto 10%",
+  padding: "20px",
   textAlign: "center",
-  width: "80%", 
-  verticalAlign: "middle"
+  width: "80%",
 };
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -41,5 +40,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Treemap />
       </div>
     </MantineProvider>
-  </D3plusContext.Provider>
+  </D3plusContext.Provider>,
 );

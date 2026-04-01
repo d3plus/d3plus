@@ -1,39 +1,48 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../../umd/d3plus-core.full.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      div#viz {
+        border: 1px solid rgba(255, 0, 0, 0.25);
+        display: block;
+        height: 500px;
+        margin: auto 10%;
+        padding: 20px;
+        text-align: center;
+        width: 80%;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div id="viz"></div>
+  </body>
 
-  <meta charset="utf-8">
-  <script src="../../../umd/d3plus-core.full.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-  var tmap = new d3plus.Treemap()
-    .data("../../data.json")
-    .data([
-      {
-    "group": "Group 3",
-    "groupNum": 3,
-    "item": "Item 7",
-    "value": 30
-  }
-    ])
-    .groupBy(["group", "item"])
-    .legendPosition(false)
-    // .fontFamily("Comic Sans MS")
-    .width(600)
-    .height(400)
-    .legend(true)
-    .sum("value")
-    .render();
-
-</script>
-
+  <script>
+    var tmap = new d3plus.Treemap()
+      .data("../../data.json")
+      .data([
+        {
+          group: "Group 3",
+          groupNum: 3,
+          item: "Item 7",
+          value: 30,
+        },
+      ])
+      .groupBy(["group", "item"])
+      .legendPosition(false)
+      // .fontFamily("Comic Sans MS")
+      .width(600)
+      .height(400)
+      .legend(true)
+      .sum("value")
+      .select("#viz")
+      .render(() => console.log("callback!"));
+  </script>
 </html>
