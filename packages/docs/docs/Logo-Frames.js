@@ -1,5 +1,7 @@
 import {colorDefaults, colorLegible} from "@d3plus/color";
-const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const darkMode =
+  window.matchMedia &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches;
 const background = darkMode ? "#1B1C1D" : "white";
 const tickColor = darkMode ? "#dee2e6" : "#495057";
 const gridColor = darkMode ? "#495057" : "#dee2e6";
@@ -32,51 +34,57 @@ export const sharedConfig = {
   noDataMessage: false,
   width,
   xDomain: [0, xSquares],
-  yDomain: [0, ySquares]
+  yDomain: [0, ySquares],
 };
 
 const hiddenAxis = {
   barConfig: {
     opacity: 0,
-    stroke: tickColor
+    stroke: tickColor,
   },
   gridConfig: {
     opacity: 0,
-    stroke: gridColor
+    stroke: gridColor,
   },
   shapeConfig: {
     fill: tickColor,
     opacity: 0,
     labelConfig: {
-      fontColor: tickColor
+      fontColor: tickColor,
     },
-    stroke: tickColor
-  }
-}
+    stroke: tickColor,
+  },
+};
 
 const visibleAxis = {
   barConfig: {
     opacity: 1,
-    stroke: tickColor
+    stroke: tickColor,
   },
   gridConfig: {
     opacity: 1,
-    stroke: gridColor
+    stroke: gridColor,
   },
   shapeConfig: {
     fill: tickColor,
     duration: 250,
     opacity: 1,
     labelConfig: {
-      fontColor: tickColor
+      fontColor: tickColor,
     },
-    stroke: tickColor
-  }
-}
+    stroke: tickColor,
+  },
+};
 
 const dCircles = [
   {id: "curve", r: cellSize * 5, x: arcCenter, y: middle, fill: dColor},
-  {id: "curve-mask", r: cellSize * 3, x: arcCenter, y: middle, fill: background}
+  {
+    id: "curve-mask",
+    r: cellSize * 3,
+    x: arcCenter,
+    y: middle,
+    fill: background,
+  },
 ];
 
 const threeLabelConfig = {
@@ -85,30 +93,59 @@ const threeLabelConfig = {
   fontWeight: 700,
   lineHeight: ySquares + 0.6,
   textAnchor: "middle",
-  verticalAlign: "middle"
+  verticalAlign: "middle",
 };
 
 const plusLines = [
-  {shape: "Line", id: "plus-horizontal", x: plusCenter - plusSize, y: middle, fill: plusColor},
-  {shape: "Line", id: "plus-horizontal", x: plusCenter + plusSize, y: middle, fill: plusColor},
-  {shape: "Line", id: "plus-vertical", x: plusCenter, y: middle + plusSize, fill: plusColor},
-  {shape: "Line", id: "plus-vertical", x: plusCenter, y: middle - plusSize, fill: plusColor}
+  {
+    shape: "Line",
+    id: "plus-horizontal",
+    x: plusCenter - plusSize,
+    y: middle,
+    fill: plusColor,
+  },
+  {
+    shape: "Line",
+    id: "plus-horizontal",
+    x: plusCenter + plusSize,
+    y: middle,
+    fill: plusColor,
+  },
+  {
+    shape: "Line",
+    id: "plus-vertical",
+    x: plusCenter,
+    y: middle + plusSize,
+    fill: plusColor,
+  },
+  {
+    shape: "Line",
+    id: "plus-vertical",
+    x: plusCenter,
+    y: middle - plusSize,
+    fill: plusColor,
+  },
 ];
 
-function randomY(x) { // min and max included 
+function randomY(x) {
+  // min and max included
   const clamp = x / xSquares;
   const max = (ySquares - 1) * clamp;
   return Math.random() * (max - 1 + 1) + 1;
 }
 
-const createLines = id => Array.from({length: xSquares}, (_, index) => ({id, x: index, y: randomY(index)}));
+const createLines = id =>
+  Array.from({length: xSquares}, (_, index) => ({
+    id,
+    x: index,
+    y: randomY(index),
+  }));
 
 const iconCenter = threeCenter;
 const iconDCenter = iconCenter - 2;
 const iconThreeCenter = iconCenter + 2;
 export const icon = {
   annotations: [
-
     {
       data: dCircles
         .filter(d => !d.id.includes("mask"))
@@ -118,25 +155,46 @@ export const icon = {
         }),
       fill: d => d.fill,
       shape: "Circle",
-      strokeWidth: 0
+      strokeWidth: 0,
     },
 
     {
       data: [
-        {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: iconDCenter - 2.65, y: middle, fill: background},
-        {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: iconDCenter - 1.5, y: middle, fill: dColor},
+        {
+          id: "curve-mask",
+          height: cellSize * 11,
+          width: cellSize * 5.2,
+          x: iconDCenter - 2.65,
+          y: middle,
+          fill: background,
+        },
+        {
+          id: "ascender",
+          height: cellSize * 10,
+          width: cellSize * 3,
+          x: iconDCenter - 1.5,
+          y: middle,
+          fill: dColor,
+        },
         // {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: iconDCenter - 0.45, y: middle, fill: background},
-        {id: "3", height: cellSize * 36, width: cellSize * 9, x: iconThreeCenter, y: middle, fill: "transparent"},
+        {
+          id: "3",
+          height: cellSize * 36,
+          width: cellSize * 9,
+          x: iconThreeCenter,
+          y: middle,
+          fill: "transparent",
+        },
       ],
       fill: d => d.fill,
-      label: d => d.id === "3" ? 3 : false,
+      label: d => (d.id === "3" ? 3 : false),
       labelConfig: {
         ...threeLabelConfig,
-        fontColor: dColor
+        fontColor: dColor,
       },
       padding: 0,
       shape: "Rect",
-      strokeWidth: 0
+      strokeWidth: 0,
     },
     {
       data: plusLines.map(d => {
@@ -145,123 +203,189 @@ export const icon = {
       }),
       shape: "Line",
       stroke: background,
-      strokeWidth: cellSize * 1.5
-    }
+      strokeWidth: cellSize * 1.5,
+    },
   ],
   xConfig: hiddenAxis,
-  yConfig: hiddenAxis
+  yConfig: hiddenAxis,
 };
 
 export const animationFrames = [
   {
     annotations: [
-
       {
         data: dCircles,
         fill: d => d.fill,
         shape: "Circle",
-        strokeWidth: 0
+        strokeWidth: 0,
       },
 
       {
         data: [
-          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: background},
-          {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: arcCenter - 1.5, y: middle, fill: dColor},
-          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: background},
-          {id: "3", height: cellSize * 36, width: cellSize * 9, x: threeCenter, y: middle, fill: "transparent"},
+          {
+            id: "curve-mask",
+            height: cellSize * 11,
+            width: cellSize * 5.2,
+            x: arcCenter - 2.65,
+            y: middle,
+            fill: background,
+          },
+          {
+            id: "ascender",
+            height: cellSize * 10,
+            width: cellSize * 3,
+            x: arcCenter - 1.5,
+            y: middle,
+            fill: dColor,
+          },
+          {
+            id: "ascender-mask",
+            height: cellSize * 6,
+            width: cellSize * 1,
+            x: arcCenter - 0.45,
+            y: middle,
+            fill: background,
+          },
+          {
+            id: "3",
+            height: cellSize * 36,
+            width: cellSize * 9,
+            x: threeCenter,
+            y: middle,
+            fill: "transparent",
+          },
         ],
         fill: d => d.fill,
-        label: d => d.id === "3" ? 3 : false,
+        label: d => (d.id === "3" ? 3 : false),
         labelConfig: {
           ...threeLabelConfig,
-          fontColor: threeColor
+          fontColor: threeColor,
         },
         padding: 0,
         shape: "Rect",
-        strokeWidth: 0
+        strokeWidth: 0,
       },
       {
         data: plusLines,
         shape: "Line",
         stroke: plusColor,
-        strokeWidth: cellSize * 1.5
-      }
+        strokeWidth: cellSize * 1.5,
+      },
     ],
     xConfig: hiddenAxis,
-    yConfig: hiddenAxis
+    yConfig: hiddenAxis,
   },
-
-
-
 
   {
     annotations: [
-
       {
         data: dCircles,
         fill: "transparent",
         shape: "Circle",
         stroke: dColor,
-        strokeDasharray: d => d.id.includes("mask") ? "4 1" : false,
-        strokeWidth: 2
+        strokeDasharray: d => (d.id.includes("mask") ? "4 1" : false),
+        strokeWidth: 2,
       },
 
       {
         data: [
-          {id: "curve-mask", height: cellSize * 8, width: cellSize * 5.2, x: arcCenter, y: middle},
-          {id: "ascender", height: cellSize * 6, width: cellSize * 3, x: arcCenter, y: middle},
-          {id: "ascender-mask", height: cellSize * 4, width: cellSize * 1, x: arcCenter, y: middle},
-          {id: "3", height: (cellSize - 4) * ySquares, width: cellSize * 8, x: threeCenter + 1, y: middle},
+          {
+            id: "curve-mask",
+            height: cellSize * 8,
+            width: cellSize * 5.2,
+            x: arcCenter,
+            y: middle,
+          },
+          {
+            id: "ascender",
+            height: cellSize * 6,
+            width: cellSize * 3,
+            x: arcCenter,
+            y: middle,
+          },
+          {
+            id: "ascender-mask",
+            height: cellSize * 4,
+            width: cellSize * 1,
+            x: arcCenter,
+            y: middle,
+          },
+          {
+            id: "3",
+            height: (cellSize - 4) * ySquares,
+            width: cellSize * 8,
+            x: threeCenter + 1,
+            y: middle,
+          },
         ],
-        fill: d => d.id === "3" ? threeColor : "transparent",
-        label: d => d.id === "3" ? 3 : false,
+        fill: d => (d.id === "3" ? threeColor : "transparent"),
+        label: d => (d.id === "3" ? 3 : false),
         labelConfig: {
           ...threeLabelConfig,
           fontColor: colorDefaults.light,
           fontStroke: threeAccent,
-          fontStrokeWidth: 2
+          fontStrokeWidth: 2,
         },
         shape: "Rect",
-        stroke: d => d.id === "3" ? threeAccent : dColor,
-        strokeDasharray: d => d.id.includes("mask") ? "4 1" : false,
+        stroke: d => (d.id === "3" ? threeAccent : dColor),
+        strokeDasharray: d => (d.id.includes("mask") ? "4 1" : false),
         strokeWidth: 2,
       },
       {
-        data: plusLines
-          .map(d => {
-            const copy = {...d, x: d.x + 2};
-            return copy;
-          }),
+        data: plusLines.map(d => {
+          const copy = {...d, x: d.x + 2};
+          return copy;
+        }),
         shape: "Line",
         stroke: plusColor,
-        strokeWidth: cellSize / 2
-      }
+        strokeWidth: cellSize / 2,
+      },
     ],
     xConfig: visibleAxis,
-    yConfig: visibleAxis
+    yConfig: visibleAxis,
   },
-
-
-
 
   {
     annotations: [
-
       {
         data: [
           {id: "curve", r: cellSize, x: 17, y: 10},
-          {id: "curve-mask", r: cellSize * 0.75, x: 5, y: 7}
+          {id: "curve-mask", r: cellSize * 0.75, x: 5, y: 7},
         ],
         fill: dColor,
-        shape: "Circle"
+        shape: "Circle",
       },
 
       {
         data: [
-          {id: "curve-mask",    width: cellSize * 2, height: cellSize * 2, x: barSpacing * 1, y: 1},
-          {id: "ascender",      width: cellSize * 2, height: cellSize * 5, x: barSpacing * 2, y: 2.5},
-          {id: "ascender-mask", width: cellSize * 2, height: cellSize * 3, x: barSpacing * 3, y: 1.5},
-          {id: "3",             width: cellSize * 2, height: cellSize * 8, x: barSpacing * 4, y: 4},
+          {
+            id: "curve-mask",
+            width: cellSize * 2,
+            height: cellSize * 2,
+            x: barSpacing * 1,
+            y: 1,
+          },
+          {
+            id: "ascender",
+            width: cellSize * 2,
+            height: cellSize * 5,
+            x: barSpacing * 2,
+            y: 2.5,
+          },
+          {
+            id: "ascender-mask",
+            width: cellSize * 2,
+            height: cellSize * 3,
+            x: barSpacing * 3,
+            y: 1.5,
+          },
+          {
+            id: "3",
+            width: cellSize * 2,
+            height: cellSize * 8,
+            x: barSpacing * 4,
+            y: 4,
+          },
         ],
         fill: threeColor,
         label: false,
@@ -270,60 +394,89 @@ export const animationFrames = [
         stroke: threeAccent,
         strokeWidth: 2,
         texture: "nylon",
-        textureDefault: {size: cellSize / 2, background: threeColor, stroke: threeAccent, strokeWidth: 1},
+        textureDefault: {
+          size: cellSize / 2,
+          background: threeColor,
+          stroke: threeAccent,
+          strokeWidth: 1,
+        },
       },
       {
         data: [
           ...createLines("plus-horizontal"),
-          ...createLines("plus-vertical")
+          ...createLines("plus-vertical"),
         ],
         shape: "Line",
         stroke: plusColor,
-        strokeDasharray: d => d.id.includes("horizontal") ? "10 2" : false,
-        strokeWidth: 2
-      }
-    ]
+        strokeDasharray: d => (d.id.includes("horizontal") ? "10 2" : false),
+        strokeWidth: 2,
+      },
+    ],
   },
   {
     annotations: [
-
       {
         data: dCircles,
         fill: d => d.fill,
         shape: "Circle",
-        strokeWidth: 0
+        strokeWidth: 0,
       },
 
       {
         data: [
-          {id: "curve-mask", height: cellSize * 11, width: cellSize * 5.2, x: arcCenter - 2.65, y: middle, fill: background},
-          {id: "ascender", height: cellSize * 10, width: cellSize * 3, x: arcCenter - 1.5, y: middle, fill: dColor},
-          {id: "ascender-mask", height: cellSize * 6, width: cellSize * 1, x: arcCenter - 0.45, y: middle, fill: background},
-          {id: "3", height: cellSize * 36, width: cellSize * 9, x: threeCenter, y: middle, fill: "transparent"},
+          {
+            id: "curve-mask",
+            height: cellSize * 11,
+            width: cellSize * 5.2,
+            x: arcCenter - 2.65,
+            y: middle,
+            fill: background,
+          },
+          {
+            id: "ascender",
+            height: cellSize * 10,
+            width: cellSize * 3,
+            x: arcCenter - 1.5,
+            y: middle,
+            fill: dColor,
+          },
+          {
+            id: "ascender-mask",
+            height: cellSize * 6,
+            width: cellSize * 1,
+            x: arcCenter - 0.45,
+            y: middle,
+            fill: background,
+          },
+          {
+            id: "3",
+            height: cellSize * 36,
+            width: cellSize * 9,
+            x: threeCenter,
+            y: middle,
+            fill: "transparent",
+          },
         ],
         fill: d => d.fill,
-        label: d => d.id === "3" ? 3 : false,
+        label: d => (d.id === "3" ? 3 : false),
         labelConfig: {
           ...threeLabelConfig,
-          fontColor: threeColor
+          fontColor: threeColor,
         },
         padding: 0,
         shape: "Rect",
-        strokeWidth: 0
+        strokeWidth: 0,
       },
       {
         data: plusLines,
         shape: "Line",
         stroke: plusColor,
-        strokeWidth: cellSize * 1.5
-      }
+        strokeWidth: cellSize * 1.5,
+      },
     ],
     xConfig: hiddenAxis,
-    yConfig: hiddenAxis
+    yConfig: hiddenAxis,
   },
-
-
-
 
   // {
   //   annotations: [],

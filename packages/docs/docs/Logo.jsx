@@ -5,7 +5,6 @@ import {sharedConfig, animationFrames} from "./Logo-Frames.js";
 const duration = 3000;
 
 const Logo = () => {
-
   const [frame, setFrame] = useState(0);
   const intervalRef = useRef(null);
 
@@ -24,7 +23,12 @@ const Logo = () => {
     }
   }, [frame]);
 
-  return frame >= 0 ? <Plot className="d3plus-logo" config={{...sharedConfig, ...animationFrames[frame]}} /> : null;
+  return frame >= 0 ? (
+    <Plot
+      className="d3plus-logo"
+      config={{...sharedConfig, ...animationFrames[frame]}}
+    />
+  ) : null;
 };
 
 export default Logo;

@@ -1,20 +1,19 @@
 import React from "react";
 import {Treemap} from "@d3plus/react";
-import {Source} from '@storybook/addon-docs/blocks';
+import {Source} from "@storybook/addon-docs/blocks";
 import stringify from "../helpers/stringify";
 
 const Logo = () => {
-
   const config = {
     data: [
       {id: "alpha", value: 29},
       {id: "beta", value: 10},
       {id: "gamma", value: 2},
       {id: "delta", value: 29},
-      {id: "eta", value: 25}
+      {id: "eta", value: 25},
     ],
     groupBy: "id",
-    sum: "value"
+    sum: "value",
   };
 
   const code = `<Treemap config={${stringify(config)}} />`;
@@ -26,13 +25,13 @@ const Logo = () => {
     display: "flex",
     flexDirection: mobile ? "column" : "row",
     height: mobile ? "auto" : "300px",
-    marginBottom: mobile ? "50px" : 0
+    marginBottom: mobile ? "50px" : 0,
   };
   const sourceStyle = {
-    marginRight: mobile ? 0 : "20px", 
-    width: mobile ? "100%" : "300px"
+    marginRight: mobile ? 0 : "20px",
+    width: mobile ? "100%" : "300px",
   };
-  const vizStyle = {flex: `1 1 ${mobile ? "300px" : "auto"}`}
+  const vizStyle = {flex: `1 1 ${mobile ? "300px" : "auto"}`};
 
   return (
     <div style={wrapperStyle}>

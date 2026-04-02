@@ -9,5 +9,5 @@ addons.setConfig({
   sidebar: {
     collapsedRoots: ["color"],
   },
-  theme
+  theme,
 });
