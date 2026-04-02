@@ -23,7 +23,7 @@ const colorMid = "#bbb";
 */
 export default class Timeline extends Axis {
   _brushing: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brushFilter: (event: any) => boolean;
   _brushMin: () => number;
   _buttonAlign: string;
@@ -31,25 +31,25 @@ export default class Timeline extends Axis {
   _buttonBehaviorCurrent: string;
   _buttonPadding: number;
   _buttonHeight: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _handleConfig: Record<string, any>;
   _handleSize: number;
   _hiddenHandles: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   declare _on: Record<string, any>;
   _playButton: boolean;
   _playButtonClass: TextBox;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _playButtonConfig: Record<string, any>;
   _playButtonInterval: number;
   _playTimer: ReturnType<typeof setInterval> | false;
   _selection: unknown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _selectionConfig: Record<string, any>;
   _snapping: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brush: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brushGroup: any;
   _paddingLeft: number;
   _ticksWidth: number;
@@ -68,7 +68,7 @@ export default class Timeline extends Axis {
       "stroke-width": () => (this._buttonBehaviorCurrent === "buttons" ? 0 : 1),
     });
     this._brushing = true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     this._brushFilter = (event: any) => !event.button && event.detail < 2;
     this._brushMin = constant(1);
     this._buttonAlign = "middle";
@@ -223,7 +223,7 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "brush".
       @private
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brushBrush(event: any): void {
     if (
       event.sourceEvent &&
@@ -248,7 +248,7 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "end".
       @private
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brushEnd(event: any): void {
     if (!event.sourceEvent) return; // Only transition after input.
 
@@ -269,7 +269,7 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "start".
       @private
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _brushStart(event: any): void {
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
       if (this._playTimer) clearInterval(this._playTimer);
@@ -367,7 +367,7 @@ export default class Timeline extends Axis {
       @desc Updates domain of the timeline used in brush functions.
       @private
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _updateDomain(event: any): any[] {
     const x = pointers(event, this._select.node());
     let domain: any[] =
@@ -485,7 +485,7 @@ export default class Timeline extends Axis {
       @desc Updates limits of the brush.
       @private
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _updateBrushLimit(domain: any[]): any[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
@@ -762,11 +762,11 @@ function() {
   return !event.button && event.detail < 2;
 }
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   brushFilter(): (event: any) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   brushFilter(_: (event: any) => boolean): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   brushFilter(_?: (event: any) => boolean): unknown {
     return arguments.length
       ? ((this._brushFilter = _!), this)
@@ -864,13 +864,13 @@ function() {
       @param {Function} [*listener*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   on(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   on(_: string, f: Function): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   on(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   on(_?: any, f?: Function): any {
     return arguments.length === 2
       ? ((this._on[_] = f), this)

@@ -25,21 +25,21 @@ export default class Legend extends BaseClass {
   _direction: string;
   _duration: number;
   _height: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _id: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _label: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _lineData: Record<string, any>[];
   _outerBounds: Record<string, number>;
   _padding: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _shape: (d: DataPoint, i?: number) => any;
   _select: D3Selection;
   _shapes: unknown[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _shapeConfig: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _titleConfig: Record<string, any>;
   _verticalAlign: string;
   _width: number;
@@ -175,7 +175,7 @@ export default class Legend extends BaseClass {
     this._titleWidth = 0;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fetchConfig(key: string, d: DataPoint, i: number): any {
     const val =
       this._shapeConfig[key] !== undefined
@@ -186,9 +186,9 @@ export default class Legend extends BaseClass {
     return typeof val === "function" ? val(d, i) : val;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _rowHeight(row: Record<string, any>[]): number {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return (
       max(
         row
@@ -198,9 +198,9 @@ export default class Legend extends BaseClass {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _rowWidth(row: Record<string, any>[]): number {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return sum(
       row.map((d: Record<string, any>, i: number) => {
         const p = this._padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
@@ -256,7 +256,7 @@ export default class Legend extends BaseClass {
       const shape = this._shape(d, i);
       const r = this._fetchConfig("r", d, i);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       let res: Record<string, any> = {
         data: d,
         i,
@@ -320,7 +320,7 @@ export default class Legend extends BaseClass {
       let lines = 1,
         newRows: Record<string, unknown>[][] = [];
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const maxLines = max(
         this._lineData.map((d: Record<string, any>) => d.words.length),
       );
@@ -332,14 +332,14 @@ export default class Legend extends BaseClass {
         const wrappable =
           lines === 1
             ? this._lineData.slice()
-            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            :  
               this._lineData
                 .filter(
                   (d: Record<string, any>) =>
                     d.width + d.shapeWidth + this._padding * (d.width ? 2 : 1) >
                       availableWidth && d.words.length >= lines,
                 )
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 .sort(
                   (a: Record<string, any>, b: Record<string, any>) =>
                     b.sentence.length - a.sentence.length,
@@ -389,7 +389,7 @@ export default class Legend extends BaseClass {
         for (let i = 0; i < this._lineData.length; i++) {
           const d = this._lineData[i],
             w = d.width + this._padding * (d.width ? 2 : 1) + d.shapeWidth;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           if (
             sum(
               newRows.map((row: Record<string, any>[]) =>
@@ -428,7 +428,7 @@ export default class Legend extends BaseClass {
         sum(newRows, this._rowHeight.bind(this)) + this._padding >
           availableHeight
       ) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         spaceNeeded =
           sum(
             this._lineData.map(
@@ -447,9 +447,9 @@ export default class Legend extends BaseClass {
         sum(newRows, this._rowHeight.bind(this)) + this._padding <
           availableHeight
       ) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         newRows.forEach((row: Record<string, any>[], i: number) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           row.forEach((d: Record<string, any>) => {
             if (i) {
               d.y = sum(newRows.slice(0, i), this._rowHeight.bind(this));
@@ -463,7 +463,7 @@ export default class Legend extends BaseClass {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const innerHeight =
         max(
           this._lineData,
@@ -501,16 +501,16 @@ export default class Legend extends BaseClass {
     this._shapes = [];
     const baseConfig = configPrep.bind(this)(this._shapeConfig, "legend"),
       config = {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         id: (d: Record<string, any>) => d.id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         label: (d: Record<string, any>) => d.label,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         lineHeight: (d: Record<string, any>) => d.lH,
       };
 
     const data = this._data.map((d: DataPoint, i: number) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const obj: Record<string, any> = {
         __d3plus__: true,
         data: d,
@@ -528,10 +528,10 @@ export default class Legend extends BaseClass {
     this._shapes = [];
     (["Circle", "Rect"] as const).forEach((Shape: string) => {
       this._shapes.push(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         new (shapes as Record<string, new () => any>)[Shape]()
           .parent(this)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           .data(data.filter((d: Record<string, any>) => d.shape === Shape))
           .duration(this._duration)
           .labelConfig({padding: 0})
@@ -643,11 +643,11 @@ function value(d) {
   return d.id;
 }
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(_?: any): unknown {
     return arguments.length ? ((this._id = _!), this) : this._id;
   }
@@ -658,11 +658,11 @@ function value(d) {
       @param {Function|String} [*value*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   label(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   label(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   label(_?: any): unknown {
     return arguments.length
       ? ((this._label = typeof _ === "function" ? _ : constant(_)), this)
@@ -697,11 +697,11 @@ function value(d) {
       @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   select(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   select(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   select(_?: any): unknown {
     if (arguments.length) {
       this._select = select(_);
@@ -717,11 +717,11 @@ function value(d) {
       @param {Function|String} [*value* = "Rect"]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shape(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shape(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shape(_?: any): unknown {
     return arguments.length
       ? ((this._shape = typeof _ === "function" ? _ : constant(_)), this)
@@ -734,11 +734,11 @@ function value(d) {
       @param {Object} [*config* = {}]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(_?: Record<string, any>): Record<string, any> | this {
     return arguments.length
       ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
@@ -763,11 +763,11 @@ function value(d) {
       @param {Object} [*value*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   titleConfig(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   titleConfig(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   titleConfig(_?: Record<string, any>): Record<string, any> | this {
     return arguments.length
       ? ((this._titleConfig = assign(this._titleConfig, _)), this)

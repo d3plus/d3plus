@@ -32,65 +32,65 @@ const defaultHtmlLookup: Record<string, string> = {
 */
 export default class TextBox extends BaseClass {
   _select: D3Selection;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _data: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _ariaHidden: (d: DataPoint, i?: number) => any;
   _delay: number;
   _duration: number;
   _ellipsis: (text: string, line: number) => string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontColor: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontFamily: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontMax: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontMin: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontOpacity: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontResize: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontSize: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontStroke: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontStrokeWidth: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _fontWeight: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _height: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _html: any;
   _id: (d: DataPoint, i: number) => string;
   _lineHeight: (d: DataPoint, i?: number) => number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _maxLines: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _on: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _overflow: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _padding: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _pointerEvents: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _rotate: (d: DataPoint, i?: number) => any;
   _rotateAnchor: (d: DataPoint, i?: number) => [number, number];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _split: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _text: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _textAnchor: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _verticalAlign: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _width: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _x: (d: DataPoint, i?: number) => any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _y: (d: DataPoint, i?: number) => any;
 
   /**
@@ -126,7 +126,7 @@ export default class TextBox extends BaseClass {
     this._padding = constant(0);
     this._pointerEvents = constant("auto");
     this._rotate = constant(0);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     this._rotateAnchor = (d: any) => [d.w / 2, d.h / 2];
     this._split = textSplit;
     this._text = accessor("text");
@@ -154,7 +154,7 @@ export default class TextBox extends BaseClass {
 
     const that = this;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const boxes = this._select.selectAll(".d3plus-textBox").data(
       this._data.reduce((arr: any[], d: DataPoint, i: number) => {
         let t = this._text(d, i);
@@ -168,12 +168,12 @@ export default class TextBox extends BaseClass {
           lH = resize ? fS * lHRatio : this._lineHeight(d, i),
           line = 1,
           lineData: string[] = [],
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           sizes: any,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           wrapResults: any;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const style: Record<string, any> = {
           "font-family": fontExists(this._fontFamily(d, i)),
           "font-size": fS,
@@ -246,7 +246,7 @@ export default class TextBox extends BaseClass {
             const areaMod = 1.165 + (w / h) * 0.1,
               boxArea = w * h,
               maxWidth = max(sizes as number[]) as number,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+               
               textArea = sum(sizes, (d: any) => d * lH) * areaMod;
 
             if (maxWidth > w || textArea > boxArea) {
@@ -303,7 +303,7 @@ export default class TextBox extends BaseClass {
 
         return arr;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
       }, []),
       (d: any) => this._id(d.data, d.i),
     );
@@ -328,9 +328,9 @@ export default class TextBox extends BaseClass {
      * @param {D3Selection} text
      * @private
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     function rotate(text: any): void {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       text.attr("transform", (d: any, i: number) => {
         const rotateAnchor = that._rotateAnchor(d, i);
         return `translate(${d.x}, ${d.y}) rotate(${d.r}, ${rotateAnchor[0]}, ${rotateAnchor[1]})`;
@@ -341,7 +341,7 @@ export default class TextBox extends BaseClass {
       .enter()
       .append("g")
       .attr("class", "d3plus-textBox")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .attr("id", (d: any) => `d3plus-textBox-${strip(d.id)}`)
       .call(rotate)
       .merge(boxes as never);
@@ -350,15 +350,15 @@ export default class TextBox extends BaseClass {
 
     update
       .order()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .style("pointer-events", (d: any) => this._pointerEvents(d.data, d.i))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .each(function (this: SVGElement, d: any) {
         /**
             Sets the inner text content of each <text> element.
             @private
         */
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         function textContent(text: any): void {
           let tag: string | false = false;
 
@@ -406,7 +406,7 @@ export default class TextBox extends BaseClass {
             Styles to apply to each <text> element.
             @private
         */
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         function textStyle(text: any): void {
           text
             .attr("aria-hidden", d.aH)
@@ -425,7 +425,7 @@ export default class TextBox extends BaseClass {
               "x",
               `${d.tA === "middle" ? d.w / 2 : rtl ? (d.tA === "start" ? d.w : 0) : d.tA === "end" ? d.w : 2 * Math.sin((Math.PI * d.r) / 180)}px`,
             )
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             .attr("y", (t: any, i: number) =>
               d.r === 0 || d.vA === "top"
                 ? `${(i + 1) * d.lH - (d.lH - d.fS)}px`
@@ -478,9 +478,9 @@ export default class TextBox extends BaseClass {
       .call(rotate);
 
     const events = Object.keys(this._on),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       on = events.reduce((obj: Record<string, any>, e: string) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         obj[e] = (d: any, i: number) => this._on[e](d.data, i);
         return obj;
       }, {});
@@ -497,11 +497,11 @@ export default class TextBox extends BaseClass {
       @param {Function|String} *value*
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ariaHidden(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ariaHidden(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ariaHidden(_?: any): unknown {
     return _ !== undefined
       ? ((this._ariaHidden = typeof _ === "function" ? _ : constant(_)), this)
@@ -554,11 +554,11 @@ function(text, line) {
   return line ? text.replace(/\.|,$/g, "") + "..." : "";
 }
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ellipsis(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ellipsis(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   ellipsis(_?: any): unknown {
     return arguments.length
       ? ((this._ellipsis = typeof _ === "function" ? _ : constant(_)), this)
@@ -571,11 +571,11 @@ function(text, line) {
       @param {Function|String} [*value* = "black"]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontColor(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontColor(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontColor(_?: any): unknown {
     return arguments.length
       ? ((this._fontColor = typeof _ === "function" ? _ : constant(_)), this)
@@ -588,11 +588,11 @@ function(text, line) {
       @param {Array|Function|String} [*value* = ["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontFamily(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontFamily(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   fontFamily(_?: any): unknown {
     return arguments.length
       ? ((this._fontFamily = typeof _ === "function" ? _ : constant(_)), this)
@@ -761,11 +761,11 @@ function(d, i) {
   return d.id || i + "";
 }
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   id(_?: any): unknown {
     return arguments.length
       ? ((this._id = typeof _ === "function" ? _ : constant(_)), this)

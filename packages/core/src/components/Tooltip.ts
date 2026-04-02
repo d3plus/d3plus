@@ -46,7 +46,7 @@ export default class Tooltip extends BaseClass {
   _footerStyle: Record<string, string>;
   _height: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _id: (d: DataPoint, i: number) => string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _offset: (d: DataPoint, i?: number) => any;
   _padding: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _pointerEvents: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
@@ -61,7 +61,7 @@ export default class Tooltip extends BaseClass {
   _title: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _titleStyle: Record<string, string>;
   _tooltipStyle: Record<string, string>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _trStyle: Record<string, any>;
   _tdStyle: Record<string, string>;
   _width: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
@@ -296,7 +296,7 @@ export default class Tooltip extends BaseClass {
 
         const position = that._position(d, i);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const referenceObject: any = Array.isArray(position)
           ? {
               getBoundingClientRect: generateReference(position),
@@ -338,7 +338,7 @@ export default class Tooltip extends BaseClass {
               name: "update",
               enabled: true,
               phase: "afterWrite",
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+               
               fn(x: {state: any}) {
                 const {state} = x;
                 const arrowElement = state.elements.arrow;
@@ -366,7 +366,7 @@ export default class Tooltip extends BaseClass {
         const instance = this._popperClasses[id];
 
         if (instance) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           (instance as any).state.elements.reference.getBoundingClientRect =
             Array.isArray(position)
               ? generateReference(position as number[])
@@ -861,11 +861,11 @@ function value(d) {
     "border-top": "1px solid rgba(0, 0, 0, 0.1)"
   }
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   trStyle(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   trStyle(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   trStyle(_?: Record<string, any>): unknown {
     return arguments.length
       ? ((this._trStyle = Object.assign(this._trStyle, _)), this)

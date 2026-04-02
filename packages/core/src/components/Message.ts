@@ -14,7 +14,7 @@ interface RenderOptions {
   duration?: number;
   html?: string;
   mask?: string | false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   style?: Record<string, any>;
 }
 

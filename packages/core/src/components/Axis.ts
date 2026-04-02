@@ -205,9 +205,9 @@ export default class Axis extends BaseClass {
   _align: string;
   _barConfig: Record<string, unknown>;
   // Axis data can be dates, numbers, or strings, not just DataPoint
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _data: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _domain: any[];
   _duration: number;
   _gridConfig: Record<string, unknown>;
@@ -218,7 +218,7 @@ export default class Axis extends BaseClass {
   _labelOffset: boolean;
   _labelRotation: boolean | undefined;
   _labels: unknown[] | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   declare _locale: any;
   _margin: Record<string, number>;
   _maxSize: number;
@@ -245,9 +245,9 @@ export default class Axis extends BaseClass {
   _scale: string;
   _scalePadding: number;
   _shape: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _shapeConfig: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _tickFormat: any;
   _ticks: unknown[] | undefined;
   _tickSize: number;
@@ -256,13 +256,13 @@ export default class Axis extends BaseClass {
   _timeLocale: Record<string, unknown> | undefined;
   _title: string | undefined;
   _titleClass: TextBox;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _titleConfig: Record<string, any>;
   _width: number;
   // D3 scales have complex polymorphic types that vary at runtime
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _d3Scale: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _d3ScaleNegative: any;
   _group: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
@@ -1497,11 +1497,11 @@ export default class Axis extends BaseClass {
       @param {Array} [*value*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   data(): any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   data(_: any[]): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   data(_?: any[]): unknown {
     return arguments.length ? ((this._data = _!), this) : this._data;
   }
@@ -1512,11 +1512,11 @@ export default class Axis extends BaseClass {
       @param {Array} [*value* = [0, 10]]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   domain(): any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   domain(_: any[]): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   domain(_?: any[]): unknown {
     return arguments.length ? ((this._domain = _!), this) : this._domain;
   }
@@ -1879,11 +1879,11 @@ export default class Axis extends BaseClass {
       @param {Object} [*value*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   shapeConfig(_?: Record<string, any>): unknown {
     return arguments.length
       ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
@@ -1896,11 +1896,11 @@ export default class Axis extends BaseClass {
       @param {Function} [*value*]
       @chainable
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   tickFormat(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   tickFormat(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   tickFormat(_?: any): unknown {
     return arguments.length ? ((this._tickFormat = _), this) : this._tickFormat;
   }

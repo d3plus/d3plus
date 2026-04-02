@@ -4,7 +4,7 @@ import {transition} from "d3-transition";
 import {default as attrize} from "./attrize.js";
 import type {D3Selection} from "./D3Selection.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnySelection = ReturnType<typeof select<any, any>>;
 
 /**

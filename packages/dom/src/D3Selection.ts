@@ -7,7 +7,7 @@ import {transition} from "d3-transition";
     Uses `any` for the parent/datum generics because d3plus utility functions
     (attrize, stylize, elem) must work with every combination.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export type D3Selection = ReturnType<typeof select<any, any>>;
 
 /**

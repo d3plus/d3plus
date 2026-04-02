@@ -27,7 +27,7 @@ import Legend from "./Legend.js";
 export default class ColorScale extends BaseClass {
   _select: D3Selection;
   _axisClass: Axis;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _axisConfig: Record<string, any>;
   _axisTest: Axis;
   _align: string;
@@ -45,7 +45,7 @@ export default class ColorScale extends BaseClass {
   _colorMax: string;
   _colorMid: string;
   _colorMin: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _colorScale: any;
   _data: DataPoint[];
   _domain: number[] | undefined;
@@ -53,23 +53,23 @@ export default class ColorScale extends BaseClass {
   _group: D3Selection;
   _height: number;
   _labelClass: TextBox;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _labelConfig: Record<string, any>;
   _labelMin: string | undefined;
   _labelMax: string | undefined;
   _legendClass: Legend;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _legendConfig: Record<string, any>;
   _midpoint: number;
   _orient: string;
   _outerBounds: Record<string, number>;
   _padding: number;
   _rectClass: Rect;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _rectConfig: Record<string, any>;
   _scale: string;
   _size: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   _value: (d: DataPoint, i?: number) => any;
   _width: number;
 
