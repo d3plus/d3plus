@@ -4,7 +4,13 @@
   "description": "Color functions that extent the ability of d3-color.",
   "license": "MIT",
   "type": "module",
-  "exports": "./es/index.js",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./es/index.js"
+    }
+  },
   "browser": "./umd/d3plus-color.full.js",
   "engines": {
     "node": ">=18"
@@ -12,7 +18,8 @@
   "sideEffects": false,
   "files": [
     "umd",
-    "es"
+    "es",
+    "types"
   ],
   "homepage": "https://d3plus.org",
   "repository": {
@@ -29,9 +36,10 @@
   ],
   "scripts": {
     "build:esm": "node ../../scripts/build-esm.js",
+    "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "d3-color": "^3.1.0",

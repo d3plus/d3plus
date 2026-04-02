@@ -21,13 +21,12 @@ rollup({log})
     return rollup({deps: true, log});
   })
   .then(() => {
-
     const params = {
       output: {
         comments: true,
-        indent_level: 2
-      }
-    }
+        indent_level: 2,
+      },
+    };
 
     log.timer(`minifying umd/${fileName}.min.js`);
     const soloCode = fs.readFileSync(`umd/${fileName}.js`, "utf8");
@@ -40,7 +39,6 @@ rollup({log})
     const fullResult = minify(fullCode, params);
     if (fullResult.error) throw fullResult.error;
     fs.writeFileSync(`umd/${fileName}.full.min.js`, fullResult.code);
-
   })
   .then(() => {
     log.exit();

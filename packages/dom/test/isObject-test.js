@@ -1,9 +1,8 @@
 import assert from "assert";
-import {default as isObject} from "../src/isObject.js";
+import {default as isObject} from "../es/src/isObject.js";
 import it from "./jsdom.js";
 
 it("isObject", () => {
-
   assert.strictEqual(isObject("id"), false, "String");
   assert.strictEqual(isObject(42), false, "Number");
   assert.strictEqual(isObject([1, 2, 3]), false, "Array");
@@ -15,5 +14,4 @@ it("isObject", () => {
   assert.strictEqual(isObject(document), false, "document");
   assert.strictEqual(isObject(document.body), false, "DOM element");
   assert.strictEqual(isObject({id: 1}), true, "Object");
-
 });

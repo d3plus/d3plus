@@ -1,11 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Plot} from "../index.jsx";
+import {Plot} from "../index.tsx";
 import {sharedConfig, animationFrames} from "../../docs/docs/Logo-Frames.js";
 
 const duration = 4000;
 
 const Logo = () => {
-
   const [frame, setFrame] = useState(0);
   const intervalRef = useRef(null);
 
@@ -24,7 +23,12 @@ const Logo = () => {
     }
   }, [frame]);
 
-  return frame >= 0 ? <Plot className="d3plus-logo" config={{...sharedConfig, ...animationFrames[frame]}} /> : null;
+  return frame >= 0 ? (
+    <Plot
+      className="d3plus-logo"
+      config={{...sharedConfig, ...animationFrames[frame]}}
+    />
+  ) : null;
 };
 
 export default Logo;

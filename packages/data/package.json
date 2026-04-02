@@ -4,7 +4,13 @@
   "description": "JavaScript data loading, manipulation, and analysis functions.",
   "license": "MIT",
   "type": "module",
-  "exports": "./es/index.js",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./es/index.js"
+    }
+  },
   "browser": "./umd/d3plus-data.full.js",
   "engines": {
     "node": ">=18"
@@ -12,7 +18,8 @@
   "sideEffects": false,
   "files": [
     "umd",
-    "es"
+    "es",
+    "types"
   ],
   "homepage": "https://d3plus.org",
   "repository": {
@@ -31,7 +38,8 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'"
+    "build:types": "tsc",
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/dom": "3.0.16",

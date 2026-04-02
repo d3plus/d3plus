@@ -1,10 +1,9 @@
 import assert from "assert";
 import {selectAll} from "d3-selection";
-import Message from "../../src/components/Message.js";
+import Message from "../../es/src/components/Message.js";
 import it from "../jsdom.js";
 
-it("Message", function *() {
-
+it("Message", function* () {
   const msg = new Message();
 
   yield callback => msg.render({callback});
@@ -16,5 +15,4 @@ it("Message", function *() {
   // assert.ok(selectAll(".d3plus-Mask").empty(), "disables mask");
   // yield callback => msg.hide({callback});
   // assert.ok(selectAll(".d3plus-Message").empty(), "removes from DOM");
-
 });

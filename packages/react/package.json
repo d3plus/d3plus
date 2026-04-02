@@ -4,13 +4,20 @@
   "description": "React components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
-  "exports": "./es/index.jsx",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./es/index.jsx"
+    }
+  },
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=18"
   },
   "sideEffects": false,
   "files": [
-    "es"
+    "es",
+    "types"
   ],
   "homepage": "https://d3plus.org",
   "repository": {
@@ -27,6 +34,7 @@
   ],
   "scripts": {
     "build:esm": "node ../../scripts/build-esm.js",
+    "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
     "test": "eslint && mocha --import=./test/loader.mjs 'test/**/*-test.mjs'"
   },

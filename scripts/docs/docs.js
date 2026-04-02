@@ -24,7 +24,7 @@ async function generateMarkdown() {
   const folders = shell.ls("-d", "packages/*");
   for (let i = 0; i < folders.length; i++) {
     const folder = folders[i];
-    
+
     const template = `${shell.tempdir()}/README.hbs`;
     let packageJSON = JSON.parse(shell.cat(`${folder}/package.json`));
     const {name} = packageJSON;
@@ -32,7 +32,10 @@ async function generateMarkdown() {
     log.timer(`updating package.json for ${name}`);
     packageJSON.version = version;
     packageJSON = packageStub(packageJSON);
-    fs.writeFileSync(`${folder}/package.json`, JSON.stringify(packageJSON, null, 2));
+    fs.writeFileSync(
+      `${folder}/package.json`,
+      JSON.stringify(packageJSON, null, 2),
+    );
 
     if (name === "@d3plus/docs") {
       log.done();
@@ -51,56 +54,71 @@ async function generateMarkdown() {
         noCache: true,
         partial: "scripts/docs/partials/*.hbs",
         separators: true,
-        template: fs.readFileSync(template, "utf8")
+        template: fs.readFileSync(template, "utf8"),
       })
       .catch(err => {
         log.fail();
         shell.echo(err);
         shell.exit(1);
       });
-    
+
     fs.writeFileSync(`${folder}/README.md`, outputRender);
 
     log.timer(`writing JSDOC comments to Storybook Args for ${name}`);
     const publicDocs = await jsdoc2md
       .getJsdocData({
         files: `${folder}/src/**/*.+(js|jsx)`,
-        noCache: true
+        noCache: true,
       })
-      .then(arr => arr.filter(d => !["package"].includes(d.kind) && d.access !== "private" && !d.undocumented));
+      .then(arr =>
+        arr.filter(
+          d =>
+            !["package"].includes(d.kind) &&
+            d.access !== "private" &&
+            !d.undocumented,
+        ),
+      );
 
     const stories = publicDocs.filter(d => !d.memberof);
     stories.forEach(story => {
-
       const {kind, meta, name} = story;
       const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
       const [, packageName, filePath] = regex.exec(meta.path);
-      
+
       // if (kind === "class") {
-        const argsPath = path.join(folder, `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`);
-        const argsContent = argsStub(story, publicDocs, stories);
-        const argsFolder = path.dirname(argsPath);
-        shell.mkdir("-p", argsFolder);
-        fs.writeFileSync(argsPath, argsContent);
+      const argsPath = path.join(
+        folder,
+        `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`,
+      );
+      const argsContent = argsStub(story, publicDocs, stories);
+      const argsFolder = path.dirname(argsPath);
+      shell.mkdir("-p", argsFolder);
+      fs.writeFileSync(argsPath, argsContent);
       // }
 
-      const storyPath = path.join(folder, `../docs/packages/${packageName}${filePath || ""}/${name}.stories.jsx`);
-      const existingContent = fs.existsSync(storyPath) ? fs.readFileSync(storyPath, {encoding: "utf8"}) : "";
-      const storyContent = storiesStub(story, packageName, filePath || "", existingContent);
+      const storyPath = path.join(
+        folder,
+        `../docs/packages/${packageName}${filePath || ""}/${name}.stories.jsx`,
+      );
+      const existingContent = fs.existsSync(storyPath)
+        ? fs.readFileSync(storyPath, {encoding: "utf8"})
+        : "";
+      const storyContent = storiesStub(
+        story,
+        packageName,
+        filePath || "",
+        existingContent,
+      );
       const storyFolder = path.dirname(storyPath);
       shell.mkdir("-p", storyFolder);
       fs.writeFileSync(storyPath, storyContent);
-
     });
 
     log.done();
     shell.echo("");
-      
   }
   log.exit();
   shell.exit(0);
-
 }
 
 generateMarkdown();
-

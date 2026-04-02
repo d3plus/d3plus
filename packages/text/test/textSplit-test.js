@@ -1,9 +1,13 @@
 import assert from "assert";
-import {default as textSplit} from "../src/textSplit.js";
+import {default as textSplit} from "../es/src/textSplit.js";
 import it from "./jsdom.js";
 
 it("textSplit", () => {
-  assert.strictEqual(textSplit("-4")[0], "-4", "string starting with split character");
+  assert.strictEqual(
+    textSplit("-4")[0],
+    "-4",
+    "string starting with split character",
+  );
   assert.strictEqual(textSplit("This & That")[1], "& ", "solo split character");
 
   const chinese = textSplit("\u201c里句。\u201d");
@@ -13,10 +17,7 @@ it("textSplit", () => {
   );
 
   const japanese = textSplit("暑い。");
-  assert.ok(
-    japanese[0] === "暑" && japanese[1] === "い。",
-    "japanese",
-  );
+  assert.ok(japanese[0] === "暑" && japanese[1] === "い。", "japanese");
 
   const emojis = textSplit("🐉️🧚🏻‍♀️🧚🏻‍♂️");
   assert.ok(emojis[0] === "🐉️" && emojis[1] === "🧚🏻‍♀️", "emojis persist");

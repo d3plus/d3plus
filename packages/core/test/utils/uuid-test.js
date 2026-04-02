@@ -1,8 +1,6 @@
 import assert from "assert";
-import {default as uuid} from "../../src/utils/uuid.js";
+import {default as uuid} from "../../es/src/utils/uuid.js";
 
 it("uuid", () => {
-
   assert.notEqual(uuid(), uuid(), "Unique Values");
-
 });

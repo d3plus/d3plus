@@ -9,8 +9,12 @@ const port = 4000;
 
 const name = JSON.parse(shell.cat("package.json")).name.split("/")[1];
 
-chokidar.watch(join(process.env.INIT_CWD, "packages"), {
-    ignored: (path, stats) => (stats?.isFile() && !path.match(/packages\/[a-z]+\/src\//) && !path.match(/packages\/[a-z]+\/index.js/)), // only watch js files
+chokidar
+  .watch(join(process.env.INIT_CWD, "packages"), {
+    ignored: (path, stats) =>
+      stats?.isFile() &&
+      !path.match(/packages\/[a-z]+\/src\//) &&
+      !path.match(/packages\/[a-z]+\/index\.(js|ts|tsx)/), // only watch js/ts files
   })
   .on("all", (event, path) => {
     if (event === "change") {
@@ -20,20 +24,22 @@ chokidar.watch(join(process.env.INIT_CWD, "packages"), {
         log.update(`change detected in ${filename}`);
 
         const shellOpts = {
-          async: false, 
+          async: false,
           env: {...process.env, FORCE_COLOR: true, SUBPROCESS: true},
-          shell: true, 
-          stdio: "inherit"
+          shell: true,
+          stdio: "inherit",
         };
-        
-        const {stdout} = shell.exec(`npm run build:esm -w @d3plus/${folder}`, shellOpts);
+
+        const {stdout} = shell.exec(
+          `npm run build:esm -w @d3plus/${folder}`,
+          shellOpts,
+        );
         log.done();
         console.log(stdout);
         log.timer("watching for changes...");
       }
     }
-
-  })
+  });
 
 if (name === "react") {
   log.timer(`running Vite on port ${port}`);
@@ -41,22 +47,23 @@ if (name === "react") {
   shell.exec(`vite serve dev --port=${port}`, shellOpts);
   log.done();
   log.timer("watching for changes...");
-}
-else if (name === "docs") {
+} else if (name === "docs") {
   log.timer(`running Storybook on port ${port}`);
   const shellOpts = {async: true, stdio: "inherit"};
-  shell.exec(`storybook dev --docs --ci --no-version-updates --port=${port}`, shellOpts);
+  shell.exec(
+    `storybook dev --docs --ci --no-version-updates --port=${port}`,
+    shellOpts,
+  );
   log.done();
   log.timer("watching for changes...");
-}
-else {
+} else {
   log.timer(`running live-server on port ${port}`);
   liveServer
     .start({
       logLevel: 0,
       root: "dev",
       port,
-      watch: ["umd", "dev"]
+      watch: ["umd", "dev"],
     })
     .on("listening", () => {
       log.done();

@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as date} from "../src/date.js";
+import {default as date} from "../es/src/date.js";
 import it from "./jsdom.js";
 
 it("date", () => {
@@ -7,19 +7,19 @@ it("date", () => {
   assert.strictEqual(
     date(undefined),
     undefined,
-    "Fails gracefully with undefined value"
+    "Fails gracefully with undefined value",
   );
   assert.strictEqual(date(NaN), NaN, "Fails gracefully with NaN value");
 
   assert.strictEqual(
     date("1987-02-01").getTime(),
     date("02/01/1987").getTime(),
-    "Corrects shorthand hyphens"
+    "Corrects shorthand hyphens",
   );
   assert.strictEqual(
     date("1987-02-01T00:26:58Z").getTime(),
     new Date("1987-02-01T00:26:58Z").getTime(),
-    "Persists ISO hyphens"
+    "Persists ISO hyphens",
   );
 
   assert.strictEqual(date(1234).getFullYear(), 1234, "AD: 4-digit year");
@@ -35,114 +35,114 @@ it("date", () => {
   assert.strictEqual(
     date("6/12/1987").getFullYear(),
     1987,
-    "AD: shorthand date w/ slashes"
+    "AD: shorthand date w/ slashes",
   );
   assert.strictEqual(
     date("6/12/-1987").getFullYear(),
     -1987,
-    "BC: shorthand date w/ slashes"
+    "BC: shorthand date w/ slashes",
   );
   assert.strictEqual(
     date("6.12.1987").getFullYear(),
     1987,
-    "AD: shorthand date w/ dots"
+    "AD: shorthand date w/ dots",
   );
   assert.strictEqual(
     date("6.12.-1987").getFullYear(),
     -1987,
-    "BC: shorthand date w/ dots"
+    "BC: shorthand date w/ dots",
   );
   assert.strictEqual(
     date("6-12-1987").getFullYear(),
     1987,
-    "AD: shorthand date w/ hyphens"
+    "AD: shorthand date w/ hyphens",
   );
   assert.strictEqual(
     date("6-12--1987").getFullYear(),
     -1987,
-    "BC: shorthand date w/ hyphens"
+    "BC: shorthand date w/ hyphens",
   );
 
   assert.strictEqual(
     date("Mon Jan 01 100 00:00:00 GMT-0500 (EST)").getFullYear(),
     100,
-    "AD: datestring"
+    "AD: datestring",
   );
   assert.strictEqual(
     date("Mon Jan 01 -100 00:00:00 GMT-0500 (EST)").getFullYear(),
     -100,
-    "BC: datestring"
+    "BC: datestring",
   );
 
   assert.strictEqual(
     date("Q21987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase prefix"
+    "Quarter: uppercase prefix",
   );
   assert.strictEqual(
     date("Q2 1987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase prefix w/ space"
+    "Quarter: uppercase prefix w/ space",
   );
   assert.strictEqual(
     date("Q2-1987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase prefix w/ hyphen"
+    "Quarter: uppercase prefix w/ hyphen",
   );
   assert.strictEqual(
     date("q21987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase prefix"
+    "Quarter: lowercase prefix",
   );
   assert.strictEqual(
     date("q2 1987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase prefix w/ space"
+    "Quarter: lowercase prefix w/ space",
   );
   assert.strictEqual(
     date("q2-1987").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase prefix w/ hyphen"
+    "Quarter: lowercase prefix w/ hyphen",
   );
   assert.strictEqual(
     date("1987Q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase suffix"
+    "Quarter: uppercase suffix",
   );
   assert.strictEqual(
     date("1987 Q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase suffix w/ space"
+    "Quarter: uppercase suffix w/ space",
   );
   assert.strictEqual(
     date("1987-Q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: uppercase suffix w/ hyphen"
+    "Quarter: uppercase suffix w/ hyphen",
   );
   assert.strictEqual(
     date("1987q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase suffix"
+    "Quarter: lowercase suffix",
   );
   assert.strictEqual(
     date("1987 q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase suffix w/ space"
+    "Quarter: lowercase suffix w/ space",
   );
   assert.strictEqual(
     date("1987-q2").getTime(),
     date("04/01/1987").getTime(),
-    "Quarter: lowercase suffix w/ hyphen"
+    "Quarter: lowercase suffix w/ hyphen",
   );
 
   assert.strictEqual(
     date("02-1987").getTime(),
     date("02/01/1987").getTime(),
-    "Month: prefix"
+    "Month: prefix",
   );
   assert.strictEqual(
     date("1987-02").getTime(),
     date("02/01/1987").getTime(),
-    "Month: suffix"
+    "Month: suffix",
   );
 });

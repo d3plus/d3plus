@@ -1,13 +1,13 @@
 const excludedAttributes = [
   "aria-hidden",
   "aria-label",
-  "class", 
-  "clip-path", 
+  "class",
+  "clip-path",
   "id",
   "role",
   "shape-rendering",
   "style",
-  "vector-effect"
+  "vector-effect",
 ];
 
 function parseElem(element) {
@@ -26,21 +26,26 @@ function parseElem(element) {
 }
 
 function analyze(element) {
-
   function getClass(className) {
     return element.getElementsByClassName(className)[0];
   }
 
-  const results = {}
+  const results = {};
 
   results.bar = parseElem(getClass("bar"));
-  results.grid = [...getClass("grid").getElementsByTagName("line")].map(parseElem);
+  results.grid = [...getClass("grid").getElementsByTagName("line")].map(
+    parseElem,
+  );
 
   const tickGroup = getClass("ticks");
   const tickGroups = tickGroup.getElementsByClassName("d3plus-Shape");
-  results.ticks = [...[...tickGroups].map(elem => elem.getElementsByTagName("path")[0])].map(parseElem);
+  results.ticks = [
+    ...[...tickGroups].map(elem => elem.getElementsByTagName("path")[0]),
+  ].map(parseElem);
   const textGroups = tickGroup.getElementsByClassName("d3plus-textBox");
-  results.labels = [...[...textGroups].map(elem => elem.getElementsByTagName("text"))].map(texts => {
+  results.labels = [
+    ...[...textGroups].map(elem => elem.getElementsByTagName("text")),
+  ].map(texts => {
     return [...texts].map(parseElem);
   });
 

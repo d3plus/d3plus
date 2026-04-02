@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {D3plusContext} from "../index.jsx";
+import {D3plusContext} from "../index.tsx";
 import "@mantine/core/styles.css";
 import {createTheme, MantineProvider} from "@mantine/core";
 import Treemap from "./Treemap.jsx";

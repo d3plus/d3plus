@@ -1,14 +1,17 @@
 if (typeof window !== "undefined") {
   (function () {
     try {
-      if (typeof SVGElement === 'undefined' || Boolean(SVGElement.prototype.innerHTML)) {
+      if (
+        typeof SVGElement === "undefined" ||
+        Boolean(SVGElement.prototype.innerHTML)
+      ) {
         return;
       }
     } catch (e) {
-        return;
+      return;
     }
 
-    function serializeNode (node) {
+    function serializeNode(node) {
       switch (node.nodeType) {
         case 1:
           return serializeElementNode(node);
@@ -19,44 +22,47 @@ if (typeof window !== "undefined") {
       }
     }
 
-    function serializeTextNode (node) {
-        return node.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    function serializeTextNode(node) {
+      return node.textContent
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    function serializeCommentNode (node) {
-        return '<!--' + node.nodeValue + '-->'
+    function serializeCommentNode(node) {
+      return "<!--" + node.nodeValue + "-->";
     }
 
-    function serializeElementNode (node) {
-        var output = '';
+    function serializeElementNode(node) {
+      var output = "";
 
-        output += '<' + node.tagName;
+      output += "<" + node.tagName;
 
-        if (node.hasAttributes()) {
-            [].forEach.call(node.attributes, function(attrNode) {
-                output += ' ' + attrNode.name + '="' + attrNode.value + '"'
-            })
-        }
+      if (node.hasAttributes()) {
+        [].forEach.call(node.attributes, function (attrNode) {
+          output += " " + attrNode.name + '="' + attrNode.value + '"';
+        });
+      }
 
-        output += '>';
+      output += ">";
 
-        if (node.hasChildNodes()) {
-            [].forEach.call(node.childNodes, function(childNode) {
-                output += serializeNode(childNode);
-            });
-        }
+      if (node.hasChildNodes()) {
+        [].forEach.call(node.childNodes, function (childNode) {
+          output += serializeNode(childNode);
+        });
+      }
 
-        output += '</' + node.tagName + '>';
+      output += "</" + node.tagName + ">";
 
-        return output;
+      return output;
     }
 
-    Object.defineProperty(SVGElement.prototype, 'innerHTML', {
+    Object.defineProperty(SVGElement.prototype, "innerHTML", {
       get: function () {
-        var output = '';
+        var output = "";
 
-        [].forEach.call(this.childNodes, function(childNode) {
-            output += serializeNode(childNode);
+        [].forEach.call(this.childNodes, function (childNode) {
+          output += serializeNode(childNode);
         });
 
         return output;
@@ -70,26 +76,34 @@ if (typeof window !== "undefined") {
           var dXML = new DOMParser();
           dXML.async = false;
 
-          var sXML = '<svg xmlns=\'http://www.w3.org/2000/svg\' xmlns:xlink=\'http://www.w3.org/1999/xlink\'>' + markup + '</svg>';
-          var svgDocElement = dXML.parseFromString(sXML, 'text/xml').documentElement;
+          var sXML =
+            "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>" +
+            markup +
+            "</svg>";
+          var svgDocElement = dXML.parseFromString(
+            sXML,
+            "text/xml",
+          ).documentElement;
 
-          [].forEach.call(svgDocElement.childNodes, function(childNode) {
+          [].forEach.call(
+            svgDocElement.childNodes,
+            function (childNode) {
               this.appendChild(this.ownerDocument.importNode(childNode, true));
-          }.bind(this));
+            }.bind(this),
+          );
         } catch (e) {
-            throw new Error('Error parsing markup string');
+          throw new Error("Error parsing markup string");
         }
-      }
+      },
     });
 
-    Object.defineProperty(SVGElement.prototype, 'innerSVG', {
+    Object.defineProperty(SVGElement.prototype, "innerSVG", {
       get: function () {
         return this.innerHTML;
       },
       set: function (markup) {
         this.innerHTML = markup;
-      }
+      },
     });
-
   })();
 }

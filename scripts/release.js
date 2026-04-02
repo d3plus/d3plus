@@ -24,10 +24,10 @@ if (packageJSON.version !== version) {
 }
 
 const shellOpts = {
-  async: false, 
+  async: false,
   env: {...process.env, FORCE_COLOR: true, SUBPROCESS: true},
-  shell: true, 
-  stdio: "inherit"
+  shell: true,
+  stdio: "inherit",
 };
 
 const catcher = ({code}) => {
@@ -39,11 +39,15 @@ const catcher = ({code}) => {
 };
 
 catcher(shell.exec("npm test --if-present", shellOpts));
-catcher(shell.exec("npm run docs", shellOpts));
 catcher(shell.exec("npm run build:umd --workspaces --if-present", shellOpts));
+catcher(shell.exec("npm run build:types --workspaces --if-present", shellOpts));
+catcher(shell.exec("npm run docs", shellOpts));
 
 log.timer("compiling release notes");
-const {stdout: commits} = shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", {async: false, silent: true});
+const {stdout: commits} = shell.exec(
+  "git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD",
+  {async: false, silent: true},
+);
 
 log.timer("commiting all modified files for release");
 shell.exec("git add --all", shellOpts);
@@ -57,13 +61,14 @@ shell.exec("git push origin --follow-tags", shellOpts);
 
 log.timer("publishing release notes");
 const github = new Octokit({auth: token});
-github.repos.createRelease({
+github.repos
+  .createRelease({
     owner: "d3plus",
     repo: "d3plus",
     tag_name: `v${version}`,
     name: `v${version}`,
     body: commits,
-    prerelease: version.includes("-")
+    prerelease: version.includes("-"),
   })
   .then(() => {
     log.timer("publishing npm package");

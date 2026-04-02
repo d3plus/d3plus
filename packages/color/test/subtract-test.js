@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as subtract} from "../src/subtract.js";
+import {default as subtract} from "../es/src/subtract.js";
 
 it("subtract", () => {
   assert.strictEqual("rgb(254, 255, 0)", subtract("#ff8000", "#ff0000"));
@@ -9,4 +9,3 @@ it("subtract", () => {
   assert.strictEqual("rgb(255, 0, 0)", subtract("#ff00ff", "#0000ff"));
   assert.strictEqual("rgb(255, 1, 0)", subtract("#ff8000", "#ffff00"));
 });
-

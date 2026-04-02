@@ -1,18 +1,23 @@
 import react from "eslint-plugin-react";
-export default {
-  files: ["index.jsx", "src/**/*.jsx"],
-  plugins: {
-    react
-  },
-  languageOptions: {
-    globals: {
-      browser: true,
-      node: true
+import tseslint from "typescript-eslint";
+export default [
+  {
+    files: ["index.tsx", "src/**/*.tsx"],
+    plugins: {
+      react,
+      "@typescript-eslint": tseslint.plugin,
     },
-    parserOptions: {
-      ecmaFeatures: {
-        jsx: true
-      }
-    }
-  }
-};
+    languageOptions: {
+      globals: {
+        browser: true,
+        node: true,
+      },
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+  },
+];

@@ -1,4 +1,4 @@
-export default function({name, description}) {
+export default function ({name, description}) {
   return `# ${name}
   
 ${description}
@@ -65,5 +65,4 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 ---
 
 {{/modules}}`;
-
 }

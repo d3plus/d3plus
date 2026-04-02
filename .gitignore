@@ -1,7 +1,10 @@
+.claude
 .DS_Store
 build
-umd
 es
+memory
 node_modules
+types
+umd
 npm-debug.log
 .next

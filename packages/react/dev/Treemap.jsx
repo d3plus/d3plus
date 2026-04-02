@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Treemap} from "../index.jsx";
+import {Treemap} from "../index.tsx";
 
 const config1 = {
   data: "./data.json",
