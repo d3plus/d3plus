@@ -6,7 +6,8 @@ import {rollup, watch} from "rollup";
 import shell from "shelljs";
 
 import {fileURLToPath} from "node:url";
-import {dirname} from "node:path";
+import path from "node:path";
+const {dirname} = path;
 import {existsSync} from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
