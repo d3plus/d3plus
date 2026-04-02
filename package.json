@@ -56,7 +56,6 @@
     "@types/file-saver": "^2.0.7",
     "@types/topojson-client": "^3.1.5",
     "canvas": "^3.1.0",
-    "chalk": "^5.4.1",
     "chokidar": "^4.0.3",
     "eslint": "^9.21.0",
     "jsdoc-to-markdown": "^9.1.1",
@@ -67,6 +66,7 @@
     "shelljs": "^0.8.4",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0",
-    "uglify-js": "^3.19.3"
+    "uglify-js": "^3.19.3",
+    "yocto-spinner": "^1.1.0"
   }
 }
