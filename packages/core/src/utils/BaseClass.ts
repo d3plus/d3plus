@@ -6,7 +6,6 @@ import {
 } from "@d3plus/locales";
 
 import RESET from "./RESET.js";
-import uuid from "./uuid.js";
 
 /** @private*/
 interface D3plusConfig {
@@ -86,7 +85,7 @@ export default class BaseClass {
       const dictionary: TranslationStrings | undefined = dictionaries[locale];
       return dictionary && dictionary[d] ? dictionary[d] : d;
     };
-    this._uuid = uuid();
+    this._uuid = crypto.randomUUID();
   }
 
   /**
