@@ -65,7 +65,9 @@ export default function (story, allMethods, stories) {
 
     const storyPath = path.join(story.meta.path, story.meta.filename);
     const fileContent = fs.readFileSync(storyPath, {encoding: "utf8"});
-    const {body} = parseSync(fileContent);
+    const {body} = parseSync(fileContent, {
+      syntax: "typescript",
+    });
     const statements = body
       .find(d => d.type === "ExportDefaultDeclaration")
       .decl.body.find(d => d.type === "Constructor")
@@ -243,8 +245,12 @@ const JSONstringifyOrder = (obj, space) => {
 };
 
 const printAst = body => {
-  const ast = {type: "Module", body, span: {start: 0, end: 0, ctxt: 0}};
-  return printSync(ast).code;
+  try {
+    const ast = {type: "Module", body, span: {start: 0, end: 0, ctxt: 0}};
+    return printSync(ast).code;
+  } catch {
+    return "unknown";
+  }
 };
 
 let depth = 0;
