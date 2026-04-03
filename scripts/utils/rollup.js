@@ -5,13 +5,8 @@ import replace from "@rollup/plugin-replace";
 import {rollup, watch} from "rollup";
 import shell from "shelljs";
 
-import {fileURLToPath} from "node:url";
 import path from "node:path";
-const {dirname} = path;
 import {existsSync} from "node:fs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const {description, homepage, license, name, version} = JSON.parse(
   shell.cat("package.json"),
@@ -22,14 +17,6 @@ shell.config.silent = true;
 export default async function (opts = {}) {
   const env = opts.env || "production";
   const log = opts.log;
-
-  const polyfillBuild = await rollup({
-    input: `${__dirname}/polyfills.js`,
-    plugins: [commonjs(), nodeResolve({preferBuiltins: false})],
-    onwarn: () => {},
-  });
-  const polyfillBundle = await polyfillBuild.generate({format: "umd"});
-  const polyfills = polyfillBundle.output[0].code;
 
   const tsExtensions = {
     name: "resolve-ts-extensions",
@@ -76,9 +63,7 @@ export default async function (opts = {}) {
   ${description}
   Copyright (c) ${new Date().getFullYear()} D3plus - ${homepage}
   @license ${license}
-*/
-
-${polyfills}`,
+*/`,
     file: filePath,
     format: "umd",
     name: "d3plus",
