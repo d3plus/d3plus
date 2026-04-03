@@ -41,7 +41,7 @@ function hash(val: unknown): string {
 }
 
 /**
-*/
+ */
 export default function Renderer({
   callback,
   className = "renderer",
@@ -61,7 +61,6 @@ export default function Renderer({
           globalConfig,
           config ?? {},
         ) as Record<string, unknown>;
-        instance.config(c);
 
         (["data", "links", "nodes", "topojson"] as const).forEach(method => {
           if (c[`${method}Format`] && c[method]) {
@@ -69,9 +68,12 @@ export default function Renderer({
               c[method],
               c[`${method}Format`],
             );
+            delete c[method];
             delete c[`${method}Format`];
           }
         });
+
+        instance.config(c);
 
         instance.render?.(callback);
       }
