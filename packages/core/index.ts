@@ -55,5 +55,10 @@ export {
   configPrep,
   constant,
   RESET,
-  uuid,
+} from "./src/utils/index.js";
+
+export type {
+  D3plusConfig,
+  AxisConfig,
+  TooltipConfig,
 } from "./src/utils/index.js";

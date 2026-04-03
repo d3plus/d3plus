@@ -5,12 +5,8 @@ import {
   type TranslationStrings,
 } from "@d3plus/locales";
 
+import type {D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
-
-/** @private*/
-interface D3plusConfig {
-  [key: string]: unknown;
-}
 
 /**
     Recursive function that resets nested Object configs.
@@ -105,21 +101,29 @@ export default class BaseClass {
 
     if (arguments.length) {
       for (const k in _) {
-        if ({}.hasOwnProperty.call(_, k) && k in this) {
-          const v = _![k];
-          if (v === RESET) {
-            if (k === "on")
-              this._on = this._configDefault![k] as typeof this._on;
-            else
-              (this as unknown as Record<string, (v: unknown) => unknown>)[k](
-                this._configDefault![k],
+        if ({}.hasOwnProperty.call(_, k)) {
+          if (k in this) {
+            const v = _![k];
+            if (v === RESET) {
+              if (k === "on")
+                this._on = this._configDefault![k] as typeof this._on;
+              else
+                (this as unknown as Record<string, (v: unknown) => unknown>)[k](
+                  this._configDefault![k],
+                );
+            } else {
+              nestedReset(
+                v as Record<string, unknown>,
+                this._configDefault![k] as Record<string, unknown>,
               );
+              (this as unknown as Record<string, (v: unknown) => unknown>)[k](
+                v,
+              );
+            }
           } else {
-            nestedReset(
-              v as Record<string, unknown>,
-              this._configDefault![k] as Record<string, unknown>,
-            );
-            (this as unknown as Record<string, (v: unknown) => unknown>)[k](v);
+            // console.warn(
+            //   `${this.constructor.name}.config() received unknown property "${k}".`,
+            // );
           }
         }
       }
