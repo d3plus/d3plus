@@ -1,9 +1,19 @@
 import {textWidth} from "@d3plus/dom";
 
 import defaultSplit from "./textSplit.js";
-import stringify from "./stringify.js";
-
 const softHyphen = "\u00AD";
+
+/**
+    Coerces value into a String.
+    @param value The value to convert to a string.
+    @private
+*/
+function stringify(value: unknown): string {
+  if (value === void 0) return "undefined";
+  if (typeof value === "string" || value instanceof String)
+    return value as string;
+  return JSON.stringify(value);
+}
 
 export interface TextWrapResult {
   /** The array of wrapped line strings.*/
@@ -58,8 +68,8 @@ export default function (): TextWrapGenerator {
       The inner return object and wraps the text and returns the line data array.
       @private
 */
-  function textWrap(sentence: string): TextWrapResult {
-    sentence = stringify(sentence);
+  function textWrap(phrase: unknown): TextWrapResult {
+    const sentence = stringify(phrase);
 
     if (lineHeight === void 0) lineHeight = Math.ceil(fontSize * 1.4);
 
