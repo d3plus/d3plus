@@ -2,7 +2,6 @@ import {textWidth} from "@d3plus/dom";
 
 import defaultSplit from "./textSplit.js";
 import stringify from "./stringify.js";
-import {trimRight} from "./trim.js";
 
 const softHyphen = "\u00AD";
 
@@ -92,7 +91,7 @@ export default function (): TextWrapGenerator {
           break;
         }
         if (lineData.length >= line) {
-          let lineText = trimRight(lineData[line - 1]);
+          let lineText = lineData[line - 1].trimEnd();
           // Convert trailing soft hyphen to visible hyphen at line breaks
           if (lineText.endsWith(softHyphen))
             lineText = lineText.slice(0, -1) + "-";

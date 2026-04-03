@@ -12,8 +12,6 @@ import {
   strip,
   textSplit,
   textWrap,
-  trim,
-  trimRight,
 } from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
@@ -155,7 +153,7 @@ export default class TextBox extends BaseClass {
       this._data.reduce((arr: any[], d: DataPoint, i: number) => {
         let t = this._text(d, i);
         if (t === void 0) return arr;
-        t = trim(t);
+        t = t.trim();
 
         const resize = this._fontResize(d, i);
         const lHRatio = this._lineHeight(d, i) / this._fontSize(d, i);
@@ -359,7 +357,7 @@ export default class TextBox extends BaseClass {
           let tag: string | false = false;
 
           text[that._html ? "html" : "text"]((t: string) => {
-            let cleaned = trimRight(t)
+            let cleaned = t.trimEnd()
               .replace(/&([^;&]*)/g, (str: string, a: string) =>
                 a === "amp" ? str : `&amp;${a}`,
               ) // replaces all non-HTML ampersands with escaped entity

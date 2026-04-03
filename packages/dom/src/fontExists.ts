@@ -1,5 +1,4 @@
 import {default as textWidth} from "./textWidth.js";
-import {trim} from "@d3plus/text";
 
 const alpha: string = "abcdefghiABCDEFGHI_!@#$%^&*()_+1234567890",
   checked: Record<string, boolean> = {},
@@ -32,7 +31,7 @@ const fontExists = (font: string | string[]): string | false => {
   }
 
   if (!(font instanceof Array)) font = font.split(",");
-  font = font.map(f => trim(f));
+  font = font.map(f => f.trim());
 
   for (let i = 0; i < font.length; i++) {
     const fam = font[i];
