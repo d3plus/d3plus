@@ -4,23 +4,8 @@
     @param buffer Extra pixel margin around the viewport boundary.
 */
 export default function (elem: Element, buffer: number = 0): boolean {
-  const pageX: number =
-    window.pageXOffset !== undefined
-      ? window.pageXOffset
-      : (
-          (document.documentElement ||
-            document.body.parentNode ||
-            document.body) as Element
-        ).scrollLeft;
-
-  const pageY: number =
-    window.pageYOffset !== undefined
-      ? window.pageYOffset
-      : (
-          (document.documentElement ||
-            document.body.parentNode ||
-            document.body) as Element
-        ).scrollTop;
+  const pageX = window.scrollX;
+  const pageY = window.scrollY;
 
   const bounds = elem.getBoundingClientRect();
   const height = bounds.height,
