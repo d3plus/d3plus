@@ -3,7 +3,7 @@ import {createPopper} from "@popperjs/core";
 
 import {colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {elem, prefix, stylize} from "@d3plus/dom";
+import {elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
@@ -50,7 +50,6 @@ export default class Tooltip extends BaseClass {
   _pointerEvents: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _popperClasses: Record<string, ReturnType<typeof createPopper>>;
   _position: (d: DataPoint, i?: number) => number[] | HTMLElement;
-  _prefix: string;
   _tableStyle: Record<string, string>;
   _tbody: unknown[];
   _tbodyStyle: Record<string, string>;
@@ -108,7 +107,6 @@ export default class Tooltip extends BaseClass {
     this._pointerEvents = constant("auto");
     this._popperClasses = {};
     this._position = (d: DataPoint) => [d.x as number, d.y as number];
-    this._prefix = prefix();
     this._tableStyle = {
       "border-collapse": "collapse",
       "border-spacing": "0",
@@ -225,7 +223,7 @@ export default class Tooltip extends BaseClass {
     function boxStyles(box: D3Selection): void {
       box
         .style("background", that._background as never)
-        .style(`${that._prefix}border-radius`, that._borderRadius as never)
+        .style("border-radius", that._borderRadius as never)
         .style("pointer-events", that._pointerEvents as never)
         .style("padding", that._padding as never)
         .style("width", that._width as never)

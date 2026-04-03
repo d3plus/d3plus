@@ -8,7 +8,6 @@ export {default as getSize} from "./src/getSize.js";
 export {default as inViewport} from "./src/inViewport.js";
 export {default as isObject} from "./src/isObject.js";
 export {default as parseSides} from "./src/parseSides.js";
-export {default as prefix} from "./src/prefix.js";
 export {default as rtl} from "./src/rtl.js";
 export {default as stylize} from "./src/stylize.js";
 export {default as textWidth} from "./src/textWidth.js";
