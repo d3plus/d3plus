@@ -17,12 +17,12 @@ export default function (packageJSON) {
     description,
     license: "MIT",
     type: isDocs ? undefined : "module",
-    types: "./index.ts",
+    types: `./types/index.${isReact ? "tsx" : "ts"}`,
     exports: isDocs
       ? undefined
       : {
           ".": {
-            types: `./index.${isReact ? "tsx" : "ts"}`,
+            types: `./types/index.${isReact ? "tsx" : "ts"}`,
             default: `./es/index.${isReact ? "jsx" : "js"}`,
           },
         },
@@ -55,8 +55,8 @@ export default function (packageJSON) {
       test: isDocs
         ? undefined
         : isReact
-          ? "eslint"
-          : "eslint index.js src/**/*.js && eslint --global=it test && mocha 'test/**/*-test.js'",
+          ? "eslint && mocha --import=./test/loader.mjs 'test/**/*-test.mjs'"
+          : "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.ts'",
     },
     dependencies,
   };
