@@ -5,9 +5,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Rect
-    @extends Shape
-    @desc Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
+    Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
 */
 export default class Rect extends Shape {
   _height: AccessorFn;
@@ -22,10 +20,9 @@ export default class Rect extends Shape {
   _width: AccessorFn;
 
   /**
-      @memberof Rect
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super("rect");
     this._height = accessor("height");
@@ -44,11 +41,9 @@ export default class Rect extends Shape {
   }
 
   /**
-      @memberof Rect
-      @desc Draws the rectangles.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the rectangles.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
@@ -82,12 +77,10 @@ export default class Rect extends Shape {
   }
 
   /**
-      @memberof Rect
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint, i: number): ShapeAes {
     return {
       width: this._width(d, i) as number,
@@ -96,11 +89,9 @@ export default class Rect extends Shape {
   }
 
   /**
-      @memberof Rect
-      @desc Provides the default positioning to the <rect> elements.
-      @param {D3Selection} *elem*
-      @private
-  */
+      Provides the default positioning to the <rect> elements.
+      @param elem @private
+*/
   _applyPosition(elem: D3Selection): void {
     (elem as any)
       .attr("width", (d: DataPoint, i: number) => this._width(d, i))
@@ -116,15 +107,13 @@ export default class Rect extends Shape {
   }
 
   /**
-      @memberof Rect
-      @desc If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The height accessor for each rectangle.
+
+@example
 function(d) {
   return d.height;
 }
-  */
+*/
   height(): AccessorFn;
   height(_: AccessorFn | number): this;
   height(_?: AccessorFn | number): AccessorFn | this {
@@ -134,15 +123,13 @@ function(d) {
   }
 
   /**
-      @memberof Rect
-      @desc If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The width accessor for each rectangle.
+
+@example
 function(d) {
   return d.width;
 }
-  */
+*/
   width(): AccessorFn;
   width(_: AccessorFn | number): this;
   width(_?: AccessorFn | number): AccessorFn | this {

@@ -22,35 +22,17 @@ export const argTypes = assign(
    */
   
   {
-    height: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 10,
-      description: "If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 10
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    labelBounds: {
+    _dataFilter: {
       control: {},
-      defaultValue: "(d, i, s) => ({width: s.width, height: s.height, x: this._x1 !== null ? this._getX(d, i) : -s.width / 2, y: this._x1 === null ? this._getY(d, i) : -s.height / 2})",
-      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
+      description: "",
       table: {
         defaultValue: {
-          detail: "(d, i, s) => ({width: s.width, height: s.height, x: this._x1 !== null ? this._getX(d, i) : -s.width / 2, y: this._x1 === null ? this._getY(d, i) : -s.height / 2})",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
-        required: false,
-        summary: "function"
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
       }
     },
     render: {
@@ -64,121 +46,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    width: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 10,
-      description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 10
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    x: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"x\"]",
-      description: "If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"x\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    x0: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"x\"]",
-      description: "If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"x\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    x1: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "null",
-      description: "If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "null"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number | null"
-      }
-    },
-    y: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 0,
-      description: "If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 0
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    y0: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 0,
-      description: "If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 0
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    y1: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"y\"]",
-      description: "If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"y\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number | null"
       }
     }
   }

@@ -12,6 +12,28 @@ export interface ColorDefaults {
   scale: ScaleOrdinal<string, string>;
 }
 
+/**
+ * A set of default color values used when assigning colors based on data.
+ *
+ * @defaultValue
+ * ```
+ * {
+ *   dark: "#495057",
+ *   light: "#f8f9fa",
+ *   missing: "#ced4da",
+ *   off: "#c92a2a",
+ *   on: "#2b8a3e",
+ *   scale: d3.scaleOrdinal().range([
+ *     "#364fc7", "#fab005", "#c92a2a",
+ *     "#2b8a3e", "#fd7e14", "#862e9c",
+ *     "#15aabf", "#e64980", "#82c91e",
+ *     "#74c0fc", "#faa2c1", "#c0eb75",
+ *     "#b197fc", "#c5f6fa", "#ffe8cc",
+ *     "#d3f9d8", "#f3d9fa", "#ffe3e3"
+ *   ])
+ * }
+ * ```
+ */
 const defaults: ColorDefaults = {
   dark: openColor.colors.gray[700],
   light: openColor.colors.gray[50],

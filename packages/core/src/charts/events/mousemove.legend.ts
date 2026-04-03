@@ -7,10 +7,8 @@ import type Viz from "../Viz.js";
 
 /**
     @module mouseMoveLegend
-    @desc Tooltip logic for a specified data point.
-    @param {Object} *d* The data object being interacted with.
-    @param {Number} *i* The index of the data object being interacted with.
-    @param {Object} [*config*] Optional configuration methods for the Tooltip class.
+    Tooltip logic for a specified data point.
+    @param config Optional configuration methods for the Tooltip class.
     @private
 */
 export default function (

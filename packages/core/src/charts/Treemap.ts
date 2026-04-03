@@ -26,18 +26,15 @@ import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Treemap
-    @extends Viz
-    @desc Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.
+    Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.
 */
 export default class Treemap extends Viz {
   [key: string]: any;
 
   /**
-    @memberof Treemap
-    @desc Invoked when creating a new class instance, and sets any default parameters.
+    Invoked when creating a new class instance, and sets any default parameters.
     @private
-  */
+*/
   constructor() {
     super();
 
@@ -89,10 +86,9 @@ export default class Treemap extends Viz {
   }
 
   /**
-      @memberof Treemap
-      @desc Extends the draw behavior of the abstract Viz class.
+      Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -120,10 +116,9 @@ export default class Treemap extends Viz {
       that = this;
 
     /**
-        @memberof Treemap
-        @desc Flattens and merges treemap data.
+        Flattens and merges treemap data.
         @private
-    */
+*/
     function extractLayout(children) {
       for (let i = 0; i < children.length; i++) {
         const node = children[i];
@@ -224,7 +219,7 @@ export default class Treemap extends Viz {
    * Applies the threshold algorithm for Treemaps.
    * @param {Array} data The data to process.
    * @private
-   */
+*/
   _thresholdFunction(data) {
     const aggs = this._aggs;
     const drawDepth = this._drawDepth;
@@ -239,13 +234,12 @@ export default class Treemap extends Viz {
     }
 
     /**
-     * @memberof Treemap
-     * @desc Explores the data tree recursively and merges elements under the indicated threshold.
-     * @param {object[]} branchData The current subset of the dataset to work on.
-     * @param {number} depth The depth of the current branch.
-     * @private
-     */
-    function thresholdByDepth(branchData, depth) {
+        Explores the data tree recursively and merges elements under the indicated threshold.
+        @param branchData The current subset of the dataset to work on.
+        @param depth The depth of the current branch.
+        @private
+*/
+    function thresholdByDepth(branchData: object[], depth: number) {
       if (depth < drawDepth) {
         return [...group(branchData, groupBy[depth])].reduce(
           (bulk, [, values]) => {
@@ -295,10 +289,8 @@ export default class Treemap extends Viz {
   }
 
   /**
-      @memberof Treemap
-      @desc If *value* is specified, sets the inner and outer padding accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current padding accessor.
-      @param {Function|Number} [*value*]
-  */
+      The inner and outer padding.
+*/
   layoutPadding(_) {
     return arguments.length
       ? ((this._layoutPadding = typeof _ === "function" ? _ : constant(_)),
@@ -307,27 +299,25 @@ export default class Treemap extends Viz {
   }
 
   /**
-      @memberof Treemap
-      @desc If *comparator* is specified, sets the sort order for the treemap using the specified comparator function. If *comparator* is not specified, returns the current group sort order, which defaults to descending order by the associated input data's numeric value attribute.
-      @param {Array} [*comparator*]
-      @example
+      Sort comparator function for the treemap layout. Defaults to descending order by the associated input data's numeric value attribute.
+
+@example
 function comparator(a, b) {
   return b.value - a.value;
 }
-  */
+*/
   sort(_) {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 
   /**
-      @memberof Treemap
-      @desc If *value* is specified, sets the sum accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current sum accessor.
-      @param {Function|Number} [*value*]
-      @example
+      The sum accessor used for sizing each rectangle in the treemap.
+
+@example
 function sum(d) {
   return d.sum;
 }
-  */
+*/
   sum(_) {
     if (arguments.length) {
       this._sum = typeof _ === "function" ? _ : accessor(_);
@@ -337,12 +327,10 @@ function sum(d) {
   }
 
   /**
-      @memberof Treemap
-      @desc Sets the tiling method used when calcuating the size and position of the rectangles.
+      The tiling method used when calculating the size and position of the rectangles.
 
 Can either be a string referring to a d3-hierarchy [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling), or a custom function in the same format.
-      @param {String|Function} [*value* = "squarify"]
-  */
+*/
   tile(_) {
     return arguments.length
       ? ((this._tile =

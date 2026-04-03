@@ -22,19 +22,17 @@ export const argTypes = {
     }
   },
   u: {
-    control: {
-      type: "object"
-    },
-    defaultValue: "defaults",
+    control: {},
+    defaultValue: "{}",
     description: "An object containing overrides of the default colors.",
     table: {
       defaultValue: {
-        summary: "defaults"
+        summary: "{}"
       }
     },
     type: {
       required: false,
-      summary: "object"
+      summary: "partial"
     }
   }
 };

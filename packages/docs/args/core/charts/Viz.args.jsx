@@ -2,1444 +2,1032 @@
 // the source JSDOC comments using the npm run docs script.
 
 import React from "react";
-import {argTypes as baseClassArgTypes} from "../utils/BaseClass.args.jsx";
-import {assign} from "@d3plus/dom";
 
 import {Viz as D3plusViz} from "@d3plus/react";
 export const Viz = ({ config }) => <D3plusViz config={config} />;
 
-export const argTypes = assign(
-
-  /**
-   * Filters out unused argTypes from the BaseClass primitive and
-   * overrides any defaults that have been changed in Viz
-   */
-  Object.keys(baseClassArgTypes)
-    .reduce((obj, k) => (obj[k] = baseClassArgTypes[k], obj), {}),
-
-  /**
-   * Viz-specific methods
-   */
-  
-  {
-    active: {
-      control: {},
-      description: "If *value* is specified, sets the active method to the specified function and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    aggs: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{}",
-      description: "If *value* is specified, sets the aggregation method for each key in the object and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    ariaHidden: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "Sets the \"aria-hidden\" attribute of the containing SVG element. The default value is \"false\", but it you need to hide the SVG from screen readers set this property to \"true\".",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    attribution: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: false,
-      description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
-      table: {
-        defaultValue: {
-          summary: false
-        }
-      },
-      type: {
-        required: true,
-        summary: "htmlstring | boolean"
-      }
-    },
-    attributionStyle: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.25), color: rgba(0, 0, 0, 0.75), display: block, font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`, margin: 5px, opacity: 0.75, padding: 4px 6px 3px}",
-      description: "If *value* is specified, sets the config method for the back button and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.25), color: rgba(0, 0, 0, 0.75), display: block, font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`, margin: 5px, opacity: 0.75, padding: 4px 6px 3px}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    backConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fontSize: 10, padding: 5, resize: false}",
-      description: "If *value* is specified, sets the config method for the back button and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{fontSize: 10, padding: 5, resize: false}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    cache: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    color: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "(d, i) => this._groupBy.0(d, i)",
-      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.",
-      table: {
-        defaultValue: {
-          detail: "(d, i) => this._groupBy.0(d, i)",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string | false"
-      }
-    },
-    colorScale: {
-      control: {
-        type: "text"
-      },
-      description: "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string | false"
-      }
-    },
-    colorScaleConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{axisConfig: {rounding: inside}, scale: jenks}",
-      description: "A pass-through to the config method of ColorScale.",
-      table: {
-        defaultValue: {
-          summary: "{axisConfig: {rounding: inside}, scale: jenks}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    colorScaleMaxSize: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 600,
-      description: "Sets the maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
-      table: {
-        defaultValue: {
-          summary: 600
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    colorScalePadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    colorScalePosition: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "() => this._width > this._height * 1.5 ? right : bottom",
-      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
-      table: {
-        defaultValue: {
-          detail: "() => this._width > this._height * 1.5 ? right : bottom",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string | boolean"
-      }
-    },
-    data: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "[  ]",
-      description: "Sets the primary data array to be used when drawing the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with \"url\" and \"headers\" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nIf *data* is not specified, this method returns the current primary data array, which defaults to an empty array (`[]`);",
-      table: {
-        defaultValue: {
-          summary: "[  ]"
-        }
-      },
-      type: {
-        required: true,
-        summary: "array | string"
-      }
-    },
-    dataCutoff: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 100,
-      description: "If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).",
-      table: {
-        defaultValue: {
-          summary: 100
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    depth: {
-      control: {
-        type: "number"
-      },
-      description: "If *value* is specified, sets the depth to the specified number and returns the current class instance. The *value* should correspond with an index in the [groupBy](#groupBy) array.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    detectResize: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: true,
-        summary: "boolean"
-      }
-    },
-    detectResizeDelay: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 400,
-      description: "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
-      table: {
-        defaultValue: {
-          summary: 400
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    detectVisible: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: true,
-        summary: "boolean"
-      }
-    },
-    detectVisibleInterval: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 1000,
-      description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
-      table: {
-        defaultValue: {
-          summary: 1000
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    discrete: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    downloadButton: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: false,
-      description: "Shows a button that allows for downloading the current visualization.",
-      table: {
-        defaultValue: {
-          summary: false
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    downloadConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{type: png}",
-      description: "Sets specific options of the saveElement function used when downloading the visualization.",
-      table: {
-        defaultValue: {
-          summary: "{type: png}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    downloadPosition: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "top",
-      description: "Defines which control group to add the download button into.",
-      table: {
-        defaultValue: {
-          summary: "top"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    duration: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 600,
-      description: "If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.",
-      table: {
-        defaultValue: {
-          summary: 600
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    filter: {
-      control: {},
-      description: "If *value* is specified, sets the filter to the specified function and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontFamily: {
-      control: {},
-      defaultValue: "fontFamily",
-      description: "If *value* is specified, sets the filter to the specified function and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "fontFamily"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    groupBy: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "[ d => d[\"id\"] ]",
-      description: "Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is \"id\"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.",
-      table: {
-        defaultValue: {
-          detail: "[ d => d[\"id\"] ]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function | array"
-      }
-    },
-    height: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "window.innerHeight",
-      description: "If *value* is specified, sets the overall height to the specified number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "window.innerHeight"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    hiddenColor: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#aaa",
-      description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
-      table: {
-        defaultValue: {
-          summary: "#aaa"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    hiddenOpacity: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 0.5,
-      description: "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
-      table: {
-        defaultValue: {
-          summary: 0.5
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    hover: {
-      control: {},
-      description: "If *value* is specified, sets the hover method to the specified function and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    label: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    labelPosition: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "\"auto\"",
-      description: "The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values \"outside\" or \"inside\" can be set for Bar shapes, whose \"auto\" default will calculate the best position dynamically based on the available space.",
-      table: {
-        defaultValue: {
-          summary: "\"auto\""
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    legend: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "(config, arr) => {\n  const maxGrouped = max(arr, (d, i)=>{\n      const id = this._groupBy[this._legendDepth].bind(this)(d, i);\n      return id instanceof Array ? id.length : 1;\n  });\n  return arr.length > 1 && maxGrouped <= 2;\n}",
-      description: "If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "(config, arr) => {\n  const maxGrouped = max(arr, (d, i)=>{\n      const id = this._groupBy[this._legendDepth].bind(this)(d, i);\n      return id instanceof Array ? id.length : 1;\n  });\n  return arr.length > 1 && maxGrouped <= 2;\n}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{label: legendLabel.bind(this), shapeConfig: {ariaLabel: legendLabel.bind(this), labelConfig: {fontColor: undefined, fontResize: false, padding: 0}}}",
-      description: "If *value* is specified, the object is passed to the legend's config method.",
-      table: {
-        defaultValue: {
-          summary: "{label: legendLabel.bind(this), shapeConfig: {ariaLabel: legendLabel.bind(this), labelConfig: {fontColor: undefined, fontResize: false, padding: 0}}}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    legendFilterInvert: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: false,
-      description: "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
-      table: {
-        defaultValue: {
-          summary: false
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendPadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendPosition: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "() => this._width > this._height * 1.5 ? right : bottom",
-      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
-      table: {
-        defaultValue: {
-          detail: "() => this._width > this._height * 1.5 ? right : bottom",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    legendSort: {
-      control: {},
-      defaultValue: "(a, b) => this._drawLabel(a).localeCompare(this._drawLabel(b))",
-      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
-      table: {
-        defaultValue: {
-          detail: "(a, b) => this._drawLabel(a).localeCompare(this._drawLabel(b))",
-          summary: "function"
-        }
-      },
-      type: {
-        required: true,
-        summary: "function"
-      }
-    },
-    legendTooltip: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{}",
-      description: "If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    loadingHTML: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(Loading Visualization)}</strong>\n      <sub style=\"bottom: 0; display: block; line-height: 1; margin-top: 5px;\"><a href=\"https://d3plus.org\" target=\"_blank\">${this._translate(Powered by D3plus)}</a></sub>\n    </div>`",
-      description: "Sets the inner HTML of the status message that is displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
-      table: {
-        defaultValue: {
-          detail: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(Loading Visualization)}</strong>\n      <sub style=\"bottom: 0; display: block; line-height: 1; margin-top: 5px;\"><a href=\"https://d3plus.org\" target=\"_blank\">${this._translate(Powered by D3plus)}</a></sub>\n    </div>`",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    loadingMessage: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    messageMask: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "rgba(0, 0, 0, 0.05)",
-      description: "Sets the color of the mask used underneath the status message that is displayed when loading AJAX requests and displaying errors. Additionally, `false` will turn off the mask completely.",
-      table: {
-        defaultValue: {
-          summary: "rgba(0, 0, 0, 0.05)"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | string"
-      }
-    },
-    messageStyle: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{bottom: 0, left: 0, position: absolute, right: 0, text-align: center, top: 0}",
-      description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
-      table: {
-        defaultValue: {
-          summary: "{bottom: 0, left: 0, position: absolute, right: 0, text-align: center, top: 0}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    noDataHTML: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(No Data Available)}</strong>\n    </div>`",
-      description: "Sets the inner HTML of the status message that is displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
-      table: {
-        defaultValue: {
-          detail: "() => `\n    <div style=\"left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);\">\n      <strong>${this._translate(No Data Available)}</strong>\n    </div>`",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    noDataMessage: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    on: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "{click.shape: clickShape.bind(this), click.legend: clickLegend.bind(this), mouseenter: mouseenter.bind(this), mouseleave: mouseleave.bind(this), mousemove.shape: mousemoveShape.bind(this), mousemove.legend: mousemoveLegend.bind(this)}",
-      description: "Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
-      table: {
-        defaultValue: {
-          summary: "{click.shape: clickShape.bind(this), click.legend: clickLegend.bind(this), mouseenter: mouseenter.bind(this), mouseleave: mouseleave.bind(this), mousemove.shape: mousemoveShape.bind(this), mousemove.legend: mousemoveLegend.bind(this)}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    parent: {
-      control: {
-        type: "object"
-      },
-      description: "If *value* is specified, sets the parent config used by the wrapper and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    render: {
-      control: {},
-      description: "Draws the visualization given the specified configuration.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    scrollContainer: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "typeofwindow === undefined ?  : window",
-      description: "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
-      table: {
-        defaultValue: {
-          summary: "typeofwindow === undefined ?  : window"
-        }
-      },
-      type: {
-        required: true,
-        summary: "string | htmlelement"
-      }
-    },
-    select: {
-      control: {
-        type: "text"
-      },
-      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element, which is `undefined` by default.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | htmlelement"
-      }
-    },
-    shape: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "Rect",
-      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
-      table: {
-        defaultValue: {
-          summary: "Rect"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
-    shapeConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{ariaLabel: (d, i) => this._drawLabel(d, i), fill: (d, i) => {\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._colorScale) {\n      const c = this._colorScale(d, i);\n      if (c !== undefined && c !== null) {\n          const scale = this._colorScaleClass._colorScale;\n          const colors = this._colorScaleClass.color();\n          if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;\n          else if (!scale.domain().length) return scale.range()[scale.range().length - 1];\n          return scale(c);\n      }\n  }\n  const c = this._color(d, i);\n  if (color(c)) return c;\n  return colorAssign(typeof c === \"string\" ? c : JSON.stringify(c), this._colorDefaults);\n}, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return colorContrast(c);\n}}, opacity: 1, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return color(c).darker(0.25);\n}, role: presentation, strokeWidth: 0}",
-      description: "If *value* is specified, sets the config method for each shape and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "{ariaLabel: (d, i) => this._drawLabel(d, i), fill: (d, i) => {\n  while(d.__d3plus__ && d.data){\n      d = d.data;\n      i = d.i;\n  }\n  if (this._colorScale) {\n      const c = this._colorScale(d, i);\n      if (c !== undefined && c !== null) {\n          const scale = this._colorScaleClass._colorScale;\n          const colors = this._colorScaleClass.color();\n          if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;\n          else if (!scale.domain().length) return scale.range()[scale.range().length - 1];\n          return scale(c);\n      }\n  }\n  const c = this._color(d, i);\n  if (color(c)) return c;\n  return colorAssign(typeof c === \"string\" ? c : JSON.stringify(c), this._colorDefaults);\n}, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return colorContrast(c);\n}}, opacity: 1, stroke: (d, i) => {\n  const c = typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill;\n  return color(c).darker(0.25);\n}, role: presentation, strokeWidth: 0}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    subtitle: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the subtitle accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    subtitleConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{ariaHidden: true, fontSize: 12, padding: 5, resize: false, textAnchor: middle}",
-      description: "If *value* is specified, sets the config method for the subtitle and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{ariaHidden: true, fontSize: 12, padding: 5, resize: false, textAnchor: middle}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    subtitlePadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    svgDesc: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "",
-      description: "If *value* is specified, sets the description accessor to the specified string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: ""
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    svgTitle: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "",
-      description: "If *value* is specified, sets the title accessor to the specified string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: ""
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    threshold: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 0.0001,
-      description: "If *value* is specified, sets the threshold for buckets to the specified function or string, and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 0.0001
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    thresholdKey: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "undefined",
-      description: "If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    thresholdName: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "() => this._translate(Values)",
-      description: "If *value* is specified, sets the label for the bucket item, and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "() => this._translate(Values)",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    time: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the time accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    timeFilter: {
-      control: {},
-      description: "If *value* is specified, sets the time filter to the specified function and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    timeline: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "If *value* is specified, toggles the timeline based on the specified boolean and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    timelineConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{padding: 5}",
-      description: "If *value* is specified, sets the config method for the timeline and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{padding: 5}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    timelineDefault: {
-      control: {
-        type: "object"
-      },
-      description: "Sets the starting time or range for the timeline. The value provided can either be a single Date/String, or an Array of 2 values representing the min and max.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "date | string | array"
-      }
-    },
-    timelinePadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    title: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the title accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    titleConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{ariaHidden: true, fontSize: 16, padding: 5, resize: false, textAnchor: middle}",
-      description: "If *value* is specified, sets the config method for the title and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{ariaHidden: true, fontSize: 16, padding: 5, resize: false, textAnchor: middle}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    titlePadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    tooltip: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "If *value* is specified, toggles the tooltip based on the specified boolean and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    tooltipConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{pointerEvents: none, titleStyle: {max-width: 200px}}",
-      description: "If *value* is specified, sets the config method for the tooltip and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{pointerEvents: none, titleStyle: {max-width: 200px}}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    total: {
-      control: {
-        type: "text"
-      },
-      description: "If *value* is specified, sets the total accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function | string"
-      }
-    },
-    totalConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fontSize: 10, padding: 5, resize: false, textAnchor: middle}",
-      description: "If *value* is specified, sets the config method for the total and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{fontSize: 10, padding: 5, resize: false, textAnchor: middle}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    totalFormat: {
-      control: {},
-      defaultValue: "(d) => `${this._translate(Total)}: ${formatAbbreviate(d, this._locale)}`",
-      description: "Formatter function for the value in the total bar.",
-      table: {
-        defaultValue: {
-          detail: "(d) => `${this._translate(Total)}: ${formatAbbreviate(d, this._locale)}`",
-          summary: "function"
-        }
-      },
-      type: {
-        required: true,
-        summary: "function"
-      }
-    },
-    totalPadding: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: "defaultPadding",
-      description: "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "defaultPadding"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    width: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "window.innerWidth",
-      description: "If *value* is specified, sets the overallwidth to the specified number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "window.innerWidth"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    zoom: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: false,
-      description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
-      table: {
-        defaultValue: {
-          summary: false
-        }
-      },
-      type: {
-        required: true,
-        summary: "boolean"
-      }
-    },
-    zoomBrushHandleSize: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 1,
-      description: "The pixel stroke-width of the zoom brush area.",
-      table: {
-        defaultValue: {
-          summary: 1
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    zoomBrushHandleStyle: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fill: #444}",
-      description: "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "{fill: #444}"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object | boolean"
-      }
-    },
-    zoomBrushSelectionStyle: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fill: #777, stroke-width: 0}",
-      description: "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "{fill: #777, stroke-width: 0}"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object | boolean"
-      }
-    },
-    zoomControlStyle: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.75), color: rgba(0, 0, 0, 0.75), display: block, font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`, height: 20px, margin: 5px, opacity: 0.75, padding: 0, text-align: center, width: 20px}",
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "{background: rgba(255, 255, 255, 0.75), border: 1px solid rgba(0, 0, 0, 0.75), color: rgba(0, 0, 0, 0.75), display: block, font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`, height: 20px, margin: 5px, opacity: 0.75, padding: 0, text-align: center, width: 20px}"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object | boolean"
-      }
-    },
-    zoomControlStyleActive: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{background: rgba(0, 0, 0, 0.75), color: rgba(255, 255, 255, 0.75), opacity: 1}",
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "{background: rgba(0, 0, 0, 0.75), color: rgba(255, 255, 255, 0.75), opacity: 1}"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object | boolean"
-      }
-    },
-    zoomControlStyleHover: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{cursor: pointer, opacity: 1}",
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "{cursor: pointer, opacity: 1}"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object | boolean"
-      }
-    },
-    zoomFactor: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 2,
-      description: "The multiplier that is used in with the control buttons when zooming in and out.",
-      table: {
-        defaultValue: {
-          summary: 2
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    zoomMax: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 16,
-      description: "If *value* is specified, sets the max zoom scale to the specified number and returns the current class instance. If *value* is not specified, returns the current max zoom scale.",
-      table: {
-        defaultValue: {
-          summary: 16
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    zoomPadding: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 20,
-      description: "A pixel value to be used to pad all sides of a zoomed area.",
-      table: {
-        defaultValue: {
-          summary: 20
-        }
-      },
-      type: {
-        required: true,
-        summary: "number"
-      }
-    },
-    zoomPan: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "If *value* is specified, toggles panning to the specified boolean and returns the current class instance. If *value* is not specified, returns the current panning value.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: true,
-        summary: "boolean"
-      }
-    },
-    zoomScroll: {
-      control: {
-        type: "boolean"
-      },
-      defaultValue: true,
-      description: "If *value* is specified, toggles scroll zooming to the specified boolean and returns the current class instance. If *value* is not specified, returns the current scroll zooming value.",
-      table: {
-        defaultValue: {
-          summary: true
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
+export const argTypes = {
+  active: {
+    control: {},
+    description: "The active callback function for highlighting shapes.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | function"
+    }
+  },
+  aggs: {
+    control: {},
+    description: "Custom aggregation methods for each data key.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  ariaHidden: {
+    control: {
+      type: "boolean"
+    },
+    description: "The \"aria-hidden\" attribute of the containing SVG element. The default value is \"false\", but if you need to hide the SVG from screen readers set this property to \"true\".",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  attributionStyle: {
+    control: {},
+    description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  backConfig: {
+    control: {},
+    description: "Configuration object for the back button.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  cache: {
+    control: {
+      type: "boolean"
+    },
+    description: "Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  color: {
+    control: {
+      type: "text"
+    },
+    description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | false | function"
+    }
+  },
+  colorScale: {
+    control: {
+      type: "text"
+    },
+    description: "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | false | function"
+    }
+  },
+  colorScaleConfig: {
+    control: {},
+    description: "A pass-through to the config method of ColorScale.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  colorScaleMaxSize: {
+    control: {
+      type: "number"
+    },
+    description: "The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  colorScalePadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  colorScalePosition: {
+    control: {
+      type: "text"
+    },
+    description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | boolean | function"
+    }
+  },
+  data: {
+    control: {
+      type: "object"
+    },
+    description: "The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with \"url\" and \"headers\" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nDefaults to an empty array (`[]`).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | array.&lt;datapoint&gt; | object"
+    }
+  },
+  dataCutoff: {
+    control: {
+      type: "number"
+    },
+    description: "If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  depth: {
+    control: {
+      type: "number"
+    },
+    description: "The current depth of the visualization. The value should correspond with an index in the [groupBy](#groupBy) array.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  discrete: {
+    control: {
+      type: "text"
+    },
+    description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  downloadButton: {
+    control: {
+      type: "boolean"
+    },
+    description: "Shows a button that allows for downloading the current visualization.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  downloadConfig: {
+    control: {},
+    description: "Sets specific options of the saveElement function used when downloading the visualization.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  downloadPosition: {
+    control: {
+      type: "text"
+    },
+    description: "Defines which control group to add the download button into.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  duration: {
+    control: {
+      type: "number"
+    },
+    description: "The animation duration in milliseconds.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  filter: {
+    control: {},
+    description: "A filter function applied to the data before drawing.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | function"
+    }
+  },
+  fontFamily: {
+    control: {
+      type: "text"
+    },
+    description: "The font family used throughout the visualization.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | array.&lt;string&gt;"
+    }
+  },
+  groupBy: {
+    control: {
+      type: "text"
+    },
+    description: "Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is \"id\"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function | array.&lt;string | function&gt;"
+    }
+  },
+  height: {
+    control: {
+      type: "number"
+    },
+    description: "The overall height of the visualization in pixels.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  hiddenColor: {
+    control: {
+      type: "text"
+    },
+    description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  hiddenOpacity: {
+    control: {
+      type: "number"
+    },
+    description: "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number | function"
+    }
+  },
+  hover: {
+    control: {},
+    description: "The hover callback function for highlighting shapes on mouseover.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | function"
+    }
+  },
+  label: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor function or string key for the label of each data point.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  legend: {
+    control: {
+      type: "boolean"
+    },
+    description: "Whether to display the legend.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  legendConfig: {
+    control: {},
+    description: "Configuration object passed to the legend's config method.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  legendFilterInvert: {
+    control: {
+      type: "boolean"
+    },
+    description: "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  legendPadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  legendPosition: {
+    control: {
+      type: "text"
+    },
+    description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  legendSort: {
+    control: {},
+    description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  legendTooltip: {
+    control: {},
+    description: "Configuration object for the legend tooltip.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  loadingHTML: {
+    control: {
+      type: "text"
+    },
+    description: "The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  loadingMessage: {
+    control: {
+      type: "boolean"
+    },
+    description: "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  messageMask: {
+    control: {
+      type: "text"
+    },
+    description: "The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | boolean"
+    }
+  },
+  messageStyle: {
+    control: {},
+    description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  noDataHTML: {
+    control: {
+      type: "text"
+    },
+    description: "The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  noDataMessage: {
+    control: {
+      type: "boolean"
+    },
+    description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  render: {
+    control: {},
+    description: "Draws the visualization given the specified configuration.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  scrollContainer: {
+    control: {
+      type: "text"
+    },
+    description: "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | htmlelement | window"
+    }
+  },
+  select: {
+    control: {
+      type: "text"
+    },
+    description: "The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | htmlelement"
+    }
+  },
+  shape: {
+    control: {
+      type: "text"
+    },
+    description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  shapeConfig: {
+    control: {},
+    description: "Configuration object with key/value pairs applied as method calls on each shape.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  subtitle: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor function or string for the visualization's subtitle.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  subtitleConfig: {
+    control: {},
+    description: "Configuration object for the subtitle.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  subtitlePadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  svgDesc: {
+    control: {
+      type: "text"
+    },
+    description: "The description text for the SVG `<desc>` element, used for accessibility.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  svgTitle: {
+    control: {
+      type: "text"
+    },
+    description: "The title text for the SVG `<title>` element, used for accessibility.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  threshold: {
+    control: {
+      type: "number"
+    },
+    description: "The threshold value for bucketing small data points together.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number | function"
+    }
+  },
+  thresholdKey: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor for the value used in the threshold algorithm.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  thresholdName: {
+    control: {
+      type: "text"
+    },
+    description: "The label displayed for bucketed threshold items.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  time: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor function or string key for the time dimension of each data point.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | false | function"
+    }
+  },
+  timeFilter: {
+    control: {},
+    description: "A filter function that limits which time periods are shown.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | function"
+    }
+  },
+  timeline: {
+    control: {
+      type: "boolean"
+    },
+    description: "Whether to display the timeline.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  timelineConfig: {
+    control: {},
+    description: "Configuration object for the timeline.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  timelineDefault: {
+    control: {
+      type: "text"
+    },
+    description: "The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | date | array.&lt;string | date&gt;"
+    }
+  },
+  timelinePadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  title: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor function or string for the visualization's title.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | function"
+    }
+  },
+  titleConfig: {
+    control: {},
+    description: "Configuration object for the title.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  titlePadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  tooltip: {
+    control: {
+      type: "boolean"
+    },
+    description: "Whether to display tooltips on hover.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  tooltipConfig: {
+    control: {},
+    description: "Configuration object for the tooltip.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  total: {
+    control: {
+      type: "text"
+    },
+    description: "Accessor function or string key for the total value displayed in the visualization.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | boolean | function"
+    }
+  },
+  totalConfig: {
+    control: {},
+    description: "Configuration object for the total bar.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  totalFormat: {
+    control: {},
+    description: "Formatter function for the value in the total bar.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  totalPadding: {
+    control: {
+      type: "boolean"
+    },
+    description: "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  width: {
+    control: {
+      type: "number"
+    },
+    description: "The overall width of the visualization in pixels.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  zoomScroll: {
+    control: {
+      type: "boolean"
+    },
+    description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   }
-);
+};

@@ -24,238 +24,28 @@ export const argTypes = assign(
   {
     active: {
       control: {},
-      description: "Sets the highlight accessor to the Shape class's active function.",
+      description: "The active highlight state for all sub-shapes in this Box.",
       table: {
         defaultValue: {
           summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    data: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "[]",
-      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.",
-      table: {
-        defaultValue: {
-          summary: "[]"
-        }
-      },
-      type: {
-        required: false,
-        summary: "array"
-      }
-    },
-    hover: {
-      control: {},
-      description: "Sets the highlight accessor to the Shape class's hover function.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    medianConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fill: black}",
-      description: "If *value* is specified, sets the config method for median and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{fill: black}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    orient: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d => d[\"orient\"] || vertical",
-      description: "If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"orient\"] || vertical",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    outlier: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d => d[\"outlier\"] || Circle",
-      description: "If *value* is specified, sets the outlier accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"outlier\"] || Circle",
-          summary: "function"
         }
       },
       type: {
         required: true,
-        summary: "function | string"
+        summary: "function"
       }
     },
-    outlierConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{Circle: {r: d => d[\"r\"] || 5}, Rect: {height: (d, i) => this._orient(d, i) === vertical ? 5 : 20, width: (d, i) => this._orient(d, i) === vertical ? 20 : 5}}",
-      description: "If *value* is specified, sets the config method for each outlier point and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "{Circle: {r: d => d[\"r\"] || 5}, Rect: {height: (d, i) => this._orient(d, i) === vertical ? 5 : 20, width: (d, i) => this._orient(d, i) === vertical ? 20 : 5}}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    rectConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{fill: white, stroke: black, strokeWidth: 1}",
-      description: "If *value* is specified, sets the config method for rect shape and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{fill: white, stroke: black, strokeWidth: 1}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    rectWidth: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 50,
-      description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 50
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    render: {
+    hover: {
       control: {},
-      description: "Draws the Box.",
+      description: "The hover highlight state for all sub-shapes in this Box.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: false,
+        required: true,
         summary: "function"
-      }
-    },
-    select: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d3.select(\"body\").append(\"svg\")",
-      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
-      table: {
-        defaultValue: {
-          summary: "d3.select(\"body\").append(\"svg\")"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | htmlelement"
-      }
-    },
-    whiskerConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{}",
-      description: "If *value* is specified, sets the config method for whisker and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    whiskerMode: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "[\n  tukey,\ntukey\n]",
-      description: "Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `\"tukey\"`, `\"extent\"`, or a Number representing a quantile.",
-      table: {
-        defaultValue: {
-          summary: "[\n  tukey,\ntukey\n]"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | number | array.<string> | array.<number>"
-      }
-    },
-    x: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"x\"] || 250",
-      description: "If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"x\"] || 250",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    y: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"y\"] || 250",
-      description: "If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"y\"] || 250",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
       }
     }
   }

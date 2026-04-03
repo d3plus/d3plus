@@ -1,12 +1,10 @@
 import type {Point} from "./lineIntersection.js";
 
 /**
-    @function segmentBoxContains
-    @desc Checks whether a point is inside the bounding box of a line segment.
-    @param {Array} s1 The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.
-    @param {Array} s2 The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.
-    @param {Array} p The point to be checked, which should always be an `[x, y]` formatted Array.
-    @returns {Boolean}
+    Checks whether a point is inside the bounding box of a line segment.
+    @param s1 The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.
+    @param s2 The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.
+    @param p The point to be checked, which should always be an `[x, y]` formatted Array.
 */
 export default function (s1: Point, s2: Point, p: Point): boolean {
   const eps = 1e-9,

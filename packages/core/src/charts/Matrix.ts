@@ -21,16 +21,13 @@ const defaultAxisConfig: Record<string, unknown> = {
 };
 
 /**
-    @class Matrix
-    @extends Viz
-    @desc Creates a simple rows/columns Matrix view of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/getting-started/) for help getting started using the Matrix class.
+    Creates a simple rows/columns Matrix view of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/getting-started/) for help getting started using the Matrix class.
 */
 export default class Matrix extends Viz {
   [key: string]: any;
 
   /**
-    @memberof Matrix
-    @desc Invoked when creating a new class instance, and sets any default parameters.
+    Invoked when creating a new class instance, and sets any default parameters.
     @private
   */
   constructor() {
@@ -76,8 +73,7 @@ export default class Matrix extends Viz {
   }
 
   /**
-      @memberof Matrix
-      @desc Extends the draw behavior of the abstract Viz class.
+      Extends the draw behavior of the abstract Viz class.
       @private
   */
   _draw(callback?: () => void): this {
@@ -216,10 +212,8 @@ export default class Matrix extends Viz {
   }
 
   /**
-      @memberof Matrix
-      @desc The pixel padding in between each cell.
-      @param {Number} [*value* = 2]
-  */
+      The pixel padding in between each cell.
+*/
   cellPadding(_?: number): this | number {
     return arguments.length
       ? ((this._cellPadding = _!), this)
@@ -227,10 +221,9 @@ export default class Matrix extends Viz {
   }
 
   /**
-      @memberof Matrix
-      @desc Determines which key in your data should be used for each column in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's column value.
-      @param {String|Function} [*value*]
-      @example
+      Determines which key in your data should be used for each column in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's column value.
+
+@example
 function column(d) {
   return d.name;
 }
@@ -244,11 +237,8 @@ function column(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.
+*/
   columnConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._columnConfig = assign(this._columnConfig, _)), this)
@@ -256,10 +246,8 @@ function column(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A manual list of IDs to be used for columns.
-      @param {Array} [*value*]
-  */
+      A manual list of IDs to be used for columns.
+*/
   columnList(
     _?: DataPoint[keyof DataPoint][],
   ): this | DataPoint[keyof DataPoint][] {
@@ -267,10 +255,9 @@ function column(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A sort comparator function that is run on the unique set of column values.
-      @param {Function} [*value*]
-      @example
+      A sort comparator function that is run on the unique set of column values.
+
+@example
 function column(a, b) {
   return a.localeCompare(b);
 }
@@ -280,10 +267,9 @@ function column(a, b) {
   }
 
   /**
-      @memberof Matrix
-      @desc Determines which key in your data should be used for each row in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's row value.
-      @param {String|Function} [*value*]
-      @example
+      Determines which key in your data should be used for each row in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's row value.
+
+@example
 function row(d) {
   return d.name;
 }
@@ -297,11 +283,8 @@ function row(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the row labels.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the row labels.
+*/
   rowConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._rowConfig = assign(this._rowConfig, _)), this)
@@ -309,10 +292,8 @@ function row(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A manual list of IDs to be used for rows.
-      @param {Array} [*value*]
-  */
+      A manual list of IDs to be used for rows.
+*/
   rowList(
     _?: DataPoint[keyof DataPoint][],
   ): this | DataPoint[keyof DataPoint][] {
@@ -320,10 +301,9 @@ function row(d) {
   }
 
   /**
-      @memberof Matrix
-      @desc A sort comparator function that is run on the unique set of row values.
-      @param {Function} [*value*]
-      @example
+      A sort comparator function that is run on the unique set of row values.
+
+@example
 function row(a, b) {
   return a.localeCompare(b);
 }

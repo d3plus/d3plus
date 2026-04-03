@@ -7,24 +7,21 @@ import React from "react";
 
 export const argTypes = {
   aggs: {
-    control: {
-      type: "object"
-    },
+    control: {},
+    defaultValue: "{}",
     description: "An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "{}"
       }
     },
     type: {
-      required: true,
-      summary: "object"
+      required: false,
+      summary: "record"
     }
   },
   objects: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The Array of objects to be merged together.",
     table: {
       defaultValue: {
@@ -33,7 +30,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "array.&lt;datapoint&gt;"
     }
   }
 };

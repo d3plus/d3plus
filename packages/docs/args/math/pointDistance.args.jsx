@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   p1: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The first point, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -18,13 +16,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   p2: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The second point, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -33,7 +29,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   }
 };

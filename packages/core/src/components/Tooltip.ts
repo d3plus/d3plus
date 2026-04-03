@@ -13,7 +13,7 @@ import {accessor, BaseClass, constant} from "../utils/index.js";
  * Creates a reference element for popper.
  * @param {Number[]} position
  * @private
- */
+*/
 function generateReference(
   position: number[] = [0, 0],
 ): () => Record<string, number> {
@@ -28,9 +28,7 @@ function generateReference(
 }
 
 /**
-    @class Tooltip
-    @extends BaseClass
-    @desc Creates HTML tooltips in the body of a webpage.
+    Creates HTML tooltips in the body of a webpage.
 */
 export default class Tooltip extends BaseClass {
   _arrow: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
@@ -67,10 +65,9 @@ export default class Tooltip extends BaseClass {
   _width: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
 
   /**
-      @memberof Tooltip
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -150,7 +147,7 @@ export default class Tooltip extends BaseClass {
   /**
       The inner return object and draw function that gets assigned the public methods.
       @private
-  */
+*/
   render(callback?: Function): this {
     const that = this;
 
@@ -167,7 +164,7 @@ export default class Tooltip extends BaseClass {
     /**
         Creates DIV elements with a unique class and styles.
         @private
-    */
+*/
     function divElement(cat: string): void {
       enter
         .append("div")
@@ -211,7 +208,7 @@ export default class Tooltip extends BaseClass {
     /**
         Fetches table contents given functions or values.
         @private
-    */
+*/
     function cellContent(this: HTMLElement, d: unknown): string {
       if (typeof d === "function") {
         const datum = select(
@@ -224,7 +221,7 @@ export default class Tooltip extends BaseClass {
     /**
         Sets styles for both enter and update.
         @private
-    */
+*/
     function boxStyles(box: D3Selection): void {
       box
         .style("background", that._background as never)
@@ -394,14 +391,13 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-   @memberof Tooltip
-   @desc Sets the inner HTML content of the arrow element, which by default is empty.
-   @param {Function|String} [*value*]
-   @example <caption>default accessor</caption>
+   The inner HTML content of the arrow element, empty by default.
+
+@example <caption>default accessor</caption>
    function value(d) {
   return d.arrow || "";
 }
-   */
+*/
   arrow(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   arrow(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -415,10 +411,9 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-   @memberof Tooltip
-   @desc If *value* is specified, sets the arrow styles to the specified values and returns this generator. If *value* is not specified, returns the current arrow styles.
-   @param {Object} [*value*]
-   @example <caption>default styles</caption>
+   CSS styles applied to the arrow element.
+
+@example <caption>default styles</caption>
    {
      "content": "",
      "border-width": "10px",
@@ -426,7 +421,7 @@ export default class Tooltip extends BaseClass {
      "border-color": "rgba(255, 255, 255, 0.75) transparent transparent transparent",
      "position": "absolute"
    }
-   */
+*/
   arrowStyle(): Record<string, string>;
   arrowStyle(_: Record<string, string>): this;
   arrowStyle(_?: Record<string, string>): unknown {
@@ -436,10 +431,8 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the background accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current background accessor.
-      @param {Function|String} [*value* = colorDefaults.light]
-  */
+      The background color accessor for each tooltip.
+*/
   background(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   background(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -453,14 +446,13 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the body accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current body accessor.
-      @param {Function|String} [*value*]
-      @example <caption>default accessor</caption>
+      The body content accessor for each tooltip.
+
+@example <caption>default accessor</caption>
 function value(d) {
   return d.body || "";
 }
-  */
+*/
   body(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   body(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -474,15 +466,14 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the body styles to the specified values and returns this generator. If *value* is not specified, returns the current body styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the body element.
+
+@example <caption>default styles</caption>
 {
   "font-size": "12px",
   "font-weight": "400"
 }
-  */
+*/
   bodyStyle(): Record<string, string>;
   bodyStyle(_: Record<string, string>): this;
   bodyStyle(_?: Record<string, string>): unknown {
@@ -492,10 +483,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the border accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border accessor.
-      @param {Function|String} [*value* = "1px solid rgba(0, 0, 0, 0.1)"]
-  */
+      The border accessor for each tooltip.
+*/
   border(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   border(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -509,10 +498,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the border-radius accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current border-radius accessor.
-      @param {Function|String} [*value* = "2px"]
-  */
+      The border-radius accessor for each tooltip.
+*/
   borderRadius(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   borderRadius(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -526,10 +513,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the class name to the specified string and returns this generator. If *value* is not specified, returns the current class name.
-      @param {String} [*value* = "d3plus-tooltip"]
-  */
+      The CSS class name applied to the tooltip container.
+*/
   className(): string;
   className(_: string): this;
   className(_?: string): any {
@@ -537,10 +522,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *data* is specified, sets the data array to the specified array and returns this generator. If *data* is not specified, returns the current data array.
-      @param {Array} [*data* = []]
-  */
+      The data array used to create tooltips.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): unknown {
@@ -548,14 +531,13 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the footer accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current footer accessor.
-      @param {Function|String} [*value*]
-      @example <caption>default accessor</caption>
+      The footer content accessor for each tooltip.
+
+@example <caption>default accessor</caption>
 function value(d) {
   return d.footer || "";
 }
-  */
+*/
   footer(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   footer(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -569,15 +551,14 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the footer styles to the specified values and returns this generator. If *value* is not specified, returns the current footer styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the footer element.
+
+@example <caption>default styles</caption>
 {
   "font-size": "12px",
   "font-weight": "400"
 }
-  */
+*/
   footerStyle(): Record<string, string>;
   footerStyle(_: Record<string, string>): this;
   footerStyle(_?: Record<string, string>): unknown {
@@ -587,10 +568,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the height accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current height accessor.
-      @param {Function|String} [*value* = "auto"]
-  */
+      The height accessor for each tooltip.
+*/
   height(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   height(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -604,14 +583,13 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the id accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current id accessor.
-      @param {Function|String} [*value*]
-      @example <caption>default accessor</caption>
+      The unique id accessor for each tooltip.
+
+@example <caption>default accessor</caption>
 function value(d, i) {
   return d.id || "" + i;
 }
-  */
+*/
   id(): (d: DataPoint, i: number) => string;
   id(_: ((d: DataPoint, i: number) => string) | string): this;
   id(_?: ((d: DataPoint, i: number) => string) | string): unknown {
@@ -621,10 +599,8 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the offset accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current offset accessor.
-      @param {Function|Number} [*value* = 10]
-  */
+      The pixel offset between the tooltip and its anchor point.
+*/
   offset(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   offset(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | number,
@@ -638,10 +614,8 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the padding accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current padding accessor.
-      @param {Function|String} [*value* = "5px"]
-  */
+      The inner padding of each tooltip.
+*/
   padding(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   padding(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -655,10 +629,8 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the pointer-events accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current pointer-events accessor.
-      @param {Function|String} [*value* = "auto"]
-  */
+      The pointer-events CSS property for each tooltip.
+*/
   pointerEvents(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   pointerEvents(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -673,14 +645,13 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the position accessor to the specified function or array and returns this generator. If *value* is not specified, returns the current position accessor. If *value* is an HTMLElement, anchors the Tooltip to that HTMLElement. If *value* is a selection string, anchors the Tooltip to the HTMLElement selected by that string. Otherwise, coordinate points must be in reference to the client viewport, not the overall page.
-      @param {Function|Array|HTMLElement|String} [*value*]
-      @example <caption>default accessor</caption>
+      The position of each tooltip. Can be an HTMLElement to anchor to, a selection string, or coordinate points in reference to the client viewport (not the overall page).
+
+@example <caption>default accessor</caption>
    function value(d) {
     return [d.x, d.y];
   }
-   */
+*/
   position(): (d: DataPoint, i?: number) => number[] | HTMLElement;
   position(
     _:
@@ -714,16 +685,15 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the table styles to the specified values and returns this generator. If *value* is not specified, returns the current table styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the table element.
+
+@example <caption>default styles</caption>
 {
   "border-collapse": "collapse",
   "border-spacing": "0",
   "width": "100%"
 }
-  */
+*/
   tableStyle(): Record<string, string>;
   tableStyle(_: Record<string, string>): this;
   tableStyle(_?: Record<string, string>): unknown {
@@ -733,10 +703,8 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the contents of the table body to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table body data.
-      @param {Array} [*value* = []]
-  */
+      The table body contents as an array of functions or strings.
+*/
   tbody(): unknown[];
   tbody(_: unknown[]): this;
   tbody(_?: unknown[]): unknown {
@@ -744,16 +712,15 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the table body styles to the specified values and returns this generator. If *value* is not specified, returns the current table body styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the table body element.
+
+@example <caption>default styles</caption>
 {
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
 }
-  */
+*/
   tbodyStyle(): Record<string, string>;
   tbodyStyle(_: Record<string, string>): this;
   tbodyStyle(_?: Record<string, string>): unknown {
@@ -763,10 +730,8 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the contents of the table head to the specified array of functions or strings and returns this generator. If *value* is not specified, returns the current table head data.
-      @param {Array} [*value* = []]
-  */
+      The table head contents as an array of functions or strings.
+*/
   thead(): unknown[];
   thead(_: unknown[]): this;
   thead(_?: unknown[]): unknown {
@@ -774,16 +739,15 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the table head styles to the specified values and returns this generator. If *value* is not specified, returns the current table head styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the table head element.
+
+@example <caption>default styles</caption>
 {
   "font-size": "12px",
   "font-weight": "600",
   "text-align": "center"
 }
-  */
+*/
   theadStyle(): Record<string, string>;
   theadStyle(_: Record<string, string>): this;
   theadStyle(_?: Record<string, string>): unknown {
@@ -793,14 +757,13 @@ function value(d, i) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the title accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current title accessor.
-      @param {Function|String} [*value*]
-      @example <caption>default accessor</caption>
+      The title content accessor for each tooltip.
+
+@example <caption>default accessor</caption>
 function value(d) {
   return d.title || "";
 }
-  */
+*/
   title(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   title(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -814,16 +777,15 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the title styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      CSS styles applied to the title element.
+
+@example <caption>default styles</caption>
 {
   "font-size": "14px",
   "font-weight": "600",
   "padding-bottom": "5px"
 }
-  */
+*/
   titleStyle(): Record<string, string>;
   titleStyle(_: Record<string, string>): this;
   titleStyle(_?: Record<string, string>): unknown {
@@ -833,17 +795,16 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the overall tooltip styles to the specified values and returns this generator. If *value* is not specified, returns the current title styles.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      Overall CSS styles applied to the tooltip container.
+
+@example <caption>default styles</caption>
 {
   "font-family": "'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
   "font-size": "14px",
   "font-weight": "600",
   "padding-bottom": "5px"
 }
-  */
+*/
   tooltipStyle(): Record<string, string>;
   tooltipStyle(_: Record<string, string>): this;
   tooltipStyle(_?: Record<string, string>): unknown {
@@ -853,14 +814,13 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc An object with CSS keys and values to be applied to all <tr> elements inside of each <tbody>.
-      @param {Object} [*value*]
-      @example <caption>default styles</caption>
+      An object with CSS keys and values to be applied to all <tr> elements inside of each <tbody>.
+
+@example <caption>default styles</caption>
   {
     "border-top": "1px solid rgba(0, 0, 0, 0.1)"
   }
-   */
+*/
    
   trStyle(): Record<string, any>;
    
@@ -873,10 +833,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
-      @param {Object} [*value*]
-   */
+      An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
+*/
   tdStyle(): Record<string, string>;
   tdStyle(_: Record<string, string>): this;
   tdStyle(_?: Record<string, string>): unknown {
@@ -886,10 +844,8 @@ function value(d) {
   }
 
   /**
-      @memberof Tooltip
-      @desc If *value* is specified, sets the width accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current width accessor.
-      @param {Function|String} [*value* = "auto"]
-  */
+      The width accessor for each tooltip.
+*/
   width(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   width(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,

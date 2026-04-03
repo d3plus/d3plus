@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   definition: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The localization definition.",
     table: {
       defaultValue: {
@@ -18,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "object"
+      summary: "formatlocaledefinition"
     }
   }
 };

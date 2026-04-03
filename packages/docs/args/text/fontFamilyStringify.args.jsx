@@ -10,6 +10,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
+    description: "A font family name or array of font family names.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -17,7 +18,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string | array.<string>"
+      summary: "string | array.&lt;string&gt;"
     }
   }
 };

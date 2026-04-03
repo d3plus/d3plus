@@ -1,6 +1,5 @@
 /**
-    @function s
-    @desc Returns 4 random characters, used for constructing unique identifiers.
+    Returns 4 random characters, used for constructing unique identifiers.
     @private
 */
 function s(): string {
@@ -10,8 +9,7 @@ function s(): string {
 }
 
 /**
-    @function uuid
-    @summary Returns a unique identifier.
+    Generates a unique identifier string.
 */
 export default function uuid(): string {
   return `${s()}${s()}-${s()}-${s()}-${s()}-${s()}${s()}${s()}`;

@@ -10,10 +10,11 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    defaultValue: "\"-\"",
+    defaultValue: "-",
+    description: "The character to replace whitespace with.",
     table: {
       defaultValue: {
-        summary: "\"-\""
+        summary: "-"
       }
     },
     type: {
@@ -25,6 +26,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
+    description: "The HTML string to strip.",
     table: {
       defaultValue: {
         summary: "undefined"

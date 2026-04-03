@@ -15,7 +15,7 @@ let brushing = false;
 
 /**
     @name zoomControls
-    @desc Sets up initial zoom events and controls.
+    Sets up initial zoom events and controls.
     @private
 */
 export default function (this: Viz): void {
@@ -134,7 +134,7 @@ export default function (this: Viz): void {
 
 /**
     @name zoomEvents
-    @desc Handles adding/removing zoom event listeners.
+    Handles adding/removing zoom event listeners.
     @private
 */
 function zoomEvents(this: Viz, brush: boolean = false): void {
@@ -163,9 +163,8 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
 
 /**
     @name zoomed
-    @desc Handles events dispatched from this._zoomBehavior
-    @param {Object} [*transform* = event.transform]
-    @param {Number} [*duration* = 0]
+    Handles events dispatched from this._zoomBehavior
+    @param transform
     @private
 */
 function zoomed(
@@ -188,9 +187,8 @@ function zoomed(
 
 /**
     @name zoomMath
-    @desc Zooms in or out based on the provided multiplier.
-    @param {Number} [*factor* = 0]
-    @private
+    Zooms in or out based on the provided multiplier.
+    @param factor @private
 */
 function zoomMath(this: Viz, factor: number = 0): void {
   if (!this._container) return;
@@ -224,9 +222,8 @@ function zoomMath(this: Viz, factor: number = 0): void {
 
 /**
     @name zoomToBounds
-    @desc Zooms to given bounds.
-    @param {Array} *bounds*
-    @param {Number} [*duration* = 0]
+    Zooms to given bounds.
+    @param bounds
     @private
 */
 function zoomToBounds(
@@ -273,7 +270,7 @@ function zoomToBounds(
 }
 
 /**
-    @desc Triggered on brush "brush".
+    Triggered on brush "brush".
     @private
 */
 function brushBrush(this: Viz): void {
@@ -281,7 +278,7 @@ function brushBrush(this: Viz): void {
 }
 
 /**
-    @desc Triggered on brush "end".
+    Triggered on brush "end".
     @private
 */
 function brushEnd(this: Viz, event: {selection: number[][] | null}): void {
@@ -292,7 +289,7 @@ function brushEnd(this: Viz, event: {selection: number[][] | null}): void {
 }
 
 /**
-    @desc Triggered on brush "start".
+    Triggered on brush "start".
     @private
 */
 function brushStart(this: Viz): void {
@@ -300,7 +297,7 @@ function brushStart(this: Viz): void {
 }
 
 /**
-    @desc Overrides the default brush styles.
+    Overrides the default brush styles.
     @private
 */
 function brushStyle(this: Viz): void {

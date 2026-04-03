@@ -1,4 +1,4 @@
-/* eslint no-cond-assign: 0 */
+/* eslint no-cond-assign: 0*/
 
 import {
   deviation,
@@ -59,7 +59,7 @@ const defaultBuffers = {
 };
 
 /**
-    @desc Logic for determining default sizes of shapes using the sizeScaleD3 internal function.
+    Logic for determining default sizes of shapes using the sizeScaleD3 internal function.
     @private
 */
 function defaultSize(d) {
@@ -67,7 +67,7 @@ function defaultSize(d) {
 }
 
 /**
-    @desc Logic for determining stackOrder ascending using groups.
+    Logic for determining stackOrder ascending using groups.
     @private
 */
 function stackOrderAscending(series) {
@@ -79,7 +79,7 @@ function stackOrderAscending(series) {
 }
 
 /**
-    @desc Logic for determining stackOrder descending using groups.
+    Logic for determining stackOrder descending using groups.
     @private
 */
 function stackOrderDescending(series) {
@@ -87,7 +87,7 @@ function stackOrderDescending(series) {
 }
 
 /**
-    @desc Logic for determining default sum of shapes using the stackSum function used in d3Shape.
+    Logic for determining default sum of shapes using the stackSum function used in d3Shape.
     @private
 */
 function stackSum(series) {
@@ -100,7 +100,7 @@ function stackSum(series) {
 }
 
 /**
-    @desc Logic for determining default sum of shapes using the stackSum function used in d3Shape.
+    Logic for determining default sum of shapes using the stackSum function used in d3Shape.
     @private
 */
 function stackOffsetDiverging(series, order) {
@@ -157,18 +157,15 @@ function outside(d, i) {
 }
 
 /**
-    @class Plot
-    @extends Viz
-    @desc Creates an x/y plot based on an array of data.
+    Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Plot
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
     this._axisPersist = false;
@@ -463,7 +460,7 @@ export default class Plot extends Viz {
   /**
       Extends the preDraw behavior of the abstract Viz class.
       @private
-  */
+*/
   _preDraw() {
     // logic repeated for each axis
     ["x", "y", "x2", "y2"].forEach(k => {
@@ -497,11 +494,11 @@ export default class Plot extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     if (!this._filteredData.length && !this._annotations.length) return this;
 
-    /* Determines whether or not any of the x or y axes are a "time" axis. */
+    /* Determines whether or not any of the x or y axes are a "time" axis.*/
     const firstElemTime = this._time
       ? this._time(this._filteredData[0], 0)
       : false;
@@ -594,12 +591,11 @@ export default class Plot extends Viz {
       width = this._width - this._margin.left - this._margin.right;
 
     /**
-     * @desc Returns all unique values for a given axis.
-     * @param {String} axis
-     * @returns {Array}
-     * @private
-     */
-    function getAxisValues(axis) {
+        Returns all unique values for a given axis.
+        @param axis Which axis to return values for, "x" or "y".
+        @private
+*/
+    function getAxisValues(axis: "x" | "y") {
       const timeData = this[`_${axis}Time`];
       const localData = timeData ? data : axisData;
 
@@ -1551,7 +1547,7 @@ export default class Plot extends Viz {
         const yBuckets = range(yRange[0], yRange[1], minFontSize).reverse();
         const bumpLimit = (yRange[1] - yRange[0]) / 8;
 
-        /** */
+        /***/
         function bumpPrevious(d, i, arr) {
           if (!d.defaultY) d.defaultY = this._yAxis._getPosition(d.value);
           if (i) {
@@ -1995,13 +1991,10 @@ export default class Plot extends Viz {
   }
 
   /**
-      @memberof Plot
-      @desc Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
+      Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
 Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present.
-      @param {Array|Object} *annotations* = []
-      @chainable
-  */
+*/
   annotations(_) {
     return arguments.length
       ? ((this._annotations = _ instanceof Array ? _ : [_]), this)
@@ -2009,11 +2002,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
+*/
   axisPersist(_) {
     return arguments.length
       ? ((this._axisPersist = _), this)
@@ -2021,11 +2011,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
-       @param {Object} [*value*]
-       @chainable
-   */
+       A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
+*/
   backgroundConfig(_) {
     return arguments.length
       ? ((this._backgroundConfig = assign(this._backgroundConfig, _)), this)
@@ -2033,31 +2020,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Sets the pixel space between each bar in a group of bars.
-      @param {Number} *value* = 0
-      @chainable
-  */
-  barPadding(_) {
-    return arguments.length ? ((this._barPadding = _), this) : this._barPadding;
-  }
-
-  /**
-      @memberof Plot
-      @desc Sets the baseline for the x/y plot. If *value* is not specified, returns the current baseline.
-      @param {Number} *value*
-      @chainable
-  */
-  baseline(_) {
-    return arguments.length ? ((this._baseline = _), this) : this._baseline;
-  }
-
-  /**
-       @memberof Plot
-       @desc Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
-       @param {Object|Boolean} [*value*]
-       @chainable
-   */
+      The pixel space between each bar in a group of bars.
+*/
   buffer(_) {
     if (arguments.length) {
       if (!_) this._buffer = {};
@@ -2075,11 +2039,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc Sets the confidence to the specified array of lower and upper bounds.
-       @param {String[]|Function[]} *value*
-       @chainable
-       @example <caption>Can be called with accessor functions or static keys:</caption>
+       The confidence interval as an array of [lower, upper] bounds.
+
+@example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
        ...
        // Accessor functions
@@ -2087,7 +2049,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 
        // Or static keys
        .confidence(["lci", "hci"])
-   */
+*/
   confidence(_) {
     if (arguments.length && _ instanceof Array) {
       this._confidence = [];
@@ -2103,11 +2065,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc If *value* is specified, sets the config method for each shape rendered as a confidence interval and returns the current class instance.
-       @param {Object} [*value*]
-       @chainable
-   */
+       Configuration object for shapes rendered as confidence intervals.
+*/
   confidenceConfig(_) {
     return arguments.length
       ? ((this._confidenceConfig = assign(this._confidenceConfig, _)), this)
@@ -2115,11 +2074,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-      @param {Number} *value*
-      @chainable
-  */
+      When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
+*/
   discreteCutoff(_) {
     return arguments.length
       ? ((this._discreteCutoff = _), this)
@@ -2127,11 +2083,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Sets the pixel space between groups of bars.
-      @param {Number} [*value* = 5]
-      @chainable
-  */
+      The pixel space between groups of bars.
+*/
   groupPadding(_) {
     return arguments.length
       ? ((this._groupPadding = _), this)
@@ -2139,11 +2092,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
-       @param {Object} [*value*]
-       @chainable
-   */
+       The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
+*/
   labelConnectorConfig(_) {
     return arguments.length
       ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _)),
@@ -2152,11 +2102,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Viz
-      @desc The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
-      @param {Function|String} [*value* = "auto"]
-      @chainable
-  */
+      The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
+*/
   labelPosition(_) {
     return arguments.length
       ? ((this._labelPosition = typeof _ === "function" ? _ : constant(_)),
@@ -2165,21 +2112,15 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Draws labels on the right side of any Line shapes that are drawn on the plot.
-      @param {Boolean|Function} [*value* = false]
-      @chainable
-  */
+      Draws labels on the right side of any Line shapes that are drawn on the plot.
+*/
   lineLabels(_) {
     return arguments.length ? ((this._lineLabels = _), this) : this._lineLabels;
   }
 
   /**
-      @memberof Plot
-      @desc Shape config for the Circle shapes drawn by the lineMarkers method.
-      @param {Object} *value*
-      @chainable
-  */
+      Shape config for the Circle shapes drawn by the lineMarkers method.
+*/
   lineMarkerConfig(_) {
     return arguments.length
       ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _)), this)
@@ -2187,11 +2128,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Draws circle markers on each vertex of a Line.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Draws circle markers on each vertex of a Line.
+*/
   lineMarkers(_) {
     return arguments.length
       ? ((this._lineMarkers = _), this)
@@ -2199,109 +2137,30 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. "Circle", "Line", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.
-      @param {Function} *value*
-      @chainable
-  */
+      A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. "Circle", "Line", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.
+*/
   shapeSort(_) {
     return arguments.length ? ((this._shapeSort = _), this) : this._shapeSort;
   }
 
   /**
-      @memberof Plot
-      @desc Sets the size of bubbles to the given Number, data key, or function.
-      @param {Function|Number|String} *value* = 10
-      @chainable
-  */
-  size(_) {
-    return arguments.length
-      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
-      : this._size;
-  }
+      The size of bubbles as a Number, data key, or function.
 
-  /**
-      @memberof Plot
-      @desc Sets the size scale maximum to the specified number.
-      @param {Number} *value* = 20
-      @chainable
-  */
-  sizeMax(_) {
-    return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
-  }
-
-  /**
-      @memberof Plot
-      @desc Sets the size scale minimum to the specified number.
-      @param {Number} *value* = 5
-      @chainable
-  */
-  sizeMin(_) {
-    return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
-  }
-
-  /**
-      @memberof Plot
-      @desc Sets the size scale to the specified string.
-      @param {String} *value* = "sqrt"
-      @chainable
-  */
-  sizeScale(_) {
-    return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
-  }
-
-  /**
-      @memberof Plot
-      @desc If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.
-      @param {Boolean} *value* = false
-      @chainable
-  */
-  stacked(_) {
-    return arguments.length ? ((this._stacked = _), this) : this._stacked;
-  }
-
-  /**
-      @memberof Plot
-      @desc Sets the stack offset. If *value* is not specified, returns the current stack offset function.
-      @param {Function|String} *value* = "descending"
-      @chainable
-  */
-  stackOffset(_) {
-    return arguments.length
-      ? ((this._stackOffset =
-          typeof _ === "function"
-            ? _
-            : d3Shape[`stackOffset${_.charAt(0).toUpperCase() + _.slice(1)}`]),
         this)
       : this._stackOffset;
   }
 
   /**
-      @memberof Plot
-      @desc Sets the stack order. If *value* is not specified, returns the current stack order function.
-      @param {Function|String|Array} *value* = "none"
-      @chainable
-  */
-  stackOrder(_) {
-    if (arguments.length) {
-      if (typeof _ === "string")
-        this._stackOrder =
-          _ === "ascending"
-            ? stackOrderAscending
-            : _ === "descending"
-              ? stackOrderDescending
-              : d3Shape[`stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`];
+      The stack order function used to arrange stacked shapes.
+
       else this._stackOrder = _;
       return this;
     } else return this._stackOrder;
   }
 
   /**
-      @memberof Plot
-      @desc Sets the x accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x accessor.
-      @param {Function|String} *value*
-      @chainable
-  */
+      Accessor function or string key for the x-axis value of each data point.
+*/
   x(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._x = _;
@@ -2314,11 +2173,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc Sets the x2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current x2 accessor.
-       @param {Function|String} *value*
-       @chainable
-   */
+       Accessor function or string key for the secondary x-axis value of each data point.
+*/
   x2(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._x2 = _;
@@ -2331,11 +2187,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
+*/
   xConfig(_) {
     return arguments.length
       ? ((this._xConfig = assign(this._xConfig, _)), this)
@@ -2343,21 +2196,15 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-      @param {Number} *value*
-      @chainable
-  */
+      When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
+*/
   xCutoff(_) {
     return arguments.length ? ((this._xCutoff = _), this) : this._xCutoff;
   }
 
   /**
-      @memberof Plot
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
+*/
   x2Config(_) {
     return arguments.length
       ? ((this._x2Config = assign(this._x2Config, _)), this)
@@ -2365,51 +2212,36 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Sets the x domain to the specified array. If *value* is not specified, returns the current x domain. Additionally, if either value of the array is undefined, it will be calculated from the data.
-      @param {Array} *value*
-      @chainable
-  */
+      The x domain as an array. If either value is undefined, it will be calculated from the data.
+*/
   xDomain(_) {
     return arguments.length ? ((this._xDomain = _), this) : this._xDomain;
   }
 
   /**
-       @memberof Plot
-       @desc Sets the x2 domain to the specified array. If *value* is not specified, returns the current x2 domain. Additionally, if either value of the array is undefined, it will be calculated from the data.
-       @param {Array} *value*
-       @chainable
-   */
+       The x2 domain as an array. If either value is undefined, it will be calculated from the data.
+*/
   x2Domain(_) {
     return arguments.length ? ((this._x2Domain = _), this) : this._x2Domain;
   }
 
   /**
-      @memberof Plot
-      @desc Defines a custom sorting comparitor function to be used for discrete x axes.
-      @param {Function} *value*
-      @chainable
-  */
+      Defines a custom sorting comparitor function to be used for discrete x axes.
+*/
   xSort(_) {
     return arguments.length ? ((this._xSort = _), this) : this._xSort;
   }
 
   /**
-       @memberof Plot
-       @desc Defines a custom sorting comparitor function to be used for discrete x2 axes.
-       @param {Function} *value*
-       @chainable
-   */
+       Defines a custom sorting comparitor function to be used for discrete x2 axes.
+*/
   x2Sort(_) {
     return arguments.length ? ((this._x2Sort = _), this) : this._x2Sort;
   }
 
   /**
-      @memberof Plot
-      @desc Sets the y accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y accessor.
-      @param {Function|String} *value*
-      @chainable
-  */
+      Accessor function or string key for the y-axis value of each data point.
+*/
   y(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._y = _;
@@ -2422,11 +2254,8 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       @memberof Plot
-       @desc Sets the y2 accessor to the specified accessor Function or String representing which key in the data to reference. If *value* is not specified, returns the current y2 accessor.
-       @param {Function|String} *value*
-       @chainable
-   */
+       Accessor function or string key for the secondary y-axis value of each data point.
+*/
   y2(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._y2 = _;
@@ -2439,13 +2268,10 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
 *Note:* If a "domain" array is passed to the y-axis config, it will be reversed.
-      @param {Object} *value*
-      @chainable
-  */
+*/
   yConfig(_) {
     if (arguments.length) {
       if (_.domain) _.domain = _.domain.slice().reverse();
@@ -2456,21 +2282,15 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-      @param {Number} *value*
-      @chainable
-  */
+      When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
+*/
   yCutoff(_) {
     return arguments.length ? ((this._yCutoff = _), this) : this._yCutoff;
   }
 
   /**
-      @memberof Plot
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
+*/
   y2Config(_) {
     if (arguments.length) {
       if (_.domain) _.domain = _.domain.slice().reverse();
@@ -2481,41 +2301,29 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      @memberof Plot
-      @desc Sets the y domain to the specified array. If *value* is not specified, returns the current y domain. Additionally, if either value of the array is undefined, it will be calculated from the data.
-      @param {Array} *value*
-      @chainable
-  */
+      The y domain as an array. If either value is undefined, it will be calculated from the data.
+*/
   yDomain(_) {
     return arguments.length ? ((this._yDomain = _), this) : this._yDomain;
   }
 
   /**
-       @memberof Plot
-       @desc Sets the y2 domain to the specified array. If *value* is not specified, returns the current y2 domain. Additionally, if either value of the array is undefined, it will be calculated from the data.
-       @param {Array} *value*
-       @chainable
-   */
+       The y2 domain as an array. If either value is undefined, it will be calculated from the data.
+*/
   y2Domain(_) {
     return arguments.length ? ((this._y2Domain = _), this) : this._y2Domain;
   }
 
   /**
-      @memberof Plot
-      @desc Defines a custom sorting comparitor function to be used for discrete y axes.
-      @param {Function} *value*
-      @chainable
-  */
+      Defines a custom sorting comparitor function to be used for discrete y axes.
+*/
   ySort(_) {
     return arguments.length ? ((this._ySort = _), this) : this._ySort;
   }
 
   /**
-       @memberof Plot
-       @desc Defines a custom sorting comparitor function to be used for discrete y2 axes.
-       @param {Function} *value*
-       @chainable
-   */
+       Defines a custom sorting comparitor function to be used for discrete y2 axes.
+*/
   y2Sort(_) {
     return arguments.length ? ((this._y2Sort = _), this) : this._y2Sort;
   }

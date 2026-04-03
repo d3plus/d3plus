@@ -19,7 +19,7 @@ interface LargestRectEvent {
 
 /**
     @typedef {Object} largestRect
-    @desc The returned Object of the largestRect function.
+    The returned Object of the largestRect function.
     @property {Number} width The width of the rectangle
     @property {Number} height The height of the rectangle
     @property {Number} cx The x coordinate of the rectangle's center
@@ -58,22 +58,36 @@ export interface LargestRectOptions {
 const polyCache: Record<string, LargestRectResult | null> = {};
 
 /**
-    @function largestRect
+    Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
+
+An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.
     @author Daniel Smilkov [dsmilkov@gmail.com]
-    @desc An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.
-    @param {Array} poly An Array of points that represent a polygon.
-    @param {Object} [options] An Object that allows for overriding various parameters of the algorithm.
-    @param {Number|String|Array} [options.angle = d3.range(-90, 95, 5)] The allowed rotations of the final rectangle.
-    @param {Number|String|Array} [options.aspectRatio] The ratio between the width and height of the rectangle. The value can be a number, a string which is parsed to a number, or an array of numbers specifying the possible aspect ratios of the final rectangle.
-    @param {Number} [options.maxAspectRatio = 15] The maximum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
-    @param {Number} [options.minAspectRatio = 1] The minimum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
-    @param {Number} [options.nTries = 20] The number of randomly drawn points inside the polygon which the algorithm explores as possible center points of the maximal rectangle.
-    @param {Number} [options.minHeight = 0] The minimum height of the rectangle.
-    @param {Number} [options.minWidth = 0] The minimum width of the rectangle.
-    @param {Number} [options.tolerance = 0.02] The simplification tolerance factor, between 0 and 1. A larger tolerance corresponds to more extensive simplification.
-    @param {Array} [options.origin] The center point of the rectangle. If specified, the rectangle will be fixed at that point, otherwise the algorithm optimizes across all possible points. The given value can be either a two dimensional array specifying the x and y coordinate of the origin or an array of two dimensional points specifying multiple possible center points of the rectangle.
-    @param {Boolean} [options.cache] Whether or not to cache the result, which would be used in subsequent calculations to preserve consistency and speed up calculation time.
-    @return {largestRect}
+    @param poly An Array of points that represent a polygon.
+    @param options An Object that allows for overriding various parameters of the algorithm.
+    @param options.angle The allowed rotations of the final rectangle.
+    @param options.aspectRatio The ratio between the width and height of the rectangle. The value can be a number, a string which is parsed to a number, or an array of numbers specifying the possible aspect ratios of the final rectangle.
+    @param options.maxAspectRatio The maximum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
+    @param options.minAspectRatio The minimum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
+    @param options.nTries The number of randomly drawn points inside the polygon which the algorithm explores as possible center points of the maximal rectangle.
+    @param options.minHeight The minimum height of the rectangle.
+    @param options.minWidth The minimum width of the rectangle.
+    @param options.tolerance The simplification tolerance factor, between 0 and 1. A larger tolerance corresponds to more extensive simplification.
+    @param options.origin The center point of the rectangle. If specified, the rectangle will be fixed at that point, otherwise the algorithm optimizes across all possible points. The given value can be either a two dimensional array specifying the x and y coordinate of the origin or an array of two dimensional points specifying multiple possible center points of the rectangle.
+    @param options.cache Whether or not to cache the result, which would be used in subsequent calculations to preserve consistency and speed up calculation time.
+    @defaultValue
+```
+{
+  angle: d3.range(-90, 95, 5),
+  cache: true,
+  maxAspectRatio: 15,
+  minAspectRatio: 1,
+  minHeight: 0,
+  minWidth: 0,
+  nTries: 20,
+  tolerance: 0.02,
+  verbose: false,
+}
+```
 */
 export default function (
   poly: Point[],

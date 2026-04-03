@@ -8,16 +8,13 @@ import {accessor, configPrep} from "../utils/index.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Pie
-    @extends Viz
-    @desc Uses the [d3 pie layout](https://github.com/d3/d3-shape#pies) to creates SVG arcs based on an array of data.
+    Uses the [d3 pie layout](https://github.com/d3/d3-shape#pies) to creates SVG arcs based on an array of data.
 */
 export default class Pie extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Pie
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
@@ -104,10 +101,8 @@ export default class Pie extends Viz {
   }
 
   /**
-      @memberof Pie
-      @desc The pixel value, or function that returns a pixel value, that is used as the inner radius of the Pie (creating a Donut).
-      @param {Function|Number} [*value* = 0]
-  */
+      The pixel value, or function that returns a pixel value, that is used as the inner radius of the Pie (creating a Donut).
+*/
   innerRadius(_?: number | (() => number)): this | number | (() => number) {
     return arguments.length
       ? ((this._innerRadius = _), this)
@@ -115,42 +110,34 @@ export default class Pie extends Viz {
   }
 
   /**
-      @memberof Pie
-      @desc The padding between each arc, set as a radian value between \`0\` and \`1\`.
+      The padding between each arc, set as a radian value between \`0\` and \`1\`.
 
 If set, this will override any previously set padPixel value.
-      @param {Number} [*value*]
-  */
+*/
   padAngle(_?: number): this | number {
     return arguments.length ? ((this._padAngle = _), this) : this._padAngle;
   }
 
   /**
-      @memberof Pie
-      @desc The padding between each arc, set as a pixel number value.
+      The padding between each arc, set as a pixel number value.
 
 By default the value is \`0\`, which shows no padding between each arc.
 
 If \`padAngle\` is defined, the \`padPixel\` value will not be considered.
-      @param {Number} [*value* = 0]
-  */
+*/
   padPixel(_?: number): this | number {
     return arguments.length ? ((this._padPixel = _!), this) : this._padPixel;
   }
 
   /**
-      @memberof Pie
-      @desc A comparator function that sorts the Pie slices.
-      @param {Function} [*comparator* = (a, b) => b.value - a.value]
-  */
+      A comparator function that sorts the Pie slices.
+*/
   sort(_?: Function): this | Function {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 
   /**
-      @memberof Pie
-      @desc The accessor key for each data point used to calculate the size of each Pie section.
-      @param {Function|String} *value* = d => d.value
+      The accessor key for each data point used to calculate the size of each Pie section.
   */
   value(
     _?: string | ((d: DataPoint, i: number) => number),

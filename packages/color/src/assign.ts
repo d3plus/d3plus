@@ -2,11 +2,9 @@ import {color} from "d3-color";
 import defaults, {ColorDefaults} from "./defaults.js";
 
 /**
-    @function colorAssign
-    @desc Assigns a color to a value using a predefined set of defaults.
-    @param {String} c A valid CSS color string.
-    @param {Object} [u = colorDefaults] An object containing overrides of the default colors.
-    @returns {String}
+    Assigns a color to a value using a predefined set of defaults.
+    @param c A valid CSS color string.
+    @param u An object containing overrides of the default colors.
 */
 export default function (
   c: string | boolean | null | undefined,

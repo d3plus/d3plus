@@ -2,14 +2,11 @@ import {min} from "d3-array";
 import {default as Pie} from "./Pie.js";
 
 /**
-    @class Donut
-    @extends Pie
-    @desc Extends the Pie visualization to create a donut chart.
+    Extends the Pie visualization to create a donut chart.
 */
 export default class Donut extends Pie {
   /**
-      @memberof Donut
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {

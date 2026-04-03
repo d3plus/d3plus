@@ -24,12 +24,11 @@ interface VizContext {
 }
 
 /**
-  @function dataLoad
-  @desc Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
-  @param {Array|String} path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
-  @param {Function} [formatter] An optional formatter function that is run on the loaded data.
-  @param {String} [key] The key in the `this` context to save the resulting data to.
-  @param {Function} [callback] A function that is called when the final data is loaded. It is passed 2 variables, any error present and the data loaded.
+  Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
+  @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
+  @param formatter Optional function to transform the loaded data.
+  @param key The key in the `this` context to save the resulting data to.
+  @param callback Optional function called with the error and loaded data.
 */
 export default function (
   this: VizContext,

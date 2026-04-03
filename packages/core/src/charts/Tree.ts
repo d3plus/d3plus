@@ -14,18 +14,15 @@ import {legendLabel} from "./drawSteps/drawLegend.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Tree
-    @extends Viz
-    @desc Uses d3's [tree layout](https://github.com/d3/d3-hierarchy#tree) to create a tidy tree chart based on an array of data.
+    Uses d3's [tree layout](https://github.com/d3/d3-hierarchy#tree) to create a tidy tree chart based on an array of data.
 */
 export default class Tree extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Tree
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -66,7 +63,7 @@ export default class Tree extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -104,7 +101,7 @@ export default class Tree extends Viz {
     /**
         Merges the values of a given nest branch.
         @private
-    */
+*/
     function flattenBranchData(branch) {
       return merge(
         branch.values.map(l => (l.key && l.values ? flattenBranchData(l) : l)),
@@ -291,26 +288,23 @@ export default class Tree extends Viz {
   }
 
   /**
-      @memberof Tree
-      @desc Changes the orientation of the entire Tree, either "vertical" (top to bottom) or "horizontal" (left to right).
-      @param {'vertical'|'horizontal'} [*value* = "vertical"] Accepts either "vertical" or "horizontal".
-  */
+      Changes the orientation of the entire Tree, either "vertical" (top to bottom) or "horizontal" (left to right).
+*/
   orient(_) {
     return arguments.length ? ((this._orient = _), this) : this._orient;
   }
 
   /**
-      @memberof Tree
-      @desc If *value* is specified, sets the separation accessor to the specified function. If *value* is not specified, returns the current separation accessor.
+      The separation function between neighboring nodes.
 
 From the [d3-hierarchy documentation](https://github.com/d3/d3-hierarchy#tree_separation):
 > The separation accessor is used to separate neighboring nodes. The separation function is passed two nodes a and b, and must return the desired separation. The nodes are typically siblings, though the nodes may be more distantly related if the layout decides to place such nodes adjacent.
-      @param {Function} [*value*]
-      @example
+
+@example
 function separation(a, b) {
   return a.parent === b.parent ? 1 : 2;
 }
-  */
+*/
   separation(_) {
     return arguments.length ? ((this._separation = _), this) : this._separation;
   }

@@ -16,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "*"
+      summary: "any"
     }
   },
   key: {

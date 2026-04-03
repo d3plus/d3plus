@@ -1,10 +1,9 @@
 import type {Stylable} from "./D3Selection.js";
 
 /**
-    @function stylize
-    @desc Applies each key/value in an object as a style.
-    @param {D3selection} elem The D3 element to apply the styles to.
-    @param {Object} styles An object of key/value style pairs.
+    Applies each key/value in an object as a style.
+    @param e The d3 selection to apply styles to.
+    @param s An object of key/value style pairs.
 */
 export default function (
   e: Stylable,

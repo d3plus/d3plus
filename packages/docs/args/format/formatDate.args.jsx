@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   d: {
     control: {},
-    description: "The date string to be formatted.",
+    description: "The date to format.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -20,9 +20,7 @@ export const argTypes = {
     }
   },
   dataArray: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The full array of ordered Date Objects.",
     table: {
       defaultValue: {
@@ -31,21 +29,21 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "array.&lt;date&gt;"
     }
   },
   formatter: {
     control: {},
-    defaultValue: "d3.timeFormat",
-    description: "An optional instance of d3.timeFormat to be used for localization.",
+    defaultValue: "timeFormat",
+    description: "Optional custom format string or function.",
     table: {
       defaultValue: {
-        summary: "d3.timeFormat"
+        summary: "timeFormat"
       }
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "dateformatter"
     }
   }
 };

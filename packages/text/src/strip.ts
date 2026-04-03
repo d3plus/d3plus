@@ -26,10 +26,9 @@ const diacritics: [RegExp, string][] = [
 ];
 
 /**
-    @function strip
-    @desc Removes all non ASCII characters from a string.
-    @param {String} value
-    @param {String} [spacer = "-"]
+    Removes all non ASCII characters from a string.
+    @param value The HTML string to strip.
+    @param spacer The character to replace whitespace with.
 */
 export default function (value: string, spacer: string = "-"): string {
   return `${value}`.replace(/[^A-Za-z0-9\-_\u0621-\u064A]/g, (char: string) => {

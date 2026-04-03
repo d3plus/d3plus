@@ -1,8 +1,7 @@
 /**
-    @function closest
-    @desc Finds the closest numeric value in an array.
-    @param {Number} n The number value to use when searching the array.
-    @param {Array} arr The array of values to test against.
+    Finds the closest numeric value in an array.
+    @param n The number value to use when searching the array.
+    @param arr The array of values to test against.
 */
 export default function (n: number, arr: number[] = []): number | undefined {
   if (!arr || !(arr instanceof Array) || !arr.length) return undefined;

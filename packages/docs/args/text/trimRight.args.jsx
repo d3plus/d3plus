@@ -10,6 +10,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
+    description: "The string to trim.",
     table: {
       defaultValue: {
         summary: "undefined"

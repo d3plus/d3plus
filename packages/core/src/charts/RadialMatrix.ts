@@ -19,16 +19,13 @@ import prepData from "./helpers/matrixData.js";
 const tau = Math.PI * 2;
 
 /**
-    @class RadialMatrix
-    @extends Viz
-    @desc Creates a radial layout of a rows/columns Matrix of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/radial-matrix/) for help getting started using the Matrix class.
+    Creates a radial layout of a rows/columns Matrix of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/radial-matrix/) for help getting started using the Matrix class.
 */
 export default class RadialMatrix extends Viz {
   [key: string]: any;
 
   /**
-    @memberof RadialMatrix
-    @desc Invoked when creating a new class instance, and sets any default parameters.
+    Invoked when creating a new class instance, and sets any default parameters.
     @private
   */
   constructor() {
@@ -82,8 +79,7 @@ export default class RadialMatrix extends Viz {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc Extends the draw behavior of the abstract Viz class.
+      Extends the draw behavior of the abstract Viz class.
       @private
   */
   _draw(callback?: () => void) {
@@ -216,10 +212,8 @@ export default class RadialMatrix extends Viz {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc The pixel padding in between each cell.
-      @param {Number} [*value* = 2]
-  */
+      The pixel padding in between each cell.
+*/
   cellPadding(_) {
     return arguments.length
       ? ((this._cellPadding = _), this)
@@ -227,10 +221,9 @@ export default class RadialMatrix extends Viz {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc Determines which key in your data should be used for each column in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's column value.
-      @param {String|Function} [*value*]
-      @example
+      Determines which key in your data should be used for each column in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's column value.
+
+@example
 function column(d) {
   return d.name;
 }
@@ -242,11 +235,8 @@ function column(d) {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.
-      @param {Object} *value*
-      @chainable
-  */
+      A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.
+*/
   columnConfig(_) {
     return arguments.length
       ? ((this._columnConfig = assign(this._columnConfig, _)), this)
@@ -254,19 +244,16 @@ function column(d) {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc A manual list of IDs to be used for columns.
-      @param {Array} [*value*]
-  */
+      A manual list of IDs to be used for columns.
+*/
   columnList(_) {
     return arguments.length ? ((this._columnList = _), this) : this._columnList;
   }
 
   /**
-      @memberof RadialMatrix
-      @desc A sort comparator function that is run on the unique set of column values.
-      @param {Function} [*value*]
-      @example
+      A sort comparator function that is run on the unique set of column values.
+
+@example
 function column(a, b) {
   return a.localeCompare(b);
 }
@@ -276,10 +263,9 @@ function column(a, b) {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc The radius (in pixels) for the inner donut hole of the diagram. Can either be a static Number, or an accessor function that receives the outer radius as it's only argument.
-      @param {Function|Number} [*value*]
-      @example
+      The radius (in pixels) for the inner donut hole of the diagram. Can either be a static Number, or an accessor function that receives the outer radius as it's only argument.
+
+@example
 function(outerRadius) {
   return outerRadius / 5;
 }
@@ -291,10 +277,9 @@ function(outerRadius) {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc Determines which key in your data should be used for each row in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's row value.
-      @param {String|Function} [*value*]
-      @example
+      Determines which key in your data should be used for each row in the matrix. Can be either a String that matches a key used in every data point, or an accessor function that receives a data point and it's index in the data array, and is expected to return it's row value.
+
+@example
 function row(d) {
   return d.name;
 }
@@ -306,19 +291,16 @@ function row(d) {
   }
 
   /**
-      @memberof RadialMatrix
-      @desc A manual list of IDs to be used for rows.
-      @param {Array} [*value*]
-  */
+      A manual list of IDs to be used for rows.
+*/
   rowList(_) {
     return arguments.length ? ((this._rowList = _), this) : this._rowList;
   }
 
   /**
-      @memberof RadialMatrix
-      @desc A sort comparator function that is run on the unique set of row values.
-      @param {Function} [*value*]
-      @example
+      A sort comparator function that is run on the unique set of row values.
+
+@example
 function row(a, b) {
   return a.localeCompare(b);
 }

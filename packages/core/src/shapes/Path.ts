@@ -7,9 +7,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Path
-    @extends Shape
-    @desc Creates SVG Paths based on an array of data.
+    Creates SVG Paths based on an array of data.
 */
 export default class Path extends Shape {
   _d: AccessorFn;
@@ -24,10 +22,9 @@ export default class Path extends Shape {
   declare _labelConfig: Record<string, unknown>;
 
   /**
-      @memberof Path
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super("path");
     this._d = accessor("path");
@@ -62,22 +59,18 @@ export default class Path extends Shape {
   }
 
   /**
-      @memberof Path
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint, i: number): ShapeAes {
     return {points: path2polygon(this._d(d, i) as string)};
   }
 
   /**
-      @memberof Path
-      @desc Draws the paths.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the paths.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
@@ -99,15 +92,13 @@ export default class Path extends Shape {
   }
 
   /**
-      @memberof Path
-      @desc If *value* is specified, sets the "d" attribute accessor to the specified function or number and returns the current class instance.
-      @param {Function|String} [*value*]
-      @chainable
-      @example
+      The "d" attribute.
+
+@example
 function(d) {
   return d.path;
 }
-  */
+*/
   d(): AccessorFn;
   d(_: AccessorFn | string): this;
   d(_?: AccessorFn | string): AccessorFn | this {

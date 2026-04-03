@@ -23,17 +23,14 @@ import * as shapes from "../shapes/index.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Sankey
-    @extends Viz
-    @desc Creates a sankey visualization based on a defined set of nodes and links. [Click here](http://d3plus.org/examples/d3plus-network/sankey-diagram/) for help getting started using the Sankey class.
+    Creates a sankey visualization based on a defined set of nodes and links. [Click here](http://d3plus.org/examples/d3plus-network/sankey-diagram/) for help getting started using the Sankey class.
 */
 export default class Sankey extends Viz {
   [key: string]: any;
   /**
-      @memberof Sankey
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
     this._iterations = 6;
@@ -120,7 +117,7 @@ export default class Sankey extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -227,11 +224,8 @@ export default class Sankey extends Viz {
   }
 
   /**
-      @memberof Sankey
-      @desc If *value* is specified, sets the hover method to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-   */
+      The hover callback function for highlighting shapes on mouseover.
+*/
   hover(_) {
     this._hover = _;
     this._shapes.forEach(s => s.hover(_));
@@ -241,24 +235,19 @@ export default class Sankey extends Viz {
   }
 
   /**
-      @memberof Sankey
-      @desc A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.
-      @param {Number} [*value* = 6]
-      @chainable
-  */
+      A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.
+*/
   iterations(_) {
     return arguments.length ? ((this._iterations = _), this) : this._iterations;
   }
 
   /**
-      @memberof Sankey
-      @desc A predefined *Array* of edges that connect each object passed to the [node](#Sankey.node) method. The `source` and `target` keys in each link need to map to the nodes in one of one way:
+      A predefined *Array* of edges that connect each object passed to the [node](#Sankey.node) method. The `source` and `target` keys in each link need to map to the nodes in one of one way:
 1. A *String* value matching the `id` of the node.
 
 The value passed should be an *Array* of data. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.
-      @param {Array} *links* = []
-      @chainable
-  */
+    @param f Array of link objects or a URL to load links from.
+*/
   links(_, f) {
     if (arguments.length) {
       addToQueue.bind(this)(_, f, "links");
@@ -268,21 +257,15 @@ The value passed should be an *Array* of data. An optional formatting function c
   }
 
   /**
-      @memberof Sankey
-      @desc A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.
-      @param {Function|undefined} [*value* = undefined]
-      @chainable
-  */
+      A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.
+*/
   linkSort(_) {
     return arguments.length ? ((this._linkSort = _), this) : this._linkSort;
   }
 
   /**
-      @memberof Sankey
-      @desc The key inside of each link Object that references the source node.
-      @param {String} [*value* = "source"]
-      @chainable
-  */
+      The key inside of each link Object that references the source node.
+*/
   linksSource(_) {
     return arguments.length
       ? ((this._linksSource = _), this)
@@ -290,11 +273,8 @@ The value passed should be an *Array* of data. An optional formatting function c
   }
 
   /**
-      @memberof Sankey
-      @desc The key inside of each link Object that references the target node.
-      @param {String} [*value* = "target"]
-      @chainable
-  */
+      The key inside of each link Object that references the target node.
+*/
   linksTarget(_) {
     return arguments.length
       ? ((this._linksTarget = _), this)
@@ -302,11 +282,8 @@ The value passed should be an *Array* of data. An optional formatting function c
   }
 
   /**
-      @memberof Sankey
-      @desc Sets the nodeAlign property of the sankey layout, which can either be "left", "right", "center", or "justify".
-      @param {Function|String} [*value* = "justify"]
-      @chainable
-  */
+      The nodeAlign property of the sankey layout, which can be "left", "right", "center", or "justify".
+*/
   nodeAlign(_) {
     return arguments.length
       ? ((this._nodeAlign = typeof _ === "function" ? _ : sankeyAligns[_]),
@@ -315,11 +292,8 @@ The value passed should be an *Array* of data. An optional formatting function c
   }
 
   /**
-      @memberof Sankey
-      @desc If *value* is specified, sets the node id accessor(s) to the specified array of values and returns the current class instance. If *value* is not specified, returns the current node group accessor.
-      @param {String} [*value* = "id"]
-      @chainable
-  */
+      The node id accessor(s).
+*/
   nodeId(_) {
     return arguments.length
       ? ((this._nodeId = typeof _ === "function" ? _ : accessor(_)), this)
@@ -327,13 +301,11 @@ The value passed should be an *Array* of data. An optional formatting function c
   }
 
   /**
-      @memberof Sankey
-      @desc The list of nodes to be used for drawing the network. The value passed must be an *Array* of data.
+      The list of nodes to be used for drawing the network. The value passed must be an *Array* of data.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.
-      @param {Array} *nodes* = []
-      @chainable
-  */
+    @param f Array of node objects or a URL to load nodes from.
+*/
   nodes(_, f) {
     if (arguments.length) {
       addToQueue.bind(this)(_, f, "nodes");
@@ -343,11 +315,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Sankey
-      @desc If *value* is specified, sets the padding of the node and returns the current class instance. If *value* is not specified, returns the current nodePadding. By default, the nodePadding size is 8.
-      @param {Number} [*value* = 8]
-      @chainable
-  */
+      Padding of the node. By default, the nodePadding size is 8.
+*/
   nodePadding(_) {
     return arguments.length
       ? ((this._nodePadding = _), this)
@@ -355,34 +324,27 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Sankey
-      @desc A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.
-      @param {Function|undefined} [*value* = undefined]
-      @chainable
-  */
+      A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.
+*/
   nodeSort(_) {
     return arguments.length ? ((this._nodeSort = _), this) : this._nodeSort;
   }
 
   /**
-      @memberof Sankey
-      @desc If *value* is specified, sets the width of the node and returns the current class instance. If *value* is not specified, returns the current nodeWidth. By default, the nodeWidth size is 30.
-      @param {Number} [*value* = 30]
-      @chainable
-  */
+      Width of the node. By default, the nodeWidth size is 30.
+*/
   nodeWidth(_) {
     return arguments.length ? ((this._nodeWidth = _), this) : this._nodeWidth;
   }
 
   /**
-      @memberof Sankey
-      @desc If *value* is specified, sets the width of the links and returns the current class instance. If *value* is not specified, returns the current value accessor.
-      @param {Function|Number} *value*
-      @example
+      Width of the links.
+
+@example
 function value(d) {
   return d.value;
 }
-  */
+*/
   value(_) {
     return arguments.length
       ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)

@@ -35,5 +35,21 @@ export const argTypes = {
       required: true,
       summary: "number"
     }
+  },
+  shape: {
+    control: {
+      type: "text"
+    },
+    defaultValue: "circle",
+    description: "The shape type (\"circle\", \"square\", or \"triangle\").",
+    table: {
+      defaultValue: {
+        summary: "circle"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
   }
 };

@@ -1,5 +1,5 @@
 # @d3plus/math
-  
+
 Mathematical functions to aid in calculating visualizations.
 
 ## Installing
@@ -7,10 +7,10 @@ Mathematical functions to aid in calculating visualizations.
 If using npm, `npm install @d3plus/math`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/math).
 
 ```js
-import modules from "@d3plus/math";
+import {*} from "@d3plus/math";
 ```
 
-In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
+In a vanilla environment, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@d3plus/math"></script>
@@ -21,194 +21,383 @@ In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled versio
 
 ## Examples
 
-Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using @d3plus/react.
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [@d3plus/react](https://github.com/d3plus/d3plus/tree/main/packages/react).
 
 ## API Reference
 
-##### 
-* [closest](#closest) - Finds the closest numeric value in an array.
-* [largestRect](#largestRect) - An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.
-* [lineIntersection](#lineIntersection) - Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
-* [path2polygon](#path2polygon) - Transforms a path string into an Array of points.
-* [pointDistance](#pointDistance) - Calculates the pixel distance between two points.
-* [pointDistanceSquared](#pointDistanceSquared) - Returns the squared euclidean distance between two points.
-* [pointRotate](#pointRotate) - Rotates a point around a given origin.
-* [polygonInside](#polygonInside) - Checks if one polygon is inside another polygon.
-* [polygonRayCast](#polygonRayCast) - Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
-* [polygonRotate](#polygonRotate) - Rotates a point around a given origin.
-* [segmentBoxContains](#segmentBoxContains) - Checks whether a point is inside the bounding box of a line segment.
-* [segmentsIntersect](#segmentsIntersect) - Checks whether the line segments p1q1 && p2q2 intersect.
-* [shapeEdgePoint](#shapeEdgePoint) - Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.
-* [largestRect](#largestRect) - Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
+| Functions | Description |
+| --- | --- |
+| [`closest`](#closest) | Finds the closest numeric value in an array. |
+| [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
+| [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
+| [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points. |
+| [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
+| [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
+| [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
+| [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
+| [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
+| [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
+| [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
+| [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
+| [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
 
-##### 
-* [largestRect](#largestRect) - The returned Object of the largestRect function.
+## Functions
 
----
+<a id="closest"></a>
 
-<a name="closest"></a>
-#### d3plus.**closest**(n, arr) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/closest.js#L1)
+### closest()
+
+> **closest**(`n`: `number`, `arr?`: `number`[]): `number`
+
+Defined in: [closest.ts:6](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/closest.ts#L6)
 
 Finds the closest numeric value in an array.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `n` | `number` | *required* | The number value to use when searching the array. |
+| `arr` | `number`[] | `[]` | The array of values to test against. |
 
----
+#### Returns
 
-<a name="largestRect"></a>
-#### d3plus.**largestRect**(poly, [options]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.js#L28)
+`number`
+
+***
+
+<a id="largestrect"></a>
+
+### largestRect()
+
+> **largestRect**(`poly`: `Point`[], `options?`: `LargestRectOptions`): `LargestRectResult`
+
+Defined in: [largestRect.ts:92](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/largestRect.ts#L92)
+
+Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
 
 An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.
 
+#### Parameters
 
-This is a global function
-**Author**: Daniel Smilkov [dsmilkov@gmail.com]  
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `poly` | `Point`[] | An Array of points that represent a polygon. |
+| `options` | `LargestRectOptions` | An Object that allows for overriding various parameters of the algorithm. |
 
----
+#### Returns
 
-<a name="lineIntersection"></a>
-#### d3plus.**lineIntersection**(p1, q1, p2, q2) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/lineIntersection.js#L1)
+`LargestRectResult`
+
+#### Author
+
+Daniel Smilkov [dsmilkov@gmail.com]
+
+#### Default Value
+
+```
+{
+angle: d3.range(-90, 95, 5),
+cache: true,
+maxAspectRatio: 15,
+minAspectRatio: 1,
+minHeight: 0,
+minWidth: 0,
+nTries: 20,
+tolerance: 0.02,
+verbose: false,
+}
+```
+
+***
+
+<a id="lineintersection"></a>
+
+### lineIntersection()
+
+> **lineIntersection**(`p1`: `Point`, `q1`: `Point`, `p2`: `Point`, `q2`: `Point`): `Point`
+
+Defined in: [lineIntersection.ts:11](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/lineIntersection.ts#L11)
 
 Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p1` | `Point` | The first point of the first line segment, which should always be an `[x, y]` formatted Array. |
+| `q1` | `Point` | The second point of the first line segment, which should always be an `[x, y]` formatted Array. |
+| `p2` | `Point` | The first point of the second line segment, which should always be an `[x, y]` formatted Array. |
+| `q2` | `Point` | The second point of the second line segment, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="path2polygon"></a>
-#### d3plus.**path2polygon**(path, [segmentLength]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/path2polygon.js#L1)
+`Point`
+
+***
+
+<a id="path2polygon"></a>
+
+### path2polygon()
+
+> **path2polygon**(`path`: `string`, `segmentLength?`: `number`): `Point`[]
+
+Defined in: [path2polygon.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/path2polygon.ts#L8)
 
 Transforms a path string into an Array of points.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `path` | `string` | *required* | An SVG string path, commonly the "d" property of a <path> element. |
+| `segmentLength` | `number` | `50` | The length of line segments when converting curves line segments. Higher values lower computation time, but will result in curves that are more rigid. |
 
----
+#### Returns
 
-<a name="pointDistance"></a>
-#### d3plus.**pointDistance**(p1, p2) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pointDistance.js#L3)
+`Point`[]
+
+***
+
+<a id="pointdistance"></a>
+
+### pointDistance()
+
+> **pointDistance**(`p1`: `Point`, `p2`: `Point`): `number`
+
+Defined in: [pointDistance.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/pointDistance.ts#L9)
 
 Calculates the pixel distance between two points.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p1` | `Point` | The first point, which should always be an `[x, y]` formatted Array. |
+| `p2` | `Point` | The second point, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="pointDistanceSquared"></a>
-#### d3plus.**pointDistanceSquared**(p1, p2) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pointDistanceSquared.js#L1)
+`number`
+
+***
+
+<a id="pointdistancesquared"></a>
+
+### pointDistanceSquared()
+
+> **pointDistanceSquared**(`p1`: `Point`, `p2`: `Point`): `number`
+
+Defined in: [pointDistanceSquared.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/pointDistanceSquared.ts#L8)
 
 Returns the squared euclidean distance between two points.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p1` | `Point` | The first point, which should always be an `[x, y]` formatted Array. |
+| `p2` | `Point` | The second point, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="pointRotate"></a>
-#### d3plus.**pointRotate**(p, alpha, [origin]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pointRotate.js#L1)
+`number`
+
+***
+
+<a id="pointrotate"></a>
+
+### pointRotate()
+
+> **pointRotate**(`p`: `Point`, `alpha`: `number`, `origin?`: `Point`): `Point`
+
+Defined in: [pointRotate.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/pointRotate.ts#L9)
 
 Rotates a point around a given origin.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p` | `Point` | The point to be rotated, which should always be an `[x, y]` formatted Array. |
+| `alpha` | `number` | The angle in radians to rotate. |
+| `origin` | `Point` | The origin point of the rotation, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="polygonInside"></a>
-#### d3plus.**polygonInside**(polyA, polyB) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/polygonInside.js#L5)
+`Point`
+
+***
+
+<a id="polygoninside"></a>
+
+### polygonInside()
+
+> **polygonInside**(`polyA`: `Point`[], `polyB`: `Point`[]): `boolean`
+
+Defined in: [polygonInside.ts:11](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/polygonInside.ts#L11)
 
 Checks if one polygon is inside another polygon.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `polyA` | `Point`[] | An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA. |
+| `polyB` | `Point`[] | An Array of `[x, y]` points to be used as the containing polygon. |
 
----
+#### Returns
 
-<a name="polygonRayCast"></a>
-#### d3plus.**polygonRayCast**(poly, origin, [alpha]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/polygonRayCast.js#L5)
+`boolean`
+
+***
+
+<a id="polygonraycast"></a>
+
+### polygonRayCast()
+
+> **polygonRayCast**(`poly`: `Point`[], `origin`: `Point`, `alpha?`: `number`): \[`Point`, `Point`\]
+
+Defined in: [polygonRayCast.ts:13](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/polygonRayCast.ts#L13)
 
 Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
 
+#### Parameters
 
-This is a global function
-**Returns**: <code>Array</code> - An array containing two values, the closest point on the left and the closest point on the right. If either point cannot be found, that value will be `null`.  
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `poly` | `Point`[] | *required* | The polygon to test against, which should be an `[x, y]` formatted Array. |
+| `origin` | `Point` | *required* | The origin point of the ray to be cast, which should be an `[x, y]` formatted Array. |
+| `alpha` | `number` | `0` | The angle in radians of the ray. |
 
----
+#### Returns
 
-<a name="polygonRotate"></a>
-#### d3plus.**polygonRotate**(poly, alpha, [origin]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/polygonRotate.js#L3)
+\[`Point`, `Point`\]
+
+An array containing two values, the closest point on the left and the closest point on the right. If either point cannot be found, that value will be `null`.
+
+***
+
+<a id="polygonrotate"></a>
+
+### polygonRotate()
+
+> **polygonRotate**(`poly`: `Point`[], `alpha`: `number`, `origin?`: `Point`): `Point`[]
+
+Defined in: [polygonRotate.ts:10](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/polygonRotate.ts#L10)
 
 Rotates a point around a given origin.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `poly` | `Point`[] | The polygon to be rotated, which should be an Array of `[x, y]` values. |
+| `alpha` | `number` | The angle in radians to rotate. |
+| `origin` | `Point` | The origin point of the rotation, which should be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="segmentBoxContains"></a>
-#### d3plus.**segmentBoxContains**(s1, s2, p) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/segmentBoxContains.js#L1)
+`Point`[]
+
+***
+
+<a id="segmentboxcontains"></a>
+
+### segmentBoxContains()
+
+> **segmentBoxContains**(`s1`: `Point`, `s2`: `Point`, `p`: `Point`): `boolean`
+
+Defined in: [segmentBoxContains.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/segmentBoxContains.ts#L9)
 
 Checks whether a point is inside the bounding box of a line segment.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `s1` | `Point` | The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array. |
+| `s2` | `Point` | The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array. |
+| `p` | `Point` | The point to be checked, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="segmentsIntersect"></a>
-#### d3plus.**segmentsIntersect**(p1, q1, p2, q2) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/segmentsIntersect.js#L4)
+`boolean`
+
+***
+
+<a id="segmentsintersect"></a>
+
+### segmentsIntersect()
+
+> **segmentsIntersect**(`p1`: `Point`, `q1`: `Point`, `p2`: `Point`, `q2`: `Point`): `boolean`
+
+Defined in: [segmentsIntersect.ts:12](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/segmentsIntersect.ts#L12)
 
 Checks whether the line segments p1q1 && p2q2 intersect.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p1` | `Point` | The first point of the first line segment, which should always be an `[x, y]` formatted Array. |
+| `q1` | `Point` | The second point of the first line segment, which should always be an `[x, y]` formatted Array. |
+| `p2` | `Point` | The first point of the second line segment, which should always be an `[x, y]` formatted Array. |
+| `q2` | `Point` | The second point of the second line segment, which should always be an `[x, y]` formatted Array. |
 
----
+#### Returns
 
-<a name="shapeEdgePoint"></a>
-#### d3plus.**shapeEdgePoint**(angle, distance) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/shapeEdgePoint.js#L3)
+`boolean`
+
+***
+
+<a id="shapeedgepoint"></a>
+
+### shapeEdgePoint()
+
+> **shapeEdgePoint**(`angle`: `number`, `distance`: `number`, `shape?`: `string`): `Point`
+
+Defined in: [shapeEdgePoint.ts:11](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/shapeEdgePoint.ts#L11)
 
 Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.
 
+#### Parameters
 
-This is a global function
-**Returns**: <code>String</code> - [shape = "circle"] The type of shape, which can be either "circle" or "square".  
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `angle` | `number` | *required* | The angle, in radians, of the offset point. |
+| `distance` | `number` | *required* | The pixel distance away from the origin. |
+| `shape` | `string` | `"circle"` | The shape type ("circle", "square", or "triangle"). |
 
----
+#### Returns
 
-<a name="largestRect"></a>
-#### d3plus.**largestRect**(poly, [tolerance], [highestQuality]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/simplify.js#L112)
+`Point`
+
+***
+
+<a id="simplify"></a>
+
+### simplify()
+
+> **simplify**(`poly`: `Point`[], `tolerance?`: `number`, `highestQuality?`: `boolean`): `Point`[]
+
+Defined in: [simplify.ts:114](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/math/src/simplify.ts#L114)
 
 Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
 
+#### Parameters
 
-This is a global function
-**Author**: Vladimir Agafonkin  
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `poly` | `Point`[] | *required* | An Array of points that represent a polygon. |
+| `tolerance` | `number` | `1` | Affects the amount of simplification (in the same metric as the point coordinates). |
+| `highestQuality` | `boolean` | `false` | Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower. |
 
----
+#### Returns
 
-<a name="largestRect"></a>
-#### **largestRect** [<>](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.js#L16)
+`Point`[]
 
-The returned Object of the largestRect function.
+#### Author
 
-
-This is a global typedef
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| width | <code>Number</code> | The width of the rectangle |
-| height | <code>Number</code> | The height of the rectangle |
-| cx | <code>Number</code> | The x coordinate of the rectangle's center |
-| cy | <code>Number</code> | The y coordinate of the rectangle's center |
-| angle | <code>Number</code> | The rotation angle of the rectangle in degrees. The anchor of rotation is the center point. |
-| area | <code>Number</code> | The area of the largest rectangle. |
-| points | <code>Array</code> | An array of x/y coordinates for each point in the rectangle, useful for rendering paths. |
-
-
----
-
+Vladimir Agafonkin

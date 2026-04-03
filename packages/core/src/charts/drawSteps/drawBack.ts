@@ -2,8 +2,7 @@ import {elem} from "@d3plus/dom";
 import type Viz from "../Viz.js";
 
 /**
-    @function _drawBack
-    @desc Draws a back button if there are states in this._history.
+    Draws a back button if there are states in this._history.
     @private
 */
 export default function (this: Viz): void {

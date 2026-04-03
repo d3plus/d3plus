@@ -10,10 +10,8 @@ interface NestEntry {
 type KeyAccessor = (d: DataPoint) => string | number | boolean;
 
 /**
-    @function nest
     @summary Extends the base behavior of d3.nest to allow for multiple depth levels.
-    @param {Array} *data* The data array to be nested.
-    @param {Array} *keys* An array of key accessors that signify each nest level.
+    @param keys An array of key accessors that signify each nest level.
     @private
 */
 export default function (
@@ -28,11 +26,9 @@ export default function (
 }
 
 /**
-    @function nestGroups
-    @desc Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
-    @param {Array} data The data array to group.
-    @param {Array} fns An array of key accessor functions, one per nesting level.
-    @returns {Array}
+    Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
+    @param data The flat data array to nest.
+    @param fns An array of key accessor functions, one per nesting level.
 */
 export function nestGroups(data: DataPoint[], fns: KeyAccessor[]): NestEntry[] {
   if (!fns.length) return data as unknown as NestEntry[];
@@ -44,7 +40,7 @@ export function nestGroups(data: DataPoint[], fns: KeyAccessor[]): NestEntry[] {
 
 /**
     Bubbles up values that do not nest to the furthest key.
-    @param {Array} *values* The "values" of a nest object.
+    @param values The "values" of a nest object.
     @private
 */
 function bubble(values: NestEntry[]): NestEntry[] {

@@ -6,9 +6,8 @@ export interface ParsedSides {
 }
 
 /**
- @function parseSides
- @desc Converts a string of directional CSS shorthand values into an object with the values expanded.
- @param {String|Number} sides The CSS shorthand string to expand.
+ Converts a string of directional CSS shorthand values into an object with the values expanded.
+ @param sides The CSS shorthand string to expand.
  */
 export default function (sides: string | number): ParsedSides {
   let values: string[];

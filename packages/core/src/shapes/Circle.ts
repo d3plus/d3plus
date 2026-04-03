@@ -7,9 +7,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Circle
-    @extends Shape
-    @desc Creates SVG circles based on an array of data.
+    Creates SVG circles based on an array of data.
 */
 export default class Circle extends Shape {
   declare _labelBounds:
@@ -24,10 +22,9 @@ export default class Circle extends Shape {
   _r: AccessorFn;
 
   /**
-      @memberof Circle
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super("circle");
     this._labelBounds = (
@@ -49,10 +46,9 @@ export default class Circle extends Shape {
   }
 
   /**
-      @memberof Circle
-      @desc Provides the default positioning to the <rect> elements.
+      Provides the default positioning to the <rect> elements.
       @private
-  */
+*/
   _applyPosition(elem: D3Selection): void {
     (elem as any)
       .attr("r", (d: DataPoint, i: number) => this._r(d, i))
@@ -61,11 +57,9 @@ export default class Circle extends Shape {
   }
 
   /**
-      @memberof Circle
-      @desc Draws the circles.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the circles.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
@@ -98,26 +92,22 @@ export default class Circle extends Shape {
   }
 
   /**
-      @memberof Circle
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint, i: number): ShapeAes {
     return {r: this._r(d, i) as number};
   }
 
   /**
-      @memberof Circle
-      @desc If *value* is specified, sets the radius accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The radius accessor for each circle.
+
+@example
 function(d) {
   return d.r;
 }
-  */
+*/
   r(): AccessorFn;
   r(_: AccessorFn | number): this;
   r(_?: AccessorFn | number): AccessorFn | this {

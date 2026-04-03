@@ -8,10 +8,11 @@ import React from "react";
 export const argTypes = {
   accessor: {
     control: {},
+    defaultValue: "...",
     description: "An optional accessor function used to extract data points from an Array of Objects.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "..."
       }
     },
     type: {
@@ -20,9 +21,7 @@ export const argTypes = {
     }
   },
   arr: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The Array of objects to be filtered.",
     table: {
       defaultValue: {
@@ -31,7 +30,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "array.&lt;t&gt;"
     }
   }
 };

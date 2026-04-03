@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   elem: {
     control: {},
-    description: "A single element to be saved to one file.",
+    description: "The DOM element or d3 selection to export.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -20,78 +20,31 @@ export const argTypes = {
     }
   },
   options: {
-    control: {
-      type: "object"
-    },
+    control: {},
+    defaultValue: "{}",
     description: "Additional options to specify.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "{}"
       }
     },
     type: {
       required: false,
-      summary: "object"
-    }
-  },
-  "options.callback": {
-    control: {},
-    description: "Function to be invoked after saving is complete.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "function"
-    }
-  },
-  "options.filename": {
-    control: {
-      type: "text"
-    },
-    defaultValue: "\"download\"",
-    description: "Filename for the downloaded file, without the extension.",
-    table: {
-      defaultValue: {
-        summary: "\"download\""
-      }
-    },
-    type: {
-      required: false,
-      summary: "string"
-    }
-  },
-  "options.type": {
-    control: {
-      type: "text"
-    },
-    defaultValue: "\"png\"",
-    description: "File type of the saved document. Accepted values are `\"png\"` and `\"jpg\"`.",
-    table: {
-      defaultValue: {
-        summary: "\"png\""
-      }
-    },
-    type: {
-      required: false,
-      summary: "string"
+      summary: "saveelementoptions"
     }
   },
   renderOptions: {
-    control: {
-      type: "object"
-    },
+    control: {},
+    defaultValue: "{}",
     description: "Custom options to be passed to the html-to-image function.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "{}"
       }
     },
     type: {
       required: false,
-      summary: "object"
+      summary: "saveelementrenderoptions"
     }
   }
 };

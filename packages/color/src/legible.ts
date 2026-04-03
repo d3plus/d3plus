@@ -1,10 +1,8 @@
 import {hsl} from "d3-color";
 
 /**
-    @function colorLegible
-    @desc Darkens a color so that it will appear legible on a white background.
-    @param {String} c A valid CSS color string.
-    @returns {String}
+    Darkens a color so that it will appear legible on a white background.
+    @param c A valid CSS color string.
 */
 export default function (c: string): string {
   const hslColor = hsl(c);

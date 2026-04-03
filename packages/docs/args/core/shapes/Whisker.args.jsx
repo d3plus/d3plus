@@ -24,128 +24,28 @@ export const argTypes = assign(
   {
     active: {
       control: {},
-      description: "Sets the highlight accessor to the Shape class's active function.",
+      description: "The active highlight state for all sub-shapes in this Whisker.",
       table: {
         defaultValue: {
           summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    data: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "[]",
-      description: "If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.",
-      table: {
-        defaultValue: {
-          summary: "[]"
-        }
-      },
-      type: {
-        required: false,
-        summary: "array"
-      }
-    },
-    endpoint: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d => d[\"endpoint\"] || Rect",
-      description: "If *value* is specified, sets the endpoint accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"endpoint\"] || Rect",
-          summary: "function"
         }
       },
       type: {
         required: true,
-        summary: "function | string"
-      }
-    },
-    endpointConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{Circle: {r: d => d[\"r\"] || 5}}",
-      description: "If *value* is specified, sets the config method for each endpoint and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "{Circle: {r: d => d[\"r\"] || 5}}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
+        summary: "function"
       }
     },
     hover: {
       control: {},
-      description: "Sets the highlight accessor to the Shape class's hover function.",
+      description: "The hover highlight state for all sub-shapes in this Whisker.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: false,
+        required: true,
         summary: "function"
-      }
-    },
-    length: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"length\"] || 25",
-      description: "If *value* is specified, sets the length accessor for whisker and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"length\"] || 25",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    lineConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "{}",
-      description: "If *value* is specified, sets the config method for line shape and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "{}"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    orient: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d => d[\"orient\"] || top",
-      description: "If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"orient\"] || top",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
       }
     },
     render: {
@@ -159,56 +59,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    select: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d3.select(\"body\").append(\"svg\")",
-      description: "If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.",
-      table: {
-        defaultValue: {
-          summary: "d3.select(\"body\").append(\"svg\")"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | htmlelement"
-      }
-    },
-    x: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"x\"]",
-      description: "If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"x\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    y: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"y\"]",
-      description: "If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"y\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
       }
     }
   }

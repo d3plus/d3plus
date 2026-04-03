@@ -47,11 +47,10 @@ function parseSuffixes(d: string, i: number): SuffixEntry {
 }
 
 /**
-    @function formatAbbreviate
-    @desc Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
-    @param {Number|String} n The number to be formatted.
-    @param {Object|String} locale The locale config to be used. If *value* is an object, the function will format the numbers according the object. The object must include `suffixes`, `delimiter` and `currency` properties.
-    @returns {String}
+    Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
+    @param n The number to be formatted.
+    @param locale The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.
+    @param precision Number of significant digits to display.
 */
 export default function formatAbbreviate(
   n: number | string,

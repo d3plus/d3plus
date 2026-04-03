@@ -1,6 +1,6 @@
 /**
     @namespace {Object} formatLocale
-    @desc A set of default locale formatters used when assigning suffixes and currency in numbers.
+    A set of default locale formatters used when assigning suffixes and currency in numbers.
 */
 
 export interface FormatLocaleDefinition {

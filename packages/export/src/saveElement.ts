@@ -25,14 +25,13 @@ const defaultOptions: Required<Pick<SaveElementOptions, "filename" | "type">> =
   };
 
 /**
-    @function saveElement
-    @desc Downloads an HTML Element as a bitmap PNG image.
-    @param {HTMLElement} elem A single element to be saved to one file.
-    @param {Object} [options] Additional options to specify.
-    @param {String} [options.filename = "download"] Filename for the downloaded file, without the extension.
-    @param {String} [options.type = "png"] File type of the saved document. Accepted values are `"png"` and `"jpg"`.
-    @param {Function} [options.callback] Function to be invoked after saving is complete.
-    @param {Object} [renderOptions] Custom options to be passed to the html-to-image function.
+    Downloads an HTML Element as a bitmap PNG image.
+    @param elem The DOM element or d3 selection to export.
+    @param options Additional options to specify.
+    @param options .filename = "download"] Filename for the downloaded file, without the extension.
+    @param options .type = "png"] File type of the saved document. Accepted values are `"png"` and `"jpg"`.
+    @param options .callback] Function to be invoked after saving is complete.
+    @param renderOptions Custom options to be passed to the html-to-image function.
 */
 export default function (
   elem: HTMLElement,

@@ -1,6 +1,6 @@
 /**
     @module discreteBuffer
-    @desc Adds left/right padding to a point or time scale.
+    Adds left/right padding to a point or time scale.
     @private
 */
 const discreteBuffer = (

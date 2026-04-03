@@ -5,8 +5,7 @@ import {elem} from "@d3plus/dom";
 import type Viz from "../Viz.js";
 
 /**
-    @function _drawColorScale
-    @desc Renders the color scale if this._colorScale is not falsey.
+    Renders the color scale if this._colorScale is not falsey.
     @private
 */
 export default function (this: Viz): void {

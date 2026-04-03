@@ -3,9 +3,7 @@ import type Viz from "../Viz.js";
 
 /**
     @module mouseEnter
-    @desc On mouseenter event for all shapes in a Viz.
-    @param {Object} *d* The data object being interacted with.
-    @param {Number} *i* The index of the data object being interacted with.
+    On mouseenter event for all shapes in a Viz.
     @private
 */
 export default function (this: Viz, d: DataPoint, i: number): void {

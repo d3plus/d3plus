@@ -3,6 +3,7 @@
   "version": "3.0.16",
   "description": "Documentation and examples for the d3plus visualization library.",
   "license": "MIT",
+  "types": "./types/index.ts",
   "homepage": "https://d3plus.org",
   "repository": {
     "type": "git",

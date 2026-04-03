@@ -1,13 +1,11 @@
 import type {Point} from "./lineIntersection.js";
 
 /**
-    @function path2polygon
-    @desc Transforms a path string into an Array of points.
-    @param {String} path An SVG string path, commonly the "d" property of a <path> element.
-    @param {Number} [segmentLength = 50] The length of line segments when converting curves line segments. Higher values lower computation time, but will result in curves that are more rigid.
-    @returns {Array}
+    Transforms a path string into an Array of points.
+    @param path An SVG string path, commonly the "d" property of a <path> element.
+    @param segmentLength The length of line segments when converting curves line segments. Higher values lower computation time, but will result in curves that are more rigid.
 */
-export default (path: string, segmentLength: number = 50): Point[] => {
+export default function (path: string, segmentLength: number = 50): Point[] {
   if (typeof document === "undefined") return [];
 
   const svgPath = document.createElementNS(
@@ -26,4 +24,4 @@ export default (path: string, segmentLength: number = 50): Point[] => {
   }
 
   return points;
-};
+}

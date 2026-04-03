@@ -3,17 +3,16 @@ import type {Point} from "./lineIntersection.js";
 const pi = Math.PI;
 
 /**
-    @function shapeEdgePoint
-    @desc Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.
-    @param {Number} angle The angle, in radians, of the offset point.
-    @param {Number} distance The pixel distance away from the origin.
-    @returns {String} [shape = "circle"] The type of shape, which can be either "circle" or "square".
+    Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.
+    @param angle The angle, in radians, of the offset point.
+    @param distance The pixel distance away from the origin.
+    @param shape The shape type ("circle", "square", or "triangle").
 */
-export default (
+export default function (
   angle: number,
   distance: number,
   shape: string = "circle",
-): Point | null => {
+): Point | null {
   if (angle < 0) angle = pi * 2 + angle;
 
   if (shape === "square") {
@@ -47,4 +46,4 @@ export default (
   } else if (shape === "circle") {
     return [distance * Math.cos(angle), distance * Math.sin(angle)];
   } else return null;
-};
+}

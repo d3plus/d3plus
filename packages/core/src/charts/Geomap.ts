@@ -40,9 +40,9 @@ function findAttribution(url: string): string | false {
 
 /**
     @name topo2feature
-    @desc Converts a specific topojson object key into a feature ready for projection.
-    @param {Object} *topo* A valid topojson json object.
-    @param {String} [*key*] The topojson object key to be used. If undefined, the first key available will be used.
+    Converts a specific topojson object key into a feature ready for projection.
+    @param topo A valid topojson json object.
+    @param key The topojson object key to be used. If undefined, the first key available will be used.
     @private
 */
 function topo2feature(
@@ -60,16 +60,13 @@ function topo2feature(
 }
 
 /**
-    @class Geomap
-    @extends Viz
-    @desc Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.
+    Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.
 */
 export default class Geomap extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Geomap
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
@@ -577,12 +574,9 @@ export default class Geomap extends Viz {
   }
 
   /**
-      @memberof Geomap
-      @desc Topojson files sometimes include small geographies that negatively impact how the library determines the default zoom level (for example, a small island or territory far off the coast that is barely visible to the eye). The fitFilter method can be used to remove specific geographies from the logic used to determine the zooming.
+      Topojson files sometimes include small geographies that negatively impact how the library determines the default zoom level (for example, a small island or territory far off the coast that is barely visible to the eye). The fitFilter method can be used to remove specific geographies from the logic used to determine the zooming.
 
 The *value* passed can be a single id to remove, an array of ids, or a filter function. Take a look at the [Choropleth Example](http://d3plus.org/examples/d3plus-geomap/getting-started/) to see it in action.
-      @param {Number|String|Array|Function} [*value*]
-      @chainable
   */
   fitFilter(
     _?: string | string[] | ((d: Record<string, unknown>) => boolean),
@@ -601,12 +595,9 @@ The *value* passed can be a single id to remove, an array of ids, or a filter fu
   }
 
   /**
-      @memberof Geomap
-      @desc If the topojson being used to determine the zoom fit (either the main [topojson](#Geomap.topojson) object or the [fitObject](#Geomap.fitObject)) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use for the zoom fit.
+      If the topojson being used to determine the zoom fit (either the main [topojson](#Geomap.topojson) object or the [fitObject](#Geomap.fitObject)) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use for the zoom fit.
 
 If not specified, the first key in the *Array* returned from using `Object.keys` on the topojson will be used.
-      @param {String} *value*
-      @chainable
   */
   fitKey(_?: string): this | string {
     if (arguments.length) {
@@ -618,13 +609,11 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
   }
 
   /**
-      @memberof Geomap
-      @desc The topojson to be used for the initial projection [fit extent](https://github.com/d3/d3-geo#projection_fitExtent). The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
+      The topojson to be used for the initial projection [fit extent](https://github.com/d3/d3-geo#projection_fitExtent). The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function needs to return the final Topojson *Object*.
-      @param {Object|String} *data* = `undefined`
-      @param {Function} [*formatter*]
-      @chainable
+      @param _ `undefined`
+      @param f Topojson data or a URL to load.
   */
   fitObject(
     _?: Record<string, unknown> | string,
@@ -639,20 +628,15 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The color visible behind any shapes drawn on the map projection. By default, a color value matching the color used in the map tiles is used to help mask the loading time needed to render the tiles. Any value CSS color value may be used, including hexidecimal, rgb, rgba, and color strings like `"blue"` and `"transparent"`.
-      @param {String} [*value* = "#d4dadc"]
-      @chainable
+      The color visible behind any shapes drawn on the map projection. By default, a color value matching the color used in the map tiles is used to help mask the loading time needed to render the tiles. Any value CSS color value may be used, including hexidecimal, rgb, rgba, and color strings like `"blue"` and `"transparent"`.
+      @param _ "#d4dadc"]
   */
   ocean(_?: string): this | string {
     return arguments.length ? ((this._ocean = _!), this) : this._ocean;
   }
 
   /**
-      @memberof Geomap
-      @desc The accessor to be used when detecting coordinate points in the objects passed to the [data](https://d3plus.org/docs/#Viz.data) method. Values are expected to be in the format `[longitude, latitude]`, which is in-line with d3's expected coordinate mapping.
-      @param {Function|Array} [*value*]
-      @chainable
+      The accessor to be used when detecting coordinate points in the objects passed to the [data](https://d3plus.org/docs/#Viz.data) method. Values are expected to be in the format `[longitude, latitude]`, which is in-line with d3's expected coordinate mapping.
   */
   point(
     _?: ((d: DataPoint, i: number) => number[]) | number[],
@@ -663,10 +647,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The accessor or static value to be used for sizing coordinate points.
-      @param {Function|Number} [*value*]
-      @chainable
+      The accessor or static value to be used for sizing coordinate points.
   */
   pointSize(
     _?: number | ((d: DataPoint, i: number) => number),
@@ -677,10 +658,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The maximum pixel radius used in the scale for sizing coordinate points.
-      @param {Number} [*value* = 10]
-      @chainable
+      The maximum pixel radius used in the scale for sizing coordinate points.
+      @param _ 10]
   */
   pointSizeMax(_?: number): this | number {
     return arguments.length
@@ -689,10 +668,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The minimum pixel radius used in the scale for sizing coordinate points.
-      @param {Number} [*value* = 5]
-      @chainable
+      The minimum pixel radius used in the scale for sizing coordinate points.
+      @param _ 5]
   */
   pointSizeMin(_?: number): this | number {
     return arguments.length
@@ -701,10 +678,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc Sets the map projection used when displaying topojson and coordinate points. All of the projections exported from [d3-geo](https://github.com/d3/d3-geo#projections), [d3-geo-projection](https://github.com/d3/d3-geo-projection#api-reference), and [d3-composite-projections](http://geoexamples.com/d3-composite-projections/) are accepted, whether as the string name (ie. "geoMercator") or the generator function itself. Map tiles are only usable when the projection is set to Mercator (which is also the default value).
-      @param {Function|String} *projection* = "geoMercator"
-      @chainable
+      The map projection used when displaying topojson and coordinate points. All projections from [d3-geo](https://github.com/d3/d3-geo#projections), [d3-geo-projection](https://github.com/d3/d3-geo-projection#api-reference), and [d3-composite-projections](http://geoexamples.com/d3-composite-projections/) are accepted, either as the string name (ie. "geoMercator") or the generator function itself. Map tiles are only usable when the projection is set to Mercator (the default).
+      @param _ "geoMercator"
   */
   projection(_?: string | Function): this | Function {
     if (arguments.length && _ !== "geoMercator") this.tiles(false);
@@ -720,10 +695,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The outer padding between the edge of the visualization and the shapes drawn. The value passed can be either a single number to be used on all sides, or a CSS string pattern (ie. `"20px 0 10px"`).
-      @param {Number|String} [*value* = 20]
-      @chainable
+      The outer padding between the edge of the visualization and the shapes drawn. The value passed can be either a single number to be used on all sides, or a CSS string pattern (ie. `"20px 0 10px"`).
+      @param _ 20]
   */
   projectionPadding(_?: number | string): this | Record<string, number> {
     return arguments.length
@@ -732,10 +705,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc An array that corresponds to the value passed to the projection's [rotate](https://github.com/d3/d3-geo#projection_rotate) function. Use this method to shift the centerpoint of a map.
-      @param {Array} [*value* = [0, 0]]
-      @chainable
+      An array that corresponds to the value passed to the projection's [rotate](https://github.com/d3/d3-geo#projection_rotate) function. Use this method to shift the centerpoint of a map.
+      @param _ [0, 0]]
   */
   projectionRotate(_?: number[]): this | number[] {
     if (arguments.length) {
@@ -749,10 +720,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc Toggles the visibility of the map tiles.
-      @param {Boolean} [*value* = true]
-      @chainable
+      Toggles the visibility of the map tiles.
+      @param _ true]
   */
   tiles(_?: boolean): this | boolean {
     if (arguments.length) {
@@ -767,10 +736,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc By default, d3plus uses the `light_all` style provided by [CARTO](https://carto.com/location-data-services/basemaps/) for it's map tiles. The [tileUrl](https://d3plus.org/docs/#Geomap.tileUrl) method changes the base URL used for fetching the tiles, as long as the string passed contains `{x}`, `{y}`, and `{z}` variables enclosed in curly brackets for the zoom logic to load the correct tiles.
-      @param {String} [url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"]
-      @chainable
+      By default, d3plus uses the `light_all` style provided by [CARTO](https://carto.com/location-data-services/basemaps/) for it's map tiles. The [tileUrl](https://d3plus.org/docs/#Geomap.tileUrl) method changes the base URL used for fetching the tiles, as long as the string passed contains `{x}`, `{y}`, and `{z}` variables enclosed in curly brackets for the zoom logic to load the correct tiles.
+      @param _ "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"]
   */
   tileUrl(_?: string): this | string {
     if (arguments.length) {
@@ -783,13 +750,11 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The topojson to be used for drawing geographical paths. The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
+      The topojson to be used for drawing geographical paths. The value passed should either be a valid Topojson *Object* or a *String* representing a filepath or URL to be loaded.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final Topojson *Obejct*.
-      @param {Object|String} *data* = []
-      @param {Function} [*formatter*]
-      @chainable
+      @param _ []
+      @param f Topojson data or a URL to load.
   */
   topojson(
     _?: Record<string, unknown> | string,
@@ -804,10 +769,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc The function is used to set default color of the map.
-      @param {String|Function} *value* = string
-      @chainable
+      The function is used to set default color of the map.
+      @param _ string
   */
   topojsonFill(
     _?: string | ((d: DataPoint, i: number) => string),
@@ -820,10 +783,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc If the [topojson](#Geomap.topojson) being used contains boundaries that should not be shown, this method can be used to filter them out of the final output. The *value* passed can be a single id to remove, an array of ids, or a filter function.
-      @param {Number|String|Array|Function} [*value*]
-      @chainable
+      If the [topojson](#Geomap.topojson) being used contains boundaries that should not be shown, this method can be used to filter them out of the final output. The *value* passed can be a single id to remove, an array of ids, or a filter function.
   */
   topojsonFilter(
     _?: string | string[] | ((d: Record<string, unknown>) => boolean),
@@ -842,12 +802,9 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Geomap
-      @desc If the [topojson](#Geomap.topojson) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use.
+      If the [topojson](#Geomap.topojson) contains multiple geographical sets (for example, a file containing state and county boundaries), use this method to indentify which set to use.
 
 If not specified, the first key in the *Array* returned from using `Object.keys` on the topojson will be used.
-      @param {String} *value*
-      @chainable
   */
   topojsonKey(_?: string): this | string {
     if (arguments.length) {
@@ -859,10 +816,8 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
   }
 
   /**
-      @memberof Geomap
-      @desc The accessor used to map each topojson geometry to it's corresponding [data](https://d3plus.org/docs/#Viz.data) point.
-      @param {String|Function} *value* = "id"
-      @chainable
+      The accessor used to map each topojson geometry to it's corresponding [data](https://d3plus.org/docs/#Viz.data) point.
+      @param _ "id"
   */
   topojsonId(
     _?: string | ((d: Record<string, unknown>) => string),

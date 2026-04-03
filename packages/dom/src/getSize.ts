@@ -1,7 +1,7 @@
 import {select} from "d3-selection";
 
 /**
-  @desc Given an HTMLElement and a "width" or "height" string, this function returns the current calculated size for the DOM element.
+  Given an HTMLElement and a "width" or "height" string, this function returns the current calculated size for the DOM element.
   @private
 */
 function _elementSize(
@@ -52,9 +52,7 @@ function _elementSize(
 }
 
 /**
-    @function getSize
-    @desc Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
-    @param {HTMLElement} elem The HTMLElement to find dimensions for.
+    Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
     @private
 */
 export default function (

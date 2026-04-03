@@ -22,36 +22,17 @@ export const argTypes = assign(
    */
   
   {
-    height: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"height\"]",
-      description: "If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"height\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
-      }
-    },
-    labelBounds: {
+    _dataFilter: {
       control: {},
-      defaultValue: "(d, i, s) => ({width: s.width, height: s.height, x: -s.width / 2, y: -s.height / 2})",
-      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
+      description: "",
       table: {
         defaultValue: {
-          detail: "(d, i, s) => ({width: s.width, height: s.height, x: -s.width / 2, y: -s.height / 2})",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
-        required: false,
-        summary: "function"
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
       }
     },
     render: {
@@ -65,23 +46,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    width: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"width\"]",
-      description: "If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"width\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
       }
     }
   }

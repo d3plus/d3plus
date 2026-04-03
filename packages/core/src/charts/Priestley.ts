@@ -9,18 +9,15 @@ import {accessor, configPrep} from "../utils/index.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Priestley
-    @extends Viz
-    @desc Creates a priestley timeline based on an array of data.
+    Creates a priestley timeline based on an array of data.
 */
 export default class Priestley extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Priestley
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -38,10 +35,9 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc Extends the render behavior of the abstract Viz class.
+      Extends the render behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -167,11 +163,8 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc If *value* is specified, sets the config method for the axis and returns the current class instance. If *value* is not specified, returns the current axis configuration.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the axis.
+*/
   axisConfig(_) {
     return arguments.length
       ? ((this._axisConfig = assign(this._axisConfig, _)), this)
@@ -179,11 +172,8 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc If *value* is specified, sets the end accessor to the specified function or key and returns the current class instance. If *value* is not specified, returns the current end accessor.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string key for the end date of each data point.
+*/
   end(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._end = _;
@@ -196,11 +186,8 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc Sets the [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space in between each rectangle.
-      @param {Number} [*value* = 0.05]
-      @chainable
-  */
+      The [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space in between each rectangle.
+*/
   paddingInner(_) {
     return arguments.length
       ? ((this._paddingInner = _), this)
@@ -208,11 +195,8 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc Sets the [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space around the outer rectangles.
-      @param {Number} [*value* = 0.05]
-      @chainable
-  */
+      The [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space around the outer rectangles.
+*/
   paddingOuter(_) {
     return arguments.length
       ? ((this._paddingOuter = _), this)
@@ -220,11 +204,8 @@ export default class Priestley extends Viz {
   }
 
   /**
-      @memberof Priestley
-      @desc If *value* is specified, sets the start accessor to the specified function or key and returns the current class instance. If *value* is not specified, returns the current start accessor.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string key for the start date of each data point.
+*/
   start(_) {
     if (arguments.length) {
       if (typeof _ === "function") this._start = _;

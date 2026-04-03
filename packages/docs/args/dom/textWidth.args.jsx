@@ -7,10 +7,8 @@ import React from "react";
 
 export const argTypes = {
   style: {
-    control: {
-      type: "object"
-    },
-    description: "An object of CSS font styles to apply. Accepts any of the valid [CSS font property](http://www.w3schools.com/cssref/pr_font_font.asp) values.",
+    control: {},
+    description: "CSS style properties to apply when measuring.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -18,14 +16,14 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "object"
+      summary: "record"
     }
   },
   text: {
     control: {
-      type: "object"
+      type: "text"
     },
-    description: "Can be either a single string or an array of strings to analyze.",
+    description: "The text string to measure.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -33,7 +31,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string | array"
+      summary: "string"
     }
   }
 };

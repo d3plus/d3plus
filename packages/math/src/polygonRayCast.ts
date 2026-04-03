@@ -4,11 +4,10 @@ import segmentBoxContains from "./segmentBoxContains.js";
 import pointDistanceSquared from "./pointDistanceSquared.js";
 
 /**
-    @function polygonRayCast
-    @desc Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
-    @param {Array} poly The polygon to test against, which should be an `[x, y]` formatted Array.
-    @param {Array} origin The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.
-    @param {Number} [alpha = 0] The angle in radians of the ray.
+    Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
+    @param poly The polygon to test against, which should be an `[x, y]` formatted Array.
+    @param origin The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.
+    @param alpha The angle in radians of the ray.
     @returns {Array} An array containing two values, the closest point on the left and the closest point on the right. If either point cannot be found, that value will be `null`.
 */
 export default function (

@@ -8,15 +8,14 @@ import {
 import RESET from "./RESET.js";
 import uuid from "./uuid.js";
 
-/** @private */
+/** @private*/
 interface D3plusConfig {
   [key: string]: unknown;
 }
 
 /**
-    @desc Recursive function that resets nested Object configs.
-    @param {Object} obj
-    @param {Object} defaults
+    Recursive function that resets nested Object configs.
+
     @private
 */
 function nestedReset(
@@ -46,10 +45,10 @@ function nestedReset(
 }
 
 /**
- * @desc finds all prototype methods of a class and it's parent classes
- * @param {*} obj
- * @private
- */
+    finds all prototype methods of a class and it's parent classes
+    @param obj
+    @private
+*/
 function getAllMethods(obj: object): string[] {
   let props: string[] = [];
   do {
@@ -64,8 +63,7 @@ function getAllMethods(obj: object): string[] {
 }
 
 /**
-    @class BaseClass
-    @summary An abstract class that contains some global methods and functionality.
+    Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 */
 export default class BaseClass {
   _locale: string;
@@ -77,10 +75,9 @@ export default class BaseClass {
   _shapeConfig?: D3plusConfig;
 
   /**
-      @memberof BaseClass
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     this._locale = "en-US";
     this._on = {};
@@ -93,11 +90,8 @@ export default class BaseClass {
   }
 
   /**
-      @memberof BaseClass
-      @desc If *value* is specified, sets the methods that correspond to the key/value pairs and returns this class. If *value* is not specified, returns the current configuration.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Methods that correspond to the key/value pairs and returns this class.
+*/
   config(): D3plusConfig;
   config(_: D3plusConfig): this;
   config(_?: D3plusConfig): D3plusConfig | this {
@@ -141,11 +135,9 @@ export default class BaseClass {
   }
 
   /**
-      @memberof BaseClass
-      @desc Sets the locale used for all text and number formatting. This method supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be defined as a complex Object (like in d3plus-format), a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale from d3plus-format.
-      @param {Object|String} [*value* = "en-US"]
-      @chainable
-      @example
+      The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
+
+@example
       {
         separator: "",
         suffixes: ["y", "z", "a", "f", "p", "n", "\u00b5", "m", "", "k", "M", "B", "t", "q", "Q", "Z", "Y"],
@@ -156,7 +148,7 @@ export default class BaseClass {
         },
         currency: ["$", ""]
       }
-  */
+*/
   locale(): string;
   locale(_: string | object): this;
   locale(_?: string | object): string | this {
@@ -166,12 +158,9 @@ export default class BaseClass {
   }
 
   /**
-      @memberof BaseClass
-      @desc Adds or removes a *listener* to each object for the specified event *typenames*. If a *listener* is not specified, returns the currently assigned listener for the specified event *typename*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
-      @param {String} [*typenames*]
-      @param {Function} [*listener*]
-      @chainable
-      @example <caption>By default, listeners apply globally to all objects, however, passing a namespace with the class name gives control over specific elements:</caption>
+      Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
+
+@example <caption>By default, listeners apply globally to all objects, however, passing a namespace with the class name gives control over specific elements:</caption>
 new Plot
   .on("click.Shape", function(d) {
     console.log("data for shape clicked:", d);
@@ -179,7 +168,7 @@ new Plot
   .on("click.Legend", function(d) {
     console.log("data for legend clicked:", d);
   })
-  */
+*/
   on(): Record<string, (...args: unknown[]) => unknown>;
   on(_: string): ((...args: unknown[]) => unknown) | undefined;
   on(_: string, f: (...args: unknown[]) => unknown): this;
@@ -202,11 +191,8 @@ new Plot
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the parent config used by the wrapper and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Parent config used by the wrapper.
+*/
   parent(): Record<string, unknown>;
   parent(_: Record<string, unknown>): this;
   parent(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -214,15 +200,13 @@ new Plot
   }
 
   /**
-      @memberof BaseClass
-      @desc Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
-      @param {Function} [*value*]
-      @chainable
-      @example <caption>For example, if we wanted to only change the string "Back" and allow all other string to return in English:</caption>
+      Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
+
+@example <caption>For example, if we wanted to only change the string "Back" and allow all other string to return in English:</caption>
 .translate(function(d) {
   return d === "Back" ? "Get outta here" : d;
 })
-  */
+*/
   translate(): (d: string, locale?: string) => string;
   translate(_: (d: string, locale?: string) => string): this;
   translate(
@@ -232,11 +216,8 @@ new Plot
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for each shape and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object with key/value pairs applied as method calls on each shape.
+*/
   shapeConfig(): D3plusConfig;
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {

@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   p1: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The first point of the first line segment, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -18,13 +16,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   p2: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The first point of the second line segment, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -33,13 +29,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   q1: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The second point of the first line segment, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -48,13 +42,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   q2: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The second point of the second line segment, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -63,7 +55,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   }
 };

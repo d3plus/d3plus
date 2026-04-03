@@ -2,11 +2,9 @@ import defaults, {ColorDefaults} from "./defaults.js";
 import {rgb} from "d3-color";
 
 /**
-    @function colorContrast
-    @desc A set of default color values used when assigning colors based on data.
-    @param {String} c A valid CSS color string.
-    @param {Object} [u = defaults] An object containing overrides of the default colors.
-    @returns {String}
+    A set of default color values used when assigning colors based on data.
+    @param c A valid CSS color string.
+    @param u An object containing overrides of the default colors.
 */
 export default function (c: string, u: Partial<ColorDefaults> = {}): string {
   const rgbColor = rgb(c);

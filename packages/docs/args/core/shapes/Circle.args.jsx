@@ -22,52 +22,17 @@ export const argTypes = assign(
    */
   
   {
-    labelBounds: {
+    _dataFilter: {
       control: {},
-      defaultValue: "(d, i, s) => ({width: s.r * 1.5, height: s.r * 1.5, x: -s.r * 0.75, y: -s.r * 0.75})",
-      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
+      description: "",
       table: {
         defaultValue: {
-          detail: "(d, i, s) => ({width: s.r * 1.5, height: s.r * 1.5, x: -s.r * 0.75, y: -s.r * 0.75})",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    labelConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})",
-      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
-      table: {
-        defaultValue: {
-          summary: "assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
-      }
-    },
-    r: {
-      control: {
-        type: "number"
-      },
-      defaultValue: "d => d[\"r\"]",
-      description: "If *value* is specified, sets the radius accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"r\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
       }
     },
     render: {

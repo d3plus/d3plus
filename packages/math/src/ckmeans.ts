@@ -1,5 +1,5 @@
 /**
-    @desc Sort an array of numbers by their numeric value, ensuring that the array is not changed in place.
+    Sort an array of numbers by their numeric value, ensuring that the array is not changed in place.
 
 This is necessary because the default behavior of .sort in JavaScript is to sort arrays as string values
 
@@ -7,7 +7,7 @@ This is necessary because the default behavior of .sort in JavaScript is to sort
 // output
 [1, 10, 102, 12, 20]
 
-    @param {Array<number>} array input array
+    @param array input array
     @return {Array<number>} sorted array
     @private
     @example
@@ -22,7 +22,7 @@ function numericSort(array: number[]): number[] {
 
     Values are compared with `===`, so objects and non-primitive objects are not handled in any special way.
     @private
-    @param {Array} input an array of primitive values.
+    @param input an array of primitive values.
     @returns {number} count of unique values
     @example
 uniqueCountSorted([1, 2, 3]); // => 3
@@ -43,8 +43,7 @@ function uniqueCountSorted(input: number[]): number {
 /**
     Create a new column x row matrix.
     @private
-    @param {number} columns
-    @param {number} rows
+
     @return {Array<Array<number>>} matrix
     @example
 makeMatrix(10, 10);
@@ -62,12 +61,9 @@ function makeMatrix(columns: number, rows: number): number[][] {
 /**
     Generates incrementally computed values based on the sums and sums of squares for the data array
     @private
-    @param {number} j
-    @param {number} i
-    @param {Array<number>} sums
-    @param {Array<number>} sumsOfSquares
-    @return {number}
-    @example
+
+
+@example
 ssq(0, 1, [-1, 0, 2], [1, 1, 5]);
 */
 function ssq(
@@ -90,13 +86,9 @@ function ssq(
 /**
     Function that recursively divides and conquers computations for cluster j
     @private
-    @param {number} iMin Minimum index in cluster to be computed
-    @param {number} iMax Maximum index in cluster to be computed
-    @param {number} cluster Index of the cluster currently being computed
-    @param {Array<Array<number>>} matrix
-    @param {Array<Array<number>>} backtrackMatrix
-    @param {Array<number>} sums
-    @param {Array<number>} sumsOfSquares
+    @param iMin Minimum index in cluster to be computed
+    @param iMax Maximum index in cluster to be computed
+    @param cluster Index of the cluster currently being computed
 */
 function fillMatrixColumn(
   iMin: number,
@@ -171,9 +163,7 @@ function fillMatrixColumn(
 /**
     Initializes the main matrices used in Ckmeans and kicks off the divide and conquer cluster computation strategy
     @private
-    @param {Array<number>} data sorted array of values
-    @param {Array<Array<number>>} matrix
-    @param {Array<Array<number>>} backtrackMatrix
+    @param data sorted array of values
 */
 function fillMatrices(
   data: number[],
@@ -226,30 +216,10 @@ function fillMatrices(
 }
 
 /**
-    @module ckmeans
-    @desc Ported to ES6 from the excellent [simple-statistics](https://github.com/simple-statistics/simple-statistics) packages.
-
-Ckmeans clustering is an improvement on heuristic-based clustering approaches like Jenks. The algorithm was developed in [Haizhou Wang and Mingzhou Song](http://journal.r-project.org/archive/2011-2/RJournal_2011-2_Wang+Song.pdf) as a [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) approach to the problem of clustering numeric data into groups with the least within-group sum-of-squared-deviations.
-
-Minimizing the difference within groups - what Wang & Song refer to as `withinss`, or within sum-of-squares, means that groups are optimally homogenous within and the data is split into representative groups. This is very useful for visualization, where you may want to represent a continuous variable in discrete color or style groups. This function can provide groups that emphasize differences between data.
-
-Being a dynamic approach, this algorithm is based on two matrices that store incrementally-computed values for squared deviations and backtracking indexes.
-
-This implementation is based on Ckmeans 3.4.6, which introduced a new divide and conquer approach that improved runtime from O(kn^2) to O(kn log(n)).
-
-Unlike the [original implementation](https://cran.r-project.org/web/packages/Ckmeans.1d.dp/index.html), this implementation does not include any code to automatically determine the optimal number of clusters: this information needs to be explicitly provided.
-
-### References
-_Ckmeans.1d.dp: Optimal k-means Clustering in One Dimension by Dynamic
-Programming_ Haizhou Wang and Mingzhou Song ISSN 2073-4859 from The R Journal Vol. 3/2, December 2011
-    @param {Array<number>} data input data, as an array of number values
-    @param {number} nClusters number of desired classes. This cannot be greater than the number of values in the data array.
-    @returns {Array<Array<number>>} clustered input
+    Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+    @param data input data, as an array of number values
+    @param nClusters number of desired classes. This cannot be greater than the number of values in the data array.
     @private
-    @example
-ckmeans([-1, 2, -1, 2, 4, 5, 6, -1, 2, -1], 3);
-// The input, clustered into groups of similar numbers.
-//= [[-1, -1, -1, -1], [2, 2, 2], [4, 5, 6]]);
 */
 export default function (data: number[], nClusters: number): number[][] {
   if (nClusters > data.length) {

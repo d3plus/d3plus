@@ -37,9 +37,8 @@ function hyphenate(word: string): string[] {
 }
 
 /**
-    @function textSplit
-    @desc Splits a given sentence into an array of words.
-    @param {String} sentence
+    Splits a given sentence into an array of words.
+    @param sentence The sentence to split into words.
 */
 export default function (sentence: string): string[] {
   const prepared = prepareWithSegments(sentence, "10px sans-serif", {

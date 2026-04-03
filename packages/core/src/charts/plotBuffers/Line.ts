@@ -3,12 +3,10 @@ import type Plot from "../Plot.js";
 
 /**
     @module lineBuffer
-    @desc Adds a buffer to either side of the non-discrete axis.
-    @param {Array} data
-    @param {D3Scale} x
-    @param {D3Scale} y
-    @param {Object} [config]
-    @param {Number} [buffer] Defaults to the radius of the largest Circle.
+    Adds a buffer to either side of the non-discrete axis.
+
+
+    @param buffer Defaults to the radius of the largest Circle.
     @private
 */
 export default function (

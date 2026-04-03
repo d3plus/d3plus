@@ -19,11 +19,9 @@ interface VizContext {
 }
 
 /**
-  @function isData
-  @desc Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualizations that fold in additional data sources, like the nodes and links of Network or the topojson of Geomap.
-  @param {Array|String|Object} data The data to be loaded
-  @param {Function} [data] An optional data formatter/callback
-  @param {String} data The internal Viz method to be modified
+  Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualizations that fold in additional data sources, like the nodes and links of Network or the topojson of Geomap.
+  @param f Optional formatter function applied to the loaded data.
+  @param key The property name on the instance to store the loaded data.
 */
 export default function (
   this: VizContext,

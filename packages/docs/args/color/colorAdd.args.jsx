@@ -38,34 +38,34 @@ export const argTypes = {
   },
   o1: {
     control: {
-      type: "text"
+      type: "number"
     },
-    defaultValue: 1,
+    defaultValue: "1",
     description: "Value from 0 to 1 of the first color's opacity.",
     table: {
       defaultValue: {
-        summary: 1
+        summary: "1"
       }
     },
     type: {
       required: false,
-      summary: "string"
+      summary: "number"
     }
   },
   o2: {
     control: {
-      type: "text"
+      type: "number"
     },
-    defaultValue: 1,
+    defaultValue: "1",
     description: "Value from 0 to 1 of the first color's opacity.",
     table: {
       defaultValue: {
-        summary: 1
+        summary: "1"
       }
     },
     type: {
       required: false,
-      summary: "string"
+      summary: "number"
     }
   }
 };

@@ -8,17 +8,18 @@ import React from "react";
 export const argTypes = {
   locale: {
     control: {
-      type: "object"
+      type: "text"
     },
-    description: "The locale config to be used. If *value* is an object, the function will format the numbers according the object. The object must include `suffixes`, `delimiter` and `currency` properties.",
+    defaultValue: "en-US",
+    description: "The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "en-US"
       }
     },
     type: {
-      required: true,
-      summary: "object | string"
+      required: false,
+      summary: "string | formatlocaledefinition"
     }
   },
   n: {
@@ -33,7 +34,22 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "number | string"
+      summary: "string | number"
+    }
+  },
+  precision: {
+    control: {
+      type: "text"
+    },
+    description: "Number of significant digits to display.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
     }
   }
 };

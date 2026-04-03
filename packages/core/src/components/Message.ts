@@ -19,8 +19,7 @@ interface RenderOptions {
 }
 
 /**
-    @class Message
-    @desc Displays a message using plain HTML.
+    Displays a message using plain HTML.
     @private
 */
 export default class Message {
@@ -29,8 +28,7 @@ export default class Message {
   elem: D3Selection;
 
   /**
-      @memberof Message
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
@@ -38,9 +36,7 @@ export default class Message {
   }
 
   /**
-      @memberof Message
-      @desc Removes the message from the page.
-      @chainable
+      Removes the message from the page.
   */
   exit(elem: D3Selection, duration: number): void {
     elem
@@ -54,9 +50,7 @@ export default class Message {
   }
 
   /**
-      @memberof Message
-      @desc Removes the message from the page.
-      @chainable
+      Removes the message from the page.
   */
   hide({duration = 600, callback}: HideOptions = {}): this {
     this.mask.call(this.exit.bind(this), duration);
@@ -70,11 +64,8 @@ export default class Message {
   }
 
   /**
-      @memberof Message
-      @desc Draws the message given the specified configuration.
-      @param {Object} [*config*]
-      @chainable
-  */
+      Draws the message given the specified configuration.
+*/
   render({
     callback,
     container = "body",

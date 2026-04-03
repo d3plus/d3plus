@@ -5,14 +5,11 @@ import {constant} from "../utils/index.js";
 import {default as Plot} from "./Plot.js";
 
 /**
-    @class BoxWhisker
-    @extends Plot
-    @desc Creates a simple box and whisker based on an array of data.
+    Creates a simple box and whisker based on an array of data.
 */
 export default class BoxWhisker extends Plot {
   /**
-      @memberof BoxWhisker
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Plot.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Plot.
       @private
   */
   constructor() {

@@ -1,16 +1,15 @@
 import type {DataPoint} from "./DataPoint.js";
 
 /**
-  @function dataConcat
-  @desc Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat the array under given key data. If the key doesn't exists in object item, a warning message is lauched to the console. You need to implement DataFormat callback to concat the arrays manually.
-  @param {Array} arrayOfArray Array of elements
-  @param {String} [data = "data"] The key used for the flat data array if exists inside of the JSON object.
+  Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat the array under given key data. If the key doesn't exists in object item, a warning message is lauched to the console. You need to implement DataFormat callback to concat the arrays manually.
+  @param arrayOfArrays Array of elements
+  @param data The key in each element that contains the sub-array to concatenate.
 */
-export default (
+export default function (
   arrayOfArrays: (DataPoint[] | Record<string, DataPoint[]>)[],
   data: string = "data",
-): DataPoint[] =>
-  arrayOfArrays.reduce<DataPoint[]>((acc, item) => {
+): DataPoint[] {
+  return arrayOfArrays.reduce<DataPoint[]>((acc, item) => {
     let dataArray: DataPoint[] = [];
     if (Array.isArray(item)) {
       dataArray = item;
@@ -19,3 +18,4 @@ export default (
     }
     return acc.concat(dataArray);
   }, []);
+}

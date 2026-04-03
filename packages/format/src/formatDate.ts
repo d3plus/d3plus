@@ -4,12 +4,10 @@ import {timeFormat} from "d3-time-format";
 type DateFormatter = (specifier: string) => (date: Date) => string;
 
 /**
-    @function formatDate
-    @desc A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
-    @param {Date} d The date string to be formatted.
-    @param {Array} dataArray The full array of ordered Date Objects.
-    @param {Function} [formatter = d3.timeFormat] An optional instance of d3.timeFormat to be used for localization.
-    @returns {String}
+    A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
+    @param d The date to format.
+    @param dataArray The full array of ordered Date Objects.
+    @param formatter Optional custom format string or function.
 */
 export default function formatDate(
   d: Date,
@@ -81,10 +79,8 @@ export default function formatDate(
 }
 
 /**
-    @function monthDiff
-    @desc Returns the number of months between two Date objects
-    @param {*} d1
-    @param {*} d2
+    Returns the number of months between two Date objects
+
     @returns {Number} the number of months between the two Date objects
     @private
 */

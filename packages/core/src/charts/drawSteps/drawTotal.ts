@@ -5,9 +5,7 @@ import type {DataPoint} from "@d3plus/data";
 import type Viz from "../Viz.js";
 
 /**
-    @function _drawTotal
-    @desc Draws a total title if this._total is defined.
-    @param {Array} [*data*] The currently filtered dataset.
+    Draws a total title if this._total is defined.
     @private
 */
 export default function (this: Viz, data: DataPoint[] = []): void {

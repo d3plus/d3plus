@@ -6,10 +6,11 @@ import React from "react";
 
 
 export const argTypes = {
-  date: {
+  d: {
     control: {
       type: "number"
     },
+    description: "The date value to parse (number, string, or Date).",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -17,7 +18,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "number | string"
+      summary: "string | number | false"
     }
   }
 };

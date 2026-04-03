@@ -1,7 +1,6 @@
 /**
-    @function stringify
-    @desc Coerces value into a String.
-    @param {String} value
+    Coerces value into a String.
+    @param value The value to convert to a string.
 */
 export default function (value: unknown): string {
   if (value === void 0) return "undefined";

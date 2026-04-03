@@ -2,11 +2,9 @@ import type {Point} from "./lineIntersection.js";
 import pointDistanceSquared from "./pointDistanceSquared.js";
 
 /**
-    @desc square distance from a point to a segment
-    @param {Array} point
-    @param {Array} segmentAnchor1
-    @param {Array} segmentAnchor2
-    @private
+    square distance from a point to a segment
+
+    @param segmentAnchor2 @private
 */
 function getSqSegDist(p: Point, p1: Point, p2: Point): number {
   let x = p1[0],
@@ -34,9 +32,8 @@ function getSqSegDist(p: Point, p1: Point, p2: Point): number {
 }
 
 /**
-    @desc basic distance-based simplification
-    @param {Array} polygon
-    @param {Number} sqTolerance
+    basic distance-based simplification
+
     @private
 */
 function simplifyRadialDist(poly: Point[], sqTolerance: number): Point[] {
@@ -60,12 +57,9 @@ function simplifyRadialDist(poly: Point[], sqTolerance: number): Point[] {
 }
 
 /**
-    @param {Array} polygon
-    @param {Number} first
-    @param {Number} last
-    @param {Number} sqTolerance
-    @param {Array} simplified
-    @private
+
+
+    @param simplified @private
 */
 function simplifyDPStep(
   poly: Point[],
@@ -96,9 +90,8 @@ function simplifyDPStep(
 }
 
 /**
-    @desc simplification using Ramer-Douglas-Peucker algorithm
-    @param {Array} polygon
-    @param {Number} sqTolerance
+    simplification using Ramer-Douglas-Peucker algorithm
+
     @private
 */
 function simplifyDouglasPeucker(poly: Point[], sqTolerance: number): Point[] {
@@ -112,19 +105,17 @@ function simplifyDouglasPeucker(poly: Point[], sqTolerance: number): Point[] {
 }
 
 /**
-    @function largestRect
-    @desc Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
+    Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
     @author Vladimir Agafonkin
-    @param {Array} poly An Array of points that represent a polygon.
-    @param {Number} [tolerance = 1] Affects the amount of simplification (in the same metric as the point coordinates).
-    @param {Boolean} [highestQuality = false] Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower.
-
+    @param poly An Array of points that represent a polygon.
+    @param tolerance Affects the amount of simplification (in the same metric as the point coordinates).
+    @param highestQuality Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower.
 */
-export default (
+export default function (
   poly: Point[],
   tolerance: number = 1,
   highestQuality: boolean = false,
-): Point[] => {
+): Point[] {
   if (poly.length <= 2) return poly;
 
   const sqTolerance = tolerance * tolerance;
@@ -133,4 +124,4 @@ export default (
   poly = simplifyDouglasPeucker(poly, sqTolerance);
 
   return poly;
-};
+}

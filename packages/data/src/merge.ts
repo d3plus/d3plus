@@ -16,10 +16,9 @@ type AggregationFunction = (
 ) => MergedValue;
 
 /**
-    @function merge
-    @desc Combines an Array of Objects together and returns a new Object.
-    @param {Array} objects The Array of objects to be merged together.
-    @param {Object} aggs An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values.
+    Combines an Array of Objects together and returns a new Object.
+    @param objects The Array of objects to be merged together.
+    @param aggs An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values.
     @example <caption>this</caption>
 merge([
   {id: "foo", group: "A", value: 10, links: [1, 2]},

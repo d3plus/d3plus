@@ -18,8 +18,7 @@ import {configPrep, constant} from "../utils/index.js";
 const colorMid = "#bbb";
 
 /**
-    @class Timeline
-    @extends Axis
+    Creates an interactive timeline brush component for selecting time periods within a visualization.
 */
 export default class Timeline extends Axis {
   _brushing: boolean;
@@ -55,10 +54,9 @@ export default class Timeline extends Axis {
   _ticksWidth: number;
 
   /**
-      @memberof Timeline
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Axis.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Axis.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -219,10 +217,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Triggered on brush "brush".
+      Triggered on brush "brush".
       @private
-  */
+*/
    
   _brushBrush(event: any): void {
     if (
@@ -244,10 +241,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Triggered on brush "end".
+      Triggered on brush "end".
       @private
-  */
+*/
    
   _brushEnd(event: any): void {
     if (!event.sourceEvent) return; // Only transition after input.
@@ -265,10 +261,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Triggered on brush "start".
+      Triggered on brush "start".
       @private
-  */
+*/
    
   _brushStart(event: any): void {
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
@@ -285,10 +280,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Overrides the default brush styles.
+      Overrides the default brush styles.
       @private
-  */
+*/
   _brushStyle(): void {
     const {height} = this._position;
     const timelineHeight =
@@ -363,10 +357,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Updates domain of the timeline used in brush functions.
+      Updates domain of the timeline used in brush functions.
       @private
-  */
+*/
    
   _updateDomain(event: any): any[] {
     const x = pointers(event, this._select.node());
@@ -481,10 +474,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Updates limits of the brush.
+      Updates limits of the brush.
       @private
-  */
+*/
    
   _updateBrushLimit(domain: any[]): any[] {
     const selection =
@@ -509,11 +501,9 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc Draws the timeline.
-      @param {Function} [*callback* = undefined]
-      @chainable
-  */
+      Draws the timeline.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: Function): this {
     const {height, y} = this._position;
 
@@ -727,11 +717,8 @@ export default class Timeline extends Axis {
   }
 
   /**
-        @memberof Timeline
-        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
-        @param {Number} [*value* = 10]
-        @chainable
-    */
+        Button padding.
+*/
   buttonPadding(): number;
   buttonPadding(_: number): this;
   buttonPadding(_?: number): any {
@@ -741,11 +728,8 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Toggles the brushing value.
+*/
   brushing(): boolean;
   brushing(_: boolean): this;
   brushing(_?: boolean): any {
@@ -753,15 +737,13 @@ export default class Timeline extends Axis {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
-      @param {Function} [*value*]
-      @chainable
-      @example
+      Brush event filter.
+
+@example
 function() {
   return !event.button && event.detail < 2;
 }
-  */
+*/
    
   brushFilter(): (event: any) => boolean;
    
@@ -774,11 +756,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods. Value passed can either be a static Number, or a function that is expected to return a Number.
-      @param {Number|Function} [*value* = 1]
-      @chainable
-  */
+      The minimum number of ticks that can be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods.
+*/
   brushMin(): () => number;
   brushMin(_: (() => number) | number): this;
   brushMin(_?: (() => number) | number): unknown {
@@ -788,11 +767,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`. If *value* is not specified, returns the current button value.
-      @param {String} [*value* = "middle"]
-      @chainable
-  */
+      Toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`.
+*/
   buttonAlign(): string;
   buttonAlign(_: string): this;
   buttonAlign(_?: string): any {
@@ -802,11 +778,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`. If *value* is not specified, returns the current button value.
-      @param {String} [*value* = "auto"]
-      @chainable
-  */
+      Toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`.
+*/
   buttonBehavior(): string;
   buttonBehavior(_: string): this;
   buttonBehavior(_?: string): any {
@@ -816,11 +789,8 @@ function() {
   }
 
   /**
-        @memberof Timeline
-        @desc If *value* is specified, sets the button height and returns the current class instance. If *value* is not specified, returns the current button height.
-        @param {Number} [*value* = 30]
-        @chainable
-    */
+        Button height.
+*/
   buttonHeight(): number;
   buttonHeight(_: number): this;
   buttonHeight(_?: number): any {
@@ -830,11 +800,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Handle style.
+*/
   handleConfig(): Record<string, unknown>;
   handleConfig(_: Record<string, unknown>): this;
   handleConfig(_?: Record<string, unknown>): unknown {
@@ -844,11 +811,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.
-      @param {Number} [*value* = 6]
-      @chainable
-  */
+      Handle size.
+*/
   handleSize(): number;
   handleSize(_: number): this;
   handleSize(_?: number): any {
@@ -858,12 +822,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc Adds or removes a *listener* for the specified brush event *typename*. If a *listener* is not specified, returns the currently-assigned listener for the specified event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
-      @param {String|Object} [*typename*]
-      @param {Function} [*listener*]
-      @chainable
-  */
+      Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
+*/
    
   on(): any;
    
@@ -882,11 +842,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.
+*/
   playButton(): boolean;
   playButton(_: boolean): this;
   playButton(_?: boolean): any {
@@ -896,11 +853,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc The config Object for the Rect class used to create the playButton.
-      @param {Object} [*value*]
-      @chainable
-  */
+      The config Object for the Rect class used to create the playButton.
+*/
   playButtonConfig(): Record<string, unknown>;
   playButtonConfig(_: Record<string, unknown>): this;
   playButtonConfig(_?: Record<string, unknown>): unknown {
@@ -910,11 +864,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.
-      @param {Number} [*value* = 1000]
-      @chainable
-  */
+      The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.
+*/
   playButtonInterval(): number;
   playButtonInterval(_: number): this;
   playButtonInterval(_?: number): any {
@@ -924,11 +875,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Selection style.
+*/
   selectionConfig(): Record<string, unknown>;
   selectionConfig(_: Record<string, unknown>): this;
   selectionConfig(_?: Record<string, unknown>): unknown {
@@ -938,11 +886,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.
-      @param {Array|Date|Number|String} [*value*]
-      @chainable
-  */
+      Selection. Defaults to the most recent year in the timeline.
+*/
   selection(): unknown;
   selection(_: unknown): this;
   selection(_?: unknown): unknown {
@@ -950,11 +895,8 @@ function() {
   }
 
   /**
-      @memberof Timeline
-      @desc If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Toggles the snapping value.
+*/
   snapping(): boolean;
   snapping(_: boolean): this;
   snapping(_?: boolean): any {

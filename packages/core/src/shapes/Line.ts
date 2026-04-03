@@ -12,9 +12,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Line
-    @extends Shape
-    @desc Creates SVG lines based on an array of data.
+    Creates SVG lines based on an array of data.
 */
 export default class Line extends Shape {
   declare _curve: AccessorFn;
@@ -34,10 +32,9 @@ export default class Line extends Shape {
   declare _strokeDasharray: AccessorFn;
 
   /**
-      @memberof Line
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -69,11 +66,9 @@ export default class Line extends Shape {
   }
 
   /**
-      @memberof Line
-      @desc Filters/manipulates the data array before binding each point to an SVG group.
-      @param {Array} [*data* = the data array to be filtered]
-      @private
-  */
+      Filters/manipulates the data array before binding each point to an SVG group.
+      @param data @private
+*/
   _dataFilter(data: DataPoint[]): DataPoint[] {
     const lines: DataPoint[] & {
       key?: (d: DataPoint) => DataPoint[keyof DataPoint];
@@ -120,21 +115,19 @@ export default class Line extends Shape {
   }
 
   /**
-      @memberof Line
-      @desc Draws the lines.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the lines.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
     const that = this;
 
     /**
-        @desc Calculates the stroke-dasharray used for animations
-        @param {Object} *d* data point
+        Calculates the stroke-dasharray used for animations
+        @param d data point
         @private
-    */
+*/
     function calculateStrokeDashArray(
       this: SVGPathElement,
       d: DataPoint,
@@ -266,12 +259,10 @@ export default class Line extends Shape {
   }
 
   /**
-      @memberof Line
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint, i: number): ShapeAes {
     return {
       points: (d.values as unknown as DataPoint[]).map((p: DataPoint) => [
@@ -282,11 +273,8 @@ export default class Line extends Shape {
   }
 
   /**
-      @memberof Line
-      @desc If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.
-      @param {Function|String} [*value* = "linear"]
-      @chainable
-  */
+      The d3 curve function used to interpolate the line.
+*/
   curve(): AccessorFn;
   curve(_: AccessorFn | string): this;
   curve(_?: AccessorFn | string): AccessorFn | this {
@@ -296,11 +284,8 @@ export default class Line extends Shape {
   }
 
   /**
-      @memberof Line
-      @desc If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.
-      @param {Function} [*value*]
-      @chainable
-  */
+      An accessor function that determines whether a data point is defined (not a gap in the line).
+*/
   defined(): AccessorFn;
   defined(_: AccessorFn): this;
   defined(_?: AccessorFn): AccessorFn | this {

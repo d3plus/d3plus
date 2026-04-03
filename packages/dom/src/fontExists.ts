@@ -8,9 +8,8 @@ const alpha: string = "abcdefghiABCDEFGHI_!@#$%^&*()_+1234567890",
 let dejavu: number, macos: number, monospace: number, proportional: number;
 
 /**
-    @function fontExists
-    @desc Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
-    @param {String|Array} font Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names.
+    Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
+    @param font Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names.
 */
 const fontExists = (font: string | string[]): string | false => {
   if (!dejavu) {

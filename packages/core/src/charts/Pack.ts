@@ -22,18 +22,15 @@ const recursionCircles = (
 };
 
 /**
-    @class Pack
-    @extends Viz
-    @desc Uses the [d3 pack layout](https://github.com/d3/d3-hierarchy#pack) to creates Circle Packing chart based on an array of data.
+    Uses the [d3 pack layout](https://github.com/d3/d3-hierarchy#pack) to creates Circle Packing chart based on an array of data.
 */
 export default class Pack extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Pack
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -92,7 +89,7 @@ export default class Pack extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -148,11 +145,8 @@ export default class Pack extends Viz {
   }
 
   /**
-      @memberof Pack
-      @desc If *value* is specified, sets the hover method to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-   */
+      The hover callback function for highlighting shapes on mouseover.
+*/
   hover(_) {
     this._hover = _;
     this._shapes.forEach(s => s.hover(_));
@@ -162,10 +156,8 @@ export default class Pack extends Viz {
   }
 
   /**
-      @memberof Pack
-      @desc If *value* is specified, sets the opacity accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current pack opacity accessor.
-      @param {Function|Number} [*value*]
-  */
+      The inner and outer padding for the pack layout.
+*/
   layoutPadding(_) {
     return arguments.length
       ? ((this._layoutPadding = _), this)
@@ -173,10 +165,8 @@ export default class Pack extends Viz {
   }
 
   /**
-      @memberof Pack
-      @desc If *value* is specified, sets the padding accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current pack opacity accessor.
-      @param {Function|Number} [*value*]
-  */
+      The opacity of nested circles within the pack layout.
+*/
   packOpacity(_) {
     return arguments.length
       ? ((this._packOpacity = typeof _ === "function" ? _ : constant(_)), this)
@@ -184,27 +174,25 @@ export default class Pack extends Viz {
   }
 
   /**
-      @memberof Pack
-      @desc If *comparator* is specified, sets the sort order for the pack using the specified comparator function. If *comparator* is not specified, returns the current group sort order, which defaults to descending order by the associated input data's numeric value attribute.
-      @param {Array} [*comparator*]
-      @example
+      Sort comparator function for the pack layout. Defaults to descending order by the associated input data's numeric value attribute.
+
+@example
 function comparator(a, b) {
   return b.value - a.value;
 }
-  */
+*/
   sort(_) {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 
   /**
-      @memberof Pack
-      @desc If *value* is specified, sets the sum accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current sum accessor.
-      @param {Function|Number} [*value*]
-      @example
+      The sum accessor used for sizing each circle in the pack layout.
+
+@example
 function sum(d) {
   return d.sum;
 }
-  */
+*/
   sum(_) {
     return arguments.length
       ? ((this._sum = typeof _ === "function" ? _ : accessor(_)), this)

@@ -4,10 +4,10 @@
   "description": "JavaScript functions for manipulating and analyzing DOM elements.",
   "license": "MIT",
   "type": "module",
-  "types": "./index.ts",
+  "types": "./types/index.ts",
   "exports": {
     ".": {
-      "types": "./index.ts",
+      "types": "./types/index.ts",
       "default": "./es/index.js"
     }
   },
@@ -39,7 +39,7 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.ts'"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.3",

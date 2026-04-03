@@ -12,9 +12,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Area
-    @extends Shape
-    @desc Creates SVG areas based on an array of data.
+    Creates SVG areas based on an array of data.
 */
 export default class Area extends Shape {
   _curve: AccessorFn;
@@ -37,10 +35,9 @@ export default class Area extends Shape {
   declare _path: Record<string, unknown>;
 
   /**
-      @memberof Area
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -75,12 +72,10 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint): ShapeAes {
     const values = (d.values as unknown as DataPoint[])
       .slice()
@@ -109,11 +104,9 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc Filters/manipulates the data array before binding each point to an SVG group.
-      @param {Array} [*data* = the data array to be filtered]
-      @private
-  */
+      Filters/manipulates the data array before binding each point to an SVG group.
+      @param data @private
+*/
   _dataFilter(data: DataPoint[]): DataPoint[] {
     const areas: DataPoint[] & {
       key?: (d: DataPoint) => DataPoint[keyof DataPoint];
@@ -172,11 +165,9 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc Draws the area polygons.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the area polygons.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
@@ -280,11 +271,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.
-      @param {Function|String} [*value* = "linear"]
-      @chainable
-  */
+      The d3 curve function used to interpolate the area.
+*/
   curve(): AccessorFn;
   curve(_: AccessorFn | string): this;
   curve(_?: AccessorFn | string): AccessorFn | this {
@@ -294,11 +282,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.
-      @param {Function} [*value*]
-      @chainable
-  */
+      An accessor function that determines whether a data point is defined (not a gap in the area).
+*/
   defined(): (d: DataPoint) => boolean;
   defined(_: (d: DataPoint) => boolean): this;
   defined(_?: (d: DataPoint) => boolean): ((d: DataPoint) => boolean) | this {
@@ -306,11 +291,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x accessor.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The x position accessor. Also sets x0 to the same value.
+*/
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
@@ -321,11 +303,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x0 accessor.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The x0 (left edge) position accessor for the area.
+*/
   x0(): AccessorFn;
   x0(_: AccessorFn | number): this;
   x0(_?: AccessorFn | number): AccessorFn | this {
@@ -337,11 +316,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current x1 accessor.
-      @param {Function|Number|null} [*value*]
-      @chainable
-  */
+      The x1 (right edge) position accessor for the area.
+*/
   x1(): AccessorFn | null;
   x1(_: AccessorFn | number | null): this;
   x1(_?: AccessorFn | number | null): AccessorFn | null | this {
@@ -357,11 +333,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y accessor.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The y position accessor. Also sets y0 to the same value.
+*/
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
@@ -372,11 +345,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y0 accessor.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The y0 (top edge) position accessor for the area.
+*/
   y0(): AccessorFn;
   y0(_: AccessorFn | number): this;
   y0(_?: AccessorFn | number): AccessorFn | this {
@@ -388,11 +358,8 @@ export default class Area extends Shape {
   }
 
   /**
-      @memberof Area
-      @desc If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current y1 accessor.
-      @param {Function|Number|null} [*value*]
-      @chainable
-  */
+      The y1 (bottom edge) position accessor for the area.
+*/
   y1(): AccessorFn | null;
   y1(_: AccessorFn | number | null): this;
   y1(_?: AccessorFn | number | null): AccessorFn | null | this {

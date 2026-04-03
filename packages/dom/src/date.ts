@@ -1,8 +1,6 @@
 /**
-    @function date
-    @summary Parses numbers and strings to valid Javascript Date objects.
-    @description Returns a javascript Date object for a given a Number (representing either a 4-digit year or milliseconds since epoch), a String representing a Quarter (ie. "Q2 1987", mapping to the last day in that quarter), or a String that is in [valid dateString format](http://dygraphs.com/date-formats.html). Besides the 4-digit year parsing, this function is useful when needing to parse negative (BC) years, which the vanilla Date object cannot parse.
-    @param {Number|String} *date*
+    Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.
+    @param d The date value to parse (number, string, or Date).
 */
 export default function (
   d: number | string | false | undefined,

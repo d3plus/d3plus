@@ -7,18 +7,17 @@ import React from "react";
 
 export const argTypes = {
   arr: {
-    control: {
-      type: "object"
-    },
+    control: {},
+    defaultValue: "[]",
     description: "The array of values to test against.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "[]"
       }
     },
     type: {
-      required: true,
-      summary: "array"
+      required: false,
+      summary: "array.&lt;number&gt;"
     }
   },
   n: {

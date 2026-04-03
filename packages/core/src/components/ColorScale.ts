@@ -20,9 +20,7 @@ import {accessor, BaseClass, constant} from "../utils/index.js";
 import Legend from "./Legend.js";
 
 /**
-    @class ColorScale
-    @extends BaseClass
-    @desc Creates an SVG scale based on an array of data. If *data* is specified, immediately draws based on the specified array and returns the current class instance. If *data* is not specified on instantiation, it can be passed/updated after instantiation using the [data](#shape.data) method.
+    Creates an SVG color scale based on an array of data.
 */
 export default class ColorScale extends BaseClass {
   _select: D3Selection;
@@ -74,10 +72,9 @@ export default class ColorScale extends BaseClass {
   _width: number;
 
   /**
-      @memberof ColorScale
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -180,11 +177,9 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Renders the current ColorScale to the page. If a *callback* is specified, it will be called once the ColorScale is done drawing.
-      @param {Function} [*callback* = undefined]
-      @chainable
-  */
+      Renders the current ColorScale to the page.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: Function): this {
     if (this._select === void 0)
       this.select(
@@ -653,7 +648,7 @@ export default class ColorScale extends BaseClass {
         )
         .attr("stop-color", String);
 
-      /** determines the width of buckets */
+      /** determines the width of buckets*/
       const bucketWidth = (d: any, i: number): number => {
         const next = ticks[i + 1] || axisDomain[axisDomain.length - 1];
         return Math.abs(axisScale(next) - axisScale(d));
@@ -764,11 +759,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
-      @param {Object} [*value*]
-      @chainable
-  */
+      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+*/
   axisConfig(): Record<string, unknown>;
   axisConfig(_: Record<string, unknown>): this;
   axisConfig(_?: Record<string, unknown>): unknown {
@@ -778,11 +770,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance. If *value* is not specified, returns the current horizontal alignment.
-      @param {String} [*value* = "center"] Supports `"left"` and `"center"` and `"right"`.
-      @chainable
-  */
+      The horizontal alignment.
+*/
   align(): string;
   align(_: string): this;
   align(_?: string): any {
@@ -790,11 +779,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The number of discrete buckets to create in a bucketed color scale. Will be overridden by any custom Array of colors passed to the `color` method. Optionally, users can supply an Array of values used to separate buckets, such as `[0, 10, 25, 50, 90]` for a percentage scale. This value would create 4 buckets, with each value representing the break point between each bucket (so 5 values makes 4 buckets).
-      @param {Number|Array} [*value* = 5]
-      @chainable
-  */
+      The number of discrete buckets to create in a bucketed color scale. Will be overridden by any custom Array of colors passed to the `color` method. Optionally, users can supply an Array of values used to separate buckets, such as `[0, 10, 25, 50, 90]` for a percentage scale. This value would create 4 buckets, with each value representing the break point between each bucket (so 5 values makes 4 buckets).
+*/
   buckets(): number | number[];
   buckets(_: number | number[]): this;
   buckets(_?: number | number[]): unknown {
@@ -802,11 +788,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Determines whether or not to use an Axis to display bucket scales (both "buckets" and "jenks"). When set to `false`, bucketed scales will use the `Legend` class to display squares for each range of data. When set to `true`, bucketed scales will be displayed on an `Axis`, similar to "linear" scales.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Determines whether or not to use an Axis to display bucket scales (both "buckets" and "jenks"). When set to `false`, bucketed scales will use the `Legend` class to display squares for each range of data. When set to `true`, bucketed scales will be displayed on an `Axis`, similar to "linear" scales.
+*/
   bucketAxis(): boolean;
   bucketAxis(_: boolean): this;
   bucketAxis(_?: boolean): any {
@@ -816,11 +799,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc A function for formatting the labels associated to each bucket in a bucket-type scale ("jenks", "quantile", etc). The function is passed four arguments: the start value of the current bucket, it's index in the full Array of buckets, the full Array of buckets, and an Array of every value present in the data used to construct the buckets. Keep in mind that the end value for the bucket is not actually the next bucket in the list, but includes every value up until that next bucket value (less than, but not equal to). By default, d3plus will make the end value slightly less than it's current value, so that it does not overlap with the start label for the next bucket.
-      @param {Function} [*value*]
-      @chainable
-  */
+      A function for formatting the labels associated to each bucket in a bucket-type scale ("jenks", "quantile", etc). The function is passed four arguments: the start value of the current bucket, it's index in the full Array of buckets, the full Array of buckets, and an Array of every value present in the data used to construct the buckets. Keep in mind that the end value for the bucket is not actually the next bucket in the list, but includes every value up until that next bucket value (less than, but not equal to). By default, d3plus will make the end value slightly less than it's current value, so that it does not overlap with the start label for the next bucket.
+*/
   bucketFormat(): (
     tick: number,
     i: number,
@@ -849,11 +829,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc A function that receives the minimum and maximum values of a bucket, and is expected to return the full label.
-      @param {Function} [*value*]
-      @chainable
-  */
+      A function that receives the minimum and maximum values of a bucket, and is expected to return the full label.
+*/
   bucketJoiner(): (a: string, b: string) => string;
   bucketJoiner(_: (a: string, b: string) => string): this;
   bucketJoiner(_?: (a: string, b: string) => string): any {
@@ -863,11 +840,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Determines whether or not to display a midpoint centered Axis. Does not apply to quantile scales.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Determines whether or not to display a midpoint centered Axis. Does not apply to quantile scales.
+*/
   centered(): boolean;
   centered(_: boolean): this;
   centered(_?: boolean): any {
@@ -875,11 +849,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` to only use just this specified color. If a single color is given as a String, then the scale is interpolated by lightening that color. Otherwise, the function expects an Array of color values to be used in order for the scale.
-      @param {String|Array} [*value*]
-      @chainable
-  */
+      Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` to only use just this specified color. If a single color is given as a String, then the scale is interpolated by lightening that color. Otherwise, the function expects an Array of color values to be used in order for the scale.
+*/
   color(): string | string[];
   color(_: string | string[]): this;
   color(_?: string | string[]): unknown {
@@ -887,11 +858,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Defines the color to be used for numbers greater than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-      @param {String} [*value* = "#0C8040"]
-      @chainable
-  */
+      Defines the color to be used for numbers greater than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
+*/
   colorMax(): string;
   colorMax(_: string): this;
   colorMax(_?: string): any {
@@ -899,11 +867,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Defines the color to be used for the midpoint of a diverging scale, based on the current value of the `midpoint` method (defaults to `0`). Colors in between this value and the values of `colorMin` and `colorMax` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-      @param {String} [*value* = "#f7f7f7"]
-      @chainable
-  */
+      Defines the color to be used for the midpoint of a diverging scale, based on the current value of the `midpoint` method (defaults to `0`). Colors in between this value and the values of `colorMin` and `colorMax` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
+*/
   colorMid(): string;
   colorMid(_: string): this;
   colorMid(_?: string): any {
@@ -911,11 +876,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Defines the color to be used for numbers less than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-      @param {String} [*value* = "#b22200"]
-      @chainable
-  */
+      Defines the color to be used for numbers less than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
+*/
   colorMin(): string;
   colorMin(_: string): this;
   colorMin(_?: string): any {
@@ -923,11 +885,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape key will be drawn for each object in the array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to create shapes. A shape key will be drawn for each object in the array.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): unknown {
@@ -935,11 +894,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc In a linear scale, this Array of 2 values defines the min and max values used in the color scale. Any values outside of this range will be mapped to the nearest color value.
-      @param {Array} [*value*]
-      @chainable
-  */
+      In a linear scale, this Array of 2 values defines the min and max values used in the color scale. Any values outside of this range will be mapped to the nearest color value.
+*/
   domain(): number[] | undefined;
   domain(_: number[]): this;
   domain(_?: number[]): unknown {
@@ -947,11 +903,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the transition duration of the ColorScale and returns the current class instance. If *value* is not specified, returns the current duration.
-      @param {Number} [*value* = 600]
-      @chainable
-  */
+      Transition duration of the ColorScale.
+*/
   duration(): number;
   duration(_: number): this;
   duration(_?: number): any {
@@ -959,11 +912,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the overall height of the ColorScale and returns the current class instance. If *value* is not specified, returns the current height value.
-      @param {Number} [*value* = 100]
-      @chainable
-  */
+      Overall height of the ColorScale.
+*/
   height(): number;
   height(_: number): this;
   height(_?: number): any {
@@ -971,11 +921,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
-      @param {Object} [*value*]
-      @chainable
-  */
+      A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+*/
   labelConfig(): Record<string, unknown>;
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
@@ -985,11 +932,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
-      @param {String} [*value*]
-      @chainable
-  */
+      Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
+*/
   labelMin(): string | undefined;
   labelMin(_: string): this;
   labelMin(_?: string): any {
@@ -997,11 +941,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
-      @param {String} [*value*]
-      @chainable
-  */
+      Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
+*/
   labelMax(): string | undefined;
   labelMax(_: string): this;
   labelMax(_?: string): any {
@@ -1009,11 +950,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
-      @param {Object} [*value*]
-      @chainable
-  */
+      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+*/
   legendConfig(): Record<string, unknown>;
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
@@ -1023,11 +961,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The number value to be used as the anchor for `colorMid`, and defines the center point of the diverging color scale.
-      @param {Number} [*value* = 0]
-      @chainable
-  */
+      The number value to be used as the anchor for `colorMid`, and defines the center point of the diverging color scale.
+*/
   midpoint(): number;
   midpoint(_: number): this;
   midpoint(_?: number): any {
@@ -1035,11 +970,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc Sets the flow of the items inside the ColorScale. If no value is passed, the current flow will be returned.
-      @param {String} [*value* = "bottom"]
-      @chainable
-  */
+      The flow orientation of the ColorScale items.
+*/
   orient(): string;
   orient(_: string): this;
   orient(_?: string): any {
@@ -1047,21 +979,17 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If called after the elements have been drawn to DOM, will returns the outer bounds of the ColorScale content.
+      Returns the outer bounds of the ColorScale content. Must be called after rendering.
       @example
 {"width": 180, "height": 24, "x": 10, "y": 20}
-  */
+*/
   outerBounds(): Record<string, number> {
     return this._outerBounds;
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the padding between each key to the specified number and returns the current class instance. If *value* is not specified, returns the current padding value.
-      @param {Number} [*value* = 10]
-      @chainable
-  */
+      The padding between each key.
+*/
   padding(): number;
   padding(_: number): this;
   padding(_?: number): any {
@@ -1069,11 +997,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
-      @param {Object} [*value*]
-      @chainable
-  */
+      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+*/
   rectConfig(): Record<string, unknown>;
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): unknown {
@@ -1083,11 +1008,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the scale of the ColorScale and returns the current class instance. If *value* is not specified, returns the current scale value.
-      @param {String} [*value* = "linear"] Can either be "linear", "jenks", or "buckets".
-      @chainable
-  */
+      Scale of the ColorScale.
+*/
   scale(): string;
   scale(_: string): this;
   scale(_?: string): any {
@@ -1095,11 +1017,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element for this visualization. 3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement): this;
   select(_?: string | HTMLElement): unknown {
@@ -1109,11 +1028,8 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc The height of horizontal color scales, and width when positioned vertical.
-      @param {Number} [*value* = 10]
-      @chainable
-  */
+      The height of horizontal color scales, and width when positioned vertical.
+*/
   size(): number;
   size(_: number): this;
   size(_?: number): any {
@@ -1121,15 +1037,13 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the value accessor to the specified function or string and returns the current class instance. If *value* is not specified, returns the current value accessor.
-      @param {Function|String} [*value*]
-      @chainable
-      @example
+      The value accessor used to determine each data point's position on the color scale.
+
+@example
 function value(d) {
   return d.value;
 }
-  */
+*/
   value(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   value(
     _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
@@ -1143,11 +1057,8 @@ function value(d) {
   }
 
   /**
-      @memberof ColorScale
-      @desc If *value* is specified, sets the overall width of the ColorScale and returns the current class instance. If *value* is not specified, returns the current width value.
-      @param {Number} [*value* = 400]
-      @chainable
-  */
+      Overall width of the ColorScale.
+*/
   width(): number;
   width(_: number): this;
   width(_?: number): any {

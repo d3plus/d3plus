@@ -88,8 +88,7 @@ ${polyfills}`,
   };
 
   /**
-      @function output
-      @desc Custom event handler for rollup watch bundle.
+      Custom event handler for rollup watch bundle.
       @private
   */
   function onwarn(e) {

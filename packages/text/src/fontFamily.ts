@@ -1,8 +1,7 @@
 /**
-    @const fontFamily
-    @desc The default fallback font list used for all text labels as an Array of Strings.
-    @returns {Array<string>}
-*/
+ * The default fallback font list used for all text labels as an Array of Strings.
+ * @defaultValue `["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]`
+ */
 export const fontFamily: string[] = [
   "Inter",
   "Helvetica Neue",
@@ -13,12 +12,11 @@ export const fontFamily: string[] = [
 ];
 
 /**
-    @const fontFamilyStringify
-    @desc Converts an Array of font-family names into a CSS font-family string.
-    @param {String|Array<string>} *family*
-    @returns {String}
+    Converts an Array of font-family names into a CSS font-family string.
+    @param family A font family name or array of font family names.
 */
-export const fontFamilyStringify = (family: string | string[]): string =>
-  (typeof family === "string" ? [family] : family)
+export function fontFamilyStringify(family: string | string[]): string {
+  return (typeof family === "string" ? [family] : family)
     .map(d => (d.match(/^[a-z-_]{1,}$/) ? d : `'${d}'`))
     .join(", ");
+}

@@ -48,9 +48,8 @@ const uppercase: string[] = acronyms.reduce(
 );
 
 /**
-    @function titleCase
-    @desc Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
-    @param {String} str The string to apply the title case logic.
+    Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
+    @param str The string to apply the title case logic.
 */
 export default function (str: string | undefined): string {
   if (str === undefined) return "";

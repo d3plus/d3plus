@@ -7,15 +7,15 @@ import {trimRight} from "./trim.js";
 const softHyphen = "\u00AD";
 
 export interface TextWrapResult {
-  /** The array of wrapped line strings. */
+  /** The array of wrapped line strings.*/
   lines: string[];
-  /** The original input sentence. */
+  /** The original input sentence.*/
   sentence: string;
-  /** Whether the text was truncated. */
+  /** Whether the text was truncated.*/
   truncated: boolean;
-  /** The pixel widths of each line. */
+  /** The pixel widths of each line.*/
   widths: number[];
-  /** The array of words from splitting. */
+  /** The array of words from splitting.*/
   words: string[];
 }
 
@@ -42,8 +42,7 @@ export interface TextWrapGenerator {
 }
 
 /**
-    @function textWrap
-    @desc Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
+    Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 */
 export default function (): TextWrapGenerator {
   let fontFamily = "sans-serif",
@@ -59,7 +58,7 @@ export default function (): TextWrapGenerator {
   /**
       The inner return object and wraps the text and returns the line data array.
       @private
-  */
+*/
   function textWrap(sentence: string): TextWrapResult {
     sentence = stringify(sentence);
 
@@ -136,28 +135,22 @@ export default function (): TextWrapGenerator {
   }
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the font family accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current font family.
-      @param {Function|String} [*value* = "sans-serif"]
-  */
+      The font family used for text measurement.
+*/
   textWrap.fontFamily = function (_?: string): string | typeof textWrap {
     return arguments.length ? ((fontFamily = _!), textWrap) : fontFamily;
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the font size accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font size.
-      @param {Function|Number} [*value* = 10]
-  */
+      The font size in pixels used for text measurement.
+*/
   textWrap.fontSize = function (_?: number): number | typeof textWrap {
     return arguments.length ? ((fontSize = _!), textWrap) : fontSize;
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the font weight accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font weight.
-      @param {Function|Number|String} [*value* = 400]
-  */
+      The font weight used for text measurement.
+*/
   textWrap.fontWeight = function (
     _?: number | string,
   ): number | string | typeof textWrap {
@@ -165,19 +158,15 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets height limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
-      @param {Number} [*value* = 200]
-  */
+      Maximum height in pixels for the wrapped text.
+*/
   textWrap.height = function (_?: number): number | typeof textWrap {
     return arguments.length ? ((height = _!), textWrap) : height;
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the line height accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current line height accessor, which is 1.1 times the [font size](#textWrap.fontSize) by default.
-      @param {Function|Number} [*value*]
-  */
+      The line height in pixels. Defaults to 1.1 times the [font size](#textWrap.fontSize).
+*/
   textWrap.lineHeight = function (
     _?: number,
   ): number | undefined | typeof textWrap {
@@ -185,10 +174,8 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the maximum number of lines allowed when wrapping.
-      @param {Function|Number} [*value*]
-  */
+      Maximum number of lines allowed when wrapping.
+*/
   textWrap.maxLines = function (
     _?: number | null,
   ): number | null | typeof textWrap {
@@ -196,19 +183,15 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the overflow to the specified boolean and returns this generator. If *value* is not specified, returns the current overflow value.
-      @param {Boolean} [*value* = false]
-  */
+      Whether text is allowed to overflow its bounding box.
+*/
   textWrap.overflow = function (_?: boolean): boolean | typeof textWrap {
     return arguments.length ? ((overflow = _!), textWrap) : overflow;
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets the word split function to the specified function and returns this generator. If *value* is not specified, returns the current word split function.
-      @param {Function} [*value*] A function that, when passed a string, is expected to return that string split into an array of words to textWrap. The default split function splits strings on the following characters: `-`, `/`, `;`, `:`, `&`
-  */
+      The function used to split text into words.
+*/
   textWrap.split = function (
     _?: (sentence: string) => string[],
   ): ((sentence: string) => string[]) | typeof textWrap {
@@ -216,10 +199,8 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      @memberof textWrap
-      @desc If *value* is specified, sets width limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
-      @param {Number} [*value* = 200]
-  */
+      Maximum width in pixels for the wrapped text.
+*/
   textWrap.width = function (_?: number): number | typeof textWrap {
     return arguments.length ? ((width = _!), textWrap) : width;
   };

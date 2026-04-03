@@ -4,7 +4,7 @@ import type Viz from "../Viz.js";
 
 /**
     @name _drawAttribution
-    @desc Draws absolute positioned attribution text.
+    Draws absolute positioned attribution text.
     @private
 */
 export default function (this: Viz): void {

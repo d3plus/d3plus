@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   p: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The point to be checked, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -18,13 +16,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   s1: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -33,13 +29,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   s2: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -48,7 +42,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   }
 };

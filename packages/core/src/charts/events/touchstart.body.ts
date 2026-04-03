@@ -2,7 +2,7 @@ import type Viz from "../Viz.js";
 
 /**
     @module touchStartBody
-    @desc On touchstart event for the Body element.
+    On touchstart event for the Body element.
     @private
  */
 export default function (this: Viz): void {

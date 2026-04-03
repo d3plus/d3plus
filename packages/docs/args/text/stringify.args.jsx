@@ -7,9 +7,8 @@ import React from "react";
 
 export const argTypes = {
   value: {
-    control: {
-      type: "text"
-    },
+    control: {},
+    description: "The value to convert to a string.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -17,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string"
+      summary: "unknown"
     }
   }
 };

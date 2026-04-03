@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   font: {
     control: {
-      type: "object"
+      type: "text"
     },
     description: "Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names.",
     table: {
@@ -18,7 +18,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string | array"
+      summary: "string | array.&lt;string&gt;"
     }
   }
 };

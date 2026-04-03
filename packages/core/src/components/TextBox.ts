@@ -26,9 +26,7 @@ const defaultHtmlLookup: Record<string, string> = {
 };
 
 /**
-    @class TextBox
-    @extends BaseClass
-    @desc Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+    Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
 */
 export default class TextBox extends BaseClass {
   _select: D3Selection;
@@ -94,10 +92,9 @@ export default class TextBox extends BaseClass {
   _y: (d: DataPoint, i?: number) => any;
 
   /**
-      @memberof TextBox
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -138,10 +135,9 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.
-      @param {Function} [*callback* = undefined]
-  */
+      Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: Function): this {
     if (this._select === void 0)
       this.select(
@@ -205,7 +201,7 @@ export default class TextBox extends BaseClass {
         /**
           Figures out the lineData to be used for wrapping.
           @private
-      */
+*/
         function checkSize(): void {
           const truncate = () => {
             if (line < 1) lineData = [that._ellipsis("", line)];
@@ -327,7 +323,7 @@ export default class TextBox extends BaseClass {
      * Applies translate and rotate to a text element.
      * @param {D3Selection} text
      * @private
-     */
+*/
      
     function rotate(text: any): void {
        
@@ -357,7 +353,7 @@ export default class TextBox extends BaseClass {
         /**
             Sets the inner text content of each <text> element.
             @private
-        */
+*/
          
         function textContent(text: any): void {
           let tag: string | false = false;
@@ -405,7 +401,7 @@ export default class TextBox extends BaseClass {
         /**
             Styles to apply to each <text> element.
             @private
-        */
+*/
          
         function textStyle(text: any): void {
           text
@@ -492,12 +488,8 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc If *value* is specified, sets the aria-hidden attribute to the specified function or string and returns the current class instance.
-      @param {Function|String} *value*
-      @chainable
-  */
-   
+      The aria-hidden attribute.
+*/
   ariaHidden(): any;
    
   ariaHidden(_: any): this;
@@ -509,11 +501,8 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the data array to the specified array. A text box will be drawn for each object in the array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to draw text boxes. A text box will be drawn for each object in the array.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
@@ -521,11 +510,8 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the animation delay to the specified number in milliseconds.
-      @param {Number} [*value* = 0]
-      @chainable
-  */
+      The animation delay in milliseconds.
+*/
   delay(): number;
   delay(_: number): this;
   delay(_?: number): any {
@@ -533,11 +519,8 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the animation duration to the specified number in milliseconds.
-      @param {Number} [*value* = 0]
-      @chainable
-  */
+      The animation duration in milliseconds.
+*/
   duration(): number;
   duration(_: number): this;
   duration(_?: number): any {
@@ -545,15 +528,13 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the function that handles what to do when a line is truncated. It should return the new value for the line, and is passed 2 arguments: the String of text for the line in question, and the number of the line. By default, an ellipsis is added to the end of any line except if it is the first word that cannot fit (in that case, an empty string is returned).
-      @param {Function|String} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The function that handles truncated lines. It should return the new value for the line, and is passed 2 arguments: the String of text for the line in question, and the number of the line. By default, an ellipsis is added to the end of any line except if it is the first word that cannot fit (in that case, an empty string is returned).
+
+@example <caption>default accessor</caption>
 function(text, line) {
   return line ? text.replace(/\.|,$/g, "") + "..." : "";
 }
-  */
+*/
    
   ellipsis(): any;
    
@@ -566,12 +547,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font color to the specified accessor function or static string, which is inferred from the [DOM selection](#textBox.select) by default.
-      @param {Function|String} [*value* = "black"]
-      @chainable
-  */
-   
+      The font color as an accessor function or static string. Inferred from the [DOM selection](#textBox.select) by default.
+*/
   fontColor(): any;
    
   fontColor(_: any): this;
@@ -583,11 +560,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Defines the font-family to be used. The value passed can be either a *String* name of a font, a comma-separated list of font-family fallbacks, an *Array* of fallbacks, or a *Function* that returns either a *String* or an *Array*. If supplying multiple fallback fonts, the [fontExists](#fontExists) function will be used to determine the first available font on the client's machine.
-      @param {Array|Function|String} [*value* = ["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]]
-      @chainable
-  */
+      Defines the font-family to be used. The value passed can be either a *String* name of a font, a comma-separated list of font-family fallbacks, an *Array* of fallbacks, or a *Function* that returns either a *String* or an *Array*. If supplying multiple fallback fonts, the [fontExists](#fontExists) function will be used to determine the first available font on the client's machine.
+*/
    
   fontFamily(): any;
    
@@ -600,11 +574,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the maximum font size to the specified accessor function or static number (which corresponds to pixel units), which is used when [dynamically resizing fonts](#textBox.fontResize).
-      @param {Function|Number} [*value* = 50]
-      @chainable
-  */
+      The maximum font size in pixels, used when [dynamically resizing fonts](#textBox.fontResize).
+*/
   fontMax(): any;
   fontMax(_: number): this;
   fontMax(_?: number): unknown {
@@ -614,11 +585,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the minimum font size to the specified accessor function or static number (which corresponds to pixel units), which is used when [dynamically resizing fonts](#textBox.fontResize).
-      @param {Function|Number} [*value* = 8]
-      @chainable
-  */
+      The minimum font size in pixels, used when [dynamically resizing fonts](#textBox.fontResize).
+*/
   fontMin(): any;
   fontMin(_: number): this;
   fontMin(_?: number): unknown {
@@ -628,11 +596,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font opacity to the specified accessor function or static number between 0 and 1.
-      @param {Function|Number} [*value* = 1]
-      @chainable
-   */
+      The font opacity as an accessor function or static number between 0 and 1.
+*/
   fontOpacity(): any;
   fontOpacity(_: number): this;
   fontOpacity(_?: number): unknown {
@@ -642,11 +607,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Toggles font resizing, which can either be defined as a static boolean for all data points, or an accessor function that returns a boolean. See [this example](http://d3plus.org/examples/d3plus-text/resizing-text/) for a side-by-side comparison.
-      @param {Function|Boolean} [*value* = false]
-      @chainable
-  */
+      Toggles font resizing, which can either be defined as a static boolean for all data points, or an accessor function that returns a boolean. See [this example](http://d3plus.org/examples/d3plus-text/resizing-text/) for a side-by-side comparison.
+*/
   fontResize(): any;
   fontResize(_: boolean): this;
   fontResize(_?: boolean): unknown {
@@ -656,11 +618,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font size to the specified accessor function or static number (which corresponds to pixel units), which is inferred from the [DOM selection](#textBox.select) by default.
-      @param {Function|Number} [*value* = 10]
-      @chainable
-  */
+      The font size in pixels. Inferred from the [DOM selection](#textBox.select) by default.
+*/
   fontSize(): any;
   fontSize(_: number): this;
   fontSize(_?: number): unknown {
@@ -670,11 +629,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font stroke color for the rendered text.
-      @param {Function|String} [*value* = "transparent"]
-      @chainable
-  */
+      The font stroke color for the rendered text.
+*/
   fontStroke(): any;
   fontStroke(_: string): this;
   fontStroke(_?: string): unknown {
@@ -684,11 +640,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font stroke width for the rendered text.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-  */
+      The font stroke width for the rendered text.
+*/
   fontStrokeWidth(): any;
   fontStrokeWidth(_: number): this;
   fontStrokeWidth(_?: number): unknown {
@@ -699,11 +652,8 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the font weight to the specified accessor function or static number, which is inferred from the [DOM selection](#textBox.select) by default.
-      @param {Function|Number|String} [*value* = 400]
-      @chainable
-  */
+      The font weight. Inferred from the [DOM selection](#textBox.select) by default.
+*/
   fontWeight(): any;
   fontWeight(_: number | string): this;
   fontWeight(_?: number | string): unknown {
@@ -713,15 +663,13 @@ function(text, line) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the height for each box to the specified accessor function or static number.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The height for each text box.
+
+@example <caption>default accessor</caption>
 function(d) {
   return d.height || 200;
 }
-  */
+*/
   height(): any;
   height(_: number): this;
   height(_?: number): unknown {
@@ -731,16 +679,8 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles
-      @param {Object|Boolean} [*value* = {
-                i: 'font-style: italic;',
-                em: 'font-style: italic;',
-                b: 'font-weight: bold;',
-                strong: 'font-weight: bold;'
-            }]
-      @chainable
-  */
+      Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles
+*/
   html(): Record<string, string> | false;
   html(_: Record<string, string> | boolean): this;
   html(_?: Record<string, string> | boolean): unknown {
@@ -752,15 +692,13 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Defines the unique id for each box to the specified accessor function or static number.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The unique id for each text box.
+
+@example <caption>default accessor</caption>
 function(d, i) {
   return d.id || i + "";
 }
-  */
+*/
    
   id(): any;
    
@@ -773,11 +711,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the line height to the specified accessor function or static number, which is 1.2 times the [font size](#textBox.fontSize) by default.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The line height, which is 1.2 times the [font size](#textBox.fontSize) by default.
+*/
   lineHeight(): (d: DataPoint, i?: number) => number;
   lineHeight(_: ((d: DataPoint, i?: number) => number) | number): this;
   lineHeight(_?: ((d: DataPoint, i?: number) => number) | number): unknown {
@@ -787,11 +722,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Restricts the maximum number of lines to wrap onto, which is null (unlimited) by default.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      Restricts the maximum number of lines to wrap onto, which is null (unlimited) by default.
+*/
   maxLines(): any;
   maxLines(_: number | null): this;
   maxLines(_?: number | null): unknown {
@@ -801,11 +733,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the text overflow to the specified accessor function or static boolean.
-      @param {Function|Boolean} [*value* = false]
-      @chainable
-  */
+      Whether text is allowed to overflow its bounding box.
+*/
   overflow(): any;
   overflow(_: boolean): this;
   overflow(_?: boolean): unknown {
@@ -815,11 +744,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the padding to the specified accessor function, CSS shorthand string, or static number, which is 0 by default.
-      @param {Function|Number|String} [*value*]
-      @chainable
-  */
+      The padding as a CSS shorthand string or number. Defaults to 0.
+*/
   padding(): any;
   padding(_: number | string): this;
   padding(_?: number | string): unknown {
@@ -829,11 +755,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the pointer-events to the specified accessor function or static string.
-      @param {Function|String} [*value* = "auto"]
-      @chainable
-  */
+      The pointer-events CSS property for each text box.
+*/
   pointerEvents(): any;
   pointerEvents(_: string): this;
   pointerEvents(_?: string): unknown {
@@ -844,11 +767,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the rotate percentage for each box to the specified accessor function or static string.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-  */
+      The rotation angle in degrees for each text box.
+*/
   rotate(): any;
   rotate(_: number): this;
   rotate(_?: number): unknown {
@@ -858,11 +778,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the anchor point around which to rotate the text box.
-      @param {Function|Number[]}
-      @chainable
-   */
+      The anchor point around which to rotate the text box.
+*/
   rotateAnchor(): (d: DataPoint, i?: number) => [number, number];
   rotateAnchor(
     _: ((d: DataPoint, i?: number) => [number, number]) | [number, number],
@@ -876,11 +793,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the SVG container element to the specified d3 selector or DOM element. If not explicitly specified, an SVG element will be added to the page for use.
-      @param {String|HTMLElement} [*selector*]
-      @chainable
-  */
+      The SVG container element as a d3 selector or DOM element. If not specified, an SVG element will be added to the page.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement): this;
   select(_?: string | HTMLElement): unknown {
@@ -890,11 +804,8 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the word split behavior to the specified function, which when passed a string is expected to return that string split into an array of words.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The word split function, which when passed a string is expected to return that string split into an array of words.
+*/
   split(): (text: string, i?: number) => string[];
   split(_: (text: string, i?: number) => string[]): this;
   split(_?: (text: string, i?: number) => string[]): unknown {
@@ -902,15 +813,13 @@ function(d, i) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the text for each box to the specified accessor function or static string.
-      @param {Function|String} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The text content for each box.
+
+@example <caption>default accessor</caption>
 function(d) {
   return d.text;
 }
-  */
+*/
   text(): any;
   text(_: string): this;
   text(_?: string): unknown {
@@ -920,11 +829,8 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the horizontal text anchor to the specified accessor function or static string, whose values are analagous to the SVG [text-anchor](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor) property.
-      @param {Function|String} [*value* = "start"]
-      @chainable
-  */
+      The horizontal text anchor, analagous to the SVG [text-anchor](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor) property.
+*/
   textAnchor(): any;
   textAnchor(_: string): this;
   textAnchor(_?: string): unknown {
@@ -934,11 +840,8 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the vertical alignment to the specified accessor function or static string. Accepts `"top"`, `"middle"`, and `"bottom"`.
-      @param {Function|String} [*value* = "top"]
-      @chainable
-  */
+      The vertical alignment. Accepts `"top"`, `"middle"`, and `"bottom"`.
+*/
   verticalAlign(): any;
   verticalAlign(_: string): this;
   verticalAlign(_?: string): unknown {
@@ -949,15 +852,13 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the width for each box to the specified accessor function or static number.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The width for each text box.
+
+@example <caption>default accessor</caption>
 function(d) {
   return d.width || 200;
 }
-  */
+*/
   width(): any;
   width(_: number): this;
   width(_?: number): unknown {
@@ -967,15 +868,13 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the x position for each box to the specified accessor function or static number. The number given should correspond to the left side of the textBox.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The x position for each text box. The number given should correspond to the left side of the textBox.
+
+@example <caption>default accessor</caption>
 function(d) {
   return d.x || 0;
 }
-  */
+*/
   x(): any;
   x(_: number): this;
   x(_?: number): unknown {
@@ -985,15 +884,13 @@ function(d) {
   }
 
   /**
-      @memberof TextBox
-      @desc Sets the y position for each box to the specified accessor function or static number. The number given should correspond to the top side of the textBox.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example <caption>default accessor</caption>
+      The y position for each text box. The number given should correspond to the top side of the textBox.
+
+@example <caption>default accessor</caption>
 function(d) {
   return d.y || 0;
 }
-  */
+*/
   y(): any;
   y(_: number): this;
   y(_?: number): unknown {

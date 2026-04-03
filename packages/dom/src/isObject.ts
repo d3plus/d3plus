@@ -1,7 +1,6 @@
 /**
-    @function isObject
-    @desc Detects if a variable is a javascript Object.
-    @param {*} item
+    Detects if a variable is a javascript Object.
+    @param item The value to test.
 */
 export default function (item: unknown): boolean {
   return item &&

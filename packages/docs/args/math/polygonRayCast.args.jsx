@@ -10,11 +10,11 @@ export const argTypes = {
     control: {
       type: "number"
     },
-    defaultValue: 0,
+    defaultValue: "0",
     description: "The angle in radians of the ray.",
     table: {
       defaultValue: {
-        summary: 0
+        summary: "0"
       }
     },
     type: {
@@ -23,9 +23,7 @@ export const argTypes = {
     }
   },
   origin: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -34,13 +32,11 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "point"
     }
   },
   poly: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "The polygon to test against, which should be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
@@ -49,7 +45,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "array.&lt;point&gt;"
     }
   }
 };

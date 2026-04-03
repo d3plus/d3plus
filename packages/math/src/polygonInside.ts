@@ -4,11 +4,9 @@ import type {Point} from "./lineIntersection.js";
 import segmentsIntersect from "./segmentsIntersect.js";
 
 /**
-    @function polygonInside
-    @desc Checks if one polygon is inside another polygon.
-    @param {Array} polyA An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA.
-    @param {Array} polyB An Array of `[x, y]` points to be used as the containing polygon.
-    @returns {Boolean}
+    Checks if one polygon is inside another polygon.
+    @param polyA An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA.
+    @param polyB An Array of `[x, y]` points to be used as the containing polygon.
 */
 export default function (polyA: Point[], polyB: Point[]): boolean {
   let iA = -1;

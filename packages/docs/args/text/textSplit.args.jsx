@@ -10,6 +10,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
+    description: "The sentence to split into words.",
     table: {
       defaultValue: {
         summary: "undefined"

@@ -2,9 +2,9 @@ import type {DataPoint} from "@d3plus/data";
 
 /**
     @module getProp
-    @param {String} type
-    @param {Object} d
-    @param {Number} i
+    @param type
+    @param d
+    @param i
     @private
 */
 export default function getProp(

@@ -42,10 +42,9 @@ function measureWidth(text: string, font: string): number {
 }
 
 /**
-    @function textWidth
-    @desc Given a text string, returns the predicted pixel width of the string when placed into DOM.
-    @param {String|Array} text Can be either a single string or an array of strings to analyze.
-    @param {Object} [style] An object of CSS font styles to apply. Accepts any of the valid [CSS font property](http://www.w3schools.com/cssref/pr_font_font.asp) values.
+    Given a text string, returns the predicted pixel width of the string when placed into DOM.
+    @param text The text string to measure.
+    @param style CSS style properties to apply when measuring.
 */
 export default function (
   text: string,

@@ -8,6 +8,7 @@ import React from "react";
 export const argTypes = {
   item: {
     control: {},
+    description: "The value to test.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -15,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "*"
+      summary: "unknown"
     }
   }
 };

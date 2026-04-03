@@ -3,9 +3,7 @@ import type {DataPoint} from "@d3plus/data";
 import type Viz from "../Viz.js";
 
 /**
-    @function _drawSubtitle
-    @desc Draws a subtitle if this._subtitle is defined.
-    @param {Array} [*data*] The currently filtered dataset.
+    Draws a subtitle if this._subtitle is defined.
     @private
 */
 export default function (this: Viz, data: DataPoint[] = []): void {

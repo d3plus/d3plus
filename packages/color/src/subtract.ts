@@ -1,13 +1,11 @@
 import {hsl} from "d3-color";
 
 /**
-    @function colorSubtract
-    @desc Subtracts one color from another.
-    @param {String} c1 The base color, a valid CSS color string.
-    @param {String} c2 The color to remove from the base color, also a valid CSS color string.
-    @param {String} [o1 = 1] Value from 0 to 1 of the first color's opacity.
-    @param {String} [o2 = 1] Value from 0 to 1 of the first color's opacity.
-    @returns {String}
+    Subtracts one color from another.
+    @param c1 The base color, a valid CSS color string.
+    @param c2 The color to remove from the base color, also a valid CSS color string.
+    @param o1 Value from 0 to 1 of the first color's opacity.
+    @param o2 Value from 0 to 1 of the first color's opacity.
 */
 export default function (
   c1: string,

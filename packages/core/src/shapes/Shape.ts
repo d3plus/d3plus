@@ -30,7 +30,7 @@ export interface ShapeAes {
  * @param {*} nodeList
  * @param {*} classNames
  * @private
- */
+*/
 function findLastIndexWithClass(
   nodeList: NodeListOf<ChildNode>,
   classNames: string[],
@@ -51,9 +51,7 @@ function findLastIndexWithClass(
 import Image from "./Image.js";
 
 /**
-    @class Shape
-    @extends BaseClass
-    @desc An abstracted class for generating shapes.
+    An abstracted class for generating shapes.
 */
 export default class Shape extends BaseClass {
   _activeOpacity: number;
@@ -103,6 +101,7 @@ export default class Shape extends BaseClass {
   _y: AccessorFn;
   _select: D3Selection;
   _transition: ReturnType<typeof transition>;
+  /** @param data The raw data array to filter. */
   _dataFilter?(data: DataPoint[]): DataPoint[];
   _sort: ((a: DataPoint, b: DataPoint) => number) | null;
   _group: D3Selection;
@@ -122,10 +121,9 @@ export default class Shape extends BaseClass {
   _curve: AccessorFn;
 
   /**
-      @memberof Shape
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor(tagName: string = "g") {
     super();
 
@@ -202,22 +200,18 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(_d?: DataPoint, _i?: number): ShapeAes {
     return {};
   }
 
   /**
-      @memberof Shape
-      @desc Adds event listeners to each shape group or hit area.
-      @param {D3Selection} *update* The update cycle of the data binding.
+      Adds event listeners to each shape group or hit area.
       @private
-  */
+*/
   _applyEvents(handler: D3Selection): void {
     const events = Object.keys(this._on);
     for (let e = 0; e < events.length; e++) {
@@ -246,12 +240,10 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Provides the updated styling to the given shape elements.
-      @param {HTMLElement} *elem*
-      @param {Object} *style*
+      Provides the updated styling to the given shape elements.
+
       @private
-  */
+*/
   _updateStyle(elem: D3Selection, style: Record<string, unknown>): void {
     const that = this;
 
@@ -259,11 +251,11 @@ export default class Shape extends BaseClass {
       elem = elem.selectAll("*") as unknown as D3Selection;
 
     /**
-        @desc Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @param {Object} *d* data point
-        @param {Number} *i* index
+        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
+        @param d data point
+        @param i index
         @private
-    */
+*/
     function styleLogic(this: unknown, d: DataPoint, i: number): unknown {
       return typeof this !== "function"
         ? this
@@ -286,11 +278,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Provides the default styling to the shape elements.
-      @param {HTMLElement} *elem*
-      @private
-  */
+      Provides the default styling to the shape elements.
+      @param elem @private
+*/
   _applyStyle(elem: D3Selection): void {
     const that = this;
 
@@ -298,11 +288,11 @@ export default class Shape extends BaseClass {
       elem = elem.selectAll("*") as unknown as D3Selection;
 
     /**
-        @desc Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @param {Object} *d* data point
-        @param {Number} *i* index
+        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
+        @param d data point
+        @param i index
         @private
-    */
+*/
     function styleLogic(this: unknown, d: DataPoint, i: number): unknown {
       return typeof this !== "function"
         ? this
@@ -337,11 +327,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Calculates the transform for the group elements.
-      @param {HTMLElement} *elem*
-      @private
-  */
+      Calculates the transform for the group elements.
+      @param elem @private
+*/
   _applyTransform(elem: D3Selection): void {
     (elem as any).attr(
       "transform",
@@ -369,20 +357,18 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Returns a full JSON string of the texture config for a given data point.
-      @param {Object} *d*
-      @param {Number} *i*
+      Returns a full JSON string of the texture config for a given data point.
+
       @private
-  */
+*/
   _getTextureKey(d: DataPoint, i: number): string | false {
     let textureVal: unknown = this._texture(d, i);
     if (!textureVal) return false;
 
     /**
-        @desc Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
+        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
         @private
-    */
+*/
     const styleLogic = (_: unknown): unknown => {
       return typeof _ !== "function"
         ? _
@@ -433,11 +419,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Checks for nested data and uses the appropriate variables for accessor functions.
-      @param {HTMLElement} *elem*
-      @private
-  */
+      Checks for nested data and uses the appropriate variables for accessor functions.
+      @param elem @private
+*/
   _nestWrapper(
     method: AccessorFn,
   ): (d: DataPoint, i: number) => DataPoint[keyof DataPoint] {
@@ -449,10 +433,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Modifies existing shapes to show active status.
+      Modifies existing shapes to show active status.
       @private
-  */
+*/
   _renderActive(): void {
     const that = this;
 
@@ -510,10 +493,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Modifies existing shapes to show hover status.
+      Modifies existing shapes to show hover status.
       @private
-  */
+*/
   _renderHover(): void {
     const that = this;
 
@@ -594,10 +576,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Adds background image to each shape group.
+      Adds background image to each shape group.
       @private
-  */
+*/
   _renderImage(): void {
     const imageData: DataPoint[] = [];
 
@@ -668,10 +649,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Adds labels to each shape group.
+      Adds labels to each shape group.
       @private
-  */
+*/
   _renderLabels(): void {
     const labelData: DataPoint[] = [];
 
@@ -788,11 +768,9 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     if (this._select === void 0) {
       this.select(
@@ -1019,11 +997,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The active callback function for highlighting shapes.
+*/
   active(): ((d: DataPoint, i: number) => boolean) | null;
   active(_: ((d: DataPoint, i: number) => boolean) | null): this;
   active(
@@ -1040,53 +1015,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc When shapes are active, this is the opacity of any shape that is not active.
-      @param {Number} *value* = 0.25
-      @chainable
-  */
-  activeOpacity(): number;
-  activeOpacity(_: number): this;
-  activeOpacity(_?: number): number | this {
-    return arguments.length
-      ? ((this._activeOpacity = _!), this)
-      : this._activeOpacity;
-  }
-
-  /**
-      @memberof Shape
-      @desc The style to apply to active shapes.
-      @param {Object} *value*
-      @chainable
-  */
-  activeStyle(): Record<string, unknown>;
-  activeStyle(_: Record<string, unknown>): this;
-  activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
-    return arguments.length
-      ? ((this._activeStyle = assign({}, this._activeStyle, _)), this)
-      : this._activeStyle;
-  }
-
-  /**
-      @memberof Shape
-      @desc If *value* is specified, sets the aria-label attribute to the specified function or string and returns the current class instance.
-      @param {Function|String} *value*
-      @chainable
-  */
-  ariaLabel(): AccessorFn;
-  ariaLabel(_: AccessorFn | string): this;
-  ariaLabel(_?: AccessorFn | string): AccessorFn | this {
-    return _ !== undefined
-      ? ((this._ariaLabel = typeof _ === "function" ? _ : constant(_)), this)
-      : this._ariaLabel;
-  }
-
-  /**
-      @memberof Shape
-      @desc If *value* is specified, sets the background-image accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = false]
-      @chainable
-  */
+      When shapes are active, this is the opacity of any shape that is not active.
+*/
   backgroundImage(): AccessorFn;
   backgroundImage(_: AccessorFn | string): this;
   backgroundImage(_?: AccessorFn | string): AccessorFn | this {
@@ -1097,11 +1027,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. A shape will be drawn for each object in the array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to create shapes. A shape will be drawn for each object in the array.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
@@ -1109,11 +1036,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Determines if either the X or Y position is discrete along a Line, which helps in determining the nearest data point on a line for a hit area event.
-      @param {String} *value*
-      @chainable
-  */
+      Determines if either the X or Y position is discrete along a Line, which helps in determining the nearest data point on a line for a hit area event.
+*/
   discrete(): string | undefined;
   discrete(_: string): this;
   discrete(_?: string): string | undefined | this {
@@ -1121,11 +1045,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
-      @param {Number} [*ms* = 600]
-      @chainable
-  */
+      The animation duration in milliseconds.
+*/
   duration(): number;
   duration(_: number): this;
   duration(_?: number): number | this {
@@ -1133,11 +1054,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the fill accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = "black"]
-      @chainable
-  */
+      The fill color accessor for each shape.
+*/
   fill(): AccessorFn;
   fill(_: AccessorFn | string): this;
   fill(_?: AccessorFn | string): AccessorFn | this {
@@ -1147,11 +1065,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "fill-opacity" attribute for the shapes.
-      @param {Function|Number} [*value* = 1]
-      @chainable
-  */
+      Defines the "fill-opacity" attribute for the shapes.
+*/
   fillOpacity(): AccessorFn;
   fillOpacity(_: AccessorFn | number): this;
   fillOpacity(_?: AccessorFn | number): AccessorFn | this {
@@ -1161,11 +1076,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the highlight accessor to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The hover callback function for highlighting shapes on mouseover.
+*/
   hover(): ((d: DataPoint, i: number) => boolean) | null;
   hover(_: ((d: DataPoint, i: number) => boolean) | null): this;
   hover(
@@ -1182,11 +1094,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc The style to apply to hovered shapes.
-      @param {Object} *value*
-      @chainable
-   */
+      The style to apply to hovered shapes.
+*/
   hoverStyle(): Record<string, unknown>;
   hoverStyle(_: Record<string, unknown>): this;
   hoverStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -1196,11 +1105,8 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the hover opacity to the specified function and returns the current class instance.
-      @param {Number} [*value* = 0.5]
-      @chainable
-  */
+      The opacity of non-hovered shapes when any shape is hovered.
+*/
   hoverOpacity(): number;
   hoverOpacity(_: number): this;
   hoverOpacity(_?: number): number | this {
@@ -1210,10 +1116,7 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      @memberof Shape
-      @desc If *bounds* is specified, sets the mouse hit area to the specified function and returns the current class instance. If *bounds* is not specified, returns the current mouse hit area accessor.
-      @param {Function} [*bounds*] The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`.
-      @chainable
+      The mouse hit area accessor function.
       @example
 function(d, i, shape) {
   return {
@@ -1223,7 +1126,7 @@ function(d, i, shape) {
     "y": -shape.height / 2
   };
 }
-  */
+*/
   hitArea():
     | ((
         d: DataPoint,
@@ -1262,11 +1165,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the id accessor to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The unique id accessor for each shape.
+*/
   id(): AccessorFn;
   id(_: AccessorFn): this;
   id(_?: AccessorFn): AccessorFn | this {
@@ -1274,11 +1174,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.
-      @param {Function|String|Array} [*value*]
-      @chainable
-  */
+      The text label accessor for each shape.
+*/
   label(): AccessorFn;
   label(_: AccessorFn | string | string[]): this;
   label(_?: AccessorFn | string | string[]): AccessorFn | this {
@@ -1290,10 +1187,7 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.
-      @param {Function} [*bounds*] The given function is passed the data point, index, and internally defined properties of the shape and should return an object containing the following values: `width`, `height`, `x`, `y`. If an array is returned from the function, each value will be used in conjunction with each label.
-      @chainable
+      The label bounds accessor function.
       @example
 function(d, i, shape) {
   return {
@@ -1303,7 +1197,7 @@ function(d, i, shape) {
     "y": -shape.height / 2
   };
 }
-  */
+*/
   labelBounds():
     | ((
         d: DataPoint,
@@ -1342,11 +1236,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc A pass-through to the config method of the TextBox class used to create a shape's labels.
-      @param {Object} [*value*]
-      @chainable
-  */
+      A pass-through to the config method of the TextBox class used to create a shape's labels.
+*/
   labelConfig(): Record<string, unknown>;
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -1356,11 +1247,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the opacity accessor to the specified function or number and returns the current class instance.
-      @param {Number} [*value* = 1]
-      @chainable
-  */
+      The opacity accessor for each shape.
+*/
   opacity(): AccessorFn;
   opacity(_: AccessorFn | number): this;
   opacity(_?: AccessorFn | number): AccessorFn | this {
@@ -1370,11 +1258,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the pointerEvents accessor to the specified function or string and returns the current class instance.
-      @param {String} [*value*]
-      @chainable
-   */
+      The pointer-events CSS property for each shape.
+*/
   pointerEvents(): AccessorFn;
   pointerEvents(_: AccessorFn | string): this;
   pointerEvents(_?: AccessorFn | string): AccessorFn | this {
@@ -1385,11 +1270,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the role attribute to the specified function or string and returns the current class instance.
-      @param {Function|String} *value*
-      @chainable
-  */
+      The role attribute.
+*/
   role(): AccessorFn;
   role(_: AccessorFn | string): this;
   role(_?: AccessorFn | string): AccessorFn | this {
@@ -1399,11 +1281,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the rotate accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-   */
+      The rotation angle in degrees for each shape.
+*/
   rotate(): AccessorFn;
   rotate(_: AccessorFn | number): this;
   rotate(_?: AccessorFn | number): AccessorFn | this {
@@ -1413,11 +1292,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "rx" attribute for the shapes.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-  */
+      Defines the "rx" attribute for the shapes.
+*/
   rx(): AccessorFn;
   rx(_: AccessorFn | number): this;
   rx(_?: AccessorFn | number): AccessorFn | this {
@@ -1427,11 +1303,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "rx" attribute for the shapes.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-  */
+      Defines the "rx" attribute for the shapes.
+*/
   ry(): AccessorFn;
   ry(_: AccessorFn | number): this;
   ry(_?: AccessorFn | number): AccessorFn | this {
@@ -1441,11 +1314,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the scale accessor to the specified function or string and returns the current class instance.
-      @param {Function|Number} [*value* = 1]
-      @chainable
-  */
+      The scale transform accessor for each shape.
+*/
   scale(): AccessorFn;
   scale(_: AccessorFn | number): this;
   scale(_?: AccessorFn | number): AccessorFn | this {
@@ -1455,11 +1325,8 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element as a d3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement | SVGElement | null): this;
   select(_?: string | HTMLElement | SVGElement | null): D3Selection | this {
@@ -1469,15 +1336,13 @@ function(d, i, shape) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the shape-rendering accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = "geometricPrecision"]
-      @chainable
-      @example
+      The shape-rendering.
+
+@example
 function(d) {
   return d.x;
 }
-  */
+*/
   shapeRendering(): AccessorFn;
   shapeRendering(_: AccessorFn | string): this;
   shapeRendering(_?: AccessorFn | string): AccessorFn | this {
@@ -1488,11 +1353,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the sort comparator to the specified function and returns the current class instance.
-      @param {false|Function} [*value* = []]
-      @chainable
-  */
+      A comparator function used to sort shapes for layering order.
+*/
   sort(): ((a: DataPoint, b: DataPoint) => number) | null;
   sort(_: ((a: DataPoint, b: DataPoint) => number) | null): this;
   sort(
@@ -1502,11 +1364,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the stroke accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = "black"]
-      @chainable
-  */
+      The stroke color accessor for each shape.
+*/
   stroke(): AccessorFn;
   stroke(_: AccessorFn | string): this;
   stroke(_?: AccessorFn | string): AccessorFn | this {
@@ -1516,11 +1375,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "stroke-dasharray" attribute for the shapes.
-      @param {Function|String} [*value* = "1"]
-      @chainable
-  */
+      Defines the "stroke-dasharray" attribute for the shapes.
+*/
   strokeDasharray(): AccessorFn;
   strokeDasharray(_: AccessorFn | string): this;
   strokeDasharray(_?: AccessorFn | string): AccessorFn | this {
@@ -1531,11 +1387,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "stroke-linecap" attribute for the shapes. Accepted values are `"butt"`, `"round"`, and `"square"`.
-      @param {Function|String} [*value* = "butt"]
-      @chainable
-  */
+      Defines the "stroke-linecap" attribute for the shapes. Accepted values are `"butt"`, `"round"`, and `"square"`.
+*/
   strokeLinecap(): AccessorFn;
   strokeLinecap(_: AccessorFn | string): this;
   strokeLinecap(_?: AccessorFn | string): AccessorFn | this {
@@ -1546,11 +1399,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the "stroke-opacity" attribute for the shapes.
-      @param {Function|Number} [*value* = 1]
-      @chainable
-  */
+      Defines the "stroke-opacity" attribute for the shapes.
+*/
   strokeOpacity(): AccessorFn;
   strokeOpacity(_: AccessorFn | number): this;
   strokeOpacity(_?: AccessorFn | number): AccessorFn | this {
@@ -1561,11 +1411,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the stroke-width accessor to the specified function or string and returns the current class instance.
-      @param {Function|Number} [*value* = 0]
-      @chainable
-  */
+      The stroke-width.
+*/
   strokeWidth(): AccessorFn;
   strokeWidth(_: AccessorFn | number): this;
   strokeWidth(_?: AccessorFn | number): AccessorFn | this {
@@ -1575,11 +1422,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the text-anchor accessor to the specified function or string and returns the current class instance.
-      @param {Function|String|Array} [*value* = "start"]
-      @chainable
-  */
+      The text-anchor.
+*/
   textAnchor(): AccessorFn;
   textAnchor(_: AccessorFn | string): this;
   textAnchor(_?: AccessorFn | string): AccessorFn | this {
@@ -1589,11 +1433,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc Defines the texture used inside of each shape. This uses the [textures.js](https://riccardoscalco.it/textures/) package, and expects either a simple string (`"lines"` or `"circles"`) or a more complex Object containing the various properties of the texture (ie. `{texture: "lines", orientation: "3/8", stroke: "darkorange"}`). If multiple textures are necessary, provide an accsesor Function that returns the correct String/Object for each given data point and index.
-      @param {String|Object|Function} [*value*]
-      @chainable
-  */
+      Defines the texture used inside of each shape. This uses the [textures.js](https://riccardoscalco.it/textures/) package, and expects either a simple string (`"lines"` or `"circles"`) or a more complex Object containing the various properties of the texture (ie. `{texture: "lines", orientation: "3/8", stroke: "darkorange"}`). If multiple textures are necessary, provide an accsesor Function that returns the correct String/Object for each given data point and index.
+*/
   texture(): AccessorFn;
   texture(_: AccessorFn | string | Record<string, unknown>): this;
   texture(
@@ -1607,11 +1448,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
-      @param {Object} [*value*]
-      @chainable
-  */
+      A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
+*/
   textureDefault(): Record<string, unknown>;
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -1621,11 +1459,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the vector-effect accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = "non-scaling-stroke"]
-      @chainable
-  */
+      The vector-effect.
+*/
   vectorEffect(): AccessorFn;
   vectorEffect(_: AccessorFn | string): this;
   vectorEffect(_?: AccessorFn | string): AccessorFn | this {
@@ -1635,11 +1470,8 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the vertical alignment accessor to the specified function or string and returns the current class instance.
-      @param {Function|String|Array} [*value* = "start"]
-      @chainable
-  */
+      The vertical alignment.
+*/
   verticalAlign(): AccessorFn;
   verticalAlign(_: AccessorFn | string): this;
   verticalAlign(_?: AccessorFn | string): AccessorFn | this {
@@ -1650,15 +1482,13 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The x position accessor for each shape.
+
+@example
 function(d) {
   return d.x;
 }
-  */
+*/
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
@@ -1668,15 +1498,13 @@ function(d) {
   }
 
   /**
-      @memberof Shape
-      @desc If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The y position accessor for each shape.
+
+@example
 function(d) {
   return d.y;
 }
-  */
+*/
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {

@@ -1,12 +1,10 @@
 import type {Point} from "./lineIntersection.js";
 
 /**
-    @function pointRotate
-    @desc Rotates a point around a given origin.
-    @param {Array} p The point to be rotated, which should always be an `[x, y]` formatted Array.
-    @param {Number} alpha The angle in radians to rotate.
-    @param {Array} [origin = [0, 0]] The origin point of the rotation, which should always be an `[x, y]` formatted Array.
-    @returns {Boolean}
+    Rotates a point around a given origin.
+    @param p The point to be rotated, which should always be an `[x, y]` formatted Array.
+    @param alpha The angle in radians to rotate.
+    @param origin The origin point of the rotation, which should always be an `[x, y]` formatted Array.
 */
 export default function (
   p: Point,

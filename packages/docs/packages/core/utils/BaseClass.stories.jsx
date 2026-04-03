@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "",
+        component: "Provides shared configuration, event handling, and locale management inherited by all d3plus classes.",
       },
     },
   }

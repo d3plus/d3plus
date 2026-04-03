@@ -10,18 +10,15 @@ import {accessor, configPrep, constant} from "../utils/index.js";
 import Viz from "./Viz.js";
 
 /**
-    @class Rings
-    @extends Viz
-    @desc Creates a ring visualization based on a defined set of nodes and edges. [Click here](http://d3plus.org/examples/d3plus-network/simple-rings/) for help getting started using the Rings class.
+    Creates a ring visualization based on a defined set of nodes and edges. [Click here](http://d3plus.org/examples/d3plus-network/simple-rings/) for help getting started using the Rings class.
 */
 export default class Rings extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Rings
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
     this._links = [];
@@ -106,7 +103,7 @@ export default class Rings extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
 
@@ -576,21 +573,15 @@ export default class Rings extends Viz {
   }
 
   /**
-   @memberof Rings
-   @desc Sets the center node to be the node with the given id.
-   @param {String}
-   @chainable
-   */
+   The center node, specified by id.
+*/
   center(_) {
     return arguments.length ? ((this._center = _), this) : this._center;
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the hover method to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-   */
+      The hover callback function for highlighting shapes on mouseover.
+*/
   hover(_) {
     this._hover = _;
 
@@ -601,17 +592,14 @@ export default class Rings extends Viz {
   }
 
   /**
-      @memberof Rings
-      @desc A predefined *Array* of edges that connect each object passed to the [node](#Rings.node) method. The `source` and `target` keys in each link need to map to the nodes in one of three ways:
+      A predefined *Array* of edges that connect each object passed to the [node](#Rings.node) method. The `source` and `target` keys in each link need to map to the nodes in one of three ways:
 1. The index of the node in the nodes array (as in [this](http://d3plus.org/examples/d3plus-network/getting-started/) example).
 2. The actual node *Object* itself.
 3. A *String* value matching the `id` of the node.
 
 The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.
-      @param {Array|String} *links* = []
-      @param {Function} [*formatter*]
-      @chainable
-  */
+    @param f Array of link objects or a URL to load links from.
+*/
   links(_, f) {
     if (arguments.length) {
       addToQueue.bind(this)(_, f, "links");
@@ -621,11 +609,8 @@ The value passed should either be an *Array* of data or a *String* representing 
   }
 
   /**
-      @memberof Network
-      @desc Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.
-      @param {Function|Name} [*value* = 1]
-      @chainable
-  */
+      Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.
+*/
   linkSize(_) {
     return arguments.length
       ? ((this._linkSize = typeof _ === "function" ? _ : constant(_)), this)
@@ -633,11 +618,8 @@ The value passed should either be an *Array* of data or a *String* representing 
   }
 
   /**
-      @memberof Network
-      @desc Defines the minimum pixel stroke width used in link sizing.
-      @param {Number} [*value* = 2]
-      @chainable
-  */
+      Defines the minimum pixel stroke width used in link sizing.
+*/
   linkSizeMin(_) {
     return arguments.length
       ? ((this._linkSizeMin = _), this)
@@ -645,11 +627,8 @@ The value passed should either be an *Array* of data or a *String* representing 
   }
 
   /**
-      @memberof Network
-      @desc Sets the specific type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.
-      @param {String} [*value* = "sqrt"]
-      @chainable
-  */
+      The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.
+*/
   linkSizeScale(_) {
     return arguments.length
       ? ((this._linkSizeScale = _), this)
@@ -657,11 +636,8 @@ The value passed should either be an *Array* of data or a *String* representing 
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the node group accessor(s) to the specified string, function, or array of values and returns the current class instance. This method overrides the default .groupBy() function from being used with the data passed to .nodes(). If *value* is not specified, returns the current node group accessor.
-      @param {String|Function|Array} [*value* = undefined]
-      @chainable
-  */
+      The node group accessor(s). This method overrides the default .groupBy() function from being used with the data passed to .nodes().
+*/
   nodeGroupBy(_) {
     if (!arguments.length) return this._nodeGroupBy;
     if (!(_ instanceof Array)) _ = [_];
@@ -683,14 +659,11 @@ The value passed should either be an *Array* of data or a *String* representing 
   }
 
   /**
-      @memberof Rings
-      @desc The list of nodes to be used for drawing the rings network. The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded.
+      The list of nodes to be used for drawing the rings network. The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.
-      @param {Array|String} *nodes* = []
-      @param {Function} [*formatter*]
-      @chainable
-  */
+    @param f Array of node objects or a URL to load nodes from.
+*/
   nodes(_, f) {
     if (arguments.length) {
       addToQueue.bind(this)(_, f, "nodes");
@@ -700,11 +673,8 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the size accessor to the specified function or data key and returns the current class instance. If *value* is not specified, returns the current size accessor.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      The size accessor for each node in the rings layout.
+*/
   size(_) {
     return arguments.length
       ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
@@ -712,31 +682,22 @@ Additionally, a custom formatting function can be passed as a second argument to
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the size scale maximum to the specified number and returns the current class instance. If *value* is not specified, returns the current size scale maximum. By default, the maximum size is determined by half the distance of the two closest nodes.
-      @param {Number} [*value*]
-      @chainable
-  */
+      The size scale maximum. By default, the maximum size is determined by half the distance of the two closest nodes.
+*/
   sizeMax(_) {
     return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the size scale minimum to the specified number and returns the current class instance. If *value* is not specified, returns the current size scale minimum.
-      @param {Number} [*value* = 5]
-      @chainable
-  */
+      The size scale minimum.
+*/
   sizeMin(_) {
     return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
   }
 
   /**
-      @memberof Rings
-      @desc If *value* is specified, sets the size scale to the specified string and returns the current class instance. If *value* is not specified, returns the current size scale.
-      @param {String} [*value* = "sqrt"]
-      @chainable
-  */
+      The size scale.
+*/
   sizeScale(_) {
     return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
   }

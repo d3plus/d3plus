@@ -12,7 +12,9 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).",
+        component: "Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
+
+An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.",
       },
     },
   }

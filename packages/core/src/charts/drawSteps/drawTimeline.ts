@@ -6,9 +6,8 @@ import {date, elem} from "@d3plus/dom";
 import type Viz from "../Viz.js";
 
 /**
-    @function setTimeFilter
-    @desc Determines whether or not to update the timeFilter method of the Viz.
-    @param {Array|Date} The timeline selection given from the d3 brush.
+    Determines whether or not to update the timeFilter method of the Viz.
+    @param The timeline selection given from the d3 brush.
     @private
 */
 function setTimeFilter(this: Viz, s: Date | Date[] | number[]): void {
@@ -26,9 +25,7 @@ function setTimeFilter(this: Viz, s: Date | Date[] | number[]): void {
 }
 
 /**
-    @function _drawTimeline
-    @desc Renders the timeline if this._time and this._timeline are not falsy and there are more than 1 tick available.
-    @param {Array} data The filtered data array to be displayed.
+    Renders the timeline if this._time and this._timeline are not falsy and there are more than 1 tick available.
     @private
 */
 export default function (this: Viz, data: DataPoint[] = []): void {

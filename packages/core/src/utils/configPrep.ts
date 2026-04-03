@@ -34,11 +34,10 @@ interface VizContext {
 }
 
 /**
-    @function configPrep
-    @desc Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
-    @param {Object} [config = this._shapeConfig] The configuration object to parse.
-    @param {String} [type = "shape"] The event classifier to user for "on" events. For example, the default event type of "shape" will apply all events in the "on" config object with that key, like "click.shape" and "mouseleave.shape", in addition to any gloval events like "click" and "mouseleave".
-    @param {String} [nest] An optional nested key to bubble up to the parent config level.
+    Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
+    @param config The configuration object to parse.
+    @param type The event classifier to user for "on" events. For example, the default event type of "shape" will apply all events in the "on" config object with that key, like "click.shape" and "mouseleave.shape", in addition to any gloval events like "click" and "mouseleave".
+    @param nest An optional nested key to bubble up to the parent config level.
 */
 export default function configPrep(
   this: VizContext,

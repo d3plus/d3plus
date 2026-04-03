@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "",
+        component: "Generates a unique identifier string.",
       },
     },
   }

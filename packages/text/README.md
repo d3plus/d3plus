@@ -1,5 +1,5 @@
 # @d3plus/text
-  
+
 A smart SVG text box with line wrapping and automatic font size scaling.
 
 ## Installing
@@ -7,10 +7,10 @@ A smart SVG text box with line wrapping and automatic font size scaling.
 If using npm, `npm install @d3plus/text`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/text).
 
 ```js
-import modules from "@d3plus/text";
+import {*} from "@d3plus/text";
 ```
 
-In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
+In a vanilla environment, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@d3plus/text"></script>
@@ -21,207 +21,231 @@ In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled versio
 
 ## Examples
 
-Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using @d3plus/react.
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [@d3plus/react](https://github.com/d3plus/d3plus/tree/main/packages/react).
 
 ## API Reference
 
-##### 
-* [stringify](#stringify) - Coerces value into a String.
-* [strip](#strip) - Removes all non ASCII characters from a string.
-* [textSplit](#textSplit) - Splits a given sentence into an array of words.
-* [textWrap](#textWrap) - Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
-* [titleCase](#titleCase) - Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
-* [trim](#trim) - Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
-* [trimLeft](#trimLeft) - Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
-* [trimRight](#trimRight) - Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
-
-##### 
-* [fontFamily](#fontFamily) - The default fallback font list used for all text labels as an Array of Strings.
-* [fontFamilyStringify](#fontFamilyStringify) - Converts an Array of font-family names into a CSS font-family string.
-
----
-
-<a name="stringify"></a>
-#### d3plus.**stringify**(value) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/stringify.js#L1)
-
-Coerces value into a String.
-
-
-This is a global function
-
----
-
-<a name="strip"></a>
-#### d3plus.**strip**(value, [spacer]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.js#L18)
-
-Removes all non ASCII characters from a string.
-
-
-This is a global function
-
----
-
-<a name="textSplit"></a>
-#### d3plus.**textSplit**(sentence) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.js#L3)
-
-Splits a given sentence into an array of words.
-
-
-This is a global function
-
----
-
-<a name="textWrap"></a>
-#### d3plus.**textWrap**() [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L7)
-
-Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
-
-
-This is a global function
-
-
-* [textWrap()](#textWrap)
-    * [.fontFamily([*value*])](#textWrap.fontFamily)
-    * [.fontSize([*value*])](#textWrap.fontSize)
-    * [.fontWeight([*value*])](#textWrap.fontWeight)
-    * [.height([*value*])](#textWrap.height)
-    * [.lineHeight([*value*])](#textWrap.lineHeight)
-    * [.maxLines([*value*])](#textWrap.maxLines)
-    * [.overflow([*value*])](#textWrap.overflow)
-    * [.split([*value*])](#textWrap.split)
-    * [.width([*value*])](#textWrap.width)
-
-
-<a name="textWrap.fontFamily" href="#textWrap.fontFamily">#</a> d3plus..**fontFamily**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L92)
-
-If *value* is specified, sets the font family accessor to the specified function or string and returns this generator. If *value* is not specified, returns the current font family.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.fontSize" href="#textWrap.fontSize">#</a> d3plus..**fontSize**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L101)
-
-If *value* is specified, sets the font size accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font size.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.fontWeight" href="#textWrap.fontWeight">#</a> d3plus..**fontWeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L110)
-
-If *value* is specified, sets the font weight accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current font weight.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.height" href="#textWrap.height">#</a> d3plus..**height**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L119)
-
-If *value* is specified, sets height limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.lineHeight" href="#textWrap.lineHeight">#</a> d3plus..**lineHeight**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L128)
-
-If *value* is specified, sets the line height accessor to the specified function or number and returns this generator. If *value* is not specified, returns the current line height accessor, which is 1.1 times the [font size](#textWrap.fontSize) by default.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.maxLines" href="#textWrap.maxLines">#</a> d3plus..**maxLines**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L137)
-
-If *value* is specified, sets the maximum number of lines allowed when wrapping.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.overflow" href="#textWrap.overflow">#</a> d3plus..**overflow**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L146)
-
-If *value* is specified, sets the overflow to the specified boolean and returns this generator. If *value* is not specified, returns the current overflow value.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.split" href="#textWrap.split">#</a> d3plus..**split**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L155)
-
-If *value* is specified, sets the word split function to the specified function and returns this generator. If *value* is not specified, returns the current word split function.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
-
-<a name="textWrap.width" href="#textWrap.width">#</a> d3plus..**width**([*value*]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.js#L164)
-
-If *value* is specified, sets width limit to the specified value and returns this generator. If *value* is not specified, returns the current value.
-
-
-This is a static method of [<code>textWrap</code>](#textWrap)
-
----
-
-<a name="titleCase"></a>
-#### d3plus.**titleCase**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.js#L7)
-
-Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
-
-
-This is a global function
-
----
-
-<a name="trim"></a>
-#### d3plus.**trim**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/trim.js#L1)
-
-Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
-
-
-This is a global function
-
----
-
-<a name="trimLeft"></a>
-#### d3plus.**trimLeft**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/trim.js#L10)
-
-Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
-
-
-This is a global function
-
----
-
-<a name="trimRight"></a>
-#### d3plus.**trimRight**(str) [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/trim.js#L19)
-
-Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
-
-
-This is a global function
-
----
-
-<a name="fontFamily"></a>
-#### **fontFamily** [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.js#L1)
-
-The default fallback font list used for all text labels as an Array of Strings.
-
-
-This is a global constant
-
----
-
-<a name="fontFamilyStringify"></a>
-#### **fontFamilyStringify** [<>](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.js#L8)
+| Functions | Description |
+| --- | --- |
+| [`fontFamilyStringify`](#fontfamilystringify) | Converts an Array of font-family names into a CSS font-family string. |
+| [`stringify`](#stringify) | Coerces value into a String. |
+| [`strip`](#strip) | Removes all non ASCII characters from a string. |
+| [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
+| [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
+| [`titleCase`](#titlecase) | Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowe |
+| [`trim`](#trim) | Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ |
+| [`trimLeft`](#trimleft) | Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Obje |
+| [`trimRight`](#trimright) | Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Obj |
+
+| Variables | Description |
+| --- | --- |
+| [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
+
+## Functions
+
+<a id="fontfamilystringify"></a>
+
+### fontFamilyStringify()
+
+> **fontFamilyStringify**(`family`: `string` \| `string`[]): `string`
+
+Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/fontFamily.ts#L18)
 
 Converts an Array of font-family names into a CSS font-family string.
 
+#### Parameters
 
-This is a global constant
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `family` | `string` \| `string`[] | A font family name or array of font family names. |
 
----
+#### Returns
 
+`string`
+
+***
+
+<a id="stringify"></a>
+
+### stringify()
+
+> **stringify**(`value`: `unknown`): `string`
+
+Defined in: [stringify.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/stringify.ts#L5)
+
+Coerces value into a String.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `unknown` | The value to convert to a string. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="strip"></a>
+
+### strip()
+
+> **strip**(`value`: `string`, `spacer?`: `string`): `string`
+
+Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/strip.ts#L33)
+
+Removes all non ASCII characters from a string.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `value` | `string` | *required* | The HTML string to strip. |
+| `spacer` | `string` | `"-"` | The character to replace whitespace with. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="textsplit"></a>
+
+### textSplit()
+
+> **textSplit**(`sentence`: `string`): `string`[]
+
+Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/textSplit.ts#L43)
+
+Splits a given sentence into an array of words.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `sentence` | `string` | The sentence to split into words. |
+
+#### Returns
+
+`string`[]
+
+***
+
+<a id="textwrap"></a>
+
+### textWrap()
+
+> **textWrap**(): `TextWrapGenerator`
+
+Defined in: [textWrap.ts:47](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/textWrap.ts#L47)
+
+Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
+
+#### Returns
+
+`TextWrapGenerator`
+
+***
+
+<a id="titlecase"></a>
+
+### titleCase()
+
+> **titleCase**(`str`: `string`): `string`
+
+Defined in: [titleCase.ts:54](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/titleCase.ts#L54)
+
+Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `str` | `string` | The string to apply the title case logic. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="trim"></a>
+
+### trim()
+
+> **trim**(`str`: `string`): `string`
+
+Defined in: [trim.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L5)
+
+Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `str` | `string` | The string to trim. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="trimleft"></a>
+
+### trimLeft()
+
+> **trimLeft**(`str`: `string`): `string`
+
+Defined in: [trim.ts:13](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L13)
+
+Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `str` | `string` | The string to trim. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="trimright"></a>
+
+### trimRight()
+
+> **trimRight**(`str`: `string`): `string`
+
+Defined in: [trim.ts:21](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L21)
+
+Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `str` | `string` | The string to trim. |
+
+#### Returns
+
+`string`
+
+## Variables
+
+<a id="fontfamily"></a>
+
+### fontFamily
+
+> `const` **fontFamily**: `string`[]
+
+Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/fontFamily.ts#L5)
+
+The default fallback font list used for all text labels as an Array of Strings.
+
+#### Default Value
+
+`["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]`

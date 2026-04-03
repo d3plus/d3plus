@@ -15,9 +15,7 @@ import Whisker from "./Whisker.js";
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
 /**
-    @class Box
-    @extends BaseClass
-    @desc Creates SVG box based on an array of data.
+    Creates SVG box based on an array of data.
 */
 export default class Box extends BaseClass {
   _medianConfig: Record<string, unknown>;
@@ -39,10 +37,9 @@ export default class Box extends BaseClass {
   _duration!: number;
 
   /**
-      @memberof Box
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -76,11 +73,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc Draws the Box.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the Box.
+*/
   render(): this {
     if (this._select === void 0) {
       this.select(
@@ -324,11 +318,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc Sets the highlight accessor to the Shape class's active function.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The active highlight state for all sub-shapes in this Box.
+*/
   active(_: ((d: DataPoint, i: number) => boolean) | null): void {
     if (this._box) this._box.active(_);
     if (this._median) this._median.active(_);
@@ -340,11 +331,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to create shapes.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
@@ -352,11 +340,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc Sets the highlight accessor to the Shape class's hover function.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The hover highlight state for all sub-shapes in this Box.
+*/
   hover(_: ((d: DataPoint, i: number) => boolean) | null): void {
     if (this._box) this._box.hover(_);
     if (this._median) this._median.hover(_);
@@ -368,11 +353,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the config method for median and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the median line.
+*/
   medianConfig(): Record<string, unknown>;
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -382,11 +364,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.
-      @param {Function|String} [*value* = "vertical"] Accepts "vertical" or "horizontal"
-      @chainable
-  */
+      The orientation of the box shape.
+*/
   orient(): AccessorFn;
   orient(_: AccessorFn | string): this;
   orient(_?: AccessorFn | string): AccessorFn | this {
@@ -396,11 +375,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the outlier accessor to the specified function or string and returns the current class instance.
-      @param {Function|String}
-      @chainable
-  */
+      Whether to show outlier points.
+*/
   outlier(): AccessorFn;
   outlier(_: AccessorFn | string): this;
   outlier(_?: AccessorFn | string): AccessorFn | this {
@@ -410,11 +386,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the config method for each outlier point and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for each outlier point.
+*/
   outlierConfig(): Record<string, unknown>;
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -424,11 +397,8 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the config method for rect shape and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the rect shape.
+*/
   rectConfig(): Record<string, unknown>;
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -438,15 +408,13 @@ export default class Box extends BaseClass {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The width accessor for each box.
+
+@example
 function(d) {
   return d.width;
 }
-  */
+*/
   rectWidth(): AccessorFn;
   rectWidth(_: AccessorFn | number): this;
   rectWidth(_?: AccessorFn | number): AccessorFn | this {
@@ -456,11 +424,8 @@ function(d) {
   }
 
   /**
-      @memberof Box
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element for this visualization. 3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement | SVGElement | null): this;
   select(_?: string | HTMLElement | SVGElement | null): D3Selection | this {
@@ -470,11 +435,8 @@ function(d) {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the config method for whisker and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the whisker.
+*/
   whiskerConfig(): Record<string, unknown>;
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -484,11 +446,8 @@ function(d) {
   }
 
   /**
-      @memberof Box
-      @desc Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `"tukey"`, `"extent"`, or a Number representing a quantile.
-      @param {String|Number|String[]|Number[]} [*value* = "tukey"]
-      @chainable
-  */
+      Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `"tukey"`, `"extent"`, or a Number representing a quantile.
+*/
   whiskerMode(): (string | number)[];
   whiskerMode(_: (string | number)[] | string | number): this;
   whiskerMode(
@@ -500,15 +459,13 @@ function(d) {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The x position accessor for each box.
+
+@example
 function(d) {
   return d.x;
 }
-  */
+*/
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
@@ -520,15 +477,13 @@ function(d) {
   }
 
   /**
-      @memberof Box
-      @desc If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The y position accessor for each box.
+
+@example
 function(d) {
   return d.y;
 }
-  */
+*/
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {

@@ -7,18 +7,6 @@ import type {D3Selection} from "./D3Selection.js";
  
 type AnySelection = ReturnType<typeof select<any, any>>;
 
-/**
-    @function elem
-    @desc Manages the enter/update/exit pattern for a single DOM element.
-    @param {String} selector A D3 selector, which must include the tagname and a class and/or ID.
-    @param {Object} params Additional parameters.
-    @param {Boolean} [params.condition = true] Whether or not the element should be rendered (or removed).
-    @param {Object} [params.enter = {}] A collection of key/value pairs that map to attributes to be given on enter.
-    @param {Object} [params.exit = {}] A collection of key/value pairs that map to attributes to be given on exit.
-    @param {D3Selection} [params.parent = d3.select("body")] The parent element for this new element to be appended to.
-    @param {Number} [params.duration = 0] The duration for the d3 transition.
-    @param {Object} [params.update = {}] A collection of key/value pairs that map to attributes to be given on update.
-*/
 type AttrMap = Record<string, string | number | boolean | null>;
 
 export interface ElemParams {
@@ -31,6 +19,11 @@ export interface ElemParams {
   update?: AttrMap;
 }
 
+/**
+    Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.
+    @param selector A CSS selector string for the element tag and classes.
+    @param p Configuration object with enter, exit, update, and parent options.
+*/
 export default function (selector: string, p?: ElemParams): D3Selection {
   // overrides default params
   const params = Object.assign(

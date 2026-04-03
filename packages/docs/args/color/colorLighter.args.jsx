@@ -23,18 +23,18 @@ export const argTypes = {
   },
   i: {
     control: {
-      type: "text"
+      type: "number"
     },
-    defaultValue: 0.5,
-    description: "A value from 0 to 1 dictating the strength of the function.",
+    defaultValue: "0.5",
+    description: "Strength of the lightening effect, from 0 to 1.",
     table: {
       defaultValue: {
-        summary: 0.5
+        summary: "0.5"
       }
     },
     type: {
       required: false,
-      summary: "string"
+      summary: "number"
     }
   }
 };

@@ -41,8 +41,6 @@ function hash(val: unknown): string {
 }
 
 /**
-    @function Renderer
-    @param {RendererProps} props
 */
 export default function Renderer({
   callback,

@@ -129,16 +129,13 @@ class LRU {
 }
 
 /**
-    @class Viz
-    @extends BaseClass
-    @desc Creates an x/y plot based on an array of data. If *data* is specified, immediately draws the tree map based on the specified array and returns the current class instance. If *data* is not specified on instantiation, it can be passed/updated after instantiation using the [data](#treemap.data) method. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
+    Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
 */
 export default class Viz extends (BaseClass as any) {
   [key: string]: any;
 
   /**
-      @memberof Viz
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
   */
   constructor() {
@@ -431,8 +428,7 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-   @memberof Viz
-   @desc Called by draw before anything is drawn. Formats the data and performs preparations for draw.
+   Called by draw before anything is drawn. Formats the data and performs preparations for draw.
    @private
    */
   _preDraw(): void {
@@ -578,8 +574,7 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Called by render once all checks are passed.
+      Called by render once all checks are passed.
       @private
   */
   _draw(): void {
@@ -706,10 +701,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Draws the visualization given the specified configuration.
-      @param {Function} [*callback*] An optional callback function that, if passed, will be called after animation is complete.
-      @chainable
+      Draws the visualization given the specified configuration.
+    @param callback Optional callback invoked after rendering completes.
   */
   render(callback?: () => void): this {
     this._callback = callback;
@@ -953,9 +946,7 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
-      @chainable
+      Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
     this._resizeObserver.disconnect();
@@ -965,11 +956,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the active method to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The active callback function for highlighting shapes.
+*/
   active(
     _?: ((d: DataPoint, i: number) => boolean) | false,
   ): this | ((d: DataPoint, i: number) => boolean) | false {
@@ -984,11 +972,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the aggregation method for each key in the object and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Custom aggregation methods for each data key.
+*/
   aggs(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._aggs = assign(this._aggs, _)), this)
@@ -996,33 +981,15 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Sets the "aria-hidden" attribute of the containing SVG element. The default value is "false", but it you need to hide the SVG from screen readers set this property to "true".
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      The "aria-hidden" attribute of the containing SVG element. The default value is "false", but if you need to hide the SVG from screen readers set this property to "true".
+*/
   ariaHidden(_?: boolean): this | boolean {
     return arguments.length ? ((this._ariaHidden = _), this) : this._ariaHidden;
   }
 
   /**
-      @memberof Viz
-      @desc Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
-      @param {HTMLString|Boolean} *value* = false
-      @chainable
-  */
-  attribution(_?: string | boolean): this | string | boolean {
-    return arguments.length
-      ? ((this._attribution = _), this)
-      : this._attribution;
-  }
-
-  /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the back button and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
+*/
   attributionStyle(
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
@@ -1032,11 +999,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the back button and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the back button.
+*/
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._backConfig = assign(this._backConfig, _)), this)
@@ -1044,21 +1008,15 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.
+*/
   cache(_?: boolean): this | boolean {
     return arguments.length ? ((this._cache = _), this) : this._cache;
   }
 
   /**
-      @memberof Viz
-      @desc Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
-      @param {Function|String|False} [*value*]
-      @chainable
-  */
+      Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
+*/
   color(
     _?:
       | string
@@ -1075,11 +1033,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
-      @param {Function|String|False} [*value*]
-      @chainable
-  */
+      Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
+*/
   colorScale(
     _?:
       | string
@@ -1097,11 +1052,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc A pass-through to the config method of ColorScale.
-      @param {Object} [*value*]
-      @chainable
-  */
+      A pass-through to the config method of ColorScale.
+*/
   colorScaleConfig(
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
@@ -1111,11 +1063,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   colorScalePadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1126,11 +1075,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
-      @param {Function|String|Boolean} [*value* = "bottom"]
-      @chainable
-  */
+      Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
+*/
   colorScalePosition(
     _?: string | boolean | (() => string | boolean),
   ): this | string | boolean | (() => string | boolean) {
@@ -1141,11 +1087,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Sets the maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
-      @param {Number} [*value* = 600]
-      @chainable
-  */
+      The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
+*/
   colorScaleMaxSize(_?: number): this | number {
     return arguments.length
       ? ((this._colorScaleMaxSize = _), this)
@@ -1153,8 +1096,7 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @memberof Viz
-      @desc Sets the primary data array to be used when drawing the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
+      The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
 If your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.
 
@@ -1162,10 +1104,8 @@ Additionally, a custom formatting function can be passed as a second argument to
 
 If you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).
 
-If *data* is not specified, this method returns the current primary data array, which defaults to an empty array (`[]`);
-      @param {Array|String} *data* = []
-      @param {Function} [*formatter*]
-      @chainable
+Defaults to an empty array (`[]`).
+    @param f The data array or a URL string to load data from.
   */
   data(
     _?: DataPoint[] | string | {url: string; headers: Record<string, string>},
@@ -1189,89 +1129,29 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).
-      @param {Number} [*value* = 100]
-      @chainable
-  */
+      If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).
+*/
   dataCutoff(_?: number): this | number {
     return arguments.length ? ((this._dataCutoff = _), this) : this._dataCutoff;
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the depth to the specified number and returns the current class instance. The *value* should correspond with an index in the [groupBy](#groupBy) array.
-      @param {Number} [*value*]
-      @chainable
-  */
+      The current depth of the visualization. The value should correspond with an index in the [groupBy](#groupBy) array.
+*/
   depth(_?: number): this | number {
     return arguments.length ? ((this._depth = _), this) : this._depth;
   }
 
   /**
-      @memberof Viz
-      @desc If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
-      @param {Boolean} *value* = true
-      @chainable
-  */
-  detectResize(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this._detectResize = _), this)
-      : this._detectResize;
-  }
-
-  /**
-      @memberof Viz
-      @desc When resizing the browser window, this is the millisecond delay to trigger the resize event.
-      @param {Number} *value* = 400
-      @chainable
-  */
-  detectResizeDelay(_?: number): this | number {
-    return arguments.length
-      ? ((this._detectResizeDelay = _), this)
-      : this._detectResizeDelay;
-  }
-
-  /**
-      @memberof Viz
-      @desc Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
-      @param {Boolean} *value* = true
-      @chainable
-  */
-  detectVisible(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this._detectVisible = _), this)
-      : this._detectVisible;
-  }
-
-  /**
-      @memberof Viz
-      @desc The interval, in milliseconds, for checking if the visualization is visible on the page.
-      @param {Number} *value* = 1000
-      @chainable
-  */
-  detectVisibleInterval(_?: number): this | number {
-    return arguments.length
-      ? ((this._detectVisibleInterval = _), this)
-      : this._detectVisibleInterval;
-  }
-
-  /**
-      @memberof Viz
-      @desc If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.
-      @param {String} [*value*]
-      @chainable
-  */
+      If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
+*/
   discrete(_?: string): this | string {
     return arguments.length ? ((this._discrete = _), this) : this._discrete;
   }
 
   /**
-      @memberof Viz
-      @desc Shows a button that allows for downloading the current visualization.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Shows a button that allows for downloading the current visualization.
+*/
   downloadButton(_?: boolean): this | boolean {
     return arguments.length
       ? ((this._downloadButton = _), this)
@@ -1279,11 +1159,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Sets specific options of the saveElement function used when downloading the visualization.
-      @param {Object} [*value* = {type: "png"}]
-      @chainable
-  */
+      Sets specific options of the saveElement function used when downloading the visualization.
+*/
   downloadConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._downloadConfig = assign(this._downloadConfig, _)), this)
@@ -1291,11 +1168,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines which control group to add the download button into.
-      @param {String} [*value* = "top"]
-      @chainable
-  */
+      Defines which control group to add the download button into.
+*/
   downloadPosition(_?: string): this | string {
     return arguments.length
       ? ((this._downloadPosition = _), this)
@@ -1303,21 +1177,15 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
-      @param {Number} [*ms* = 600]
-      @chainable
-  */
+      The animation duration in milliseconds.
+*/
   duration(_?: number): this | number {
     return arguments.length ? ((this._duration = _), this) : this._duration;
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the filter to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      A filter function applied to the data before drawing.
+*/
   filter(
     _?: ((d: DataPoint, i: number) => boolean) | false,
   ): this | ((d: DataPoint, i: number) => boolean) | false {
@@ -1325,11 +1193,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the filter to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The font family used throughout the visualization.
+*/
   fontFamily(_?: string | string[]): this | string | string[] {
     if (arguments.length) {
       const labelConfig = {fontFamily: _};
@@ -1361,11 +1226,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
-      @param {String|Function|Array} [*value*]
-      @chainable
-  */
+      Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
+*/
   groupBy(
     _?:
       | string
@@ -1400,21 +1262,15 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the overall height to the specified number and returns the current class instance.
-      @param {Number} [*value* = window.innerHeight]
-      @chainable
-  */
+      The overall height of the visualization in pixels.
+*/
   height(_?: number): this | number {
     return arguments.length ? ((this._height = _), this) : this._height;
   }
 
   /**
-      @memberof Viz
-      @desc Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
-      @param {Function|String} [*value* = "#aaa"]
-      @chainable
-  */
+      Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
+*/
   hiddenColor(
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
@@ -1424,11 +1280,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
-      @param {Function|Number} [*value* = 0.5]
-      @chainable
-  */
+      Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
+*/
   hiddenOpacity(
     _?: number | ((d: DataPoint, i: number) => number),
   ): this | number | ((d: DataPoint, i: number) => number) {
@@ -1439,11 +1292,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the hover method to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The hover callback function for highlighting shapes on mouseover.
+*/
   hover(_?: ((d: DataPoint, i: number) => boolean) | false): this {
     let hoverFunction = (this._hover = _);
 
@@ -1478,11 +1328,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the label accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string key for the label of each data point.
+*/
   label(
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
@@ -1492,11 +1339,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, toggles the legend based on the specified boolean and returns the current class instance.
-      @param {Boolean|Function} [*value* = true]
-      @chainable
-  */
+      Whether to display the legend.
+*/
   legend(
     _?:
       | boolean
@@ -1511,11 +1355,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, the object is passed to the legend's config method.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object passed to the legend's config method.
+*/
   legendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._legendConfig = assign(this._legendConfig, _)), this)
@@ -1523,11 +1364,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
-      @param {Boolean|Function} [*value* = false]
-      @chainable
-  */
+      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
+*/
   legendFilterInvert(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1538,11 +1376,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   legendPadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1553,11 +1388,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
-      @param {Function|String} [*value* = "bottom"]
-      @chainable
-  */
+      Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
+*/
   legendPosition(_?: string | (() => string)): this | string | (() => string) {
     return arguments.length
       ? ((this._legendPosition = typeof _ === "function" ? _ : constant(_)),
@@ -1566,11 +1398,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.
-      @param {Function} *value*
-      @chainable
-  */
+      A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.
+*/
   legendSort(
     _?: (a: DataPoint, b: DataPoint) => number,
   ): this | ((a: DataPoint, b: DataPoint) => number) {
@@ -1578,11 +1407,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the legend tooltip and returns the current class instance.
-      @param {Object} [*value* = {}]
-      @chainable
-  */
+      Configuration object for the legend tooltip.
+*/
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._legendTooltip = assign(this._legendTooltip, _)), this)
@@ -1590,11 +1416,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Sets the inner HTML of the status message that is displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
+*/
   loadingHTML(
     _?: string | ((viz: Viz) => string),
   ): this | string | ((viz: Viz) => string) {
@@ -1604,11 +1427,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
+*/
   loadingMessage(_?: boolean): this | boolean {
     return arguments.length
       ? ((this._loadingMessage = _), this)
@@ -1616,11 +1436,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Sets the color of the mask used underneath the status message that is displayed when loading AJAX requests and displaying errors. Additionally, `false` will turn off the mask completely.
-      @param {Boolean|String} [*value* = "rgba(0, 0, 0, 0.1)"]
-      @chainable
-  */
+      The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
+*/
   messageMask(_?: string | boolean): this | string | boolean {
     return arguments.length
       ? ((this._messageMask = _), this)
@@ -1628,11 +1445,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
+*/
   messageStyle(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._messageStyle = assign(this._messageStyle, _)), this)
@@ -1640,11 +1454,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Sets the inner HTML of the status message that is displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
+*/
   noDataHTML(
     _?: string | ((viz: Viz) => string),
   ): this | string | ((viz: Viz) => string) {
@@ -1654,11 +1465,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-     @memberof Viz
-     @desc Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
-     @param {Boolean} [*value* = true]
-     @chainable
-  */
+     Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
+*/
   noDataMessage(_?: boolean): this | boolean {
     return arguments.length
       ? ((this._noDataMessage = _), this)
@@ -1666,11 +1474,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
-      @param {String|HTMLElement} *selector*
-      @chainable
-  */
+      If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
+*/
   scrollContainer(
     _?: string | HTMLElement | Window,
   ): this | string | HTMLElement | Window {
@@ -1680,11 +1485,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element, which is `undefined` by default.
-      @param {String|HTMLElement} [*selector*]
-      @chainable
-  */
+      The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
+*/
   select(_?: string | HTMLElement): this | ReturnType<typeof select> {
     return arguments.length
       ? ((this._select = select(_! as string)), this)
@@ -1692,11 +1494,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
-      @param {String|Function} [*value*]
-      @chainable
-  */
+      Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
+*/
   shape(
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
@@ -1706,11 +1505,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for each shape and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object with key/value pairs applied as method calls on each shape.
+*/
   shapeConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
@@ -1718,11 +1514,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the subtitle accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string for the visualization's subtitle.
+*/
   subtitle(
     _?: string | ((data: DataPoint[]) => string),
   ): this | string | ((data: DataPoint[]) => string) {
@@ -1732,11 +1525,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the subtitle and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the subtitle.
+*/
   subtitleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._subtitleConfig = assign(this._subtitleConfig, _)), this)
@@ -1744,11 +1534,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   subtitlePadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1759,31 +1546,22 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the description accessor to the specified string and returns the current class instance.
-      @param {String} [*value*]
-      @chainable
-  */
+      The description text for the SVG `<desc>` element, used for accessibility.
+*/
   svgDesc(_?: string): this | string {
     return arguments.length ? ((this._svgDesc = _), this) : this._svgDesc;
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the title accessor to the specified string and returns the current class instance.
-      @param {String} [*value*]
-      @chainable
-  */
+      The title text for the SVG `<title>` element, used for accessibility.
+*/
   svgTitle(_?: string): this | string {
     return arguments.length ? ((this._svgTitle = _), this) : this._svgTitle;
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the threshold for buckets to the specified function or string, and returns the current class instance.
-      @param {Function|Number} [value]
-      @chainable
-   */
+      The threshold value for bucketing small data points together.
+*/
   threshold(
     _?: number | ((data: DataPoint[]) => number),
   ): this | number | ((data: DataPoint[]) => number) {
@@ -1798,11 +1576,9 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the accesor for the value used in the threshold algorithm, and returns the current class instance.
-      @param {Function|Number} [value]
-      @chainable
-   */
+      Accessor for the value used in the threshold algorithm.
+    @param key The data key used to group values for thresholding.
+*/
   thresholdKey(
     key?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
   ): this | string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) {
@@ -1817,11 +1593,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the label for the bucket item, and returns the current class instance.
-      @param {Function|String} [value]
-      @chainable
-   */
+      The label displayed for bucketed threshold items.
+*/
   thresholdName(
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
@@ -1832,11 +1605,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the time accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string key for the time dimension of each data point.
+*/
   time(
     _?:
       | string
@@ -1880,11 +1650,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the time filter to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
+      A filter function that limits which time periods are shown.
+*/
   timeFilter(
     _?: ((d: DataPoint, i: number) => boolean) | false,
   ): this | ((d: DataPoint, i: number) => boolean) | false {
@@ -1892,21 +1659,15 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, toggles the timeline based on the specified boolean and returns the current class instance.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Whether to display the timeline.
+*/
   timeline(_?: boolean): this | boolean {
     return arguments.length ? ((this._timeline = _), this) : this._timeline;
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the timeline and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the timeline.
+*/
   timelineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._timelineConfig = assign(this._timelineConfig, _)), this)
@@ -1914,11 +1675,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Sets the starting time or range for the timeline. The value provided can either be a single Date/String, or an Array of 2 values representing the min and max.
-      @param {Date|String|Array} [*value*]
-      @chainable
-  */
+      The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
+*/
   timelineDefault(_?: Date | string | (Date | string)[]): this | Date[] {
     if (arguments.length) {
       if (!(_ instanceof Array)) _ = [_, _];
@@ -1930,11 +1688,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   timelinePadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1945,11 +1700,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the title accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string for the visualization's title.
+*/
   title(
     _?: string | ((data: DataPoint[]) => string),
   ): this | string | ((data: DataPoint[]) => string) {
@@ -1959,11 +1711,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the title and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the title.
+*/
   titleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._titleConfig = assign(this._titleConfig, _)), this)
@@ -1971,11 +1720,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   titlePadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -1985,11 +1731,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, toggles the tooltip based on the specified boolean and returns the current class instance.
-      @param {Boolean|Function} [*value* = true]
-      @chainable
-  */
+      Whether to display tooltips on hover.
+*/
   tooltip(
     _?: boolean | ((d: DataPoint, i: number) => boolean),
   ): this | boolean | ((d: DataPoint, i: number) => boolean) {
@@ -1999,11 +1742,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the tooltip and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the tooltip.
+*/
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._tooltipConfig = assign(this._tooltipConfig, _)), this)
@@ -2011,11 +1751,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the total accessor to the specified function or string and returns the current class instance.
-      @param {Boolean|Function|String} [*value*]
-      @chainable
-  */
+      Accessor function or string key for the total value displayed in the visualization.
+*/
   total(
     _?: boolean | string | ((d: DataPoint, i: number) => number),
   ): this | boolean | string | ((d: DataPoint, i: number) => number) {
@@ -2028,11 +1765,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the config method for the total and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the total bar.
+*/
   totalConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this._totalConfig = assign(this._totalConfig, _)), this)
@@ -2040,11 +1774,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Formatter function for the value in the total bar.
-      @param {Function} *value*
-      @chainable
-  */
+      Formatter function for the value in the total bar.
+*/
   totalFormat(_?: (d: number) => string): this | ((d: number) => string) {
     return arguments.length
       ? ((this._totalFormat = _), this)
@@ -2052,11 +1783,8 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
-      @param {Boolean|Function} [*value*]
-      @chainable
-  */
+      Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+*/
   totalPadding(
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
@@ -2066,155 +1794,15 @@ If *data* is not specified, this method returns the current primary data array, 
   }
 
   /**
-      @memberof Viz
-      @desc If *value* is specified, sets the overallwidth to the specified number and returns the current class instance.
-      @param {Number} [*value* = window.innerWidth]
-      @chainable
-  */
+      The overall width of the visualization in pixels.
+*/
   width(_?: number): this | number {
     return arguments.length ? ((this._width = _), this) : this._width;
   }
 
   /**
-      @memberof Viz
-      @desc Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
-      @param {Boolean} *value* = false
-      @chainable
-  */
-  zoom(_?: boolean): this | boolean {
-    return arguments.length ? ((this._zoom = _), this) : this._zoom;
-  }
-
-  /**
-      @memberof Viz
-      @desc The pixel stroke-width of the zoom brush area.
-      @param {Number} *value* = 1
-      @chainable
-  */
-  zoomBrushHandleSize(_?: number): this | number {
-    return arguments.length
-      ? ((this._zoomBrushHandleSize = _), this)
-      : this._zoomBrushHandleSize;
-  }
-
-  /**
-      @memberof Viz
-      @desc An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
-      @param {Object|Boolean} *value*
-      @chainable
-  */
-  zoomBrushHandleStyle(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this._zoomBrushHandleStyle = _), this)
-      : this._zoomBrushHandleStyle;
-  }
-
-  /**
-      @memberof Viz
-      @desc An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
-      @param {Object|Boolean} *value*
-      @chainable
-  */
-  zoomBrushSelectionStyle(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this._zoomBrushSelectionStyle = _), this)
-      : this._zoomBrushSelectionStyle;
-  }
-
-  /**
-      @memberof Viz
-      @desc An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
-      @param {Object|Boolean} *value*
-      @chainable
-  */
-  zoomControlStyle(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this._zoomControlStyle = _), this)
-      : this._zoomControlStyle;
-  }
-
-  /**
-      @memberof Viz
-      @desc An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
-      @param {Object|Boolean} *value*
-      @chainable
-  */
-  zoomControlStyleActive(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this._zoomControlStyleActive = _), this)
-      : this._zoomControlStyleActive;
-  }
-
-  /**
-      @memberof Viz
-      @desc An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
-      @param {Object|Boolean} *value*
-      @chainable
-  */
-  zoomControlStyleHover(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this._zoomControlStyleHover = _), this)
-      : this._zoomControlStyleHover;
-  }
-
-  /**
-      @memberof Viz
-      @desc The multiplier that is used in with the control buttons when zooming in and out.
-      @param {Number} *value* = 2
-      @chainable
-  */
-  zoomFactor(_?: number): this | number {
-    return arguments.length ? ((this._zoomFactor = _), this) : this._zoomFactor;
-  }
-
-  /**
-      @memberof Viz
-      @desc If *value* is specified, sets the max zoom scale to the specified number and returns the current class instance. If *value* is not specified, returns the current max zoom scale.
-      @param {Number} *value* = 16
-      @chainable
-  */
-  zoomMax(_?: number): this | number {
-    return arguments.length ? ((this._zoomMax = _), this) : this._zoomMax;
-  }
-
-  /**
-      @memberof Viz
-      @desc If *value* is specified, toggles panning to the specified boolean and returns the current class instance. If *value* is not specified, returns the current panning value.
-      @param {Boolean} *value* = true
-      @chainable
-  */
-  zoomPan(_?: boolean): this | boolean {
-    return arguments.length ? ((this._zoomPan = _), this) : this._zoomPan;
-  }
-
-  /**
-      @memberof Viz
-      @desc A pixel value to be used to pad all sides of a zoomed area.
-      @param {Number} *value* = 20
-      @chainable
-  */
-  zoomPadding(_?: number): this | number {
-    return arguments.length
-      ? ((this._zoomPadding = _), this)
-      : this._zoomPadding;
-  }
-
-  /**
-      @memberof Viz
-      @desc If *value* is specified, toggles scroll zooming to the specified boolean and returns the current class instance. If *value* is not specified, returns the current scroll zooming value.
-      @param {Boolean} [*value* = true]
-      @chainable
-  */
+      Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
+*/
   zoomScroll(_?: boolean): this | boolean {
     return arguments.length ? ((this._zoomScroll = _), this) : this._zoomScroll;
   }

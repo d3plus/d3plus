@@ -22,20 +22,17 @@ export const argTypes = assign(
    */
   
   {
-    orient: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "bottom",
-      description: "If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.",
+    render: {
+      control: {},
+      description: "Renders the current Axis to the page.",
       table: {
         defaultValue: {
-          summary: "bottom"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "function"
       }
     }
   }

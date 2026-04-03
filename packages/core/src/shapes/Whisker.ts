@@ -14,9 +14,7 @@ import Rect from "./Rect.js";
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
 /**
-    @class Whisker
-    @extends BaseClass
-    @desc Creates SVG whisker based on an array of data.
+    Creates SVG whisker based on an array of data.
 */
 export default class Whisker extends BaseClass {
   _endpoint: AccessorFn;
@@ -32,10 +30,9 @@ export default class Whisker extends BaseClass {
   _whiskerEndpoint: (Circle | Rect)[];
 
   /**
-      @memberof Whisker
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -54,11 +51,9 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc Draws the whisker.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the whisker.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     if (this._select === void 0) {
       this.select(
@@ -169,11 +164,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc Sets the highlight accessor to the Shape class's active function.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The active highlight state for all sub-shapes in this Whisker.
+*/
   active(_: ((d: DataPoint, i: number) => boolean) | null): void {
     if (this._line) this._line.active(_);
     if (this._whiskerEndpoint)
@@ -183,11 +175,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to create shapes.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
@@ -195,11 +184,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the endpoint accessor to the specified function or string and returns the current class instance.
-      @param {Function|String}
-      @chainable
-  */
+      The endpoint shape type for each whisker.
+*/
   endpoint(): AccessorFn;
   endpoint(_: AccessorFn | string): this;
   endpoint(_?: AccessorFn | string): AccessorFn | this {
@@ -209,11 +195,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the config method for each endpoint and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for each endpoint.
+*/
   endpointConfig(): Record<string, unknown>;
   endpointConfig(_: Record<string, unknown>): this;
   endpointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -223,11 +206,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc Sets the highlight accessor to the Shape class's hover function.
-      @param {Function} [*value*]
-      @chainable
-  */
+      The hover highlight state for all sub-shapes in this Whisker.
+*/
   hover(_: ((d: DataPoint, i: number) => boolean) | null): void {
     if (this._line) this._line.hover(_);
     if (this._whiskerEndpoint)
@@ -237,11 +217,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the length accessor for whisker and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      Length accessor for whisker.
+*/
   length(): AccessorFn;
   length(_: AccessorFn | number): this;
   length(_?: AccessorFn | number): AccessorFn | this {
@@ -251,11 +228,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the config method for line shape and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Configuration object for the line shape.
+*/
   lineConfig(): Record<string, unknown>;
   lineConfig(_: Record<string, unknown>): this;
   lineConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
@@ -265,11 +239,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the orientation to the specified value. If *value* is not specified, returns the current orientation.
-      @param {Function|String} [*value* = "top"] Accepts "top", "right", "bottom" or "left"
-      @chainable
-  */
+      The orientation of the whisker shape.
+*/
   orient(): AccessorFn;
   orient(_: AccessorFn | string): this;
   orient(_?: AccessorFn | string): AccessorFn | this {
@@ -279,11 +250,8 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      @memberof Whisker
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element for this visualization. 3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement | SVGElement | null): this;
   select(_?: string | HTMLElement | SVGElement | null): D3Selection | this {
@@ -293,15 +261,13 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-    @memberof Whisker
-    @desc If *value* is specified, sets the x axis to the specified function or number and returns the current class instance.
-    @param {Function|Number} [*value*]
-    @chainable
-    @example
+    The x position accessor for each whisker.
+
+@example
 function(d) {
   return d.x;
 }
-  */
+*/
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
@@ -311,15 +277,13 @@ function(d) {
   }
 
   /**
-      @memberof Whisker
-      @desc If *value* is specified, sets the y axis to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The y position accessor for each whisker.
+
+@example
 function(d) {
   return d.y;
 }
-  */
+*/
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {

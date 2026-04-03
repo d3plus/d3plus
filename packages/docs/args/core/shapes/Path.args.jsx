@@ -22,52 +22,17 @@ export const argTypes = assign(
    */
   
   {
-    d: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "d => d[\"path\"]",
-      description: "If *value* is specified, sets the \"d\" attribute accessor to the specified function or number and returns the current class instance.",
-      table: {
-        defaultValue: {
-          detail: "d => d[\"path\"]",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    labelBounds: {
+    _dataFilter: {
       control: {},
-      defaultValue: "(d, i, aes) => {\n  const r = largestRect(aes.points, {\n      angle: this._labelConfig.rotate ? this._labelConfig.rotate(d, i) : 0\n  });\n  return r ? {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2,\n      y: r.cy - r.height / 2\n  } : false;\n}",
-      description: "If *bounds* is specified, sets the label bounds to the specified function and returns the current class instance. If *bounds* is not specified, returns the current inner bounds accessor.",
+      description: "",
       table: {
         defaultValue: {
-          detail: "(d, i, aes) => {\n  const r = largestRect(aes.points, {\n      angle: this._labelConfig.rotate ? this._labelConfig.rotate(d, i) : 0\n  });\n  return r ? {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2,\n      y: r.cy - r.height / 2\n  } : false;\n}",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    labelConfig: {
-      control: {
-        type: "object"
-      },
-      defaultValue: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})",
-      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
-      table: {
-        defaultValue: {
-          summary: "Object.assign(this._labelConfig, {textAnchor: middle, verticalAlign: middle})"
-        }
-      },
-      type: {
-        required: false,
-        summary: "object"
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
       }
     },
     render: {

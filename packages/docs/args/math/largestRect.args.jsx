@@ -6,26 +6,22 @@ import React from "react";
 
 
 export const argTypes = {
-  highestQuality: {
-    control: {
-      type: "boolean"
-    },
-    defaultValue: false,
-    description: "Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower.",
+  options: {
+    control: {},
+    defaultValue: "{}",
+    description: "An Object that allows for overriding various parameters of the algorithm.",
     table: {
       defaultValue: {
-        summary: false
+        summary: "{}"
       }
     },
     type: {
       required: false,
-      summary: "boolean"
+      summary: "largestrectoptions"
     }
   },
   poly: {
-    control: {
-      type: "object"
-    },
+    control: {},
     description: "An Array of points that represent a polygon.",
     table: {
       defaultValue: {
@@ -34,23 +30,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
-    }
-  },
-  tolerance: {
-    control: {
-      type: "number"
-    },
-    defaultValue: 1,
-    description: "Affects the amount of simplification (in the same metric as the point coordinates).",
-    table: {
-      defaultValue: {
-        summary: 1
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
+      summary: "array.&lt;point&gt;"
     }
   }
 };

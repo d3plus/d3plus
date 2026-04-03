@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "",
+        component: "Creates an interactive timeline brush component for selecting time periods within a visualization.",
       },
     },
   }

@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Manages the enter/update/exit pattern for a single DOM element.",
+        component: "Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.",
       },
     },
   }

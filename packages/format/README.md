@@ -1,5 +1,5 @@
 # @d3plus/format
-  
+
 JavaScript formatters for localized numbers and dates.
 
 ## Installing
@@ -7,10 +7,10 @@ JavaScript formatters for localized numbers and dates.
 If using npm, `npm install @d3plus/format`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/@d3plus/format).
 
 ```js
-import modules from "@d3plus/format";
+import {*} from "@d3plus/format";
 ```
 
-In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled version:
+In a vanilla environment, a `d3plus` global is exported from the pre-bundled version:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@d3plus/format"></script>
@@ -21,55 +21,105 @@ In vanilla JavaScript, a `d3plus` global is exported from the pre-bundled versio
 
 ## Examples
 
-Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using @d3plus/react.
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [@d3plus/react](https://github.com/d3plus/d3plus/tree/main/packages/react).
 
 ## API Reference
 
-##### 
-* [format](#format) - An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
-* [formatAbbreviate](#formatAbbreviate) - Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
-* [formatDate](#formatDate) - A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
-* [formatDefaultLocale](#formatDefaultLocale) - An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
+| Functions | Description |
+| --- | --- |
+| [`format`](#format) | An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting t |
+| [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
+| [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
+| [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
 
----
+## Functions
 
-<a name="format"></a>
-#### d3plus.**format**(specifier) [<>](https://github.com/d3plus/d3plus/blob/main/packages/format/src/format.js#L4)
+<a id="format"></a>
+
+### format()
+
+> **format**(`specifier`: `string`): (`n`: `string` \| `number` \| \{ `valueOf`: `number`; \}) => `string`
+
+Defined in: [format.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/format.ts#L8)
 
 An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `specifier` | `string` | The string specifier used by the format function. |
 
----
+#### Returns
 
-<a name="formatAbbreviate"></a>
-#### d3plus.**formatAbbreviate**(n, locale) [<>](https://github.com/d3plus/d3plus/blob/main/packages/format/src/formatAbbreviate.js#L38)
+(`n`: `string` \| `number` \| \{ `valueOf`: `number`; \}) => `string`
+
+***
+
+<a id="formatabbreviate"></a>
+
+### formatAbbreviate()
+
+> **formatAbbreviate**(`n`: `string` \| `number`, `locale?`: `string` \| `FormatLocaleDefinition`, `precision?`: `string`): `string`
+
+Defined in: [formatAbbreviate.ts:55](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatAbbreviate.ts#L55)
 
 Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `n` | `string` \| `number` | *required* | The number to be formatted. |
+| `locale` | `string` \| `FormatLocaleDefinition` | `"en-US"` | The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties. |
+| `precision?` | `string` | *required* | Number of significant digits to display. |
 
----
+#### Returns
 
-<a name="formatDate"></a>
-#### d3plus.**formatDate**(d, dataArray, [formatter]) [<>](https://github.com/d3plus/d3plus/blob/main/packages/format/src/formatDate.js#L4)
+`string`
+
+***
+
+<a id="formatdate"></a>
+
+### formatDate()
+
+> **formatDate**(`d`: `Date`, `dataArray`: `Date`[], `formatter?`: `DateFormatter`): `string`
+
+Defined in: [formatDate.ts:12](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatDate.ts#L12)
 
 A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `d` | `Date` | *required* | The date to format. |
+| `dataArray` | `Date`[] | *required* | The full array of ordered Date Objects. |
+| `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function. |
 
----
+#### Returns
 
-<a name="formatDefaultLocale"></a>
-#### d3plus.**formatDefaultLocale**(definition) [<>](https://github.com/d3plus/d3plus/blob/main/packages/format/src/formatDefaultLocale.js#L4)
+`string`
+
+***
+
+<a id="formatdefaultlocale"></a>
+
+### formatDefaultLocale()
+
+> **formatDefaultLocale**(`definition`: `FormatLocaleDefinition`): `Record`\<`string`, `unknown`\>
+
+Defined in: [formatDefaultLocale.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatDefaultLocale.ts#L8)
 
 An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
 
+#### Parameters
 
-This is a global function
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `definition` | `FormatLocaleDefinition` | The localization definition. |
 
----
+#### Returns
 
+`Record`\<`string`, `unknown`\>

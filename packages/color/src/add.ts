@@ -1,13 +1,11 @@
 import {hsl} from "d3-color";
 
 /**
-    @function colorAdd
-    @desc Adds two colors together.
-    @param {String} c1 The first color, a valid CSS color string.
-    @param {String} c2 The second color, also a valid CSS color string.
-    @param {String} [o1 = 1] Value from 0 to 1 of the first color's opacity.
-    @param {String} [o2 = 1] Value from 0 to 1 of the first color's opacity.
-    @returns {String}
+    Adds two colors together.
+    @param c1 The first color, a valid CSS color string.
+    @param c2 The second color, also a valid CSS color string.
+    @param o1 Value from 0 to 1 of the first color's opacity.
+    @param o2 Value from 0 to 1 of the first color's opacity.
 */
 export default function (
   c1: string,

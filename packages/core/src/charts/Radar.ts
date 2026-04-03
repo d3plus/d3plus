@@ -11,18 +11,15 @@ import Viz from "./Viz.js";
 const tau = Math.PI * 2;
 
 /**
-    @class Radar
-    @extends Viz
-    @desc Creates a radar visualization based on an array of data.
+    Creates a radar visualization based on an array of data.
 */
 export default class Radar extends Viz {
   [key: string]: any;
 
   /**
-      @memberof Radar
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Viz.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Viz.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -50,7 +47,7 @@ export default class Radar extends Viz {
   /**
       Extends the draw behavior of the abstract Viz class.
       @private
-  */
+*/
   _draw(callback?: () => void) {
     (super._draw as Function)(callback);
     const height = this._height - this._margin.top - this._margin.bottom,
@@ -252,11 +249,8 @@ export default class Radar extends Viz {
   }
 
   /**
-      @memberof Radar
-      @desc Sets the config method used for the radial spokes, circles, and labels.
-      @param {Object} *value*
-      @chainable
-  */
+      Configuration object for the radial spokes, circles, and labels.
+*/
   axisConfig(_) {
     return arguments.length
       ? ((this._axisConfig = assign(this._axisConfig, _)), this)
@@ -264,11 +258,8 @@ export default class Radar extends Viz {
   }
 
   /**
-      @memberof Radar
-      @desc Defines the value used as axis. If *value* is specified, sets the accessor to the specified metric function. If *value* is not specified, returns the current metric accessor.
-      @param {Function|String} *value*
-      @chainable
-  */
+      Accessor function for the metric value used as each axis.
+*/
   metric(_) {
     return arguments.length
       ? ((this._metric = typeof _ === "function" ? _ : accessor(_)), this)
@@ -276,11 +267,8 @@ export default class Radar extends Viz {
   }
 
   /**
-      @memberof Radar
-      @desc Determines how much pixel spaces to give the outer labels.
-      @param {Number} [*value* = 100]
-      @chainable
-  */
+      Determines how much pixel spaces to give the outer labels.
+*/
   outerPadding(_) {
     return arguments.length
       ? ((this._outerPadding = _), this)
@@ -288,14 +276,13 @@ export default class Radar extends Viz {
   }
 
   /**
-      @memberof Radar
-      @desc If *value* is specified, sets the value accessor to the specified function or number and returns the current class instance. If *value* is not specified, returns the current value accessor.
-      @param {Function|String} *value*
-      @example
+      The value accessor used to determine each data point's position along each axis.
+
+@example
 function value(d) {
   return d.value;
 }
-  */
+*/
   value(_) {
     return arguments.length
       ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)

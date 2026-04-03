@@ -22,68 +22,6 @@ export const argTypes = assign(
    */
   
   {
-    curve: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "linear",
-      description: "If *value* is specified, sets the area curve to the specified string and returns the current class instance. If *value* is not specified, returns the current area curve.",
-      table: {
-        defaultValue: {
-          summary: "linear"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    defined: {
-      control: {},
-      defaultValue: "(d) => d",
-      description: "If *value* is specified, sets the defined accessor to the specified function and returns the current class instance. If *value* is not specified, returns the current defined accessor.",
-      table: {
-        defaultValue: {
-          detail: "(d) => d",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fill: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "none",
-      description: "If *value* is specified, sets the fill accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "none"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    hitArea: {
-      control: {},
-      defaultValue: "{d: (d) => this._path(d.values), fill: none, stroke-width: 10, transform: null}",
-      description: "If *bounds* is specified, sets the mouse hit area to the specified function and returns the current class instance. If *bounds* is not specified, returns the current mouse hit area accessor.",
-      table: {
-        defaultValue: {
-          detail: "{d: (d) => this._path(d.values), fill: none, stroke-width: 10, transform: null}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
     render: {
       control: {},
       description: "Draws the lines.",
@@ -95,38 +33,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    stroke: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "black",
-      description: "If *value* is specified, sets the stroke accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: "black"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | string"
-      }
-    },
-    strokeWidth: {
-      control: {
-        type: "number"
-      },
-      defaultValue: 1,
-      description: "If *value* is specified, sets the stroke-width accessor to the specified function or string and returns the current class instance.",
-      table: {
-        defaultValue: {
-          summary: 1
-        }
-      },
-      type: {
-        required: false,
-        summary: "function | number"
       }
     }
   }

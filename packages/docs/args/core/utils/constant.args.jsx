@@ -7,10 +7,8 @@ import React from "react";
 
 export const argTypes = {
   value: {
-    control: {
-      type: "object"
-    },
-    description: "The value to be returned from the function.",
+    control: {},
+    description: "The value to wrap in a return function.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -18,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array | number | object | string"
+      summary: "t"
     }
   }
 };

@@ -2,13 +2,11 @@
 export type Point = [number, number];
 
 /**
-    @function lineIntersection
-    @desc Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
-    @param {Array} p1 The first point of the first line segment, which should always be an `[x, y]` formatted Array.
-    @param {Array} q1 The second point of the first line segment, which should always be an `[x, y]` formatted Array.
-    @param {Array} p2 The first point of the second line segment, which should always be an `[x, y]` formatted Array.
-    @param {Array} q2 The second point of the second line segment, which should always be an `[x, y]` formatted Array.
-    @returns {Boolean}
+    Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
+    @param p1 The first point of the first line segment, which should always be an `[x, y]` formatted Array.
+    @param q1 The second point of the first line segment, which should always be an `[x, y]` formatted Array.
+    @param p2 The first point of the second line segment, which should always be an `[x, y]` formatted Array.
+    @param q2 The second point of the second line segment, which should always be an `[x, y]` formatted Array.
 */
 export default function (
   p1: Point,

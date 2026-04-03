@@ -6,9 +6,9 @@ import React from "react";
 
 
 export const argTypes = {
-  elem: {
+  e: {
     control: {},
-    description: "The D3 element to apply the styles to.",
+    description: "The d3 selection to apply styles to.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -16,22 +16,21 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "d3selection"
+      summary: "stylable"
     }
   },
-  styles: {
-    control: {
-      type: "object"
-    },
+  s: {
+    control: {},
+    defaultValue: "{}",
     description: "An object of key/value style pairs.",
     table: {
       defaultValue: {
-        summary: "undefined"
+        summary: "{}"
       }
     },
     type: {
-      required: true,
-      summary: "object"
+      required: false,
+      summary: "record"
     }
   }
 };

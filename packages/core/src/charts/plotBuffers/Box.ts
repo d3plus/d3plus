@@ -3,13 +3,10 @@ import type Plot from "../Plot.js";
 
 /**
     @module boxBuffer
-    @desc Adds a buffer to either side of the non-discrete axis.
-    @param {Array} data
-    @param {D3Scale} x
-    @param {D3Scale} y
-    @param {Object} [config]
-    @param {Number} [buffer = 10]
-    @private
+    Adds a buffer to either side of the non-discrete axis.
+
+
+    @param buffer @private
 */
 export default function (
   this: Plot,

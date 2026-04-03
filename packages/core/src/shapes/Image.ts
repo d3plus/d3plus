@@ -7,8 +7,7 @@ import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
 /**
-    @class Image
-    @desc Creates SVG images based on an array of data.
+    Creates SVG images based on an array of data.
     @example <caption>a sample row of data</caption>
 var data = {"url": "file.png", "width": "100", "height": "50"};
 @example <caption>passed to the generator</caption>
@@ -34,10 +33,9 @@ export default class Image {
   _data!: DataPoint[];
 
   /**
-      @memberof Image
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     this._duration = 600;
     this._height = accessor("height");
@@ -52,11 +50,9 @@ export default class Image {
   }
 
   /**
-      @memberof Image
-      @desc Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     if (this._select === void 0)
       this.select(
@@ -143,11 +139,8 @@ export default class Image {
   }
 
   /**
-      @memberof Image
-      @desc If *data* is specified, sets the data array to the specified array and returns the current class instance. If *data* is not specified, returns the current data array. An <image> tag will be drawn for each object in the array.
-      @param {Array} [*data* = []]
-      @chainable
-  */
+      The data array used to create image shapes. An <image> tag will be drawn for each object in the array.
+*/
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
@@ -155,11 +148,8 @@ export default class Image {
   }
 
   /**
-      @memberof Image
-      @desc If *ms* is specified, sets the animation duration to the specified number and returns the current class instance. If *ms* is not specified, returns the current animation duration.
-      @param {Number} [*ms* = 600]
-      @chainable
-  */
+      The animation duration in milliseconds.
+*/
   duration(): number;
   duration(_: number): this;
   duration(_?: number): number | this {
@@ -167,15 +157,13 @@ export default class Image {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The height accessor for each image.
+
+@example
 function(d) {
   return d.height;
 }
-  */
+*/
   height(): AccessorFn;
   height(_: AccessorFn | number): this;
   height(_?: AccessorFn | number): AccessorFn | this {
@@ -185,15 +173,13 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the id accessor to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-      @example
+      The unique id accessor for each image.
+
+@example
 function(d) {
   return d.id;
 }
-  */
+*/
   id(): AccessorFn;
   id(_: AccessorFn): this;
   id(_?: AccessorFn): AccessorFn | this {
@@ -201,11 +187,8 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc Sets the opacity of the image.
-      @param {Number} [*value* = 1]
-      @chainable
-  */
+      The opacity of each image.
+*/
   opacity(): AccessorFn;
   opacity(_: AccessorFn | number): this;
   opacity(_?: AccessorFn | number): AccessorFn | this {
@@ -215,11 +198,8 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the pointer-events accessor to the specified function or string and returns the current class instance.
-      @param {Function|String} [*value* = "auto"]
-      @chainable
-  */
+      The pointer-events.
+*/
   pointerEvents(): AccessorFn;
   pointerEvents(_: AccessorFn | string): this;
   pointerEvents(_?: AccessorFn | string): AccessorFn | this {
@@ -230,11 +210,8 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element as a d3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement | SVGElement | null): this;
   select(_?: string | HTMLElement | SVGElement | null): D3Selection | this {
@@ -244,15 +221,13 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the URL accessor to the specified function and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-      @example
+      Accessor function for the URL of each image.
+
+@example
 function(d) {
   return d.url;
 }
-  */
+*/
   url(): AccessorFn;
   url(_: AccessorFn): this;
   url(_?: AccessorFn): AccessorFn | this {
@@ -260,15 +235,13 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The width accessor for each image.
+
+@example
 function(d) {
   return d.width;
 }
-  */
+*/
   width(): AccessorFn;
   width(_: AccessorFn | number): this;
   width(_?: AccessorFn | number): AccessorFn | this {
@@ -278,15 +251,13 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the x accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The x position accessor for each image.
+
+@example
 function(d) {
   return d.x || 0;
 }
-  */
+*/
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
@@ -296,15 +267,13 @@ function(d) {
   }
 
   /**
-      @memberof Image
-      @desc If *value* is specified, sets the y accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The y position accessor for each image.
+
+@example
 function(d) {
   return d.y || 0;
 }
-  */
+*/
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {

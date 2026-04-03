@@ -3,9 +3,7 @@ import {constant} from "../utils/index.js";
 import {default as Plot} from "./Plot.js";
 
 /**
-    @class BumpChart
-    @extends Plot
-    @desc Creates a bump chart based on an array of data.
+    Creates a bump chart based on an array of data.
     @example <caption>the equivalent of calling:</caption>
 new d3plus.Plot()
   .discrete("x")
@@ -34,8 +32,7 @@ new d3plus.Plot()
 */
 export default class BumpChart extends Plot {
   /**
-      @memberof BumpChart
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Plot.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Plot.
       @private
   */
   constructor() {

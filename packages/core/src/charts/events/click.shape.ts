@@ -3,9 +3,7 @@ import type Viz from "../Viz.js";
 
 /**
     @module clickShape
-    @desc On click event for all shapes in a Viz.
-    @param {Object} *d* The data object being interacted with.
-    @param {Number} *i* The index of the data object being interacted with.
+    On click event for all shapes in a Viz.
     @private
 */
 export default function (

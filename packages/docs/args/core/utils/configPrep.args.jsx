@@ -7,45 +7,57 @@ import React from "react";
 
 export const argTypes = {
   config: {
-    control: {
-      type: "object"
-    },
-    defaultValue: "this._shapeConfig",
+    control: {},
+    defaultValue: "...",
     description: "The configuration object to parse.",
     table: {
       defaultValue: {
-        summary: "this._shapeConfig"
+        summary: "..."
       }
     },
     type: {
       required: false,
-      summary: "object"
+      summary: "configobject"
     }
   },
   nest: {
     control: {
       type: "text"
     },
+    defaultValue: "false",
     description: "An optional nested key to bubble up to the parent config level.",
+    table: {
+      defaultValue: {
+        summary: "false"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | false"
+    }
+  },
+  this: {
+    control: {},
+    description: "",
     table: {
       defaultValue: {
         summary: "undefined"
       }
     },
     type: {
-      required: false,
-      summary: "string"
+      required: true,
+      summary: "vizcontext"
     }
   },
   type: {
     control: {
       type: "text"
     },
-    defaultValue: "\"shape\"",
+    defaultValue: "shape",
     description: "The event classifier to user for \"on\" events. For example, the default event type of \"shape\" will apply all events in the \"on\" config object with that key, like \"click.shape\" and \"mouseleave.shape\", in addition to any gloval events like \"click\" and \"mouseleave\".",
     table: {
       defaultValue: {
-        summary: "\"shape\""
+        summary: "shape"
       }
     },
     type: {

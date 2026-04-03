@@ -6,9 +6,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
-    @class Bar
-    @extends Shape
-    @desc Creates SVG areas based on an array of data.
+    Creates SVG areas based on an array of data.
 */
 export default class Bar extends Shape {
   _height: AccessorFn;
@@ -29,10 +27,9 @@ export default class Bar extends Shape {
   _y1: AccessorFn | null;
 
   /**
-      @memberof Bar
-      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
+      Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
-  */
+*/
   constructor() {
     super("rect");
 
@@ -58,11 +55,9 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc Draws the bars.
-      @param {Function} [*callback*]
-      @chainable
-  */
+      Draws the bars.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: () => void): this {
     super.render(callback);
 
@@ -112,12 +107,10 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc Given a specific data point and index, returns the aesthetic properties of the shape.
-      @param {Object} *data point*
-      @param {Number} *index*
-      @private
-  */
+      Given a specific data point and index, returns the aesthetic properties of the shape.
+      @param data point*
+      @param index @private
+*/
   _aes(d: DataPoint, i: number): ShapeAes {
     return {
       height: this._getHeight(d, i) as number,
@@ -126,11 +119,9 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc Provides the default positioning to the <rect> elements.
-      @param {D3Selection} *elem*
-      @private
-  */
+      Provides the default positioning to the <rect> elements.
+      @param elem @private
+*/
   _applyPosition(elem: D3Selection): void {
     (elem as any)
       .attr("width", (d: DataPoint, i: number) => this._getWidth(d, i))
@@ -144,36 +135,30 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc Calculates the height of the <rect> by assessing the x and y properties.
-      @param {Object} *d*
-      @param {Number} *i*
+      Calculates the height of the <rect> by assessing the x and y properties.
+
       @private
-  */
+*/
   _getHeight(d: DataPoint, i: number): number {
     if (this._x1 !== null) return this._height(d, i) as number;
     return Math.abs((this._y1!(d, i) as number) - (this._y(d, i) as number));
   }
 
   /**
-      @memberof Bar
-      @desc Calculates the width of the <rect> by assessing the x and y properties.
-      @param {Object} *d*
-      @param {Number} *i*
+      Calculates the width of the <rect> by assessing the x and y properties.
+
       @private
-  */
+*/
   _getWidth(d: DataPoint, i: number): number {
     if (this._x1 === null) return this._width(d, i) as number;
     return Math.abs((this._x1!(d, i) as number) - (this._x(d, i) as number));
   }
 
   /**
-      @memberof Bar
-      @desc Calculates the x of the <rect> by assessing the x and width properties.
-      @param {Object} *d*
-      @param {Number} *i*
+      Calculates the x of the <rect> by assessing the x and width properties.
+
       @private
-  */
+*/
   _getX(d: DataPoint, i: number): number {
     const w =
       this._x1 === null
@@ -184,12 +169,10 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc Calculates the y of the <rect> by assessing the y and height properties.
-      @param {Object} *d*
-      @param {Number} *i*
+      Calculates the y of the <rect> by assessing the y and height properties.
+
       @private
-  */
+*/
   _getY(d: DataPoint, i: number): number {
     const h =
       this._x1 !== null
@@ -200,15 +183,13 @@ export default class Bar extends Shape {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the height accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The height accessor for each bar.
+
+@example
 function(d) {
   return d.height;
 }
-  */
+*/
   height(): AccessorFn;
   height(_: AccessorFn | number): this;
   height(_?: AccessorFn | number): AccessorFn | this {
@@ -218,15 +199,13 @@ function(d) {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the width accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-      @example
+      The width accessor for each bar.
+
+@example
 function(d) {
   return d.width;
 }
-  */
+*/
   width(): AccessorFn;
   width(_: AccessorFn | number): this;
   width(_?: AccessorFn | number): AccessorFn | this {
@@ -236,11 +215,8 @@ function(d) {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the x0 accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The x0 (left edge) position accessor for each bar.
+*/
   x0(): AccessorFn;
   x0(_: AccessorFn | number): this;
   x0(_?: AccessorFn | number): AccessorFn | this {
@@ -252,11 +228,8 @@ function(d) {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the x1 accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number|null} [*value*]
-      @chainable
-  */
+      The x1 (right edge) position accessor for each bar.
+*/
   x1(): AccessorFn | null;
   x1(_: AccessorFn | number | null): this;
   x1(_?: AccessorFn | number | null): AccessorFn | null | this {
@@ -272,11 +245,8 @@ function(d) {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the y0 accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number} [*value*]
-      @chainable
-  */
+      The y0 (top edge) position accessor for each bar.
+*/
   y0(): AccessorFn;
   y0(_: AccessorFn | number): this;
   y0(_?: AccessorFn | number): AccessorFn | this {
@@ -288,11 +258,8 @@ function(d) {
   }
 
   /**
-      @memberof Bar
-      @desc If *value* is specified, sets the y1 accessor to the specified function or number and returns the current class instance.
-      @param {Function|Number|null} [*value*]
-      @chainable
-  */
+      The y1 (bottom edge) position accessor for each bar.
+*/
   y1(): AccessorFn | null;
   y1(_: AccessorFn | number | null): this;
   y1(_?: AccessorFn | number | null): AccessorFn | null | this {

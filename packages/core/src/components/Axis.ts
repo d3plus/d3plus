@@ -21,7 +21,7 @@ import {TextBox} from "../components/index.js";
 import * as shapes from "../shapes/index.js";
 import {configPrep, BaseClass, constant} from "../utils/index.js";
 
-/* catches for -0 and less */
+/* catches for -0 and less*/
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
 
 const floorPow = (d: number): number =>
@@ -46,7 +46,7 @@ const maxTimezoneOffset = 1000 * 60 * 60 * 26;
  * Calculates ticks from a given scale (negative and/or positive)
  * @param {scale} scale A d3-scale object
  * @private
- */
+*/
 function calculateStep(
   this: Axis,
   scale: any,
@@ -89,7 +89,7 @@ function calculateStep(
  * Calculates ticks from a given scale (negative and/or positive)
  * @param {scale} scale A d3-scale object
  * @private
- */
+*/
 function calculateTicks(
   this: Axis,
   scale: any,
@@ -196,9 +196,7 @@ function calculateTicks(
 }
 
 /**
-    @class Axis
-    @extends BaseClass
-    @desc Creates an SVG scale based on an array of data.
+    Creates an SVG scale based on an array of data.
 */
 export default class Axis extends BaseClass {
   _select: D3Selection;
@@ -272,10 +270,9 @@ export default class Axis extends BaseClass {
   _userFormat: ((d: unknown) => string) | false | undefined;
 
   /**
-      @memberof Axis
-      @desc Invoked when creating a new class instance, and sets any default parameters.
+      Invoked when creating a new class instance, and sets any default parameters.
       @private
-  */
+*/
   constructor() {
     super();
 
@@ -363,11 +360,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets positioning for the axis bar.
-      @param {D3Selection} *bar*
-      @private
-  */
+      Sets positioning for the axis bar.
+      @param bar @private
+*/
   _barPosition(bar: any): void {
     const {height, x, y, opposite} = this._position,
       offset = this._margin[opposite],
@@ -407,10 +402,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Returns the scale's domain, taking into account negative and positive log scales.
+      Returns the scale's domain, taking into account negative and positive log scales.
       @private
-  */
+*/
   _getDomain(): any[] {
     let ticks: any[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.domain();
@@ -425,11 +419,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Returns a value's scale position, taking into account negative and positive log scales.
-      @param {Number|String} *d*
-      @private
-  */
+      Returns a value's scale position, taking into account negative and positive log scales.
+      @param d @private
+*/
   _getPosition(d: any): number {
     if (this._scale === "log") {
       if (d === 0)
@@ -444,10 +436,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Returns the scale's range, taking into account negative and positive log scales.
+      Returns the scale's range, taking into account negative and positive log scales.
       @private
-  */
+*/
   _getRange(): any[] {
     let ticks: any[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.range();
@@ -458,10 +449,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Returns the scale's labels, taking into account negative and positive log scales.
+      Returns the scale's labels, taking into account negative and positive log scales.
       @private
-  */
+*/
   _getLabels(): any[] {
     let labels: any[] = [];
     if (this._d3ScaleNegative)
@@ -497,10 +487,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Returns the scale's ticks, taking into account negative and positive log scales.
+      Returns the scale's ticks, taking into account negative and positive log scales.
       @private
-  */
+*/
   _getTicks(): any[] {
     if (
       ["band", "ordinal", "point", "time"].includes(this._scale) &&
@@ -522,11 +511,9 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets positioning for the grid lines.
-      @param {D3Selection} *lines*
-      @private
-  */
+      Sets positioning for the grid lines.
+      @param lines @private
+*/
   _gridPosition(lines: any, last: boolean = false): void {
     const {height, x, y, opposite} = this._position,
       offset = this._margin[opposite],
@@ -548,16 +535,14 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Renders the current Axis to the page. If a *callback* is specified, it will be called once the legend is done drawing.
-      @param {Function} [*callback* = undefined]
-      @chainable
-  */
+      Renders the current Axis to the page.
+    @param callback Optional callback invoked after rendering completes.
+*/
   render(callback?: Function): this {
     /**
      * Creates an SVG element to contain the axis if none
      * has been specified using the "select" method.
-     */
+*/
     if (this._select === void 0) {
       this.select(
         select("body")
@@ -576,7 +561,7 @@ export default class Axis extends BaseClass {
 
     /**
      * Declares some commonly used variables.
-     */
+*/
     const {width, height, x, y, horizontal, opposite} = this._position,
       clipId = `d3plus-Axis-clip-${this._uuid}`,
       flip = ["top", "left"].includes(this._orient),
@@ -596,14 +581,14 @@ export default class Axis extends BaseClass {
 
     /**
      * Zeros out the margins for re-calculation.
-     */
+*/
     const margin = (this._margin = {top: 0, right: 0, bottom: 0, left: 0});
 
     let labels: any[], range: any[], ticks: any[];
 
     /**
      * Constructs the tick formatter function.
-     */
+*/
     const tickFormat = this._tickFormat
       ? this._tickFormat
       : (d: any) => {
@@ -662,12 +647,12 @@ export default class Axis extends BaseClass {
     /**
      * (Re)calculates the internal d3 scale
      * @param {} newRange
-     */
+*/
     const setScale = (newRange: any[] = this._range!) => {
       /**
        * Calculates the internal "range" array to use, including
        * fallbacks if not specified with the "range" method.
-       */
+*/
       range = newRange ? newRange.slice() : [undefined, undefined];
       let [minRange, maxRange] = rangeOuter;
       if (this._range) {
@@ -698,7 +683,7 @@ export default class Axis extends BaseClass {
       /**
        * Sets up the initial d3 scale, using this._domain and the
        * previously defined range variable.
-       */
+*/
       const scale = `scale${this._scale
         .charAt(0)
         .toUpperCase()}${this._scale.slice(1)}`;
@@ -842,7 +827,7 @@ export default class Axis extends BaseClass {
       /**
        * Constructs a separate "negative only" scale for logarithmic
        * domains, as they cannot pass zero.
-       */
+*/
       this._d3ScaleNegative = null;
       if (this._scale === "log") {
         const domain = this._d3Scale.domain();
@@ -923,7 +908,7 @@ export default class Axis extends BaseClass {
       /**
        * Determines the of values array to use
        * for the "ticks" and the "labels"
-       */
+*/
       ticks = (
         this._ticks
           ? this._scale === "time"
@@ -956,7 +941,7 @@ export default class Axis extends BaseClass {
 
       /**
        * Get the smallest suffix.
-       */
+*/
       if (this._scale === "linear" && this._tickSuffix === "smallest") {
         const suffixes = labels.filter((d: any) => d >= 1000);
         if (suffixes.length > 0) {
@@ -976,7 +961,7 @@ export default class Axis extends BaseClass {
 
       /**
        * Removes ticks when they overlap other ticks.
-       */
+*/
       const pixels: any[] = [];
       this._availableTicks = ticks;
       ticks.forEach((d: any, i: number) => {
@@ -995,7 +980,7 @@ export default class Axis extends BaseClass {
     /**
      * Pre-calculates the size of the title, if defined, in order
      * to adjust the internal margins.
-     */
+*/
     if (this._title) {
       const {fontFamily, fontSize, lineHeight} = this._titleConfig;
       const titleWrap = textWrap()
@@ -1032,7 +1017,7 @@ export default class Axis extends BaseClass {
     /**
      * Calculates the text wrapping and size of a given textData object.
      * @param {Object} datum
-     */
+*/
     const calculateLabelSize = (datum: any): any => {
       const {d, i, fF, fP, fS, rotate, space} = datum;
 
@@ -1077,7 +1062,7 @@ export default class Axis extends BaseClass {
       return res;
     };
 
-    /** Calculates label offsets */
+    /** Calculates label offsets*/
     const calculateOffset = (arr: any[] = []): void => {
       let offset = 0;
 
@@ -1117,7 +1102,7 @@ export default class Axis extends BaseClass {
       /**
        * Calculates the space each label would take up, given
        * the provided this._space size.
-       */
+*/
       textData = labels.map((d: any, i: number) => {
         const fF =
             typeof fontFamily === "function" ? fontFamily(d, i) : fontFamily,
@@ -1205,7 +1190,7 @@ export default class Axis extends BaseClass {
     /**
      * "spillover" will contain the pixel spillover of the first and last label,
      * and then adjust the scale range accordingly.
-     */
+*/
     const spillovers = [0, 1].map((index: number) => {
       const datum = textData[index ? textData.length - 1 : 0];
       if (!datum) return 0;
@@ -1466,11 +1451,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the horizontal alignment to the specified value and returns the current class instance.
-      @param {String} [*value* = "center"] Supports `"left"` and `"center"` and `"right"`.
-      @chainable
-  */
+      The horizontal alignment.
+*/
   align(): string;
   align(_: string): this;
   align(_?: string): any {
@@ -1478,11 +1460,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the axis line style and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Axis line style.
+*/
   barConfig(): Record<string, unknown>;
   barConfig(_: Record<string, unknown>): this;
   barConfig(_?: Record<string, unknown>): unknown {
@@ -1492,12 +1471,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
-      @param {Array} [*value*]
-      @chainable
-  */
-   
+      An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
+*/
   data(): any[];
    
   data(_: any[]): this;
@@ -1507,11 +1482,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the scale domain of the axis and returns the current class instance.
-      @param {Array} [*value* = [0, 10]]
-      @chainable
-  */
+      Scale domain of the axis.
+*/
    
   domain(): any[];
    
@@ -1522,11 +1494,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the transition duration of the axis and returns the current class instance.
-      @param {Number} [*value* = 600]
-      @chainable
-  */
+      Transition duration of the axis.
+*/
   duration(): number;
   duration(_: number): this;
   duration(_?: number): any {
@@ -1534,11 +1503,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the grid values of the axis and returns the current class instance.
-      @param {Array} [*value*]
-      @chainable
-  */
+      Grid values of the axis.
+*/
   grid(): unknown[] | undefined;
   grid(_: unknown[]): this;
   grid(_?: unknown[]): unknown {
@@ -1546,11 +1512,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the grid config of the axis and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Grid config of the axis.
+*/
   gridConfig(): Record<string, unknown>;
   gridConfig(_: Record<string, unknown>): this;
   gridConfig(_?: Record<string, unknown>): unknown {
@@ -1560,11 +1523,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the grid behavior of the axis when scale is logarithmic and returns the current class instance.
-      @param {Boolean} [*value* = false]
-      @chainable
-  */
+      Grid behavior of the axis when scale is logarithmic.
+*/
   gridLog(): boolean;
   gridLog(_: boolean): this;
   gridLog(_?: boolean): any {
@@ -1572,11 +1532,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the grid size of the axis and returns the current class instance.
-      @param {Number} [*value* = undefined]
-      @chainable
-  */
+      Grid size of the axis.
+*/
   gridSize(): number | undefined;
   gridSize(_: number): this;
   gridSize(_?: number): any {
@@ -1584,11 +1541,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the overall height of the axis and returns the current class instance.
-      @param {Number} [*value* = 100]
-      @chainable
-  */
+      Overall height of the axis.
+*/
   height(): number;
   height(_: number): this;
   height(_?: number): any {
@@ -1596,11 +1550,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the visible tick labels of the axis and returns the current class instance.
-      @param {Array} [*value*]
-      @chainable
-  */
+      Visible tick labels of the axis.
+*/
   labels(): unknown[] | undefined;
   labels(_: unknown[]): this;
   labels(_?: unknown[]): unknown {
@@ -1608,11 +1559,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets whether offsets will be used to position some labels further away from the axis in order to allow space for the text.
-      @param {Boolean} [*value* = false]
-      @chainable
-   */
+      Whether to offset overlapping labels further from the axis to prevent collisions.
+*/
   labelOffset(): boolean;
   labelOffset(_: boolean): this;
   labelOffset(_?: boolean): any {
@@ -1622,11 +1570,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets whether whether horizontal axis labels are rotated -90 degrees.
-      @param {Boolean} [*value* = false]
-      @chainable
-   */
+      Whether to rotate horizontal axis labels -90 degrees.
+*/
   labelRotation(): boolean | undefined;
   labelRotation(_: boolean): this;
   labelRotation(_?: boolean): any {
@@ -1636,11 +1581,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the maximum size allowed for the space that contains the axis tick labels and title.
-      @param {Number}
-      @chainable
-   */
+      Maximum size allowed for the space that contains the axis tick labels and title.
+*/
   maxSize(): number;
   maxSize(_: number): this;
   maxSize(_?: number): any {
@@ -1648,11 +1590,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the minimum size alloted for the space that contains the axis tick labels and title.
-      @param {Number}
-      @chainable
-   */
+      Minimum size alloted for the space that contains the axis tick labels and title.
+*/
   minSize(): number;
   minSize(_: number): this;
   minSize(_?: number): any {
@@ -1660,11 +1599,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *orient* is specified, sets the orientation of the shape and returns the current class instance. If *orient* is not specified, returns the current orientation.
-      @param {String} [*orient* = "bottom"] Supports `"top"`, `"right"`, `"bottom"`, and `"left"` orientations.
-      @chainable
-  */
+      The orientation of the shape.
+*/
   orient(): string;
   orient(_: string): this;
   orient(_?: string): any {
@@ -1692,21 +1628,17 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If called after the elements have been drawn to DOM, will returns the outer bounds of the axis content.
+      Returns the outer bounds of the axis content. Must be called after rendering.
       @example
 {"width": 180, "height": 24, "x": 10, "y": 20}
-  */
+*/
   outerBounds(): Record<string, number> {
     return this._outerBounds;
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the padding between each tick label to the specified number and returns the current class instance.
-      @param {Number} [*value* = 10]
-      @chainable
-  */
+      The padding between each tick label.
+*/
   padding(): number;
   padding(_: number): this;
   padding(_?: number): any {
@@ -1714,11 +1646,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the inner padding of band scale to the specified number and returns the current class instance.
-      @param {Number} [*value* = 0.1]
-      @chainable
-  */
+      The inner padding of band scale.
+*/
   paddingInner(): number;
   paddingInner(_: number): this;
   paddingInner(_?: number): any {
@@ -1728,11 +1657,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the outer padding of band scales to the specified number and returns the current class instance.
-      @param {Number} [*value* = 0.1]
-      @chainable
-  */
+      The outer padding of band scales.
+*/
   paddingOuter(): number;
   paddingOuter(_: number): this;
   paddingOuter(_?: number): any {
@@ -1742,11 +1668,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the scale range (in pixels) of the axis and returns the current class instance. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.
-      @param {Array} [*value*]
-      @chainable
-  */
+      Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.
+*/
   range(): (number | undefined)[] | undefined;
   range(_: (number | undefined)[]): this;
   range(_?: (number | undefined)[]): unknown {
@@ -1754,11 +1677,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the rounding method, so that more evenly spaced ticks appear at the extents of the scale. Can be set to "none" (default), "outside", or "inside".
-      @param {String} [*value* = "none"]
-      @chainable
-  */
+      The rounding method for more evenly spaced ticks at the extents of the scale. Can be "none" (default), "outside", or "inside".
+*/
   rounding(): string;
   rounding(_: string): this;
   rounding(_?: string): any {
@@ -1766,11 +1686,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the prefix used for the minimum value of "inside" rounding scales.
-      @param {String} [*value* = "< "]
-      @chainable
-  */
+      The prefix for the minimum value of "inside" rounding scales.
+*/
   roundingInsideMinPrefix(): string;
   roundingInsideMinPrefix(_: string): this;
   roundingInsideMinPrefix(_?: string): any {
@@ -1780,11 +1697,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the suffix used for the minimum value of "inside" rounding scales.
-      @param {String} [*value* = ""]
-      @chainable
-  */
+      The suffix for the minimum value of "inside" rounding scales.
+*/
   roundingInsideMinSuffix(): string;
   roundingInsideMinSuffix(_: string): this;
   roundingInsideMinSuffix(_?: string): any {
@@ -1794,11 +1708,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the prefix used for the maximum value of "inside" rounding scales.
-      @param {String} [*value* = ""]
-      @chainable
-  */
+      The prefix for the maximum value of "inside" rounding scales.
+*/
   roundingInsideMaxPrefix(): string;
   roundingInsideMaxPrefix(_: string): this;
   roundingInsideMaxPrefix(_?: string): any {
@@ -1808,11 +1719,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the suffix used for the maximum value of "inside" rounding scales.
-      @param {String} [*value* = ""]
-      @chainable
-  */
+      The suffix for the maximum value of "inside" rounding scales.
+*/
   roundingInsideMaxSuffix(): string;
   roundingInsideMaxSuffix(_: string): this;
   roundingInsideMaxSuffix(_?: string): any {
@@ -1822,11 +1730,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the scale of the axis and returns the current class instance.
-      @param {String} [*value* = "linear"]
-      @chainable
-  */
+      Scale of the axis.
+*/
   scale(): string;
   scale(_: string): this;
   scale(_?: string): any {
@@ -1834,11 +1739,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the "padding" property of the scale, often used in point scales.
-      @param {Number} [*value* = 0.5]
-      @chainable
-  */
+      The "padding" property of the scale, often used in point scales.
+*/
   scalePadding(): number;
   scalePadding(_: number): this;
   scalePadding(_?: number): any {
@@ -1848,11 +1750,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *selector* is specified, sets the SVG container element to the specified d3 selector or DOM element and returns the current class instance. If *selector* is not specified, returns the current SVG container element.
-      @param {String|HTMLElement} [*selector* = d3.select("body").append("svg")]
-      @chainable
-  */
+      The SVG container element as a d3 selector or DOM element.
+*/
   select(): D3Selection;
   select(_: string | HTMLElement): this;
   select(_?: string | HTMLElement): unknown {
@@ -1862,11 +1761,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the tick shape constructor and returns the current class instance.
-      @param {String} [*value* = "Line"]
-      @chainable
-  */
+      Tick shape constructor.
+*/
   shape(): string;
   shape(_: string): this;
   shape(_?: string): any {
@@ -1874,12 +1770,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the tick style of the axis and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
-   
+      Tick style of the axis.
+*/
   shapeConfig(): Record<string, any>;
    
   shapeConfig(_: Record<string, any>): this;
@@ -1891,12 +1783,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the tick formatter and returns the current class instance.
-      @param {Function} [*value*]
-      @chainable
-  */
-   
+      Tick formatter.
+*/
   tickFormat(): any;
    
   tickFormat(_: any): this;
@@ -1906,11 +1794,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the tick values of the axis and returns the current class instance.
-      @param {Array} [*value*]
-      @chainable
-  */
+      Tick values of the axis.
+*/
   ticks(): unknown[] | undefined;
   ticks(_: unknown[]): this;
   ticks(_?: unknown[]): unknown {
@@ -1918,11 +1803,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the tick size of the axis and returns the current class instance.
-      @param {Number} [*value* = 5]
-      @chainable
-  */
+      Tick size of the axis.
+*/
   tickSize(): number;
   tickSize(_: number): this;
   tickSize(_?: number): any {
@@ -1930,11 +1812,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Sets the behavior of the abbreviations when you are using linear scale. This method accepts two options: "normal" (uses formatAbbreviate to determinate the abbreviation) and "smallest" (uses suffix from the smallest tick as reference in every tick).
-      @param {String} [*value* = "normal"]
-      @chainable
-  */
+      The tick abbreviation behavior for linear scales. Accepts "normal" (uses formatAbbreviate) or "smallest" (uses the suffix from the smallest tick as reference for every tick).
+*/
   tickSuffix(): string;
   tickSuffix(_: string): this;
   tickSuffix(_?: string): any {
@@ -1944,11 +1823,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).
-      @param {Object} [*value* = undefined]
-      @chainable
-  */
+      Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).
+*/
   timeLocale(): Record<string, unknown> | undefined;
   timeLocale(_: Record<string, unknown>): this;
   timeLocale(_?: Record<string, unknown>): unknown {
@@ -1956,11 +1832,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the title of the axis and returns the current class instance.
-      @param {String} [*value*]
-      @chainable
-  */
+      Title of the axis.
+*/
   title(): string | undefined;
   title(_: string): this;
   title(_?: string): any {
@@ -1968,11 +1841,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the title configuration of the axis and returns the current class instance.
-      @param {Object} [*value*]
-      @chainable
-  */
+      Title configuration of the axis.
+*/
   titleConfig(): Record<string, unknown>;
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): unknown {
@@ -1982,11 +1852,8 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      @memberof Axis
-      @desc If *value* is specified, sets the overall width of the axis and returns the current class instance.
-      @param {Number} [*value* = 400]
-      @chainable
-  */
+      Overall width of the axis.
+*/
   width(): number;
   width(_: number): this;
   width(_?: number): any {

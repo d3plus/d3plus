@@ -8,8 +8,7 @@ import type Viz from "../Viz.js";
 const legendAttrs = ["fill", "opacity", "texture"];
 
 /**
-    @function legendLabel
-    @desc Default label function for the legend.
+    Default label function for the legend.
     @private
 */
 export function legendLabel(this: Viz, d: DataPoint, i: number): string {
@@ -17,9 +16,7 @@ export function legendLabel(this: Viz, d: DataPoint, i: number): string {
 }
 
 /**
-    @function _drawLegend
-    @desc Renders the legend if this._legend is not falsy.
-    @param {Array} data The filtered data array to be displayed.
+    Renders the legend if this._legend is not falsy.
     @private
 */
 export default function (this: Viz, data: DataPoint[] = []): void {

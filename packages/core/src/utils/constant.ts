@@ -1,7 +1,6 @@
 /**
-    @function constant
-    @desc Wraps non-function variables in a simple return function.
-    @param {Array|Number|Object|String} value The value to be returned from the function.
+    Wraps non-function variables in a simple return function.
+    @param value The value to wrap in a return function.
     @example <caption>this</caption>
 constant(42);
     @example <caption>returns this</caption>
