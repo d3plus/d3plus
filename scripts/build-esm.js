@@ -1,48 +1,49 @@
 import fs from "node:fs";
 import path from "node:path";
 import {transformFileSync} from "@swc/core";
-import shell from "shelljs";
 
 import Logger from "./utils/log.js";
 const log = Logger("transpiling ESM modules");
 
-const {name} = JSON.parse(shell.cat("package.json"));
+const {name} = JSON.parse(fs.readFileSync("package.json", "utf8"));
 const isReact = name === "@d3plus/react";
-shell.config.silent = true;
 
-shell.rm("-rf", "es");
-shell.mkdir("-p", "es");
+fs.rmSync("es", {recursive: true, force: true, maxRetries: 3, retryDelay: 100});
+fs.mkdirSync("es", {recursive: true});
 
 const ext = isReact ? "tsx" : "ts";
-const srcGlob = isReact ? "src/**/*.@(ts|tsx)" : "src/**/*.ts";
 
-shell
-  .ls("-R", srcGlob)
-  .concat([`index.${ext}`])
-  .filter(file => !file.endsWith(".d.ts"))
-  .forEach(file => {
-    log.timer(`transpiling /es/${file}`);
-    const parser = isReact
-      ? {syntax: "typescript", tsx: true}
-      : {syntax: "typescript", tsx: false};
-    const transform = isReact ? {react: {runtime: "automatic"}} : {};
-    const {code} = transformFileSync(file, {jsc: {parser, transform}});
+function collectFiles(dir, pattern) {
+  const results = [];
+  for (const entry of fs.readdirSync(dir, {withFileTypes: true, recursive: true})) {
+    const full = path.join(entry.parentPath || entry.path, entry.name);
+    if (entry.isFile() && pattern.test(full) && !full.endsWith(".d.ts")) {
+      results.push(path.relative(".", full));
+    }
+  }
+  return results;
+}
 
-    // .tsx → .jsx for react, .ts → .js for everything else
-    const outFile = file.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
+const srcPattern = isReact ? /\.(ts|tsx)$/ : /\.ts$/;
+const srcFiles = fs.existsSync("src") ? collectFiles("src", srcPattern) : [];
+const files = srcFiles.concat([`index.${ext}`]);
 
-    outFile
-      .split("/")
-      .filter(folder => !folder.includes("."))
-      .reduce((dir, folder) => {
-        dir = path.join(dir, folder);
-        !fs.existsSync(dir) && fs.mkdirSync(dir);
-        return dir;
-      }, "es/");
+files.forEach(file => {
+  log.timer(`transpiling /es/${file}`);
+  const parser = isReact
+    ? {syntax: "typescript", tsx: true}
+    : {syntax: "typescript", tsx: false};
+  const transform = isReact ? {react: {runtime: "automatic"}} : {};
+  const {code} = transformFileSync(file, {jsc: {parser, transform}});
 
-    fs.writeFileSync(`es/${outFile}`, code);
-    log.done();
-  });
+  // .tsx → .jsx for react, .ts → .js for everything else
+  const outFile = file.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
+
+  const outDir = path.join("es", path.dirname(outFile));
+  fs.mkdirSync(outDir, {recursive: true});
+
+  fs.writeFileSync(`es/${outFile}`, code);
+  log.done();
+});
 
 log.exit();
-shell.exit(0);

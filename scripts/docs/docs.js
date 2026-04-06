@@ -5,21 +5,19 @@
 */
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import {Application, ReflectionKind} from "typedoc";
-import shell from "shelljs";
 
 import Logger from "../utils/log.js";
 const log = Logger("documentation");
 
 import readmeHeader from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
-import packageStub from "./stubs/package.js";
 import storiesStub from "./stubs/stories.js";
 import {buildPublicDocs} from "./typedoc.js";
 
-shell.config.silent = true;
-const {version} = JSON.parse(shell.cat("package.json"));
+const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 const kindLabels = {
   [ReflectionKind.Class]: "Classes",
@@ -113,17 +111,21 @@ const markdownOptions = {
 };
 
 async function generateMarkdown() {
-  const folders = shell.ls("-d", "packages/*");
+  const folders = fs
+    .readdirSync("packages", {withFileTypes: true})
+    .filter(d => d.isDirectory())
+    .map(d => path.join("packages", d.name));
 
   for (let i = 0; i < folders.length; i++) {
     const folder = folders[i];
 
-    let packageJSON = JSON.parse(shell.cat(`${folder}/package.json`));
+    let packageJSON = JSON.parse(
+      fs.readFileSync(`${folder}/package.json`, "utf8"),
+    );
     const {name} = packageJSON;
 
     log.timer(`updating package.json for ${name}`);
     packageJSON.version = version;
-    packageJSON = packageStub(packageJSON);
     fs.writeFileSync(
       `${folder}/package.json`,
       JSON.stringify(packageJSON, null, 2),
@@ -131,7 +133,7 @@ async function generateMarkdown() {
 
     if (name === "@d3plus/docs") {
       log.done();
-      shell.echo("");
+      console.log("");
       continue;
     }
 
@@ -144,14 +146,14 @@ async function generateMarkdown() {
 
     if (!indexFile) {
       log.done();
-      shell.echo("");
+      console.log("");
       continue;
     }
 
     // Use TypeDoc + typedoc-plugin-markdown to generate README
     log.timer(`generating docs for ${name}`);
 
-    const tempDir = path.join(shell.tempdir(), `d3plus-docs-${Date.now()}`);
+    const tempDir = path.join(os.tmpdir(), `d3plus-docs-${Date.now()}`);
 
     const app = await Application.bootstrapWithPlugins({
       entryPoints: [indexFile],
@@ -163,8 +165,8 @@ async function generateMarkdown() {
     const project = await app.convert();
     if (!project) {
       log.fail();
-      shell.echo(`  TypeDoc conversion failed for ${name}`);
-      shell.echo("");
+      console.error(`  TypeDoc conversion failed for ${name}`);
+      console.log("");
       continue;
     }
 
@@ -180,15 +182,12 @@ async function generateMarkdown() {
     // Post-process: replace "Default value" column with "Default" and
     // mark required params with a dash instead of "undefined"
     let readme = fs.readFileSync(path.join(tempDir, "README.md"), "utf8");
-    readme = readme.replace(
-      /\| Default value \|/g,
-      "| Default |",
-    );
+    readme = readme.replace(/\| Default value \|/g, "| Default |");
     readme = readme.replace(/\| `undefined` \|/g, "| *required* |");
 
     // Copy the generated README back to the package folder
     fs.writeFileSync(`${folder}/README.md`, readme);
-    shell.rm("-rf", tempDir);
+    fs.rmSync(tempDir, {recursive: true, force: true});
 
     // Generate Storybook args and stories from the same TypeDoc project
     log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
@@ -208,7 +207,7 @@ async function generateMarkdown() {
 
     stories.forEach(story => {
       const {meta, name} = story;
-      const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
+      const regex = new RegExp(/packages\/([a-z][^/]+)\/src(\/.*)?/g);
       const match = regex.exec(meta.path);
       if (!match) return;
       const [, packageName, filePath] = match;
@@ -219,7 +218,7 @@ async function generateMarkdown() {
       );
       const argsContent = argsStub(story, publicDocs, stories);
       const argsFolder = path.dirname(argsPath);
-      shell.mkdir("-p", argsFolder);
+      fs.mkdirSync(argsFolder, {recursive: true});
       fs.writeFileSync(argsPath, argsContent);
 
       const storyPath = path.join(
@@ -236,15 +235,14 @@ async function generateMarkdown() {
         existingContent,
       );
       const storyFolder = path.dirname(storyPath);
-      shell.mkdir("-p", storyFolder);
+      fs.mkdirSync(storyFolder, {recursive: true});
       fs.writeFileSync(storyPath, storyContent);
     });
 
     log.done();
-    shell.echo("");
+    console.log("");
   }
   log.exit();
-  shell.exit(0);
 }
 
 generateMarkdown();

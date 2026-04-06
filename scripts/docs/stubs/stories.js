@@ -8,7 +8,8 @@ export default function (story, packageName, filePath, existingContent) {
   const {kind, name} = story;
   const description = (story.description || "")
     .replace(/\`/g, "")
-    .replace(/\"/g, '\\"');
+    .replace(/\"/g, '\\"')
+    .replace(/\n/g, "\\n");
   const existingStories = existingContent.length
     ? existingContent.split(warning)[1].trimStart()
     : "";

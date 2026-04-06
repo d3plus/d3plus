@@ -3,17 +3,15 @@ import commonjs from "@rollup/plugin-commonjs";
 import {nodeResolve} from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import {rollup, watch} from "rollup";
-import shell from "shelljs";
 
+import fs from "node:fs";
 import path from "node:path";
-import {existsSync} from "node:fs";
 
 const {description, homepage, license, name, version} = JSON.parse(
-  shell.cat("package.json"),
+  fs.readFileSync("package.json", "utf8"),
 );
 const fileName = name.slice(1).replace("/", "-");
 
-shell.config.silent = true;
 export default async function (opts = {}) {
   const env = opts.env || "production";
   const log = opts.log;
@@ -26,12 +24,12 @@ export default async function (opts = {}) {
         path.dirname(importer),
         source.replace(/\.js$/, ".ts"),
       );
-      if (existsSync(tsPath)) return tsPath;
+      if (fs.existsSync(tsPath)) return tsPath;
       const tsxPath = path.resolve(
         path.dirname(importer),
         source.replace(/\.js$/, ".tsx"),
       );
-      if (existsSync(tsxPath)) return tsxPath;
+      if (fs.existsSync(tsxPath)) return tsxPath;
       return null;
     },
   };
@@ -90,15 +88,16 @@ export default async function (opts = {}) {
       case "ERROR":
       case "FATAL":
         log.fail();
-        shell.echo(`bundle error in '${e.error.id}':`);
-        return shell.echo(e.error);
+        console.error(`bundle error in '${e.error.id}':`);
+        console.error(e.error);
+        return undefined;
       default:
         return undefined;
     }
   }
 
   log.timer(`bundling ${output.file}`);
-  shell.mkdir("-p", folder);
+  fs.mkdirSync(folder, {recursive: true});
   if (opts.watch)
     return watch(Object.assign(input, {output: [output]})).on("event", onwarn);
   else return rollup(input).then(bundle => bundle.write(output));
