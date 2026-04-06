@@ -176,6 +176,7 @@ export default class Line extends Shape {
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this._path as any)
       .curve(curve)
       .defined(this._defined)

@@ -26,6 +26,7 @@ import Viz from "./Viz.js";
     Creates a sankey visualization based on a defined set of nodes and links. [Click here](http://d3plus.org/examples/d3plus-network/sankey-diagram/) for help getting started using the Sankey class.
 */
 export default class Sankey extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -119,7 +120,7 @@ export default class Sankey extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;

@@ -12,6 +12,7 @@ const ceil10 = (v: number): number =>
     @private
 */
 export default function (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   axis: any,
   scale: string,
   value: number,

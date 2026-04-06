@@ -274,6 +274,7 @@ export default class Shape extends BaseClass {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any).transition().duration(0).call(attrize, styleObject);
   }
 
@@ -304,6 +305,7 @@ export default class Shape extends BaseClass {
           : this(d, i);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any)
       .attr("fill", (d: DataPoint, i: number) => {
         const texture = this._getTextureKey.bind(this)(d, i);
@@ -331,6 +333,7 @@ export default class Shape extends BaseClass {
       @param elem @private
 */
   _applyTransform(elem: D3Selection): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any).attr(
       "transform",
       (d: DataPoint, i: number) => `
@@ -362,7 +365,7 @@ export default class Shape extends BaseClass {
       @private
 */
   _getTextureKey(d: DataPoint, i: number): string | false {
-    let textureVal: unknown = this._texture(d, i);
+    const textureVal: unknown = this._texture(d, i);
     if (!textureVal) return false;
 
     /**
@@ -466,6 +469,7 @@ export default class Shape extends BaseClass {
           group.appendChild(this);
           if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
             if (parent === group)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               select(this).call(that._applyStyle.bind(that) as any);
             else
               select(this).call(
@@ -546,6 +550,7 @@ export default class Shape extends BaseClass {
         }
         if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
           if (parent === group)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             select(this).call(that._applyStyle.bind(that) as any);
           else
             select(this).call(
@@ -553,6 +558,7 @@ export default class Shape extends BaseClass {
                 that,
                 select(this),
                 that._hoverStyle,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ) as any,
             );
         }
@@ -814,6 +820,7 @@ export default class Shape extends BaseClass {
     existingTextureDefs.forEach(key => {
       if (!textureSet.includes(key)) {
         select(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._select as any)
             .select(
               `pattern#${(this._textureDefs[key] as Record<string, unknown> & {id: () => string}).id()}`,
@@ -829,6 +836,7 @@ export default class Shape extends BaseClass {
         const config = JSON.parse(key);
         const textureClass = config.texture;
         delete config.texture;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const t = (textures as any)[textureClass]();
         for (const k in config) {
           if ({}.hasOwnProperty.call(t, k) && k in t) {
@@ -938,8 +946,10 @@ export default class Shape extends BaseClass {
         this.config() as DataPoint,
       ) as string;
       isLine &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this._path as any)
           .curve(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (paths as any)[
               `curve${curve.charAt(0).toUpperCase()}${curve.slice(1)}`
             ],
@@ -1016,6 +1026,39 @@ export default class Shape extends BaseClass {
 
   /**
       When shapes are active, this is the opacity of any shape that is not active.
+*/
+  activeOpacity(): number;
+  activeOpacity(_: number): this;
+  activeOpacity(_?: number): number | this {
+    return arguments.length
+      ? ((this._activeOpacity = _!), this)
+      : this._activeOpacity;
+  }
+
+  /**
+      The style to apply to active shapes.
+*/
+  activeStyle(): Record<string, unknown>;
+  activeStyle(_: Record<string, unknown>): this;
+  activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
+    return arguments.length
+      ? ((this._activeStyle = assign({}, this._activeStyle, _)), this)
+      : this._activeStyle;
+  }
+
+  /**
+      The aria-label attribute for each shape.
+*/
+  ariaLabel(): AccessorFn;
+  ariaLabel(_: AccessorFn | string): this;
+  ariaLabel(_?: AccessorFn | string): AccessorFn | this {
+    return _ !== undefined
+      ? ((this._ariaLabel = typeof _ === "function" ? _ : constant(_)), this)
+      : this._ariaLabel;
+  }
+
+  /**
+      The background-image accessor for each shape.
 */
   backgroundImage(): AccessorFn;
   backgroundImage(_: AccessorFn | string): this;

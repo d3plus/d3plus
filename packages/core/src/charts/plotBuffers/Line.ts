@@ -17,7 +17,17 @@ export default function (
     y,
     x2,
     y2,
-  }: {data: Record<string, unknown>[]; x: any; y: any; x2?: any; y2?: any},
+  }: {
+    data: Record<string, unknown>[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    x: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    y: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    x2?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    y2?: any;
+  },
 ): [unknown, unknown] {
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";

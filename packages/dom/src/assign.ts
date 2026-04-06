@@ -4,7 +4,7 @@ import isObject from "./isObject.js";
     Determines if the object passed is the document or window.
     @param obj @private
 */
-function validObject(obj: Record<string, any>): boolean {
+function validObject(obj: Record<string, unknown>): boolean {
   if (typeof window === "undefined") return true;
   else return obj !== window && obj !== document;
 }
@@ -18,7 +18,7 @@ assign({id: "foo", deep: {group: "A"}}, {id: "bar", deep: {value: 20}}));
 {id: "bar", deep: {group: "A", value: 20}}
     @param objects The source objects to merge into the target.
 */
-function assign(...objects: Record<string, any>[]): Record<string, any> {
+function assign(...objects: Record<string, unknown>[]): Record<string, unknown> {
   const target = objects[0];
   for (let i = 1; i < objects.length; i++) {
     const source = objects[i];

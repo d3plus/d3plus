@@ -93,6 +93,7 @@ export default class Rect extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any)
       .attr("width", (d: DataPoint, i: number) => this._width(d, i))
       .attr("height", (d: DataPoint, i: number) => this._height(d, i))

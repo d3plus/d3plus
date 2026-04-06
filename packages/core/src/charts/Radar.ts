@@ -14,6 +14,7 @@ const tau = Math.PI * 2;
     Creates a radar visualization based on an array of data.
 */
 export default class Radar extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -49,7 +50,7 @@ export default class Radar extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 

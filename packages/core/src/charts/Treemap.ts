@@ -29,6 +29,7 @@ import Viz from "./Viz.js";
     Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.
 */
 export default class Treemap extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -90,7 +91,7 @@ export default class Treemap extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const nestedData = nestGroups(
       this._filteredData,

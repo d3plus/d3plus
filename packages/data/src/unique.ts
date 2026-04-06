@@ -7,7 +7,7 @@ unique(["apple", "banana", "apple"]);
     @example <caption>returns this</caption>
 ["apple", "banana"]
 */
-export default function <T>(arr: T[], accessor: (d: T) => any = d => d): T[] {
+export default function <T>(arr: T[], accessor: (d: T) => unknown = d => d): T[] {
   const values = arr.map(accessor).map(d => (d instanceof Date ? +d : d));
 
   return arr.filter((obj, i) => {

@@ -4,13 +4,14 @@
     @private
 */
 const discreteBuffer = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scale: any,
   data: Record<string, unknown>[],
   discrete: string,
 ): void => {
   if (scale.padding) scale.padding(0.5);
   else {
-    let uniqueValues = Array.from(
+    const uniqueValues = Array.from(
       new Set(
         data.map((d: Record<string, unknown>) => +(d[discrete] as number)),
       ),

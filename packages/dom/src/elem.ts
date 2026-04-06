@@ -5,6 +5,7 @@ import {default as attrize} from "./attrize.js";
 import type {D3Selection} from "./D3Selection.js";
 
  
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySelection = ReturnType<typeof select<any, any>>;
 
 type AttrMap = Record<string, string | number | boolean | null>;

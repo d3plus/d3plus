@@ -25,6 +25,7 @@ const recursionCircles = (
     Uses the [d3 pack layout](https://github.com/d3/d3-hierarchy#pack) to creates Circle Packing chart based on an array of data.
 */
 export default class Pack extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -91,7 +92,7 @@ export default class Pack extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
@@ -108,7 +109,7 @@ export default class Pack extends Viz {
       .padding(this._layoutPadding)
       .size([diameter, diameter])(
         hierarchy(
-          {key: (nestedData as any).key, values: nestedData} as Record<
+          {key: (nestedData as unknown as Record<string, unknown>).key, values: nestedData} as Record<
             string,
             unknown
           >,

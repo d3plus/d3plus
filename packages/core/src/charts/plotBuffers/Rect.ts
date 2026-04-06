@@ -23,13 +23,17 @@ export default function (
     config,
   }: {
     data: Record<string, unknown>[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     y: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x2?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     y2?: any;
     yScale?: string;
     xScale?: string;
-    config?: Record<string, Function>;
+    config?: Record<string, (...args: unknown[]) => unknown>;
   },
 ): [unknown, unknown] {
   x = x.copy();

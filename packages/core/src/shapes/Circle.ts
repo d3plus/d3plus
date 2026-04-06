@@ -50,6 +50,7 @@ export default class Circle extends Shape {
       @private
 */
   _applyPosition(elem: D3Selection): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any)
       .attr("r", (d: DataPoint, i: number) => this._r(d, i))
       .attr("x", (d: DataPoint, i: number) => -(this._r(d, i) as number) / 2)

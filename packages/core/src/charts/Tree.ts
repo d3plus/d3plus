@@ -17,6 +17,7 @@ import Viz from "./Viz.js";
     Uses d3's [tree layout](https://github.com/d3/d3-hierarchy#tree) to create a tidy tree chart based on an array of data.
 */
 export default class Tree extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -65,7 +66,7 @@ export default class Tree extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const isVertical = this._orient === "vertical";
     const isHorizontal = this._orient === "horizontal";

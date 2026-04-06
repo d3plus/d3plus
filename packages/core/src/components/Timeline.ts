@@ -1,7 +1,7 @@
 import {extent, max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
-import {pointers, select} from "d3-selection";
+import {pointers} from "d3-selection";
 
 import {colorDefaults} from "@d3plus/color";
 import {assign, attrize, date, elem, textWidth} from "@d3plus/dom";
@@ -9,8 +9,6 @@ import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
 import {textWrap} from "@d3plus/text";
-
-import type {DataPoint} from "@d3plus/data";
 
 import {Axis, TextBox} from "../components/index.js";
 import {configPrep, constant} from "../utils/index.js";
@@ -23,7 +21,7 @@ const colorMid = "#bbb";
 export default class Timeline extends Axis {
   _brushing: boolean;
    
-  _brushFilter: (event: any) => boolean;
+  _brushFilter: (event: unknown) => boolean;
   _brushMin: () => number;
   _buttonAlign: string;
   _buttonBehavior: string;
@@ -31,24 +29,25 @@ export default class Timeline extends Axis {
   _buttonPadding: number;
   _buttonHeight: number;
    
-  _handleConfig: Record<string, any>;
+  _handleConfig: Record<string, unknown>;
   _handleSize: number;
   _hiddenHandles: boolean;
    
-  declare _on: Record<string, any>;
+  declare _on: Record<string, unknown>;
   _playButton: boolean;
   _playButtonClass: TextBox;
    
-  _playButtonConfig: Record<string, any>;
+  _playButtonConfig: Record<string, unknown>;
   _playButtonInterval: number;
   _playTimer: ReturnType<typeof setInterval> | false;
   _selection: unknown;
    
-  _selectionConfig: Record<string, any>;
+  _selectionConfig: Record<string, unknown>;
   _snapping: boolean;
    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _brush: any;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _brushGroup: any;
   _paddingLeft: number;
   _ticksWidth: number;
@@ -67,7 +66,10 @@ export default class Timeline extends Axis {
     });
     this._brushing = true;
      
-    this._brushFilter = (event: any) => !event.button && event.detail < 2;
+    this._brushFilter = (event: unknown) => {
+      const e = event as Record<string, unknown>;
+      return !e.button && (e.detail as number) < 2;
+    };
     this._brushMin = constant(1);
     this._buttonAlign = "middle";
     this._buttonBehavior = "auto";
@@ -100,11 +102,11 @@ export default class Timeline extends Axis {
         else {
           let firstTime = true;
           const nextYear = () => {
-            let selection: any = this._selection || [
+            let selection: unknown[] = (this._selection || [
               this._domain[this._domain.length - 1],
-            ];
+            ]) as unknown[];
             if (!(selection instanceof Array)) selection = [selection];
-            selection = selection.map(date).map(Number);
+            selection = (selection as unknown[]).map(date).map(Number);
             if (selection.length === 1) selection.push(selection[0]);
             const ticks = this._ticks!.map(Number);
             const firstIndex = ticks.indexOf(selection[0]);
@@ -155,12 +157,12 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = assign({}, this._shapeConfig, {
-      labelBounds: (d: any) =>
+      labelBounds: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? {
-              x: d.labelBounds.x,
+              x: (d.labelBounds as Record<string, unknown>).x,
               y: -this._buttonHeight / 2 + 1,
-              width: d.labelBounds.width,
+              width: (d.labelBounds as Record<string, unknown>).width,
               height: this._buttonHeight,
             }
           : d.labelBounds,
@@ -174,21 +176,21 @@ export default class Timeline extends Axis {
         this._buttonBehaviorCurrent === "buttons" ? "#fff" : colorMid,
       stroke: () =>
         this._buttonBehaviorCurrent === "buttons" ? colorMid : "transparent",
-      height: (d: any) =>
+      height: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? this._buttonHeight
           : d.tick
             ? this._handleSize
             : 0,
-      width: (d: any) =>
+      width: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? this._ticksWidth / this._availableTicks.length
           : d.tick
-            ? this._domain.map(Number).includes(d.id)
+            ? this._domain.map(Number).includes(d.id as number)
               ? 2
               : 1
             : 0,
-      y: (d: any) =>
+      y: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? this._align === "middle"
             ? this._height / 2
@@ -196,16 +198,16 @@ export default class Timeline extends Axis {
               ? this._margin.top + this._buttonHeight / 2
               : this._height - this._buttonHeight / 2 - this._margin.bottom
           : d.y,
-      rx: (d: any) =>
+      rx: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? 0
-          : this._domain.map(Number).includes(d.id)
+          : this._domain.map(Number).includes(d.id as number)
             ? 1
             : 0,
-      ry: (d: any) =>
+      ry: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? 0
-          : this._domain.map(Number).includes(d.id)
+          : this._domain.map(Number).includes(d.id as number)
             ? 1
             : 0,
     });
@@ -221,10 +223,10 @@ export default class Timeline extends Axis {
       @private
 */
    
-  _brushBrush(event: any): void {
+  _brushBrush(event: Record<string, unknown>): void {
     if (
       event.sourceEvent &&
-      event.sourceEvent.offsetX &&
+      (event.sourceEvent as Record<string, unknown>).offsetX &&
       event.selection !== null &&
       (!this._brushing || this._snapping)
     ) {
@@ -237,7 +239,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.brush) this._on.brush(this._selection);
+    if (this._on.brush) (this._on.brush as (...args: unknown[]) => unknown)(this._selection);
   }
 
   /**
@@ -245,7 +247,7 @@ export default class Timeline extends Axis {
       @private
 */
    
-  _brushEnd(event: any): void {
+  _brushEnd(event: Record<string, unknown>): void {
     if (!event.sourceEvent) return; // Only transition after input.
 
     const domain = this._updateDomain(event);
@@ -257,7 +259,7 @@ export default class Timeline extends Axis {
         .transition(this._transition)
         .call(this._brush.move, this._updateBrushLimit(domain));
 
-    if (this._on.end) this._on.end(this._selection);
+    if (this._on.end) (this._on.end as (...args: unknown[]) => unknown)(this._selection);
   }
 
   /**
@@ -265,7 +267,7 @@ export default class Timeline extends Axis {
       @private
 */
    
-  _brushStart(event: any): void {
+  _brushStart(event: Record<string, unknown>): void {
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
@@ -276,7 +278,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.start) this._on.start(event);
+    if (this._on.start) (this._on.start as (...args: unknown[]) => unknown)(event);
   }
 
   /**
@@ -306,7 +308,7 @@ export default class Timeline extends Axis {
       .selectAll(".handle")
       .call(attrize, this._handleConfig)
       .attr("display", this._hiddenHandles ? "none" : "block")
-      .attr("transform", (d: any) =>
+      .attr("transform", (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? `translate(${d.type === "w" ? -this._handleSize / 2 : 0},-1)`
           : "",
@@ -361,11 +363,11 @@ export default class Timeline extends Axis {
       @private
 */
    
-  _updateDomain(event: any): any[] {
+  _updateDomain(event: Record<string, unknown>): unknown[] {
     const x = pointers(event, this._select.node());
-    let domain: any[] =
+    let domain: unknown[] =
       (event.selection && this._brushing) || !x.length
-        ? event.selection
+        ? (event.selection as unknown[])
         : [x[0][0], x[0][0]];
 
     if (this._buttonBehaviorCurrent === "ticks")
@@ -377,16 +379,18 @@ export default class Timeline extends Axis {
       this._brushing &&
       this._buttonBehaviorCurrent === "buttons"
     ) {
-      const diffs = event.selection.map((d: any) =>
-        Math.abs(d - event.sourceEvent.offsetX),
+      const diffs = (event.selection as number[]).map((d: number) =>
+        Math.abs(d - ((event.sourceEvent as Record<string, unknown>).offsetX as number)),
       );
 
+      const sel = event.selection as number[];
+      const offsetX = (event.sourceEvent as Record<string, unknown>).offsetX as number;
       domain =
         diffs[1] <= diffs[0]
-          ? [event.selection[0], event.sourceEvent.offsetX].sort(
+          ? [sel[0], offsetX].sort(
               (a: number, b: number) => a - b,
             )
-          : [event.sourceEvent.offsetX, event.selection[1]].sort(
+          : [offsetX, sel[1]].sort(
               (a: number, b: number) => a - b,
             );
     }
@@ -399,10 +403,10 @@ export default class Timeline extends Axis {
     if (this._buttonBehaviorCurrent === "ticks") {
       // find closest min and max ticks from data
       // and their indices in the ticks Array
-      let minDomain: any = date(closest(domain[0], ticks));
-      let minIndex = ticks.indexOf(+minDomain);
-      let maxDomain: any = date(closest(domain[1], ticks));
-      let maxIndex = ticks.indexOf(+maxDomain);
+      let minDomain: unknown = date(closest(domain[0] as number, ticks));
+      let minIndex = ticks.indexOf(+(minDomain as number));
+      let maxDomain: unknown = date(closest(domain[1] as number, ticks));
+      let maxIndex = ticks.indexOf(+(maxDomain as number));
 
       // using the indices, determine if the 2 ends of the brush
       // are too close to each other. "ticksApart" always needs to
@@ -478,11 +482,11 @@ export default class Timeline extends Axis {
       @private
 */
    
-  _updateBrushLimit(domain: any[]): any[] {
+  _updateBrushLimit(domain: unknown[]): unknown[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
-        ? domain.map(date).map(this._d3Scale)
-        : domain;
+        ? domain.map(date).map(this._d3Scale) as number[]
+        : domain as number[];
 
     if (selection[0] === selection[1]) {
       selection[0] -= 0.1;
@@ -504,7 +508,7 @@ export default class Timeline extends Axis {
       Draws the timeline.
     @param callback Optional callback invoked after rendering completes.
 */
-  render(callback?: Function): this {
+  render(callback?: (...args: unknown[]) => unknown): this {
     const {height, y} = this._position;
 
     if (this._ticks) this._ticks = this._ticks.map(date);
@@ -534,7 +538,7 @@ export default class Timeline extends Axis {
     this._ticksWidth = this._width;
     if (["auto", "buttons"].includes(this._buttonBehavior)) {
       let maxLabel = 0;
-      ticks.forEach((d: any, i: number) => {
+      ticks.forEach((d: unknown, i: number) => {
         const {fontFamily, fontSize} = this._shapeConfig.labelConfig;
 
         const f =
@@ -594,7 +598,7 @@ export default class Timeline extends Axis {
         ? this._ticks
         : Array.from(
             Array(domain[domain.length - 1] - domain[0] + 1),
-            (_: any, x: number) => domain[0] + x,
+            (_: unknown, x: number) => domain[0] + x,
           ).map(date);
 
       this._ticks = this._domain;
@@ -616,7 +620,7 @@ export default class Timeline extends Axis {
       ];
     } else {
       this._scale = "time";
-      this._domain = extent(ticks as Date[]) as any[];
+      this._domain = extent(ticks as Date[]) as unknown as (string | number | boolean | Date)[];
       this._range = [
         playButtonWidth ? playButtonWidth * 1.5 : undefined,
         undefined,
@@ -653,17 +657,17 @@ export default class Timeline extends Axis {
     ];
 
     // the current selection, considering user input, defaults, and data
-    const selection: any[] =
+    const selection: unknown[] =
       this._selection === void 0
         ? defaultSelection
         : this._selection instanceof Array
           ? this._buttonBehaviorCurrent === "buttons"
             ? this._selection
                 .map(date)
-                .map((d: any) => range[this._ticks!.map(Number).indexOf(+d)])
+                .map((d: unknown) => range[this._ticks!.map(Number).indexOf(+(d as number))])
             : this._selection.map(date)
           : this._buttonBehaviorCurrent === "buttons"
-            ? [range[this._ticks!.map(Number).indexOf(+this._selection)]]
+            ? [range[this._ticks!.map(Number).indexOf(+(this._selection as number))]]
             : [this._selection];
 
     if (selection.length === 1) selection.push(selection[0]);
@@ -721,7 +725,7 @@ export default class Timeline extends Axis {
 */
   buttonPadding(): number;
   buttonPadding(_: number): this;
-  buttonPadding(_?: number): any {
+  buttonPadding(_?: number): number | this {
     return arguments.length
       ? ((this._buttonPadding = _!), this)
       : this._buttonPadding;
@@ -732,7 +736,7 @@ export default class Timeline extends Axis {
 */
   brushing(): boolean;
   brushing(_: boolean): this;
-  brushing(_?: boolean): any {
+  brushing(_?: boolean): boolean | this {
     return arguments.length ? ((this._brushing = _!), this) : this._brushing;
   }
 
@@ -745,11 +749,11 @@ function() {
 }
 */
    
-  brushFilter(): (event: any) => boolean;
-   
-  brushFilter(_: (event: any) => boolean): this;
-   
-  brushFilter(_?: (event: any) => boolean): unknown {
+  brushFilter(): (event: unknown) => boolean;
+
+  brushFilter(_: (event: unknown) => boolean): this;
+
+  brushFilter(_?: (event: unknown) => boolean): unknown {
     return arguments.length
       ? ((this._brushFilter = _!), this)
       : this._brushFilter;
@@ -771,7 +775,7 @@ function() {
 */
   buttonAlign(): string;
   buttonAlign(_: string): this;
-  buttonAlign(_?: string): any {
+  buttonAlign(_?: string): string | this {
     return arguments.length
       ? ((this._buttonAlign = _!), this)
       : this._buttonAlign;
@@ -782,7 +786,7 @@ function() {
 */
   buttonBehavior(): string;
   buttonBehavior(_: string): this;
-  buttonBehavior(_?: string): any {
+  buttonBehavior(_?: string): string | this {
     return arguments.length
       ? ((this._buttonBehavior = _!), this)
       : this._buttonBehavior;
@@ -793,7 +797,7 @@ function() {
 */
   buttonHeight(): number;
   buttonHeight(_: number): this;
-  buttonHeight(_?: number): any {
+  buttonHeight(_?: number): number | this {
     return arguments.length
       ? ((this._buttonHeight = _!), this)
       : this._buttonHeight;
@@ -815,7 +819,7 @@ function() {
 */
   handleSize(): number;
   handleSize(_: number): this;
-  handleSize(_?: number): any {
+  handleSize(_?: number): number | this {
     return arguments.length
       ? ((this._handleSize = _!), this)
       : this._handleSize;
@@ -825,15 +829,15 @@ function() {
       Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 */
    
-  on(): any;
-   
-  on(_: string, f: Function): this;
-   
-  on(_: Record<string, any>): this;
-   
-  on(_?: any, f?: Function): any {
+  on(): Record<string, unknown>;
+
+  on(_: string, f: (...args: unknown[]) => unknown): this;
+
+  on(_: Record<string, unknown>): this;
+
+  on(_?: string | Record<string, unknown>, f?: (...args: unknown[]) => unknown): Record<string, unknown> | unknown | this {
     return arguments.length === 2
-      ? ((this._on[_] = f), this)
+      ? ((this._on[_ as string] = f), this)
       : arguments.length
         ? typeof _ === "string"
           ? this._on[_]
@@ -846,7 +850,7 @@ function() {
 */
   playButton(): boolean;
   playButton(_: boolean): this;
-  playButton(_?: boolean): any {
+  playButton(_?: boolean): boolean | this {
     return arguments.length
       ? ((this._playButton = _!), this)
       : this._playButton;
@@ -868,7 +872,7 @@ function() {
 */
   playButtonInterval(): number;
   playButtonInterval(_: number): this;
-  playButtonInterval(_?: number): any {
+  playButtonInterval(_?: number): number | this {
     return arguments.length
       ? ((this._playButtonInterval = _!), this)
       : this._playButtonInterval;
@@ -899,7 +903,7 @@ function() {
 */
   snapping(): boolean;
   snapping(_: boolean): this;
-  snapping(_?: boolean): any {
+  snapping(_?: boolean): boolean | this {
     return arguments.length ? ((this._snapping = _!), this) : this._snapping;
   }
 }

@@ -13,6 +13,7 @@ import Viz from "./Viz.js";
     Creates a ring visualization based on a defined set of nodes and edges. [Click here](http://d3plus.org/examples/d3plus-network/simple-rings/) for help getting started using the Rings class.
 */
 export default class Rings extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -105,7 +106,7 @@ export default class Rings extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const data = this._filteredData.reduce((obj, d, i) => {
       obj[this._id(d, i)] = d;

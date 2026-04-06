@@ -49,9 +49,11 @@ const maxTimezoneOffset = 1000 * 60 * 60 * 26;
 */
 function calculateStep(
   this: Axis,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scale: any,
   minorTicks: boolean = false,
 ): number {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stepScale = (scales as any)
     .scaleLinear()
     .domain([200, 1200])
@@ -64,9 +66,9 @@ function calculateStep(
     if (this._data && this._data.length) {
       const dataExtent = extent(this._data);
       const distance = this._data.reduce(
-        (n: number, d: any, i: number, arr: any[]) => {
+        (n: number, d: unknown, i: number, arr: unknown[]) => {
           if (i) {
-            const dist = Math.abs(d - arr[i - 1]);
+            const dist = Math.abs((d as number) - (arr[i - 1] as number));
             if (dist < n) n = dist;
           }
           return n;
@@ -92,15 +94,16 @@ function calculateStep(
 */
 function calculateTicks(
   this: Axis,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scale: any,
   minorTicks: boolean = false,
-): any[] {
-  let ticks: any[] = [];
+): unknown[] {
+  let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
   if (this._scale === "time" && this._data.length) {
     const newDomain = extent(this._data);
-    const range = (newDomain as any[]).map(scale);
+    const range = (newDomain as unknown[]).map(scale);
     scaleClone.domain(newDomain).range(range);
   }
 
@@ -109,12 +112,12 @@ function calculateTicks(
   const step = calculateStep.bind(this)(scaleClone, minorTicks);
 
   if (!minorTicks && this._scale === "log") {
-    const roundDomain = domain.map((d: any) =>
+    const roundDomain = domain.map((d: number) =>
       Math.log10(d) % 1 === 0 ? d : (inverted ? ceilPow : floorPow)(d),
     );
     const invertedRound = roundDomain[1] < roundDomain[0];
     const powers = roundDomain.map(
-      (d: any) =>
+      (d: number) =>
         (isNegative(d) ? -1 : 1) *
         ([-1, 1].includes(d) || Math.abs(d) < 1 ? 1 : Math.log10(Math.abs(d))),
     );
@@ -126,12 +129,12 @@ function calculateTicks(
       (powMod <= 1 && powers[0] === powers[1]) || invertedRound !== inverted
         ? scaleClone
             .ticks(step)
-            .filter((d: any) => +`${d}`.replace("0.", "") % 2 === 0)
+            .filter((d: number) => +`${d}`.replace("0.", "") % 2 === 0)
         : d3Range(powers[0], powers[1], powers[1] < powers[0] ? -1 : 1)
             .concat([powers[1]])
-            .filter((d: any) => Math.abs(d) % powMod === 0)
+            .filter((d: number) => Math.abs(d) % powMod === 0)
             .map(
-              (d: any) =>
+              (d: number) =>
                 +`${
                   (isNegative(d) ? -1 : 1) *
                   (d
@@ -148,9 +151,9 @@ function calculateTicks(
       !["log", "time"].includes(this._scale) &&
       ticks.length > 1
     ) {
-      let majorDiff = Math.abs(fixFloat(ticks[1] - ticks[0]) * 2);
-      ticks = ticks.filter((d: any) => {
-        const mod = Math.abs(d) % majorDiff;
+      const majorDiff = Math.abs(fixFloat((ticks[1] as number) - (ticks[0] as number)) * 2);
+      ticks = ticks.filter((d: unknown) => {
+        const mod = Math.abs(d as number) % majorDiff;
         const modFloat = fixFloat(mod);
         if (modFloat !== mod) {
           return !modFloat || modFloat === majorDiff;
@@ -163,8 +166,8 @@ function calculateTicks(
   // for time scale, if data array has been provided, filter out ticks that are not in the array
   if (this._scale === "time" && this._data.length) {
     const dataNumbers = this._data.map(Number);
-    ticks = ticks.filter((t: any) => {
-      const tn = +t;
+    ticks = ticks.filter((t: unknown) => {
+      const tn = +(t as number);
       return dataNumbers.find(
         (n: number) =>
           n >= tn - maxTimezoneOffset && n <= tn + maxTimezoneOffset,
@@ -176,7 +179,7 @@ function calculateTicks(
   if (
     !this._d3ScaleNegative ||
     isNegative(domain[inverted ? 1 : 0]) ===
-      ticks.some((d: any) => isNegative(d))
+      ticks.some((d: unknown) => isNegative(d as number))
   ) {
     if (!ticks.map(Number).includes(+domain[0])) {
       ticks.unshift(domain[0]);
@@ -185,7 +188,7 @@ function calculateTicks(
   if (
     !this._d3ScaleNegative ||
     isNegative(domain[inverted ? 0 : 1]) ===
-      ticks.some((d: any) => isNegative(d))
+      ticks.some((d: unknown) => isNegative(d as number))
   ) {
     if (!ticks.map(Number).includes(+domain[1])) {
       ticks.push(domain[1]);
@@ -202,10 +205,9 @@ export default class Axis extends BaseClass {
   _select: D3Selection;
   _align: string;
   _barConfig: Record<string, unknown>;
-  // Axis data can be dates, numbers, or strings, not just DataPoint
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _data: any[];
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _domain: any[];
   _duration: number;
   _gridConfig: Record<string, unknown>;
@@ -217,6 +219,7 @@ export default class Axis extends BaseClass {
   _labelRotation: boolean | undefined;
   _labels: unknown[] | undefined;
    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   declare _locale: any;
   _margin: Record<string, number>;
   _maxSize: number;
@@ -244,8 +247,9 @@ export default class Axis extends BaseClass {
   _scalePadding: number;
   _shape: string;
    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _shapeConfig: Record<string, any>;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _tickFormat: any;
   _ticks: unknown[] | undefined;
   _tickSize: number;
@@ -254,13 +258,13 @@ export default class Axis extends BaseClass {
   _timeLocale: Record<string, unknown> | undefined;
   _title: string | undefined;
   _titleClass: TextBox;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _titleConfig: Record<string, any>;
   _width: number;
   // D3 scales have complex polymorphic types that vary at runtime
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _d3Scale: any;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _d3ScaleNegative: any;
   _group: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
@@ -307,9 +311,9 @@ export default class Axis extends BaseClass {
     this._shape = "Line";
     this._shapeConfig = {
       fill: openColor.colors.gray[600],
-      height: (d: any) => (d.tick ? 8 : 0),
-      label: (d: any) => d.text,
-      labelBounds: (d: any) => d.labelBounds,
+      height: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
+      label: (d: Record<string, unknown>) => d.text,
+      labelBounds: (d: Record<string, unknown>) => d.labelBounds,
       labelConfig: {
         fontColor: openColor.colors.gray[600],
         fontResize: false,
@@ -338,10 +342,10 @@ export default class Axis extends BaseClass {
               ? "bottom"
               : "middle",
       },
-      r: (d: any) => (d.tick ? 4 : 0),
+      r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
       stroke: openColor.colors.gray[600],
       strokeWidth: 1,
-      width: (d: any) => (d.tick ? 8 : 0),
+      width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
     };
     this._tickSize = 8;
     this._tickSuffix = "normal";
@@ -363,6 +367,7 @@ export default class Axis extends BaseClass {
       Sets positioning for the axis bar.
       @param bar @private
 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _barPosition(bar: any): void {
     const {height, x, y, opposite} = this._position,
       offset = this._margin[opposite],
@@ -388,7 +393,7 @@ export default class Axis extends BaseClass {
       this._d3ScaleNegative ? this._d3ScaleNegative.domain() : []
     )
       .concat(this._d3Scale ? this._d3Scale.domain() : [])
-      .sort((a: any, b: any) => a - b);
+      .sort((a: number, b: number) => a - b);
 
     bar
       .call(attrize, this._barConfig)
@@ -405,8 +410,8 @@ export default class Axis extends BaseClass {
       Returns the scale's domain, taking into account negative and positive log scales.
       @private
 */
-  _getDomain(): any[] {
-    let ticks: any[] = [];
+  _getDomain(): unknown[] {
+    let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.domain();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.domain());
 
@@ -414,22 +419,22 @@ export default class Axis extends BaseClass {
       ? ticks
       : extent(ticks);
     return ticks[0] > ticks[1]
-      ? (domain as any[]).reverse()
-      : (domain as any[]);
+      ? (domain as unknown[]).reverse()
+      : (domain as unknown[]);
   }
 
   /**
       Returns a value's scale position, taking into account negative and positive log scales.
       @param d @private
 */
-  _getPosition(d: any): number {
+  _getPosition(d: unknown): number {
     if (this._scale === "log") {
       if (d === 0)
         return (this._d3Scale || this._d3ScaleNegative).range()[
           this._d3Scale ? 0 : 1
         ];
       return (
-        isNegative(d) ? this._d3ScaleNegative || (() => 0) : this._d3Scale
+        isNegative(d as number) ? this._d3ScaleNegative || (() => 0) : this._d3Scale
       )(d);
     }
     return this._d3Scale(d);
@@ -439,21 +444,21 @@ export default class Axis extends BaseClass {
       Returns the scale's range, taking into account negative and positive log scales.
       @private
 */
-  _getRange(): any[] {
-    let ticks: any[] = [];
+  _getRange(): unknown[] {
+    let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.range();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.range());
     return ticks[0] > ticks[1]
-      ? (extent(ticks) as any[]).reverse()
-      : (extent(ticks) as any[]);
+      ? (extent(ticks) as unknown[]).reverse()
+      : (extent(ticks) as unknown[]);
   }
 
   /**
       Returns the scale's labels, taking into account negative and positive log scales.
       @private
 */
-  _getLabels(): any[] {
-    let labels: any[] = [];
+  _getLabels(): unknown[] {
+    let labels: unknown[] = [];
     if (this._d3ScaleNegative)
       labels = labels.concat(
         calculateTicks.bind(this)(this._d3ScaleNegative, false),
@@ -462,8 +467,8 @@ export default class Axis extends BaseClass {
       labels = labels.concat(calculateTicks.bind(this)(this._d3Scale, false));
     if (this._scale === "log") {
       const diverging =
-        labels.some((d: any) => isNegative(d)) &&
-        labels.some((d: any) => d > 0);
+        labels.some((d: unknown) => isNegative(d as number)) &&
+        labels.some((d: unknown) => (d as number) > 0);
       if (diverging) {
         const minValue = min([
           ...this._d3ScaleNegative.domain().map(Math.abs),
@@ -472,7 +477,7 @@ export default class Axis extends BaseClass {
         // add minValue if it does not exist, and should
         if (!labels.includes(minValue)) {
           labels.splice(
-            labels.findIndex((d: any) => d > minValue),
+            labels.findIndex((d: unknown) => (d as number) > minValue!),
             0,
             minValue,
           );
@@ -490,7 +495,7 @@ export default class Axis extends BaseClass {
       Returns the scale's ticks, taking into account negative and positive log scales.
       @private
 */
-  _getTicks(): any[] {
+  _getTicks(): unknown[] {
     if (
       ["band", "ordinal", "point", "time"].includes(this._scale) &&
       this._data.length &&
@@ -498,7 +503,7 @@ export default class Axis extends BaseClass {
     ) {
       return this._scale === "time" ? this._data.map(date) : this._data;
     }
-    let ticks: any[] = [];
+    let ticks: unknown[] = [];
     if (this._d3ScaleNegative)
       ticks = ticks.concat(
         calculateTicks.bind(this)(this._d3ScaleNegative, true),
@@ -514,6 +519,7 @@ export default class Axis extends BaseClass {
       Sets positioning for the grid lines.
       @param lines @private
 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _gridPosition(lines: any, last: boolean = false): void {
     const {height, x, y, opposite} = this._position,
       offset = this._margin[opposite],
@@ -525,7 +531,7 @@ export default class Axis extends BaseClass {
         : this._getPosition.bind(this),
       size = ["top", "left"].includes(this._orient) ? offset : -offset,
       xDiff = this._scale === "band" ? this._d3Scale.bandwidth() / 2 : 0,
-      xPos = (d: any) => scale(d.id) + xDiff;
+      xPos = (d: Record<string, unknown>) => scale(d.id) + xDiff;
     lines
       .call(attrize, this._gridConfig)
       .attr(`${x}1`, xPos)
@@ -538,7 +544,7 @@ export default class Axis extends BaseClass {
       Renders the current Axis to the page.
     @param callback Optional callback invoked after rendering completes.
 */
-  render(callback?: Function): this {
+  render(callback?: (...args: unknown[]) => unknown): this {
     /**
      * Creates an SVG element to contain the axis if none
      * has been specified using the "select" method.
@@ -584,6 +590,7 @@ export default class Axis extends BaseClass {
 */
     const margin = (this._margin = {top: 0, right: 0, bottom: 0, left: 0});
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let labels: any[], range: any[], ticks: any[];
 
     /**
@@ -591,7 +598,8 @@ export default class Axis extends BaseClass {
 */
     const tickFormat = this._tickFormat
       ? this._tickFormat
-      : (d: any) => {
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (d: any) => {
           if (isNaN(d) || ["band", "ordinal", "point"].includes(this._scale)) {
             return d;
           } else if (this._scale === "time") {
@@ -648,6 +656,7 @@ export default class Axis extends BaseClass {
      * (Re)calculates the internal d3 scale
      * @param {} newRange
 */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setScale = (newRange: any[] = this._range!) => {
       /**
        * Calculates the internal "range" array to use, including
@@ -690,8 +699,8 @@ export default class Axis extends BaseClass {
 
       const initialDomain = this._domain.slice();
 
-      this._d3Scale = (scales as any)
-        [scale]()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._d3Scale = (scales as any)[scale]()
         .domain(
           this._scale === "time" ? initialDomain.map(date) : initialDomain,
         )
@@ -867,13 +876,13 @@ export default class Axis extends BaseClass {
         // crosses zero
         else {
           const powers = domain
-            .map((d: any) => Math.log10(Math.abs(d)))
-            .map((d: any) => d || -1e-6);
+            .map((d: number) => Math.log10(Math.abs(d)))
+            .map((d: number) => d || -1e-6);
           const leftPercentage = powers[0] / sum(powers);
           const zero = leftPercentage * (range[1] - range[0]);
 
           let minPositive = min([
-            min(this._data.filter((d: any) => d >= 0)),
+            min(this._data.filter((d: unknown) => (d as number) >= 0)),
             Math.abs(domain[1]),
           ]);
           if (minPositive === 1) minPositive = 1e-6;
@@ -933,17 +942,17 @@ export default class Axis extends BaseClass {
         labels = labels.map(Number);
       }
       ticks = ticks.sort(
-        (a: any, b: any) => this._getPosition(a) - this._getPosition(b),
+        (a: unknown, b: unknown) => this._getPosition(a) - this._getPosition(b),
       );
       labels = labels.sort(
-        (a: any, b: any) => this._getPosition(a) - this._getPosition(b),
+        (a: unknown, b: unknown) => this._getPosition(a) - this._getPosition(b),
       );
 
       /**
        * Get the smallest suffix.
 */
       if (this._scale === "linear" && this._tickSuffix === "smallest") {
-        const suffixes = labels.filter((d: any) => d >= 1000);
+        const suffixes = labels.filter((d: unknown) => (d as number) >= 1000);
         if (suffixes.length > 0) {
           const minVal = Math.min(...suffixes);
           let i = 1;
@@ -962,9 +971,9 @@ export default class Axis extends BaseClass {
       /**
        * Removes ticks when they overlap other ticks.
 */
-      const pixels: any[] = [];
+      const pixels: (number | false)[] = [];
       this._availableTicks = ticks;
-      ticks.forEach((d: any, i: number) => {
+      ticks.forEach((d: unknown, i: number) => {
         let s = tickGet({id: d, tick: true}, i);
         if (this._shape === "Circle") s *= 2;
         const t = this._getPosition(d);
@@ -972,7 +981,7 @@ export default class Axis extends BaseClass {
           pixels.push(t);
         else pixels.push(false);
       });
-      ticks = ticks.filter((d: any, i: number) => pixels[i] !== false);
+      ticks = ticks.filter((_d: unknown, i: number) => pixels[i] !== false);
       this._visibleTicks = ticks;
     };
     setScale();
@@ -992,11 +1001,13 @@ export default class Axis extends BaseClass {
           typeof lineHeight === "function" ? lineHeight() : lineHeight,
         )
         .width(range[range.length - 1] - range[0] - p * 2)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .height((this as any)[`_${height}`] - this._tickSize - p * 2);
       const lines = titleWrap(this._title).lines.length;
       margin[this._orient] = lines * titleWrap.lineHeight() + p;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let hBuff: any =
         this._shape === "Circle"
           ? typeof this._shapeConfig.r === "function"
@@ -1007,6 +1018,7 @@ export default class Axis extends BaseClass {
               ? this._shapeConfig[height]({tick: true})
               : this._shapeConfig[height]
             : this._tickSize,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       wBuff: any = tickGet({tick: true});
 
     if (typeof hBuff === "function") hBuff = max(ticks.map(hBuff));
@@ -1018,6 +1030,7 @@ export default class Axis extends BaseClass {
      * Calculates the text wrapping and size of a given textData object.
      * @param {Object} datum
 */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calculateLabelSize = (datum: any): any => {
       const {d, i, fF, fP, fS, rotate, space} = datum;
 
@@ -1063,9 +1076,11 @@ export default class Axis extends BaseClass {
     };
 
     /** Calculates label offsets*/
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calculateOffset = (arr: any[] = []): void => {
       let offset = 0;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       arr.forEach((datum: any) => {
         const prev = arr[datum.i - 1];
 
@@ -1092,6 +1107,7 @@ export default class Axis extends BaseClass {
       });
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let textData: any[] = [];
     const createTextData = (offset: number = 1): void => {
       const {fontSize} = this._shapeConfig.labelConfig;
@@ -1103,6 +1119,7 @@ export default class Axis extends BaseClass {
        * Calculates the space each label would take up, given
        * the provided this._space size.
 */
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       textData = labels.map((d: any, i: number) => {
         const fF =
             typeof fontFamily === "function" ? fontFamily(d, i) : fontFamily,
@@ -1114,6 +1131,7 @@ export default class Axis extends BaseClass {
         const lineHeight = this._shapeConfig.lineHeight
           ? this._shapeConfig.lineHeight(d, i)
           : fS * 1.4;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const datum: any = {
           d,
           i,
@@ -1130,6 +1148,7 @@ export default class Axis extends BaseClass {
       const maxSpace =
         this._scale === "band"
           ? this._d3Scale.bandwidth()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           : textData.reduce((s: number, d: any, i: number) => {
               const {position} = d;
               const prevPosition = !i
@@ -1150,6 +1169,7 @@ export default class Axis extends BaseClass {
               return max([max([prevSpace, nextSpace])! * mod, s])!;
             }, 0);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       textData = textData.map((datum: any) => {
         datum.space = maxSpace - datum.fP * 2;
         const res = calculateLabelSize(datum);
@@ -1157,10 +1177,13 @@ export default class Axis extends BaseClass {
       });
 
       const reverseTextData = textData.slice().reverse();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       textData.forEach((datum: any) => {
         const {fP, i, position} = datum;
         const sizeName = horizontal ? "width" : "height";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let prev: any = i
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ? reverseTextData.find((t: any) => t.i < i && !t.truncated)
           : false;
         if (i === textData.length - 1) {
@@ -1170,6 +1193,7 @@ export default class Axis extends BaseClass {
               prev.position + prev[sizeName] / 2
           ) {
             prev.truncated = true;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             prev = reverseTextData.find((t: any) => t.i < i && !t.truncated);
           }
         }
@@ -1184,6 +1208,7 @@ export default class Axis extends BaseClass {
 
     createTextData();
     const offsetEnabled =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._labelOffset && textData.some((d: any) => d.truncated);
     if (offsetEnabled) createTextData(2);
 
@@ -1215,9 +1240,11 @@ export default class Axis extends BaseClass {
       createTextData(offsetEnabled ? 2 : 1);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const labelHeight = max(textData, (t: any) => t.height) || 0;
     this._labelRotation =
       horizontal && this._labelRotation === undefined
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ? textData.some((datum: any) => {
             const {i, height: dH, position, truncated} = datum;
             const prev = textData[i - 1];
@@ -1229,15 +1256,19 @@ export default class Axis extends BaseClass {
         : this._labelRotation;
 
     const globalOffset = this._labelOffset
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? max(textData, (d: any) => d.offset || 0)
       : 0;
     textData.forEach(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (datum: any) => (datum.offset = datum.offset ? globalOffset : 0),
     );
 
     const tBuff = this._shape === "Line" ? 0 : hBuff;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bounds: any = (this._outerBounds = {
       [height]:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (max(textData, (t: any) =>
           Math.ceil(t[t.rotate || !horizontal ? "width" : "height"] + t.offset),
         ) || 0) + (textData.length ? p : 0),
@@ -1251,7 +1282,8 @@ export default class Axis extends BaseClass {
     margin[opposite] =
       this._gridSize !== undefined
         ? max([this._gridSize, tBuff])!
-        : (this as any)[`_${height}`] -
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (this as any)[`_${height}`] -
           margin[this._orient] -
           bounds[height] -
           p;
@@ -1260,8 +1292,10 @@ export default class Axis extends BaseClass {
       this._align === "start"
         ? this._padding
         : this._align === "end"
-          ? (this as any)[`_${height}`] - bounds[height] - this._padding
-          : (this as any)[`_${height}`] / 2 - bounds[height] / 2;
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (this as any)[`_${height}`] - bounds[height] - this._padding
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (this as any)[`_${height}`] / 2 - bounds[height] / 2;
 
     const group = elem(`g#d3plus-Axis-${this._uuid}`, {parent});
     this._group = group;
@@ -1274,7 +1308,8 @@ export default class Axis extends BaseClass {
             ? labels
             : ticks
           : []
-        ).map((d: any) => ({id: d})),
+        ).map((d: unknown) => ({id: d})),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (d: any) => d.id,
       );
 
@@ -1297,12 +1332,15 @@ export default class Axis extends BaseClass {
       .call(this._gridPosition.bind(this));
 
     const labelOnly = labels.filter(
-      (d: any, i: number) => textData[i].lines.length && !ticks.includes(d),
+      (d: unknown, i: number) => textData[i].lines.length && !ticks.includes(d),
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rotated = textData.some((d: any) => d.rotate);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tickData: any[] = ticks.concat(labelOnly).map((d: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = textData.find((td: any) => td.d === d);
 
       const xPos = this._getPosition(d);
@@ -1325,6 +1363,7 @@ export default class Axis extends BaseClass {
         size = (hBuff + labelOffset) * (flip ? -1 : 1),
         yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tickConfig: any = {
         id: d,
         labelBounds:
@@ -1359,10 +1398,11 @@ export default class Axis extends BaseClass {
             ? size
             : ticks.includes(d)
               ? Math.ceil(size / 2)
-              : this._data.find((t: any) => +t === d)
+              : this._data.find((t: unknown) => +(t as number) === d)
                 ? Math.ceil(size / 4)
                 : 0,
         text:
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           !(data || ({} as any)).truncated && labels.includes(d)
             ? tickFormat(d)
             : false,
@@ -1377,6 +1417,7 @@ export default class Axis extends BaseClass {
 
     if (this._shape === "Line") {
       tickData = tickData.concat(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tickData.map((d: any) => {
           const dupe = Object.assign({}, d);
           dupe[y] += d.size;
@@ -1385,11 +1426,13 @@ export default class Axis extends BaseClass {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new (shapes as any)[this._shape]()
       .data(tickData)
       .duration(this._duration)
       .labelConfig({
-        ellipsis: (d: any) => (d && d.length ? `${d}...` : ""),
+        ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rotate: (d: any) => (d.rotate ? -90 : 0),
       })
       .select(elem("g.ticks", {parent: group}).node())
@@ -1455,7 +1498,7 @@ export default class Axis extends BaseClass {
 */
   align(): string;
   align(_: string): this;
-  align(_?: string): any {
+  align(_?: string): string | this {
     return arguments.length ? ((this._align = _!), this) : this._align;
   }
 
@@ -1473,10 +1516,11 @@ export default class Axis extends BaseClass {
   /**
       An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data(): any[];
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data(_: any[]): this;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data(_?: any[]): unknown {
     return arguments.length ? ((this._data = _!), this) : this._data;
   }
@@ -1484,11 +1528,11 @@ export default class Axis extends BaseClass {
   /**
       Scale domain of the axis.
 */
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   domain(): any[];
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   domain(_: any[]): this;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   domain(_?: any[]): unknown {
     return arguments.length ? ((this._domain = _!), this) : this._domain;
   }
@@ -1498,7 +1542,7 @@ export default class Axis extends BaseClass {
 */
   duration(): number;
   duration(_: number): this;
-  duration(_?: number): any {
+  duration(_?: number): number | this {
     return arguments.length ? ((this._duration = _!), this) : this._duration;
   }
 
@@ -1527,7 +1571,7 @@ export default class Axis extends BaseClass {
 */
   gridLog(): boolean;
   gridLog(_: boolean): this;
-  gridLog(_?: boolean): any {
+  gridLog(_?: boolean): boolean | this {
     return arguments.length ? ((this._gridLog = _!), this) : this._gridLog;
   }
 
@@ -1536,7 +1580,7 @@ export default class Axis extends BaseClass {
 */
   gridSize(): number | undefined;
   gridSize(_: number): this;
-  gridSize(_?: number): any {
+  gridSize(_?: number): number | undefined | this {
     return arguments.length ? ((this._gridSize = _), this) : this._gridSize;
   }
 
@@ -1545,7 +1589,7 @@ export default class Axis extends BaseClass {
 */
   height(): number;
   height(_: number): this;
-  height(_?: number): any {
+  height(_?: number): number | this {
     return arguments.length ? ((this._height = _!), this) : this._height;
   }
 
@@ -1563,7 +1607,7 @@ export default class Axis extends BaseClass {
 */
   labelOffset(): boolean;
   labelOffset(_: boolean): this;
-  labelOffset(_?: boolean): any {
+  labelOffset(_?: boolean): boolean | this {
     return arguments.length
       ? ((this._labelOffset = _!), this)
       : this._labelOffset;
@@ -1574,7 +1618,7 @@ export default class Axis extends BaseClass {
 */
   labelRotation(): boolean | undefined;
   labelRotation(_: boolean): this;
-  labelRotation(_?: boolean): any {
+  labelRotation(_?: boolean): boolean | undefined | this {
     return arguments.length
       ? ((this._labelRotation = _), this)
       : this._labelRotation;
@@ -1585,7 +1629,7 @@ export default class Axis extends BaseClass {
 */
   maxSize(): number;
   maxSize(_: number): this;
-  maxSize(_?: number): any {
+  maxSize(_?: number): number | this {
     return arguments.length ? ((this._maxSize = _!), this) : this._maxSize;
   }
 
@@ -1594,7 +1638,7 @@ export default class Axis extends BaseClass {
 */
   minSize(): number;
   minSize(_: number): this;
-  minSize(_?: number): any {
+  minSize(_?: number): number | this {
     return arguments.length ? ((this._minSize = _!), this) : this._minSize;
   }
 
@@ -1603,7 +1647,7 @@ export default class Axis extends BaseClass {
 */
   orient(): string;
   orient(_: string): this;
-  orient(_?: string): any {
+  orient(_?: string): string | this {
     if (arguments.length) {
       const horizontal = ["top", "bottom"].includes(_!),
         opps: Record<string, string> = {
@@ -1641,7 +1685,7 @@ export default class Axis extends BaseClass {
 */
   padding(): number;
   padding(_: number): this;
-  padding(_?: number): any {
+  padding(_?: number): number | this {
     return arguments.length ? ((this._padding = _!), this) : this._padding;
   }
 
@@ -1650,7 +1694,7 @@ export default class Axis extends BaseClass {
 */
   paddingInner(): number;
   paddingInner(_: number): this;
-  paddingInner(_?: number): any {
+  paddingInner(_?: number): number | this {
     return arguments.length
       ? ((this._paddingInner = _!), this)
       : this._paddingInner;
@@ -1661,7 +1705,7 @@ export default class Axis extends BaseClass {
 */
   paddingOuter(): number;
   paddingOuter(_: number): this;
-  paddingOuter(_?: number): any {
+  paddingOuter(_?: number): number | this {
     return arguments.length
       ? ((this._paddingOuter = _!), this)
       : this._paddingOuter;
@@ -1681,7 +1725,7 @@ export default class Axis extends BaseClass {
 */
   rounding(): string;
   rounding(_: string): this;
-  rounding(_?: string): any {
+  rounding(_?: string): string | this {
     return arguments.length ? ((this._rounding = _!), this) : this._rounding;
   }
 
@@ -1690,7 +1734,7 @@ export default class Axis extends BaseClass {
 */
   roundingInsideMinPrefix(): string;
   roundingInsideMinPrefix(_: string): this;
-  roundingInsideMinPrefix(_?: string): any {
+  roundingInsideMinPrefix(_?: string): string | this {
     return arguments.length
       ? ((this._roundingInsideMinPrefix = _!), this)
       : this._roundingInsideMinPrefix;
@@ -1701,7 +1745,7 @@ export default class Axis extends BaseClass {
 */
   roundingInsideMinSuffix(): string;
   roundingInsideMinSuffix(_: string): this;
-  roundingInsideMinSuffix(_?: string): any {
+  roundingInsideMinSuffix(_?: string): string | this {
     return arguments.length
       ? ((this._roundingInsideMinSuffix = _!), this)
       : this._roundingInsideMinSuffix;
@@ -1712,7 +1756,7 @@ export default class Axis extends BaseClass {
 */
   roundingInsideMaxPrefix(): string;
   roundingInsideMaxPrefix(_: string): this;
-  roundingInsideMaxPrefix(_?: string): any {
+  roundingInsideMaxPrefix(_?: string): string | this {
     return arguments.length
       ? ((this._roundingInsideMaxPrefix = _!), this)
       : this._roundingInsideMaxPrefix;
@@ -1723,7 +1767,7 @@ export default class Axis extends BaseClass {
 */
   roundingInsideMaxSuffix(): string;
   roundingInsideMaxSuffix(_: string): this;
-  roundingInsideMaxSuffix(_?: string): any {
+  roundingInsideMaxSuffix(_?: string): string | this {
     return arguments.length
       ? ((this._roundingInsideMaxSuffix = _!), this)
       : this._roundingInsideMaxSuffix;
@@ -1734,7 +1778,7 @@ export default class Axis extends BaseClass {
 */
   scale(): string;
   scale(_: string): this;
-  scale(_?: string): any {
+  scale(_?: string): string | this {
     return arguments.length ? ((this._scale = _!), this) : this._scale;
   }
 
@@ -1743,7 +1787,7 @@ export default class Axis extends BaseClass {
 */
   scalePadding(): number;
   scalePadding(_: number): this;
-  scalePadding(_?: number): any {
+  scalePadding(_?: number): number | this {
     return arguments.length
       ? ((this._scalePadding = _!), this)
       : this._scalePadding;
@@ -1765,17 +1809,18 @@ export default class Axis extends BaseClass {
 */
   shape(): string;
   shape(_: string): this;
-  shape(_?: string): any {
+  shape(_?: string): string | this {
     return arguments.length ? ((this._shape = _!), this) : this._shape;
   }
 
   /**
       Tick style of the axis.
 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shapeConfig(): Record<string, any>;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shapeConfig(_: Record<string, any>): this;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shapeConfig(_?: Record<string, any>): unknown {
     return arguments.length
       ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
@@ -1785,10 +1830,11 @@ export default class Axis extends BaseClass {
   /**
       Tick formatter.
 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tickFormat(): any;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tickFormat(_: any): this;
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tickFormat(_?: any): unknown {
     return arguments.length ? ((this._tickFormat = _), this) : this._tickFormat;
   }
@@ -1807,7 +1853,7 @@ export default class Axis extends BaseClass {
 */
   tickSize(): number;
   tickSize(_: number): this;
-  tickSize(_?: number): any {
+  tickSize(_?: number): number | this {
     return arguments.length ? ((this._tickSize = _!), this) : this._tickSize;
   }
 
@@ -1816,7 +1862,7 @@ export default class Axis extends BaseClass {
 */
   tickSuffix(): string;
   tickSuffix(_: string): this;
-  tickSuffix(_?: string): any {
+  tickSuffix(_?: string): string | this {
     return arguments.length
       ? ((this._tickSuffix = _!), this)
       : this._tickSuffix;
@@ -1836,7 +1882,7 @@ export default class Axis extends BaseClass {
 */
   title(): string | undefined;
   title(_: string): this;
-  title(_?: string): any {
+  title(_?: string): string | undefined | this {
     return arguments.length ? ((this._title = _), this) : this._title;
   }
 
@@ -1856,7 +1902,7 @@ export default class Axis extends BaseClass {
 */
   width(): number;
   width(_: number): this;
-  width(_?: number): any {
+  width(_?: number): number | this {
     return arguments.length ? ((this._width = _!), this) : this._width;
   }
 }

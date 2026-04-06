@@ -91,7 +91,7 @@ export default function (): TextWrapGenerator {
       sizes = textWidth(words, style);
 
     for (let i = 0; i < words.length; i++) {
-      let word = words[i];
+      const word = words[i];
       const wordWidth = sizes[words.indexOf(word)];
 
       // newline if breaking character or not enough width

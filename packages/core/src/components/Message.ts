@@ -15,7 +15,7 @@ interface RenderOptions {
   html?: string;
   mask?: string | false;
    
-  style?: Record<string, any>;
+  style?: Record<string, unknown>;
 }
 
 /**

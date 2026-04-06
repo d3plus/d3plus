@@ -1,5 +1,4 @@
 import {groups, max, min, sum} from "d3-array";
-import type {DataPoint} from "@d3plus/data";
 import type Plot from "../Plot.js";
 
 /**
@@ -20,9 +19,13 @@ export default function (
     buffer = 10,
   }: {
     data: Record<string, unknown>[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     y: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x2?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     y2?: any;
     buffer?: number;
   },

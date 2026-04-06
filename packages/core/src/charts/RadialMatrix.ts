@@ -22,6 +22,7 @@ const tau = Math.PI * 2;
     Creates a radial layout of a rows/columns Matrix of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/radial-matrix/) for help getting started using the Matrix class.
 */
 export default class RadialMatrix extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -89,7 +90,7 @@ export default class RadialMatrix extends Viz {
 
     if (!rowValues.length || !columnValues.length) return this;
 
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       parent = this._select,

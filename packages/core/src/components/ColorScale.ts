@@ -26,7 +26,7 @@ export default class ColorScale extends BaseClass {
   _select: D3Selection;
   _axisClass: Axis;
    
-  _axisConfig: Record<string, any>;
+  _axisConfig: Record<string, unknown>;
   _axisTest: Axis;
   _align: string;
   _buckets: number | number[];
@@ -44,6 +44,7 @@ export default class ColorScale extends BaseClass {
   _colorMid: string;
   _colorMin: string;
    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _colorScale: any;
   _data: DataPoint[];
   _domain: number[] | undefined;
@@ -52,23 +53,23 @@ export default class ColorScale extends BaseClass {
   _height: number;
   _labelClass: TextBox;
    
-  _labelConfig: Record<string, any>;
+  _labelConfig: Record<string, unknown>;
   _labelMin: string | undefined;
   _labelMax: string | undefined;
   _legendClass: Legend;
    
-  _legendConfig: Record<string, any>;
+  _legendConfig: Record<string, unknown>;
   _midpoint: number;
   _orient: string;
   _outerBounds: Record<string, number>;
   _padding: number;
   _rectClass: Rect;
    
-  _rectConfig: Record<string, any>;
+  _rectConfig: Record<string, unknown>;
   _scale: string;
   _size: number;
    
-  _value: (d: DataPoint, i?: number) => any;
+  _value: (d: DataPoint, i?: number) => unknown;
   _width: number;
 
   /**
@@ -87,14 +88,14 @@ export default class ColorScale extends BaseClass {
     this._buckets = 5;
     this._bucketAxis = false;
     this._bucketFormat = (
-      tick: any,
+      tick: number,
       i: number,
-      ticks: any[],
-      allValues: any[],
+      ticks: number[],
+      allValues: number[],
     ): string => {
-      const format = this._axisConfig.tickFormat
+      const format = (this._axisConfig.tickFormat
         ? this._axisConfig.tickFormat
-        : formatAbbreviate;
+        : formatAbbreviate) as (v: number | undefined) => string;
 
       const next = ticks[i + 1];
       const prev = i ? ticks[i - 1] : false;
@@ -180,7 +181,7 @@ export default class ColorScale extends BaseClass {
       Renders the current ColorScale to the page.
     @param callback Optional callback invoked after rendering completes.
 */
-  render(callback?: Function): this {
+  render(callback?: (...args: unknown[]) => unknown): this {
     if (this._select === void 0)
       this.select(
         select("body")
@@ -200,14 +201,14 @@ export default class ColorScale extends BaseClass {
     // Shape <g> Group
     this._group = elem("g.d3plus-ColorScale", {parent: this._select});
 
-    const allValues = this._data
+    const allValues = (this._data
       .map(this._value)
-      .filter((d: any) => d !== null && typeof d === "number")
+      .filter((d: unknown) => d !== null && typeof d === "number") as number[])
       .sort((a: number, b: number) => a - b);
 
     const domain = this._domain || extent(allValues);
-    const negative = (domain as any[])[0] < this._midpoint;
-    const positive = (domain as any[])[1] > this._midpoint;
+    const negative = (domain as number[])[0] < this._midpoint;
+    const positive = (domain as number[])[1] > this._midpoint;
     const diverging = negative && positive;
 
     const numBuckets = min([
@@ -217,6 +218,7 @@ export default class ColorScale extends BaseClass {
         : unique(allValues).length,
     ])!;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let colors: any =
         diverging &&
         (!this._color ||
@@ -224,8 +226,8 @@ export default class ColorScale extends BaseClass {
             !this._color.includes(this._colorMid)))
           ? undefined
           : this._color,
-      labels: any,
-      ticks: any;
+      labels: number[] | undefined,
+      ticks: number[] | undefined;
 
     if (colors && !(colors instanceof Array)) {
       colors = range(0, numBuckets, 1)
@@ -240,7 +242,7 @@ export default class ColorScale extends BaseClass {
         allValues.length,
       ])!;
 
-      let jenks: any[] = [];
+      let jenks: number[][] = [];
 
       if (this._buckets instanceof Array) {
         ticks = this._buckets;
@@ -276,7 +278,7 @@ export default class ColorScale extends BaseClass {
           jenks = ckmeans(allValues, buckets);
         }
 
-        ticks = jenks.map((c: any[]) => c[0]);
+        ticks = jenks.map((c: number[]) => c[0]);
       }
 
       const tickSet = new Set(ticks);
@@ -289,23 +291,23 @@ export default class ColorScale extends BaseClass {
           const negatives = ticks
             .slice(0, buckets)
             .filter(
-              (d: any, i: number) =>
-                d < this._midpoint && ticks[i + 1] <= this._midpoint,
+              (d: number, i: number) =>
+                d < this._midpoint && ticks![i + 1] <= this._midpoint,
             );
           const spanning = ticks
             .slice(0, buckets)
             .filter(
-              (d: any, i: number) =>
-                d <= this._midpoint && ticks[i + 1] > this._midpoint,
+              (d: number, i: number) =>
+                d <= this._midpoint && ticks![i + 1] > this._midpoint,
             );
           const positives = ticks
             .slice(0, buckets)
-            .filter((d: any) => d > this._midpoint);
-          const negativeColors = negatives.map((d: any, i: number) =>
+            .filter((d: number) => d > this._midpoint);
+          const negativeColors = negatives.map((_d: number, i: number) =>
             !i ? colors[0] : colorLighter(colors[0], i / negatives.length),
           );
           const spanningColors = spanning.map(() => colors[1]);
-          const positiveColors = positives.map((d: any, i: number) =>
+          const positiveColors = positives.map((_d: number, i: number) =>
             i === positives.length - 1
               ? colors[2]
               : colorLighter(colors[2], 1 - (i + 1) / positives.length),
@@ -327,6 +329,7 @@ export default class ColorScale extends BaseClass {
       let buckets = this._buckets instanceof Array ? this._buckets : undefined;
       if (diverging && !colors) {
         const half = Math.floor(numBuckets / 2);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const negativeColorScale = (interpolateRgb as any).gamma(2.2)(
           this._colorMin,
           this._colorMid,
@@ -337,6 +340,7 @@ export default class ColorScale extends BaseClass {
         const spanningColors = (numBuckets % 2 ? [0] : []).map(
           () => this._colorMid,
         );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const positiveColorScale = (interpolateRgb as any).gamma(2.2)(
           this._colorMax,
           this._colorMid,
@@ -348,23 +352,23 @@ export default class ColorScale extends BaseClass {
         if (!buckets) {
           const step = (colors.length - 1) / 2;
           buckets = [
-            (domain as any[])[0],
+            (domain as number[])[0],
             this._midpoint,
-            (domain as any[])[1],
+            (domain as number[])[1],
           ];
           buckets = range(
-            (domain as any[])[0],
+            (domain as number[])[0],
             this._midpoint,
-            -((domain as any[])[0] - this._midpoint) / step,
+            -((domain as number[])[0] - this._midpoint) / step,
           )
             .concat(
               range(
                 this._midpoint,
-                (domain as any[])[1],
-                ((domain as any[])[1] - this._midpoint) / step,
+                (domain as number[])[1],
+                ((domain as number[])[1] - this._midpoint) / step,
               ),
             )
-            .concat([(domain as any[])[1]]);
+            .concat([(domain as number[])[1]]);
         }
       } else {
         if (!colors) {
@@ -391,29 +395,29 @@ export default class ColorScale extends BaseClass {
           } else if (diverging && this._color && this._centered) {
             const midIndex = colors.indexOf(this._colorMid);
             const negativeStep =
-              (this._midpoint - (domain as any[])[0]) / midIndex;
+              (this._midpoint - (domain as number[])[0]) / midIndex;
             const positiveStep =
-              ((domain as any[])[1] - this._midpoint) /
+              ((domain as number[])[1] - this._midpoint) /
               (colors.length - midIndex);
             const negativeBuckets = range(
-              (domain as any[])[0],
+              (domain as number[])[0],
               this._midpoint,
               negativeStep,
             );
             const positiveBuckets = range(
               this._midpoint,
-              (domain as any[])[1] + positiveStep / 2,
+              (domain as number[])[1] + positiveStep / 2,
               positiveStep,
             );
 
             buckets = negativeBuckets.concat(positiveBuckets);
           } else {
             const step =
-              ((domain as any[])[1] - (domain as any[])[0]) /
+              ((domain as number[])[1] - (domain as number[])[0]) /
               (colors.length - 1);
             buckets = range(
-              (domain as any[])[0],
-              (domain as any[])[1] + step / 2,
+              (domain as number[])[0],
+              (domain as number[])[1] + step / 2,
               step,
             );
           }
@@ -424,37 +428,37 @@ export default class ColorScale extends BaseClass {
         ticks = buckets;
         colors = [colors[0]].concat(colors);
       } else if (this._scale === "log") {
-        const negativeBuckets = (buckets as any[]).filter((d: number) => d < 0);
+        const negativeBuckets = (buckets as number[]).filter((d: number) => d < 0);
         if (negativeBuckets.length) {
           const minVal = negativeBuckets[0];
           const newNegativeBuckets = negativeBuckets.map(
             (d: number) => -Math.pow(Math.abs(minVal), d / minVal),
           );
           negativeBuckets.forEach((bucket: number, i: number) => {
-            (buckets as any[])[(buckets as any[]).indexOf(bucket)] =
+            (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
               newNegativeBuckets[i];
           });
         }
-        const positiveBuckets = (buckets as any[]).filter((d: number) => d > 0);
+        const positiveBuckets = (buckets as number[]).filter((d: number) => d > 0);
         if (positiveBuckets.length) {
           const maxVal = positiveBuckets[positiveBuckets.length - 1];
           const newPositiveBuckets = positiveBuckets.map((d: number) =>
             Math.pow(maxVal, d / maxVal),
           );
           positiveBuckets.forEach((bucket: number, i: number) => {
-            (buckets as any[])[(buckets as any[]).indexOf(bucket)] =
+            (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
               newPositiveBuckets[i];
           });
         }
-        if ((buckets as any[]).includes(0))
-          (buckets as any[])[(buckets as any[]).indexOf(0)] = 1;
+        if ((buckets as number[]).includes(0))
+          (buckets as number[])[(buckets as number[]).indexOf(0)] = 1;
       }
 
-      this._colorScale = (
-        (this._scale === "buckets" || this._scale === "quantile"
-          ? scaleThreshold
-          : scaleLinear) as any
-      )()
+      const scaleFn = this._scale === "buckets" || this._scale === "quantile"
+        ? scaleThreshold
+        : scaleLinear;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._colorScale = (scaleFn as (...args: unknown[]) => any)()
         .domain(buckets)
         .range(colors);
     }
@@ -465,7 +469,7 @@ export default class ColorScale extends BaseClass {
       this._bucketAxis ||
       !["buckets", "jenks", "quantile"].includes(this._scale);
     const t = transition().duration(this._duration);
-    const groupParams: any = {
+    const groupParams: Record<string, unknown> = {
       enter: {opacity: 0},
       exit: {opacity: 0},
       parent: this._group,
@@ -488,7 +492,7 @@ export default class ColorScale extends BaseClass {
     if (gradient) {
       const offsets: Record<string, number> = {x: 0, y: 0};
 
-      const axisDomain = (domain as any[]).slice();
+      const axisDomain = (domain as number[]).slice();
       if (this._bucketAxis) {
         const last = axisDomain[axisDomain.length - 1];
         const prev = axisDomain[axisDomain.length - 2];
@@ -505,7 +509,8 @@ export default class ColorScale extends BaseClass {
         axisDomain[axisDomain.length - 1] = last + ten;
       }
 
-      const axisConfig: any = assign(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const axisConfig: Record<string, any> = assign(
         {
           domain: horizontal ? axisDomain : axisDomain.slice().reverse(),
           duration: this._duration,
@@ -520,19 +525,23 @@ export default class ColorScale extends BaseClass {
         this._axisConfig,
       );
 
-      const labelConfig: any = assign(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const labelConfig: Record<string, any> = assign(
         {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           height: (this as any)[`_${height}`] / 2,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           width: (this as any)[`_${width}`] / 2,
         },
         this._labelConfig,
       );
 
       this._labelClass.config(labelConfig);
-      const labelData: any[] = [];
+      const labelData: string[] = [];
 
       if (horizontal && this._labelMin) {
-        const labelCSS: any = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const labelCSS: Record<string, any> = {
           "font-family": this._labelClass.fontFamily()(this._labelMin),
           "font-size": this._labelClass.fontSize()(this._labelMin),
           "font-weight": this._labelClass.fontWeight()(this._labelMin),
@@ -542,6 +551,7 @@ export default class ColorScale extends BaseClass {
           labelCSS["font-family"] = labelCSS["font-family"][0];
         let labelMinWidth = textWidth(this._labelMin, labelCSS);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (labelMinWidth && labelMinWidth < (this as any)[`_${width}`] / 2) {
           labelData.push(this._labelMin);
           labelMinWidth += this._padding;
@@ -550,7 +560,8 @@ export default class ColorScale extends BaseClass {
         }
       }
       if (horizontal && this._labelMax) {
-        const labelCSS: any = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const labelCSS: Record<string, any> = {
           "font-family": this._labelClass.fontFamily()(this._labelMax),
           "font-size": this._labelClass.fontSize()(this._labelMax),
           "font-weight": this._labelClass.fontWeight()(this._labelMax),
@@ -560,6 +571,7 @@ export default class ColorScale extends BaseClass {
           labelCSS["font-family"] = labelCSS["font-family"][0];
         let labelMaxWidth = textWidth(this._labelMax, labelCSS);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (labelMaxWidth && labelMaxWidth < (this as any)[`_${width}`] / 2) {
           labelData.push(this._labelMax);
           labelMaxWidth += this._padding;
@@ -581,6 +593,7 @@ export default class ColorScale extends BaseClass {
 
       const axisBounds = this._axisTest.outerBounds();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._outerBounds[width] = (this as any)[`_${width}`] - this._padding * 2;
       this._outerBounds[height] = axisBounds[height] + this._size;
 
@@ -588,9 +601,11 @@ export default class ColorScale extends BaseClass {
       this._outerBounds[y] = this._padding;
       if (this._align === "middle")
         this._outerBounds[y] =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ((this as any)[`_${height}`] - this._outerBounds[height]) / 2;
       else if (this._align === "end")
         this._outerBounds[y] =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this as any)[`_${height}`] -
           this._padding -
           this._outerBounds[height];
@@ -643,25 +658,26 @@ export default class ColorScale extends BaseClass {
         .merge(stops as never)
         .attr(
           "offset",
-          (d: any, i: number) =>
+          (_d: unknown, i: number) =>
             `${i <= scaleDomain.length - 1 ? offsetScale(axisScale(scaleDomain[i])) : 100}%`,
         )
         .attr("stop-color", String);
 
       /** determines the width of buckets*/
-      const bucketWidth = (d: any, i: number): number => {
-        const next = ticks[i + 1] || axisDomain[axisDomain.length - 1];
+      const bucketWidth = (d: number, i: number): number => {
+        const next = ticks![i + 1] || axisDomain[axisDomain.length - 1];
         return Math.abs(axisScale(next) - axisScale(d));
       };
 
-      const rectConfig: any = assign(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rectConfig: Record<string, any> = assign(
         {
           duration: this._duration,
           fill: ticks
-            ? (d: any) => this._colorScale(d)
+            ? (d: number) => this._colorScale(d)
             : `url(#gradient-${this._uuid})`,
           [x]: ticks
-            ? (d: any, i: number) =>
+            ? (d: number, i: number) =>
                 axisScale(d) +
                 bucketWidth(d, i) / 2 -
                 (["left", "right"].includes(this._orient)
@@ -681,7 +697,7 @@ export default class ColorScale extends BaseClass {
 
       this._rectClass
         .data(ticks || [0])
-        .id((d: any, i: number) => i)
+        .id((_d: unknown, i: number) => i)
         .select(rectGroup.node())
         .config(rectConfig)
         .render();
@@ -711,8 +727,8 @@ export default class ColorScale extends BaseClass {
         Object.assign({condition: gradient}, groupParams),
       );
 
-      let legendData = ticks.reduce((arr: any[], tick: any, i: number) => {
-        const label = this._bucketFormat.bind(this)(tick, i, ticks, allValues);
+      let legendData = ticks!.reduce((arr: {color: string; id: string}[], tick: number, i: number) => {
+        const label = this._bucketFormat.bind(this)(tick, i, ticks!, allValues);
         arr.push({color: colors[i + 1], id: label});
 
         return arr;
@@ -774,7 +790,7 @@ export default class ColorScale extends BaseClass {
 */
   align(): string;
   align(_: string): this;
-  align(_?: string): any {
+  align(_?: string): unknown {
     return arguments.length ? ((this._align = _!), this) : this._align;
   }
 
@@ -792,7 +808,7 @@ export default class ColorScale extends BaseClass {
 */
   bucketAxis(): boolean;
   bucketAxis(_: boolean): this;
-  bucketAxis(_?: boolean): any {
+  bucketAxis(_?: boolean): unknown {
     return arguments.length
       ? ((this._bucketAxis = _!), this)
       : this._bucketAxis;
@@ -833,7 +849,7 @@ export default class ColorScale extends BaseClass {
 */
   bucketJoiner(): (a: string, b: string) => string;
   bucketJoiner(_: (a: string, b: string) => string): this;
-  bucketJoiner(_?: (a: string, b: string) => string): any {
+  bucketJoiner(_?: (a: string, b: string) => string): unknown {
     return arguments.length
       ? ((this._bucketJoiner = _!), this)
       : this._bucketJoiner;
@@ -844,7 +860,7 @@ export default class ColorScale extends BaseClass {
 */
   centered(): boolean;
   centered(_: boolean): this;
-  centered(_?: boolean): any {
+  centered(_?: boolean): unknown {
     return arguments.length ? ((this._centered = _!), this) : this._centered;
   }
 
@@ -862,7 +878,7 @@ export default class ColorScale extends BaseClass {
 */
   colorMax(): string;
   colorMax(_: string): this;
-  colorMax(_?: string): any {
+  colorMax(_?: string): unknown {
     return arguments.length ? ((this._colorMax = _!), this) : this._colorMax;
   }
 
@@ -871,7 +887,7 @@ export default class ColorScale extends BaseClass {
 */
   colorMid(): string;
   colorMid(_: string): this;
-  colorMid(_?: string): any {
+  colorMid(_?: string): unknown {
     return arguments.length ? ((this._colorMid = _!), this) : this._colorMid;
   }
 
@@ -880,7 +896,7 @@ export default class ColorScale extends BaseClass {
 */
   colorMin(): string;
   colorMin(_: string): this;
-  colorMin(_?: string): any {
+  colorMin(_?: string): unknown {
     return arguments.length ? ((this._colorMin = _!), this) : this._colorMin;
   }
 
@@ -907,7 +923,7 @@ export default class ColorScale extends BaseClass {
 */
   duration(): number;
   duration(_: number): this;
-  duration(_?: number): any {
+  duration(_?: number): unknown {
     return arguments.length ? ((this._duration = _!), this) : this._duration;
   }
 
@@ -916,7 +932,7 @@ export default class ColorScale extends BaseClass {
 */
   height(): number;
   height(_: number): this;
-  height(_?: number): any {
+  height(_?: number): unknown {
     return arguments.length ? ((this._height = _!), this) : this._height;
   }
 
@@ -936,7 +952,7 @@ export default class ColorScale extends BaseClass {
 */
   labelMin(): string | undefined;
   labelMin(_: string): this;
-  labelMin(_?: string): any {
+  labelMin(_?: string): unknown {
     return arguments.length ? ((this._labelMin = _), this) : this._labelMin;
   }
 
@@ -945,7 +961,7 @@ export default class ColorScale extends BaseClass {
 */
   labelMax(): string | undefined;
   labelMax(_: string): this;
-  labelMax(_?: string): any {
+  labelMax(_?: string): unknown {
     return arguments.length ? ((this._labelMax = _), this) : this._labelMax;
   }
 
@@ -965,7 +981,7 @@ export default class ColorScale extends BaseClass {
 */
   midpoint(): number;
   midpoint(_: number): this;
-  midpoint(_?: number): any {
+  midpoint(_?: number): unknown {
     return arguments.length ? ((this._midpoint = _!), this) : this._midpoint;
   }
 
@@ -974,7 +990,7 @@ export default class ColorScale extends BaseClass {
 */
   orient(): string;
   orient(_: string): this;
-  orient(_?: string): any {
+  orient(_?: string): unknown {
     return arguments.length ? ((this._orient = _!), this) : this._orient;
   }
 
@@ -992,7 +1008,7 @@ export default class ColorScale extends BaseClass {
 */
   padding(): number;
   padding(_: number): this;
-  padding(_?: number): any {
+  padding(_?: number): unknown {
     return arguments.length ? ((this._padding = _!), this) : this._padding;
   }
 
@@ -1012,7 +1028,7 @@ export default class ColorScale extends BaseClass {
 */
   scale(): string;
   scale(_: string): this;
-  scale(_?: string): any {
+  scale(_?: string): unknown {
     return arguments.length ? ((this._scale = _!), this) : this._scale;
   }
 
@@ -1032,7 +1048,7 @@ export default class ColorScale extends BaseClass {
 */
   size(): number;
   size(_: number): this;
-  size(_?: number): any {
+  size(_?: number): unknown {
     return arguments.length ? ((this._size = _!), this) : this._size;
   }
 
@@ -1061,7 +1077,7 @@ function value(d) {
 */
   width(): number;
   width(_: number): this;
-  width(_?: number): any {
+  width(_?: number): unknown {
     return arguments.length ? ((this._width = _!), this) : this._width;
   }
 }

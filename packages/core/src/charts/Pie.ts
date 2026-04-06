@@ -11,6 +11,7 @@ import Viz from "./Viz.js";
     Uses the [d3 pie layout](https://github.com/d3/d3-shape#pies) to creates SVG arcs based on an array of data.
 */
 export default class Pie extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -54,7 +55,7 @@ export default class Pie extends Viz {
       @private
   */
   _draw(callback?: () => void): this {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
@@ -132,7 +133,7 @@ If \`padAngle\` is defined, the \`padPixel\` value will not be considered.
   /**
       A comparator function that sorts the Pie slices.
 */
-  sort(_?: Function): this | Function {
+  sort(_?: (...args: unknown[]) => unknown): this | ((...args: unknown[]) => unknown) {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 

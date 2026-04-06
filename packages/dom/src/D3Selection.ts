@@ -8,6 +8,7 @@ import {transition} from "d3-transition";
     (attrize, stylize, elem) must work with every combination.
 */
  
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type D3Selection = ReturnType<typeof select<any, any>>;
 
 /**

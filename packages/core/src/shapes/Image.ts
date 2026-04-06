@@ -64,6 +64,7 @@ export default class Image {
           .node(),
       );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const images = (this._select as any)
       .selectAll(".d3plus-Image")
       .data(this._data, this._id);

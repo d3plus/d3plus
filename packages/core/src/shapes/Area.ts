@@ -178,6 +178,7 @@ export default class Area extends Shape {
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const path = (this._path = (paths as any)
       .area()
       .defined(this._defined)
@@ -189,6 +190,7 @@ export default class Area extends Shape {
       .y0(this._y0)
       .y1(this._y1) as unknown as Record<string, unknown>);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exitPath = (paths as any)
       .area()
       .defined((d: DataPoint) => d)

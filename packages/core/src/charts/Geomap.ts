@@ -5,7 +5,7 @@ import {zoomTransform} from "d3-zoom";
 import * as d3GeoCore from "d3-geo";
 import * as d3GeoProjection from "d3-geo-projection";
 import * as d3CompositeProjections from "d3-composite-projections";
-const d3Geo: Record<string, Function> = Object.assign(
+const d3Geo: Record<string, (...args: unknown[]) => unknown> = Object.assign(
   {},
   d3GeoCore,
   d3GeoProjection,
@@ -63,6 +63,7 @@ function topo2feature(
     Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.
 */
 export default class Geomap extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -242,7 +243,7 @@ export default class Geomap extends Viz {
       @private
   */
   _draw(callback?: () => void): this {
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
@@ -346,12 +347,9 @@ export default class Geomap extends Viz {
       [],
     );
 
-    const r = (scales as any)
-      [
-        `scale${this._pointSizeScale
-          .charAt(0)
-          .toUpperCase()}${this._pointSizeScale.slice(1)}`
-      ]()
+    const scaleName = `scale${this._pointSizeScale.charAt(0).toUpperCase()}${this._pointSizeScale.slice(1)}`;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const r = (scales as any)[scaleName]()
       .domain(
         extent(pointData, (d: DataPoint, i: number) => this._pointSize(d, i)),
       )
@@ -681,7 +679,7 @@ Additionally, a custom formatting function can be passed as a second argument to
       The map projection used when displaying topojson and coordinate points. All projections from [d3-geo](https://github.com/d3/d3-geo#projections), [d3-geo-projection](https://github.com/d3/d3-geo-projection#api-reference), and [d3-composite-projections](http://geoexamples.com/d3-composite-projections/) are accepted, either as the string name (ie. "geoMercator") or the generator function itself. Map tiles are only usable when the projection is set to Mercator (the default).
       @param _ "geoMercator"
   */
-  projection(_?: string | Function): this | Function {
+  projection(_?: string | ((...args: unknown[]) => unknown)): this | ((...args: unknown[]) => unknown) {
     if (arguments.length && _ !== "geoMercator") this.tiles(false);
     return arguments.length
       ? ((this._projection =

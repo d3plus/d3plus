@@ -24,21 +24,16 @@ export default class Legend extends BaseClass {
   _duration: number;
   _height: number;
    
-  _id: (d: DataPoint, i?: number) => any;
-   
-  _label: (d: DataPoint, i?: number) => any;
-   
-  _lineData: Record<string, any>[];
+  _id: (d: DataPoint, i?: number) => unknown;
+  _label: (d: DataPoint, i?: number) => unknown;
+  _lineData: Record<string, unknown>[];
   _outerBounds: Record<string, number>;
   _padding: number;
-   
-  _shape: (d: DataPoint, i?: number) => any;
+  _shape: (d: DataPoint, i?: number) => unknown;
   _select: D3Selection;
   _shapes: unknown[];
-   
-  _shapeConfig: Record<string, any>;
-   
-  _titleConfig: Record<string, any>;
+  _shapeConfig: Record<string, unknown>;
+  _titleConfig: Record<string, unknown>;
   _verticalAlign: string;
   _width: number;
   _rtl: boolean;
@@ -77,27 +72,27 @@ export default class Legend extends BaseClass {
       height: constant(12),
       hitArea: (dd: DataPoint, i: number) => {
         const d = this._lineData[i],
-          h = max([d.height, d.shapeHeight]);
+          h = max([d.height as number, d.shapeHeight as number]);
         return {
-          width: d.width + d.shapeWidth,
+          width: (d.width as number) + (d.shapeWidth as number),
           height: h,
-          x: -d.shapeWidth / 2,
-          y: -h / 2,
+          x: -(d.shapeWidth as number) / 2,
+          y: -h! / 2,
         };
       },
       labelBounds: (dd: DataPoint, i: number) => {
         const d = this._lineData[i];
-        let x = d.shapeWidth / 2;
-        if (d.shape === "Circle") x -= d.shapeR / 2;
-        const height = max([d.shapeHeight, d.height]);
+        let x = (d.shapeWidth as number) / 2;
+        if (d.shape === "Circle") x -= (d.shapeR as number) / 2;
+        const height = max([d.shapeHeight as number, d.height as number]);
         const rtlMod = this._rtl
-          ? d.shapeWidth + d.width + this._padding * 2
+          ? (d.shapeWidth as number) + (d.width as number) + this._padding * 2
           : 0;
         return {
-          width: d.width,
+          width: d.width as number,
           height,
           x: x + padding - rtlMod,
-          y: -height / 2,
+          y: -height! / 2,
         };
       },
       labelConfig: {
@@ -121,23 +116,23 @@ export default class Legend extends BaseClass {
               ? (this._outerBounds.width -
                   this._rowWidth(
                     this._lineData.filter(
-                      (l: Record<string, any>) => y === l.y,
+                      (l: Record<string, unknown>) => y === l.y,
                     ),
                   )) /
                 2
               : this._outerBounds.width -
                 this._rowWidth(
-                  this._lineData.filter((l: Record<string, any>) => y === l.y),
+                  this._lineData.filter((l: Record<string, unknown>) => y === l.y),
                 );
         const prevWords = this._lineData
           .slice(0, i)
-          .filter((l: Record<string, any>) => y === l.y);
-        const rtlMod = this._rtl ? datum.width + this._padding : 0;
+          .filter((l: Record<string, unknown>) => y === l.y);
+        const rtlMod = this._rtl ? (datum.width as number) + this._padding : 0;
         return (
           this._rowWidth(prevWords) +
           this._padding * (prevWords.length ? (datum.sentence ? 2 : 1) : 0) +
           this._outerBounds.x +
-          datum.shapeWidth / 2 +
+          (datum.shapeWidth as number) / 2 +
           pad +
           rtlMod
         );
@@ -150,14 +145,14 @@ export default class Legend extends BaseClass {
           this._outerBounds.y +
           max(
             this._lineData
-              .filter((l: Record<string, any>) => ld.y === l.y)
-              .map((l: Record<string, any>) => l.height)
+              .filter((l: Record<string, unknown>) => ld.y === l.y)
+              .map((l: Record<string, unknown>) => l.height as number)
               .concat(
                 this._data.map((l: DataPoint, x: number) =>
-                  this._fetchConfig("height", l, x),
+                  this._fetchConfig("height", l, x) as number,
                 ),
               ),
-          ) /
+          )! /
             2
         );
       },
@@ -178,28 +173,28 @@ export default class Legend extends BaseClass {
     @param i The data index.
     @private
   */
-  _fetchConfig(key: string, d: DataPoint, i: number): any {
+  _fetchConfig(key: string, d: DataPoint, i: number): unknown {
+    const labelConfig = this._shapeConfig.labelConfig as Record<string, unknown> | undefined;
     const val =
       this._shapeConfig[key] !== undefined
         ? this._shapeConfig[key]
-        : this._shapeConfig.labelConfig[key];
+        : labelConfig?.[key];
     if (!val && key === "lineHeight")
-      return this._fetchConfig("fontSize", d, i) * 1.4;
-    return typeof val === "function" ? val(d, i) : val;
+      return (this._fetchConfig("fontSize", d, i) as number) * 1.4;
+    return typeof val === "function" ? (val as (d: DataPoint, i: number) => unknown)(d, i) : val;
   }
 
   /**
     @param row The legend row data.
     @private
   */
-  _rowHeight(row: Record<string, any>[]): number {
-     
+  _rowHeight(row: Record<string, unknown>[]): number {
     return (
       max(
         row
-          .map((d: Record<string, any>) => d.height)
-          .concat(row.map((d: Record<string, any>) => d.shapeHeight)),
-      ) + this._padding
+          .map((d: Record<string, unknown>) => d.height as number)
+          .concat(row.map((d: Record<string, unknown>) => d.shapeHeight as number)),
+      )! + this._padding
     );
   }
 
@@ -207,12 +202,11 @@ export default class Legend extends BaseClass {
     @param row The legend row data.
     @private
   */
-  _rowWidth(row: Record<string, any>[]): number {
-     
+  _rowWidth(row: Record<string, unknown>[]): number {
     return sum(
-      row.map((d: Record<string, any>, i: number) => {
+      row.map((d: Record<string, unknown>, i: number) => {
         const p = this._padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
-        return d.shapeWidth + d.width + p;
+        return (d.shapeWidth as number) + (d.width as number) + p;
       }),
     );
   }
@@ -221,7 +215,7 @@ export default class Legend extends BaseClass {
       Renders the current Legend to the page.
     @param callback Optional callback invoked after rendering completes.
 */
-  render(callback?: Function): this {
+  render(callback?: (...args: unknown[]) => unknown): this {
     if (this._select === void 0)
       this.select(
         select("body")
@@ -240,10 +234,10 @@ export default class Legend extends BaseClass {
     this._titleHeight = 0;
     this._titleWidth = 0;
     if (this._title) {
-      const f = this._titleConfig.fontFamily || this._titleClass.fontFamily()(),
-        s = this._titleConfig.fontSize || this._titleClass.fontSize()();
-      let lH = this._titleConfig.lineHeight || this._titleClass.lineHeight();
-      lH = lH ? lH() : s * 1.4;
+      const f = (this._titleConfig.fontFamily || this._titleClass.fontFamily()()) as string,
+        s = (this._titleConfig.fontSize || this._titleClass.fontSize()()) as number;
+      let lH = (this._titleConfig.lineHeight || this._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
+      lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
 
       const res = textWrap()
         .fontFamily(f)
@@ -260,10 +254,9 @@ export default class Legend extends BaseClass {
     this._lineData = this._data.map((d: DataPoint, i: number) => {
       const label = this._label(d, i);
       const shape = this._shape(d, i);
-      const r = this._fetchConfig("r", d, i);
+      const r = this._fetchConfig("r", d, i) as number;
 
-       
-      let res: Record<string, any> = {
+      let res: Record<string, unknown> = {
         data: d,
         i,
         id: this._id(d, i),
@@ -284,9 +277,9 @@ export default class Legend extends BaseClass {
         return res;
       }
 
-      const f = this._fetchConfig("fontFamily", d, i),
-        lh = this._fetchConfig("lineHeight", d, i),
-        s = this._fetchConfig("fontSize", d, i);
+      const f = this._fetchConfig("fontFamily", d, i) as string,
+        lh = this._fetchConfig("lineHeight", d, i) as number,
+        s = this._fetchConfig("fontSize", d, i) as number;
 
       const h = availableHeight - (this._data.length + 1) * this._padding,
         w = this._width;
@@ -296,20 +289,20 @@ export default class Legend extends BaseClass {
         .fontSize(s)
         .lineHeight(lh)
         .width(w)
-        .height(h)(label);
+        .height(h)(label as string);
 
       res = Object.assign(res, newRes);
 
       res.width =
         Math.ceil(
           max(
-            res.lines.map((t: string) =>
+            (res.lines as string[]).map((t: string) =>
               textWidth(t, {"font-family": f, "font-size": s}),
             ),
           ) as unknown as number,
         ) +
         padding * 2;
-      res.height = Math.ceil(res.lines.length * (lh + 1));
+      res.height = Math.ceil((res.lines as string[]).length * (lh + 1));
       res.og = {height: res.height, width: res.width};
       res.f = f;
       res.s = s;
@@ -326,14 +319,13 @@ export default class Legend extends BaseClass {
       let lines = 1,
         newRows: Record<string, unknown>[][] = [];
 
-       
       const maxLines = max(
-        this._lineData.map((d: Record<string, any>) => d.words.length),
+        this._lineData.map((d: Record<string, unknown>) => (d.words as unknown[]).length),
       );
       this._wrapLines = function (this: Legend) {
         lines++;
 
-        if (lines > maxLines) return;
+        if (lines > maxLines!) return;
 
         const wrappable =
           lines === 1
@@ -341,41 +333,41 @@ export default class Legend extends BaseClass {
             :
               this._lineData
                 .filter(
-                  (d: Record<string, any>) =>
-                    d.width + d.shapeWidth + this._padding * (d.width ? 2 : 1) >
-                      availableWidth && d.words.length >= lines,
+                  (d: Record<string, unknown>) =>
+                    (d.width as number) + (d.shapeWidth as number) + this._padding * (d.width ? 2 : 1) >
+                      availableWidth && (d.words as unknown[]).length >= lines,
                 )
-                 
                 .sort(
-                  (a: Record<string, any>, b: Record<string, any>) =>
-                    b.sentence.length - a.sentence.length,
+                  (a: Record<string, unknown>, b: Record<string, unknown>) =>
+                    (b.sentence as string).length - (a.sentence as string).length,
                 );
 
-        if (wrappable.length && availableHeight > wrappable[0].height * lines) {
+        if (wrappable.length && availableHeight > (wrappable[0].height as number) * lines) {
           let truncated = false;
           for (let x = 0; x < wrappable.length; x++) {
             const label = wrappable[x];
-            const h = label.og.height * lines,
-              w = label.og.width * (1.5 * (1 / lines));
+            const og = label.og as Record<string, number>;
+            const h = og.height * lines,
+              w = og.width * (1.5 * (1 / lines));
             const res = textWrap()
-              .fontFamily(label.f)
-              .fontSize(label.s)
-              .lineHeight(label.lh)
+              .fontFamily(label.f as string)
+              .fontSize(label.s as number)
+              .lineHeight(label.lh as number)
               .width(w)
-              .height(h)(label.sentence);
+              .height(h)(label.sentence as string);
             if (!res.truncated) {
               label.width =
                 Math.ceil(
                   max(
                     res.lines.map((t: string) =>
                       textWidth(t, {
-                        "font-family": label.f,
-                        "font-size": label.s,
+                        "font-family": label.f as string,
+                        "font-size": label.s as number,
                       }),
                     ),
-                  ),
-                ) + label.s;
-              label.height = res.lines.length * (label.lh + 1);
+                  )!,
+                ) + (label.s as number);
+              label.height = res.lines.length * ((label.lh as number) + 1);
             } else {
               truncated = true;
               break;
@@ -394,13 +386,12 @@ export default class Legend extends BaseClass {
           rowWidth = 0;
         for (let i = 0; i < this._lineData.length; i++) {
           const d = this._lineData[i],
-            w = d.width + this._padding * (d.width ? 2 : 1) + d.shapeWidth;
-           
+            w = (d.width as number) + this._padding * (d.width ? 2 : 1) + (d.shapeWidth as number);
           if (
             sum(
-              newRows.map((row: Record<string, any>[]) =>
-                max(row, (d: Record<string, any>) =>
-                  max([d.height, d.shapeHeight]),
+              newRows.map((row: Record<string, unknown>[]) =>
+                max(row, (d: Record<string, unknown>) =>
+                  max([d.height as number, d.shapeHeight as number]),
                 ),
               ),
             ) > availableHeight
@@ -434,11 +425,10 @@ export default class Legend extends BaseClass {
         sum(newRows, this._rowHeight.bind(this)) + this._padding >
           availableHeight
       ) {
-         
         spaceNeeded =
           sum(
             this._lineData.map(
-              (d: Record<string, any>) => d.shapeWidth + this._padding,
+              (d: Record<string, unknown>) => (d.shapeWidth as number) + this._padding,
             ),
           ) - this._padding;
         for (let i = 0; i < this._lineData.length; i++) {
@@ -453,10 +443,8 @@ export default class Legend extends BaseClass {
         sum(newRows, this._rowHeight.bind(this)) + this._padding <
           availableHeight
       ) {
-         
-        newRows.forEach((row: Record<string, any>[], i: number) => {
-           
-          row.forEach((d: Record<string, any>) => {
+        newRows.forEach((row: Record<string, unknown>[], i: number) => {
+          row.forEach((d: Record<string, unknown>) => {
             if (i) {
               d.y = sum(newRows.slice(0, i), this._rowHeight.bind(this));
             }
@@ -469,13 +457,12 @@ export default class Legend extends BaseClass {
       }
     }
 
-     
     const innerHeight =
         max(
           this._lineData,
-          (d: Record<string, any>, i: number) =>
-            max([d.height, this._fetchConfig("height", d.data, i)]) + d.y,
-        ) + this._titleHeight,
+          (d: Record<string, unknown>, i: number) =>
+            max([d.height as number, this._fetchConfig("height", d.data as DataPoint, i) as number])! + (d.y as number),
+        )! + this._titleHeight,
       innerWidth = max([spaceNeeded, this._titleWidth]);
 
     this._outerBounds.width = innerWidth;
@@ -507,17 +494,13 @@ export default class Legend extends BaseClass {
     this._shapes = [];
     const baseConfig = configPrep.bind(this)(this._shapeConfig, "legend"),
       config = {
-         
-        id: (d: Record<string, any>) => d.id,
-         
-        label: (d: Record<string, any>) => d.label,
-         
-        lineHeight: (d: Record<string, any>) => d.lH,
+        id: (d: Record<string, unknown>) => d.id,
+        label: (d: Record<string, unknown>) => d.label,
+        lineHeight: (d: Record<string, unknown>) => d.lH,
       };
 
     const data = this._data.map((d: DataPoint, i: number) => {
-       
-      const obj: Record<string, any> = {
+      const obj: Record<string, unknown> = {
         __d3plus__: true,
         data: d,
         i,
@@ -534,11 +517,10 @@ export default class Legend extends BaseClass {
     this._shapes = [];
     (["Circle", "Rect"] as const).forEach((Shape: string) => {
       this._shapes.push(
-         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new (shapes as Record<string, new () => any>)[Shape]()
           .parent(this)
-           
-          .data(data.filter((d: Record<string, any>) => d.shape === Shape))
+          .data(data.filter((d: Record<string, unknown>) => d.shape === Shape))
           .duration(this._duration)
           .labelConfig({padding: 0})
           .select(this._shapeGroup.node())
@@ -558,7 +540,7 @@ export default class Legend extends BaseClass {
 */
   active(_: unknown): this {
     this._shapes.forEach((s: unknown) =>
-      (s as Record<string, Function>).active(_),
+      (s as Record<string, (...args: unknown[]) => unknown>).active(_),
     );
     return this;
   }
@@ -568,7 +550,7 @@ export default class Legend extends BaseClass {
 */
   align(): string;
   align(_: string): this;
-  align(_?: string): any {
+  align(_?: string): string | this {
     return arguments.length ? ((this._align = _!), this) : this._align;
   }
 
@@ -586,7 +568,7 @@ export default class Legend extends BaseClass {
 */
   direction(): string;
   direction(_: string): this;
-  direction(_?: string): any {
+  direction(_?: string): string | this {
     return arguments.length ? ((this._direction = _!), this) : this._direction;
   }
 
@@ -595,7 +577,7 @@ export default class Legend extends BaseClass {
 */
   duration(): number;
   duration(_: number): this;
-  duration(_?: number): any {
+  duration(_?: number): number | this {
     return arguments.length ? ((this._duration = _!), this) : this._duration;
   }
 
@@ -604,7 +586,7 @@ export default class Legend extends BaseClass {
 */
   height(): number;
   height(_: number): this;
-  height(_?: number): any {
+  height(_?: number): number | this {
     return arguments.length ? ((this._height = _!), this) : this._height;
   }
 
@@ -613,7 +595,7 @@ export default class Legend extends BaseClass {
 */
   hover(_: unknown): this {
     this._shapes.forEach((s: unknown) =>
-      (s as Record<string, Function>).hover(_),
+      (s as Record<string, (...args: unknown[]) => unknown>).hover(_),
     );
     return this;
   }
@@ -626,25 +608,20 @@ function value(d) {
   return d.id;
 }
 */
-   
-  id(): any;
-   
-  id(_: any): this;
-   
-  id(_?: any): unknown {
+  id(): (d: DataPoint, i?: number) => unknown;
+  id(_: (d: DataPoint, i?: number) => unknown): this;
+  id(_?: (d: DataPoint, i?: number) => unknown): ((d: DataPoint, i?: number) => unknown) | this {
     return arguments.length ? ((this._id = _!), this) : this._id;
   }
 
   /**
       The label accessor for each legend entry. Uses the id accessor by default.
 */
-  label(): any;
-   
-  label(_: any): this;
-   
-  label(_?: any): unknown {
+  label(): (d: DataPoint, i?: number) => unknown;
+  label(_: ((d: DataPoint, i?: number) => unknown) | unknown): this;
+  label(_?: ((d: DataPoint, i?: number) => unknown) | unknown): ((d: DataPoint, i?: number) => unknown) | this {
     return arguments.length
-      ? ((this._label = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._label = typeof _ === "function" ? _ as (d: DataPoint, i?: number) => unknown : constant(_)), this)
       : this._label;
   }
 
@@ -662,18 +639,18 @@ function value(d) {
 */
   padding(): number;
   padding(_: number): this;
-  padding(_?: number): any {
+  padding(_?: number): number | this {
     return arguments.length ? ((this._padding = _!), this) : this._padding;
   }
 
   /**
       The SVG container element as a d3 selector or DOM element.
 */
-  select(): any;
-   
+  select(): D3Selection;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   select(_: any): this;
-   
-  select(_?: any): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  select(_?: any): D3Selection | this {
     if (arguments.length) {
       this._select = select(_);
       this._rtl = detectRTL();
@@ -685,24 +662,20 @@ function value(d) {
   /**
       The shape type used for each legend entry.
 */
-  shape(): any;
-   
-  shape(_: any): this;
-   
-  shape(_?: any): unknown {
+  shape(): (d: DataPoint, i?: number) => unknown;
+  shape(_: ((d: DataPoint, i?: number) => unknown) | unknown): this;
+  shape(_?: ((d: DataPoint, i?: number) => unknown) | unknown): ((d: DataPoint, i?: number) => unknown) | this {
     return arguments.length
-      ? ((this._shape = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._shape = typeof _ === "function" ? _ as (d: DataPoint, i?: number) => unknown : constant(_)), this)
       : this._shape;
   }
 
   /**
       Methods that correspond to the key/value pairs for each shape.
 */
-  shapeConfig(): Record<string, any>;
-   
-  shapeConfig(_: Record<string, any>): this;
-   
-  shapeConfig(_?: Record<string, any>): Record<string, any> | this {
+  shapeConfig(): Record<string, unknown>;
+  shapeConfig(_: Record<string, unknown>): this;
+  shapeConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
       ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
       : this._shapeConfig;
@@ -713,18 +686,16 @@ function value(d) {
 */
   title(): string | undefined;
   title(_: string): this;
-  title(_?: string): any {
+  title(_?: string): string | undefined | this {
     return arguments.length ? ((this._title = _), this) : this._title;
   }
 
   /**
       Title configuration of the legend.
 */
-  titleConfig(): Record<string, any>;
-   
-  titleConfig(_: Record<string, any>): this;
-   
-  titleConfig(_?: Record<string, any>): Record<string, any> | this {
+  titleConfig(): Record<string, unknown>;
+  titleConfig(_: Record<string, unknown>): this;
+  titleConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
       ? ((this._titleConfig = assign(this._titleConfig, _)), this)
       : this._titleConfig;
@@ -735,7 +706,7 @@ function value(d) {
 */
   verticalAlign(): string;
   verticalAlign(_: string): this;
-  verticalAlign(_?: string): any {
+  verticalAlign(_?: string): string | this {
     return arguments.length
       ? ((this._verticalAlign = _!), this)
       : this._verticalAlign;
@@ -746,7 +717,7 @@ function value(d) {
 */
   width(): number;
   width(_: number): this;
-  width(_?: number): any {
+  width(_?: number): number | this {
     return arguments.length ? ((this._width = _!), this) : this._width;
   }
 }

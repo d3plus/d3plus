@@ -114,7 +114,7 @@ export interface D3plusConfig {
   /** Padding between groups of bars in pixels. */
   groupPadding?: number;
   /** Label accessor for shapes. */
-  label?: string | ((...args: any[]) => string);
+  label?: string | ((...args: unknown[]) => string);
   /** Whether to show the legend. */
   legend?: boolean;
   /** Configuration for the legend component. */
@@ -196,13 +196,13 @@ export interface D3plusConfig {
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
   /** Key, index, or accessor function for x-axis values. */
-  x?: string | number | ((...args: any[]) => unknown);
+  x?: string | number | ((...args: unknown[]) => unknown);
   /** Configuration for the x-axis. */
   xConfig?: AxisConfig;
   /** Custom sort function for x-axis values. */
   xSort?: (a: DataPoint, b: DataPoint) => number;
   /** Key, index, or accessor function for y-axis values. */
-  y?: string | number | ((...args: any[]) => unknown);
+  y?: string | number | ((...args: unknown[]) => unknown);
   /** Configuration for the y-axis. */
   yConfig?: AxisConfig;
   /** Custom sort function for y-axis values. */

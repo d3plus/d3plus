@@ -19,7 +19,7 @@ import {
   Timeline,
   Tooltip,
 } from "../components/index.js";
-import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
+import {accessor, BaseClass, constant} from "../utils/index.js";
 // import {Rect} from "../shape/index.js";
 
 import Message from "../components/Message.js";
@@ -131,7 +131,9 @@ class LRU {
 /**
     Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default class Viz extends (BaseClass as any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -271,7 +273,7 @@ export default class Viz extends (BaseClass as any) {
       debounce((entries: ResizeObserverEntry[]) => {
         const {width, height} = entries[0].contentRect;
         if (
-          (width !== this._width || height !== this._height) &&
+          ((width !== this._width && this._autoWidth) || (height !== this._height && this._autoHeight)) &&
           width &&
           height
         ) {
@@ -685,14 +687,14 @@ export default class Viz extends (BaseClass as any) {
     w -= parseFloat(this._select.style("border-right-width"));
     h -= parseFloat(this._select.style("border-top-width"));
     h -= parseFloat(this._select.style("border-bottom-width"));
-
-    if (this._autoWidth) {
+    
+    if (this._autoWidth && this._width !== w) {
       this.width(w);
       this._select
         .style("width", `${this._width}px`)
         .attr("width", `${this._width}px`);
     }
-    if (this._autoHeight) {
+    if (this._autoHeight && this._height !== h) {
       this.height(h);
       this._select
         .style("height", `${this._height}px`)
@@ -719,9 +721,9 @@ export default class Viz extends (BaseClass as any) {
         this._select === void 0
           ? select("body")
               .insert("div", "#d3plus-portal")
-              .style("height", "100%")
+              .style("height", "100dvh")
               .style("width", "100%")
-              .style("min-height", 150)
+              .style("min-height", "150px")
           : this._select;
       const svg = parent.select(".d3plus-viz").size()
         ? parent.select(".d3plus-viz")
@@ -964,7 +966,7 @@ export default class Viz extends (BaseClass as any) {
     this._active = _;
 
     if (this._shapeConfig.activeOpacity !== 1) {
-      this._shapes.forEach((s: {active: Function}) => s.active(_));
+      this._shapes.forEach((s: {active: (...args: unknown[]) => unknown}) => s.active(_));
       if (this._legend) this._legendClass.active(_);
     }
 
@@ -989,6 +991,15 @@ export default class Viz extends (BaseClass as any) {
 
   /**
       Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
+*/
+  attribution(_?: string | boolean): this | string | boolean {
+    return arguments.length
+      ? ((this._attribution = _), this)
+      : this._attribution;
+  }
+
+  /**
+      Configuration object for the attribution style.
 */
   attributionStyle(
     _?: Record<string, unknown>,
@@ -1144,6 +1155,42 @@ Defaults to an empty array (`[]`).
 
   /**
       If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
+*/
+  detectResize(_?: boolean): this | boolean {
+    return arguments.length
+      ? ((this._detectResize = _), this)
+      : this._detectResize;
+  }
+
+  /**
+      When resizing the browser window, this is the millisecond delay to trigger the resize event.
+*/
+  detectResizeDelay(_?: number): this | number {
+    return arguments.length
+      ? ((this._detectResizeDelay = _), this)
+      : this._detectResizeDelay;
+  }
+
+  /**
+      Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
+*/
+  detectVisible(_?: boolean): this | boolean {
+    return arguments.length
+      ? ((this._detectVisible = _), this)
+      : this._detectVisible;
+  }
+
+  /**
+      The interval, in milliseconds, for checking if the visualization is visible on the page.
+*/
+  detectVisibleInterval(_?: number): this | number {
+    return arguments.length
+      ? ((this._detectVisibleInterval = _), this)
+      : this._detectVisibleInterval;
+  }
+
+  /**
+      If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.
 */
   discrete(_?: string): this | string {
     return arguments.length ? ((this._discrete = _), this) : this._discrete;
@@ -1320,7 +1367,7 @@ Defaults to an empty array (`[]`).
             activeIds.includes(JSON.stringify(this._ids(d, i)));
       }
 
-      this._shapes.forEach((s: {hover: Function}) => s.hover(hoverFunction));
+      this._shapes.forEach((s: {hover: (...args: unknown[]) => unknown}) => s.hover(hoverFunction));
       if (this._legend) this._legendClass.hover(hoverFunction);
     }
 
@@ -1802,6 +1849,107 @@ Defaults to an empty array (`[]`).
 
   /**
       Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
+*/
+  zoom(_?: boolean): this | boolean {
+    return arguments.length ? ((this._zoom = _), this) : this._zoom;
+  }
+
+  /**
+      The pixel stroke-width of the zoom brush area.
+*/
+  zoomBrushHandleSize(_?: number): this | number {
+    return arguments.length
+      ? ((this._zoomBrushHandleSize = _), this)
+      : this._zoomBrushHandleSize;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
+*/
+  zoomBrushHandleStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this._zoomBrushHandleStyle = _), this)
+      : this._zoomBrushHandleStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
+*/
+  zoomBrushSelectionStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this._zoomBrushSelectionStyle = _), this)
+      : this._zoomBrushSelectionStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+*/
+  zoomControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this._zoomControlStyle = _), this)
+      : this._zoomControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+*/
+  zoomControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this._zoomControlStyleActive = _), this)
+      : this._zoomControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+*/
+  zoomControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this._zoomControlStyleHover = _), this)
+      : this._zoomControlStyleHover;
+  }
+
+  /**
+      The multiplier that is used in with the control buttons when zooming in and out.
+*/
+  zoomFactor(_?: number): this | number {
+    return arguments.length ? ((this._zoomFactor = _), this) : this._zoomFactor;
+  }
+
+  /**
+      The max zoom scale.
+*/
+  zoomMax(_?: number): this | number {
+    return arguments.length ? ((this._zoomMax = _), this) : this._zoomMax;
+  }
+
+  /**
+      Toggles panning.
+*/
+  zoomPan(_?: boolean): this | boolean {
+    return arguments.length ? ((this._zoomPan = _), this) : this._zoomPan;
+  }
+
+  /**
+      A pixel value to be used to pad all sides of a zoomed area.
+*/
+  zoomPadding(_?: number): this | number {
+    return arguments.length
+      ? ((this._zoomPadding = _), this)
+      : this._zoomPadding;
+  }
+
+  /**
+      Toggles scroll zooming.
 */
   zoomScroll(_?: boolean): this | boolean {
     return arguments.length ? ((this._zoomScroll = _), this) : this._zoomScroll;

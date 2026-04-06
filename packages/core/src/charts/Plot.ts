@@ -160,6 +160,7 @@ function outside(d, i) {
     Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -525,7 +526,7 @@ export default class Plot extends Viz {
       }`;
 
     const prepData = (d, i) => {
-      const newD: Record<string, any> = {
+      const newD: Record<string, unknown> = {
         __d3plus__: true,
         data: d,
         group: stackGroup(d, i),
@@ -974,7 +975,7 @@ export default class Plot extends Viz {
         ? this._height > this._discreteCutoff && this._height > this._yCutoff
         : this._height > this._yCutoff;
 
-    const yC: Record<string, any> = {
+    const yC: Record<string, unknown> = {
       data: yData,
       locale: this._locale,
       rounding: this._yDomain ? "none" : "outside",
@@ -1084,7 +1085,7 @@ export default class Plot extends Viz {
     let y2Width = y2Bounds.width
       ? y2Bounds.width + this._y2Test.padding()
       : undefined;
-    const xC: Record<string, any> = {
+    const xC: Record<string, unknown> = {
       data: xData,
       locale: this._locale,
       rounding: this._xDomain ? "none" : "outside",
@@ -1360,7 +1361,7 @@ export default class Plot extends Viz {
     this._padding.bottom += xHeight;
     this._padding.top += x2Height + topOffset;
 
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const horizontalMargin = this._margin.left + this._margin.right;
     const verticalMargin = this._margin.top + this._margin.bottom;
@@ -1955,15 +1956,15 @@ export default class Plot extends Viz {
           .id(d => `${d.id}_${d.discrete}`);
 
         for (let e = 0; e < globalEvents.length; e++)
-          markers.on(globalEvents[e], (d: any, i, x, event) =>
+          markers.on(globalEvents[e], (d: Record<string, unknown>, i, x, event) =>
             this._on[globalEvents[e]](d.data, d.i, x, event),
           );
         for (let e = 0; e < shapeEvents.length; e++)
-          markers.on(shapeEvents[e], (d: any, i, x, event) =>
+          markers.on(shapeEvents[e], (d: Record<string, unknown>, i, x, event) =>
             this._on[shapeEvents[e]](d.data, d.i, x, event),
           );
         for (let e = 0; e < classEvents.length; e++)
-          markers.on(classEvents[e], (d: any, i, x, event) =>
+          markers.on(classEvents[e], (d: Record<string, unknown>, i, x, event) =>
             this._on[classEvents[e]](d.data, d.i, x, event),
           );
 
@@ -2022,13 +2023,27 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The pixel space between each bar in a group of bars.
 */
+  barPadding(_) {
+    return arguments.length ? ((this._barPadding = _), this) : this._barPadding;
+  }
+
+  /**
+      The baseline for the x/y plot.
+*/
+  baseline(_) {
+    return arguments.length ? ((this._baseline = _), this) : this._baseline;
+  }
+
+  /**
+      Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
+*/
   buffer(_) {
     if (arguments.length) {
       if (!_) this._buffer = {};
       else if (_ === true) this._buffer = defaultBuffers;
       else {
         this._buffer = assign({}, this._buffer, _);
-        for (let key in this._buffer) {
+        for (const key in this._buffer) {
           if (this._buffer[key] === true)
             this._buffer[key] = defaultBuffers[key];
         }
@@ -2144,15 +2159,67 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      The size of bubbles as a Number, data key, or function.
+      Sets the size of bubbles to the given Number, data key, or function.
+*/
+  size(_) {
+    return arguments.length
+      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
+      : this._size;
+  }
 
+  /**
+      Sets the size scale maximum to the specified number.
+*/
+  sizeMax(_) {
+    return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
+  }
+
+  /**
+      Sets the size scale minimum to the specified number.
+*/
+  sizeMin(_) {
+    return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
+  }
+
+  /**
+      Sets the size scale to the specified string.
+*/
+  sizeScale(_) {
+    return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
+  }
+
+  /**
+      If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.
+*/
+  stacked(_) {
+    return arguments.length ? ((this._stacked = _), this) : this._stacked;
+  }
+
+  /**
+      Sets the stack offset. If *value* is not specified, returns the current stack offset function.
+*/
+  stackOffset(_) {
+    return arguments.length
+      ? ((this._stackOffset =
+          typeof _ === "function"
+            ? _
+            : d3Shape[`stackOffset${_.charAt(0).toUpperCase() + _.slice(1)}`]),
         this)
       : this._stackOffset;
   }
 
   /**
-      The stack order function used to arrange stacked shapes.
-
+      Sets the stack order. If *value* is not specified, returns the current stack order function.
+*/
+  stackOrder(_) {
+    if (arguments.length) {
+      if (typeof _ === "string")
+        this._stackOrder =
+          _ === "ascending"
+            ? stackOrderAscending
+            : _ === "descending"
+              ? stackOrderDescending
+              : d3Shape[`stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`];
       else this._stackOrder = _;
       return this;
     } else return this._stackOrder;

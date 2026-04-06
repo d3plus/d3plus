@@ -7,13 +7,13 @@ export default function (
 ): Date | false | undefined {
   // returns if falsey or already Date object
   if (
-    [false, undefined, NaN].includes(d as any) ||
-    (d as any).constructor === Date
+    [false, undefined, NaN].includes(d as never) ||
+    (d as unknown as {constructor: unknown}).constructor === Date
   )
     return d as Date | false | undefined;
   // detects if milliseconds
   else if (
-    (d as any).constructor === Number &&
+    (d as unknown as {constructor: unknown}).constructor === Number &&
     `${d}`.length > 5 &&
     (d as number) % 1 === 0
   )
@@ -63,8 +63,8 @@ export default function (
   }
 
   // tests for monthly formats (ie. "MM-YYYY" and "YYYY-MM")
-  const monthPrefix = new RegExp(/^([-*\d]{1,2})\-(-*\d{1,4})$/g).exec(s);
-  const monthSuffix = new RegExp(/^(-*\d{1,4})\-([-*\d]{1,2})$/g).exec(s);
+  const monthPrefix = new RegExp(/^([-*\d]{1,2})-(-*\d{1,4})$/g).exec(s);
+  const monthSuffix = new RegExp(/^(-*\d{1,4})-([-*\d]{1,2})$/g).exec(s);
   if (monthPrefix || monthSuffix) {
     const month = +(monthPrefix ? monthPrefix[1] : monthSuffix![2]);
     const year = +(monthPrefix ? monthPrefix[2] : monthSuffix![1]);

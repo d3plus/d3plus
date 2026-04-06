@@ -24,6 +24,7 @@ const defaultAxisConfig: Record<string, unknown> = {
     Creates a simple rows/columns Matrix view of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/getting-started/) for help getting started using the Matrix class.
 */
 export default class Matrix extends Viz {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
   /**
@@ -138,7 +139,7 @@ export default class Matrix extends Viz {
     const columnPadding = this._columnAxis.outerBounds().height;
     this._padding.top += columnPadding;
 
-    (super._draw as Function)(callback);
+    (super._draw as (...args: unknown[]) => unknown)(callback);
 
     const rowTransform = `translate(${this._margin.left}, ${this._margin.top})`;
     columnTransform = `translate(0, ${this._margin.top})`;
@@ -262,7 +263,7 @@ function column(a, b) {
   return a.localeCompare(b);
 }
   */
-  columnSort(_?: Function): this | Function {
+  columnSort(_?: (...args: unknown[]) => unknown): this | ((...args: unknown[]) => unknown) {
     return arguments.length ? ((this._columnSort = _), this) : this._columnSort;
   }
 
@@ -308,7 +309,7 @@ function row(a, b) {
   return a.localeCompare(b);
 }
   */
-  rowSort(_?: Function): this | Function {
+  rowSort(_?: (...args: unknown[]) => unknown): this | ((...args: unknown[]) => unknown) {
     return arguments.length ? ((this._rowSort = _), this) : this._rowSort;
   }
 }

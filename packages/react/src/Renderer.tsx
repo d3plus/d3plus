@@ -86,10 +86,7 @@ export default function Renderer({
   );
 
   return (
-    <div
-      className={className}
-      style={{height: "100%", minHeight: 150, width: "100%"}}
-    >
+    <div className={className} style={{height: "100%"}}>
       <svg ref={container} width="100%" height="100%"></svg>
     </div>
   );

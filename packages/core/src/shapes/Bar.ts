@@ -123,6 +123,7 @@ export default class Bar extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (elem as any)
       .attr("width", (d: DataPoint, i: number) => this._getWidth(d, i))
       .attr("height", (d: DataPoint, i: number) => this._getHeight(d, i))
