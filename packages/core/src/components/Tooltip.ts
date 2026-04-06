@@ -1,5 +1,6 @@
 import {select} from "d3-selection";
-import {createPopper} from "@popperjs/core";
+import {computePosition, arrow as arrowMiddleware, offset, flip, shift} from "@floating-ui/dom";
+import type {VirtualElement} from "@floating-ui/dom";
 
 import {colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
@@ -10,21 +11,67 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 
 /**
- * Creates a reference element for popper.
+ * Creates a virtual reference element for Floating UI.
  * @param {Number[]} position
  * @private
 */
 function generateReference(
   position: number[] = [0, 0],
-): () => Record<string, number> {
-  return () => ({
-    width: 0,
-    height: 0,
-    top: position[1],
-    right: position[0],
-    bottom: position[1],
-    left: position[0],
+): VirtualElement {
+  return {
+    getBoundingClientRect: () => ({
+      width: 0,
+      height: 0,
+      x: position[0],
+      y: position[1],
+      top: position[1],
+      right: position[0],
+      bottom: position[1],
+      left: position[0],
+    }),
+  };
+}
+
+/**
+ * Positions a tooltip using Floating UI.
+ * @private
+ */
+async function positionTooltip(
+  reference: VirtualElement | HTMLElement,
+  tooltip: HTMLElement,
+  arrowEl: HTMLElement,
+  offsetVal: number,
+  arrowDistance: number,
+  arrowHeight: number,
+) {
+  const {x, y, placement, middlewareData} = await computePosition(reference, tooltip, {
+    placement: "top",
+    middleware: [
+      offset(offsetVal + arrowDistance),
+      flip({fallbackPlacements: ["bottom"], padding: 5}),
+      shift({padding: 5}),
+      arrowMiddleware({element: arrowEl}),
+    ],
   });
+
+  Object.assign(tooltip.style, {
+    position: "absolute",
+    left: `${x}px`,
+    top: `${y}px`,
+  });
+
+  const flipped = placement === "bottom";
+  const border = parseFloat(arrowEl.style.borderRightWidth) || 0;
+  if (flipped) {
+    arrowEl.style.transform = "rotate(225deg)";
+    arrowEl.style.top = `-${arrowHeight / 2 + border}px`;
+    arrowEl.style.bottom = "";
+  } else {
+    arrowEl.style.transform = "rotate(45deg)";
+    arrowEl.style.bottom = `-${arrowHeight / 2 + border}px`;
+    arrowEl.style.top = "";
+  }
+  arrowEl.style.left = middlewareData.arrow?.x != null ? `${middlewareData.arrow.x}px` : "";
 }
 
 /**
@@ -45,10 +92,10 @@ export default class Tooltip extends BaseClass {
   _height: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _id: (d: DataPoint, i: number) => string;
    
-  _offset: (d: DataPoint, i?: number) => any;
+  _offset: (d: DataPoint, i?: number) => number;
   _padding: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _pointerEvents: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _popperClasses: Record<string, ReturnType<typeof createPopper>>;
+  _tooltipRefs: Record<string, {reference: VirtualElement | HTMLElement; arrowEl: HTMLElement; tooltip: HTMLElement; arrowHeight: number; arrowDistance: number}>;
   _position: (d: DataPoint, i?: number) => number[] | HTMLElement;
   _tableStyle: Record<string, string>;
   _tbody: unknown[];
@@ -59,8 +106,10 @@ export default class Tooltip extends BaseClass {
   _titleStyle: Record<string, string>;
   _tooltipStyle: Record<string, string>;
    
-  _trStyle: Record<string, any>;
+  _trStyle: Record<string, unknown>;
   _tdStyle: Record<string, string>;
+  _maxWidth: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
+  _minWidth: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _width: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
 
   /**
@@ -80,7 +129,6 @@ export default class Tooltip extends BaseClass {
       position: "absolute",
       transform: "rotate(45deg)",
       width: "10px",
-      "z-index": "-1",
     };
     this._background = constant(colorDefaults.light);
     this._body = accessor("body", "");
@@ -105,7 +153,7 @@ export default class Tooltip extends BaseClass {
     this._offset = constant(5);
     this._padding = constant("10px");
     this._pointerEvents = constant("auto");
-    this._popperClasses = {};
+    this._tooltipRefs = {};
     this._position = (d: DataPoint) => [d.x as number, d.y as number];
     this._tableStyle = {
       "border-collapse": "collapse",
@@ -128,6 +176,7 @@ export default class Tooltip extends BaseClass {
       "font-size": "14px",
       "font-weight": "600",
       "margin-bottom": "5px",
+      "text-align": "center"
     };
     this._tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
@@ -139,14 +188,16 @@ export default class Tooltip extends BaseClass {
         i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
     };
     this._tdStyle = {};
-    this._width = constant("150px");
+    this._maxWidth = constant("200px");
+    this._minWidth = constant("100px");
+    this._width = constant("auto");
   }
 
   /**
       The inner return object and draw function that gets assigned the public methods.
       @private
 */
-  render(callback?: Function): this {
+  render(callback?: (...args: unknown[]) => unknown): this {
     const that = this;
 
     const portal = elem("div#d3plus-portal");
@@ -226,6 +277,8 @@ export default class Tooltip extends BaseClass {
         .style("border-radius", that._borderRadius as never)
         .style("pointer-events", that._pointerEvents as never)
         .style("padding", that._padding as never)
+        .style("max-width", that._maxWidth as never)
+        .style("min-width", that._minWidth as never)
         .style("width", that._width as never)
         .style("height", that._height as never)
         .style("border", that._border as never);
@@ -283,90 +336,32 @@ export default class Tooltip extends BaseClass {
       .call(boxStyles)
       .each((d: DataPoint, i: number) => {
         const id = that._id(d, i);
-        const tooltip = document.getElementById(`d3plus-tooltip-${id}`);
-        const arrow = document.getElementById(`d3plus-tooltip-arrow-${id}`);
-        const arrowHeight = arrow!.offsetHeight;
-        const arrowDistance = arrow!.getBoundingClientRect().height / 2;
-        arrow!.style.bottom = `-${arrowHeight / 2}px`;
+        const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
+        const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
+        const arrowHeight = arrowEl.offsetHeight;
+        const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
+        arrowEl.style.bottom = `-${arrowHeight / 2}px`;
 
         const position = that._position(d, i);
+        const reference: VirtualElement | HTMLElement = Array.isArray(position)
+          ? generateReference(position)
+          : position as HTMLElement;
 
-         
-        const referenceObject: any = Array.isArray(position)
-          ? {
-              getBoundingClientRect: generateReference(position),
-            }
-          : position;
-
-        this._popperClasses[id] = createPopper(referenceObject, tooltip!, {
-          placement: "top",
-          modifiers: [
-            {
-              name: "arrow",
-              options: {
-                element: arrow,
-              },
-            },
-            {
-              name: "offset",
-              options: {
-                offset: [0, that._offset(d, i) + arrowDistance],
-              },
-            },
-            {
-              name: "preventOverflow",
-              options: {
-                boundary: "scrollParent",
-                padding: 5,
-              },
-            },
-            {
-              name: "flip",
-              options: {
-                behavior: "flip",
-                boundary: "viewport",
-                fallbackPlacements: ["bottom"],
-                padding: 5,
-              },
-            },
-            {
-              name: "update",
-              enabled: true,
-              phase: "afterWrite",
-               
-              fn(x: {state: any}) {
-                const {state} = x;
-                const arrowElement = state.elements.arrow;
-                const arrowStyles = state.styles.arrow;
-                const flipped = state.modifiersData.flip._skip;
-                const border = parseFloat(arrowElement.style.borderRightWidth);
-                if (flipped) {
-                  arrowElement.style.transform = `${arrowStyles.transform}rotate(225deg)`;
-                  arrowElement.style.top = `-${arrowHeight / 2 + border}px`;
-                } else {
-                  arrowElement.style.transform = `${arrowStyles.transform}rotate(45deg)`;
-                  arrowElement.style.bottom = `-${arrowHeight / 2 + border}px`;
-                }
-              },
-            },
-          ],
-          removeOnDestroy: true,
-        } as Parameters<typeof createPopper>[2]);
+        this._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
+        positionTooltip(reference, tooltip, arrowEl, that._offset(d, i), arrowDistance, arrowHeight);
       });
 
     update
       .each((d: DataPoint, i: number) => {
         const id = that._id(d, i);
         const position = that._position(d, i);
-        const instance = this._popperClasses[id];
+        const ref = this._tooltipRefs[id];
 
-        if (instance) {
-           
-          (instance as any).state.elements.reference.getBoundingClientRect =
-            Array.isArray(position)
-              ? generateReference(position as number[])
-              : position;
-          instance.update();
+        if (ref) {
+          ref.reference = Array.isArray(position)
+            ? generateReference(position as number[])
+            : position as HTMLElement;
+          positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that._offset(d, i), ref.arrowDistance, ref.arrowHeight);
         }
       })
       .call(boxStyles);
@@ -375,11 +370,7 @@ export default class Tooltip extends BaseClass {
       .exit()
       .each((d: DataPoint, i: number) => {
         const id = that._id(d, i);
-        const instance = this._popperClasses[id];
-        if (instance) {
-          instance.destroy();
-          delete this._popperClasses[id];
-        }
+        delete this._tooltipRefs[id];
       })
       .remove();
 
@@ -515,7 +506,7 @@ function value(d) {
 */
   className(): string;
   className(_: string): this;
-  className(_?: string): any {
+  className(_?: string): unknown {
     return arguments.length ? ((this._className = _!), this) : this._className;
   }
 
@@ -820,11 +811,9 @@ function value(d) {
   }
 */
    
-  trStyle(): Record<string, any>;
-   
-  trStyle(_: Record<string, any>): this;
-   
-  trStyle(_?: Record<string, any>): unknown {
+  trStyle(): Record<string, unknown>;
+  trStyle(_: Record<string, unknown>): this;
+  trStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
       ? ((this._trStyle = Object.assign(this._trStyle, _)), this)
       : this._trStyle;
@@ -839,6 +828,36 @@ function value(d) {
     return arguments.length
       ? ((this._tdStyle = Object.assign(this._tdStyle, _)), this)
       : this._tdStyle;
+  }
+
+  /**
+      The max-width accessor for each tooltip.
+*/
+  maxWidth(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
+  maxWidth(
+    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
+  ): this;
+  maxWidth(
+    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
+  ): unknown {
+    return arguments.length
+      ? ((this._maxWidth = typeof _ === "function" ? _ : constant(_)), this)
+      : this._maxWidth;
+  }
+
+  /**
+      The min-width accessor for each tooltip.
+*/
+  minWidth(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
+  minWidth(
+    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
+  ): this;
+  minWidth(
+    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
+  ): unknown {
+    return arguments.length
+      ? ((this._minWidth = typeof _ === "function" ? _ : constant(_)), this)
+      : this._minWidth;
   }
 
   /**
