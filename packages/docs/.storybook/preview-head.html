@@ -15,10 +15,26 @@
     padding: 2rem !important;
   }
 
+  .sb-anchor > h2 {
+    border-bottom: 0 !important;
+  }
+
+  h2 {
+    margin-top: 3rem !important;
+  }
+
+  .docblock-source {
+    margin: 0 !important;
+  }
+
   /* kill margins */
   .docblock-argstable, /* control block */
   .sbdocs-preview { /* chart/code block */
     margin: 0 !important;
+  }
+
+  .sbdocs-preview-actions {
+    margin: auto !important;
   }
 
   /* hide default type showing in description */
@@ -26,23 +42,12 @@
     display: none;
   }
 
-  /* kill paddings */
+  /* decrease paddings */
+  .docs-story {
+    padding: 20px !important;
+  }
   .docs-story > div:first-child { /* viz container */
-    padding: 10px !important;
-  }
-
-  /* move hide/show code button */
-  .docs-story > div:last-child {
-    background: none !important;
-    left: 0px !important;
-    right: auto !important;
-  }
-  .docblock-code-toggle {
-    border-left-color: initial !important;
-    border-right-color: rgba(38, 85, 115, 0.15) !important;
-    border-radius: 0px 4px 0px !important;
-    border-style: solid solid none none !important;
-    border-width: 1px 1px 0px 0px !important;
+    padding: 0 !important;
   }
 
   /* removes inner viz padding */
@@ -51,6 +56,16 @@
   }
   .viz > svg {
     display: block;
+  }
+
+  /* size container div */
+  .sb-story {
+    align-items: stretch;
+    display: flex;
+    width: 100%;
+  }
+  .sb-story > div {
+    width: 100%;
   }
 
   .d3plus-logo .d3plus-plot-x-axis .bar,

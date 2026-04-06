@@ -1,13 +1,18 @@
 import remarkGfm from "remark-gfm";
 import path from "node:path";
-import glob from "glob";
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+
+const require = createRequire(import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // monorepo fix
 // https://storybook.js.org/docs/faq#how-do-i-fix-module-resolution-in-special-environments
 const getAbsolutePath = packageName =>
   path.dirname(require.resolve(path.join(packageName, "package.json")));
 
-module.exports = {
+export default {
   stories: [
     "../docs/**/*.mdx",
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
@@ -44,29 +49,34 @@ module.exports = {
   },
 
   core: {
-    disableTelemetry: true, // 👈 Disables telemetry
+    disableTelemetry: true,
     disableWhatsNewNotifications: true,
   },
 
   webpackFinal: async config => {
     if (config.resolve) {
-      const workspacePackages = glob.sync("../*/").reduce((aliases, folder) => {
-        const name = path.basename(folder);
-        if (name !== "docs") {
-          const filename = name === "react" ? "index.jsx" : "index.js";
-          aliases[`@d3plus/${name}`] = path.resolve(
-            __dirname,
-            "../",
-            folder,
-            filename,
-          );
-        }
+      const packagesDir = path.resolve(__dirname, "../..");
+      const folders = fs.readdirSync(packagesDir, {withFileTypes: true})
+        .filter(d => d.isDirectory() && d.name !== "docs");
+
+      const workspacePackages = folders.reduce((aliases, dirent) => {
+        const name = dirent.name;
+        const filename = name === "react" ? "index.tsx" : "index.ts";
+        aliases[`@d3plus/${name}`] = path.resolve(packagesDir, name, filename);
         return aliases;
       }, {});
 
       config.resolve.alias = {
         ...workspacePackages,
         ...config.resolve.alias,
+      };
+
+      // TypeScript sources use .js extensions in imports (ESM convention);
+      // tell webpack to also try .ts/.tsx when it sees .js/.jsx
+      config.resolve.extensionAlias = {
+        ".js": [".ts", ".tsx", ".js"],
+        ".jsx": [".tsx", ".jsx"],
+        ...config.resolve.extensionAlias,
       };
     }
     return config;

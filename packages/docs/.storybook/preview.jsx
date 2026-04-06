@@ -5,7 +5,7 @@ import {
   Controls,
   Description,
   DocsContext,
-  Subheading,
+  Heading,
   Subtitle,
   Title,
 } from "@storybook/addon-docs/blocks";
@@ -110,7 +110,7 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
               }, [stringifiedArgs]);
               return (
                 <Anchor storyId={story.id}>
-                  <Subheading>{story.name}</Subheading>
+                  <Heading>{story.name}</Heading>
                   <Canvas
                     of={moduleExport}
                     withToolbar={false}
@@ -135,8 +135,6 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
                     </a>
                     .
                   </p>
-                  <br />
-                  <br />
                 </Anchor>
               );
             })}
@@ -144,7 +142,7 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
         );
       },
       theme: theme,
-      toc: true,
+      toc: {headingSelector: "h2"},
     },
     options: {
       storySort: {
