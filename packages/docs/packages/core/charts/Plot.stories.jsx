@@ -84,10 +84,10 @@ ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", 
 
 export const TrendlineUsingAnnotations = Template.bind()
 TrendlineUsingAnnotations.args = {
-  data: "https://datausa.io/api/data?measures=Adult%20Obesity,Average%20Commute%20Time&drilldowns=State&year=2022",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Adult%20Obesity,Diabetes%20Prevalence&Year=2025",
   dataFormat: funcify(
-    resp => resp.data.filter(d => d["ID State"] !== "04000US72"),
-    'resp => resp.data.filter(d => d["ID State"] !== "04000US72")'
+    resp => resp.data.filter(d => d["State ID"] !== "04000US72"),
+    'resp => resp.data.filter(d => d["State ID"] !== "04000US72")'
   ),
   groupBy: "State",
   annotations: [
@@ -123,7 +123,7 @@ TrendlineUsingAnnotations.args = {
       strokeWidth: 2
     }
   ],
-  x: "Average Commute Time",
+  x: "Diabetes Prevalence",
   y: "Adult Obesity"
 };
 TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}};

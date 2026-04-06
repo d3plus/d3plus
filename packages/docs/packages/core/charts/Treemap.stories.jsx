@@ -72,7 +72,7 @@ ChangingTilingMethod.parameters = {controls: {include: ["tile"]}};
 export const SmallDataThreshold = Template.bind({});
 SmallDataThreshold.args = {
   colorScale: "Population",
-  data: "https://datausa.io/api/data?measures=Population&drilldowns=State&Year=2018",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=pums_5&drilldowns=State&measures=Total%20Population&Year=2023",
   groupBy: "State",
   sum: "Population",
   threshold: 0.0025,

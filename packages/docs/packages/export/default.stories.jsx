@@ -4,7 +4,7 @@
 import React from "react";
 
 import {argTypes} from "../../args/export/default.args";
-import {default} from "@d3plus/export";
+import {default as saveElement} from "@d3plus/export";
 
 export default {
   title: "Export/default",

@@ -27,8 +27,8 @@ const Template = (args) => <Geomap config={configify(args, argTypes)} />;
 
 export const ChoroplethMap = Template.bind({});
 ChoroplethMap.args = {
-  data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
-  groupBy: "ID State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   colorScaleConfig: {
     axisConfig: {
@@ -38,10 +38,12 @@ ChoroplethMap.args = {
       )
     }
   },
+  ocean: "transparent",
   projection: "geoAlbersUsa",
+  tiles: false,
   topojson: "https://datausa.io/topojson/State.json"
 };
-ChoroplethMap.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "projection", "topojson"]}};
+ChoroplethMap.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "ocean", "projection", "tiles", "topojson"]}};
 
 export const CoordinatePointMap = Template.bind({});
 CoordinatePointMap.args = {
@@ -85,8 +87,8 @@ ChangingTileset.parameters = {controls: {include: ["tileUrl"]}};
 
 export const ChangingNoDataColor = Template.bind({});
 ChangingNoDataColor.args = {
-  data: "https://datausa.io/api/data?PUMS%20Industry=481&drilldowns=PUMA&measure=Total%20Population,ygipop%20RCA,Record%20Count&Record%20Count>=5",
-  groupBy: "ID PUMA",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=pums_5&drilldowns=PUMA&measures=Total%20Population&Year=2023",
+  groupBy: "PUMA ID",
   colorScale: "Total Population",
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/Puma.json",
@@ -96,8 +98,8 @@ ChangingNoDataColor.parameters = {controls: {include: ["topojsonFill"]}};
 
 export const CustomColors = Template.bind({});
 CustomColors.args = {
-  data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
-  groupBy: "ID State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   colorScaleConfig: {
     color: ["red", "orange", "yellow", "green", "blue"]
@@ -128,8 +130,8 @@ CustomZoom.parameters = {controls: {include: ["fitObject"]}};
 
 export const DisableZooming = Template.bind({});
 DisableZooming.args = {
-  data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
-  groupBy: "ID State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/State.json",
@@ -139,8 +141,8 @@ DisableZooming.parameters = {controls: {include: ["zoom"]}};
 
 export const HiddingTheColorScale = Template.bind({});
 HiddingTheColorScale.args = {
-  data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
-  groupBy: "ID State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   colorScalePosition: false,
   projection: "geoAlbersUsa",
@@ -167,8 +169,8 @@ OverridingColorscaleBehavior.parameters = {controls: {include: ["colorScaleConfi
 
 export const RemovingOceanAndTiles = Template.bind({});
 RemovingOceanAndTiles.args = {
-  data: "https://datausa.io/api/data?measure=Diabetes%20Prevalence&drilldowns=State&Year=2021",
-  groupBy: "ID State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   colorScaleConfig: {
     axisConfig: {

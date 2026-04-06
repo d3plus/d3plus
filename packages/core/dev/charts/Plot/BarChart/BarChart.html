@@ -163,10 +163,10 @@ const barchart = new d3plus.BarChart()
     fontFamily: ["Comic Sans MS"],
     groupBy: ["group"],
     // label: d => d.parent,
-    legend: true,
-    tooltipConfig: {
-      tbody: d => [["Year", d.year], ["Value", d.value]]
-    },
+    // legend: true,
+    // tooltipConfig: {
+    //   tbody: d => [["Year", d.year], ["Value", d.value]]
+    // },
     x: "group",
     y: d => d.value,
     // ySort: (a, b) => {
@@ -175,8 +175,9 @@ const barchart = new d3plus.BarChart()
     // },
     // legendPosition: "bottom",
     // discrete: "y",
-    time: "year",
-    width: 600
+    // time: "year",
+    height: 400,
+    // width: 600
     // shapeConfig: {
     //   // label: () => "",
     //   Bar: {

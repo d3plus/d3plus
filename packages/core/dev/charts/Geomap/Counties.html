@@ -29,11 +29,11 @@
   var activeThings = [];
   // console.time("first");
   var chart = new d3plus.Geomap()
-    .data("https://datausa.io/api/data?measures=Population&drilldowns=County&year=latest", function(d) { return d.data; })
+    .data("https://datausa.io/tesseract/data.jsonrecords?cube=pums_5&measures=Total Population&drilldowns=County&year=2023", function(d) { return d.data; })
     .topojson("./County.json")
     // .projection("geoAlbersUsa")
     .projection("geoAlbersUsaTerritories")
-    .colorScale("Population")
+    .colorScale("Total Population")
     .colorScaleConfig({
       buckets: [0, 100000, 500000, 1000000],
       bucketFormat: function(tick, i, ticks) {
@@ -41,7 +41,7 @@
       },
       scale: "buckets"
     })
-    .groupBy("ID County")
+    .groupBy("County ID")
     .ocean("transparent")
     // .label(d => d.County)
     // .tooltipConfig({
