@@ -93,7 +93,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **Area**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:184](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L184)
+Defined in: [index.tsx:184](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L184)
 
 React component for rendering a d3plus Area shape.
 
@@ -115,7 +115,7 @@ React component for rendering a d3plus Area shape.
 
 > **AreaPlot**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:54](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L54)
+Defined in: [index.tsx:54](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L54)
 
 React component for rendering a d3plus AreaPlot visualization.
 
@@ -137,7 +137,7 @@ React component for rendering a d3plus AreaPlot visualization.
 
 > **Axis**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:139](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L139)
+Defined in: [index.tsx:139](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L139)
 
 React component for rendering a d3plus Axis.
 
@@ -159,7 +159,7 @@ React component for rendering a d3plus Axis.
 
 > **AxisBottom**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:143](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L143)
+Defined in: [index.tsx:143](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L143)
 
 React component for rendering a d3plus AxisBottom.
 
@@ -181,7 +181,7 @@ React component for rendering a d3plus AxisBottom.
 
 > **AxisLeft**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:147](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L147)
+Defined in: [index.tsx:147](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L147)
 
 React component for rendering a d3plus AxisLeft.
 
@@ -203,7 +203,7 @@ React component for rendering a d3plus AxisLeft.
 
 > **AxisRight**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:151](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L151)
+Defined in: [index.tsx:151](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L151)
 
 React component for rendering a d3plus AxisRight.
 
@@ -225,7 +225,7 @@ React component for rendering a d3plus AxisRight.
 
 > **AxisTop**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:155](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L155)
+Defined in: [index.tsx:155](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L155)
 
 React component for rendering a d3plus AxisTop.
 
@@ -247,7 +247,7 @@ React component for rendering a d3plus AxisTop.
 
 > **Bar**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:188](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L188)
+Defined in: [index.tsx:188](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L188)
 
 React component for rendering a d3plus Bar shape.
 
@@ -269,7 +269,7 @@ React component for rendering a d3plus Bar shape.
 
 > **BarChart**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:58](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L58)
+Defined in: [index.tsx:58](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L58)
 
 React component for rendering a d3plus BarChart visualization.
 
@@ -291,7 +291,7 @@ React component for rendering a d3plus BarChart visualization.
 
 > **BaseClass**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:225](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L225)
+Defined in: [index.tsx:225](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L225)
 
 React component for rendering a d3plus BaseClass instance.
 
@@ -313,7 +313,7 @@ React component for rendering a d3plus BaseClass instance.
 
 > **Box**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:192](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L192)
+Defined in: [index.tsx:192](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L192)
 
 React component for rendering a d3plus Box shape.
 
@@ -335,7 +335,7 @@ React component for rendering a d3plus Box shape.
 
 > **BoxWhisker**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:62](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L62)
+Defined in: [index.tsx:62](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L62)
 
 React component for rendering a d3plus BoxWhisker visualization.
 
@@ -357,7 +357,7 @@ React component for rendering a d3plus BoxWhisker visualization.
 
 > **BumpChart**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:66](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L66)
+Defined in: [index.tsx:66](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L66)
 
 React component for rendering a d3plus BumpChart visualization.
 
@@ -379,7 +379,7 @@ React component for rendering a d3plus BumpChart visualization.
 
 > **Circle**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:196](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L196)
+Defined in: [index.tsx:196](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L196)
 
 React component for rendering a d3plus Circle shape.
 
@@ -401,7 +401,7 @@ React component for rendering a d3plus Circle shape.
 
 > **ColorScale**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:159](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L159)
+Defined in: [index.tsx:159](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L159)
 
 React component for rendering a d3plus ColorScale.
 
@@ -423,7 +423,7 @@ React component for rendering a d3plus ColorScale.
 
 > **Donut**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:70](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L70)
+Defined in: [index.tsx:70](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L70)
 
 React component for rendering a d3plus Donut visualization.
 
@@ -445,7 +445,7 @@ React component for rendering a d3plus Donut visualization.
 
 > **Geomap**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:74](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L74)
+Defined in: [index.tsx:74](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L74)
 
 React component for rendering a d3plus Geomap visualization.
 
@@ -467,7 +467,7 @@ React component for rendering a d3plus Geomap visualization.
 
 > **Image**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:200](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L200)
+Defined in: [index.tsx:200](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L200)
 
 React component for rendering a d3plus Image shape.
 
@@ -489,7 +489,7 @@ React component for rendering a d3plus Image shape.
 
 > **Legend**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:163](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L163)
+Defined in: [index.tsx:163](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L163)
 
 React component for rendering a d3plus Legend.
 
@@ -511,7 +511,7 @@ React component for rendering a d3plus Legend.
 
 > **Line**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:204](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L204)
+Defined in: [index.tsx:204](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L204)
 
 React component for rendering a d3plus Line shape.
 
@@ -533,7 +533,7 @@ React component for rendering a d3plus Line shape.
 
 > **LinePlot**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:78](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L78)
+Defined in: [index.tsx:78](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L78)
 
 React component for rendering a d3plus LinePlot visualization.
 
@@ -555,7 +555,7 @@ React component for rendering a d3plus LinePlot visualization.
 
 > **Matrix**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:82](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L82)
+Defined in: [index.tsx:82](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L82)
 
 React component for rendering a d3plus Matrix visualization.
 
@@ -577,7 +577,7 @@ React component for rendering a d3plus Matrix visualization.
 
 > **Message**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:167](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L167)
+Defined in: [index.tsx:167](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L167)
 
 React component for rendering a d3plus Message.
 
@@ -599,7 +599,7 @@ React component for rendering a d3plus Message.
 
 > **Network**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:86](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L86)
+Defined in: [index.tsx:86](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L86)
 
 React component for rendering a d3plus Network visualization.
 
@@ -621,7 +621,7 @@ React component for rendering a d3plus Network visualization.
 
 > **Pack**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:90](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L90)
+Defined in: [index.tsx:90](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L90)
 
 React component for rendering a d3plus Pack visualization.
 
@@ -643,7 +643,7 @@ React component for rendering a d3plus Pack visualization.
 
 > **Path**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:208](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L208)
+Defined in: [index.tsx:208](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L208)
 
 React component for rendering a d3plus Path shape.
 
@@ -665,7 +665,7 @@ React component for rendering a d3plus Path shape.
 
 > **Pie**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:94](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L94)
+Defined in: [index.tsx:94](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L94)
 
 React component for rendering a d3plus Pie visualization.
 
@@ -687,7 +687,7 @@ React component for rendering a d3plus Pie visualization.
 
 > **Plot**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:98](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L98)
+Defined in: [index.tsx:98](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L98)
 
 React component for rendering a d3plus Plot visualization.
 
@@ -709,7 +709,7 @@ React component for rendering a d3plus Plot visualization.
 
 > **Priestley**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:102](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L102)
+Defined in: [index.tsx:102](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L102)
 
 React component for rendering a d3plus Priestley visualization.
 
@@ -731,7 +731,7 @@ React component for rendering a d3plus Priestley visualization.
 
 > **Radar**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:106](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L106)
+Defined in: [index.tsx:106](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L106)
 
 React component for rendering a d3plus Radar visualization.
 
@@ -753,7 +753,7 @@ React component for rendering a d3plus Radar visualization.
 
 > **RadialMatrix**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:110](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L110)
+Defined in: [index.tsx:110](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L110)
 
 React component for rendering a d3plus RadialMatrix visualization.
 
@@ -775,7 +775,7 @@ React component for rendering a d3plus RadialMatrix visualization.
 
 > **Rect**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:212](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L212)
+Defined in: [index.tsx:212](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L212)
 
 React component for rendering a d3plus Rect shape.
 
@@ -797,7 +797,7 @@ React component for rendering a d3plus Rect shape.
 
 > **Rings**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:114](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L114)
+Defined in: [index.tsx:114](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L114)
 
 React component for rendering a d3plus Rings visualization.
 
@@ -819,7 +819,7 @@ React component for rendering a d3plus Rings visualization.
 
 > **Sankey**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:118](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L118)
+Defined in: [index.tsx:118](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L118)
 
 React component for rendering a d3plus Sankey visualization.
 
@@ -841,7 +841,7 @@ React component for rendering a d3plus Sankey visualization.
 
 > **Shape**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:216](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L216)
+Defined in: [index.tsx:216](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L216)
 
 React component for rendering a d3plus Shape shape.
 
@@ -863,7 +863,7 @@ React component for rendering a d3plus Shape shape.
 
 > **StackedArea**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:122](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L122)
+Defined in: [index.tsx:122](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L122)
 
 React component for rendering a d3plus StackedArea visualization.
 
@@ -885,7 +885,7 @@ React component for rendering a d3plus StackedArea visualization.
 
 > **TextBox**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:171](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L171)
+Defined in: [index.tsx:171](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L171)
 
 React component for rendering a d3plus TextBox.
 
@@ -907,7 +907,7 @@ React component for rendering a d3plus TextBox.
 
 > **Timeline**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:175](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L175)
+Defined in: [index.tsx:175](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L175)
 
 React component for rendering a d3plus Timeline.
 
@@ -929,7 +929,7 @@ React component for rendering a d3plus Timeline.
 
 > **Tooltip**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:179](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L179)
+Defined in: [index.tsx:179](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L179)
 
 React component for rendering a d3plus Tooltip.
 
@@ -951,7 +951,7 @@ React component for rendering a d3plus Tooltip.
 
 > **Tree**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:126](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L126)
+Defined in: [index.tsx:126](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L126)
 
 React component for rendering a d3plus Tree visualization.
 
@@ -973,7 +973,7 @@ React component for rendering a d3plus Tree visualization.
 
 > **Treemap**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:130](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L130)
+Defined in: [index.tsx:130](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L130)
 
 React component for rendering a d3plus Treemap visualization.
 
@@ -995,7 +995,7 @@ React component for rendering a d3plus Treemap visualization.
 
 > **Viz**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:134](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L134)
+Defined in: [index.tsx:134](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L134)
 
 React component for rendering a base d3plus Viz instance.
 
@@ -1017,7 +1017,7 @@ React component for rendering a base d3plus Viz instance.
 
 > **Whisker**(`props`: [`D3plusComponentProps`](#d3pluscomponentprops)): `Element`
 
-Defined in: [index.tsx:220](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L220)
+Defined in: [index.tsx:220](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L220)
 
 React component for rendering a d3plus Whisker shape.
 
@@ -1039,7 +1039,7 @@ React component for rendering a d3plus Whisker shape.
 
 > `const` **D3plusContext**: `Context`\<`D3plusConfig`\>
 
-Defined in: [src/D3plusContext.tsx:7](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/D3plusContext.tsx#L7)
+Defined in: [src/D3plusContext.tsx:7](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/D3plusContext.tsx#L7)
 
 A React context instance used to provide global config options via a provider (D3plusContext.Provider).
 
@@ -1049,7 +1049,7 @@ A React context instance used to provide global config options via a provider (D
 
 ### RendererProps
 
-Defined in: [src/Renderer.tsx:13](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L13)
+Defined in: [src/Renderer.tsx:13](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L13)
 
 Props accepted by the Renderer component.
 
@@ -1057,11 +1057,11 @@ Props accepted by the Renderer component.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-callback"></a> `callback?` | () => `void` | A function to be invoked at the end of each render cycle (passed directly to the render method). | [src/Renderer.tsx:19](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L19) |
-| <a id="property-classname"></a> `className?` | `string` | The class attribute value used for the root/wrapper <div> element. | [src/Renderer.tsx:17](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L17) |
-| <a id="property-config"></a> `config?` | `D3plusConfig` | An object containing method/value pairs to be passed to the visualization's .config() method. | [src/Renderer.tsx:15](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L15) |
-| <a id="property-constructor"></a> `constructor` | [`D3plusConstructor`](#d3plusconstructor) | The d3plus visualization class to instantiate. | [src/Renderer.tsx:23](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L23) |
-| <a id="property-forceupdate"></a> `forceUpdate?` | `boolean` | When true, the visualization re-renders on every React render cycle instead of only when config changes. | [src/Renderer.tsx:21](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L21) |
+| <a id="property-callback"></a> `callback?` | () => `void` | A function to be invoked at the end of each render cycle (passed directly to the render method). | [src/Renderer.tsx:19](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L19) |
+| <a id="property-classname"></a> `className?` | `string` | The class attribute value used for the root/wrapper <div> element. | [src/Renderer.tsx:17](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L17) |
+| <a id="property-config"></a> `config?` | `any` | An object containing method/value pairs to be passed to the visualization's .config() method. | [src/Renderer.tsx:15](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L15) |
+| <a id="property-constructor"></a> `constructor` | [`D3plusConstructor`](#d3plusconstructor) | The d3plus visualization class to instantiate. | [src/Renderer.tsx:23](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L23) |
+| <a id="property-forceupdate"></a> `forceUpdate?` | `boolean` | When true, the visualization re-renders on every React render cycle instead of only when config changes. | [src/Renderer.tsx:21](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L21) |
 
 ## Type Aliases
 
@@ -1071,7 +1071,7 @@ Props accepted by the Renderer component.
 
 > **D3plusComponentProps** = `Omit`\<[`RendererProps`](#rendererprops), `"constructor"`\>
 
-Defined in: [index.tsx:51](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/index.tsx#L51)
+Defined in: [index.tsx:51](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/index.tsx#L51)
 
 Props for d3plus React wrapper components (omits the internal constructor prop).
 
@@ -1091,7 +1091,7 @@ Props for d3plus React wrapper components (omits the internal constructor prop).
 
 > **D3plusConstructor** = () => [`D3plusConfig`](#d3plusconfig)
 
-Defined in: [src/Renderer.tsx:10](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/react/src/Renderer.tsx#L10)
+Defined in: [src/Renderer.tsx:10](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/react/src/Renderer.tsx#L10)
 
 Constructor type for d3plus visualization classes.
 

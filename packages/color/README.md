@@ -50,7 +50,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **colorAdd**(`c1`: `string`, `c2`: `string`, `o1?`: `number`, `o2?`: `number`): `string`
 
-Defined in: [add.ts:10](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/add.ts#L10)
+Defined in: [add.ts:10](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/add.ts#L10)
 
 Adds two colors together.
 
@@ -73,9 +73,9 @@ Adds two colors together.
 
 ### colorAssign()
 
-> **colorAssign**(`c`: `string` \| `boolean`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
+> **colorAssign**(`c`: `string` \| `boolean` \| `null` \| `undefined`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
 
-Defined in: [assign.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/assign.ts#L9)
+Defined in: [assign.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/assign.ts#L9)
 
 Assigns a color to a value using a predefined set of defaults.
 
@@ -83,7 +83,7 @@ Assigns a color to a value using a predefined set of defaults.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `c` | `string` \| `boolean` | A valid CSS color string. |
+| `c` | `string` \| `boolean` \| `null` \| *required* | A valid CSS color string. |
 | `u` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
 
 #### Returns
@@ -98,7 +98,7 @@ Assigns a color to a value using a predefined set of defaults.
 
 > **colorContrast**(`c`: `string`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
 
-Defined in: [contrast.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/contrast.ts#L9)
+Defined in: [contrast.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/contrast.ts#L9)
 
 A set of default color values used when assigning colors based on data.
 
@@ -121,7 +121,7 @@ A set of default color values used when assigning colors based on data.
 
 > **colorLegible**(`c`: `string`): `string`
 
-Defined in: [legible.ts:7](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/legible.ts#L7)
+Defined in: [legible.ts:7](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/legible.ts#L7)
 
 Darkens a color so that it will appear legible on a white background.
 
@@ -143,7 +143,7 @@ Darkens a color so that it will appear legible on a white background.
 
 > **colorLighter**(`c`: `string`, `i?`: `number`): `string`
 
-Defined in: [lighter.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/lighter.ts#L8)
+Defined in: [lighter.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/lighter.ts#L8)
 
 Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.
 
@@ -166,7 +166,7 @@ Similar to d3.color.brighter, except that this also reduces saturation so that c
 
 > **colorSubtract**(`c1`: `string`, `c2`: `string`, `o1?`: `number`, `o2?`: `number`): `string`
 
-Defined in: [subtract.ts:10](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/subtract.ts#L10)
+Defined in: [subtract.ts:10](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/subtract.ts#L10)
 
 Subtracts one color from another.
 
@@ -191,7 +191,7 @@ Subtracts one color from another.
 
 > `const` **colorDefaults**: [`ColorDefaults`](#colordefaults)
 
-Defined in: [defaults.ts:37](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L37)
+Defined in: [defaults.ts:37](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L37)
 
 A set of default color values used when assigning colors based on data.
 
@@ -221,15 +221,15 @@ A set of default color values used when assigning colors based on data.
 
 ### ColorDefaults
 
-Defined in: [defaults.ts:6](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L6)
+Defined in: [defaults.ts:6](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L6)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-dark"></a> `dark` | `string` | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L7) |
-| <a id="property-light"></a> `light` | `string` | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L8) |
-| <a id="property-missing"></a> `missing` | `string` | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L9) |
-| <a id="property-off"></a> `off` | `string` | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L10) |
-| <a id="property-on"></a> `on` | `string` | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L11) |
-| <a id="property-scale"></a> `scale` | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:12](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/color/src/defaults.ts#L12) |
+| <a id="property-dark"></a> `dark` | `string` | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L7) |
+| <a id="property-light"></a> `light` | `string` | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L8) |
+| <a id="property-missing"></a> `missing` | `string` | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L9) |
+| <a id="property-off"></a> `off` | `string` | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L10) |
+| <a id="property-on"></a> `on` | `string` | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L11) |
+| <a id="property-scale"></a> `scale` | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:12](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/color/src/defaults.ts#L12) |

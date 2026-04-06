@@ -40,7 +40,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **format**(`specifier`: `string`): (`n`: `string` \| `number` \| \{ `valueOf`: `number`; \}) => `string`
 
-Defined in: [format.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/format.ts#L8)
+Defined in: [format.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/format/src/format.ts#L8)
 
 An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
 
@@ -60,9 +60,9 @@ An extension to d3's [format](https://github.com/d3/d3-format#api-reference) fun
 
 ### formatAbbreviate()
 
-> **formatAbbreviate**(`n`: `string` \| `number`, `locale?`: `string` \| `FormatLocaleDefinition`, `precision?`: `string`): `string`
+> **formatAbbreviate**(`n`: `string` \| `number`, `locale?`: `any`, `precision?`: `string`): `string`
 
-Defined in: [formatAbbreviate.ts:55](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatAbbreviate.ts#L55)
+Defined in: [formatAbbreviate.ts:55](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/format/src/formatAbbreviate.ts#L55)
 
 Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
 
@@ -71,7 +71,7 @@ Formats a number to an appropriate number of decimal places and rounding, adding
 | Parameter | Type | Default | Description |
 | ------ | ------ | ------ | ------ |
 | `n` | `string` \| `number` | *required* | The number to be formatted. |
-| `locale` | `string` \| `FormatLocaleDefinition` | `"en-US"` | The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties. |
+| `locale` | `any` | `"en-US"` | The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties. |
 | `precision?` | `string` | *required* | Number of significant digits to display. |
 
 #### Returns
@@ -86,7 +86,7 @@ Formats a number to an appropriate number of decimal places and rounding, adding
 
 > **formatDate**(`d`: `Date`, `dataArray`: `Date`[], `formatter?`: `DateFormatter`): `string`
 
-Defined in: [formatDate.ts:12](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatDate.ts#L12)
+Defined in: [formatDate.ts:12](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/format/src/formatDate.ts#L12)
 
 A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 
@@ -110,7 +110,7 @@ A default set of date formatters, which takes into account both the interval in 
 
 > **formatDefaultLocale**(`definition`: `FormatLocaleDefinition`): `Record`\<`string`, `unknown`\>
 
-Defined in: [formatDefaultLocale.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/format/src/formatDefaultLocale.ts#L8)
+Defined in: [formatDefaultLocale.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/format/src/formatDefaultLocale.ts#L8)
 
 An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
 

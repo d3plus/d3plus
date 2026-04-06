@@ -28,14 +28,10 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | Functions | Description |
 | --- | --- |
 | [`fontFamilyStringify`](#fontfamilystringify) | Converts an Array of font-family names into a CSS font-family string. |
-| [`stringify`](#stringify) | Coerces value into a String. |
 | [`strip`](#strip) | Removes all non ASCII characters from a string. |
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
 | [`titleCase`](#titlecase) | Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowe |
-| [`trim`](#trim) | Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ |
-| [`trimLeft`](#trimleft) | Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Obje |
-| [`trimRight`](#trimright) | Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Obj |
 
 | Variables | Description |
 | --- | --- |
@@ -49,7 +45,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **fontFamilyStringify**(`family`: `string` \| `string`[]): `string`
 
-Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/fontFamily.ts#L18)
+Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/fontFamily.ts#L18)
 
 Converts an Array of font-family names into a CSS font-family string.
 
@@ -65,35 +61,13 @@ Converts an Array of font-family names into a CSS font-family string.
 
 ***
 
-<a id="stringify"></a>
-
-### stringify()
-
-> **stringify**(`value`: `unknown`): `string`
-
-Defined in: [stringify.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/stringify.ts#L5)
-
-Coerces value into a String.
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `value` | `unknown` | The value to convert to a string. |
-
-#### Returns
-
-`string`
-
-***
-
 <a id="strip"></a>
 
 ### strip()
 
 > **strip**(`value`: `string`, `spacer?`: `string`): `string`
 
-Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/strip.ts#L33)
+Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/strip.ts#L33)
 
 Removes all non ASCII characters from a string.
 
@@ -116,7 +90,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/textSplit.ts#L43)
+Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/textSplit.ts#L43)
 
 Splits a given sentence into an array of words.
 
@@ -138,7 +112,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:47](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/textWrap.ts#L47)
+Defined in: [textWrap.ts:56](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/textWrap.ts#L56)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -152,9 +126,9 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 ### titleCase()
 
-> **titleCase**(`str`: `string`): `string`
+> **titleCase**(`str`: `string` \| `undefined`): `string`
 
-Defined in: [titleCase.ts:54](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/titleCase.ts#L54)
+Defined in: [titleCase.ts:54](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/titleCase.ts#L54)
 
 Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
 
@@ -162,73 +136,7 @@ Capitalizes the first letter of each word in a phrase/sentence, accounting for w
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `str` | `string` | The string to apply the title case logic. |
-
-#### Returns
-
-`string`
-
-***
-
-<a id="trim"></a>
-
-### trim()
-
-> **trim**(`str`: `string`): `string`
-
-Defined in: [trim.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L5)
-
-Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` | The string to trim. |
-
-#### Returns
-
-`string`
-
-***
-
-<a id="trimleft"></a>
-
-### trimLeft()
-
-> **trimLeft**(`str`: `string`): `string`
-
-Defined in: [trim.ts:13](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L13)
-
-Cross-browser implementation of [trimLeft](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimLeft).
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` | The string to trim. |
-
-#### Returns
-
-`string`
-
-***
-
-<a id="trimright"></a>
-
-### trimRight()
-
-> **trimRight**(`str`: `string`): `string`
-
-Defined in: [trim.ts:21](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/trim.ts#L21)
-
-Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/TrimRight).
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` | The string to trim. |
+| `str` | `string` \| *required* | The string to apply the title case logic. |
 
 #### Returns
 
@@ -242,7 +150,7 @@ Cross-browser implementation of [trimRight](https://developer.mozilla.org/en-US/
 
 > `const` **fontFamily**: `string`[]
 
-Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/text/src/fontFamily.ts#L5)
+Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/text/src/fontFamily.ts#L5)
 
 The default fallback font list used for all text labels as an Array of Strings.
 

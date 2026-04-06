@@ -35,7 +35,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
-| [`prefix`](#prefix) | Returns the appropriate CSS vendor prefix, given the current browser. |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
 | [`stylize`](#stylize) | Applies each key/value in an object as a style. |
 | [`textWidth`](#textwidth) | Given a text string, returns the predicted pixel width of the string when placed into DOM. |
@@ -50,9 +49,9 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ### assign()
 
-> **assign**(...`objects`: `Record`\<`string`, `any`\>[]): `Record`\<`string`, `any`\>
+> **assign**(...`objects`: `Record`\<`string`, `unknown`\>[]): `Record`\<`string`, `unknown`\>
 
-Defined in: [assign.ts:21](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/assign.ts#L21)
+Defined in: [assign.ts:21](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/assign.ts#L21)
 
 A deeply recursive version of `Object.assign`.
 
@@ -60,11 +59,11 @@ A deeply recursive version of `Object.assign`.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| ...`objects` | `Record`\<`string`, `any`\>[] | The source objects to merge into the target. |
+| ...`objects` | `Record`\<`string`, `unknown`\>[] | The source objects to merge into the target. |
 
 #### Returns
 
-`Record`\<`string`, `any`\>
+`Record`\<`string`, `unknown`\>
 
 #### Examples
 
@@ -84,7 +83,7 @@ assign({id: "foo", deep: {group: "A"}}, {id: "bar", deep: {value: 20}}));
 
 > **attrize**(`e`: `Attrable`, `a?`: `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\>): `void`
 
-Defined in: [attrize.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/attrize.ts#L8)
+Defined in: [attrize.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/attrize.ts#L8)
 
 Applies each key/value in an object as an attr.
 
@@ -105,9 +104,9 @@ Applies each key/value in an object as an attr.
 
 ### date()
 
-> **date**(`d`: `string` \| `number` \| `false`): `false` \| `Date`
+> **date**(`d`: `string` \| `number` \| `false` \| `undefined`): `false` \| `Date` \| `undefined`
 
-Defined in: [date.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/date.ts#L5)
+Defined in: [date.ts:5](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/date.ts#L5)
 
 Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.
 
@@ -115,11 +114,11 @@ Parses numbers and strings into valid JavaScript Date objects, supporting years,
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `d` | `string` \| `number` \| `false` | The date value to parse (number, string, or Date). |
+| `d` | `string` \| `number` \| `false` \| *required* | The date value to parse (number, string, or Date). |
 
 #### Returns
 
-`false` \| `Date`
+`false` \| `Date` \| `undefined`
 
 ***
 
@@ -129,7 +128,7 @@ Parses numbers and strings into valid JavaScript Date objects, supporting years,
 
 > **elem**(`selector`: `string`, `p?`: `ElemParams`): `Selection`
 
-Defined in: [elem.ts:27](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/elem.ts#L27)
+Defined in: [elem.ts:28](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/elem.ts#L28)
 
 Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.
 
@@ -152,7 +151,7 @@ Manages the enter/update/exit pattern for a single DOM element, applying enter, 
 
 > **fontExists**(`font`: `string` \| `string`[]): `string` \| `false`
 
-Defined in: [fontExists.ts:14](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/fontExists.ts#L14)
+Defined in: [fontExists.ts:13](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/fontExists.ts#L13)
 
 Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
 
@@ -174,7 +173,7 @@ Given either a single font-family or a list of fonts, returns the name of the fi
 
 > **inViewport**(`elem`: `Element`, `buffer?`: `number`): `boolean`
 
-Defined in: [inViewport.ts:6](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/inViewport.ts#L6)
+Defined in: [inViewport.ts:6](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/inViewport.ts#L6)
 
 Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.
 
@@ -197,7 +196,7 @@ Determines whether a given DOM element is visible within the current viewport, w
 
 > **isObject**(`item`: `unknown`): `boolean`
 
-Defined in: [isObject.ts:5](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/isObject.ts#L5)
+Defined in: [isObject.ts:5](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/isObject.ts#L5)
 
 Detects if a variable is a javascript Object.
 
@@ -219,7 +218,7 @@ Detects if a variable is a javascript Object.
 
 > **parseSides**(`sides`: `string` \| `number`): `ParsedSides`
 
-Defined in: [parseSides.ts:12](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/parseSides.ts#L12)
+Defined in: [parseSides.ts:12](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/parseSides.ts#L12)
 
 Converts a string of directional CSS shorthand values into an object with the values expanded.
 
@@ -235,29 +234,13 @@ Converts a string of directional CSS shorthand values into an object with the va
 
 ***
 
-<a id="prefix"></a>
-
-### prefix()
-
-> **prefix**(): `string`
-
-Defined in: [prefix.ts:4](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/prefix.ts#L4)
-
-Returns the appropriate CSS vendor prefix, given the current browser.
-
-#### Returns
-
-`string`
-
-***
-
 <a id="rtl"></a>
 
 ### rtl()
 
 > **rtl**(): `boolean`
 
-Defined in: [rtl.ts:6](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/rtl.ts#L6)
+Defined in: [rtl.ts:4](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/rtl.ts#L4)
 
 Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl".
 
@@ -273,7 +256,7 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 
 > **stylize**(`e`: `Stylable`, `s?`: `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\>): `void`
 
-Defined in: [stylize.ts:8](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/stylize.ts#L8)
+Defined in: [stylize.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/stylize.ts#L8)
 
 Applies each key/value in an object as a style.
 
@@ -298,7 +281,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:49](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/textWidth.ts#L49)
+Defined in: [textWidth.ts:49](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/textWidth.ts#L49)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -317,7 +300,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/textWidth.ts#L53)
+Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/textWidth.ts#L53)
 
 ##### Parameters
 
@@ -338,4 +321,4 @@ Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/0a09e0d36e71
 
 > **D3Selection** = `ReturnType`\<*typeof* `select`\>
 
-Defined in: [D3Selection.ts:11](https://github.com/d3plus/d3plus/blob/0a09e0d36e71d7e958894d9c179b2ef817280d7c/packages/dom/src/D3Selection.ts#L11)
+Defined in: [D3Selection.ts:12](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/dom/src/D3Selection.ts#L12)
