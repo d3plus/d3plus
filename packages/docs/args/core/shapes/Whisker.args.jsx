@@ -32,7 +32,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "function"
+        summary: "function | null"
       }
     },
     hover: {
@@ -45,7 +45,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "function"
+        summary: "function | null"
       }
     },
     render: {

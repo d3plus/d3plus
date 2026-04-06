@@ -64,9 +64,24 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
+    attribution: {
+      control: {
+        type: "text"
+      },
+      description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | boolean"
+      }
+    },
     attributionStyle: {
       control: {},
-      description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
+      description: "Configuration object for the attribution style.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -238,11 +253,71 @@ export const argTypes = assign(
         summary: "number"
       }
     },
+    detectResize: {
+      control: {
+        type: "boolean"
+      },
+      description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    detectResizeDelay: {
+      control: {
+        type: "number"
+      },
+      description: "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    detectVisible: {
+      control: {
+        type: "boolean"
+      },
+      description: "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    detectVisibleInterval: {
+      control: {
+        type: "number"
+      },
+      description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     discrete: {
       control: {
         type: "text"
       },
-      description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
+      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1116,11 +1191,166 @@ export const argTypes = assign(
         summary: "number"
       }
     },
-    zoomScroll: {
+    zoom: {
       control: {
         type: "boolean"
       },
       description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    zoomBrushHandleSize: {
+      control: {
+        type: "number"
+      },
+      description: "The pixel stroke-width of the zoom brush area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    zoomBrushHandleStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    zoomBrushSelectionStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    zoomControlStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    zoomControlStyleActive: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    zoomControlStyleHover: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    zoomFactor: {
+      control: {
+        type: "number"
+      },
+      description: "The multiplier that is used in with the control buttons when zooming in and out.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    zoomMax: {
+      control: {
+        type: "number"
+      },
+      description: "The max zoom scale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    zoomPadding: {
+      control: {
+        type: "number"
+      },
+      description: "A pixel value to be used to pad all sides of a zoomed area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    zoomPan: {
+      control: {
+        type: "boolean"
+      },
+      description: "Toggles panning.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    zoomScroll: {
+      control: {
+        type: "boolean"
+      },
+      description: "Toggles scroll zooming.",
       table: {
         defaultValue: {
           summary: "undefined"

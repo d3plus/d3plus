@@ -7,9 +7,7 @@ import React from "react";
 
 export const argTypes = {
   locale: {
-    control: {
-      type: "text"
-    },
+    control: {},
     defaultValue: "en-US",
     description: "The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.",
     table: {
@@ -19,7 +17,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string | formatlocaledefinition"
+      summary: "any"
     }
   },
   n: {

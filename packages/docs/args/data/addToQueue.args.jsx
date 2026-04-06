@@ -31,7 +31,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "dataformatter"
+      summary: "dataformatter | undefined"
     }
   },
   key: {

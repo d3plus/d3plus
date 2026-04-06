@@ -18,7 +18,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string"
+      summary: "string | undefined"
     }
   }
 };
