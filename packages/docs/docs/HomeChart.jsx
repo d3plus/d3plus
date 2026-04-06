@@ -21,17 +21,18 @@ const Logo = () => {
   const mobile = window !== undefined && window.innerWidth <= 768;
 
   const wrapperStyle = {
-    alignItems: "stretch",
+    alignItems: "align-start",
     display: "flex",
     flexDirection: mobile ? "column" : "row",
     height: mobile ? "auto" : "300px",
-    marginBottom: mobile ? "50px" : 0,
+    marginBottom: 50,
   };
   const sourceStyle = {
     marginRight: mobile ? 0 : "20px",
+    marginTop: 0,
     width: mobile ? "100%" : "300px",
   };
-  const vizStyle = {flex: `1 1 ${mobile ? "300px" : "auto"}`};
+  const vizStyle = {flex: `1 1 ${mobile ? "300px" : "auto"}`, height: 300};
 
   return (
     <div style={wrapperStyle}>

@@ -24,10 +24,16 @@ const Logo = () => {
   }, [frame]);
 
   return frame >= 0 ? (
-    <Plot
-      className="d3plus-logo"
-      config={{...sharedConfig, ...animationFrames[frame]}}
-    />
+    <div style={{
+      height: sharedConfig.height,
+      margin: "0 auto",
+      width: sharedConfig.width
+    }}>
+      <Plot
+        className="d3plus-logo"
+        config={{...sharedConfig, ...animationFrames[frame]}}
+      />
+    </div>
   ) : null;
 };
 

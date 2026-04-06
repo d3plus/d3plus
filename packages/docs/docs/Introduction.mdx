@@ -4,32 +4,69 @@ import HomeChart from "./HomeChart.jsx";
 
 <Meta title="Introduction" />
 
-<div style={{
-  display: "flex",
-  justifyContent: "center",
-  width: "100%"
-}}>
-  <Logo />
-</div>
+<Logo />
 
-D3plus is an open-source visualization library, written in JavaScript, that streamlines the creation of SVG data visualizations. After providing a configuration object that details the specifics of the data at hand, D3plus will create a visualization that includes all of the repeatable, generic things out of the box, such as setting up tooltips, color assignments, and label placements.
+<div style={{
+  textAlign: "center",
+  maxWidth: "550px",
+  margin: "0 auto 4rem"
+}}>
+
+# Data visualization made easy.
+
+An open-source TypeScript library that extends [D3](https://d3js.org/) to create beautiful, interactive SVG visualizations with minimal configuration. Tooltips, color assignments, label placements, and more — all handled automatically.
+
+</div>
 
 <HomeChart />
 
-## React Components
 
-While the underlying library is written in JavaScript, we supply a wrapper package for rendering charts and components in a React environment:
+## 20+ Chart Types
+
+D3plus ships with a wide variety of chart types, all accessible through a simple configuration object:
+
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+  gap: "0.5rem",
+  margin: "1rem 0 2rem"
+}}>
+  {[
+    "Area Plot", "Bar Chart", "Box & Whisker", "Bump Chart",
+    "Donut", "Geomap", "Line Plot", "Matrix",
+    "Network", "Pack", "Pie", "Priestley",
+    "Radar", "Radial Matrix", "Rings", "Sankey",
+    "Stacked Area", "Tree", "Treemap"
+  ].map(name => (
+    <div key={name} style={{
+      padding: "0.5rem 0.75rem",
+      borderRadius: "6px",
+      border: "1px solid var(--sb-borderColor, #e0e0e0)",
+      fontSize: "0.85rem",
+      textAlign: "center"
+    }}>
+      {name}
+    </div>
+  ))}
+</div>
+
+Explore each chart type in the **Core > Charts** section of the sidebar.
+
+
+## Getting Started (React)
+
+Install the React wrapper package:
 
 ```sh
 npm install @d3plus/react
 ```
 
-An _Object_ containing configuration information about the data and visual representation at hand then needs to be passed to the `config` prop of every visualization. The options available in this configuration _Object_ vary by visualization type, and the most commonly used methods are shown in the examples on this site. Full documentation of all available methods is available in each packages README file.
+Pass a configuration object to the `config` prop of any visualization component:
 
 ```jsx
 import {Treemap} from "@d3plus/react";
 
-const methods = {
+const config = {
   data: [
     {id: "alpha", value: 29},
     {id: "beta",  value: 10}
@@ -38,10 +75,10 @@ const methods = {
   size: "value"
 };
 
-<Treemap config={methods} />
+<Treemap config={config} />
 ```
 
-Additionally, a global set of styles can be set using the `D3plusContext` Provider. This allows you to set base styles on all of your visualizations in one place, often in an external file. A component's `config` set by props will override global defaults key-by-key using a deep cloning function.
+Set shared defaults across all visualizations using the `D3plusContext` Provider. Per-component `config` props override globals on a key-by-key basis via deep merge.
 
 ```jsx
 import React from "react";
@@ -62,42 +99,15 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 );
 ```
 
-## ES Modules
+## Vanilla JavaScript (CDN)
 
-Under the hood, D3plus is broken out into multiple packages based on the functionality offered by the exported code. These packages include:
-
-* [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)
-* [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)
-* [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)
-* [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)
-* [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)
-* [@d3plus/export](https://www.npmjs.com/package/@d3plus/export)
-* [@d3plus/format](https://www.npmjs.com/package/@d3plus/format)
-* [@d3plus/locales](https://www.npmjs.com/package/@d3plus/locales)
-* [@d3plus/math](https://www.npmjs.com/package/@d3plus/math)
-* [@d3plus/text](https://www.npmjs.com/package/@d3plus/text)
-
-For example, if you are interested in using the `formatAbbreviate` function used internally for prettifying numbers:
-
-```sh
-npm install @d3plus/format
-```
-
-You can then import named functions and classes as ES modules:
-
-```js
-import {formatAbbreviate} from "@d3plus/format";
-```
-
-## Script Tags
-
-Additionally, each module is available from a CDN for vanilla JavaScript environments (bundled with all dependencies):
+Load the core bundle directly via a script tag:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@d3plus/core"></script>
 ```
 
-A global `d3plus` object is exported, which contains all of the available methods and classes:
+Then use the global `d3plus` object:
 
 ```html
 <script>
@@ -114,17 +124,102 @@ A global `d3plus` object is exported, which contains all of the available method
 </script>
 ```
 
-## Sites that use D3plus
 
- * [OEC.world](https://oec.world/)
- * [Data USA](https://datausa.io/)
- * [DataSaudi](https://datasaudi.sa/)
- * [Healthy Communities NC](https://healthycommunitiesnc.org/)
- * [Puerto Rico: Family Data Center](https://data.youthpr.org/en)
- * [CNY Vitals Pro](https://pro.cnyvitals.org/)
- * [CDC AR&PSP](https://arpsp.cdc.gov/)
- * [DataMPE Brasil](https://datampe.sebrae.com.br/)
- * [La Complejidad Económica en España - COTEC](https://complejidadeconomica.cotec.es/)
- * [Data Africa](https://dataafrica.io/)
- * [Pantheon](https://pantheon.world/)
- * [Estonia Statistics](https://data.stat.ee/profile/country/ee/)
+## Packages
+
+D3plus is a modular monorepo. Install only what you need:
+
+| Package | Description |
+|---------|-------------|
+| [@d3plus/react](https://www.npmjs.com/package/@d3plus/react) | React component wrappers for all chart types |
+| [@d3plus/core](https://www.npmjs.com/package/@d3plus/core) | Charts, components, and shapes (the main engine) |
+| [@d3plus/color](https://www.npmjs.com/package/@d3plus/color) | Color scales, defaults, and utilities |
+| [@d3plus/data](https://www.npmjs.com/package/@d3plus/data) | Data loading, filtering, and manipulation |
+| [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom) | DOM and browser utility functions |
+| [@d3plus/export](https://www.npmjs.com/package/@d3plus/export) | SVG and image export |
+| [@d3plus/format](https://www.npmjs.com/package/@d3plus/format) | Number and date formatting |
+| [@d3plus/locales](https://www.npmjs.com/package/@d3plus/locales) | Translation dictionaries for i18n |
+| [@d3plus/math](https://www.npmjs.com/package/@d3plus/math) | Math and geometry utilities |
+| [@d3plus/text](https://www.npmjs.com/package/@d3plus/text) | Text measurement, wrapping, and fitting |
+| [@d3plus/types](https://www.npmjs.com/package/@d3plus/types) | Unified TypeScript type definitions |
+
+For example, to use just the number formatting utilities:
+
+```sh
+npm install @d3plus/format
+```
+
+---
+
+```js
+import {formatAbbreviate} from "@d3plus/format";
+```
+
+To get all d3plus types in one import (useful for typing config objects or function parameters):
+
+```sh
+npm install @d3plus/types
+```
+
+---
+
+```ts
+import type {Treemap, D3plusComponentProps} from "@d3plus/types";
+```
+
+
+## Accessibility
+
+D3plus is built with accessibility in mind. Every visualization automatically includes ARIA attributes, semantic roles, and contextual labels for screen readers. Additional features include:
+
+- **`role="img"`** on all SVG containers, with optional `<title>` and `<desc>` elements
+- **Contextual `aria-label`** attributes on every shape, tailored per chart type (e.g. rank and value for Treemap, x/y coordinates for Plot)
+- **Inline data tables** for screen readers via the `ariaHidden` configuration
+- **Color contrast utilities** that automatically select legible text colors against any background
+- **Localization** of all accessible text and number formatting across multiple locales
+
+See the **Accessibility** page in the sidebar for full details, including a WCAG 2.1 AA conformance summary.
+
+
+## Built with D3plus
+
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+  gap: "0.5rem",
+  margin: "1rem 0"
+}}>
+  {[
+    {name: "OEC.world", url: "https://oec.world/"},
+    {name: "Data USA", url: "https://datausa.io/"},
+    {name: "DataSaudi", url: "https://datasaudi.sa/"},
+    {name: "COTEC Spain", url: "https://complejidadeconomica.cotec.es/"},
+    {name: "Puerto Rico Family Data Center", url: "https://data.youthpr.org/en"},
+    {name: "Data Africa", url: "https://dataafrica.io/"},
+    {name: "CDC AR&PSP", url: "https://arpsp.cdc.gov/"},
+    {name: "Healthy Communities NC", url: "https://healthycommunitiesnc.org/"},
+    {name: "CNY Vitals Pro", url: "https://pro.cnyvitals.org/"},
+    {name: "DataMPE Brasil", url: "https://datampe.sebrae.com.br/"},
+    {name: "Estonia Statistics", url: "https://data.stat.ee/profile/country/ee/"},
+  ].map(site => (
+    <a
+      key={site.name}
+      href={site.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "block",
+        padding: "0.6rem 0.75rem",
+        borderRadius: "6px",
+        border: "1px solid var(--sb-borderColor, #e0e0e0)",
+        fontSize: "0.85rem",
+        textAlign: "center",
+        textDecoration: "none",
+        color: "inherit"
+      }}
+    >
+      {site.name}
+      <span style={{display: "block", fontSize: 10, lineHeight: 1, marginBottom: 5}}>{site.url}</span>
+    </a>
+  ))}
+</div>

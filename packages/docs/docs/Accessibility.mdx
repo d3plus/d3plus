@@ -6,17 +6,56 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 D3plus is a collection of tools built on top of the low-level helper functions made available by D3 to help aid in the generation of charts. While D3 itself can be considered accessible out of the box, as it doesn't actively add any elements to a webpage (see [this discussion](https://github.com/d3/d3-shape/issues/102)), D3plus tries its best to make sure that the SVG elements that get added to the page include accessibility features automatically. This page outlines those features.
 
-## SVG "role" Attribute
+## Color Contrast
 
-All SVG elements created by D3plus contain a role attribute with the value "img". This ensures that all visualizations are identified as a graphic.
+The `@d3plus/color` package includes utilities that help ensure text and visual elements remain legible across different color contexts.
 
-```html
-<svg role="img"> ... </svg>
+### colorContrast
+
+The `colorContrast` function determines whether to use a light or dark text color for any given background. It uses a YIQ color space calculation to evaluate perceived brightness and returns the appropriate contrasting color. This is applied automatically throughout D3plus when rendering text labels on colored shapes.
+
+```js
+import { colorContrast } from "@d3plus/color";
+
+colorContrast("#b22200"); // returns light text color
+colorContrast("#f8f9fa"); // returns dark text color
 ```
 
-## Shape "role" and "aria-label" Attributes
+### colorLegible
 
-All shape DOM elements created by D3plus contain a `role` attribute with the value "presentation". They also contain an `aria-label` which describes the data related to the shape. At it's minimum, the value will contain the text label of the data point, but additional information (such as rank and/or value) is provided depending on the visualization.
+The `colorLegible` function adjusts a color to ensure it is legible when rendered on a white background. It operates in the HSL color space, capping lightness at 0.45 and reducing saturation when necessary. This is useful for ensuring axis labels, annotations, and legend text meet readability standards.
+
+```js
+import { colorLegible } from "@d3plus/color";
+
+colorLegible("#aaddff"); // returns a darkened, legible variant
+```
+
+These utilities support compliance with **WCAG 1.4.3** (Contrast Minimum) for text elements within visualizations.
+
+## Localization
+
+All user-facing text in D3plus, including aria-labels and screen reader content, respects the configured locale. The `@d3plus/locales` package provides translations and number formatting for multiple locales:
+
+**UI Translations:**
+- Arabic (ar-SA)
+- Spanish (es-ES)
+- Portuguese (pt-BR)
+- Chinese (zh-CN)
+
+**Number Formatting:**
+- English (en-US, en-GB)
+- Spanish (es-ES, es-MX, es-CL)
+- French (fr-FR)
+- Arabic (ar-SA)
+- Estonian (et-EE)
+- Chinese (zh-CN)
+
+This is relevant to **WCAG 3.1.1** (Language of Page) and ensures that accessible text is presented in the appropriate language and number format for the target audience. Locales can be set via the `locale` configuration method on any visualization.
+
+## Shape aria-labels
+
+All shape DOM elements created by D3plus contain a `role` attribute with the value "presentation". They also contain an `aria-label` which describes the data related to the shape. At a minimum, the value will contain the text label of the data point, but additional information (such as rank and/or value) is provided depending on the visualization.
 
 ```html
 <rect
@@ -29,7 +68,20 @@ All shape DOM elements created by D3plus contain a `role` attribute with the val
   fill="#b22200" />
 ```
 
-## SVG "title" and "desc" (Optional)
+D3plus generates contextual aria-labels tailored to each chart type, so screen reader users receive the most relevant information for the visualization they are interacting with:
+
+| Chart Type | Label Format | Example |
+|---|---|---|
+| **Plot** (Bar, Line, Area, Stacked Area, Box Whisker, Bump) | Label with x/y coordinate values | `"Texas, x: 2020, y: 43218."` |
+| **Pie / Donut** | Rank, label, and value | `"1. Agriculture, 340."` |
+| **Treemap** | Rank, label, and sum | `"3. California, 128000."` |
+| **Network / Rings** | Label with optional size | `"Node A, 52."` |
+| **Geomap** (points) | Label with point size | `"Houston, 2300000."` |
+| **Geomap** (regions) | Label with color scale value | `"Texas, 43218."` |
+| **Tree** | Depth level and label | `"2. Child Node."` |
+| **Priestley** | Label with time range | `"Event A, 1820 - 1860."` |
+
+## SVG title and desc
 
 The `svgTitle` and `svgDesc` methods can be set to include additional information about a chart for screen assistive technologies.
 
@@ -49,7 +101,15 @@ The `svgTitle` and `svgDesc` methods can be set to include additional informatio
 </svg>
 ```
 
-## Inline Data Table (Optional)
+## SVG "role"
+
+All SVG elements created by D3plus contain a role attribute with the value "img". This ensures that all visualizations are identified as a graphic.
+
+```html
+<svg role="img"> ... </svg>
+```
+
+## Inline Data Table
 
 If `ariaHidden` is set to `"false"`, a visually hidden data table will be rendered inside of the SVG. This makes the data readable by screen assistive technologies, but may overload the DOM in larger websites.
 
@@ -68,3 +128,51 @@ If `ariaHidden` is set to `"false"`, a visually hidden data table will be render
   ...
 </g>
 ```
+
+## WCAG 2.1 AA Conformance
+
+Section 508 of the Rehabilitation Act requires federal agencies to ensure their electronic and information technology is accessible. The current Section 508 standards incorporate [WCAG 2.0 Level AA](https://www.w3.org/TR/WCAG20/) by reference, and federal guidance increasingly aligns with [WCAG 2.1 Level AA](https://www.w3.org/TR/WCAG21/).
+
+The following table summarizes how D3plus addresses the WCAG success criteria most relevant to data visualizations:
+
+### Perceivable
+
+| # | Criterion | Status | Notes |
+|---|---|---|---|
+| **1.1.1** | Non-text Content | Supported | All shapes include `aria-label` attributes. Optional `svgTitle` and `svgDesc` provide chart-level text alternatives. Inline data table available via `ariaHidden: false`. |
+| **1.3.1** | Info and Relationships | Supported | ARIA roles (`img`, `presentation`, `table`, `row`, `cell`, `columnheader`) convey structure programmatically. |
+| **1.3.2** | Meaningful Sequence | Supported | DOM order follows a logical sequence: title, description, legend, axes, then data elements. |
+| **1.4.1** | Use of Color | Partial | Color is the default differentiator for data series. Custom pattern fills can be applied via `shapeConfig`, but are not provided out of the box. |
+| **1.4.3** | Contrast (Minimum) | Supported | `colorContrast` automatically selects light or dark text for labels based on background color. `colorLegible` ensures text colors meet readability thresholds. |
+| **1.4.11** | Non-text Contrast | Partial | Default color palettes provide adequate contrast between adjacent elements in most configurations, but contrast ratios are not programmatically enforced for all cases. |
+
+### Operable
+
+| # | Criterion | Status | Notes |
+|---|---|---|---|
+| **2.1.1** | Keyboard | Planned | Mouse-driven interactions (tooltips, filtering) do not yet have full keyboard equivalents. |
+| **2.1.2** | No Keyboard Trap | Supported | Visualizations do not trap focus. |
+| **2.4.3** | Focus Order | Partial | DOM order is logical, but individual data points are not yet focusable via keyboard. |
+| **2.4.7** | Focus Visible | Planned | Visible focus indicators on data points are not yet implemented. |
+
+### Understandable
+
+| # | Criterion | Status | Notes |
+|---|---|---|---|
+| **3.1.1** | Language of Page | Supported | The `locale` configuration ensures accessible text is rendered in the appropriate language. |
+
+### Robust
+
+| # | Criterion | Status | Notes |
+|---|---|---|---|
+| **4.1.2** | Name, Role, Value | Supported | All shapes expose name (via `aria-label`), role (via `role` attribute), and value information to assistive technology. |
+
+## Roadmap
+
+D3plus is actively working to improve accessibility. The following enhancements are planned:
+
+- **Keyboard Navigation** — Add `tabindex` support and keyboard event handlers so users can navigate between data points using arrow keys, activate elements with Enter/Space, and exit with Escape.
+- **Visible Focus Indicators** — Render high-contrast focus rings on data points when they receive keyboard focus, meeting the WCAG 2.4.7 minimum 3:1 contrast requirement.
+- **Pattern Fills** — Provide built-in texture and pattern options (hatching, dots, crosshatch) as an alternative to color-only data series differentiation, addressing WCAG 1.4.1.
+- **ARIA Live Regions** — Announce data values to screen readers as users navigate between data points using keyboard controls.
+- **VPAT / Accessibility Conformance Report** — Publish a formal ACR using the VPAT 2.5 template to support federal procurement evaluation under Section 508.

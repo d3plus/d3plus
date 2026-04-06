@@ -393,7 +393,7 @@ export const animationFrames = [
         shape: "Rect",
         stroke: threeAccent,
         strokeWidth: 2,
-        texture: "nylon",
+        texture: "lines",
         textureDefault: {
           size: cellSize / 2,
           background: threeColor,
