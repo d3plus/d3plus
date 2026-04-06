@@ -13,7 +13,7 @@
   },
   "browser": "./umd/d3plus-data.full.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "sideEffects": false,
   "files": [
@@ -39,10 +39,10 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.ts'"
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/dom": "3.0.16",
+    "@d3plus/dom": "workspace:*",
     "d3-array": "^3.2.4",
     "d3-fetch": "^3.0.1"
   }

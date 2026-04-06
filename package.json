@@ -6,9 +6,6 @@
   "type": "module",
   "private": true,
   "homepage": "https://d3plus.org",
-  "workspaces": [
-    "packages/*"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/d3plus/d3plus.git"
@@ -22,9 +19,9 @@
   ],
   "scripts": {
     "docs": "node scripts/docs/docs.js",
-    "pretest": "npm run build:esm --workspaces --if-present",
+    "pretest": "pnpm -r --if-present run build:esm",
     "release": "node scripts/release.js",
-    "test": "npm run test --workspaces --if-present"
+    "test": "pnpm -r --if-present run test"
   },
   "devDependencies": {
     "@octokit/rest": "^21.1.1",
@@ -57,17 +54,24 @@
     "@types/topojson-client": "^3.1.5",
     "canvas": "^3.1.0",
     "chokidar": "^4.0.3",
+    "@eslint/js": "^9.21.0",
     "eslint": "^9.21.0",
     "jsdom": "^26.0.0",
-    "live-server": "^1.2.2",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9",
-    "shelljs": "^0.8.4",
     "typedoc": "^0.28.18",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0",
-    "uglify-js": "^3.19.3",
+    "terser": "^5.39.0",
     "yocto-spinner": "^1.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "canvas",
+      "esbuild",
+      "sharp"
+    ]
   }
 }

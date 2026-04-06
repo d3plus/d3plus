@@ -43,13 +43,13 @@ git clone https://github.com/d3plus/d3plus.git
 
 1. Install Node, if not already installed.
 > <sub>If on a Mac, we suggest using [Homebrew](http://brew.sh/) to install packages on your machine. Once that's installed, you can install node (which includes npm) by running: `brew install node`</sub>
-2. Move into the newly cloned root directory, and install dependencies: `npm ci`
+2. Move into the newly cloned root directory, and install dependencies: `pnpm install`
 
 And that's it! Your environment should be all set up and ready to start coding.
 
 ### Workspaces
 
-The codebase is split up into a series of smaller packages/modules, which allows users to install only the dependencies that they need. This repo uses [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) to manage these packages, which lets them share common dependencies and scripts. Each package lives in the `packages/<package_name>` directory, and are released as scoped npm packages (ie. `@d3plus/<package_name>`).
+The codebase is split up into a series of smaller packages/modules, which allows users to install only the dependencies that they need. This repo uses [pnpm workspaces](https://pnpm.io/workspaces) to manage these packages, which lets them share common dependencies and scripts. Each package lives in the `packages/<package_name>` directory, and are released as scoped npm packages (ie. `@d3plus/<package_name>`).
 
 Within each package directory, you will notice the following folder structure:
 - :open_file_folder: `dev/`
@@ -67,7 +67,7 @@ All source code lives in the `src` directory, and adheres to a linting ruleset i
 To start testing code live in a browser, with auto-compiling and hot reloading, type this into your shell:
 
 ```sh
-npm run dev -w @d3plus/<package_name>
+pnpm --filter @d3plus/<package_name> run dev
 ```
 
 If everything is set up correctly, your default browser will open `http://localhost:4000/` and show the contents of the `dev` directory, including the `umd` directory which stores a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo). 
@@ -99,7 +99,7 @@ The development server will recreate the `umd` directory any time the current pa
 All of the code documentation you see in the `README.md` file is generated automatically from the [JSDoc](http://usejsdoc.org/) formatted comments within each source file. To regenerate the documentation at any time, simply run: 
 
 ```sh
-npm run docs -w @d3plus/<package_name>
+pnpm --filter @d3plus/<package_name> run docs
 ```
 
 > This command is run automatically during the release process.
@@ -111,7 +111,7 @@ Any time you write a new feature for a module, if possible, you should also be w
 All tests need to be placed in the `test` directory, and the filenames should match up to the components in `src` with a suffix of `-test.js`. To run all tests, run:
 
 ```sh
-npm test -w @d3plus/<package_name>
+pnpm --filter @d3plus/<package_name> test
 ```
 > This command will also test build errors and lint all files.
 

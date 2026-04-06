@@ -13,7 +13,7 @@
   },
   "browser": "./umd/d3plus-core.full.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "sideEffects": false,
   "files": [
@@ -39,17 +39,17 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.ts'"
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/color": "3.0.16",
-    "@d3plus/data": "3.0.16",
-    "@d3plus/dom": "3.0.16",
-    "@d3plus/format": "3.0.16",
-    "@d3plus/locales": "3.0.16",
-    "@d3plus/math": "3.0.16",
-    "@d3plus/text": "3.0.16",
-    "@popperjs/core": "^2.11.8",
+    "@d3plus/color": "workspace:*",
+    "@d3plus/data": "workspace:*",
+    "@d3plus/dom": "workspace:*",
+    "@d3plus/format": "workspace:*",
+    "@d3plus/locales": "workspace:*",
+    "@d3plus/math": "workspace:*",
+    "@d3plus/text": "workspace:*",
+    "@floating-ui/dom": "^1.6.0",
     "d3-array": "^3.2.4",
     "d3-brush": "^3.0.0",
     "d3-color": "^3.1.0",
@@ -58,6 +58,7 @@
     "d3-geo": "^3.1.1",
     "d3-geo-projection": "^4.0.0",
     "d3-hierarchy": "^3.1.2",
+    "d3-interpolate": "^3.0.1",
     "d3-interpolate-path": "^2.3.0",
     "d3-polygon": "^3.0.1",
     "d3-sankey": "^0.12.3",
@@ -65,6 +66,7 @@
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-tile": "^1.0.0",
+    "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
     "d3-zoom": "^3.0.0",
     "open-color": "^1.9.1",
