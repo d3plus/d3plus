@@ -4,9 +4,9 @@ import {scaleLinear, scaleThreshold} from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {colorDefaults, colorLighter} from "@d3plus/color";
+import {colorContrast, colorDefaults, colorLighter} from "@d3plus/color";
 import {unique} from "@d3plus/data";
-import {assign, elem, textWidth} from "@d3plus/dom";
+import {assign, backgroundColor, elem, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import {ckmeans} from "@d3plus/math";
@@ -150,7 +150,10 @@ export default class ColorScale extends BaseClass {
     this._height = 200;
     this._labelClass = new TextBox();
     this._labelConfig = {
-      fontColor: colorDefaults.dark,
+      fontColor: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg);
+      },
       fontSize: 12,
     };
     this._legendClass = new Legend();

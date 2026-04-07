@@ -11,81 +11,8 @@ import {
 } from "@storybook/addon-docs/blocks";
 import theme from "./theme.js";
 import stringify from "../helpers/stringify.js";
-import {D3plusContext} from "@d3plus/react";
-const darkMode =
-  window.matchMedia &&
-  window.matchMedia("(prefers-color-scheme: dark)").matches;
-const tickColor = darkMode ? "#dee2e6" : "#495057";
-const gridColor = darkMode ? "#495057" : "#dee2e6";
-
-const axisConfig = {
-  barConfig: {
-    stroke: tickColor,
-  },
-  gridConfig: {
-    stroke: gridColor,
-  },
-  shapeConfig: {
-    Circle: {
-      stroke: gridColor,
-    },
-    Rect: {
-      fill: tickColor,
-    },
-    labelConfig: {
-      fontColor: tickColor,
-    },
-    stroke: tickColor,
-  },
-  titleConfig: {
-    fontColor: tickColor,
-  },
-};
-const globalConfig = {
-  axisConfig,
-  colorScaleConfig: {
-    axisConfig: {
-      barConfig: {
-        stroke: tickColor,
-      },
-      gridConfig: {
-        stroke: gridColor,
-      },
-      shapeConfig: {
-        labelConfig: {
-          fontColor: tickColor,
-        },
-        stroke: tickColor,
-      },
-      titleConfig: {
-        fontColor: tickColor,
-      },
-    },
-  },
-  columnConfig: axisConfig,
-  fontColor: tickColor,
-  legendConfig: {
-    shapeConfig: {
-      labelConfig: {
-        fontColor: tickColor,
-      },
-    },
-  },
-  rowConfig: axisConfig,
-  xConfig: axisConfig,
-  x2Config: axisConfig,
-  yConfig: axisConfig,
-  y2Config: axisConfig,
-};
 
 const preview = {
-  decorators: [
-    Story => (
-      <D3plusContext.Provider value={globalConfig}>
-        <Story />
-      </D3plusContext.Provider>
-    ),
-  ],
   parameters: {
     docs: {
       page: () => {

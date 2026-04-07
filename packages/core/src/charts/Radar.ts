@@ -1,9 +1,10 @@
 import {groups, min, max, sum} from "d3-array";
 import {pointer} from "d3-selection";
 
+import {colorContrast} from "@d3plus/color";
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
+import {assign, backgroundColor, elem} from "@d3plus/dom";
 import {accessor, configPrep, constant} from "../utils/index.js";
 import {Circle, Path, Rect} from "../shapes/index.js";
 import Viz from "./Viz.js";
@@ -28,12 +29,18 @@ export default class Radar extends Viz {
       shapeConfig: {
         fill: constant("none"),
         labelConfig: {
-          fontColor: "#999",
+          fontColor: () => {
+            const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+            return colorContrast(bg);
+          },
           padding: 0,
           textAnchor: (d, i, x) => x.textAnchor,
           verticalAlign: "middle",
         },
-        stroke: "#eee",
+        stroke: () => {
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+          return colorContrast(bg);
+        },
         strokeWidth: constant(1),
       },
     };

@@ -26,7 +26,7 @@ import {
 } from "@d3plus/color";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {assign, date, elem, rtl, textWidth} from "@d3plus/dom";
+import {assign, backgroundColor, date, elem, rtl, textWidth} from "@d3plus/dom";
 import {largestRect} from "@d3plus/math";
 import {formatAbbreviate} from "@d3plus/format";
 
@@ -297,22 +297,26 @@ export default class Plot extends Viz {
           fontMin: 6,
           fontResize: true,
           fontColor(d, i) {
-            return outside.bind(this)(d, i)
-              ? this._backgroundConfig.fill === "transparent"
-                ? colorDefaults.dark
-                : colorContrast(this._backgroundConfig.fill)
-              : colorContrast(
-                  typeof this._shapeConfig.fill === "function"
-                    ? this._shapeConfig.fill(d, i)
-                    : this._shapeConfig.fill,
-                );
+            if (outside.bind(this)(d, i)) {
+              const bg: string = this._backgroundConfig.fill === "transparent"
+                ? backgroundColor(this._select.node())
+                : this._backgroundConfig.fill;
+              return colorContrast(bg);
+            }
+            return colorContrast(
+              typeof this._shapeConfig.fill === "function"
+                ? this._shapeConfig.fill(d, i)
+                : this._shapeConfig.fill,
+            );
           },
           fontStroke(d, i) {
-            return outside.bind(this)(d, i)
-              ? this._backgroundConfig.fill === "transparent"
-                ? colorDefaults.dark
-                : colorContrast(this._backgroundConfig.fill)
-              : "transparent";
+            if (outside.bind(this)(d, i)) {
+              const bg: string = this._backgroundConfig.fill === "transparent"
+                ? backgroundColor(this._select.node())
+                : this._backgroundConfig.fill;
+              return colorContrast(bg);
+            }
+            return "transparent";
           },
           fontStrokeWidth(d, i) {
             return outside.bind(this)(d, i) ? 0.1 : 0;
@@ -415,10 +419,11 @@ export default class Plot extends Viz {
           if (this._discrete && this._discrete.charAt(0) === "x")
             return "transparent";
           const range = this._xAxis.range();
-          // hides left-most x gridline so it doesn't overlap with the y axis
-          return range[0] === this._xAxis._getPosition.bind(this._xAxis)(d.id)
-            ? "transparent"
-            : openColor.colors.gray[200];
+          const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
+          if (range[0] === position) return "transparent";
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+                  const contrast = colorContrast(bg);
+          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
         },
       },
     };
@@ -441,11 +446,11 @@ export default class Plot extends Viz {
           if (this._discrete && this._discrete.charAt(0) === "y")
             return "transparent";
           const range = this._yAxis.range();
-          // hides bottom-most y gridline so it doesn't overlap with the x axis
-          return range[range.length - 1] ===
-            this._yAxis._getPosition.bind(this._yAxis)(d.id)
-            ? "transparent"
-            : openColor.colors.gray[200];
+          const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);
+          if (range[range.length - 1] === position) return "transparent";
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+                  const contrast = colorContrast(bg);
+          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
         },
       },
     };

@@ -146,10 +146,11 @@ export default class Viz extends (BaseClass as any) {
     this._aggs = {};
     this._ariaHidden = true;
     this._attribution = false;
+    const attributionBg = "rgba(255, 255, 255, 0.75)";
     this._attributionStyle = {
-      background: "rgba(255, 255, 255, 0.75)",
+      background: attributionBg,
       border: "1px solid rgba(0, 0, 0, 0.25)",
-      color: "rgba(0, 0, 0, 0.75)",
+      color: colorContrast(attributionBg),
       display: "block",
       font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
       margin: "5px",
@@ -400,10 +401,11 @@ export default class Viz extends (BaseClass as any) {
       fill: "#777",
       "stroke-width": 0,
     };
+    const zoomBg = "rgba(255, 255, 255, 0.75)";
     this._zoomControlStyle = {
-      background: "rgba(255, 255, 255, 0.75)",
+      background: zoomBg,
       border: "1px solid rgba(0, 0, 0, 0.75)",
-      color: "rgba(0, 0, 0, 0.75)",
+      color: colorContrast(zoomBg),
       display: "block",
       font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
       height: "20px",
@@ -413,9 +415,10 @@ export default class Viz extends (BaseClass as any) {
       "text-align": "center",
       width: "20px",
     };
+    const zoomActiveBg = "rgba(0, 0, 0, 0.75)";
     this._zoomControlStyleActive = {
-      background: "rgba(0, 0, 0, 0.75)",
-      color: "rgba(255, 255, 255, 0.75)",
+      background: zoomActiveBg,
+      color: colorContrast(zoomActiveBg),
       opacity: 1,
     };
     this._zoomControlStyleHover = {

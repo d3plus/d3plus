@@ -2,7 +2,7 @@ import {select} from "d3-selection";
 import {computePosition, arrow as arrowMiddleware, offset, flip, shift} from "@floating-ui/dom";
 import type {VirtualElement} from "@floating-ui/dom";
 
-import {colorDefaults} from "@d3plus/color";
+import {colorContrast, colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import {elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
@@ -180,7 +180,7 @@ export default class Tooltip extends BaseClass {
     };
     this._tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
-      color: colorDefaults.dark,
+      color: ((d: DataPoint, i: number) => colorContrast(this._background(d, i) as string)) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
     this._trStyle = {

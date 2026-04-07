@@ -2,7 +2,8 @@ import {min} from "d3-array";
 import {arc} from "d3-shape";
 import type {DefaultArcObject} from "d3-shape";
 
-import {assign, elem} from "@d3plus/dom";
+import {colorContrast} from "@d3plus/color";
+import {assign, backgroundColor, elem} from "@d3plus/dom";
 
 /** Extended arc datum with row/column properties for the radial matrix. */
 interface MatrixArcDatum extends DefaultArcObject {
@@ -38,7 +39,10 @@ export default class RadialMatrix extends Viz {
     this._columnConfig = {
       shapeConfig: {
         labelConfig: {
-          fontColor: "#000",
+          fontColor: () => {
+            const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+            return colorContrast(bg);
+          },
           padding: 5,
           textAnchor: d =>
             [0, 180].includes(d.angle)

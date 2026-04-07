@@ -7,8 +7,8 @@ import {transition} from "d3-transition";
 import pkg from "open-color/open-color.js";
 const {theme: openColor} = pkg;
 
-import {colorDefaults} from "@d3plus/color";
-import {assign, attrize, date, elem, rtl as detectRTL} from "@d3plus/dom";
+import {colorContrast, colorDefaults} from "@d3plus/color";
+import {assign, attrize, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import {formatLocale, locale} from "@d3plus/locales";
@@ -282,14 +282,21 @@ export default class Axis extends BaseClass {
 
     this._align = "middle";
     this._barConfig = {
-      stroke: openColor.colors.gray[600],
+      stroke: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg);
+      },
       "stroke-width": 1,
     };
     this._data = [];
     this._domain = [0, 10];
     this._duration = 600;
     this._gridConfig = {
-      stroke: colorDefaults.light,
+      stroke: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        const contrast = colorContrast(bg);
+        return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+      },
       "stroke-width": 1,
     };
     this._gridLog = false;
@@ -310,12 +317,18 @@ export default class Axis extends BaseClass {
     this._scalePadding = 0.5;
     this._shape = "Line";
     this._shapeConfig = {
-      fill: openColor.colors.gray[600],
+      fill: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg);
+      },
       height: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
       label: (d: Record<string, unknown>) => d.text,
       labelBounds: (d: Record<string, unknown>) => d.labelBounds,
       labelConfig: {
-        fontColor: openColor.colors.gray[600],
+        fontColor: () => {
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+          return colorContrast(bg);
+        },
         fontResize: false,
         fontSize: constant(12),
         padding: 5,
@@ -343,7 +356,10 @@ export default class Axis extends BaseClass {
               : "middle",
       },
       r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
-      stroke: openColor.colors.gray[600],
+      stroke: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg);
+      },
       strokeWidth: 1,
       width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
     };
@@ -353,7 +369,10 @@ export default class Axis extends BaseClass {
     this._timeLocale = undefined;
     this._titleClass = new TextBox();
     this._titleConfig = {
-      fontColor: colorDefaults.dark,
+      fontColor: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg);
+      },
       fontSize: 12,
       textAnchor: "middle",
     };

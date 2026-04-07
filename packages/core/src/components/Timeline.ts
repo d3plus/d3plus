@@ -3,8 +3,8 @@ import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointers} from "d3-selection";
 
-import {colorDefaults} from "@d3plus/color";
-import {assign, attrize, date, elem, textWidth} from "@d3plus/dom";
+import {colorContrast, colorDefaults} from "@d3plus/color";
+import {assign, attrize, backgroundColor, date, elem, textWidth} from "@d3plus/dom";
 import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
@@ -167,7 +167,10 @@ export default class Timeline extends Axis {
             }
           : d.labelBounds,
       labelConfig: {
-        fontColor: colorDefaults.dark,
+        fontColor: () => {
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+          return colorContrast(bg);
+        },
         fontSize: () => 12,
         verticalAlign: () =>
           this._buttonBehaviorCurrent === "buttons" ? "middle" : "top",

@@ -1,9 +1,9 @@
 import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 
-import {colorDefaults} from "@d3plus/color";
+import {colorContrast, colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
+import {assign, backgroundColor, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
 
@@ -96,7 +96,10 @@ export default class Legend extends BaseClass {
         };
       },
       labelConfig: {
-        fontColor: constant(colorDefaults.dark),
+        fontColor: () => {
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+          return colorContrast(bg);
+        },
         fontFamily: this._titleClass.fontFamily(),
         fontResize: false,
         fontSize: constant(10),

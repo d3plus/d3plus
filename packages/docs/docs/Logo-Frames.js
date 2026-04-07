@@ -2,12 +2,9 @@ import {colorDefaults, colorLegible} from "@d3plus/color";
 const darkMode =
   window.matchMedia &&
   window.matchMedia("(prefers-color-scheme: dark)").matches;
-const background = darkMode ? "#1B1C1D" : "white";
-const tickColor = darkMode ? "#dee2e6" : "#495057";
-const gridColor = darkMode ? "#495057" : "#dee2e6";
+const background = darkMode ? "#222325" : "#FFFFFF";
 const colors = colorDefaults.scale.range();
 const dColor = colors[0];
-const dAccent = colorLegible(dColor);
 const threeColor = colors[1];
 const threeAccent = colorLegible(threeColor);
 const plusColor = colors[2];
@@ -38,41 +35,17 @@ export const sharedConfig = {
 };
 
 const hiddenAxis = {
-  barConfig: {
-    opacity: 0,
-    stroke: tickColor,
-  },
-  gridConfig: {
-    opacity: 0,
-    stroke: gridColor,
-  },
-  shapeConfig: {
-    fill: tickColor,
-    opacity: 0,
-    labelConfig: {
-      fontColor: tickColor,
-    },
-    stroke: tickColor,
-  },
+  barConfig: {opacity: 0},
+  gridConfig: {opacity: 0},
+  shapeConfig: {opacity: 0},
 };
 
 const visibleAxis = {
-  barConfig: {
-    opacity: 1,
-    stroke: tickColor,
-  },
-  gridConfig: {
-    opacity: 1,
-    stroke: gridColor,
-  },
+  barConfig: {opacity: 1},
+  gridConfig: {opacity: 1},
   shapeConfig: {
-    fill: tickColor,
     duration: 250,
     opacity: 1,
-    labelConfig: {
-      fontColor: tickColor,
-    },
-    stroke: tickColor,
   },
 };
 

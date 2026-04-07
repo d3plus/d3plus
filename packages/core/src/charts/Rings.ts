@@ -2,8 +2,8 @@ import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
 import type {DataPoint} from "@d3plus/data";
 
-import {assign, elem} from "@d3plus/dom";
-import {colorLegible} from "@d3plus/color";
+import {assign, backgroundColor, elem} from "@d3plus/dom";
+import {colorContrast} from "@d3plus/color";
 import {addToQueue} from "@d3plus/data";
 import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
@@ -535,10 +535,8 @@ export default class Rings extends Viz {
             ? configPrep
                 .bind(that)(that._shapeConfig, "shape", d.key)
                 .labelConfig.fontColor(d)
-            : colorLegible(
-                configPrep
-                  .bind(that)(that._shapeConfig, "shape", d.key)
-                  .fill(d),
+            : colorContrast(
+                this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)",
               ),
         fontResize: d => d.id === this._center,
         padding: 0,

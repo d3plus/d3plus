@@ -3,8 +3,8 @@ import {hierarchy, tree} from "d3-hierarchy";
 import {scaleLinear} from "d3-scale";
 import type {DataPoint} from "@d3plus/data";
 
-import {colorDefaults} from "@d3plus/color";
-import {assign, elem} from "@d3plus/dom";
+import {colorContrast, colorDefaults} from "@d3plus/color";
+import {assign, backgroundColor, elem} from "@d3plus/dom";
 import {merge, nest} from "@d3plus/data";
 import {configPrep, constant} from "../utils/index.js";
 import * as shapes from "../shapes/index.js";
@@ -42,7 +42,10 @@ export default class Tree extends Viz {
           ? `${this._treeData[i].depth}. ${this._drawLabel(d, i)}.`
           : "",
       labelConfig: {
-        fontColor: colorDefaults.dark,
+        fontColor: () => {
+          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+          return colorContrast(bg);
+        },
       },
       Path: {
         fill: "none",
