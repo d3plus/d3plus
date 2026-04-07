@@ -33,13 +33,13 @@ export default class Timeline extends Axis {
   _handleSize: number;
   _hiddenHandles: boolean;
    
-  declare _on: Record<string, unknown>;
+  declare _on: Record<string, (...args: unknown[]) => unknown>;
   _playButton: boolean;
   _playButtonClass: TextBox;
    
   _playButtonConfig: Record<string, unknown>;
   _playButtonInterval: number;
-  _playTimer: ReturnType<typeof setInterval> | false;
+  _playTimer!: ReturnType<typeof setInterval> | false;
   _selection: unknown;
    
   _selectionConfig: Record<string, unknown>;
@@ -106,11 +106,11 @@ export default class Timeline extends Axis {
               this._domain[this._domain.length - 1],
             ]) as unknown[];
             if (!(selection instanceof Array)) selection = [selection];
-            selection = (selection as unknown[]).map(date).map(Number);
+            selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
             if (selection.length === 1) selection.push(selection[0]);
             const ticks = this._ticks!.map(Number);
-            const firstIndex = ticks.indexOf(selection[0]);
-            const lastIndex = ticks.indexOf(selection[selection.length - 1]);
+            const firstIndex = ticks.indexOf(selection[0] as number);
+            const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
             if (lastIndex === ticks.length - 1) {
               if (!firstTime) {
                 if (this._playTimer) clearInterval(this._playTimer);
@@ -441,12 +441,12 @@ export default class Timeline extends Axis {
       domain[0] = minDomain;
       domain[1] = maxDomain;
     } else {
-      domain[0] = closest(domain[0], ticks);
-      domain[1] = closest(domain[1], ticks);
+      domain[0] = closest(domain[0] as number, ticks as number[]);
+      domain[1] = closest(domain[1] as number, ticks as number[]);
     }
 
     // if the brush event has finished, update the current "selection" value
-    const single = +domain[0] === +domain[1];
+    const single = +(domain[0] as number) === +(domain[1] as number);
     if (event.type === "brush" || event.type === "end") {
       this._selection =
         this._buttonBehaviorCurrent === "ticks"
@@ -488,7 +488,7 @@ export default class Timeline extends Axis {
   _updateBrushLimit(domain: unknown[]): unknown[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
-        ? domain.map(date).map(this._d3Scale) as number[]
+        ? (domain as (string | number | false | undefined)[]).map(date).map(this._d3Scale) as number[]
         : domain as number[];
 
     if (selection[0] === selection[1]) {
@@ -514,8 +514,8 @@ export default class Timeline extends Axis {
   render(callback?: (...args: unknown[]) => unknown): this {
     const {height, y} = this._position;
 
-    if (this._ticks) this._ticks = this._ticks.map(date);
-    if (this._data) this._data = this._data.map(date);
+    if (this._ticks) this._ticks = (this._ticks as (string | number | false | undefined)[]).map(date);
+    if (this._data) this._data = (this._data as (string | number | false | undefined)[]).map(date);
 
     let ticks = this._ticks ? this._ticks : this._domain.map(date);
     if (!this._ticks) {
@@ -557,7 +557,7 @@ export default class Timeline extends Axis {
               : undefined,
           );
 
-        const res = wrap(tickFormat(d));
+        const res = wrap(tickFormat(d as Date));
 
         let width = res.lines.length
           ? Math.ceil(
@@ -565,7 +565,7 @@ export default class Timeline extends Axis {
                 res.lines.map((line: string) =>
                   textWidth(line, {"font-family": f, "font-size": s}),
                 ),
-              ),
+              )!,
             ) +
             s / 4
           : 0;
@@ -576,8 +576,8 @@ export default class Timeline extends Axis {
       this._ticksWidth = maxLabel * ticks.length;
     }
 
-    const playButtonWidth = this._playButton
-      ? this._playButtonConfig.width || this._buttonHeight
+    const playButtonWidth: number = this._playButton
+      ? (this._playButtonConfig.width as number) || this._buttonHeight
       : 0;
     const space = this._width - playButtonWidth;
 
@@ -717,7 +717,8 @@ export default class Timeline extends Axis {
           : [],
       )
       .select(playButtonGroup.node())
-      .config(configPrep.bind(this)(this._playButtonConfig))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._playButtonConfig))
       .render();
 
     return this;
@@ -769,7 +770,7 @@ function() {
   brushMin(_: (() => number) | number): this;
   brushMin(_?: (() => number) | number): unknown {
     return arguments.length
-      ? ((this._brushMin = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._brushMin = typeof _ === "function" ? _ : constant(_!)), this)
       : this._brushMin;
   }
 
@@ -832,19 +833,20 @@ function() {
       Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 */
    
-  on(): Record<string, unknown>;
-
+  on(): Record<string, (...args: unknown[]) => unknown>;
+  on(_: string): ((...args: unknown[]) => unknown) | undefined;
   on(_: string, f: (...args: unknown[]) => unknown): this;
-
-  on(_: Record<string, unknown>): this;
-
-  on(_?: string | Record<string, unknown>, f?: (...args: unknown[]) => unknown): Record<string, unknown> | unknown | this {
+  on(_: Record<string, (...args: unknown[]) => unknown>): this;
+  on(
+    _?: string | Record<string, (...args: unknown[]) => unknown>,
+    f?: (...args: unknown[]) => unknown,
+  ): Record<string, (...args: unknown[]) => unknown> | ((...args: unknown[]) => unknown) | undefined | this {
     return arguments.length === 2
-      ? ((this._on[_ as string] = f), this)
+      ? ((this._on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
           ? this._on[_]
-          : ((this._on = assign({}, this._on, _)), this)
+          : ((this._on = assign({} as Record<string, unknown>, this._on, _ as Record<string, unknown>) as Record<string, (...args: unknown[]) => unknown>), this)
         : this._on;
   }
 

@@ -25,8 +25,8 @@ export default class Whisker extends BaseClass {
   _x: AccessorFn;
   _y: AccessorFn;
   _data!: DataPoint[];
-  _select: D3Selection;
-  _line: Line;
+  _select!: D3Selection;
+  _line!: Line;
   _whiskerEndpoint: (Circle | Rect)[];
 
   /**
@@ -102,7 +102,8 @@ export default class Whisker extends BaseClass {
     this._line = new Line()
       .data(lineData)
       .select(elem("g.d3plus-Whisker", {parent: this._select}).node())
-      .config(configPrep.bind(this)(this._lineConfig, "shape"))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._lineConfig, "shape")!)
       .render(callback);
 
     const whiskerData = this._data.map((d: DataPoint, i: number) => {
@@ -148,13 +149,8 @@ export default class Whisker extends BaseClass {
               width: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 20 : 5,
             })
-            .config(
-              configPrep.bind(this)(
-                this._endpointConfig,
-                "shape",
-                shapeName as string,
-              ),
-            )
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .config(configPrep.bind(this as any)(this._endpointConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
@@ -190,7 +186,7 @@ export default class Whisker extends BaseClass {
   endpoint(_: AccessorFn | string): this;
   endpoint(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._endpoint = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._endpoint = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._endpoint;
   }
 
@@ -201,7 +197,7 @@ export default class Whisker extends BaseClass {
   endpointConfig(_: Record<string, unknown>): this;
   endpointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._endpointConfig = assign(this._endpointConfig, _)), this)
+      ? ((this._endpointConfig = assign(this._endpointConfig, _!)), this)
       : this._endpointConfig;
   }
 
@@ -223,7 +219,7 @@ export default class Whisker extends BaseClass {
   length(_: AccessorFn | number): this;
   length(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._length = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._length = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._length;
   }
 
@@ -234,7 +230,7 @@ export default class Whisker extends BaseClass {
   lineConfig(_: Record<string, unknown>): this;
   lineConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._lineConfig = assign(this._lineConfig, _)), this)
+      ? ((this._lineConfig = assign(this._lineConfig, _!)), this)
       : this._lineConfig;
   }
 
@@ -245,7 +241,7 @@ export default class Whisker extends BaseClass {
   orient(_: AccessorFn | string): this;
   orient(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._orient;
   }
 
@@ -272,7 +268,7 @@ function(d) {
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._x;
   }
 
@@ -288,7 +284,7 @@ function(d) {
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._y;
   }
 }

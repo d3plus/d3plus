@@ -69,7 +69,7 @@ export default class Shape extends BaseClass {
   _label: AccessorFn;
   _labelClass: TextBox;
   _labelConfig: Record<string, unknown>;
-  _labelBounds:
+  _labelBounds!:
     | ((
         d: DataPoint,
         i: number,
@@ -99,26 +99,26 @@ export default class Shape extends BaseClass {
   _verticalAlign: AccessorFn;
   _x: AccessorFn;
   _y: AccessorFn;
-  _select: D3Selection;
-  _transition: ReturnType<typeof transition>;
+  _select!: D3Selection;
+  _transition!: ReturnType<typeof transition>;
   /** @param data The raw data array to filter. */
   _dataFilter?(data: DataPoint[]): DataPoint[];
-  _sort: ((a: DataPoint, b: DataPoint) => number) | null;
-  _group: D3Selection;
-  _update: D3Selection;
-  _enter: D3Selection;
-  _exit: D3Selection;
-  _hoverGroup: D3Selection;
-  _activeGroup: D3Selection;
-  _hitArea:
+  _sort!: ((a: DataPoint, b: DataPoint) => number) | null;
+  _group!: D3Selection;
+  _update!: D3Selection;
+  _enter!: D3Selection;
+  _exit!: D3Selection;
+  _hoverGroup!: D3Selection;
+  _activeGroup!: D3Selection;
+  _hitArea!:
     | ((d: DataPoint, i: number, aes: ShapeAes) => Record<string, unknown>)
     | null;
-  _active: ((d: DataPoint, i: number) => boolean) | null;
-  _hover: ((d: DataPoint, i: number) => boolean) | null;
+  _active!: ((d: DataPoint, i: number) => boolean) | null;
+  _hover!: ((d: DataPoint, i: number) => boolean) | null;
   _discrete: string | undefined;
-  _path: Record<string, unknown>;
-  _defined: AccessorFn;
-  _curve: AccessorFn;
+  _path!: Record<string, unknown>;
+  _defined!: AccessorFn;
+  _curve!: AccessorFn;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -444,10 +444,11 @@ export default class Shape extends BaseClass {
 
     this._group
       .selectAll(".d3plus-Shape, .d3plus-Image, .d3plus-textBox")
-      .each(function (this: Element, d: DataPoint, i: number) {
-        if (!d) d = {} as DataPoint;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .each(function (this: any, _d: unknown, i: number) {
+        let d = (_d || {}) as DataPoint;
         if (!d.parentNode)
-          d.parentNode = this
+          d.parentNode = (this as Element)
             .parentNode as unknown as DataPoint[keyof DataPoint];
         const parent = d.parentNode as unknown as Node;
 
@@ -465,8 +466,8 @@ export default class Shape extends BaseClass {
           !that._active(d, i)
             ? parent
             : that._activeGroup.node();
-        if (group !== this.parentNode) {
-          group.appendChild(this);
+        if (group !== (this as Element).parentNode) {
+          group.appendChild(this as Element);
           if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
             if (parent === group)
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -508,10 +509,11 @@ export default class Shape extends BaseClass {
         `g.d3plus-${this._name}-shape, g.d3plus-${this._name}-image, g.d3plus-${this._name}-text, g.d3plus-${this._name}-hover`,
       )
       .selectAll(".d3plus-Shape, .d3plus-Image, .d3plus-textBox")
-      .each(function (this: Element, d: DataPoint, i: number) {
-        if (!d) d = {} as DataPoint;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .each(function (this: any, _d: unknown, i: number) {
+        let d = (_d || {}) as DataPoint;
         if (!d.parentNode)
-          d.parentNode = this
+          d.parentNode = (this as Element)
             .parentNode as unknown as DataPoint[keyof DataPoint];
         const parent = d.parentNode as unknown as Node;
 
@@ -534,7 +536,7 @@ export default class Shape extends BaseClass {
           typeof that._hover !== "function" ||
           !that._hover(d, i);
         const group = notHovering ? parent : that._hoverGroup.node();
-        if (group !== this.parentNode) {
+        if (group !== (this as Element).parentNode) {
           const afterIndex =
             d3plusType === "textBox"
               ? findLastIndexWithClass(group.childNodes, [
@@ -544,9 +546,9 @@ export default class Shape extends BaseClass {
               : d3plusType === "Image"
                 ? findLastIndexWithClass(group.childNodes, ["d3plus-Shape"])
                 : -1;
-          if (notHovering) group.appendChild(this);
-          else if (afterIndex === -1) group.prepend(this);
-          else group.childNodes[afterIndex].after(this);
+          if (notHovering) group.appendChild(this as Element);
+          else if (afterIndex === -1) group.prepend(this as Element);
+          else group.childNodes[afterIndex].after(this as Element);
         }
         if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
           if (parent === group)
@@ -643,7 +645,7 @@ export default class Shape extends BaseClass {
     this._backgroundImageClass
       .data(imageData)
       .duration(this._duration)
-      .opacity(this._nestWrapper(this._opacity))
+      .opacity(this._nestWrapper(this._opacity) as AccessorFn)
       .pointerEvents("none")
       .select(
         elem(`g.d3plus-${this._name}-image`, {
@@ -769,7 +771,8 @@ export default class Shape extends BaseClass {
           update: {opacity: this._active ? this._activeOpacity : 1},
         }).node(),
       )
-      .config(configPrep.bind(this)(this._labelConfig))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._labelConfig)!)
       .render();
   }
 
@@ -854,9 +857,11 @@ export default class Shape extends BaseClass {
 
     selectAll(
       `g.d3plus-${this._name}-hover > *, g.d3plus-${this._name}-active > *`,
-    ).each(function (this: Element, d: DataPoint) {
-      if (d && d.parentNode)
-        (d.parentNode as unknown as Node).appendChild(this);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ).each(function (this: any, d: unknown) {
+      const dp = d as DataPoint;
+      if (dp && dp.parentNode)
+        (dp.parentNode as unknown as Node).appendChild(this);
       else this.parentNode!.removeChild(this);
     });
 
@@ -872,7 +877,8 @@ export default class Shape extends BaseClass {
     // Orders and transforms the updating Shapes.
     update.order();
     if (this._duration) {
-      update.transition(this._transition).call(this._applyTransform.bind(this));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      update.transition(this._transition).call(this._applyTransform.bind(this) as any);
     } else {
       update.call(this._applyTransform.bind(this));
     }
@@ -975,8 +981,9 @@ export default class Shape extends BaseClass {
 
     const that = this;
 
-    const hitUpdates = hitAreas.merge(hitEnter).each(function (
-      this: Element,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hitUpdates = hitAreas.merge(hitEnter as any).each(function (
+      this: any,
       d: DataPoint,
     ) {
       const i = that._data.indexOf(d);
@@ -1042,7 +1049,7 @@ export default class Shape extends BaseClass {
   activeStyle(_: Record<string, unknown>): this;
   activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._activeStyle = assign({}, this._activeStyle, _)), this)
+      ? ((this._activeStyle = assign({}, this._activeStyle, _!)), this)
       : this._activeStyle;
   }
 
@@ -1053,7 +1060,7 @@ export default class Shape extends BaseClass {
   ariaLabel(_: AccessorFn | string): this;
   ariaLabel(_?: AccessorFn | string): AccessorFn | this {
     return _ !== undefined
-      ? ((this._ariaLabel = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._ariaLabel = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._ariaLabel;
   }
 
@@ -1064,7 +1071,7 @@ export default class Shape extends BaseClass {
   backgroundImage(_: AccessorFn | string): this;
   backgroundImage(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._backgroundImage = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._backgroundImage = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._backgroundImage;
   }
@@ -1103,7 +1110,7 @@ export default class Shape extends BaseClass {
   fill(_: AccessorFn | string): this;
   fill(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._fill = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._fill = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._fill;
   }
 
@@ -1114,7 +1121,7 @@ export default class Shape extends BaseClass {
   fillOpacity(_: AccessorFn | number): this;
   fillOpacity(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._fillOpacity = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._fillOpacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._fillOpacity;
   }
 
@@ -1143,7 +1150,7 @@ export default class Shape extends BaseClass {
   hoverStyle(_: Record<string, unknown>): this;
   hoverStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._hoverStyle = assign({}, this._hoverStyle, _)), this)
+      ? ((this._hoverStyle = assign({}, this._hoverStyle, _!)), this)
       : this._hoverStyle;
   }
 
@@ -1203,7 +1210,7 @@ function(d, i, shape) {
     | null
     | this {
     return arguments.length
-      ? ((this._hitArea = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._hitArea = (typeof _ === "function" ? _ : constant(_)) as unknown as (d: DataPoint, i: number, aes: ShapeAes) => Record<string, unknown>), this)
       : this._hitArea;
   }
 
@@ -1274,7 +1281,7 @@ function(d, i, shape) {
     | null
     | this {
     return arguments.length
-      ? ((this._labelBounds = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._labelBounds = (typeof _ === "function" ? _ : constant(_)) as unknown as typeof this._labelBounds), this)
       : this._labelBounds;
   }
 
@@ -1285,7 +1292,7 @@ function(d, i, shape) {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._labelConfig = assign(this._labelConfig, _)), this)
+      ? ((this._labelConfig = assign(this._labelConfig, _!)), this)
       : this._labelConfig;
   }
 
@@ -1296,7 +1303,7 @@ function(d, i, shape) {
   opacity(_: AccessorFn | number): this;
   opacity(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._opacity = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._opacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._opacity;
   }
 
@@ -1307,7 +1314,7 @@ function(d, i, shape) {
   pointerEvents(_: AccessorFn | string): this;
   pointerEvents(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._pointerEvents;
   }
@@ -1319,7 +1326,7 @@ function(d, i, shape) {
   role(_: AccessorFn | string): this;
   role(_?: AccessorFn | string): AccessorFn | this {
     return _ !== undefined
-      ? ((this._role = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._role = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._role;
   }
 
@@ -1330,7 +1337,7 @@ function(d, i, shape) {
   rotate(_: AccessorFn | number): this;
   rotate(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._rotate = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._rotate = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._rotate;
   }
 
@@ -1341,7 +1348,7 @@ function(d, i, shape) {
   rx(_: AccessorFn | number): this;
   rx(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._rx = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._rx = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._rx;
   }
 
@@ -1352,7 +1359,7 @@ function(d, i, shape) {
   ry(_: AccessorFn | number): this;
   ry(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._ry = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._ry = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._ry;
   }
 
@@ -1363,7 +1370,7 @@ function(d, i, shape) {
   scale(_: AccessorFn | number): this;
   scale(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._scale = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._scale = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._scale;
   }
 
@@ -1390,7 +1397,7 @@ function(d) {
   shapeRendering(_: AccessorFn | string): this;
   shapeRendering(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._shapeRendering = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._shapeRendering = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._shapeRendering;
   }
@@ -1403,7 +1410,7 @@ function(d) {
   sort(
     _?: ((a: DataPoint, b: DataPoint) => number) | null,
   ): ((a: DataPoint, b: DataPoint) => number) | null | this {
-    return arguments.length ? ((this._sort = _), this) : this._sort;
+    return arguments.length ? ((this._sort = _ ?? null), this) : this._sort;
   }
 
   /**
@@ -1413,7 +1420,7 @@ function(d) {
   stroke(_: AccessorFn | string): this;
   stroke(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._stroke = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._stroke = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._stroke;
   }
 
@@ -1424,7 +1431,7 @@ function(d) {
   strokeDasharray(_: AccessorFn | string): this;
   strokeDasharray(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._strokeDasharray = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._strokeDasharray = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._strokeDasharray;
   }
@@ -1436,7 +1443,7 @@ function(d) {
   strokeLinecap(_: AccessorFn | string): this;
   strokeLinecap(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._strokeLinecap = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._strokeLinecap = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._strokeLinecap;
   }
@@ -1448,7 +1455,7 @@ function(d) {
   strokeOpacity(_: AccessorFn | number): this;
   strokeOpacity(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._strokeOpacity = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._strokeOpacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._strokeOpacity;
   }
@@ -1460,7 +1467,7 @@ function(d) {
   strokeWidth(_: AccessorFn | number): this;
   strokeWidth(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._strokeWidth = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._strokeWidth = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._strokeWidth;
   }
 
@@ -1471,7 +1478,7 @@ function(d) {
   textAnchor(_: AccessorFn | string): this;
   textAnchor(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._textAnchor = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._textAnchor = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._textAnchor;
   }
 
@@ -1497,7 +1504,7 @@ function(d) {
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._textureDefault = assign(this._textureDefault, _)), this)
+      ? ((this._textureDefault = assign(this._textureDefault, _!)), this)
       : this._textureDefault;
   }
 
@@ -1508,7 +1515,7 @@ function(d) {
   vectorEffect(_: AccessorFn | string): this;
   vectorEffect(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._vectorEffect = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._vectorEffect = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._vectorEffect;
   }
 
@@ -1519,7 +1526,7 @@ function(d) {
   verticalAlign(_: AccessorFn | string): this;
   verticalAlign(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._verticalAlign = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._verticalAlign = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._verticalAlign;
   }
@@ -1536,7 +1543,7 @@ function(d) {
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._x;
   }
 
@@ -1552,7 +1559,7 @@ function(d) {
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._y;
   }
 }

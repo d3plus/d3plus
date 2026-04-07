@@ -29,10 +29,10 @@ export default class Box extends BaseClass {
   _x: AccessorFn;
   _y: AccessorFn;
   _data!: DataPoint[];
-  _select: D3Selection;
-  _box: Rect;
-  _median: Rect;
-  _whisker: Whisker;
+  _select!: D3Selection;
+  _box!: Rect;
+  _median!: Rect;
+  _whisker!: Whisker;
   _whiskerEndpoint: (Circle | Rect)[];
   _duration!: number;
 
@@ -211,7 +211,8 @@ export default class Box extends BaseClass {
       .x((d: DataPoint) => d.x)
       .y((d: DataPoint) => d.y)
       .select(elem("g.d3plus-Box", {parent: this._select}).node())
-      .config(configPrep.bind(this)(this._rectConfig, "shape"))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._rectConfig, "shape")!)
       .render();
 
     // Draw median.
@@ -222,7 +223,8 @@ export default class Box extends BaseClass {
       .height((d: DataPoint) => (d.orient === "vertical" ? 1 : d.height))
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
       .select(elem("g.d3plus-Box-Median", {parent: this._select}).node())
-      .config(configPrep.bind(this)(this._medianConfig, "shape"))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._medianConfig, "shape")!)
       .render();
 
     // Draw 2 lines using Whisker class.
@@ -287,7 +289,8 @@ export default class Box extends BaseClass {
     this._whisker = new Whisker()
       .data(whiskerData)
       .select(elem("g.d3plus-Box-Whisker", {parent: this._select}).node())
-      .config(configPrep.bind(this)(this._whiskerConfig, "shape"))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._whiskerConfig, "shape")!)
       .render();
 
     // Draw outliers.
@@ -302,13 +305,8 @@ export default class Box extends BaseClass {
                 parent: this._select,
               }).node(),
             )
-            .config(
-              configPrep.bind(this)(
-                this._outlierConfig,
-                "shape",
-                shapeName as string,
-              ),
-            )
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .config(configPrep.bind(this as any)(this._outlierConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
@@ -359,7 +357,7 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._medianConfig = assign(this._medianConfig, _)), this)
+      ? ((this._medianConfig = assign(this._medianConfig, _!)), this)
       : this._medianConfig;
   }
 
@@ -370,7 +368,7 @@ export default class Box extends BaseClass {
   orient(_: AccessorFn | string): this;
   orient(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._orient;
   }
 
@@ -381,7 +379,7 @@ export default class Box extends BaseClass {
   outlier(_: AccessorFn | string): this;
   outlier(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._outlier = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._outlier = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._outlier;
   }
 
@@ -392,7 +390,7 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._outlierConfig = assign(this._outlierConfig, _)), this)
+      ? ((this._outlierConfig = assign(this._outlierConfig, _!)), this)
       : this._outlierConfig;
   }
 
@@ -403,7 +401,7 @@ export default class Box extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._rectConfig = assign(this._rectConfig, _)), this)
+      ? ((this._rectConfig = assign(this._rectConfig, _!)), this)
       : this._rectConfig;
   }
 
@@ -419,7 +417,7 @@ function(d) {
   rectWidth(_: AccessorFn | number): this;
   rectWidth(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._rectWidth = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._rectWidth = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._rectWidth;
   }
 
@@ -441,7 +439,7 @@ function(d) {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._whiskerConfig = assign(this._whiskerConfig, _)), this)
+      ? ((this._whiskerConfig = assign(this._whiskerConfig, _!)), this)
       : this._whiskerConfig;
   }
 
@@ -454,7 +452,7 @@ function(d) {
     _?: (string | number)[] | string | number,
   ): (string | number)[] | this {
     return arguments.length
-      ? ((this._whiskerMode = _ instanceof Array ? _ : [_, _]), this)
+      ? ((this._whiskerMode = _ instanceof Array ? _ : [_!, _!]), this)
       : this._whiskerMode;
   }
 

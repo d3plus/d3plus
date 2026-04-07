@@ -25,7 +25,7 @@ export default class Image {
   _id: AccessorFn;
   _opacity: AccessorFn;
   _pointerEvents: AccessorFn;
-  _select: D3Selection;
+  _select!: D3Selection;
   _url: AccessorFn;
   _width: AccessorFn;
   _x: AccessorFn;
@@ -42,7 +42,6 @@ export default class Image {
     this._id = accessor("id");
     this._opacity = constant(1);
     this._pointerEvents = constant("auto");
-    this._select;
     this._url = accessor("url");
     this._width = accessor("width");
     this._x = accessor("x", 0);
@@ -113,12 +112,12 @@ export default class Image {
           ).Image();
           img.src = link;
           img.crossOrigin = "Anonymous";
-          img.onload = function (this: HTMLImageElement) {
+          img.onload = function () {
             const canvas = document.createElement("canvas");
-            canvas.width = this.width;
-            canvas.height = this.height;
+            canvas.width = img.width;
+            canvas.height = img.height;
             const context = canvas.getContext("2d")!;
-            context.drawImage(this, 0, 0);
+            context.drawImage(img, 0, 0);
             image.attr("xlink:href", canvas.toDataURL("image/png"));
           };
         }
@@ -169,7 +168,7 @@ function(d) {
   height(_: AccessorFn | number): this;
   height(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._height = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._height;
   }
 
@@ -194,7 +193,7 @@ function(d) {
   opacity(_: AccessorFn | number): this;
   opacity(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._opacity = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._opacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._opacity;
   }
 
@@ -205,7 +204,7 @@ function(d) {
   pointerEvents(_: AccessorFn | string): this;
   pointerEvents(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
         this)
       : this._pointerEvents;
   }
@@ -247,7 +246,7 @@ function(d) {
   width(_: AccessorFn | number): this;
   width(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._width;
   }
 
@@ -263,7 +262,7 @@ function(d) {
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._x;
   }
 
@@ -279,7 +278,7 @@ function(d) {
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._y;
   }
 }

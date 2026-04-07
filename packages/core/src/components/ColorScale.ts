@@ -23,7 +23,7 @@ import Legend from "./Legend.js";
     Creates an SVG color scale based on an array of data.
 */
 export default class ColorScale extends BaseClass {
-  _select: D3Selection;
+  _select!: D3Selection;
   _axisClass: Axis;
    
   _axisConfig: Record<string, unknown>;
@@ -49,7 +49,7 @@ export default class ColorScale extends BaseClass {
   _data: DataPoint[];
   _domain: number[] | undefined;
   _duration: number;
-  _group: D3Selection;
+  _group!: D3Selection;
   _height: number;
   _labelClass: TextBox;
    
@@ -101,7 +101,7 @@ export default class ColorScale extends BaseClass {
       const prev = i ? ticks[i - 1] : false;
       const last = i === ticks.length - 1;
       if (tick === next || last) {
-        const suffix = last && tick < max(allValues) ? "+" : "";
+        const suffix = last && tick < max(allValues)! ? "+" : "";
         return `${format(tick)}${suffix}`;
       } else {
         const mod = next ? next / 100 : tick / 100;
@@ -121,7 +121,7 @@ export default class ColorScale extends BaseClass {
                 min([
                   tick + ten,
                   allValues.find((d: number) => d > tick && d < next),
-                ]),
+                ] as number[]),
               )
             : format(tick);
 
@@ -132,7 +132,7 @@ export default class ColorScale extends BaseClass {
                 max([
                   next - ten,
                   allValues.reverse().find((d: number) => d > tick && d < next),
-                ]),
+                ] as number[]),
               );
 
         return this._bucketJoiner(prevValue, nextValue);
@@ -394,7 +394,7 @@ export default class ColorScale extends BaseClass {
             const step = 1 / (colors.length - 1);
             buckets = range(0, 1 + step / 2, step).map((d: number) =>
               quantile(allValues, d),
-            );
+            ) as number[];
           } else if (diverging && this._color && this._centered) {
             const midIndex = colors.indexOf(this._colorMid);
             const negativeStep =
@@ -545,9 +545,12 @@ export default class ColorScale extends BaseClass {
       if (horizontal && this._labelMin) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const labelCSS: Record<string, any> = {
-          "font-family": this._labelClass.fontFamily()(this._labelMin),
-          "font-size": this._labelClass.fontSize()(this._labelMin),
-          "font-weight": this._labelClass.fontWeight()(this._labelMin),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-family": (this._labelClass.fontFamily() as any)(this._labelMin),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-size": (this._labelClass.fontSize() as any)(this._labelMin),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-weight": (this._labelClass.fontWeight() as any)(this._labelMin),
         };
 
         if (labelCSS["font-family"] instanceof Array)
@@ -565,9 +568,12 @@ export default class ColorScale extends BaseClass {
       if (horizontal && this._labelMax) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const labelCSS: Record<string, any> = {
-          "font-family": this._labelClass.fontFamily()(this._labelMax),
-          "font-size": this._labelClass.fontSize()(this._labelMax),
-          "font-weight": this._labelClass.fontWeight()(this._labelMax),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-family": (this._labelClass.fontFamily() as any)(this._labelMax),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-size": (this._labelClass.fontSize() as any)(this._labelMax),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "font-weight": (this._labelClass.fontWeight() as any)(this._labelMax),
         };
 
         if (labelCSS["font-family"] instanceof Array)
@@ -636,10 +642,11 @@ export default class ColorScale extends BaseClass {
       const axisScale = this._axisTest._getPosition.bind(this._axisTest);
       const scaleRange = this._axisTest._getRange();
 
-      let defs = this._group.selectAll("defs").data([0]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let defs: any = this._group.selectAll("defs").data([0]);
       const defsEnter = defs.enter().append("defs");
       defsEnter.append("linearGradient").attr("id", `gradient-${this._uuid}`);
-      defs = defsEnter.merge(defs as never);
+      defs = defsEnter.merge(defs);
       defs
         .select("linearGradient")
         .attr(`${x}1`, horizontal ? "0%" : "100%")
@@ -652,7 +659,7 @@ export default class ColorScale extends BaseClass {
         .data(colors);
       const scaleDomain = this._colorScale.domain();
       const offsetScale = scaleLinear()
-        .domain(scaleRange)
+        .domain(scaleRange as number[])
         .range(horizontal ? [0, 100] : [100, 0]);
 
       stops
@@ -686,21 +693,23 @@ export default class ColorScale extends BaseClass {
                 (["left", "right"].includes(this._orient)
                   ? bucketWidth(d, i)
                   : 0)
-            : scaleRange[0] + (scaleRange[1] - scaleRange[0]) / 2 + offsets[x],
+            : (scaleRange[0] as number) + ((scaleRange[1] as number) - (scaleRange[0] as number)) / 2 + offsets[x],
           [y]:
             this._outerBounds[y] +
             (["top", "left"].includes(this._orient) ? axisBounds[height] : 0) +
             this._size / 2 +
             offsets[y],
-          [width]: ticks ? bucketWidth : scaleRange[1] - scaleRange[0],
+          [width]: ticks ? bucketWidth : (scaleRange[1] as number) - (scaleRange[0] as number),
           [height]: this._size,
         },
         this._rectConfig,
       );
 
       this._rectClass
-        .data(ticks || [0])
-        .id((_d: unknown, i: number) => i)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .data((ticks || [0]) as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .id(((_d: unknown, i: number) => i) as any)
         .select(rectGroup.node())
         .config(rectConfig)
         .render();
@@ -709,7 +718,8 @@ export default class ColorScale extends BaseClass {
       labelConfig.width = this._outerBounds[width];
       this._labelClass
         .config(labelConfig)
-        .data(labelData)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .data(labelData as any)
         .select(labelGroup.node())
         .x(((d: DataPoint) =>
           (d as unknown as string) === this._labelMax
@@ -742,24 +752,22 @@ export default class ColorScale extends BaseClass {
         {
           align: horizontal
             ? "center"
-            : {start: "left", middle: "center", end: "right"}[this._align],
+            : ({start: "left", middle: "center", end: "right"} as Record<string, string>)[this._align],
           direction: horizontal ? "row" : "column",
           duration: this._duration,
           height: this._height,
           padding: this._padding,
           shapeConfig: assign(
-            {
-              duration: this._duration,
-            },
-            this._axisConfig.shapeConfig || {},
+            {duration: this._duration} as Record<string, unknown>,
+            (this._axisConfig.shapeConfig || {}) as Record<string, unknown>,
           ),
           title: this._axisConfig.title,
-          titleConfig: this._axisConfig.titleConfig || {},
+          titleConfig: (this._axisConfig.titleConfig || {}) as Record<string, unknown>,
           width: this._width,
           verticalAlign: horizontal
-            ? {start: "top", middle: "middle", end: "bottom"}[this._align]
+            ? ({start: "top", middle: "middle", end: "bottom"} as Record<string, string>)[this._align]
             : "middle",
-        },
+        } as Record<string, unknown>,
         this._legendConfig,
       );
 
@@ -784,7 +792,7 @@ export default class ColorScale extends BaseClass {
   axisConfig(_: Record<string, unknown>): this;
   axisConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._axisConfig = assign(this._axisConfig, _)), this)
+      ? ((this._axisConfig = assign(this._axisConfig, _!)), this)
       : this._axisConfig;
   }
 
@@ -843,7 +851,7 @@ export default class ColorScale extends BaseClass {
     ) => string,
   ): unknown {
     return arguments.length
-      ? ((this._bucketFormat = _), this)
+      ? ((this._bucketFormat = _!), this)
       : this._bucketFormat;
   }
 
@@ -873,7 +881,7 @@ export default class ColorScale extends BaseClass {
   color(): string | string[];
   color(_: string | string[]): this;
   color(_?: string | string[]): unknown {
-    return arguments.length ? ((this._color = _), this) : this._color;
+    return arguments.length ? ((this._color = _!), this) : this._color;
   }
 
   /**
@@ -946,7 +954,7 @@ export default class ColorScale extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._labelConfig = assign(this._labelConfig, _)), this)
+      ? ((this._labelConfig = assign(this._labelConfig, _!)), this)
       : this._labelConfig;
   }
 
@@ -975,7 +983,7 @@ export default class ColorScale extends BaseClass {
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._legendConfig = assign(this._legendConfig, _)), this)
+      ? ((this._legendConfig = assign(this._legendConfig, _!)), this)
       : this._legendConfig;
   }
 
@@ -1022,7 +1030,7 @@ export default class ColorScale extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._rectConfig = assign(this._rectConfig, _)), this)
+      ? ((this._rectConfig = assign(this._rectConfig, _!)), this)
       : this._rectConfig;
   }
 

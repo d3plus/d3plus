@@ -34,7 +34,7 @@ export default class Radar extends Viz {
             return colorContrast(bg);
           },
           padding: 0,
-          textAnchor: (d, i, x) => x.textAnchor,
+          textAnchor: (d: any, i: any, x: any) => x.textAnchor,
           verticalAlign: "middle",
         },
         stroke: () => {
@@ -61,7 +61,7 @@ export default class Radar extends Viz {
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 
-    const radius = min([height, width]) / 2 - this._outerPadding,
+    const radius = min([height, width])! / 2 - this._outerPadding,
       transform = `translate(${width / 2}, ${height / 2})`;
 
     const nestedAxisData = groups(this._filteredData, this._metric),
@@ -82,7 +82,7 @@ export default class Radar extends Viz {
       r: radius * ((d + 1) / this._levels),
     }));
 
-    const circleConfig = configPrep.bind(this)(
+    const circleConfig = (configPrep as any).bind(this as any)(
       this._axisConfig.shapeConfig,
       "shape",
       "Circle",
@@ -182,14 +182,14 @@ export default class Radar extends Viz {
         }).node(),
       )
       .config(
-        configPrep.bind(this)(this._axisConfig.shapeConfig, "shape", "Path"),
+        (configPrep as any).bind(this as any)(this._axisConfig.shapeConfig, "shape", "Path"),
       )
       .render();
 
     const groupData = nestedGroupData.map(([hKey, innerEntries]) => {
       const q = innerEntries.map(([, vals], i) => {
         const value = sum(vals, (x, i) => this._value(x, i));
-        const r = (value / maxValue) * radius,
+        const r = (value / maxValue!) * radius,
           radians = (tau / totalAxis) * i;
         return {
           x: r * Math.cos(radians),
@@ -218,22 +218,22 @@ export default class Radar extends Viz {
       };
     });
 
-    const pathConfig = configPrep.bind(this)(
+    const pathConfig = (configPrep as any).bind(this as any)(
       this._shapeConfig,
       "shape",
       "Path",
     );
-    const events = Object.keys(pathConfig.on);
+    const events = Object.keys(pathConfig.on as Record<string, unknown> ?? {});
     pathConfig.on = {};
     for (let e = 0; e < events.length; e++) {
       const event = events[e];
-      pathConfig.on[event] = (d, i, s, e) => {
-        const x = d.points.map(p => p.x + width / 2);
-        const y = d.points.map(p => p.y + height / 2);
+      pathConfig.on[event] = (d: any, i: any, s: any, e: any) => {
+        const x = d.points.map((p: any) => p.x + width / 2);
+        const y = d.points.map((p: any) => p.y + height / 2);
         const cursor = pointer(e, this._select.node());
-        const xDist = x.map(p => Math.abs(p - cursor[0]));
-        const yDist = y.map(p => Math.abs(p - cursor[1]));
-        const dists = xDist.map((d, i) => d + yDist[i]);
+        const xDist = x.map((p: any) => Math.abs(p - cursor[0]));
+        const yDist = y.map((p: any) => Math.abs(p - cursor[1]));
+        const dists = xDist.map((d: any, i: any) => d + yDist[i]);
         this._on[event].bind(this)(d.arr[dists.indexOf(min(dists))], i, s, e);
       };
     }
@@ -259,7 +259,7 @@ export default class Radar extends Viz {
   /**
       Configuration object for the radial spokes, circles, and labels.
 */
-  axisConfig(_) {
+  axisConfig(_: any) {
     return arguments.length
       ? ((this._axisConfig = assign(this._axisConfig, _)), this)
       : this._axisConfig;
@@ -268,7 +268,7 @@ export default class Radar extends Viz {
   /**
       Accessor function for the metric value used as each axis.
 */
-  metric(_) {
+  metric(_: any) {
     return arguments.length
       ? ((this._metric = typeof _ === "function" ? _ : accessor(_)), this)
       : this._metric;
@@ -277,7 +277,7 @@ export default class Radar extends Viz {
   /**
       Determines how much pixel spaces to give the outer labels.
 */
-  outerPadding(_) {
+  outerPadding(_: any) {
     return arguments.length
       ? ((this._outerPadding = _), this)
       : this._outerPadding;
@@ -291,7 +291,7 @@ function value(d) {
   return d.value;
 }
 */
-  value(_) {
+  value(_: any) {
     return arguments.length
       ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)
       : this._value;

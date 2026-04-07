@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
 import type Viz from "../Viz.js";
 
@@ -58,7 +59,7 @@ export default function (
       )
       .title(this._drawLabel)
       .position(position)
-      .config(configPrep.bind(this)(this._tooltipConfig))
+      .config(configPrep.bind(this as unknown as VizContext)(this._tooltipConfig))
       .render();
   }
 }

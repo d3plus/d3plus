@@ -51,7 +51,7 @@ export default class Sankey extends Viz {
       this.hover(false);
     };
     const defaultMouseMove = this._on["mousemove.shape"];
-    this._on["mousemove.shape"] = (d, i, x, event) => {
+    this._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
       defaultMouseMove(d, i, x, event);
       if (this._focus && this._focus === d.id) {
         this.hover(false);
@@ -62,7 +62,7 @@ export default class Sankey extends Viz {
         const id = this._nodeId(d, i),
           node = this._nodeLookup[id],
           nodeLookup = Object.keys(this._nodeLookup).reduce((all, item) => {
-            all[this._nodeLookup[item] as string] = !isNaN(
+            (all as any)[this._nodeLookup[item] as string] = !isNaN(
               item as unknown as number,
             )
               ? parseInt(item, 10)
@@ -73,11 +73,11 @@ export default class Sankey extends Viz {
         const links = this._linkLookup[node];
         const filterIds = [id];
 
-        links.forEach(l => {
-          filterIds.push(nodeLookup[l]);
+        links.forEach((l: any) => {
+          filterIds.push((nodeLookup as any)[l]);
         });
 
-        this.hover((h, x) => {
+        this.hover((h: any, x: any) => {
           if (h.source && h.target) {
             return h.source.id === id || h.target.id === id;
           } else {
@@ -93,7 +93,7 @@ export default class Sankey extends Viz {
       Path: {
         fill: "none",
         hoverStyle: {
-          "stroke-width": d =>
+          "stroke-width": (d: any) =>
             Math.max(
               1,
               Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) -
@@ -103,7 +103,7 @@ export default class Sankey extends Viz {
         label: false,
         stroke: "#DBDBDB",
         strokeOpacity: 0.5,
-        strokeWidth: d =>
+        strokeWidth: (d: any) =>
           Math.max(
             1,
             Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) -
@@ -128,16 +128,16 @@ export default class Sankey extends Viz {
     const _nodes = Array.isArray(this._nodes)
       ? this._nodes
       : this._links
-          .reduce((all, d) => {
+          .reduce((all: any, d: any) => {
             if (!all.includes(d[this._linksSource]))
               all.push(d[this._linksSource]);
             if (!all.includes(d[this._linksTarget]))
               all.push(d[this._linksTarget]);
             return all;
           }, [])
-          .map(id => ({id}));
+          .map((id: any) => ({id}));
 
-    const nodes = _nodes.map((n, i) => ({
+    const nodes = _nodes.map((n: any, i: any) => ({
       __d3plus__: true,
       data: n,
       i,
@@ -146,14 +146,14 @@ export default class Sankey extends Viz {
       shape: "Rect",
     }));
 
-    const nodeLookup = (this._nodeLookup = nodes.reduce((obj, d, i) => {
+    const nodeLookup = (this._nodeLookup = nodes.reduce((obj: any, d: any, i: any) => {
       obj[d.id] = i;
       return obj;
     }, {}));
 
-    const links = this._links.map((link, i) => {
+    const links = this._links.map((link: any, i: any) => {
       const check = [this._linksSource, this._linksTarget];
-      const linkLookup = check.reduce((result, item) => {
+      const linkLookup = check.reduce((result: any, item: any) => {
         result[item] = nodeLookup[link[item]];
         return result;
       }, {});
@@ -164,7 +164,7 @@ export default class Sankey extends Viz {
       };
     });
 
-    this._linkLookup = links.reduce((obj, d) => {
+    this._linkLookup = links.reduce((obj: any, d: any) => {
       if (!obj[d.source]) obj[d.source] = [];
       obj[d.source].push(d.target);
       if (!obj[d.target]) obj[d.target] = [];
@@ -204,12 +204,12 @@ export default class Sankey extends Viz {
       (d: Record<string, unknown>) => d.shape as string,
     ).forEach(([key, values]) => {
       this._shapes.push(
-        new shapes[key]()
+        new (shapes as any)[key]()
           .data(values)
-          .height(d => d.y1 - d.y0)
-          .width(d => d.x1 - d.x0)
-          .x(d => (d.x1 + d.x0) / 2)
-          .y(d => (d.y1 + d.y0) / 2)
+          .height((d: any) => d.y1 - d.y0)
+          .width((d: any) => d.x1 - d.x0)
+          .x((d: any) => (d.x1 + d.x0) / 2)
+          .y((d: any) => (d.y1 + d.y0) / 2)
           .select(
             elem("g.d3plus-sankey-nodes", {
               parent: this._select,
@@ -217,7 +217,7 @@ export default class Sankey extends Viz {
               update: {transform},
             }).node(),
           )
-          .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
+          .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", key))
           .render(),
       );
     });
@@ -227,9 +227,9 @@ export default class Sankey extends Viz {
   /**
       The hover callback function for highlighting shapes on mouseover.
 */
-  hover(_) {
+  hover(_: any) {
     this._hover = _;
-    this._shapes.forEach(s => s.hover(_));
+    this._shapes.forEach((s: any) => s.hover(_));
     if (this._legend) this._legendClass.hover(_);
 
     return this;
@@ -238,7 +238,7 @@ export default class Sankey extends Viz {
   /**
       A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.
 */
-  iterations(_) {
+  iterations(_: any) {
     return arguments.length ? ((this._iterations = _), this) : this._iterations;
   }
 
@@ -249,9 +249,9 @@ export default class Sankey extends Viz {
 The value passed should be an *Array* of data. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.
     @param f Array of link objects or a URL to load links from.
 */
-  links(_, f) {
+  links(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "links");
+      (addToQueue as any).bind(this as any)(_, f, "links");
       return this;
     }
     return this._links;
@@ -260,14 +260,14 @@ The value passed should be an *Array* of data. An optional formatting function c
   /**
       A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.
 */
-  linkSort(_) {
+  linkSort(_: any) {
     return arguments.length ? ((this._linkSort = _), this) : this._linkSort;
   }
 
   /**
       The key inside of each link Object that references the source node.
 */
-  linksSource(_) {
+  linksSource(_: any) {
     return arguments.length
       ? ((this._linksSource = _), this)
       : this._linksSource;
@@ -276,7 +276,7 @@ The value passed should be an *Array* of data. An optional formatting function c
   /**
       The key inside of each link Object that references the target node.
 */
-  linksTarget(_) {
+  linksTarget(_: any) {
     return arguments.length
       ? ((this._linksTarget = _), this)
       : this._linksTarget;
@@ -285,9 +285,9 @@ The value passed should be an *Array* of data. An optional formatting function c
   /**
       The nodeAlign property of the sankey layout, which can be "left", "right", "center", or "justify".
 */
-  nodeAlign(_) {
+  nodeAlign(_: any) {
     return arguments.length
-      ? ((this._nodeAlign = typeof _ === "function" ? _ : sankeyAligns[_]),
+      ? ((this._nodeAlign = typeof _ === "function" ? _ : (sankeyAligns as any)[_]),
         this)
       : this._nodeAlign;
   }
@@ -295,7 +295,7 @@ The value passed should be an *Array* of data. An optional formatting function c
   /**
       The node id accessor(s).
 */
-  nodeId(_) {
+  nodeId(_: any) {
     return arguments.length
       ? ((this._nodeId = typeof _ === "function" ? _ : accessor(_)), this)
       : this._nodeId;
@@ -307,9 +307,9 @@ The value passed should be an *Array* of data. An optional formatting function c
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.
     @param f Array of node objects or a URL to load nodes from.
 */
-  nodes(_, f) {
+  nodes(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "nodes");
+      (addToQueue as any).bind(this as any)(_, f, "nodes");
       return this;
     }
     return this._nodes;
@@ -318,7 +318,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       Padding of the node. By default, the nodePadding size is 8.
 */
-  nodePadding(_) {
+  nodePadding(_: any) {
     return arguments.length
       ? ((this._nodePadding = _), this)
       : this._nodePadding;
@@ -327,14 +327,14 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.
 */
-  nodeSort(_) {
+  nodeSort(_: any) {
     return arguments.length ? ((this._nodeSort = _), this) : this._nodeSort;
   }
 
   /**
       Width of the node. By default, the nodeWidth size is 30.
 */
-  nodeWidth(_) {
+  nodeWidth(_: any) {
     return arguments.length ? ((this._nodeWidth = _), this) : this._nodeWidth;
   }
 
@@ -346,7 +346,7 @@ function value(d) {
   return d.value;
 }
 */
-  value(_) {
+  value(_: any) {
     return arguments.length
       ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)
       : this._value;

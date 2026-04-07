@@ -14,7 +14,7 @@ export default class Bar extends Shape {
     | ((
         d: DataPoint,
         i: number,
-        aes: Record<string, unknown>,
+        aes: ShapeAes,
       ) => Record<string, unknown> | null | false)
     | null;
   declare _name: string;
@@ -38,7 +38,7 @@ export default class Bar extends Shape {
     this._labelBounds = (
       d: DataPoint,
       i: number,
-      s: Record<string, unknown>,
+      s: ShapeAes,
     ) => ({
       width: s.width,
       height: s.height,
@@ -195,7 +195,7 @@ function(d) {
   height(_: AccessorFn | number): this;
   height(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._height = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._height;
   }
 
@@ -211,7 +211,7 @@ function(d) {
   width(_: AccessorFn | number): this;
   width(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._width;
   }
 

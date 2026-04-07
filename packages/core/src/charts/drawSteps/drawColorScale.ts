@@ -1,6 +1,6 @@
 import {min, rollup} from "d3-array";
 import {merge} from "@d3plus/data";
-import type {DataPoint} from "@d3plus/data";
+import type {DataPoint, MergedDataPoint} from "@d3plus/data";
 import {elem} from "@d3plus/dom";
 import type Viz from "../Viz.js";
 
@@ -65,8 +65,8 @@ export default function (this: Viz): void {
   }).node();
 
   if (this._colorScale) {
-    const scaleData = data.filter((d: DataPoint, i: number) => {
-      const c = this._colorScale(d, i);
+    const scaleData = data.filter((d: MergedDataPoint, i: number) => {
+      const c = this._colorScale(d as unknown as DataPoint, i);
       return c !== undefined && c !== null;
     });
 

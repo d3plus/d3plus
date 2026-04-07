@@ -24,8 +24,8 @@ interface RenderOptions {
 */
 export default class Message {
   _isVisible: boolean;
-  mask: D3Selection;
-  elem: D3Selection;
+  mask!: D3Selection;
+  elem!: D3Selection;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -111,7 +111,7 @@ export default class Message {
         .merge(this.elem) as unknown as D3Selection
     ).html(String);
 
-    stylize(this.elem, style);
+    stylize(this.elem, style as Record<string, string | number | boolean | null>);
 
     if (callback) setTimeout(callback, 100);
 

@@ -44,7 +44,8 @@ import mousemoveShape from "./events/mousemove.shape.js";
 import touchstartBody from "./events/touchstart.body.js";
 
 function debounce(
-  func: (...args: unknown[]) => void,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: (...args: any[]) => void,
   delay: number,
 ): (...args: unknown[]) => void {
   let timeout: ReturnType<typeof setTimeout>;
@@ -123,7 +124,7 @@ class LRU {
   set(key: string, val: unknown): void {
     this._map.delete(key);
     if (this._map.size >= this._cap)
-      this._map.delete(this._map.keys().next().value);
+      this._map.delete(this._map.keys().next().value!);
     this._map.set(key, val);
   }
 }
@@ -212,7 +213,7 @@ export default class Viz extends (BaseClass as any) {
         const id = this._groupBy[this._legendDepth].bind(this)(d, i);
         return id instanceof Array ? id.length : 1;
       });
-      return arr.length > 1 && maxGrouped <= 2;
+      return arr.length > 1 && (maxGrouped ?? 0) <= 2;
     };
     this._legendClass = new Legend();
     this._legendConfig = {
@@ -272,7 +273,7 @@ export default class Viz extends (BaseClass as any) {
     this._queue = [];
     this._resizeObserver = new ResizeObserver(
       debounce((entries: ResizeObserverEntry[]) => {
-        const {width, height} = entries[0].contentRect;
+        const {width, height} = entries[0]!.contentRect;
         if (
           ((width !== this._width && this._autoWidth) || (height !== this._height && this._autoHeight)) &&
           width &&
@@ -329,7 +330,7 @@ export default class Viz extends (BaseClass as any) {
           typeof this._shapeConfig.fill === "function"
             ? this._shapeConfig.fill(d, i)
             : this._shapeConfig.fill;
-        return color(c).darker(0.25);
+        return color(c)!.darker(0.25);
       },
       role: "presentation",
       strokeWidth: constant(0),
@@ -503,9 +504,9 @@ export default class Viz extends (BaseClass as any) {
       ) {
         this._timeFilter = () => true;
       } else {
-        const latestTime = +max(dates);
+        const latestTime = +max(dates)!;
         this._timeFilter = (d: DataPoint, i: number) =>
-          +date(this._time(d, i)) === latestTime;
+          +date(this._time(d, i))! === latestTime;
       }
     }
 
@@ -599,7 +600,7 @@ export default class Viz extends (BaseClass as any) {
       colorScalePosition === "right" ||
       colorScalePosition === false
     )
-      drawColorScale.bind(this)(this._filteredData);
+      drawColorScale.bind(this)();
 
     // Draws all of the top/bottom UI elements
     drawBack.bind(this)();
@@ -612,7 +613,7 @@ export default class Viz extends (BaseClass as any) {
     if (legendPosition === "top" || legendPosition === "bottom")
       drawLegend.bind(this)(this._legendData);
     if (colorScalePosition === "top" || colorScalePosition === "bottom")
-      drawColorScale.bind(this)(this._filteredData);
+      drawColorScale.bind(this)();
 
     this._shapes = [];
 
@@ -686,10 +687,10 @@ export default class Viz extends (BaseClass as any) {
       width && height
         ? [width, height]
         : getSize(this._select.node().parentNode);
-    w -= parseFloat(this._select.style("border-left-width"));
-    w -= parseFloat(this._select.style("border-right-width"));
-    h -= parseFloat(this._select.style("border-top-width"));
-    h -= parseFloat(this._select.style("border-bottom-width"));
+    w! -= parseFloat(this._select.style("border-left-width"));
+    w! -= parseFloat(this._select.style("border-right-width"));
+    h! -= parseFloat(this._select.style("border-top-width"));
+    h! -= parseFloat(this._select.style("border-bottom-width"));
     
     if (this._autoWidth && this._width !== w) {
       this.width(w);
@@ -981,7 +982,7 @@ export default class Viz extends (BaseClass as any) {
 */
   aggs(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._aggs = assign(this._aggs, _)), this)
+      ? ((this._aggs = assign(this._aggs, _!)), this)
       : this._aggs;
   }
 
@@ -1008,7 +1009,7 @@ export default class Viz extends (BaseClass as any) {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._attributionStyle = assign(this._attributionStyle, _)), this)
+      ? ((this._attributionStyle = assign(this._attributionStyle, _!)), this)
       : this._attributionStyle;
   }
 
@@ -1017,7 +1018,7 @@ export default class Viz extends (BaseClass as any) {
 */
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backConfig = assign(this._backConfig, _)), this)
+      ? ((this._backConfig = assign(this._backConfig, _!)), this)
       : this._backConfig;
   }
 
@@ -1072,7 +1073,7 @@ export default class Viz extends (BaseClass as any) {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._colorScaleConfig = assign(this._colorScaleConfig, _)), this)
+      ? ((this._colorScaleConfig = assign(this._colorScaleConfig, _!)), this)
       : this._colorScaleConfig;
   }
 
@@ -1126,7 +1127,8 @@ Defaults to an empty array (`[]`).
     f?: (data: DataPoint[]) => DataPoint[] | Record<string, unknown>,
   ): this | DataPoint[] {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "data");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      addToQueue.bind(this as any)(_ as any, f, "data");
       this._hidden = [];
       this._solo = [];
       if (
@@ -1213,7 +1215,7 @@ Defaults to an empty array (`[]`).
 */
   downloadConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._downloadConfig = assign(this._downloadConfig, _)), this)
+      ? ((this._downloadConfig = assign(this._downloadConfig, _!)), this)
       : this._downloadConfig;
   }
 
@@ -1266,7 +1268,7 @@ Defaults to an empty array (`[]`).
       });
 
       this.tooltipConfig({
-        tooltipStyle: {"font-family": fontFamilyStringify(_)},
+        tooltipStyle: {"font-family": fontFamilyStringify(_!)},
       });
 
       this._fontFamily = _;
@@ -1286,9 +1288,10 @@ Defaults to an empty array (`[]`).
   ): this | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] {
     if (!arguments.length) return this._groupBy;
     this._groupByRaw = _;
-    if (!(_ instanceof Array)) _ = [_];
+    const arr: (string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]))[] =
+      _ instanceof Array ? _ : [_!];
     return (
-      (this._groupBy = _.map(
+      (this._groupBy = arr.map(
         (
           k: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
         ) => {
@@ -1353,10 +1356,10 @@ Defaults to an empty array (`[]`).
           this._shapes.map((s: {data: () => DataPoint[]}) => s.data()),
         );
         shapeData = shapeData.concat(this._legendClass.data());
-        const activeData = _ ? shapeData.filter(_) : [];
+        const activeData = _ ? (shapeData as DataPoint[]).filter(_ as (d: DataPoint) => boolean) : [];
 
         let activeIds: string[] = [];
-        activeData.map(this._ids).forEach((ids: string[]) => {
+        (activeData.map(this._ids) as string[][]).forEach((ids: string[]) => {
           for (let x = 1; x <= ids.length; x++) {
             activeIds.push(JSON.stringify(ids.slice(0, x)));
           }
@@ -1409,7 +1412,7 @@ Defaults to an empty array (`[]`).
 */
   legendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._legendConfig = assign(this._legendConfig, _)), this)
+      ? ((this._legendConfig = assign(this._legendConfig, _!)), this)
       : this._legendConfig;
   }
 
@@ -1461,7 +1464,7 @@ Defaults to an empty array (`[]`).
 */
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._legendTooltip = assign(this._legendTooltip, _)), this)
+      ? ((this._legendTooltip = assign(this._legendTooltip, _!)), this)
       : this._legendTooltip;
   }
 
@@ -1499,7 +1502,7 @@ Defaults to an empty array (`[]`).
 */
   messageStyle(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._messageStyle = assign(this._messageStyle, _)), this)
+      ? ((this._messageStyle = assign(this._messageStyle, _!)), this)
       : this._messageStyle;
   }
 
@@ -1559,7 +1562,7 @@ Defaults to an empty array (`[]`).
 */
   shapeConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
+      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
       : this._shapeConfig;
   }
 
@@ -1579,7 +1582,7 @@ Defaults to an empty array (`[]`).
 */
   subtitleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._subtitleConfig = assign(this._subtitleConfig, _)), this)
+      ? ((this._subtitleConfig = assign(this._subtitleConfig, _!)), this)
       : this._subtitleConfig;
   }
 
@@ -1618,8 +1621,8 @@ Defaults to an empty array (`[]`).
     if (arguments.length) {
       if (typeof _ === "function") {
         this._threshold = _;
-      } else if (isFinite(_) && !isNaN(_)) {
-        this._threshold = constant(_ * 1);
+      } else if (isFinite(_!) && !isNaN(_!)) {
+        this._threshold = constant(_! * 1);
       }
       return this;
     } else return this._threshold;
@@ -1636,7 +1639,7 @@ Defaults to an empty array (`[]`).
       if (typeof key === "function") {
         this._thresholdKey = key;
       } else {
-        this._thresholdKey = accessor(key);
+        this._thresholdKey = accessor(key!);
       }
       return this;
     } else return this._thresholdKey;
@@ -1720,7 +1723,7 @@ Defaults to an empty array (`[]`).
 */
   timelineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._timelineConfig = assign(this._timelineConfig, _)), this)
+      ? ((this._timelineConfig = assign(this._timelineConfig, _!)), this)
       : this._timelineConfig;
   }
 
@@ -1729,7 +1732,7 @@ Defaults to an empty array (`[]`).
 */
   timelineDefault(_?: Date | string | (Date | string)[]): this | Date[] {
     if (arguments.length) {
-      if (!(_ instanceof Array)) _ = [_, _];
+      if (!(_ instanceof Array)) _ = [_!, _!];
       this._timelineDefault = (_ as (Date | string)[])
         .map(d => date(d as string | number | false))
         .filter((d): d is Date => d !== false);
@@ -1765,7 +1768,7 @@ Defaults to an empty array (`[]`).
 */
   titleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._titleConfig = assign(this._titleConfig, _)), this)
+      ? ((this._titleConfig = assign(this._titleConfig, _!)), this)
       : this._titleConfig;
   }
 
@@ -1796,7 +1799,7 @@ Defaults to an empty array (`[]`).
 */
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._tooltipConfig = assign(this._tooltipConfig, _)), this)
+      ? ((this._tooltipConfig = assign(this._tooltipConfig, _!)), this)
       : this._tooltipConfig;
   }
 
@@ -1819,7 +1822,7 @@ Defaults to an empty array (`[]`).
 */
   totalConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._totalConfig = assign(this._totalConfig, _)), this)
+      ? ((this._totalConfig = assign(this._totalConfig, _!)), this)
       : this._totalConfig;
   }
 

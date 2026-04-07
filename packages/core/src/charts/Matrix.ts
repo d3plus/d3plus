@@ -182,7 +182,7 @@ export default class Matrix extends Viz {
         : this._columnAxis.width();
 
     const transform = `translate(0, ${this._margin.top})`;
-    const rectConfig = configPrep.bind(this)(
+    const rectConfig = (configPrep as any).bind(this as any)(
       this._shapeConfig,
       "shape",
       "Rect",
@@ -190,7 +190,7 @@ export default class Matrix extends Viz {
 
     this._shapes.push(
       new Rect()
-        .data(shapeData)
+        .data(shapeData as any)
         .select(
           elem("g.d3plus-Matrix-cells", {
             parent: this._select,
@@ -201,11 +201,11 @@ export default class Matrix extends Viz {
         .config({
           height: cellHeight - this._cellPadding,
           width: cellWidth - this._cellPadding,
-          x: (d: Record<string, unknown>) =>
+          x: (d: any) =>
             columnScale(d.column) + cellWidth / 2,
-          y: (d: Record<string, unknown>) => rowScale(d.row) + cellHeight / 2,
-        })
-        .config(rectConfig)
+          y: (d: any) => rowScale(d.row) + cellHeight / 2,
+        } as any)
+        .config(rectConfig as any)
         .render(),
     );
 
@@ -233,7 +233,7 @@ function column(d) {
     _?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
   ): this | string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) {
     return arguments.length
-      ? ((this._column = typeof _ === "function" ? _ : accessor(_)), this)
+      ? ((this._column = typeof _ === "function" ? _ : accessor(_!)), this)
       : this._column;
   }
 
@@ -242,7 +242,7 @@ function column(d) {
 */
   columnConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._columnConfig = assign(this._columnConfig, _)), this)
+      ? ((this._columnConfig = assign(this._columnConfig, _!)), this)
       : this._columnConfig;
   }
 
@@ -279,7 +279,7 @@ function row(d) {
     _?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
   ): this | string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) {
     return arguments.length
-      ? ((this._row = typeof _ === "function" ? _ : accessor(_)), this)
+      ? ((this._row = typeof _ === "function" ? _ : accessor(_!)), this)
       : this._row;
   }
 
@@ -288,7 +288,7 @@ function row(d) {
 */
   rowConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._rowConfig = assign(this._rowConfig, _)), this)
+      ? ((this._rowConfig = assign(this._rowConfig, _!)), this)
       : this._rowConfig;
   }
 

@@ -14,7 +14,7 @@ export default class Circle extends Shape {
     | ((
         d: DataPoint,
         i: number,
-        aes: Record<string, unknown>,
+        aes: ShapeAes,
       ) => Record<string, unknown> | null | false)
     | null;
   declare _labelConfig: Record<string, unknown>;
@@ -28,9 +28,9 @@ export default class Circle extends Shape {
   constructor() {
     super("circle");
     this._labelBounds = (
-      d: DataPoint,
-      i: number,
-      s: Record<string, unknown>,
+      _d: DataPoint,
+      _i: number,
+      s: ShapeAes,
     ) => ({
       width: (s.r as number) * 1.5,
       height: (s.r as number) * 1.5,
@@ -74,7 +74,8 @@ export default class Circle extends Shape {
         .attr("x", 0)
         .attr("y", 0)
         .transition(this._transition)
-        .call(this._applyPosition.bind(this));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .call(this._applyPosition.bind(this) as any);
       update = update.transition(this._transition) as unknown as D3Selection;
       this._exit
         .transition(this._transition)
@@ -113,7 +114,7 @@ function(d) {
   r(_: AccessorFn | number): this;
   r(_?: AccessorFn | number): AccessorFn | this {
     return arguments.length
-      ? ((this._r = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._r = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._r;
   }
 }

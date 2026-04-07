@@ -38,7 +38,7 @@ export default class Pack extends Viz {
     this._layoutPadding = 1;
 
     const defaultLegend = this._legend;
-    this._legend = (config, arr) => {
+    this._legend = (config: any, arr: any) => {
       if (arr.length === this._filteredData.length) return false;
       return defaultLegend.bind(this)(config, arr);
     };
@@ -46,13 +46,13 @@ export default class Pack extends Viz {
     this._on.mouseenter = () => {};
 
     const defaultMouseMoveLegend = this._on["mousemove.legend"];
-    this._on["mousemove.legend"] = (d, i, x, event) => {
+    this._on["mousemove.legend"] = (d: any, i: any, x: any, event: any) => {
       defaultMouseMoveLegend(d, i, x, event);
 
       const ids = this._ids(d, i);
       const hoverData = recursionCircles(d);
 
-      this.hover(h => {
+      this.hover((h: any) => {
         const hover = Object.keys(h)
           .filter(key => key !== "value")
           .every(key => d[key] && d[key].includes(h[key]));
@@ -65,10 +65,10 @@ export default class Pack extends Viz {
       });
     };
     const defaultMouseMoveShape = this._on["mousemove.shape"];
-    this._on["mousemove.shape"] = (d, i, x, event) => {
+    this._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
       if (d.__d3plusTooltip__) defaultMouseMoveShape(d, i, x, event);
       const hoverData = recursionCircles(d, [d]);
-      this.hover(h => hoverData.includes(h));
+      this.hover((h: any) => hoverData.includes(h));
     };
 
     this._pack = pack();
@@ -76,14 +76,14 @@ export default class Pack extends Viz {
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
       Circle: {
-        label: d => (d.parent && !d.children ? d.id : false),
+        label: (d: any) => (d.parent && !d.children ? d.id : false),
         labelConfig: {
           fontResize: true,
         },
-        opacity: d => d.__d3plusOpacity__,
+        opacity: (d: any) => d.__d3plusOpacity__,
       },
     });
-    this._sort = (a, b) => b.value - a.value;
+    this._sort = (a: any, b: any) => b.value - a.value;
     this._sum = accessor("value");
   }
 
@@ -119,7 +119,7 @@ export default class Pack extends Viz {
           .sort(this._sort),
       )
       .descendants()
-      .filter((d, i) => {
+      .filter((d: any, i: any) => {
         d.__d3plus__ = true;
         d.i = i;
         d.id = d.parent ? d.parent.data.key : "root";
@@ -138,7 +138,7 @@ export default class Pack extends Viz {
             update: {transform},
           }).node(),
         )
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Circle"))
+        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Circle"))
         .render(),
     );
 
@@ -148,9 +148,9 @@ export default class Pack extends Viz {
   /**
       The hover callback function for highlighting shapes on mouseover.
 */
-  hover(_) {
+  hover(_: any) {
     this._hover = _;
-    this._shapes.forEach(s => s.hover(_));
+    this._shapes.forEach((s: any) => s.hover(_));
 
     if (this._legend) this._legendClass.hover(_);
     return this;
@@ -159,7 +159,7 @@ export default class Pack extends Viz {
   /**
       The inner and outer padding for the pack layout.
 */
-  layoutPadding(_) {
+  layoutPadding(_: any) {
     return arguments.length
       ? ((this._layoutPadding = _), this)
       : this._layoutPadding;
@@ -168,7 +168,7 @@ export default class Pack extends Viz {
   /**
       The opacity of nested circles within the pack layout.
 */
-  packOpacity(_) {
+  packOpacity(_: any) {
     return arguments.length
       ? ((this._packOpacity = typeof _ === "function" ? _ : constant(_)), this)
       : this._packOpacity;
@@ -182,7 +182,7 @@ function comparator(a, b) {
   return b.value - a.value;
 }
 */
-  sort(_) {
+  sort(_: any) {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 
@@ -194,7 +194,7 @@ function sum(d) {
   return d.sum;
 }
 */
-  sum(_) {
+  sum(_: any) {
     return arguments.length
       ? ((this._sum = typeof _ === "function" ? _ : accessor(_)), this)
       : this._sum;

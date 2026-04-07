@@ -28,7 +28,7 @@ export default class Tree extends Viz {
     super();
 
     this._orient = "vertical";
-    this._separation = (a, b) => (a.parent === b.parent ? 1 : 2);
+    this._separation = (a: any, b: any) => (a.parent === b.parent ? 1 : 2);
 
     this._legendTooltip = assign(this._legendTooltip, {
       title: legendLabel.bind(this),
@@ -37,7 +37,7 @@ export default class Tree extends Viz {
 
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
-      ariaLabel: (d, i) =>
+      ariaLabel: (d: any, i: any) =>
         this._treeData
           ? `${this._treeData[i].depth}. ${this._drawLabel(d, i)}.`
           : "",
@@ -58,7 +58,7 @@ export default class Tree extends Viz {
     });
 
     this._tooltipConfig = assign(this._tooltipConfig, {
-      title: (d, i, x) => this._drawLabel(d, i, x.depth - 1),
+      title: (d: any, i: any, x: any) => this._drawLabel(d, i, x.depth - 1),
     });
 
     this._tree = tree();
@@ -100,20 +100,20 @@ export default class Tree extends Viz {
         ).sort(this._sort),
       )
       .descendants()
-      .filter(d => d.depth <= this._groupBy.length && d.parent));
+      .filter((d: any) => d.depth <= this._groupBy.length && d.parent));
 
     /**
         Merges the values of a given nest branch.
         @private
 */
-    function flattenBranchData(branch) {
+    function flattenBranchData(branch: any) {
       return merge(
-        branch.values.map(l => (l.key && l.values ? flattenBranchData(l) : l)),
+        branch.values.map((l: any) => (l.key && l.values ? flattenBranchData(l) : l)),
         that._aggs,
       );
     }
 
-    treeData.forEach((d, i) => {
+    treeData.forEach((d: any, i: any) => {
       if (d.data.key && d.data.values) d.data = flattenBranchData(d.data);
       d.__d3plus__ = true;
       d.i = i;
@@ -129,7 +129,7 @@ export default class Tree extends Viz {
       d.children ? 0 : r(d.data, (d as unknown as {i: number}).i),
     );
 
-    const yExtent = extent(treeData, (d: TreeNode) => d.y) as [number, number];
+    const yExtent = extent(treeData, (d: TreeNode) => d.y) as unknown as [number, number];
     this._labelHeight = min([
       isVertical ? 50 : 100,
       (yExtent[1] -
@@ -168,7 +168,7 @@ export default class Tree extends Viz {
         height - (rBufferEnd as unknown as number) - this._labelHeight,
       ]);
 
-    treeData.forEach(d => {
+    treeData.forEach((d: any) => {
       const val = yScale(d.y);
       if (isHorizontal) {
         d.y = d.x;
@@ -184,11 +184,11 @@ export default class Tree extends Viz {
 
     this._shapes.push(
       new shapes.Path()
-        .data(treeData.filter(d => d.depth > 1).map(d => assign({}, d)))
+        .data(treeData.filter((d: any) => d.depth > 1).map((d: any) => assign({}, d)) as any)
         .select(elem("g.d3plus-Tree-Links", elemObject).node())
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
+        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Path"))
         .config({
-          d: d => {
+          d: (d: any) => {
             let r = this._shapeConfig.r;
 
             if (typeof r === "function") r = r(d.data, d.i);
@@ -202,29 +202,29 @@ export default class Tree extends Viz {
               ? `M${x},${y}C${x},${(y + py) / 2} ${px},${(y + py) / 2} ${px},${py}`
               : `M${x},${y}C${(x + px) / 2},${y} ${(x + px) / 2},${py} ${px},${py}`;
           },
-          id: (d, i) => this._ids(d, i)[d.depth - 1],
-        })
+          id: (d: any, i: any) => this._ids(d, i)[d.depth - 1],
+        } as any)
         .render(),
     );
 
     const shapeConfig = {
-      id: (d, i) => this._ids(d, i)[d.depth - 1],
-      label: (d, i) => {
+      id: (d: any, i: any) => this._ids(d, i)[d.depth - 1],
+      label: (d: any, i: any) => {
         if (this._label) return this._label(d.data, i);
         const ids = this._ids(d, i).slice(0, d.depth);
         return ids[ids.length - 1];
       },
       labelConfig: {
-        textAnchor: (d, i, x) =>
+        textAnchor: (d: any, i: any, x: any) =>
           isVertical
             ? "middle"
             : x.children && x.depth !== this._drawDepth + 1
               ? "end"
               : "start",
-        verticalAlign: (d, i, x) =>
+        verticalAlign: (d: any, i: any, x: any) =>
           isVertical ? (x.depth === 1 ? "bottom" : "top") : "middle",
       },
-      hitArea: (d, i, s) => {
+      hitArea: (d: any, i: any, s: any) => {
         const h = this._labelHeight,
           offset = s.r ? s.r : isVertical ? s.height / 2 : s.width / 2,
           w = this._labelWidths[d.depth - 1];
@@ -244,7 +244,7 @@ export default class Tree extends Viz {
               : -offset,
         };
       },
-      labelBounds: (d, i, s) => {
+      labelBounds: (d: any, i: any, s: any) => {
         const h = this._labelHeight,
           height = isVertical ? "height" : "width",
           offset = s.r ? s.r : isVertical ? s.height / 2 : s.width / 2,
@@ -265,23 +265,23 @@ export default class Tree extends Viz {
       },
     };
 
-    const shapeData = nest(treeData, d => this._shape(d.data));
-    const dataShapes = shapeData.map(d => d.key);
+    const shapeData = nest(treeData as any, (d: any) => this._shape(d.data));
+    const dataShapes = shapeData.map((d: any) => d.key);
     const exitShapes = this._previousShapes.filter(
-      d => !dataShapes.includes(d),
+      (d: any) => !dataShapes.includes(d),
     );
 
     shapeData
-      .concat(exitShapes.map(key => ({key, values: []})))
-      .forEach(({key, values}) => {
+      .concat(exitShapes.map((key: any) => ({key, values: []})))
+      .forEach(({key, values}: any) => {
         this._shapes.push(
           new (shapes as unknown as Record<string, new () => Shape>)[
             key as string
           ]()
             .data(values as DataPoint[])
             .select(elem(`g.d3plus-Tree-${key}`, elemObject).node())
-            .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
-            .config(shapeConfig)
+            .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", key as string | false))
+            .config(shapeConfig as any)
             .render(),
         );
       });
@@ -294,7 +294,7 @@ export default class Tree extends Viz {
   /**
       Changes the orientation of the entire Tree, either "vertical" (top to bottom) or "horizontal" (left to right).
 */
-  orient(_) {
+  orient(_: any) {
     return arguments.length ? ((this._orient = _), this) : this._orient;
   }
 
@@ -309,7 +309,7 @@ function separation(a, b) {
   return a.parent === b.parent ? 1 : 2;
 }
 */
-  separation(_) {
+  separation(_: any) {
     return arguments.length ? ((this._separation = _), this) : this._separation;
   }
 }

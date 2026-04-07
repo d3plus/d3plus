@@ -42,16 +42,16 @@ export default class Treemap extends Viz {
     this._layoutPadding = 1;
 
     const defaultLegend = this._legend;
-    this._legend = (config, arr) => {
+    this._legend = (config: any, arr: any) => {
       if (arr.length === this._filteredData.length) return false;
       return defaultLegend.bind(this)(config, arr);
     };
-    this._legendSort = (a, b) => this._sum(b) - this._sum(a);
+    this._legendSort = (a: any, b: any) => this._sum(b) - this._sum(a);
     this._legendTooltip = assign({}, this._legendTooltip, {
       tbody: [],
     });
     this._shapeConfig = assign({}, this._shapeConfig, {
-      ariaLabel: (d, i) => {
+      ariaLabel: (d: any, i: any) => {
         const rank = this._rankData ? `${this._rankData.indexOf(d) + 1}. ` : "";
         return `${rank}${this._drawLabel(d, i)}, ${this._sum(d, i)}.`;
       },
@@ -62,7 +62,7 @@ export default class Treemap extends Viz {
         padding: 5,
       },
     });
-    this._sort = (a, b) => {
+    this._sort = (a: any, b: any) => {
       const aggA = isAggregated(a);
       const aggB = isAggregated(b);
       return aggA && !aggB ? 1 : !aggA && aggB ? -1 : b.value - a.value;
@@ -74,13 +74,13 @@ export default class Treemap extends Viz {
       tbody: [
         [
           () => this._translate("Share"),
-          (d, i, x) => `${formatAbbreviate(x.share * 100, this._locale)}%`,
+          (d: any, i: any, x: any) => `${formatAbbreviate(x.share * 100, this._locale)}%`,
         ],
       ],
     });
     this._treemap = treemap().round(true);
 
-    const isAggregated = leaf =>
+    const isAggregated = (leaf: any) =>
       leaf.children &&
       leaf.children.length === 1 &&
       leaf.children[0].data._isAggregation;
@@ -113,14 +113,14 @@ export default class Treemap extends Viz {
         .sort(this._sort),
     );
 
-    const shapeData = [],
+    const shapeData: any[] = [],
       that = this;
 
     /**
         Flattens and merges treemap data.
         @private
 */
-    function extractLayout(children) {
+    function extractLayout(children: any) {
       for (let i = 0; i < children.length; i++) {
         const node = children[i];
         if (node.depth <= that._drawDepth) extractLayout(node.children);
@@ -141,26 +141,26 @@ export default class Treemap extends Viz {
     }
     if (tmapData.children) extractLayout(tmapData.children);
 
-    this._rankData = shapeData.sort(this._sort).map(d => d.data);
+    this._rankData = shapeData.sort(this._sort).map((d: any) => d.data);
     const total = tmapData.value;
-    shapeData.forEach(d => {
+    shapeData.forEach((d: any) => {
       d.share = this._sum(d.data, d.i) / total;
     });
 
     const transform = `translate(${this._margin.left}, ${this._margin.top})`;
-    const rectConfig = configPrep.bind(this)(
+    const rectConfig = (configPrep as any).bind(this as any)(
       this._shapeConfig,
       "shape",
       "Rect",
     );
-    const fontMax = rectConfig.labelConfig.fontMax;
-    const fontMin = rectConfig.labelConfig.fontMin;
-    const padding = rectConfig.labelConfig.padding;
+    const fontMax = (rectConfig.labelConfig as any).fontMax;
+    const fontMin = (rectConfig.labelConfig as any).fontMin;
+    const padding = (rectConfig.labelConfig as any).padding;
 
     this._shapes.push(
       new Rect()
-        .data(shapeData)
-        .label((d => [
+        .data(shapeData as any)
+        .label(((d: any) => [
           this._drawLabel(d.data, d.i),
           `${formatAbbreviate((d.share as number) * 100, this._locale)}%`,
         ]) as unknown as (d: DataPoint) => DataPoint[keyof DataPoint])
@@ -172,8 +172,8 @@ export default class Treemap extends Viz {
           }).node(),
         )
         .config({
-          height: d => d.y1 - d.y0,
-          labelBounds: (d, i, s) => {
+          height: (d: any) => d.y1 - d.y0,
+          labelBounds: (d: any, i: any, s: any) => {
             const h = s.height;
             let sh = Math.min(fontMax, (h - padding * 2) * 0.5);
             if (sh < fontMin) sh = 0;
@@ -188,7 +188,7 @@ export default class Treemap extends Viz {
             ];
           },
           labelConfig: {
-            textAnchor: (d, i, x) => {
+            textAnchor: (d: any, i: any, x: any) => {
               let line,
                 parent = x;
               while (typeof line === "undefined" && parent) {
@@ -197,7 +197,7 @@ export default class Treemap extends Viz {
               }
               return line ? "middle" : "start";
             },
-            verticalAlign: (d, i, x) => {
+            verticalAlign: (d: any, i: any, x: any) => {
               let line,
                 parent = x;
               while (typeof line === "undefined" && parent) {
@@ -207,8 +207,8 @@ export default class Treemap extends Viz {
               return line ? "bottom" : "top";
             },
           },
-          width: d => d.x1 - d.x0,
-        })
+          width: (d: any) => d.x1 - d.x0,
+        } as any)
         .config(rectConfig)
         .render(),
     );
@@ -221,7 +221,7 @@ export default class Treemap extends Viz {
    * @param {Array} data The data to process.
    * @private
 */
-  _thresholdFunction(data) {
+  _thresholdFunction(data: any) {
     const aggs = this._aggs;
     const drawDepth = this._drawDepth;
     const groupBy = this._groupBy;
@@ -240,11 +240,11 @@ export default class Treemap extends Viz {
         @param depth The depth of the current branch.
         @private
 */
-    function thresholdByDepth(branchData: object[], depth: number) {
+    function thresholdByDepth(branchData: any[], depth: number): any[] | null {
       if (depth < drawDepth) {
         return [...group(branchData, groupBy[depth])].reduce(
-          (bulk, [, values]) => {
-            const subBranchData = thresholdByDepth(values, depth + 1);
+          (bulk: any[], [, values]): any[] => {
+            const subBranchData: any[] = thresholdByDepth(values, depth + 1) ?? [];
             return bulk.concat(subBranchData);
           },
           [],
@@ -259,7 +259,7 @@ export default class Treemap extends Viz {
 
         if (!isFinite(thresholdPercent) || isNaN(thresholdPercent)) return null;
 
-        const removedItems = [];
+        const removedItems: any[] = [];
         const branchDataCopy = branchData.slice();
         const thresholdValue = thresholdPercent * totalSum;
 
@@ -274,7 +274,7 @@ export default class Treemap extends Viz {
         }
 
         if (removedItems.length > 0) {
-          const mergedItem = merge(removedItems, aggs);
+          const mergedItem = merge(removedItems as DataPoint[], aggs);
           mergedItem._isAggregation = true;
           mergedItem._threshold = thresholdPercent;
           branchDataCopy.push(mergedItem);
@@ -292,7 +292,7 @@ export default class Treemap extends Viz {
   /**
       The inner and outer padding.
 */
-  layoutPadding(_) {
+  layoutPadding(_: any) {
     return arguments.length
       ? ((this._layoutPadding = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -307,7 +307,7 @@ function comparator(a, b) {
   return b.value - a.value;
 }
 */
-  sort(_) {
+  sort(_: any) {
     return arguments.length ? ((this._sort = _), this) : this._sort;
   }
 
@@ -319,7 +319,7 @@ function sum(d) {
   return d.sum;
 }
 */
-  sum(_) {
+  sum(_: any) {
     if (arguments.length) {
       this._sum = typeof _ === "function" ? _ : accessor(_);
       this._thresholdKey = this._sum;
@@ -332,11 +332,11 @@ function sum(d) {
 
 Can either be a string referring to a d3-hierarchy [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling), or a custom function in the same format.
 */
-  tile(_) {
+  tile(_: any) {
     return arguments.length
       ? ((this._tile =
           typeof _ === "string"
-            ? tileMethods[`treemap${_.charAt(0).toUpperCase()}${_.slice(1)}`] ||
+            ? (tileMethods as any)[`treemap${_.charAt(0).toUpperCase()}${_.slice(1)}`] ||
               treemapSquarify
             : _),
         this)

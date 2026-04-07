@@ -202,7 +202,7 @@ export default class Geomap extends Viz {
 
     images.exit().transition().duration(duration).attr("opacity", 0).remove();
 
-    const scale = tileData.scale / transform.k;
+    const scale = tileData.scale! / transform.k;
 
     const tileEnter = images
       .enter()
@@ -229,12 +229,12 @@ export default class Geomap extends Viz {
       .attr(
         "x",
         ([x]: [number]) =>
-          x * scale + tileData.translate[0] * scale - transform.x / transform.k,
+          x * scale + tileData.translate![0] * scale - transform.x / transform.k,
       )
       .attr(
         "y",
         ([, y]: [number, number]) =>
-          y * scale + tileData.translate[1] * scale - transform.y / transform.k,
+          y * scale + tileData.translate![1] * scale - transform.y / transform.k,
       );
   }
 
@@ -318,7 +318,7 @@ export default class Geomap extends Viz {
     if (this._topojsonFilter)
       coordData.features = coordData.features.filter(this._topojsonFilter);
 
-    const path = (this._path = d3Geo.geoPath().projection(this._projection));
+    const path = (this._path = (d3Geo.geoPath as any)().projection(this._projection));
 
     const pointData = this._filteredData.filter(
       (d: DataPoint, i: number) => this._point(d, i) instanceof Array,
@@ -516,7 +516,7 @@ export default class Geomap extends Viz {
         .select(pathGroup.node())
         .x(0)
         .y(0)
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
+        .config(configPrep.bind(this as any)(this._shapeConfig, "shape", "Path"))
         .render(),
     );
 
@@ -530,29 +530,20 @@ export default class Geomap extends Viz {
       .merge(pointGroup);
 
     const circles = new Circle()
-      .config(configPrep.bind(this)(this._shapeConfig, "shape", "Circle"))
+      .config(configPrep.bind(this as any)(this._shapeConfig, "shape", "Circle"))
       .data(pointData)
-      .r(((d: DataPoint, i: number) => r(this._pointSize(d, i))) as (
-        d: DataPoint,
-        i: number,
-      ) => number)
+      .r(((d: DataPoint, i: number) => r(this._pointSize(d, i))) as any)
       .select(pointGroup.node())
       .sort(
         (a: DataPoint, b: DataPoint) => this._pointSize(b) - this._pointSize(a),
       )
       .x(
         ((d: DataPoint, i: number) =>
-          this._projection(this._point(d, i))[0]) as (
-          d: DataPoint,
-          i: number,
-        ) => number,
+          this._projection(this._point(d, i))[0]) as any,
       )
       .y(
         ((d: DataPoint, i: number) =>
-          this._projection(this._point(d, i))[1]) as (
-          d: DataPoint,
-          i: number,
-        ) => number,
+          this._projection(this._point(d, i))[1]) as any,
       );
 
     const events = Object.keys(this._on);
@@ -618,7 +609,7 @@ Additionally, a custom formatting function can be passed as a second argument to
     f?: (data: unknown) => Record<string, unknown>,
   ): this | Record<string, unknown> {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "fitObject");
+      (addToQueue as any).bind(this)(_, f, "fitObject");
       this._zoomSet = false;
       return this;
     }
@@ -698,7 +689,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   */
   projectionPadding(_?: number | string): this | Record<string, number> {
     return arguments.length
-      ? ((this._projectionPadding = parseSides(_)), this)
+      ? ((this._projectionPadding = parseSides(_!)), this)
       : this._projectionPadding;
   }
 
@@ -759,7 +750,7 @@ Additionally, a custom formatting function can be passed as a second argument to
     f?: (data: unknown) => Record<string, unknown>,
   ): this | Record<string, unknown> {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "topojson");
+      (addToQueue as any).bind(this)(_, f, "topojson");
       this._zoomSet = false;
       return this;
     }
@@ -821,7 +812,7 @@ If not specified, the first key in the *Array* returned from using `Object.keys`
     _?: string | ((d: Record<string, unknown>) => string),
   ): this | ((d: Record<string, unknown>) => string) {
     return arguments.length
-      ? ((this._topojsonId = typeof _ === "function" ? _ : accessor(_)),
+      ? ((this._topojsonId = typeof _ === "function" ? _ : accessor(_!)),
         this,
         this)
       : this._topojsonId;

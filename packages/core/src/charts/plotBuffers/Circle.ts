@@ -55,16 +55,16 @@ export default function (
 
   if (x.invert || y.invert) {
     data.forEach((d: Record<string, unknown>) => {
-      const s = buffer ? buffer : config.r(d.data, d.i) * 2;
+      const s = buffer ? buffer : (config?.r as (...args: unknown[]) => number)(d.data, d.i) * 2;
 
       if (x.invert) {
-        xD = numericBuffer(x, xScale, d[xKey] as number, s, xR, xD, 0, false);
-        xD = numericBuffer(x, xScale, d[xKey] as number, s, xR, xD, 1, false);
+        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xR, xD, 0, false);
+        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xR, xD, 1, false);
       }
 
       if (y.invert) {
-        yD = numericBuffer(y, yScale, d[yKey] as number, s, yR, yD, 0, true);
-        yD = numericBuffer(y, yScale, d[yKey] as number, s, yR, yD, 1, true);
+        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yR, yD, 0, true);
+        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yR, yD, 1, true);
       }
     });
   }

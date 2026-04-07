@@ -94,7 +94,7 @@ export default class Pie extends Viz {
           y: 0,
         })
         .label(this._drawLabel)
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
+        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Path"))
         .render(),
     );
 
@@ -144,7 +144,7 @@ If \`padAngle\` is defined, the \`padPixel\` value will not be considered.
     _?: string | ((d: DataPoint, i: number) => number),
   ): this | string | ((d: DataPoint, i: number) => number) {
     return arguments.length
-      ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)
+      ? ((this._value = typeof _ === "function" ? _ : accessor(_!)), this)
       : this._value;
   }
 }

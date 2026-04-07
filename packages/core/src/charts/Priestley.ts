@@ -29,7 +29,7 @@ export default class Priestley extends Viz {
     this._paddingInner = 0.05;
     this._paddingOuter = 0.05;
     this._shapeConfig = assign({}, this._shapeConfig, {
-      ariaLabel: (d, i) =>
+      ariaLabel: (d: any, i: any) =>
         `${this._drawLabel(d, i)}, ${this._start(d, i)} - ${this._end(d, i)}.`,
     });
     this.start("start");
@@ -45,7 +45,7 @@ export default class Priestley extends Viz {
     if (!this._filteredData) return this;
 
     const data = this._filteredData
-      .map((data, i) => ({
+      .map((data: any, i: any) => ({
         __d3plus__: true,
         data,
         end:
@@ -59,21 +59,21 @@ export default class Priestley extends Viz {
             ? date(this._start(data, i))
             : this._start(data, i),
       }))
-      .filter(d => d.end - d.start > 0)
-      .sort((a, b) => a.start - b.start);
+      .filter((d: any) => d.end - d.start > 0)
+      .sort((a: any, b: any) => a.start - b.start);
 
     let nestedData;
     if (this._groupBy.length > 1 && this._drawDepth > 0) {
       const keyFns = [];
       for (let i = 0; i < this._drawDepth; i++)
-        keyFns.push(d => this._groupBy[i](d.data, d.i));
+        keyFns.push((d: any) => this._groupBy[i](d.data, d.i));
       nestedData = nestGroups(data, keyFns);
     } else nestedData = [{values: data}];
 
     let maxLane = 0;
     nestedData.forEach(g => {
-      let track = [];
-      g.values.forEach(d => {
+      let track: any[] = [];
+      g.values.forEach((d: any) => {
         track = track.map(t => (t <= d.start ? false : t));
         const i = track.indexOf(false);
         if (i < 0) {
@@ -156,7 +156,7 @@ export default class Priestley extends Viz {
         })
         .x(d => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
         .y(d => yScale(d.lane as unknown as string)! + bandWidth / 2)
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Rect"))
+        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Rect"))
         .render(),
     );
 
@@ -166,7 +166,7 @@ export default class Priestley extends Viz {
   /**
       Configuration object for the axis.
 */
-  axisConfig(_) {
+  axisConfig(_: any) {
     return arguments.length
       ? ((this._axisConfig = assign(this._axisConfig, _)), this)
       : this._axisConfig;
@@ -175,7 +175,7 @@ export default class Priestley extends Viz {
   /**
       Accessor function or string key for the end date of each data point.
 */
-  end(_) {
+  end(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._end = _;
       else {
@@ -189,7 +189,7 @@ export default class Priestley extends Viz {
   /**
       The [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space in between each rectangle.
 */
-  paddingInner(_) {
+  paddingInner(_: any) {
     return arguments.length
       ? ((this._paddingInner = _), this)
       : this._paddingInner;
@@ -198,7 +198,7 @@ export default class Priestley extends Viz {
   /**
       The [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) value of the underlining [Band Scale](https://github.com/d3/d3-scale#band-scales) used to determine the height of each bar. Values should be a ratio between 0 and 1 representing the space around the outer rectangles.
 */
-  paddingOuter(_) {
+  paddingOuter(_: any) {
     return arguments.length
       ? ((this._paddingOuter = _), this)
       : this._paddingOuter;
@@ -207,7 +207,7 @@ export default class Priestley extends Viz {
   /**
       Accessor function or string key for the start date of each data point.
 */
-  start(_) {
+  start(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._start = _;
       else {

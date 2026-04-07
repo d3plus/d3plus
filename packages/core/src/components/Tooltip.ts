@@ -204,11 +204,12 @@ export default class Tooltip extends BaseClass {
     const portal = elem("div#d3plus-portal");
     const tooltips = portal
       .selectAll(`.${this._className}`)
-      .data(this._data, this._id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .data(this._data, this._id as any);
 
     const enter = tooltips.enter().append("div").attr("class", this._className);
 
-    const update = tooltips.merge(enter);
+    const update = tooltips.merge(enter as never);
     stylize(update, this._tooltipStyle);
 
     /**
@@ -300,8 +301,8 @@ export default class Tooltip extends BaseClass {
     const theadTr = tableHead.selectAll("tr").data([0]);
     const theadTrEnter = theadTr.enter().append("tr");
     theadTr.exit().remove();
-    const theadTrUpdate = theadTr.merge(theadTrEnter);
-    stylize(theadTrUpdate, this._trStyle);
+    const theadTrUpdate = theadTr.merge(theadTrEnter as never);
+    stylize(theadTrUpdate as never, this._trStyle as Record<string, string | number | boolean | null>);
     const th = theadTrUpdate.selectAll("th").data(this._thead);
     th.enter()
       .append("th")
@@ -315,8 +316,8 @@ export default class Tooltip extends BaseClass {
     const tr = tableBody.selectAll("tr").data(this._tbody);
     const trEnter = tr.enter().append("tr");
     tr.exit().remove();
-    const trUpdate = tr.merge(trEnter);
-    stylize(trUpdate, this._trStyle);
+    const trUpdate = tr.merge(trEnter as never);
+    stylize(trUpdate as never, this._trStyle as Record<string, string | number | boolean | null>);
     const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
     td.enter()
       .append("td")
@@ -370,8 +371,8 @@ export default class Tooltip extends BaseClass {
 
     tooltips
       .exit()
-      .each((d: DataPoint, i: number) => {
-        const id = that._id(d, i);
+      .each((d: unknown, i: number) => {
+        const id = that._id(d as DataPoint, i);
         delete this._tooltipRefs[id];
       })
       .remove();
@@ -397,7 +398,8 @@ export default class Tooltip extends BaseClass {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._arrow = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._arrow = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._arrow;
   }
 
@@ -432,7 +434,8 @@ export default class Tooltip extends BaseClass {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._background = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._background = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._background;
   }
 
@@ -452,7 +455,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._body = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._body = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._body;
   }
 
@@ -484,7 +488,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._border = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._border = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._border;
   }
 
@@ -499,7 +504,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._borderRadius = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._borderRadius = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._borderRadius;
   }
 
@@ -537,7 +543,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._footer = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._footer = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._footer;
   }
 
@@ -569,7 +576,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._height = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._height;
   }
 
@@ -585,7 +593,8 @@ function value(d, i) {
   id(_: ((d: DataPoint, i: number) => string) | string): this;
   id(_?: ((d: DataPoint, i: number) => string) | string): unknown {
     return arguments.length
-      ? ((this._id = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._id = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._id;
   }
 
@@ -600,7 +609,8 @@ function value(d, i) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | number,
   ): unknown {
     return arguments.length
-      ? ((this._offset = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._offset = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._offset;
   }
 
@@ -615,7 +625,8 @@ function value(d, i) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._padding = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._padding = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._padding;
   }
 
@@ -630,7 +641,8 @@ function value(d, i) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_)),
+      ? ((this._pointerEvents = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any),
         this)
       : this._pointerEvents;
   }
@@ -763,7 +775,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._title = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._title = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._title;
   }
 
@@ -843,7 +856,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._maxWidth = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._maxWidth = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._maxWidth;
   }
 
@@ -858,7 +872,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._minWidth = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._minWidth = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._minWidth;
   }
 
@@ -873,7 +888,8 @@ function value(d) {
     _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
   ): unknown {
     return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._width = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (typeof _ === "function" ? _ : constant(_)) as any), this)
       : this._width;
   }
 }

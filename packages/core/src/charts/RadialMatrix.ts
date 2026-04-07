@@ -44,13 +44,13 @@ export default class RadialMatrix extends Viz {
             return colorContrast(bg);
           },
           padding: 5,
-          textAnchor: d =>
+          textAnchor: (d: any) =>
             [0, 180].includes(d.angle)
               ? "middle"
               : [2, 3].includes(d.quadrant)
                 ? "end"
                 : "start",
-          verticalAlign: d =>
+          verticalAlign: (d: any) =>
             [90, 270].includes(d.angle)
               ? "middle"
               : [2, 1].includes(d.quadrant)
@@ -59,14 +59,14 @@ export default class RadialMatrix extends Viz {
         },
       },
     };
-    this._columnSort = (a, b) => `${a}`.localeCompare(`${b}`);
-    this._innerRadius = radius => radius / 5;
+    this._columnSort = (a: any, b: any) => `${a}`.localeCompare(`${b}`);
+    this._innerRadius = (radius: any) => radius / 5;
 
-    this._label = (d, i) =>
+    this._label = (d: any, i: any) =>
       `${getProp.bind(this)("row", d, i)} / ${getProp.bind(this)("column", d, i)}`;
 
     const defaultMouseMoveShape = this._on["mousemove.shape"];
-    this._on["mousemove.shape"] = (d, i, x, event) => {
+    this._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
       defaultMouseMoveShape(d, i, x, event);
       const row = getProp.bind(this)("row", d, i);
       const column = getProp.bind(this)("column", d, i);
@@ -78,7 +78,7 @@ export default class RadialMatrix extends Viz {
     };
 
     this._row = accessor("row");
-    this._rowSort = (a, b) => `${a}`.localeCompare(`${b}`);
+    this._rowSort = (a: any, b: any) => `${a}`.localeCompare(`${b}`);
 
     this._columnLabels = new TextBox();
   }
@@ -103,11 +103,11 @@ export default class RadialMatrix extends Viz {
 
     const labelHeight = 50,
       labelWidth = 100;
-    const radius = min([height - labelHeight * 2, width - labelWidth * 2]) / 2,
+    const radius = min([height - labelHeight * 2, width - labelWidth * 2])! / 2,
       transform = `translate(${width / 2 + this._margin.left}, ${height / 2 + this._margin.top})`;
 
     const flippedColumns = columnValues.slice().reverse();
-    flippedColumns.unshift(flippedColumns.pop());
+    flippedColumns.unshift(flippedColumns.pop()!);
     const total = flippedColumns.length;
 
     const labelData = flippedColumns.map((key, i) => {
@@ -147,9 +147,9 @@ export default class RadialMatrix extends Viz {
 
     this._columnLabels
       .data(displayLabels)
-      .x(d => d.x)
-      .y(d => d.y)
-      .text(d => d.key)
+      .x((d: any) => d.x)
+      .y((d: any) => d.y)
+      .text((d: any) => d.key)
       .width(labelWidth)
       .height(labelHeight)
       .config(this._columnConfig.shapeConfig.labelConfig)
@@ -194,7 +194,7 @@ export default class RadialMatrix extends Viz {
 
     this._shapes.push(
       new Path()
-        .data(shapeData)
+        .data(shapeData as any)
         .d(arcData as unknown as (d: Record<string, unknown>) => string)
         .select(
           elem("g.d3plus-RadialMatrix-arcs", {
@@ -205,11 +205,11 @@ export default class RadialMatrix extends Viz {
           }).node(),
         )
         .config({
-          id: d => this._ids(d).join("-"),
+          id: (d: any) => this._ids(d).join("-"),
           x: 0,
           y: 0,
-        })
-        .config(configPrep.bind(this)(this._shapeConfig, "shape", "Path"))
+        } as any)
+        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Path"))
         .render(),
     );
 
@@ -219,7 +219,7 @@ export default class RadialMatrix extends Viz {
   /**
       The pixel padding in between each cell.
 */
-  cellPadding(_) {
+  cellPadding(_: any) {
     return arguments.length
       ? ((this._cellPadding = _), this)
       : this._cellPadding;
@@ -233,7 +233,7 @@ function column(d) {
   return d.name;
 }
   */
-  column(_) {
+  column(_: any) {
     return arguments.length
       ? ((this._column = typeof _ === "function" ? _ : accessor(_)), this)
       : this._column;
@@ -242,16 +242,16 @@ function column(d) {
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.
 */
-  columnConfig(_) {
+  columnConfig(_: any) {
     return arguments.length
       ? ((this._columnConfig = assign(this._columnConfig, _)), this)
       : this._columnConfig;
   }
 
   /**
-      A manual list of IDs to be used for columns.
+      A manual list of IDs to be used for rows.
 */
-  columnList(_) {
+  columnList(_: any) {
     return arguments.length ? ((this._columnList = _), this) : this._columnList;
   }
 
@@ -263,7 +263,7 @@ function column(a, b) {
   return a.localeCompare(b);
 }
   */
-  columnSort(_) {
+  columnSort(_: any) {
     return arguments.length ? ((this._columnSort = _), this) : this._columnSort;
   }
 
@@ -275,7 +275,7 @@ function(outerRadius) {
   return outerRadius / 5;
 }
   */
-  innerRadius(_) {
+  innerRadius(_: any) {
     return arguments.length
       ? ((this._innerRadius = typeof _ === "function" ? _ : constant(_)), this)
       : this._innerRadius;
@@ -289,7 +289,7 @@ function row(d) {
   return d.name;
 }
   */
-  row(_) {
+  row(_: any) {
     return arguments.length
       ? ((this._row = typeof _ === "function" ? _ : accessor(_)), this)
       : this._row;
@@ -298,7 +298,7 @@ function row(d) {
   /**
       A manual list of IDs to be used for rows.
 */
-  rowList(_) {
+  rowList(_: any) {
     return arguments.length ? ((this._rowList = _), this) : this._rowList;
   }
 
@@ -310,7 +310,7 @@ function row(a, b) {
   return a.localeCompare(b);
 }
   */
-  rowSort(_) {
+  rowSort(_: any) {
     return arguments.length ? ((this._rowSort = _), this) : this._rowSort;
   }
 }

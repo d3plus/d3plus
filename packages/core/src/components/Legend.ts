@@ -30,16 +30,16 @@ export default class Legend extends BaseClass {
   _outerBounds: Record<string, number>;
   _padding: number;
   _shape: (d: DataPoint, i?: number) => unknown;
-  _select: D3Selection;
+  _select!: D3Selection;
   _shapes: unknown[];
   _shapeConfig: Record<string, unknown>;
   _titleConfig: Record<string, unknown>;
   _verticalAlign: string;
   _width: number;
   _rtl: boolean;
-  _group: D3Selection;
-  _titleGroup: D3Selection;
-  _shapeGroup: D3Selection;
+  _group!: D3Selection;
+  _titleGroup!: D3Selection;
+  _shapeGroup!: D3Selection;
   _titleHeight: number;
   _titleWidth: number;
   _title: string | undefined;
@@ -237,8 +237,10 @@ export default class Legend extends BaseClass {
     this._titleHeight = 0;
     this._titleWidth = 0;
     if (this._title) {
-      const f = (this._titleConfig.fontFamily || this._titleClass.fontFamily()()) as string,
-        s = (this._titleConfig.fontSize || this._titleClass.fontSize()()) as number;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const f = (this._titleConfig.fontFamily || (this._titleClass.fontFamily() as any)()) as string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        s = (this._titleConfig.fontSize || (this._titleClass.fontSize() as any)()) as number;
       let lH = (this._titleConfig.lineHeight || this._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
       lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
 
@@ -249,7 +251,7 @@ export default class Legend extends BaseClass {
         .width(this._width)
         .height(this._height)(this._title);
       this._titleHeight = lH + res.lines.length + this._padding;
-      this._titleWidth = max(res.widths);
+      this._titleWidth = max(res.widths)!;
       availableHeight -= this._titleHeight;
     }
 
@@ -466,7 +468,7 @@ export default class Legend extends BaseClass {
           (d: Record<string, unknown>, i: number) =>
             max([d.height as number, this._fetchConfig("height", d.data as DataPoint, i) as number])! + (d.y as number),
         )! + this._titleHeight,
-      innerWidth = max([spaceNeeded, this._titleWidth]);
+      innerWidth = max([spaceNeeded, this._titleWidth])!;
 
     this._outerBounds.width = innerWidth;
     this._outerBounds.height = innerHeight;
@@ -487,7 +489,7 @@ export default class Legend extends BaseClass {
       .data(this._title ? [{text: this._title}] : [])
       .duration(this._duration)
       .select(this._titleGroup.node())
-      .textAnchor({left: "start", center: "middle", right: "end"}[this._align])
+      .textAnchor(({left: "start", center: "middle", right: "end"} as Record<string, string>)[this._align])
       .width(this._width - this._padding * 2)
       .x(this._padding)
       .y(this._outerBounds.y)
@@ -495,7 +497,8 @@ export default class Legend extends BaseClass {
       .render();
 
     this._shapes = [];
-    const baseConfig = configPrep.bind(this)(this._shapeConfig, "legend"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const baseConfig = configPrep.bind(this as any)(this._shapeConfig, "legend"),
       config = {
         id: (d: Record<string, unknown>) => d.id,
         label: (d: Record<string, unknown>) => d.label,
@@ -680,7 +683,7 @@ function value(d) {
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
+      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
       : this._shapeConfig;
   }
 
@@ -700,7 +703,7 @@ function value(d) {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._titleConfig = assign(this._titleConfig, _)), this)
+      ? ((this._titleConfig = assign(this._titleConfig, _!)), this)
       : this._titleConfig;
   }
 

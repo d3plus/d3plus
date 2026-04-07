@@ -22,7 +22,7 @@ export default class Line extends Shape {
     | ((
         d: DataPoint,
         i: number,
-        aes: Record<string, unknown>,
+        aes: ShapeAes,
       ) => Record<string, unknown>)
     | null;
   declare _name: string;
@@ -53,7 +53,7 @@ export default class Line extends Shape {
     }) as unknown as (
       d: DataPoint,
       i: number,
-      aes: Record<string, unknown>,
+      aes: ShapeAes,
     ) => Record<string, unknown>;
     this._name = "Line";
     this._path = (
@@ -228,8 +228,8 @@ export default class Line extends Shape {
             ),
           );
         }) as unknown as D3Selection;
-      this._exit
-        .selectAll("path")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this._exit.selectAll("path") as any)
         .each(calculateStrokeDashArray)
         .attr(
           "stroke-dasharray",
@@ -280,7 +280,7 @@ export default class Line extends Shape {
   curve(_: AccessorFn | string): this;
   curve(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._curve = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._curve = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._curve;
   }
 

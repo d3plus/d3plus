@@ -52,7 +52,7 @@ interface TextBoxDatum {
     Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
 */
 export default class TextBox extends BaseClass {
-  _select: D3Selection;
+  _select!: D3Selection;
 
   _data!: DataPoint[];
 
@@ -126,17 +126,28 @@ export default class TextBox extends BaseClass {
     this._duration = 0;
     this._ellipsis = (text: string, line: number) =>
       line ? `${text.replace(/\.|,$/g, "")}...` : "";
-    this._fontColor = constant("black");
-    this._fontFamily = constant(fontFamily);
-    this._fontMax = constant(50);
-    this._fontMin = constant(8);
-    this._fontOpacity = constant(1);
-    this._fontResize = constant(false);
-    this._fontSize = constant(10);
-    this._fontStroke = constant("transparent");
-    this._fontStrokeWidth = constant(0);
-    this._fontWeight = constant(400);
-    this._height = accessor("height", 200);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontColor = constant("black") as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontFamily = constant(fontFamily) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontMax = constant(50) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontMin = constant(8) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontOpacity = constant(1) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontResize = constant(false) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontSize = constant(10) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontStroke = constant("transparent") as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontStrokeWidth = constant(0) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._fontWeight = constant(400) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._height = accessor("height", 200) as any;
     this._html = defaultHtmlLookup;
     this._id = (d: DataPoint, i: number) => (d.id as string) || `${i}`;
     this._lineHeight = (d: DataPoint, i?: number) => this._fontSize(d, i) * 1.2;
@@ -150,12 +161,18 @@ export default class TextBox extends BaseClass {
       return [d.w / 2, d.h / 2];
     };
     this._split = textSplit;
-    this._text = accessor("text");
-    this._textAnchor = constant("start");
-    this._verticalAlign = constant("top");
-    this._width = accessor("width", 200);
-    this._x = accessor("x", 0);
-    this._y = accessor("y", 0);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._text = accessor("text") as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._textAnchor = constant("start") as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._verticalAlign = constant("top") as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._width = accessor("width", 200) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._x = accessor("x", 0) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._y = accessor("y", 0) as any;
   }
 
   /**
@@ -190,7 +207,8 @@ export default class TextBox extends BaseClass {
           sizes: number[],
           wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
 
-        const style: Record<string, string | number> = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const style: Record<string, any> = {
           "font-family": fontExists(this._fontFamily(d, i)),
           "font-size": fS,
           "font-weight": this._fontWeight(d, i),
@@ -239,7 +257,7 @@ export default class TextBox extends BaseClass {
             style["line-height"] = lH;
           }
 
-          wrapResults = wrapper(t);
+          wrapResults = wrapper(t!);
           lineData = wrapResults.lines.filter((l: string) => l !== "");
           line = lineData.length;
 
@@ -319,7 +337,8 @@ export default class TextBox extends BaseClass {
         return arr;
 
       }, []),
-      (d: TextBoxDatum) => this._id(d.data, d.i),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (d: unknown) => this._id((d as TextBoxDatum).data, (d as TextBoxDatum).i),
     );
 
     const t = this._select.transition().duration(this._duration);
@@ -788,7 +807,8 @@ function(d, i) {
     _?: ((d: DataPoint, i?: number) => [number, number]) | [number, number],
   ): unknown {
     return arguments.length
-      ? ((this._rotateAnchor = typeof _ === "function" ? _ : constant(_!)), this)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? ((this._rotateAnchor = (typeof _ === "function" ? _ : constant(_!)) as any), this)
       : this._rotateAnchor;
   }
 

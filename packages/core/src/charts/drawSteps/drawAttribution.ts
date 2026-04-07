@@ -20,7 +20,7 @@ export default function (this: Viz): void {
   attr.exit().remove();
 
   attr = attr
-    .merge(attrEnter as ReturnType<typeof select>)
+    .merge(attrEnter as unknown as ReturnType<typeof select>)
     .style("position", "absolute")
     .html(this._attribution)
     .style("right", `${this._margin.right}px`)

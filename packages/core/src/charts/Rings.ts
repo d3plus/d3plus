@@ -33,7 +33,7 @@ export default class Rings extends Viz {
       this.hover(false);
     };
     const defaultMouseMove = this._on["mousemove.shape"];
-    this._on["mousemove.shape"] = (d, i, x, event) => {
+    this._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
       defaultMouseMove(d, i, x, event);
       if (this._focus && this._focus === d.id) {
         this.hover(false);
@@ -52,7 +52,7 @@ export default class Rings extends Viz {
         const xDomain = [node.x - node.r, node.x + node.r],
           yDomain = [node.y - node.r, node.y + node.r];
 
-        links.forEach(l => {
+        links.forEach((l: any) => {
           filterIds.push(l.id);
           if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;
           if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;
@@ -60,14 +60,14 @@ export default class Rings extends Viz {
           if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
         });
 
-        this.hover((h, x) => {
+        this.hover((h: any, x: any) => {
           if (h.source && h.target)
             return h.source.id === node.id || h.target.id === node.id;
           else return filterIds.includes(this._ids(h, x)[this._drawDepth]);
         });
       }
     };
-    this._on["click.shape"] = d => {
+    this._on["click.shape"] = (d: any) => {
       this._center = d.id;
       // Need to resets margins and padding because we are
       // skipping over the default render method and using
@@ -80,7 +80,7 @@ export default class Rings extends Viz {
     this._sizeScale = "sqrt";
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
-      ariaLabel: (d, i) => {
+      ariaLabel: (d: any, i: any) => {
         const validSize = this._size ? `, ${this._size(d, i)}` : "";
         return `${this._drawLabel(d, i)}${validSize}.`;
       },
@@ -108,7 +108,7 @@ export default class Rings extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const data = this._filteredData.reduce((obj, d, i) => {
+    const data = this._filteredData.reduce((obj: any, d: any, i: any) => {
       obj[this._id(d, i)] = d;
       return obj;
     }, {});
@@ -119,17 +119,17 @@ export default class Rings extends Viz {
       const nodeIds = Array.from(
         new Set(
           this._links.reduce(
-            (ids, link) => ids.concat([link.source, link.target]),
+            (ids: any, link: any) => ids.concat([link.source, link.target]),
             [],
           ),
         ),
       );
-      nodes = nodeIds.map(node =>
+      nodes = nodeIds.map((node: any) =>
         typeof node === "object" ? node : {id: node},
       );
     }
 
-    nodes = nodes.reduce((obj, d, i) => {
+    nodes = nodes.reduce((obj: any, d: any, i: any) => {
       obj[
         this._nodeGroupBy
           ? this._nodeGroupBy[this._drawDepth](d, i)
@@ -159,25 +159,25 @@ export default class Rings extends Viz {
       })
       .filter(n => n);
 
-    const nodeLookup = (this._nodeLookup = nodes.reduce((obj, d) => {
+    const nodeLookup = (this._nodeLookup = nodes.reduce((obj: any, d: any) => {
       obj[d.id] = d;
       return obj;
     }, {}));
 
-    const links = this._links.map(link => {
+    const links = this._links.map((link: any) => {
       const check = ["source", "target"];
-      const edge = check.reduce((result, check) => {
+      const edge = check.reduce((result: any, check: any) => {
         result[check] =
           typeof link[check] === "number"
             ? nodes[link[check]]
             : nodeLookup[link[check].id || link[check]];
         return result;
-      }, {});
-      (edge as Record<string, unknown>).size = this._linkSize(link);
+      }, {} as Record<string, any>);
+      edge.size = this._linkSize(link);
       return edge;
     });
 
-    const linkMap = links.reduce((map, link) => {
+    const linkMap = links.reduce((map: any, link: any) => {
       if (!map[link.source.id]) {
         map[link.source.id] = [];
       }
@@ -194,8 +194,8 @@ export default class Rings extends Viz {
       transform = `translate(${this._margin.left}, ${this._margin.top})`,
       width = this._width - this._margin.left - this._margin.right;
 
-    const edges = [],
-      radius = min([height, width]) / 2,
+    const edges: any[] = [],
+      radius = (min([height, width]) || 0) / 2,
       ringWidth = radius / 3;
 
     const primaryRing = ringWidth,
@@ -212,12 +212,12 @@ export default class Rings extends Viz {
         : primaryRing * 0.65;
 
     const claimed = [center],
-      primaries = [];
+      primaries: any[] = [];
 
-    linkMap[this._center].forEach(edge => {
+    linkMap[this._center].forEach((edge: any) => {
       const node = edge.source.id === this._center ? edge.target : edge.source;
       node.edges = linkMap[node.id].filter(
-        link =>
+        (link: any) =>
           link.source.id !== this._center || link.target.id !== this._center,
       );
       node.edge = edge;
@@ -228,21 +228,21 @@ export default class Rings extends Viz {
 
     primaries.sort((a, b) => a.edges.length - b.edges.length);
 
-    const secondaries = [];
+    const secondaries: any[] = [];
     let totalEndNodes = 0;
 
     primaries.forEach(p => {
       const primaryId = p.id;
 
       p.edges = p.edges.filter(
-        edge =>
+        (edge: any) =>
           (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
           (!claimed.includes(edge.target) && edge.source.id === primaryId),
       );
 
       totalEndNodes += p.edges.length || 1;
 
-      p.edges.forEach(edge => {
+      p.edges.forEach((edge: any) => {
         const {source, target} = edge;
         const claim = target.id === primaryId ? source : target;
         claimed.push(claim);
@@ -268,7 +268,7 @@ export default class Rings extends Viz {
 
       offset += space;
 
-      p.edges.forEach((edge, i) => {
+      p.edges.forEach((edge: any, i: any) => {
         const node = edge.source.id === p.id ? edge.target : edge.source;
         const s = tau / totalEndNodes;
         const a = angle - (s * children) / 2 + s / 2 + s * i;
@@ -286,12 +286,12 @@ export default class Rings extends Viz {
 
     let primaryMax = primaryDistance / 2 - 4;
     if (primaryDistance / 2 - 4 < 8) {
-      primaryMax = min([primaryDistance / 2, 8]);
+      primaryMax = min([primaryDistance / 2, 8]) || 0;
     }
 
     let secondaryMax = secondaryDistance / 2 - 4;
     if (secondaryDistance / 2 - 4 < 4) {
-      secondaryMax = min([secondaryDistance / 2, 4]);
+      secondaryMax = min([secondaryDistance / 2, 4]) || 0;
     }
 
     if (secondaryMax > ringWidth / 10) {
@@ -308,7 +308,7 @@ export default class Rings extends Viz {
     primaryMax = Math.floor(primaryMax);
     secondaryMax = Math.floor(secondaryMax);
 
-    let radiusFn;
+    let radiusFn: any;
 
     if (this._size) {
       const domain = extent(data, (d: {size: number}) => d.size) as [
@@ -354,19 +354,19 @@ export default class Rings extends Viz {
           : radiusFn(val);
     });
 
-    nodes = [center].concat(primaries).concat(secondaries);
+    nodes = ([center] as any[]).concat(primaries).concat(secondaries);
 
     primaries.forEach(p => {
       const check = ["source", "target"];
       const {edge} = p;
 
-      check.forEach(node => {
-        edge[node] = nodes.find(n => n.id === edge[node].id);
+      check.forEach((node: any) => {
+        edge[node] = nodes.find((n: any) => n.id === edge[node].id);
       });
 
       edges.push(edge);
 
-      linkMap[p.id].forEach(edge => {
+      linkMap[p.id].forEach((edge: any) => {
         const node = edge.source.id === p.id ? edge.target : edge.source;
 
         if (node.id !== center.id) {
@@ -386,7 +386,7 @@ export default class Rings extends Viz {
 
             const check = ["source", "target"];
 
-            check.forEach((node, i) => {
+            check.forEach((node: any, i: any) => {
               edge[`${node}X`] =
                 edge[node].x +
                 Math.cos(
@@ -408,7 +408,7 @@ export default class Rings extends Viz {
               edge[`${node}BisectY`] =
                 centerY + middleRing * Math.sin(edge[node].radians);
 
-              edge[node] = nodes.find(n => n.id === edge[node].id);
+              edge[node] = nodes.find((n: any) => n.id === edge[node].id);
 
               if (edge[node].edges === undefined) edge[node].edges = {};
 
@@ -433,7 +433,7 @@ export default class Rings extends Viz {
       });
     });
 
-    nodes.forEach(node => {
+    nodes.forEach((node: any) => {
       if (node.id !== this._center) {
         const fontSize =
           (this._shapeConfig.labelConfig.fontSize &&
@@ -473,7 +473,7 @@ export default class Rings extends Viz {
       }
     });
 
-    this._linkLookup = links.reduce((obj, d) => {
+    this._linkLookup = links.reduce((obj: any, d: any) => {
       if (!obj[d.source.id]) obj[d.source.id] = [];
       obj[d.source.id].push(d.target);
       if (!obj[d.target.id]) obj[d.target.id] = [];
@@ -484,25 +484,25 @@ export default class Rings extends Viz {
     const strokeExtent = extent(links, (d: {size: number}) => d.size);
     if (strokeExtent[0] !== strokeExtent[1]) {
       const radius = min(nodes as {r: number}[], (d: {r: number}) => d.r);
-      const strokeScale = scales[
+      const strokeScale = (scales as any)[
         `scale${this._linkSizeScale.charAt(0).toUpperCase()}${this._linkSizeScale.slice(1)}`
       ]()
         .domain(strokeExtent)
         .range([this._linkSizeMin, radius]);
-      links.forEach(link => {
+      links.forEach((link: any) => {
         link.size = strokeScale(link.size);
       });
     }
 
-    const linkConfig = configPrep.bind(this)(this._shapeConfig, "edge", "Path");
+    const linkConfig = configPrep.bind(this as any)(this._shapeConfig, "edge", "Path");
     delete linkConfig.on;
 
     this._shapes.push(
       new shapes.Path()
         .config(linkConfig)
-        .strokeWidth(d => d.size)
-        .id(d => `${(d.source as DataPoint).id}_${(d.target as DataPoint).id}`)
-        .d(d =>
+        .strokeWidth((d: any) => d.size)
+        .id((d: any) => `${(d.source as DataPoint).id}_${(d.target as DataPoint).id}`)
+        .d((d: any) =>
           d.spline
             ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
             : `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`,
@@ -522,31 +522,30 @@ export default class Rings extends Viz {
     const that = this;
 
     const shapeConfig = {
-      label: d =>
+      label: (d: any) =>
         nodes.length <= this._dataCutoff ||
         (this._hover && this._hover(d)) ||
         (this._active && this._active(d))
           ? this._drawLabel(d.data || d.node, d.i)
           : false,
-      labelBounds: d => d.labelBounds,
+      labelBounds: (d: any) => d.labelBounds,
       labelConfig: {
-        fontColor: d =>
+        fontColor: (d: any) =>
           d.id === this._center
-            ? configPrep
-                .bind(that)(that._shapeConfig, "shape", d.key)
+            ? (configPrep.bind(that as any)(that._shapeConfig, "shape", d.key) as any)
                 .labelConfig.fontColor(d)
             : colorContrast(
                 this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)",
               ),
-        fontResize: d => d.id === this._center,
+        fontResize: (d: any) => d.id === this._center,
         padding: 0,
-        textAnchor: d =>
+        textAnchor: (d: any) =>
           nodeLookup[d.id].textAnchor ||
-          configPrep.bind(that)(that._shapeConfig, "shape", d.key).labelConfig
+          (configPrep.bind(that as any)(that._shapeConfig, "shape", d.key) as any).labelConfig
             .textAnchor,
-        verticalAlign: d => (d.id === this._center ? "middle" : "top"),
+        verticalAlign: (d: any) => (d.id === this._center ? "middle" : "top"),
       },
-      rotate: d => nodeLookup[d.id].rotate || 0,
+      rotate: (d: any) => nodeLookup[d.id].rotate || 0,
       select: elem("g.d3plus-rings-nodes", {
         parent: this._select,
         duration,
@@ -560,8 +559,8 @@ export default class Rings extends Viz {
       (d: Record<string, unknown>) => d.shape as string,
     ).forEach(([key, values]) => {
       this._shapes.push(
-        new shapes[key]()
-          .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
+        new (shapes as any)[key]()
+          .config(configPrep.bind(this as any)(this._shapeConfig, "shape", key))
           .config(shapeConfig)
           .data(values)
           .render(),
@@ -574,17 +573,17 @@ export default class Rings extends Viz {
   /**
    The center node, specified by id.
 */
-  center(_) {
+  center(_: any) {
     return arguments.length ? ((this._center = _), this) : this._center;
   }
 
   /**
       The hover callback function for highlighting shapes on mouseover.
 */
-  hover(_) {
+  hover(_: any) {
     this._hover = _;
 
-    this._shapes.forEach(s => s.hover(_));
+    this._shapes.forEach((s: any) => s.hover(_));
     if (this._legend) this._legendClass.hover(_);
 
     return this;
@@ -599,9 +598,9 @@ export default class Rings extends Viz {
 The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.
     @param f Array of link objects or a URL to load links from.
 */
-  links(_, f) {
+  links(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "links");
+      addToQueue.bind(this as any)(_, f, "links");
       return this;
     }
     return this._links;
@@ -610,7 +609,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.
 */
-  linkSize(_) {
+  linkSize(_: any) {
     return arguments.length
       ? ((this._linkSize = typeof _ === "function" ? _ : constant(_)), this)
       : this._linkSize;
@@ -619,7 +618,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       Defines the minimum pixel stroke width used in link sizing.
 */
-  linkSizeMin(_) {
+  linkSizeMin(_: any) {
     return arguments.length
       ? ((this._linkSizeMin = _), this)
       : this._linkSizeMin;
@@ -628,7 +627,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.
 */
-  linkSizeScale(_) {
+  linkSizeScale(_: any) {
     return arguments.length
       ? ((this._linkSizeScale = _), this)
       : this._linkSizeScale;
@@ -637,15 +636,15 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       The node group accessor(s). This method overrides the default .groupBy() function from being used with the data passed to .nodes().
 */
-  nodeGroupBy(_) {
+  nodeGroupBy(_: any) {
     if (!arguments.length) return this._nodeGroupBy;
     if (!(_ instanceof Array)) _ = [_];
     return (
-      (this._nodeGroupBy = _.map(k => {
+      (this._nodeGroupBy = _.map((k: any) => {
         if (typeof k === "function") return k;
         else {
           if (!this._aggs[k]) {
-            this._aggs[k] = (a, c) => {
+            this._aggs[k] = (a: any, c: any) => {
               const v = Array.from(new Set(a.map(c)));
               return v.length === 1 ? v[0] : v;
             };
@@ -663,9 +662,9 @@ The value passed should either be an *Array* of data or a *String* representing 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.
     @param f Array of node objects or a URL to load nodes from.
 */
-  nodes(_, f) {
+  nodes(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "nodes");
+      addToQueue.bind(this as any)(_, f, "nodes");
       return this;
     }
     return this._nodes;
@@ -674,7 +673,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       The size accessor for each node in the rings layout.
 */
-  size(_) {
+  size(_: any) {
     return arguments.length
       ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
       : this._size;
@@ -683,21 +682,21 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       The size scale maximum. By default, the maximum size is determined by half the distance of the two closest nodes.
 */
-  sizeMax(_) {
+  sizeMax(_: any) {
     return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
   }
 
   /**
       The size scale minimum.
 */
-  sizeMin(_) {
+  sizeMin(_: any) {
     return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
   }
 
   /**
       The size scale.
 */
-  sizeScale(_) {
+  sizeScale(_: any) {
     return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
   }
 }

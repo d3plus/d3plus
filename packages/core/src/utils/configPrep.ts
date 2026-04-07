@@ -1,11 +1,13 @@
 import type {DataPoint} from "@d3plus/data";
+import { D3plusConfig } from "./D3plusConfig";
 
-interface D3PlusWrapped extends DataPoint {
+interface D3PlusWrapped {
   __d3plus__?: boolean;
   __d3plusParent__?: D3PlusWrapped;
   data?: DataPoint;
   feature?: DataPoint;
   i?: number;
+  [key: string]: unknown;
 }
 
 type DataAccessor = (
@@ -21,12 +23,11 @@ type ConfigValue =
   | boolean
   | ConfigObject
   | ConfigValue[];
-interface ConfigObject {
-  on?: Record<string, DataAccessor>;
-  [key: string]: ConfigValue | Record<string, DataAccessor> | undefined;
+interface ConfigObject extends D3plusConfig {
+  [key: string]: unknown;
 }
 
-interface VizContext {
+export interface VizContext {
   _shapeConfig: ConfigObject;
   _duration: number;
   _on: Record<string, DataAccessor>;
@@ -75,7 +76,7 @@ export default function configPrep(
         ({}.hasOwnProperty.call(on, event) && !event.includes(".")) ||
         event.includes(`.${type}`)
       ) {
-        newObj.on![event] = wrapFunction(on[event]);
+        (newObj.on as unknown as Record<string, DataAccessor>)[event] = wrapFunction(on[event]);
       }
     }
   };
@@ -93,7 +94,7 @@ export default function configPrep(
     for (const key in obj) {
       if ({}.hasOwnProperty.call(obj, key)) {
         if (key === "on")
-          parseEvents(newObj, obj[key] as Record<string, DataAccessor>);
+          parseEvents(newObj, obj[key] as unknown as Record<string, DataAccessor>);
         else if (typeof obj[key] === "function") {
           newObj[key] = wrapFunction(obj[key] as DataAccessor);
         } else if (obj[key] instanceof Array) {
@@ -110,11 +111,11 @@ export default function configPrep(
   };
 
   keyEval(newConfig, config);
-  if (this._on) parseEvents(newConfig, this._on);
+  if (this._on) parseEvents(newConfig, this._on as unknown as Record<string, DataAccessor>);
   if (nest && config[nest]) {
     keyEval(newConfig, config[nest] as ConfigObject);
     if ((config[nest] as ConfigObject).on)
-      parseEvents(newConfig, (config[nest] as ConfigObject).on!);
+      parseEvents(newConfig, (config[nest] as ConfigObject).on as unknown as Record<string, DataAccessor>);
   }
 
   return newConfig;

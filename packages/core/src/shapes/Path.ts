@@ -15,7 +15,7 @@ export default class Path extends Shape {
     | ((
         d: DataPoint,
         i: number,
-        aes: Record<string, unknown>,
+        aes: ShapeAes,
       ) => Record<string, unknown> | null | false)
     | null;
   declare _name: string;
@@ -31,7 +31,7 @@ export default class Path extends Shape {
     this._labelBounds = (
       d: DataPoint,
       i: number,
-      aes: Record<string, unknown>,
+      aes: ShapeAes,
     ) => {
       const r = largestRect(aes.points as unknown as [number, number][], {
         angle: (this._labelConfig as Record<string, unknown>).rotate
@@ -103,7 +103,7 @@ function(d) {
   d(_: AccessorFn | string): this;
   d(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._d = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._d = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._d;
   }
 }

@@ -3,6 +3,7 @@ import type {DataPoint} from "@d3plus/data";
 import clickLegend from "./click.legend.js";
 import {legendLabel} from "../drawSteps/drawLegend.js";
 import {configPrep} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 import type Viz from "../Viz.js";
 
 /**
@@ -92,8 +93,8 @@ export default function (
           : legendLabel.bind(this),
       )
       .position(position)
-      .config(configPrep.bind(this)(this._tooltipConfig))
-      .config(configPrep.bind(this)(this._legendTooltip))
+      .config(configPrep.bind(this as unknown as VizContext)(this._tooltipConfig))
+      .config(configPrep.bind(this as unknown as VizContext)(this._legendTooltip))
       .render();
   }
 }

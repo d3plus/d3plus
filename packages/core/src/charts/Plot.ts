@@ -62,7 +62,7 @@ const defaultBuffers = {
     Logic for determining default sizes of shapes using the sizeScaleD3 internal function.
     @private
 */
-function defaultSize(d) {
+function defaultSize(this: any, d: any) {
   return this._sizeScaleD3(this._size ? this._size(d) : null);
 }
 
@@ -70,19 +70,19 @@ function defaultSize(d) {
     Logic for determining stackOrder ascending using groups.
     @private
 */
-function stackOrderAscending(series) {
+function stackOrderAscending(series: any) {
   const sums = series.map(stackSum);
-  const keys = series.map(d => d.key.split("_")[0]);
+  const keys = series.map((d: any) => d.key.split("_")[0]);
   return d3Shape
     .stackOrderNone(series)
-    .sort((a, b) => keys[b].localeCompare(keys[a]) || sums[a] - sums[b]);
+    .sort((a: any, b: any) => keys[b].localeCompare(keys[a]) || sums[a] - sums[b]);
 }
 
 /**
     Logic for determining stackOrder descending using groups.
     @private
 */
-function stackOrderDescending(series) {
+function stackOrderDescending(series: any) {
   return stackOrderAscending(series).reverse();
 }
 
@@ -90,7 +90,7 @@ function stackOrderDescending(series) {
     Logic for determining default sum of shapes using the stackSum function used in d3Shape.
     @private
 */
-function stackSum(series) {
+function stackSum(series: any) {
   let i = -1,
     s = 0,
     v;
@@ -103,7 +103,7 @@ function stackSum(series) {
     Logic for determining default sum of shapes using the stackSum function used in d3Shape.
     @private
 */
-function stackOffsetDiverging(series, order) {
+function stackOffsetDiverging(series: any, order: any) {
   let n;
   if (!((n = series.length) > 0)) return;
   let d, dy, i, yn, yp;
@@ -127,7 +127,7 @@ function stackOffsetDiverging(series, order) {
  * @param {*} i
  * @private
  */
-function outside(d, i) {
+function outside(this: any, d: any, i: any) {
   // Force all Stacked Bars to use "inside" labels.
   if (this._stacked) return false;
 
@@ -139,10 +139,10 @@ function outside(d, i) {
   // Run "auto" logic based on available space.
   const other = this._discrete.charAt(0) === "x" ? "y" : "x";
   const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);
-  const range = this[`_${nonDiscrete}Axis`]._d3Scale.range();
-  const value = this[`_${nonDiscrete}`](d, i);
+  const range = (this as any)[`_${nonDiscrete}Axis`]._d3Scale.range();
+  const value = (this as any)[`_${nonDiscrete}`](d, i);
   const negative = value < 0;
-  const zero = this[`_${nonDiscrete}Axis`]._getPosition(0);
+  const zero = (this as any)[`_${nonDiscrete}Axis`]._getPosition(0);
   const space =
     nonDiscrete === "y"
       ? negative
@@ -151,7 +151,7 @@ function outside(d, i) {
       : negative
         ? zero - range[0]
         : range[1] - zero;
-  const pos = this[`_${nonDiscrete}Axis`]._getPosition(value);
+  const pos = (this as any)[`_${nonDiscrete}Axis`]._getPosition(value);
   const size = Math.abs(negative ? zero - pos : pos - zero);
   return size < space / 2;
 }
@@ -178,7 +178,7 @@ export default class Plot extends Viz {
     this._barPadding = 0;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
     this._confidenceConfig = {
-      fill: (d, i) => {
+      fill: (d: any, i: any) => {
         const c =
           typeof this._shapeConfig.Line.stroke === "function"
             ? this._shapeConfig.Line.stroke(d, i)
@@ -194,7 +194,7 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d, i) => colorAssign(this._id(d, i)),
+      fill: (d: any, i: any) => colorAssign(this._id(d, i)),
       r: constant(3),
     };
     this._lineMarkers = false;
@@ -203,16 +203,16 @@ export default class Plot extends Viz {
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
       Area: {
-        label: (d, i) => (this._stacked ? this._drawLabel(d, i) : false),
-        labelBounds: (d, i, aes) => {
+        label: (d: any, i: any) => (this._stacked ? this._drawLabel(d, i) : false),
+        labelBounds: (d: any, i: any, aes: any) => {
           let r = largestRect(aes.points, {angle: range(-20, 20, 5)});
           if (!r || r.height < 20 || r.width < 50)
             r = largestRect(aes.points, {angle: range(-80, 80, 5)});
           if (!r) return null;
-          const x = min(aes.points, d => d[0]) as unknown as number;
+          const x = min(aes.points, (d: any) => d[0]) as unknown as number;
           const y = max(
-            aes.points.filter(d => d[0] === x),
-            d => d[1],
+            aes.points.filter((d: any) => d[0] === x),
+            (d: any) => d[1],
           ) as unknown as number;
           return {
             angle: r.angle,
@@ -228,7 +228,7 @@ export default class Plot extends Viz {
           padding: 10,
         },
       },
-      ariaLabel: (d, i) => {
+      ariaLabel: (d: any, i: any) => {
         let ariaLabelStr = "";
         if (d.nested) ariaLabelStr = `${this._drawLabel(d.data, d.i)}`;
         else {
@@ -245,7 +245,7 @@ export default class Plot extends Viz {
         return `${ariaLabelStr}.`;
       },
       Bar: {
-        labelBounds(d, i, s) {
+        labelBounds(this: any, d: any, i: any, s: any) {
           const padding = 1;
 
           const width = this._discrete === "y" ? "width" : "height";
@@ -257,9 +257,9 @@ export default class Plot extends Viz {
             this._discrete.charAt(0),
             other,
           );
-          const range = this[`_${nonDiscrete}Axis`]._d3Scale.range();
+          const range = (this as any)[`_${nonDiscrete}Axis`]._d3Scale.range();
           const space = Math.abs(range[1] - range[0]);
-          const negative = this[`_${nonDiscrete}`](d, i) < 0;
+          const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
 
           if (outside.bind(this)(d, i)) {
             return {
@@ -296,7 +296,7 @@ export default class Plot extends Viz {
           fontMax: 16,
           fontMin: 6,
           fontResize: true,
-          fontColor(d, i) {
+          fontColor(this: any, d: any, i: any) {
             if (outside.bind(this)(d, i)) {
               const bg: string = this._backgroundConfig.fill === "transparent"
                 ? backgroundColor(this._select.node())
@@ -309,7 +309,7 @@ export default class Plot extends Viz {
                 : this._shapeConfig.fill,
             );
           },
-          fontStroke(d, i) {
+          fontStroke(this: any, d: any, i: any) {
             if (outside.bind(this)(d, i)) {
               const bg: string = this._backgroundConfig.fill === "transparent"
                 ? backgroundColor(this._select.node())
@@ -318,18 +318,18 @@ export default class Plot extends Viz {
             }
             return "transparent";
           },
-          fontStrokeWidth(d, i) {
+          fontStrokeWidth(this: any, d: any, i: any) {
             return outside.bind(this)(d, i) ? 0.1 : 0;
           },
           padding: 3,
-          textAnchor(d, i) {
+          textAnchor(this: any, d: any, i: any): string {
             const other = this._discrete.charAt(0) === "x" ? "y" : "x";
             const invert = other === "y";
-            const nonDiscrete = this._discrete.replace(
+            const nonDiscrete: string = this._discrete.replace(
               this._discrete.charAt(0),
               other,
             );
-            const negative = this[`_${nonDiscrete}`](d, i) < 0;
+            const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
             const anchor = invert
               ? "middle"
               : outside.bind(this)(d, i)
@@ -347,14 +347,14 @@ export default class Plot extends Viz {
                   : anchor
               : anchor;
           },
-          verticalAlign(d, i) {
+          verticalAlign(this: any, d: any, i: any): string {
             const other = this._discrete.charAt(0) === "x" ? "y" : "x";
             const invert = other === "y";
-            const nonDiscrete = this._discrete.replace(
+            const nonDiscrete: string = this._discrete.replace(
               this._discrete.charAt(0),
               other,
             );
-            const negative = this[`_${nonDiscrete}`](d, i) < 0;
+            const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
             return invert
               ? outside.bind(this)(d, i)
                 ? negative
@@ -377,7 +377,7 @@ export default class Plot extends Viz {
             : "linear",
         fill: constant("none"),
         labelConfig: {
-          fontColor: (d, i) => {
+          fontColor: (d: any, i: any) => {
             const c =
               typeof this._shapeConfig.Line.stroke === "function"
                 ? this._shapeConfig.Line.stroke(d, i)
@@ -392,12 +392,12 @@ export default class Plot extends Viz {
         strokeWidth: constant(2),
       },
       Rect: {
-        height: d => defaultSize.bind(this)(d) * 2,
-        width: d => defaultSize.bind(this)(d) * 2,
+        height: (d: any) => defaultSize.bind(this)(d) * 2,
+        width: (d: any) => defaultSize.bind(this)(d) * 2,
       },
     });
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
-    this._shapeSort = (a, b) =>
+    this._shapeSort = (a: any, b: any) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);
     this._sizeMax = 20;
     this._sizeMin = 5;
@@ -415,7 +415,7 @@ export default class Plot extends Viz {
     this._xTest = new AxisBottom().align("end").gridSize(0);
     this._xConfig = {
       gridConfig: {
-        stroke: d => {
+        stroke: (d: any) => {
           if (this._discrete && this._discrete.charAt(0) === "x")
             return "transparent";
           const range = this._xAxis.range();
@@ -442,7 +442,7 @@ export default class Plot extends Viz {
     this._yTest = new AxisLeft().align("start").gridSize(0);
     this._yConfig = {
       gridConfig: {
-        stroke: d => {
+        stroke: (d: any) => {
           if (this._discrete && this._discrete.charAt(0) === "y")
             return "transparent";
           const range = this._yAxis.range();
@@ -476,7 +476,7 @@ export default class Plot extends Viz {
 
         // if axis is discrete and numerical, do not sum values
         if (!this._aggs[str] && this._discrete === k) {
-          this._aggs[str] = (a, c) => {
+          this._aggs[str] = (a: any, c: any) => {
             const v = Array.from(new Set(a.map(c)));
             return v.length === 1 ? v[0] : v;
           };
@@ -519,7 +519,7 @@ export default class Plot extends Viz {
 
     const timeAxis = xTime || x2Time || yTime || y2Time;
 
-    const stackGroup = (d, i) =>
+    const stackGroup = (d: any, i: any) =>
       `${!timeAxis && this._time ? this._time(d, i) : "time"}_${
         this._stacked
           ? `${
@@ -530,7 +530,7 @@ export default class Plot extends Viz {
           : `${this._ids(d, i).join("_")}`
       }`;
 
-    const prepData = (d, i) => {
+    const prepData = (d: any, i: any) => {
       const newD: Record<string, unknown> = {
         __d3plus__: true,
         data: d,
@@ -565,7 +565,7 @@ export default class Plot extends Viz {
       const rExtent = extent(axisData, (d: Record<string, unknown>) =>
         this._size(d.data),
       );
-      this._sizeScaleD3 = scales[
+      this._sizeScaleD3 = (scales as any)[
         `scale${this._sizeScale.charAt(0).toUpperCase()}${this._sizeScale.slice(
           1,
         )}`
@@ -581,8 +581,8 @@ export default class Plot extends Viz {
       this._sizeScaleD3 = () => this._sizeMin;
     }
 
-    const x2Exists = axisData.some(d => d.x2 !== undefined),
-      y2Exists = axisData.some(d => d.y2 !== undefined);
+    const x2Exists = axisData.some((d: any) => d.x2 !== undefined),
+      y2Exists = axisData.some((d: any) => d.y2 !== undefined);
 
     const height = this._height - this._margin.top - this._margin.bottom,
       opp = this._discrete ? (this._discrete === "x" ? "y" : "x") : undefined,
@@ -601,12 +601,12 @@ export default class Plot extends Viz {
         @param axis Which axis to return values for, "x" or "y".
         @private
 */
-    function getAxisValues(axis: "x" | "y") {
+    function getAxisValues(this: any, axis: string) {
       const timeData = this[`_${axis}Time`];
       const localData = timeData ? data : axisData;
 
       const filteredData = localData.filter(
-        d => ![NaN, undefined, false].includes(d[axis]),
+        (d: any) => ![NaN, undefined, false].includes(d[axis]),
       );
 
       if (!filteredData.length) return [];
@@ -648,20 +648,20 @@ export default class Plot extends Viz {
               )
           : unique(
               filteredData
-                .sort((a, b) =>
+                .sort((a: any, b: any) =>
                   this[`_${axis}Sort`]
                     ? this[`_${axis}Sort`](a.data, b.data)
                     : a[axis] - b[axis],
                 )
-                .map(d => d[axis]),
-              d => `${d}`,
+                .map((d: any) => d[axis]),
+              (d: any) => `${d}`,
             );
 
       if (this._discrete !== axis.charAt(0) && this._confidence) {
         if (this._confidence[0])
-          myData = myData.concat(localData.map(d => d.lci));
+          myData = myData.concat(localData.map((d: any) => d.lci));
         if (this._confidence[1])
-          myData = myData.concat(localData.map(d => d.hci));
+          myData = myData.concat(localData.map((d: any) => d.hci));
       }
 
       return myData;
@@ -672,9 +672,9 @@ export default class Plot extends Viz {
     const yData = getAxisValues.bind(this)("y");
     const y2Data = getAxisValues.bind(this)("y2");
 
-    let discreteKeys, domains, stackData, stackKeys;
+    let discreteKeys: any[], domains: any, stackData: any[], stackKeys: any[];
     if (this._stacked) {
-      const stackedData = axisData.filter(d =>
+      const stackedData = axisData.filter((d: any) =>
         ["Area", "Bar"].includes(d.shape),
       );
 
@@ -690,7 +690,7 @@ export default class Plot extends Viz {
         return obj;
       }, {});
 
-      axisData.sort((a, b) => {
+      axisData.sort((a: any, b: any) => {
         if (this[`_${this._discrete}Sort`])
           return this[`_${this._discrete}Sort`](a.data, b.data);
         const a1 = a[this._discrete],
@@ -698,26 +698,26 @@ export default class Plot extends Viz {
         if (a1 - b1 !== 0) return a1 - b1;
         if (a.group !== b.group)
           return groupValues[b.group] - groupValues[a.group];
-        return b[opp] - a[opp];
+        return b[opp as string] - a[opp as string];
       });
 
-      discreteKeys = Array.from(new Set(axisData.map(d => d.discrete)));
-      stackKeys = Array.from(new Set(axisData.map(d => d.id)));
+      discreteKeys = Array.from(new Set(axisData.map((d: any) => d.discrete)));
+      stackKeys = Array.from(new Set(axisData.map((d: any) => d.id)));
 
       stackData = groups(
         axisData,
         (d: Record<string, unknown>) => d.discrete,
       ).map(([, values]) => values);
 
-      stackData.forEach(g => {
-        const ids = Array.from(new Set(g.map(d => d.id)));
+      stackData.forEach((g: any[]) => {
+        const ids = Array.from(new Set(g.map((d: any) => d.id)));
         if (ids.length < stackKeys.length) {
-          stackKeys.forEach(k => {
+          stackKeys.forEach((k: any) => {
             if (!ids.includes(k)) {
-              const d = axisData.filter(d => d.id === k)[0];
+              const d = axisData.filter((d: any) => d.id === k)[0];
               if (d.shape === "Area") {
                 const group = stackGroup(d.data, d.i);
-                const fillerPoint = {
+                const fillerPoint: Record<string, unknown> = {
                   __d3plus__: true,
                   data: d.data,
                   discrete:
@@ -729,7 +729,7 @@ export default class Plot extends Viz {
                   ids: k,
                   shape: d.shape,
                   [this._discrete]: g[0][this._discrete],
-                  [opp]: 0,
+                  [opp as string]: 0,
                 };
                 data.push(fillerPoint);
               }
@@ -739,65 +739,65 @@ export default class Plot extends Viz {
       });
 
       if (this[`_${this._discrete}Sort`]) {
-        data.sort((a, b) => this[`_${this._discrete}Sort`](a.data, b.data));
+        data.sort((a: any, b: any) => this[`_${this._discrete}Sort`](a.data, b.data));
       } else {
-        data.sort((a, b) => a[this._discrete] - b[this._discrete]);
+        data.sort((a: any, b: any) => a[this._discrete] - b[this._discrete]);
       }
 
       const order = this._stackOrder;
 
       if (order instanceof Array)
-        stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+        stackKeys.sort((a: any, b: any) => order.indexOf(a) - order.indexOf(b));
       else if (order === d3Shape.stackOrderNone)
-        stackKeys.sort((a, b) => a.localeCompare(b));
+        stackKeys.sort((a: any, b: any) => a.localeCompare(b));
 
-      stackData = d3Shape
+      stackData = (d3Shape
         .stack()
         .keys(stackKeys)
         .offset(this._stackOffset)
         .order(order instanceof Array ? d3Shape.stackOrderNone : order)
         .value(((group: Record<string, unknown>[], key: string) => {
-          const d = group.filter(g => g.id === key);
-          return d.length ? d[0][opp] : 0;
-        }) as never)(stackData);
+          const d = (group as any[]).filter((g: any) => g.id === key);
+          return d.length ? (d[0] as any)[opp as string] : 0;
+        }) as never) as any)(stackData);
 
       const discreteData = this._discrete === "x" ? xData : yData;
 
       domains = {
         [this._discrete]: this[`_${this._discrete}Time`]
-          ? extent(discreteData)
+          ? extent(discreteData as any[])
           : discreteData,
-        [opp]: [
-          min(stackData.map(g => min(g.map(p => p[0])))),
-          max(stackData.map(g => max(g.map(p => p[1])))),
+        [opp as string]: [
+          min(stackData.map((g: any) => min(g.map((p: any) => p[0])) as unknown as number)),
+          max(stackData.map((g: any) => max(g.map((p: any) => p[1])) as unknown as number)),
         ],
       };
     } else {
       const discrete = this._discrete || "x";
 
       if (this[`_${this._discrete}Sort`]) {
-        axisData.sort((a, b) => this[`_${this._discrete}Sort`](a.data, b.data));
+        axisData.sort((a: any, b: any) => this[`_${this._discrete}Sort`](a.data, b.data));
       } else {
-        axisData.sort((a, b) => a[discrete] - b[discrete]);
+        axisData.sort((a: any, b: any) => a[discrete] - b[discrete]);
       }
 
       domains = {
         x:
           (!xTime && this._discrete === "x") || this._xSort
             ? xData
-            : extent(xData),
+            : extent(xData as any[]),
         x2:
           (!x2Time && this._discrete === "x") || this._x2Sort
             ? x2Data
-            : extent(x2Data),
+            : extent(x2Data as any[]),
         y:
           (!yTime && this._discrete === "y") || this._ySort
             ? yData
-            : extent(yData),
+            : extent(yData as any[]),
         y2:
           (!y2Time && this._discrete === "y") || this._y2Sort
             ? y2Data
-            : extent(y2Data),
+            : extent(y2Data as any[]),
       };
     }
 
@@ -806,7 +806,7 @@ export default class Plot extends Viz {
      * @param {String} axis
      * @private
      */
-    function domainScaleSetup(axis) {
+    function domainScaleSetup(this: any, axis: any) {
       const scale = this[`_${axis}Time`]
         ? "Time"
         : this._discrete === axis || this[`_${axis}Sort`]
@@ -838,12 +838,12 @@ export default class Plot extends Viz {
     const [yAutoDomain, yScale, y2AutoDomain, y2Scale] =
       domainScaleSetup.bind(this)("y");
 
-    const autoScale = (axis, fallback) => {
+    const autoScale = (axis: any, fallback: any) => {
       const userScale = this[`_${axis}Config`].scale;
       if (userScale === "auto") {
         if (this._discrete === axis) return fallback;
-        const values = axisData.map(d => d[axis]);
-        return deviation(values) / mean(values) > 3 ? "log" : "linear";
+        const values = axisData.map((d: any) => d[axis]);
+        return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
       }
       return userScale || fallback;
     };
@@ -876,14 +876,14 @@ export default class Plot extends Viz {
         if ((min(domains[axis]) as unknown as number) < 0)
           domains[axis][1] = max(
             data
-              .map(d => d[axis])
-              .filter(d => ![NaN, undefined, false].includes(d)),
+              .map((d: any) => d[axis])
+              .filter((d: any) => ![NaN, undefined, false].includes(d)),
           );
         else
           domains[axis][0] = min(
             axisData
-              .map(d => d[axis])
-              .filter(d => ![NaN, undefined, false].includes(d)),
+              .map((d: any) => d[axis])
+              .filter((d: any) => ![NaN, undefined, false].includes(d)),
           );
       }
     });
@@ -892,7 +892,7 @@ export default class Plot extends Viz {
       if (this[`_${opp}Config`].domain) {
         const d = this[`_${opp}Config`].domain;
         if (this._discrete === "x") d.reverse();
-        domains[opp] = d;
+        domains[opp!] = d;
       } else if (opp && this._baseline !== void 0) {
         const b = this._baseline;
         if (domains[opp] && domains[opp][0] > b) domains[opp][0] = b;
@@ -900,16 +900,16 @@ export default class Plot extends Viz {
       }
     });
 
-    let x = scales[`scale${xScale}`]()
+    let x = (scales as any)[`scale${xScale}`]()
         .domain(domains.x)
         .range(range(0, width + 1, width / (domains.x.length - 1))),
-      x2 = scales[`scale${x2Scale}`]()
+      x2 = (scales as any)[`scale${x2Scale}`]()
         .domain(domains.x2)
         .range(range(0, width + 1, width / (domains.x2.length - 1))),
-      y = scales[`scale${yScale}`]()
+      y = (scales as any)[`scale${yScale}`]()
         .domain(domains.y.reverse())
         .range(range(0, height + 1, height / (domains.y.length - 1))),
-      y2 = scales[`scale${y2Scale}`]()
+      y2 = (scales as any)[`scale${y2Scale}`]()
         .domain(domains.y2.reverse())
         .range(range(0, height + 1, height / (domains.y2.length - 1)));
 
@@ -990,7 +990,7 @@ export default class Plot extends Viz {
       yC.barConfig = {stroke: "transparent"};
       yC.tickSize = 0;
       yC.shapeConfig = {
-        labelBounds: (d, i) => {
+        labelBounds: (d: any, i: any) => {
           const {width, y} = d.labelBounds;
           const height = this._height / 2;
           const x = i ? -height : 0;
@@ -1016,7 +1016,7 @@ export default class Plot extends Viz {
      */
 
     // generates an Array of String labels using the current label function for Bar shapes
-    const barConfig = configPrep.bind(this)(this._shapeConfig, "shape", "Bar");
+    const barConfig = (configPrep as any).bind(this)(this._shapeConfig, "shape", "Bar");
     const barLabelFunction =
       barConfig.label !== undefined
         ? typeof barConfig.label === "function"
@@ -1024,31 +1024,31 @@ export default class Plot extends Viz {
           : constant(barConfig.label)
         : this._drawLabel;
     const barLabels = axisData
-      .map(d => barLabelFunction(d.data, d.i))
-      .filter(d => typeof d === "number" || d)
+      .map((d: any) => barLabelFunction(d.data, d.i))
+      .filter((d: any) => typeof d === "number" || d)
       .map(String);
 
     // sets an axis' ticks to [] if the axis scale is "Point" (discrete) and every tick String
     // is also in the barLabels Array
-    let x2Ticks = unique(axisData.map(d => d.x2));
+    let x2Ticks: unknown[] | null = unique(axisData.map((d: any) => d.x2));
     x2Ticks =
       x2Scale === "Point" && x2Ticks.every(t => barLabels.includes(`${t}`))
-        ? []
+        ? ([] as unknown[])
         : null;
-    let xTicks = unique(axisData.map(d => d.x));
+    let xTicks: unknown[] | null = unique(axisData.map((d: any) => d.x));
     xTicks =
       xScale === "Point" && xTicks.every(t => barLabels.includes(`${t}`))
-        ? []
+        ? ([] as unknown[])
         : null;
-    let y2Ticks = unique(axisData.map(d => d.y2));
+    let y2Ticks: unknown[] | null = unique(axisData.map((d: any) => d.y2));
     y2Ticks =
       y2Scale === "Point" && y2Ticks.every(t => barLabels.includes(`${t}`))
-        ? []
+        ? ([] as unknown[])
         : null;
-    let yTicks = unique(axisData.map(d => d.y));
+    let yTicks: unknown[] | null = unique(axisData.map((d: any) => d.y));
     yTicks =
       yScale === "Point" && yTicks.every(t => barLabels.includes(`${t}`))
-        ? []
+        ? ([] as unknown[])
         : null;
 
     if (showY) {
@@ -1100,7 +1100,7 @@ export default class Plot extends Viz {
       xC.barConfig = {stroke: "transparent"};
       xC.tickSize = 0;
       xC.shapeConfig = {
-        labelBounds: (d, i) => {
+        labelBounds: (d: any, i: any) => {
           const {height, y} = d.labelBounds;
           const width = this._width / 2;
           const x = i ? -width : 0;
@@ -1109,7 +1109,7 @@ export default class Plot extends Viz {
         labelConfig: {
           padding: 0,
           rotate: 0,
-          textAnchor: d => (xTicks && d.id === xTicks[0] ? "start" : "end"),
+          textAnchor: (d: any) => (xTicks && d.id === xTicks[0] ? "start" : "end"),
         },
         labelRotation: false,
       };
@@ -1132,11 +1132,11 @@ export default class Plot extends Viz {
         .render();
     }
 
-    let largestLabel,
-      labelWidths = [];
+    let largestLabel: any,
+      labelWidths: any[] = [];
     const showLineLabels = this._lineLabels && !y2Exists;
     if (showLineLabels) {
-      const labelData = data.filter(d => {
+      const labelData = data.filter((d: any) => {
         if (d.shape !== "Line") return false;
         return typeof this._lineLabels === "function"
           ? this._lineLabels(d.data, d.i)
@@ -1146,7 +1146,7 @@ export default class Plot extends Viz {
       const lineData = groups(labelData, (d: Record<string, unknown>) => d.id);
 
       if (lineData.length) {
-        const userConfig = configPrep.bind(this)(
+        const userConfig = (configPrep as any).bind(this)(
           this._shapeConfig,
           "shape",
           "Line",
@@ -1175,7 +1175,7 @@ export default class Plot extends Viz {
             : testTextBox.padding();
         const labelFunction = userConfig.label || this._drawLabel;
 
-        const xEstimate = d => {
+        const xEstimate = (d: any) => {
           if (xConfigScale === "log" && d === 0)
             d =
               xDomain[0] < 0
@@ -1184,7 +1184,7 @@ export default class Plot extends Viz {
           return this._xTest._getPosition.bind(this._xTest)(d);
         };
 
-        const yEstimate = d => {
+        const yEstimate = (d: any) => {
           if (yConfigScale === "log" && d === 0)
             d =
               yDomain[0] < 0
@@ -1301,7 +1301,7 @@ export default class Plot extends Viz {
             : 0;
         if (spaceNeeded) {
           const labelSpace = min([spaceNeeded, width / 4]);
-          xRangeMax = width - labelSpace - this._margin.right;
+          xRangeMax = width - labelSpace! - this._margin.right;
         }
       }
     }
@@ -1399,7 +1399,7 @@ export default class Plot extends Viz {
         .height(height)
         .range(yRange)
         .select(testGroup.node())
-        .width(width - max([0, xOffsetRight - y2Width]))
+        .width(width - max([0, xOffsetRight - y2Width])!)
         .title(false)
         .config(this._y2Config)
         .config(defaultY2Config)
@@ -1494,7 +1494,7 @@ export default class Plot extends Viz {
         .render();
     }
 
-    this._xFunc = x = (d, x) => {
+    this._xFunc = x = (d: any, x: any) => {
       if (x === "x2") {
         if (x2ConfigScale === "log" && d === 0)
           d =
@@ -1538,7 +1538,7 @@ export default class Plot extends Viz {
         .height(height)
         .range(yRange)
         .select(y2Group.node())
-        .width(width - max([0, xOffsetRight - y2Width]))
+        .width(width - max([0, xOffsetRight - y2Width])!)
         .title(false)
         .config(this._y2Config)
         .config(defaultY2Config)
@@ -1548,13 +1548,13 @@ export default class Plot extends Viz {
 
     let labelPositions = {};
     if (labelWidths) {
-      groups(labelWidths, d => d.xValue).forEach(([, values]) => {
-        const minFontSize = max(values.map(d => d.fontSize));
+      groups(labelWidths as any[], (d: any) => d.xValue).forEach(([, values]) => {
+        const minFontSize = max(values.map((d: any) => d.fontSize));
         const yBuckets = range(yRange[0], yRange[1], minFontSize).reverse();
         const bumpLimit = (yRange[1] - yRange[0]) / 8;
 
         /***/
-        function bumpPrevious(d, i, arr) {
+        function bumpPrevious(this: any, d: any, i: any, arr: any) {
           if (!d.defaultY) d.defaultY = this._yAxis._getPosition(d.value);
           if (i) {
             const prev = arr[i - 1];
@@ -1563,7 +1563,7 @@ export default class Plot extends Viz {
             const prevY = prev.newY || prev.defaultY;
             if (y - fontSize / 2 - padding < prevY) {
               const newY = yBuckets.find(n => n < prevY);
-              const change = d.defaultY - newY;
+              const change = d.defaultY - newY!;
               if (change < bumpLimit) {
                 prev.newY = newY;
                 if (i) bumpPrevious(prev, i - 1, arr);
@@ -1575,13 +1575,13 @@ export default class Plot extends Viz {
         values.forEach(bumpPrevious.bind(this));
       });
 
-      labelPositions = labelWidths.reduce((obj, d) => {
+      labelPositions = (labelWidths as any[]).reduce((obj: any, d: any) => {
         if (d.newY) obj[d.id] = d.newY;
         return obj;
       }, {});
     }
 
-    this._yFunc = y = (d, y) => {
+    this._yFunc = y = (d: any, y: any) => {
       if (y === "y2") {
         if (y2ConfigScale === "log" && d === 0)
           d =
@@ -1612,7 +1612,7 @@ export default class Plot extends Viz {
       .config(this._backgroundConfig)
       .render();
 
-    const labelConnectors = labelWidths.filter(d => d.newY !== undefined);
+    const labelConnectors = (labelWidths as any[]).filter((d: any) => d.newY !== undefined);
     if (labelConnectors.length) {
       const connectorGroup = elem("g.d3plus-plot-connectors", {
         parent,
@@ -1647,10 +1647,10 @@ export default class Plot extends Viz {
 
       new shapes.Line()
         .config({
-          data,
-          stroke: d => d.fontColor,
-          x: d => d.x,
-          y: d => d.y,
+          data: data as DataPoint[],
+          stroke: (d: any) => d.fontColor,
+          x: (d: any) => d.x,
+          y: (d: any) => d.y,
         })
         .config(this._labelConnectorConfig)
         .select(connectorGroup)
@@ -1681,43 +1681,43 @@ export default class Plot extends Viz {
         layer === "front" ? annotationGroupFront : annotationGroupBack;
 
       const annotationData = this._annotations.filter(
-        d => (layer === "back" && !d.layer) || d.layer === layer,
+        (d: any) => (layer === "back" && !d.layer) || d.layer === layer,
       );
-      const annotationShapes = annotationData.map(d => d.shape);
-      annotationData.forEach(annotation => {
-        new shapes[annotation.shape]()
+      const annotationShapes = annotationData.map((d: any) => d.shape);
+      annotationData.forEach((annotation: any) => {
+        new (shapes as any)[annotation.shape]()
           .duration(this._duration)
           .config(annotation)
           .config({
-            x: d => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+            x: (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
             x0:
               this._discrete === "x"
-                ? d => (d.x2 ? x(d.x2, "x2") : x(d.x))
+                ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
                 : x(domains.x[0]),
             x1:
               this._discrete === "x"
                 ? null
-                : d => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-            y: d => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+                : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+            y: (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
             y0:
               this._discrete === "y"
-                ? d => (d.y2 ? y(d.y2, "y2") : y(d.y))
+                ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
                 : y(domains.y[1]) - yOffset,
             y1:
               this._discrete === "y"
                 ? null
-                : d => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+                : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
           })
           .select(group)
           .render();
       });
 
       const exitAnnotations = this._previousAnnotations[layer].filter(
-        d => !annotationShapes.includes(d),
+        (d: any) => !annotationShapes.includes(d),
       );
 
-      exitAnnotations.forEach(shape => {
-        new shapes[shape]().data([]).select(group).render();
+      exitAnnotations.forEach((shape: any) => {
+        new (shapes as any)[shape]().data([]).select(group).render();
       });
 
       this._previousAnnotations[layer] = annotationShapes;
@@ -1728,22 +1728,22 @@ export default class Plot extends Viz {
     const shapeConfig = {
       discrete: this._discrete,
       duration: this._duration,
-      label: d => this._drawLabel(d.data, d.i),
+      label: (d: any) => this._drawLabel(d.data, d.i),
       select: shapeGroup,
-      x: d => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
+      x: (d: any) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
       x0:
         discrete === "x"
-          ? d => (d.x2 ? x(d.x2, "x2") : x(d.x))
+          ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
           : x(
               typeof this._baseline === "number"
                 ? this._baseline
                 : domains.x[0],
             ),
-      x1: discrete === "x" ? null : d => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-      y: d => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
+      x1: discrete === "x" ? null : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      y: (d: any) => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
       y0:
         discrete === "y"
-          ? d => (d.y2 ? y(d.y2, "y2") : y(d.y))
+          ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
           : y(
               typeof this._baseline === "number"
                 ? this._baseline
@@ -1752,7 +1752,7 @@ export default class Plot extends Viz {
       y1:
         discrete === "y"
           ? null
-          : d => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+          : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
     };
 
     const events = Object.keys(this._on);
@@ -1761,25 +1761,25 @@ export default class Plot extends Viz {
       const shapeConfigInner = Object.assign({}, shapeConfig);
       if (this._stacked && ["Area", "Bar"].includes(d.key)) {
         const scale = opp === "x" ? x : y;
-        shapeConfigInner[`${opp}`] = shapeConfigInner[`${opp}0`] = d => {
+        (shapeConfigInner as any)[`${opp}`] = (shapeConfigInner as any)[`${opp}0`] = (d: any) => {
           const dataIndex = stackKeys.indexOf(d.id),
             discreteIndex = discreteKeys.indexOf(d.discrete);
-          const scaleIndex = d[opp] < 0 ? 1 : 0;
+          const scaleIndex = d[opp!] < 0 ? 1 : 0;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
-            : scale(domains[opp][opp === "x" ? 0 : 1]);
+            : scale(domains[opp!][opp === "x" ? 0 : 1]);
         };
-        shapeConfigInner[`${opp}1`] = d => {
+        (shapeConfigInner as any)[`${opp}1`] = (d: any) => {
           const dataIndex = stackKeys.indexOf(d.id),
             discreteIndex = discreteKeys.indexOf(d.discrete);
-          const scaleIndex = d[opp] < 0 ? 0 : 1;
+          const scaleIndex = d[opp!] < 0 ? 0 : 1;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
-            : scale(domains[opp][opp === "x" ? 0 : 1]);
+            : scale(domains[opp!][opp === "x" ? 0 : 1]);
         };
       }
 
-      const s = new shapes[d.key]().config(shapeConfigInner).data(d.values);
+      const s = new (shapes as any)[d.key]().config(shapeConfigInner).data(d.values);
 
       if (d.key === "Bar") {
         let space;
@@ -1789,7 +1789,7 @@ export default class Plot extends Viz {
         const range = this._discrete === "x" ? xRange : yRange;
         if (scaleType !== "Point" && vals.length === 2) {
           const allPositions = Array.from(
-            new Set(d.values.map(d => scale(d[this._discrete]))),
+            new Set(d.values.map((d: any) => scale(d[this._discrete as string]))),
           );
           allPositions.unshift(
             (range[0] as number) -
@@ -1828,7 +1828,7 @@ export default class Plot extends Viz {
         if (
           max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1
         ) {
-          s[this._discrete]((d, i) => shapeConfig[this._discrete](d, i));
+          (s as any)[this._discrete]((d: any, i: any) => (shapeConfig as any)[this._discrete](d, i));
         } else {
           barSize =
             (barSize - this._barPadding * uniqueIds.length - 1) /
@@ -1841,9 +1841,9 @@ export default class Plot extends Viz {
             .domain([0, uniqueIds.length - 1])
             .range([-offset, offset]);
 
-          s[this._discrete](
-            (d, i) =>
-              shapeConfig[this._discrete](d, i) +
+          (s as any)[this._discrete](
+            (d: any, i: any) =>
+              (shapeConfig as any)[this._discrete](d, i) +
               xMod(uniqueIds.indexOf(d.group)),
           );
         }
@@ -1858,9 +1858,9 @@ export default class Plot extends Viz {
           const discrete = this._discrete || "x";
           const key = discrete === "x" ? "y" : "x";
           const scaleFunction = discrete === "x" ? y : x;
-          areaConfig[`${key}0`] = d =>
+          (areaConfig as any)[`${key}0`] = (d: any) =>
             scaleFunction(this._confidence[0] ? d.lci : d[key]);
-          areaConfig[`${key}1`] = d =>
+          (areaConfig as any)[`${key}1`] = (d: any) =>
             scaleFunction(this._confidence[1] ? d.hci : d[key]);
 
           const area = new shapes.Area()
@@ -1874,9 +1874,9 @@ export default class Plot extends Viz {
           area
             .config(
               assign(
-                configPrep.bind(this)(confidenceConfig, "shape", "Line"),
-                configPrep.bind(this)(confidenceConfig, "shape", "Area"),
-              ),
+                (configPrep as any).bind(this)(confidenceConfig, "shape", "Line"),
+                (configPrep as any).bind(this)(confidenceConfig, "shape", "Area"),
+              ) as any,
             )
             .render();
 
@@ -1886,7 +1886,7 @@ export default class Plot extends Viz {
         s.config({
           discrete: shapeConfig.discrete || "x",
           label: showLineLabels
-            ? (d, i) => {
+            ? (d: any, i: any) => {
                 const visible =
                   typeof this._lineLabels === "function"
                     ? this._lineLabels(d.data, d.i)
@@ -1909,12 +1909,12 @@ export default class Plot extends Viz {
               }
             : false,
           labelBounds: showLineLabels
-            ? (d, i, s) => {
+            ? (d: any, i: any, s: any) => {
                 const [firstX, firstY] = s.points[0];
                 const [lastX, lastY] = s.points[s.points.length - 1];
                 const height = this._height / 4;
-                const mod = labelPositions[d.id]
-                  ? lastY - labelPositions[d.id]
+                const mod = (labelPositions as any)[d.id]
+                  ? lastY - (labelPositions as any)[d.id]
                   : 0;
                 return {
                   x: lastX - firstX,
@@ -1931,25 +1931,25 @@ export default class Plot extends Viz {
         globalEvents = events.filter(e => !e.includes(".")),
         shapeEvents = events.filter(e => e.includes(".shape"));
       for (let e = 0; e < globalEvents.length; e++)
-        s.on(globalEvents[e], (d, i, x, event) =>
-          this._on[globalEvents[e]](d.data, d.i, x, event),
+        s.on(globalEvents[e], ((d: any, i: any, x: any, event: any) =>
+          this._on[globalEvents[e]](d.data, d.i, x, event)) as any,
         );
       for (let e = 0; e < shapeEvents.length; e++)
-        s.on(shapeEvents[e], (d, i, x, event) =>
-          this._on[shapeEvents[e]](d.data, d.i, x, event),
+        s.on(shapeEvents[e], ((d: any, i: any, x: any, event: any) =>
+          this._on[shapeEvents[e]](d.data, d.i, x, event)) as any,
         );
       for (let e = 0; e < classEvents.length; e++)
-        s.on(classEvents[e], (d, i, x, event) =>
-          this._on[classEvents[e]](d.data, d.i, x, event),
+        s.on(classEvents[e], ((d: any, i: any, x: any, event: any) =>
+          this._on[classEvents[e]](d.data, d.i, x, event)) as any,
         );
 
-      const userConfig = configPrep.bind(this)(
+      const userConfig = (configPrep as any).bind(this)(
         this._shapeConfig,
         "shape",
         d.key,
       );
       if (this._shapeConfig.duration === undefined) delete userConfig.duration;
-      s.config(userConfig).render();
+      s.config(userConfig as any).render();
 
       this._shapes.push(s);
 
@@ -1961,16 +1961,16 @@ export default class Plot extends Viz {
           .id(d => `${d.id}_${d.discrete}`);
 
         for (let e = 0; e < globalEvents.length; e++)
-          markers.on(globalEvents[e], (d: Record<string, unknown>, i, x, event) =>
-            this._on[globalEvents[e]](d.data, d.i, x, event),
+          markers.on(globalEvents[e], ((d: any, i: any, x: any, event: any) =>
+            this._on[globalEvents[e]](d.data, d.i, x, event)) as any,
           );
         for (let e = 0; e < shapeEvents.length; e++)
-          markers.on(shapeEvents[e], (d: Record<string, unknown>, i, x, event) =>
-            this._on[shapeEvents[e]](d.data, d.i, x, event),
+          markers.on(shapeEvents[e], ((d: any, i: any, x: any, event: any) =>
+            this._on[shapeEvents[e]](d.data, d.i, x, event)) as any,
           );
         for (let e = 0; e < classEvents.length; e++)
-          markers.on(classEvents[e], (d: Record<string, unknown>, i, x, event) =>
-            this._on[classEvents[e]](d.data, d.i, x, event),
+          markers.on(classEvents[e], ((d: any, i: any, x: any, event: any) =>
+            this._on[classEvents[e]](d.data, d.i, x, event)) as any,
           );
 
         markers.render();
@@ -1984,11 +1984,11 @@ export default class Plot extends Viz {
       if (this._lineMarkers) dataShapes.push("Circle");
     }
     const exitShapes = this._previousShapes.filter(
-      d => !dataShapes.includes(d),
+      (d: any) => !dataShapes.includes(d),
     );
 
-    exitShapes.forEach(shape => {
-      new shapes[shape]().config(shapeConfig).data([]).render();
+    exitShapes.forEach((shape: any) => {
+      new (shapes as any)[shape]().config(shapeConfig).data([]).render();
     });
 
     this._previousShapes = dataShapes;
@@ -2001,7 +2001,7 @@ export default class Plot extends Viz {
 
 Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present.
 */
-  annotations(_) {
+  annotations(_: any) {
     return arguments.length
       ? ((this._annotations = _ instanceof Array ? _ : [_]), this)
       : this._annotations;
@@ -2010,7 +2010,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 */
-  axisPersist(_) {
+  axisPersist(_: any) {
     return arguments.length
       ? ((this._axisPersist = _), this)
       : this._axisPersist;
@@ -2019,7 +2019,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 */
-  backgroundConfig(_) {
+  backgroundConfig(_: any) {
     return arguments.length
       ? ((this._backgroundConfig = assign(this._backgroundConfig, _)), this)
       : this._backgroundConfig;
@@ -2028,29 +2028,29 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The pixel space between each bar in a group of bars.
 */
-  barPadding(_) {
+  barPadding(_: any) {
     return arguments.length ? ((this._barPadding = _), this) : this._barPadding;
   }
 
   /**
       The baseline for the x/y plot.
 */
-  baseline(_) {
+  baseline(_: any) {
     return arguments.length ? ((this._baseline = _), this) : this._baseline;
   }
 
   /**
       Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 */
-  buffer(_) {
+  buffer(_: any) {
     if (arguments.length) {
       if (!_) this._buffer = {};
       else if (_ === true) this._buffer = defaultBuffers;
       else {
         this._buffer = assign({}, this._buffer, _);
         for (const key in this._buffer) {
-          if (this._buffer[key] === true)
-            this._buffer[key] = defaultBuffers[key];
+          if ((this._buffer as any)[key] === true)
+            (this._buffer as any)[key] = (defaultBuffers as any)[key];
         }
       }
       return this;
@@ -2070,7 +2070,7 @@ Additionally, each config object can also contain an optional "layer" key, which
        // Or static keys
        .confidence(["lci", "hci"])
 */
-  confidence(_) {
+  confidence(_: any) {
     if (arguments.length && _ instanceof Array) {
       this._confidence = [];
       const lower = _[0];
@@ -2087,7 +2087,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Configuration object for shapes rendered as confidence intervals.
 */
-  confidenceConfig(_) {
+  confidenceConfig(_: any) {
     return arguments.length
       ? ((this._confidenceConfig = assign(this._confidenceConfig, _)), this)
       : this._confidenceConfig;
@@ -2096,7 +2096,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 */
-  discreteCutoff(_) {
+  discreteCutoff(_: any) {
     return arguments.length
       ? ((this._discreteCutoff = _), this)
       : this._discreteCutoff;
@@ -2105,7 +2105,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The pixel space between groups of bars.
 */
-  groupPadding(_) {
+  groupPadding(_: any) {
     return arguments.length
       ? ((this._groupPadding = _), this)
       : this._groupPadding;
@@ -2114,7 +2114,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 */
-  labelConnectorConfig(_) {
+  labelConnectorConfig(_: any) {
     return arguments.length
       ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _)),
         this)
@@ -2124,7 +2124,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 */
-  labelPosition(_) {
+  labelPosition(_: any) {
     return arguments.length
       ? ((this._labelPosition = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -2134,14 +2134,14 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Draws labels on the right side of any Line shapes that are drawn on the plot.
 */
-  lineLabels(_) {
+  lineLabels(_: any) {
     return arguments.length ? ((this._lineLabels = _), this) : this._lineLabels;
   }
 
   /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
 */
-  lineMarkerConfig(_) {
+  lineMarkerConfig(_: any) {
     return arguments.length
       ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _)), this)
       : this._lineMarkerConfig;
@@ -2150,7 +2150,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Draws circle markers on each vertex of a Line.
 */
-  lineMarkers(_) {
+  lineMarkers(_: any) {
     return arguments.length
       ? ((this._lineMarkers = _), this)
       : this._lineMarkers;
@@ -2159,14 +2159,14 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. "Circle", "Line", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.
 */
-  shapeSort(_) {
+  shapeSort(_: any) {
     return arguments.length ? ((this._shapeSort = _), this) : this._shapeSort;
   }
 
   /**
       Sets the size of bubbles to the given Number, data key, or function.
 */
-  size(_) {
+  size(_: any) {
     return arguments.length
       ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
       : this._size;
@@ -2175,40 +2175,40 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Sets the size scale maximum to the specified number.
 */
-  sizeMax(_) {
+  sizeMax(_: any) {
     return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
   }
 
   /**
       Sets the size scale minimum to the specified number.
 */
-  sizeMin(_) {
+  sizeMin(_: any) {
     return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
   }
 
   /**
       Sets the size scale to the specified string.
 */
-  sizeScale(_) {
+  sizeScale(_: any) {
     return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
   }
 
   /**
       If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.
 */
-  stacked(_) {
+  stacked(_: any) {
     return arguments.length ? ((this._stacked = _), this) : this._stacked;
   }
 
   /**
       Sets the stack offset. If *value* is not specified, returns the current stack offset function.
 */
-  stackOffset(_) {
+  stackOffset(_: any) {
     return arguments.length
       ? ((this._stackOffset =
           typeof _ === "function"
             ? _
-            : d3Shape[`stackOffset${_.charAt(0).toUpperCase() + _.slice(1)}`]),
+            : (d3Shape as any)[`stackOffset${_.charAt(0).toUpperCase() + _.slice(1)}`]),
         this)
       : this._stackOffset;
   }
@@ -2216,7 +2216,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Sets the stack order. If *value* is not specified, returns the current stack order function.
 */
-  stackOrder(_) {
+  stackOrder(_: any) {
     if (arguments.length) {
       if (typeof _ === "string")
         this._stackOrder =
@@ -2224,7 +2224,7 @@ Additionally, each config object can also contain an optional "layer" key, which
             ? stackOrderAscending
             : _ === "descending"
               ? stackOrderDescending
-              : d3Shape[`stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`];
+              : (d3Shape as any)[`stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`];
       else this._stackOrder = _;
       return this;
     } else return this._stackOrder;
@@ -2233,7 +2233,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Accessor function or string key for the x-axis value of each data point.
 */
-  x(_) {
+  x(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._x = _;
       else {
@@ -2247,7 +2247,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Accessor function or string key for the secondary x-axis value of each data point.
 */
-  x2(_) {
+  x2(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._x2 = _;
       else {
@@ -2261,7 +2261,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  xConfig(_) {
+  xConfig(_: any) {
     return arguments.length
       ? ((this._xConfig = assign(this._xConfig, _)), this)
       : this._xConfig;
@@ -2270,14 +2270,14 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 */
-  xCutoff(_) {
+  xCutoff(_: any) {
     return arguments.length ? ((this._xCutoff = _), this) : this._xCutoff;
   }
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  x2Config(_) {
+  x2Config(_: any) {
     return arguments.length
       ? ((this._x2Config = assign(this._x2Config, _)), this)
       : this._x2Config;
@@ -2286,35 +2286,35 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The x domain as an array. If either value is undefined, it will be calculated from the data.
 */
-  xDomain(_) {
+  xDomain(_: any) {
     return arguments.length ? ((this._xDomain = _), this) : this._xDomain;
   }
 
   /**
        The x2 domain as an array. If either value is undefined, it will be calculated from the data.
 */
-  x2Domain(_) {
+  x2Domain(_: any) {
     return arguments.length ? ((this._x2Domain = _), this) : this._x2Domain;
   }
 
   /**
       Defines a custom sorting comparitor function to be used for discrete x axes.
 */
-  xSort(_) {
+  xSort(_: any) {
     return arguments.length ? ((this._xSort = _), this) : this._xSort;
   }
 
   /**
        Defines a custom sorting comparitor function to be used for discrete x2 axes.
 */
-  x2Sort(_) {
+  x2Sort(_: any) {
     return arguments.length ? ((this._x2Sort = _), this) : this._x2Sort;
   }
 
   /**
       Accessor function or string key for the y-axis value of each data point.
 */
-  y(_) {
+  y(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._y = _;
       else {
@@ -2328,7 +2328,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Accessor function or string key for the secondary y-axis value of each data point.
 */
-  y2(_) {
+  y2(_: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._y2 = _;
       else {
@@ -2344,7 +2344,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 
 *Note:* If a "domain" array is passed to the y-axis config, it will be reversed.
 */
-  yConfig(_) {
+  yConfig(_: any) {
     if (arguments.length) {
       if (_.domain) _.domain = _.domain.slice().reverse();
       this._yConfig = assign(this._yConfig, _);
@@ -2356,14 +2356,14 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 */
-  yCutoff(_) {
+  yCutoff(_: any) {
     return arguments.length ? ((this._yCutoff = _), this) : this._yCutoff;
   }
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  y2Config(_) {
+  y2Config(_: any) {
     if (arguments.length) {
       if (_.domain) _.domain = _.domain.slice().reverse();
       this._y2Config = assign(this._y2Config, _);
@@ -2375,28 +2375,28 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The y domain as an array. If either value is undefined, it will be calculated from the data.
 */
-  yDomain(_) {
+  yDomain(_: any) {
     return arguments.length ? ((this._yDomain = _), this) : this._yDomain;
   }
 
   /**
        The y2 domain as an array. If either value is undefined, it will be calculated from the data.
 */
-  y2Domain(_) {
+  y2Domain(_: any) {
     return arguments.length ? ((this._y2Domain = _), this) : this._y2Domain;
   }
 
   /**
       Defines a custom sorting comparitor function to be used for discrete y axes.
 */
-  ySort(_) {
+  ySort(_: any) {
     return arguments.length ? ((this._ySort = _), this) : this._ySort;
   }
 
   /**
        Defines a custom sorting comparitor function to be used for discrete y2 axes.
 */
-  y2Sort(_) {
+  y2Sort(_: any) {
     return arguments.length ? ((this._y2Sort = _), this) : this._y2Sort;
   }
 }

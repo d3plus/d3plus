@@ -15,10 +15,11 @@ function setTimeFilter(this: Viz, s: Date | Date[] | number[]): void {
   if (JSON.stringify(s) !== JSON.stringify(this._timelineSelection)) {
     this._timelineSelection = s;
     s = s.map(Number) as number[];
+    const sNums = s as number[];
     (
       this.timeFilter((d: DataPoint) => {
         const ms = (date(this._time(d)) as Date).getTime();
-        return ms >= s[0] && ms <= s[1];
+        return ms >= sNums[0] && ms <= sNums[1];
       }) as Viz
     ).render();
   }
@@ -33,7 +34,7 @@ export default function (this: Viz, data: DataPoint[] = []): void {
   const ticks = (
     timelinePossible
       ? unique(this._data.map(this._time)).map(
-          (d: DataPoint[keyof DataPoint]) => date(d as string | number),
+          (d: unknown) => date(d as string | number),
         )
       : []
   ) as Date[];
@@ -73,7 +74,7 @@ export default function (this: Viz, data: DataPoint[] = []): void {
     const dataExtent = extent(
       data
         .map(this._time)
-        .map((d: DataPoint[keyof DataPoint]) =>
+        .map((d: unknown) =>
           date(d as string | number),
         ) as Date[],
     ) as [Date, Date];

@@ -21,7 +21,7 @@ export default class Area extends Shape {
     | ((
         d: DataPoint,
         i: number,
-        aes: Record<string, unknown>,
+        aes: ShapeAes,
       ) => Record<string, unknown> | null | false)
     | null;
   declare _labelConfig: Record<string, unknown>;
@@ -46,7 +46,7 @@ export default class Area extends Shape {
     this._labelBounds = (
       d: DataPoint,
       i: number,
-      aes: Record<string, unknown>,
+      aes: ShapeAes,
     ) => {
       const r = largestRect(aes.points as unknown as [number, number][]);
       if (!r) return null;
@@ -222,7 +222,8 @@ export default class Area extends Shape {
           : this._y0(d, i),
       );
 
-    this._enter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this._enter
       .append("path")
       .attr(
         "transform",
@@ -231,7 +232,7 @@ export default class Area extends Shape {
       )
       .attr("d", (d: DataPoint) => exitPath(d.values))
       .call(this._applyStyle.bind(this))
-      .transition(this._transition)
+      .transition(this._transition) as any)
       .attrTween("d", function (this: Element, d: DataPoint) {
         return interpolatePath(
           select(this).attr("d"),
@@ -241,14 +242,15 @@ export default class Area extends Shape {
         );
       });
 
-    this._update
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this._update
       .select("path")
       .transition(this._transition)
       .attr(
         "transform",
         (d: DataPoint) =>
           `translate(${-(d.xR as unknown as number[])[0] - (d.width as number) / 2}, ${-(d.yR as unknown as number[])[0] - (d.height as number) / 2})`,
-      )
+      ) as any)
       .attrTween("d", function (this: Element, d: DataPoint) {
         return interpolatePath(
           select(this).attr("d"),
@@ -257,11 +259,13 @@ export default class Area extends Shape {
           ),
         );
       })
-      .call(this._applyStyle.bind(this));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .call(this._applyStyle.bind(this) as any);
 
-    this._exit
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this._exit
       .select("path")
-      .transition(this._transition)
+      .transition(this._transition) as any)
       .attrTween("d", function (this: Element, d: DataPoint) {
         return interpolatePath(
           select(this).attr("d"),
@@ -279,7 +283,7 @@ export default class Area extends Shape {
   curve(_: AccessorFn | string): this;
   curve(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._curve = typeof _ === "function" ? _ : constant(_)), this)
+      ? ((this._curve = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._curve;
   }
 
@@ -299,7 +303,7 @@ export default class Area extends Shape {
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
     if (!arguments.length) return this._x;
-    this._x = typeof _ === "function" ? _ : constant(_);
+    this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn;
     this._x0 = this._x;
     return this;
   }
@@ -341,7 +345,7 @@ export default class Area extends Shape {
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
     if (!arguments.length) return this._y;
-    this._y = typeof _ === "function" ? _ : constant(_);
+    this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn;
     this._y0 = this._y;
     return this;
   }

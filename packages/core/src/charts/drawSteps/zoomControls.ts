@@ -54,7 +54,7 @@ export default function (this: Viz): void {
     .attr("class", "d3plus-zoom-control");
   control.exit().remove();
   control = control
-    .merge(controlEnter as ReturnType<typeof select>)
+    .merge(controlEnter as unknown as ReturnType<typeof select>)
     .style("position", "absolute")
     .style("top", `${this._margin.top}px`)
     .style("left", `${this._margin.left}px`);
@@ -80,8 +80,8 @@ export default function (this: Viz): void {
   controlEnter.append("div").attr("class", "zoom-control zoom-brush");
   control
     .select(".zoom-brush")
-    .on("click", function (this: HTMLElement) {
-      select(this)
+    .on("click", function (_event: Event) {
+      select(_event.currentTarget as Element)
         .classed("active", !brushing)
         .call(
           stylize,
@@ -96,13 +96,14 @@ export default function (this: Viz): void {
   control
     .selectAll(".zoom-control")
     .call(stylize, that._zoomControlStyle)
-    .on("mouseenter", function (this: HTMLElement) {
-      select(this).call(stylize, that._zoomControlStyleHover || {});
+    .on("mouseenter", function (_event: Event) {
+      select(_event.currentTarget as Element).call(stylize, that._zoomControlStyleHover || {});
     })
-    .on("mouseleave", function (this: HTMLElement) {
-      select(this).call(
+    .on("mouseleave", function (_event: Event) {
+      const el = select(_event.currentTarget as Element);
+      el.call(
         stylize,
-        select(this).classed("active")
+        el.classed("active")
           ? that._zoomControlStyleActive || {}
           : that._zoomControlStyle || {},
       );

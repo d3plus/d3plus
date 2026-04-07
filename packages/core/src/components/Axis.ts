@@ -202,7 +202,7 @@ function calculateTicks(
     Creates an SVG scale based on an array of data.
 */
 export default class Axis extends BaseClass {
-  _select: D3Selection;
+  _select!: D3Selection;
   _align: string;
   _barConfig: Record<string, unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -218,18 +218,18 @@ export default class Axis extends BaseClass {
   _labelOffset: boolean;
   _labelRotation: boolean | undefined;
   _labels: unknown[] | undefined;
-   
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   declare _locale: any;
   _margin: Record<string, number>;
-  _maxSize: number;
-  _minSize: number;
-  _orient: string;
+  _maxSize!: number;
+  _minSize!: number;
+  _orient!: string;
   _outerBounds: Record<string, number>;
   _padding: number;
   _paddingInner: number;
   _paddingOuter: number;
-  _position: {
+  _position!: {
     horizontal: boolean;
     width: string;
     height: string;
@@ -246,7 +246,7 @@ export default class Axis extends BaseClass {
   _scale: string;
   _scalePadding: number;
   _shape: string;
-   
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _shapeConfig: Record<string, any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -266,11 +266,11 @@ export default class Axis extends BaseClass {
   _d3Scale: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _d3ScaleNegative: any;
-  _group: D3Selection;
+  _group!: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
   _availableTicks: unknown[];
   _visibleTicks: unknown[];
-  _transition: ReturnType<typeof transition>;
+  _transition!: ReturnType<typeof transition>;
   _userFormat: ((d: unknown) => string) | false | undefined;
 
   /**
@@ -436,8 +436,8 @@ export default class Axis extends BaseClass {
 
     const domain = ["band", "ordinal", "point"].includes(this._scale)
       ? ticks
-      : extent(ticks);
-    return ticks[0] > ticks[1]
+      : extent(ticks as number[]);
+    return (ticks[0] as number) > (ticks[1] as number)
       ? (domain as unknown[]).reverse()
       : (domain as unknown[]);
   }
@@ -467,9 +467,9 @@ export default class Axis extends BaseClass {
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.range();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.range());
-    return ticks[0] > ticks[1]
-      ? (extent(ticks) as unknown[]).reverse()
-      : (extent(ticks) as unknown[]);
+    return (ticks[0] as number) > (ticks[1] as number)
+      ? (extent(ticks as number[]) as unknown[]).reverse()
+      : (extent(ticks as number[]) as unknown[]);
   }
 
   /**
@@ -607,10 +607,10 @@ export default class Axis extends BaseClass {
     /**
      * Zeros out the margins for re-calculation.
 */
-    const margin = (this._margin = {top: 0, right: 0, bottom: 0, left: 0});
+    const margin: Record<string, number> = (this._margin = {top: 0, right: 0, bottom: 0, left: 0});
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let labels: any[], range: any[], ticks: any[];
+    let labels: any[] = [], range: any[] = [], ticks: any[] = [];
 
     /**
      * Constructs the tick formatter function.
@@ -686,7 +686,7 @@ export default class Axis extends BaseClass {
       if (this._range) {
         if (this._range[0] !== undefined) minRange = this._range[0];
         if (this._range[this._range.length - 1] !== undefined)
-          maxRange = this._range[this._range.length - 1];
+          maxRange = this._range[this._range.length - 1]!;
       }
       if (range[0] === undefined || range[0] < minRange) range[0] = minRange;
       if (range[1] === undefined || range[1] > maxRange) range[1] = maxRange;
@@ -940,7 +940,7 @@ export default class Axis extends BaseClass {
       ticks = (
         this._ticks
           ? this._scale === "time"
-            ? this._ticks.map(date)
+            ? (this._ticks as (string | number | false | undefined)[]).map(date)
             : this._ticks
           : (this._d3Scale ? this._d3Scale.ticks : this._d3ScaleNegative.ticks)
             ? this._getTicks()
@@ -949,7 +949,7 @@ export default class Axis extends BaseClass {
       labels = (
         this._labels
           ? this._scale === "time"
-            ? this._labels.map(date)
+            ? (this._labels as (string | number | false | undefined)[]).map(date)
             : this._labels
           : (this._d3Scale ? this._d3Scale.ticks : this._d3ScaleNegative.ticks)
             ? this._getLabels()
@@ -996,7 +996,7 @@ export default class Axis extends BaseClass {
         let s = tickGet({id: d, tick: true}, i);
         if (this._shape === "Circle") s *= 2;
         const t = this._getPosition(d);
-        if (!pixels.length || Math.abs(closest(t, pixels) - t) > s * 2)
+        if (!pixels.length || Math.abs(closest(t, pixels.filter((p): p is number => p !== false))! - t) > s * 2)
           pixels.push(t);
         else pixels.push(false);
       });
@@ -1023,7 +1023,7 @@ export default class Axis extends BaseClass {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .height((this as any)[`_${height}`] - this._tickSize - p * 2);
       const lines = titleWrap(this._title).lines.length;
-      margin[this._orient] = lines * titleWrap.lineHeight() + p;
+      margin[this._orient] = lines * titleWrap.lineHeight()! + p;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1455,7 +1455,8 @@ export default class Axis extends BaseClass {
         rotate: (d: any) => (d.rotate ? -90 : 0),
       })
       .select(elem("g.ticks", {parent: group}).node())
-      .config(configPrep.bind(this)(this._shapeConfig))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._shapeConfig))
       .labelConfig({padding: 0})
       .render();
 
@@ -1502,7 +1503,8 @@ export default class Axis extends BaseClass {
               (range[range.length - 1] - range[0]) / 2 -
               margin[this._orient] / 2,
       )
-      .config(configPrep.bind(this)(this._titleConfig))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .config(configPrep.bind(this as any)(this._titleConfig))
       .render();
 
     this._lastScale = this._getPosition.bind(this);
@@ -1842,7 +1844,7 @@ export default class Axis extends BaseClass {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shapeConfig(_?: Record<string, any>): unknown {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
+      ? ((this._shapeConfig = assign(this._shapeConfig, _ as Record<string, unknown>)), this)
       : this._shapeConfig;
   }
 

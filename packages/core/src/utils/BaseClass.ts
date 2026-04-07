@@ -79,7 +79,8 @@ export default class BaseClass {
     this._parent = {};
     this._translate = (d: string, locale: string = this._locale): string => {
       const dictionary: TranslationStrings | undefined = dictionaries[locale];
-      return dictionary && dictionary[d] ? dictionary[d] : d;
+      const key = d as keyof TranslationStrings;
+      return dictionary && dictionary[key] ? dictionary[key] : d;
     };
     this._uuid = crypto.randomUUID();
   }
@@ -94,7 +95,7 @@ export default class BaseClass {
       const config: D3plusConfig = {};
       getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
         const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this) config[k] = isObject(v) ? assign({}, v) : v;
+        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
       });
       this._configDefault = config;
     }
@@ -225,7 +226,7 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
-      : this._shapeConfig;
+      ? ((this._shapeConfig = assign(this._shapeConfig ?? {}, _!) as D3plusConfig), this)
+      : this._shapeConfig!;
   }
 }

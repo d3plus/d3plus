@@ -53,7 +53,7 @@ export default class Network extends Viz {
     this._noDataMessage = false;
     this._nodeGroupBy = [accessor("id")];
     this._nodes = [];
-    this._on["click.shape"] = (d, i, x, event) => {
+    this._on["click.shape"] = (d: any, i: any, x: any, event: any) => {
       this._tooltipClass.data([]).render();
 
       if (this._hover && this._drawDepth >= this._groupBy.length - 1) {
@@ -75,7 +75,7 @@ export default class Network extends Viz {
           let xDomain = [node.x - node.r, node.x + node.r],
             yDomain = [node.y - node.r, node.y + node.r];
 
-          links.forEach(l => {
+          links.forEach((l: any) => {
             filterIds.push(l.id);
             if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;
             if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;
@@ -83,7 +83,7 @@ export default class Network extends Viz {
             if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
           });
 
-          this.active((h, x) => {
+          this.active((h: any, x: any) => {
             if (h.source && h.target)
               return (
                 (h.source as DataPoint).id === id ||
@@ -103,7 +103,7 @@ export default class Network extends Viz {
         }
       }
     };
-    this._on["click.legend"] = (d, i, x, event) => {
+    this._on["click.legend"] = (d: any, i: any, x: any, event: any) => {
       const ids = this._id(d);
       let id = this._ids(d);
       id = id[id.length - 1];
@@ -117,13 +117,13 @@ export default class Network extends Viz {
         } else {
           this.hover(false);
 
-          const nodes = ids.map(id => this._nodeLookup[id]);
+          const nodes = ids.map((id: any) => this._nodeLookup[id]);
 
           const filterIds = [`${id}`];
           let xDomain = [nodes[0].x - nodes[0].r, nodes[0].x + nodes[0].r],
             yDomain = [nodes[0].y - nodes[0].r, nodes[0].y + nodes[0].r];
 
-          nodes.forEach(l => {
+          nodes.forEach((l: any) => {
             filterIds.push(l.id);
             if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;
             if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;
@@ -131,7 +131,7 @@ export default class Network extends Viz {
             if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
           });
 
-          this.active((h, x) => {
+          this.active((h: any, x: any) => {
             if (h.source && h.target)
               return (
                 filterIds.includes((h.source as DataPoint).id as string) &&
@@ -162,7 +162,7 @@ export default class Network extends Viz {
       this.hover(false);
     };
     const defaultMouseMove = this._on["mousemove.shape"];
-    this._on["mousemove.shape"] = (d, i, x, event) => {
+    this._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
       defaultMouseMove(d, i, x, event);
       const id = getNodeId.bind(this)(d, i),
         links = this._linkLookup[id] || [],
@@ -172,7 +172,7 @@ export default class Network extends Viz {
       const xDomain = [node.x - node.r, node.x + node.r],
         yDomain = [node.y - node.r, node.y + node.r];
 
-      links.forEach(l => {
+      links.forEach((l: any) => {
         filterIds.push(l.id);
         if (l.x - l.r < xDomain[0]) xDomain[0] = l.x - l.r;
         if (l.x + l.r > xDomain[1]) xDomain[1] = l.x + l.r;
@@ -180,7 +180,7 @@ export default class Network extends Viz {
         if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
       });
 
-      this.hover((h, x) => {
+      this.hover((h: any, x: any) => {
         if (h.source && h.target)
           return h.source.id === id || h.target.id === id;
         else return filterIds.includes(`${this._ids(h, x)[this._drawDepth]}`);
@@ -190,7 +190,7 @@ export default class Network extends Viz {
     this._sizeScale = "sqrt";
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
-      ariaLabel: (d, i) => {
+      ariaLabel: (d: any, i: any) => {
         const validSize = this._size ? `, ${this._size(d, i)}` : "";
         return `${this._drawLabel(d, i)}${validSize}.`;
       },
@@ -226,12 +226,12 @@ export default class Network extends Viz {
       transform = `translate(${this._margin.left}, ${this._margin.top})`,
       width = this._width - this._margin.left - this._margin.right;
 
-    const data = this._filteredData.reduce((obj, d, i) => {
+    const data = this._filteredData.reduce((obj: any, d: any, i: any) => {
       obj[this._id(d, i)] = d;
       return obj;
     }, {});
 
-    let nodes = this._nodes.reduce((obj, d, i) => {
+    let nodes = this._nodes.reduce((obj: any, d: any, i: any) => {
       obj[getNodeId.bind(this)(d, i)] = d;
       return obj;
     }, {});
@@ -264,13 +264,13 @@ export default class Network extends Viz {
       })
       .filter((n): n is Exclude<typeof n, false> => !!n);
 
-    const nodeLookup = (this._nodeLookup = nodes.reduce((obj, d) => {
+    const nodeLookup = (this._nodeLookup = nodes.reduce((obj: any, d: any) => {
       obj[d.id] = d;
       return obj;
     }, {}));
 
-    const nodeIndices = nodes.map(n => n.node);
-    const links = this._links.map(l => {
+    const nodeIndices = nodes.map((n: any) => n.node);
+    const links = this._links.map((l: any) => {
       const referenceType = typeof l.source;
       return {
         size: this._linkSize(l),
@@ -289,7 +289,7 @@ export default class Network extends Viz {
       };
     });
 
-    this._linkLookup = links.reduce((obj, d) => {
+    this._linkLookup = links.reduce((obj: any, d: any) => {
       if (!obj[d.source.id]) obj[d.source.id] = [];
       obj[d.source.id].push(d.target);
       if (!obj[d.target.id]) obj[d.target.id] = [];
@@ -298,7 +298,7 @@ export default class Network extends Viz {
     }, {});
 
     const missingCoords = nodes.some(
-      n => n.fx === undefined || n.fy === undefined,
+      (n: any) => n.fx === undefined || n.fy === undefined,
     );
 
     if (missingCoords) {
@@ -313,9 +313,9 @@ export default class Network extends Viz {
         .force(
           "link",
           forceLink(links as unknown as NetworkLink[])
-            .id((d: NetworkNode) => d.id)
+            .id((d: SimulationNodeDatum) => (d as NetworkNode).id)
             .distance(1)
-            .strength((d: NetworkLink) => linkStrength(d.size))
+            .strength((d: NetworkLink) => linkStrength(d.size as number))
             .iterations(4),
         )
         .force("charge", forceManyBody().strength(-1))
@@ -332,21 +332,21 @@ export default class Network extends Viz {
       simulation.nodes(nodes);
       simulation.tick(iterations).stop();
 
-      const nodePositions = nodes.map(n => [n.vx, n.vy]);
+      const nodePositions = nodes.map((n: any) => [n.vx, n.vy] as [number, number]);
       let angle = 0,
         cx = 0,
         cy = 0;
       if (nodePositions.length === 2) {
         angle = 100;
       } else if (nodePositions.length > 2) {
-        const hull = polygonHull(nodePositions);
+        const hull = polygonHull(nodePositions) || [];
         const rect = largestRect(hull, {verbose: true})!;
         angle = rect.angle;
         cx = rect.cx;
         cy = rect.cy;
       }
 
-      nodes.forEach(n => {
+      nodes.forEach((n: any) => {
         const p = pointRotate([n.vx, n.vy], -1 * ((Math.PI / 180) * angle), [
           cx,
           cy,
@@ -356,8 +356,8 @@ export default class Network extends Viz {
       });
     }
 
-    const xExtent = extent(nodes.map(n => n.fx)) as [number, number],
-      yExtent = extent(nodes.map(n => n.fy)) as [number, number];
+    const xExtent = extent(nodes.map((n: any) => n.fx)) as unknown as [number, number],
+      yExtent = extent(nodes.map((n: any) => n.fy)) as unknown as [number, number];
 
     const x = scales.scaleLinear().domain(xExtent).range([0, width]),
       y = scales.scaleLinear().domain(yExtent).range([0, height]);
@@ -374,20 +374,20 @@ export default class Network extends Viz {
       x.range([(width - w) / 2, width - (width - w) / 2]);
     }
 
-    nodes.forEach(n => {
+    nodes.forEach((n: any) => {
       n.x = x(n.fx);
       n.y = y(n.fy);
     });
 
-    const rExtent = extent(nodes.map(n => n.r)) as [number, number];
+    const rExtent = extent(nodes.map((n: any) => n.r)) as unknown as [number, number];
     let rMax =
       this._sizeMax ||
       (max([
         1,
         (min(
           merge(
-            nodes.map(n1 =>
-              nodes.map(n2 =>
+            nodes.map((n1: any) =>
+              nodes.map((n2: any) =>
                 n1 === n2 ? null : pointDistance([n1.x, n1.y], [n2.x, n2.y]),
               ),
             ),
@@ -395,7 +395,7 @@ export default class Network extends Viz {
         ) as unknown as number) / 2,
       ]) as unknown as number);
 
-    const r = scales[
+    const r = (scales as any)[
         `scale${this._sizeScale.charAt(0).toUpperCase()}${this._sizeScale.slice(1)}`
       ]()
         .domain(rExtent)
@@ -409,7 +409,7 @@ export default class Network extends Viz {
     const xOldSize = xDomain[1] - xDomain[0],
       yOldSize = yDomain[1] - yDomain[0];
 
-    nodes.forEach(n => {
+    nodes.forEach((n: any) => {
       const size = r(n.r);
       if (xDomain[0] > x.invert(n.x - size)) xDomain[0] = x.invert(n.x - size);
       if (xDomain[1] < x.invert(n.x + size)) xDomain[1] = x.invert(n.x + size);
@@ -420,7 +420,7 @@ export default class Network extends Viz {
     const xNewSize = xDomain[1] - xDomain[0],
       yNewSize = yDomain[1] - yDomain[0];
 
-    rMax *= min([xOldSize / xNewSize, yOldSize / yNewSize]);
+    rMax *= min([xOldSize / xNewSize, yOldSize / yNewSize])!;
     r.range([
       rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, this._sizeMin]),
       rMax,
@@ -429,7 +429,7 @@ export default class Network extends Viz {
     y.domain(yDomain);
 
     const fallbackRadius = (nodeRatio > screenRatio ? width : height) / 2;
-    nodes.forEach(n => {
+    nodes.forEach((n: any) => {
       n.x = x(n.fx);
       n.fx = n.x;
       n.y = y(n.fy);
@@ -492,25 +492,25 @@ export default class Network extends Viz {
 
     const strokeExtent = extent(links, (d: {size: number}) => d.size);
     if (strokeExtent[0] !== strokeExtent[1]) {
-      const strokeScale = scales[
+      const strokeScale = (scales as any)[
         `scale${this._linkSizeScale.charAt(0).toUpperCase()}${this._linkSizeScale.slice(1)}`
       ]()
         .domain(strokeExtent)
         .range([this._linkSizeMin, r.range()[0]]);
-      links.forEach(link => {
+      links.forEach((link: any) => {
         link.size = strokeScale(link.size);
       });
     }
 
-    const linkConfig = configPrep.bind(this)(this._shapeConfig, "edge", "Path");
+    const linkConfig = (configPrep as any).bind(this)(this._shapeConfig, "edge", "Path");
     delete linkConfig.on;
 
     this._shapes.push(
       new shapes.Path()
         .config(linkConfig)
-        .strokeWidth(d => d.size)
+        .strokeWidth((d: any) => d.size)
         .activeStyle({
-          "stroke-width": d => d.size,
+          "stroke-width": (d: any) => d.size,
         })
         .d(
           d =>
@@ -529,7 +529,7 @@ export default class Network extends Viz {
     );
 
     const shapeConfig = {
-      label: d =>
+      label: (d: any) =>
         nodes.length <= this._dataCutoff ||
         (this._hover && this._hover(d)) ||
         (this._active && this._active(d))
@@ -548,10 +548,10 @@ export default class Network extends Viz {
       (d: Record<string, unknown>) => d.shape as string,
     ).forEach(([key, values]) => {
       this._shapes.push(
-        new shapes[key]()
-          .config(configPrep.bind(this)(this._shapeConfig, "shape", key))
+        new (shapes as any)[key]()
+          .config((configPrep as any).bind(this)(this._shapeConfig, "shape", key))
           .config(shapeConfig)
-          .config(shapeConfig[key] || {})
+          .config((shapeConfig as any)[key] || {})
           .data(values)
           .render(),
       );
@@ -563,11 +563,11 @@ export default class Network extends Viz {
   /**
       The hover callback function for highlighting shapes on mouseover.
 */
-  hover(_) {
+  hover(_: any) {
     this._hover = _;
 
     if (this._nodes.length < this._dataCutoff) {
-      this._shapes.forEach(s => s.hover(_));
+      this._shapes.forEach((s: any) => s.hover(_));
       if (this._legend) this._legendClass.hover(_);
     }
 
@@ -583,9 +583,9 @@ export default class Network extends Viz {
 The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final links *Array*.
     @param f Array of link objects or a URL to load links from.
 */
-  links(_, f) {
+  links(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "links");
+      (addToQueue as any).bind(this)(_, f, "links");
       return this;
     }
     return this._links;
@@ -594,7 +594,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.
 */
-  linkSize(_) {
+  linkSize(_?: any) {
     return arguments.length
       ? ((this._linkSize = typeof _ === "function" ? _ : constant(_)), this)
       : this._linkSize;
@@ -603,7 +603,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       Defines the minimum pixel stroke width used in link sizing.
 */
-  linkSizeMin(_) {
+  linkSizeMin(_?: any) {
     return arguments.length
       ? ((this._linkSizeMin = _), this)
       : this._linkSizeMin;
@@ -612,7 +612,7 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.
 */
-  linkSizeScale(_) {
+  linkSizeScale(_?: any) {
     return arguments.length
       ? ((this._linkSizeScale = _), this)
       : this._linkSizeScale;
@@ -621,15 +621,15 @@ The value passed should either be an *Array* of data or a *String* representing 
   /**
       The node group accessor(s). This method overrides the default .groupBy() function from being used with the data passed to .nodes().
 */
-  nodeGroupBy(_) {
+  nodeGroupBy(_?: any) {
     if (!arguments.length) return this._nodeGroupBy;
     if (!(_ instanceof Array)) _ = [_];
     return (
-      (this._nodeGroupBy = _.map(k => {
+      (this._nodeGroupBy = _.map((k: any) => {
         if (typeof k === "function") return k;
         else {
           if (!this._aggs[k]) {
-            this._aggs[k] = (a, c) => {
+            this._aggs[k] = (a: any, c: any) => {
               const v = Array.from(new Set(a.map(c)));
               return v.length === 1 ? v[0] : v;
             };
@@ -647,9 +647,9 @@ The value passed should either be an *Array* of data or a *String* representing 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final node *Array*.
     @param f Array of node objects or a URL to load nodes from.
 */
-  nodes(_, f) {
+  nodes(_: any, f?: any) {
     if (arguments.length) {
-      addToQueue.bind(this)(_, f, "nodes");
+      (addToQueue as any).bind(this)(_, f, "nodes");
       return this;
     }
     return this._nodes;
@@ -658,7 +658,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       The size accessor for each node in the network.
 */
-  size(_) {
+  size(_?: any) {
     return arguments.length
       ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
       : this._size;
@@ -667,28 +667,28 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       Defines the maximum pixel radius used in size scaling. By default, the maximum size is determined by half the distance of the two closest nodes.
 */
-  sizeMax(_) {
+  sizeMax(_?: any) {
     return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
   }
 
   /**
       Defines the minimum pixel radius used in size scaling.
 */
-  sizeMin(_) {
+  sizeMin(_?: any) {
     return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
   }
 
   /**
       The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of nodes in the network.
 */
-  sizeScale(_) {
+  sizeScale(_?: any) {
     return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
   }
 
   /**
       The x position accessor for each node. The data passed to .data() takes priority over the .nodes() data array. By default, the x and y positions are determined dynamically based on default force layout properties.
 */
-  x(_) {
+  x(_?: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._x = _;
       else {
@@ -702,7 +702,7 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       The y position accessor for each node. The data passed to .data() takes priority over the .nodes() data array. By default, the x and y positions are determined dynamically based on default force layout properties.
 */
-  y(_) {
+  y(_?: any) {
     if (arguments.length) {
       if (typeof _ === "function") this._y = _;
       else {

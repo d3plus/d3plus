@@ -3,6 +3,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {elem} from "@d3plus/dom";
 import {configPrep} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 import type Viz from "../Viz.js";
 
 const legendAttrs = ["fill", "opacity", "texture"];
@@ -128,7 +129,7 @@ export default function (this: Viz, data: DataPoint[] = []): void {
               padding.right)
         : this._width - (this._margin.left + this._margin.right),
     )
-    .shapeConfig(configPrep.bind(this)(this._shapeConfig, "legend"))
+    .shapeConfig(configPrep.bind(this as unknown as VizContext)(this._shapeConfig, "legend"))
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? this._hiddenColor(d, i) : getAttr(d, i, "fill"),
