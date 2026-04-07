@@ -186,7 +186,7 @@ var OTHER_KEYS = [
   "moveBy",
   "moveTo",
   "name",
-  "navigator",
+  /* 'navigator', */
   "open",
   "outerHeight",
   "outerWidth",
