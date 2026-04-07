@@ -19,6 +19,9 @@ const Logo = () => {
   const code = `<Treemap config={${stringify(config)}} />`;
 
   const mobile = window !== undefined && window.innerWidth <= 768;
+  const darkMode =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   const wrapperStyle = {
     alignItems: "align-start",
@@ -37,7 +40,7 @@ const Logo = () => {
   return (
     <div style={wrapperStyle}>
       <div style={sourceStyle}>
-        <Source code={code} />
+        <Source code={code} dark={darkMode} />
       </div>
       <div style={vizStyle}>
         <Treemap config={config} />
