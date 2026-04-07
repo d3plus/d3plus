@@ -185,7 +185,7 @@ new Plot
     | undefined
     | this {
     return arguments.length === 2
-      ? ((this._on[_ as string] = f), this)
+      ? ((this._on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
           ? this._on[_]
@@ -199,7 +199,7 @@ new Plot
   parent(): Record<string, unknown>;
   parent(_: Record<string, unknown>): this;
   parent(_?: Record<string, unknown>): Record<string, unknown> | this {
-    return arguments.length ? ((this._parent = _), this) : this._parent;
+    return arguments.length ? ((this._parent = _!), this) : this._parent;
   }
 
   /**
@@ -225,7 +225,7 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _)), this)
+      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
       : this._shapeConfig;
   }
 }
