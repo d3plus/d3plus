@@ -4,10 +4,10 @@
   "description": "Export methods for transforming and downloading SVG.",
   "license": "MIT",
   "type": "module",
-  "types": "./types/index.ts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./types/index.ts",
+      "types": "./types/index.d.ts",
       "default": "./es/index.js"
     }
   },

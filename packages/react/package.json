@@ -4,10 +4,10 @@
   "description": "React components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
-  "types": "./types/index.tsx",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./types/index.tsx",
+      "types": "./types/index.d.ts",
       "default": "./es/index.jsx"
     }
   },

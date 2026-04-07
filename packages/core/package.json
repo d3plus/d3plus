@@ -4,10 +4,10 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "license": "MIT",
   "type": "module",
-  "types": "./types/index.ts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./types/index.ts",
+      "types": "./types/index.d.ts",
       "default": "./es/index.js"
     }
   },

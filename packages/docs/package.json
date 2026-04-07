@@ -4,7 +4,7 @@
   "description": "Documentation and examples for the d3plus visualization library.",
   "license": "MIT",
   "type": "module",
-  "types": "./types/index.ts",
+  "types": "./types/index.d.ts",
   "homepage": "https://d3plus.org",
   "repository": {
     "type": "git",

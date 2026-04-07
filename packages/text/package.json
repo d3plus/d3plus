@@ -4,10 +4,10 @@
   "description": "A smart SVG text box with line wrapping and automatic font size scaling.",
   "license": "MIT",
   "type": "module",
-  "types": "./types/index.ts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./types/index.ts",
+      "types": "./types/index.d.ts",
       "default": "./es/index.js"
     }
   },
