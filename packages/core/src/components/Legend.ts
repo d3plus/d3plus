@@ -1,7 +1,7 @@
 import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import {assign, backgroundColor, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
