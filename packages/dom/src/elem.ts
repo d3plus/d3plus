@@ -34,7 +34,7 @@ export default function (selector: string, p?: ElemParams): D3Selection {
       enter: {},
       exit: {},
       duration: 0,
-      parent: select("body") as D3Selection,
+      parent: select("body") as unknown as D3Selection,
       update: {},
     },
     p,

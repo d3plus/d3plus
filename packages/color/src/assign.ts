@@ -18,9 +18,9 @@ export default function (
   // Else if the value is false, set to red.
   else if (c === false) return u["off"] || defaults["off"];
   else {
-    const p = color(c);
+    const p = color(c as string);
     // If the value is not a valid color string, use the color scale.
-    if (!p) return (u["scale"] || defaults["scale"])(c);
-    return c;
+    if (!p) return (u["scale"] || defaults["scale"])(c as string);
+    return c as string;
   }
 }

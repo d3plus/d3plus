@@ -6,7 +6,7 @@ import isObject from "./isObject.js";
 */
 function validObject(obj: Record<string, unknown>): boolean {
   if (typeof window === "undefined") return true;
-  else return obj !== window && obj !== document;
+  else return (obj as unknown) !== window && (obj as unknown) !== document;
 }
 
 /**
@@ -27,13 +27,13 @@ function assign(...objects: Record<string, unknown>[]): Record<string, unknown> 
     Object.keys(source).forEach(prop => {
       const value = source[prop];
 
-      if (isObject(value) && validObject(value)) {
+      if (isObject(value) && validObject(value as Record<string, unknown>)) {
         if (
           Object.prototype.hasOwnProperty.call(target, prop) &&
           isObject(target[prop])
         )
-          target[prop] = assign({}, target[prop], value);
-        else target[prop] = assign({}, value);
+          target[prop] = assign({}, target[prop] as Record<string, unknown>, value as Record<string, unknown>);
+        else target[prop] = assign({}, value as Record<string, unknown>);
       } else if (Array.isArray(value)) target[prop] = value.slice();
       else target[prop] = value;
     });

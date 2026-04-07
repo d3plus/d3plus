@@ -34,7 +34,7 @@ function objectMerge(
   const availableKeys = unique(merge(objects.map(o => Object.keys(o)))),
     newObject: MergedDataPoint = {};
 
-  availableKeys.forEach((k: string) => {
+  (availableKeys as string[]).forEach((k: string) => {
     let value: MergedValue;
     if (aggs[k]) value = aggs[k](objects, (o: DataPoint) => o[k]);
     else {
