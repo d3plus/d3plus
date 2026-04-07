@@ -610,7 +610,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -624,7 +624,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -638,7 +638,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -756,7 +756,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -857,7 +857,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -870,7 +870,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -884,7 +884,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -898,7 +898,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -1259,7 +1259,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },
@@ -1274,7 +1274,7 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
+        required: false,
         summary: "any"
       }
     },

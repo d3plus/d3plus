@@ -780,11 +780,11 @@ export const argTypes = assign(
     },
     shapeConfig: {
       control: {},
-      defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: colorDefaults.dark}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
+      defaultValue: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
       description: "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: colorDefaults.dark}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
+          detail: "assign(this._shapeConfig, {ariaLabel: (d, i) => this._treeData ? `${this._treeData.i.depth}. ${this._drawLabel(d, i)}.` : , labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}}, Path: {fill: none, stroke: colorDefaults.missing, strokeWidth: 2}, r: 7, width: 12, height: 12})",
           summary: "function"
         }
       },

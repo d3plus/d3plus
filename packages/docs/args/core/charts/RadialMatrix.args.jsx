@@ -239,11 +239,11 @@ export const argTypes = assign(
     },
     columnConfig: {
       control: {},
-      defaultValue: "{shapeConfig: {labelConfig: {fontColor: #000, padding: 5, textAnchor: (d) => [\n  0,\n180\n].includes(d.angle) ? middle : [\n  2,\n3\n].includes(d.quadrant) ? end : start, verticalAlign: (d) => [\n  90,\n270\n].includes(d.angle) ? middle : [\n  2,\n1\n].includes(d.quadrant) ? bottom : top}}}",
+      defaultValue: "{shapeConfig: {labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, padding: 5, textAnchor: (d) => [\n  0,\n180\n].includes(d.angle) ? middle : [\n  2,\n3\n].includes(d.quadrant) ? end : start, verticalAlign: (d) => [\n  90,\n270\n].includes(d.angle) ? middle : [\n  2,\n1\n].includes(d.quadrant) ? bottom : top}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the column labels.",
       table: {
         defaultValue: {
-          detail: "{shapeConfig: {labelConfig: {fontColor: #000, padding: 5, textAnchor: (d) => [\n  0,\n180\n].includes(d.angle) ? middle : [\n  2,\n3\n].includes(d.quadrant) ? end : start, verticalAlign: (d) => [\n  90,\n270\n].includes(d.angle) ? middle : [\n  2,\n1\n].includes(d.quadrant) ? bottom : top}}}",
+          detail: "{shapeConfig: {labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, padding: 5, textAnchor: (d) => [\n  0,\n180\n].includes(d.angle) ? middle : [\n  2,\n3\n].includes(d.quadrant) ? end : start, verticalAlign: (d) => [\n  90,\n270\n].includes(d.angle) ? middle : [\n  2,\n1\n].includes(d.quadrant) ? bottom : top}}}",
           summary: "function"
         }
       },
@@ -254,7 +254,7 @@ export const argTypes = assign(
     },
     columnList: {
       control: {},
-      description: "A manual list of IDs to be used for columns.",
+      description: "A manual list of IDs to be used for rows.",
       table: {
         defaultValue: {
           summary: "undefined"

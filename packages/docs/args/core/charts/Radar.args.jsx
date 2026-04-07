@@ -94,11 +94,11 @@ export const argTypes = assign(
     },
     axisConfig: {
       control: {},
-      defaultValue: "{shapeConfig: {fill: none, labelConfig: {fontColor: #999, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: #eee, strokeWidth: 1}}",
+      defaultValue: "{shapeConfig: {fill: none, labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, strokeWidth: 1}}",
       description: "Configuration object for the radial spokes, circles, and labels.",
       table: {
         defaultValue: {
-          detail: "{shapeConfig: {fill: none, labelConfig: {fontColor: #999, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: #eee, strokeWidth: 1}}",
+          detail: "{shapeConfig: {fill: none, labelConfig: {fontColor: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, padding: 0, textAnchor: (d, i, x) => x.textAnchor, verticalAlign: middle}, stroke: () => {\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  return colorContrast(bg);\n}, strokeWidth: 1}}",
           summary: "function"
         }
       },

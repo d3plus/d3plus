@@ -50,7 +50,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **closest**(`n`: `number`, `arr?`: `number`[]): `number` \| `undefined`
 
-Defined in: [closest.ts:6](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/closest.ts#L6)
+Defined in: [closest.ts:6](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/closest.ts#L6)
 
 Finds the closest numeric value in an array.
 
@@ -73,7 +73,7 @@ Finds the closest numeric value in an array.
 
 > **largestRect**(`poly`: `Point`[], `options?`: `LargestRectOptions`): `LargestRectResult` \| `null`
 
-Defined in: [largestRect.ts:92](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/largestRect.ts#L92)
+Defined in: [largestRect.ts:92](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/largestRect.ts#L92)
 
 Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
 
@@ -118,7 +118,7 @@ verbose: false,
 
 > **lineIntersection**(`p1`: `Point`, `q1`: `Point`, `p2`: `Point`, `q2`: `Point`): `Point` \| `null`
 
-Defined in: [lineIntersection.ts:11](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/lineIntersection.ts#L11)
+Defined in: [lineIntersection.ts:11](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/lineIntersection.ts#L11)
 
 Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
@@ -143,7 +143,7 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 > **path2polygon**(`path`: `string`, `segmentLength?`: `number`): `Point`[]
 
-Defined in: [path2polygon.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/path2polygon.ts#L8)
+Defined in: [path2polygon.ts:8](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/path2polygon.ts#L8)
 
 Transforms a path string into an Array of points.
 
@@ -166,7 +166,7 @@ Transforms a path string into an Array of points.
 
 > **pointDistance**(`p1`: `Point`, `p2`: `Point`): `number`
 
-Defined in: [pointDistance.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/pointDistance.ts#L9)
+Defined in: [pointDistance.ts:9](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/pointDistance.ts#L9)
 
 Calculates the pixel distance between two points.
 
@@ -189,7 +189,7 @@ Calculates the pixel distance between two points.
 
 > **pointDistanceSquared**(`p1`: `Point`, `p2`: `Point`): `number`
 
-Defined in: [pointDistanceSquared.ts:8](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/pointDistanceSquared.ts#L8)
+Defined in: [pointDistanceSquared.ts:8](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/pointDistanceSquared.ts#L8)
 
 Returns the squared euclidean distance between two points.
 
@@ -212,7 +212,7 @@ Returns the squared euclidean distance between two points.
 
 > **pointRotate**(`p`: `Point`, `alpha`: `number`, `origin?`: `Point`): `Point`
 
-Defined in: [pointRotate.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/pointRotate.ts#L9)
+Defined in: [pointRotate.ts:9](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/pointRotate.ts#L9)
 
 Rotates a point around a given origin.
 
@@ -236,7 +236,7 @@ Rotates a point around a given origin.
 
 > **polygonInside**(`polyA`: `Point`[], `polyB`: `Point`[]): `boolean`
 
-Defined in: [polygonInside.ts:11](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/polygonInside.ts#L11)
+Defined in: [polygonInside.ts:11](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/polygonInside.ts#L11)
 
 Checks if one polygon is inside another polygon.
 
@@ -259,7 +259,7 @@ Checks if one polygon is inside another polygon.
 
 > **polygonRayCast**(`poly`: `Point`[], `origin`: `Point`, `alpha?`: `number`): \[`Point` \| `null`, `Point` \| `null`\]
 
-Defined in: [polygonRayCast.ts:13](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/polygonRayCast.ts#L13)
+Defined in: [polygonRayCast.ts:13](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/polygonRayCast.ts#L13)
 
 Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
 
@@ -285,7 +285,7 @@ An array containing two values, the closest point on the left and the closest po
 
 > **polygonRotate**(`poly`: `Point`[], `alpha`: `number`, `origin?`: `Point`): `Point`[]
 
-Defined in: [polygonRotate.ts:10](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/polygonRotate.ts#L10)
+Defined in: [polygonRotate.ts:10](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/polygonRotate.ts#L10)
 
 Rotates a point around a given origin.
 
@@ -309,7 +309,7 @@ Rotates a point around a given origin.
 
 > **segmentBoxContains**(`s1`: `Point`, `s2`: `Point`, `p`: `Point`): `boolean`
 
-Defined in: [segmentBoxContains.ts:9](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/segmentBoxContains.ts#L9)
+Defined in: [segmentBoxContains.ts:9](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/segmentBoxContains.ts#L9)
 
 Checks whether a point is inside the bounding box of a line segment.
 
@@ -333,7 +333,7 @@ Checks whether a point is inside the bounding box of a line segment.
 
 > **segmentsIntersect**(`p1`: `Point`, `q1`: `Point`, `p2`: `Point`, `q2`: `Point`): `boolean`
 
-Defined in: [segmentsIntersect.ts:12](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/segmentsIntersect.ts#L12)
+Defined in: [segmentsIntersect.ts:12](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/segmentsIntersect.ts#L12)
 
 Checks whether the line segments p1q1 && p2q2 intersect.
 
@@ -358,7 +358,7 @@ Checks whether the line segments p1q1 && p2q2 intersect.
 
 > **shapeEdgePoint**(`angle`: `number`, `distance`: `number`, `shape?`: `string`): `Point` \| `null`
 
-Defined in: [shapeEdgePoint.ts:11](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/shapeEdgePoint.ts#L11)
+Defined in: [shapeEdgePoint.ts:11](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/shapeEdgePoint.ts#L11)
 
 Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.
 
@@ -382,7 +382,7 @@ Calculates the x/y position of a point at the edge of a shape, from the center o
 
 > **simplify**(`poly`: `Point`[], `tolerance?`: `number`, `highestQuality?`: `boolean`): `Point`[]
 
-Defined in: [simplify.ts:114](https://github.com/d3plus/d3plus/blob/2f82937bd24ae16c028617d4955495e26f00f86e/packages/math/src/simplify.ts#L114)
+Defined in: [simplify.ts:114](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/math/src/simplify.ts#L114)
 
 Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
 

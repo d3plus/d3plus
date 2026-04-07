@@ -264,7 +264,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;any&gt;"
+        summary: "array.&lt;string | number | boolean | datapoint&gt;"
       }
     },
     columnSort: {
@@ -819,7 +819,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;any&gt;"
+        summary: "array.&lt;string | number | boolean | datapoint&gt;"
       }
     },
     rowSort: {
