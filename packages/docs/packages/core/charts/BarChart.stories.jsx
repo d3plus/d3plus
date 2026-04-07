@@ -25,6 +25,8 @@ const Template = (args) => <BarChart config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import {formatAbbreviate} from "@d3plus/format";
+
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
@@ -115,8 +117,33 @@ HorizontalBars.args = {
 };
 HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}};
 
+export const TexturedBars = Template.bind({});
+TexturedBars.args = {
+  data: [
+    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 5, y: 25},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta",  x: 4, y: 17},
+    {id: "beta",  x: 5, y:  8},
+    {id: "beta",  x: 6, y: 13}
+  ],
+  groupBy: "id",
+  shapeConfig: {
+    texture: "nylon",
+    textureDefault: {
+      size: 10,
+      stroke: "rgba(0, 0, 0, 0.1)",
+      strokeWidth: 1,
+    },
+  },
+  x: "x",
+  y: "y"
+};
+TexturedBars.parameters = {controls: {include: ["shapeConfig"]}};
+
 export const PopulationPyramid = Template.bind({});
 PopulationPyramid.args = {
+  groupPadding: 2,
   data: [
     {
       "Age range": "0 to 4",
@@ -126,7 +153,7 @@ PopulationPyramid.args = {
     {
       "Age range": "0 to 4",
       "Sex": "Female",
-      "Population": -1385933
+      "Population": 1385933
     },
     {
       "Age range": "5 to 9",
@@ -136,7 +163,7 @@ PopulationPyramid.args = {
     {
       "Age range": "5 to 9",
       "Sex": "Female",
-      "Population": -1417319
+      "Population": 1417319
     },
     {
       "Age range": "10 to 15",
@@ -146,7 +173,7 @@ PopulationPyramid.args = {
     {
       "Age range": "10 to 15",
       "Sex": "Female",
-      "Population": -1430083
+      "Population": 1430083
     },
     {
       "Age range": "15 to 19",
@@ -156,7 +183,7 @@ PopulationPyramid.args = {
     {
       "Age range": "15 to 19",
       "Sex": "Female",
-      "Population": -1420257
+      "Population": 1420257
     },
     {
       "Age range": "20 to 24",
@@ -166,7 +193,7 @@ PopulationPyramid.args = {
     {
       "Age range": "20 to 24",
       "Sex": "Female",
-      "Population": -1401017
+      "Population": 1401017
     },
     {
       "Age range": "25 to 29",
@@ -176,7 +203,7 @@ PopulationPyramid.args = {
     {
       "Age range": "25 to 29",
       "Sex": "Female",
-      "Population": -1344048
+      "Population": 1344048
     },
     {
       "Age range": "30 to 34",
@@ -186,7 +213,7 @@ PopulationPyramid.args = {
     {
       "Age range": "30 to 34",
       "Sex": "Female",
-      "Population": -1233884
+      "Population": 1233884
     },
     {
       "Age range": "35 to 39",
@@ -196,7 +223,7 @@ PopulationPyramid.args = {
     {
       "Age range": "35 to 39",
       "Sex": "Female",
-      "Population": -1145477
+      "Population": 1145477
     },
     {
       "Age range": "40 to 44",
@@ -206,7 +233,7 @@ PopulationPyramid.args = {
     {
       "Age range": "40 to 44",
       "Sex": "Female",
-      "Population": -1034343
+      "Population": 1034343
     },
     {
       "Age range": "45 to 49",
@@ -216,7 +243,7 @@ PopulationPyramid.args = {
     {
       "Age range": "45 to 49",
       "Sex": "Female",
-      "Population": -903752
+      "Population": 903752
     },
     {
       "Age range": "50 to 54",
@@ -226,7 +253,7 @@ PopulationPyramid.args = {
     {
       "Age range": "50 to 54",
       "Sex": "Female",
-      "Population": -788241
+      "Population": 788241
     },
     {
       "Age range": "55 to 59",
@@ -236,7 +263,7 @@ PopulationPyramid.args = {
     {
       "Age range": "55 to 59",
       "Sex": "Female",
-      "Population": -658490
+      "Population": 658490
     },
     {
       "Age range": "60 to 64",
@@ -246,7 +273,7 @@ PopulationPyramid.args = {
     {
       "Age range": "60 to 64",
       "Sex": "Female",
-      "Population": -532940
+      "Population": 532940
     },
     {
       "Age range": "65 to 69",
@@ -256,7 +283,7 @@ PopulationPyramid.args = {
     {
       "Age range": "65 to 69",
       "Sex": "Female",
-      "Population": -415647
+      "Population": 415647
     },
     {
       "Age range": "70 to 74",
@@ -266,7 +293,7 @@ PopulationPyramid.args = {
     {
       "Age range": "70 to 74",
       "Sex": "Female",
-      "Population": -311231
+      "Population": 311231
     },
     {
       "Age range": "75 to 79",
@@ -276,7 +303,7 @@ PopulationPyramid.args = {
     {
       "Age range": "75 to 79",
       "Sex": "Female",
-      "Population": -229221
+      "Population": 229221
     },
     {
       "Age range": "80+",
@@ -286,22 +313,27 @@ PopulationPyramid.args = {
     {
       "Age range": "80+",
       "Sex": "Female",
-      "Population": -235076
+      "Population": 235076
     }
   ],
   discrete: "y",
   groupBy: "Sex",
+  height: 400,
   shapeConfig: {
-    label: false
+    label: d => d["Age range"]
   },
   stacked: true,
-  x: "Population",
+  x: funcify(
+      d => d.Population * (d.Sex === 'Female' ? -1 : 1),
+      "d => d.Population * (d.Sex === 'Female' ? -1 : 1)"
+    ),
   xConfig: {
     tickFormat: funcify(
       d => formatAbbreviate(Math.abs(d)),
       "d => formatAbbreviate(Math.abs(d))"
     )
   },
-  y: "Age range"
+  y: "Age range",
+  yConfig: {barConfig: {stroke: "transparent"}, ticks: []}
 };
-PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig"]}};
+PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}};
