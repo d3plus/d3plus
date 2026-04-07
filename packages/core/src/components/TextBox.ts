@@ -98,7 +98,7 @@ export default class TextBox extends BaseClass {
   _pointerEvents: (d: DataPoint, i?: number) => string;
 
   _rotate: (d: DataPoint, i?: number) => number;
-  _rotateAnchor: (d: DataPoint, i?: number) => [number, number];
+  _rotateAnchor: (d: TextBoxDatum, i?: number) => [number, number];
 
   _split: (text: string, i?: number) => string[];
 
@@ -146,9 +146,8 @@ export default class TextBox extends BaseClass {
     this._padding = constant(0);
     this._pointerEvents = constant("auto");
     this._rotate = constant(0);
-    this._rotateAnchor = (d: DataPoint) => {
-      const dp = d as Record<string, unknown>;
-      return [(dp.w as number) / 2, (dp.h as number) / 2];
+    this._rotateAnchor = (d: TextBoxDatum) => {
+      return [d.w / 2, d.h / 2];
     };
     this._split = textSplit;
     this._text = accessor("text");
@@ -346,7 +345,7 @@ export default class TextBox extends BaseClass {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function rotate(text: any): void {
       text.attr("transform", (d: TextBoxDatum, i: number) => {
-        const rotateAnchor = that._rotateAnchor(d.data, i);
+        const rotateAnchor = that._rotateAnchor(d, i);
         return `translate(${d.x}, ${d.y}) rotate(${d.r}, ${rotateAnchor[0]}, ${rotateAnchor[1]})`;
       });
     }
