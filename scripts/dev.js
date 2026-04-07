@@ -34,32 +34,52 @@ chokidar
 
         const child = spawn(
           "pnpm", ["--filter", `@d3plus/${folder}`, "run", "build:esm"],
-          {env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"}, shell: true, stdio: "inherit"},
+          {env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"}, shell: true, stdio: "pipe"},
         );
         activeBuilds.set(folder, child);
-        child.on("close", () => {
+        let buildErr = "";
+        child.stderr.on("data", d => buildErr += d);
+        child.on("close", code => {
           if (activeBuilds.get(folder) === child) activeBuilds.delete(folder);
-          log.done();
+          if (code !== 0 && buildErr) log.fail(`@d3plus/${folder} build failed\n${buildErr.trim()}`);
+          else log.done();
           log.timer("watching for changes...");
         });
       }
     }
   });
 
+function pipeServer(child) {
+  let ready = false;
+  const onData = d => {
+    const text = d.toString();
+    if (!ready && text.includes("Local:")) {
+      ready = true;
+      log.done();
+      console.log(text);
+      log.timer("watching for changes...");
+    } else if (!ready) {
+      const line = text.trim();
+      if (line) log.update(line.split("\n").pop());
+    }
+  };
+  child.stdout.on("data", onData);
+  child.stderr.on("data", onData);
+  child.on("close", code => {
+    if (code !== 0) log.fail(`server exited with code ${code}`);
+  });
+}
+
 if (name === "react") {
   log.timer(`running Vite on port ${port}`);
-  spawn("vite", ["serve", "dev", `--port=${port}`], {stdio: "inherit", shell: true});
-  log.done();
-  log.timer("watching for changes...");
+  pipeServer(spawn("vite", ["serve", "dev", `--port=${port}`], {stdio: "pipe", shell: true}));
 } else if (name === "docs") {
   log.timer(`running Storybook on port ${port}`);
-  spawn(
+  pipeServer(spawn(
     "storybook",
     ["dev", "--docs", "--ci", "--no-version-updates", `--port=${port}`],
-    {stdio: "inherit", shell: true},
-  );
-  log.done();
-  log.timer("watching for changes...");
+    {stdio: "pipe", shell: true},
+  ));
 } else {
   log.timer(`running dev server on port ${port}`);
 
