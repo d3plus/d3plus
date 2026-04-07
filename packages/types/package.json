@@ -1,0 +1,52 @@
+{
+  "name": "@d3plus/types",
+  "version": "3.0.16",
+  "description": "TypeScript type definitions for d3plus.",
+  "license": "MIT",
+  "type": "module",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./es/index.js"
+    }
+  },
+  "browser": "./umd/d3plus-types.full.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "files": [
+    "umd",
+    "es",
+    "types"
+  ],
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git",
+    "directory": "packages/types"
+  },
+  "keywords": [
+    "d3plus",
+    "types",
+    "typescript",
+    "definitions"
+  ],
+  "scripts": {
+    "build:esm": "node ../../scripts/build-esm.js",
+    "build:types": "tsc"
+  },
+  "dependencies": {
+    "@d3plus/color": "workspace:*",
+    "@d3plus/core": "workspace:*",
+    "@d3plus/data": "workspace:*",
+    "@d3plus/dom": "workspace:*",
+    "@d3plus/export": "workspace:*",
+    "@d3plus/format": "workspace:*",
+    "@d3plus/locales": "workspace:*",
+    "@d3plus/math": "workspace:*",
+    "@d3plus/react": "workspace:*",
+    "@d3plus/text": "workspace:*"
+  }
+}

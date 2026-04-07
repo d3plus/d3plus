@@ -5,6 +5,7 @@ es
 memory
 node_modules
 types
+!packages/types/
 umd
 npm-debug.log
 .next
