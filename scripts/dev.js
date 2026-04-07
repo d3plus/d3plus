@@ -8,7 +8,10 @@ import Logger from "./utils/log.js";
 const log = Logger("development environment");
 const port = 4000;
 
-process.on("SIGINT", () => process.exit(0));
+process.on("SIGINT", () => {
+  process.stdout.write("\x1B[?25h"); // restore cursor visibility
+  process.exit(0);
+});
 
 const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split("/")[1];
 
