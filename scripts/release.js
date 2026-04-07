@@ -21,7 +21,10 @@ async function prompt(question, defaultValue) {
 }
 
 function editInEditor(text) {
-  const tmpFile = path.join(os.tmpdir(), `d3plus-release-notes-${Date.now()}.md`);
+  const tmpFile = path.join(
+    os.tmpdir(),
+    `d3plus-release-notes-${Date.now()}.md`,
+  );
   fs.writeFileSync(tmpFile, text, "utf8");
   const editor = process.env.EDITOR || process.env.VISUAL || "vi";
   const result = spawnSync(editor, [tmpFile], {stdio: "inherit"});
@@ -48,13 +51,20 @@ let log;
 try {
   // ── Version ──────────────────────────────────────────────────────────────
   const packageJSON = JSON.parse(fs.readFileSync("package.json", "utf8"));
-  let version = await prompt("Version to release?", packageJSON.version);
+  let version = packageJSON.version;
+  while (version === packageJSON.version) {
+    version = await prompt(
+      `Version to release? [${packageJSON.version} is latest]`,
+      packageJSON.version,
+    );
+    if (version === packageJSON.version) {
+      rl.output.write("Version must be different from the current version.\n");
+    }
+  }
   log = Logger(`release v${version}`);
 
-  if (packageJSON.version !== version) {
-    packageJSON.version = version;
-    fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 2));
-  }
+  packageJSON.version = version;
+  fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 2));
 
   const shellOpts = {
     env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"},
@@ -103,8 +113,10 @@ try {
   }
 
   // ── Commit & tag ───────────────────────────────────────────────────────
-  console.log(`\nThis will commit all changes, tag as v${version}, and push to origin.`);
-  if (!await confirm("Proceed with commit, tag, and push?")) {
+  console.log(
+    `\nThis will commit all changes, tag as v${version}, and push to origin.`,
+  );
+  if (!(await confirm("Proceed with commit, tag, and push?"))) {
     log.warn("aborted by user");
     log.exit();
     process.exit(0);
@@ -131,7 +143,7 @@ try {
   console.log(`  Body:\n${commits}`);
   console.log(`──────────────────────────────────────────────────────\n`);
 
-  if (!await confirm("Publish GitHub release?")) {
+  if (!(await confirm("Publish GitHub release?"))) {
     log.warn("skipped GitHub release");
   } else {
     log.timer("publishing release notes");
@@ -148,7 +160,7 @@ try {
   }
 
   // ── npm publish ────────────────────────────────────────────────────────
-  if (!await confirm("Publish npm packages?")) {
+  if (!(await confirm("Publish npm packages?"))) {
     log.warn("skipped npm publish");
   } else {
     log.timer("publishing npm packages");
