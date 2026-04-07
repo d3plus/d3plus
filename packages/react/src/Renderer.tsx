@@ -1,13 +1,21 @@
 import {useContext, useEffect, useRef, useState} from "react";
 import {assign} from "@d3plus/dom";
-import type {BaseClass, D3plusConfig} from "@d3plus/core";
+import type {D3plusConfig} from "@d3plus/core";
 
 import D3plusContext from "./D3plusContext.jsx";
 
 export type {D3plusConfig} from "@d3plus/core";
 
+/** Minimal interface for d3plus class instances used by the Renderer. */
+interface D3plusInstance {
+  config(c: D3plusConfig): this;
+  render?(callback?: () => void): this;
+  destroy?(): this;
+  [key: string]: unknown;
+}
+
 /** Constructor type for d3plus visualization classes. */
-export type D3plusConstructor = new () => BaseClass;
+export type D3plusConstructor = new (...args: any[]) => any;
 
 /** Props accepted by the Renderer component. */
 export interface RendererProps {
@@ -51,7 +59,7 @@ export default function Renderer({
 }: RendererProps) {
   const globalConfig = useContext(D3plusContext);
   const container = useRef<SVGSVGElement>(null);
-  const [instance] = useState<BaseClass>(() => new Constructor());
+  const [instance] = useState<D3plusInstance>(() => new Constructor());
 
   useEffect(
     () => {
