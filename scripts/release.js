@@ -26,8 +26,8 @@ function editInEditor(text) {
     `d3plus-release-notes-${Date.now()}.md`,
   );
   fs.writeFileSync(tmpFile, text, "utf8");
-  const editor = process.env.EDITOR || process.env.VISUAL || "vi";
-  const result = spawnSync(editor, [tmpFile], {stdio: "inherit"});
+  const [editor, ...editorArgs] = (process.env.EDITOR || process.env.VISUAL || "vi").split(/\s+/);
+  const result = spawnSync(editor, [...editorArgs, tmpFile], {stdio: "inherit"});
   if (result.status !== 0) {
     fs.unlinkSync(tmpFile);
     throw new Error("editor exited with a non-zero status");
