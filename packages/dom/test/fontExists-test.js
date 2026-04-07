@@ -4,7 +4,7 @@ import it from "./jsdom.js";
 
 it("fontExists", () => {
   const missing = "Missing",
-    valid = "Verdana";
+    valid = "serif";
 
   assert.strictEqual(valid, fontExists(valid), "single - exists");
   assert.strictEqual(false, fontExists(missing), "single - missing");
