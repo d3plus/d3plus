@@ -33,6 +33,63 @@ colorLegible("#aaddff"); // returns a darkened, legible variant
 
 These utilities support compliance with **WCAG 1.4.3** (Contrast Minimum) for text elements within visualizations.
 
+## Texture Patterns
+
+D3plus supports built-in texture and pattern fills as an alternative to color-only data series differentiation, powered by the [textures](https://riccardoscalco.github.io/textures/) library. Textures can be applied to any shape via the `shapeConfig` property, providing a non-color visual channel that helps users who are colorblind or viewing charts in grayscale.
+
+### Available Texture Types
+
+| Type | Description |
+|---|---|
+| `lines` | Striped patterns with configurable orientation |
+| `circles` | Circular dot patterns |
+| `crosses` | Cross-shaped patterns |
+| `nylon` | Nylon weave patterns |
+| `waves` | Wave-shaped patterns |
+| `woven` | Woven fabric patterns |
+| `squares` | Square tile patterns |
+| `caps` | Cap-shaped patterns |
+| `hexagons` | Hexagonal tile patterns |
+| `grid` | Shorthand for lines with both vertical and horizontal orientation |
+
+### Usage
+
+Textures are configured through the `texture` and `textureDefault` properties inside `shapeConfig`:
+
+```jsx
+<BarChart
+  data={data}
+  groupBy="id"
+  shapeConfig={{
+    texture: "nylon",
+    textureDefault: {
+      size: 10,
+      stroke: "rgba(0, 0, 0, 0.1)",
+      strokeWidth: 1,
+    },
+  }}
+/>
+```
+
+Textures can also be set as an object with additional options or as a data-driven accessor function:
+
+```js
+// Object with configuration
+shapeConfig: {
+  texture: {
+    texture: "lines",
+    orientation: "diagonal",
+    stroke: "darkorange",
+    strokeWidth: 2,
+  }
+}
+
+// Data-driven texture per group
+shapeConfig: {
+  texture: (d) => d.id === "alpha" ? "circles" : "nylon"
+}
+```
+
 ## Localization
 
 All user-facing text in D3plus, including aria-labels and screen reader content, respects the configured locale. The `@d3plus/locales` package provides translations and number formatting for multiple locales:
@@ -142,7 +199,7 @@ The following table summarizes how D3plus addresses the WCAG success criteria mo
 | **1.1.1** | Non-text Content | Supported | All shapes include `aria-label` attributes. Optional `svgTitle` and `svgDesc` provide chart-level text alternatives. Inline data table available via `ariaHidden: false`. |
 | **1.3.1** | Info and Relationships | Supported | ARIA roles (`img`, `presentation`, `table`, `row`, `cell`, `columnheader`) convey structure programmatically. |
 | **1.3.2** | Meaningful Sequence | Supported | DOM order follows a logical sequence: title, description, legend, axes, then data elements. |
-| **1.4.1** | Use of Color | Partial | Color is the default differentiator for data series. Custom pattern fills can be applied via `shapeConfig`, but are not provided out of the box. |
+| **1.4.1** | Use of Color | Supported | Color is the default differentiator for data series. Built-in texture and pattern fills (lines, circles, crosses, waves, and more) can be applied via `shapeConfig` to provide a non-color visual channel. See [Texture Patterns](#texture-patterns) below. |
 | **1.4.3** | Contrast (Minimum) | Supported | `colorContrast` automatically selects light or dark text for labels based on background color. `colorLegible` ensures text colors meet readability thresholds. |
 | **1.4.11** | Non-text Contrast | Partial | Default color palettes provide adequate contrast between adjacent elements in most configurations, but contrast ratios are not programmatically enforced for all cases. |
 
@@ -173,6 +230,5 @@ D3plus is actively working to improve accessibility. The following enhancements 
 
 - **Keyboard Navigation** — Add `tabindex` support and keyboard event handlers so users can navigate between data points using arrow keys, activate elements with Enter/Space, and exit with Escape.
 - **Visible Focus Indicators** — Render high-contrast focus rings on data points when they receive keyboard focus, meeting the WCAG 2.4.7 minimum 3:1 contrast requirement.
-- **Pattern Fills** — Provide built-in texture and pattern options (hatching, dots, crosshatch) as an alternative to color-only data series differentiation, addressing WCAG 1.4.1.
 - **ARIA Live Regions** — Announce data values to screen readers as users navigate between data points using keyboard controls.
 - **VPAT / Accessibility Conformance Report** — Publish a formal ACR using the VPAT 2.5 template to support federal procurement evaluation under Section 508.
