@@ -58,6 +58,7 @@ async function positionTooltip(
     position: "absolute",
     left: `${x}px`,
     top: `${y}px`,
+    visibility: "visible",
   });
 
   const flipped = placement === "bottom";
@@ -333,6 +334,7 @@ export default class Tooltip extends BaseClass {
         (d: DataPoint, i: number) =>
           `d3plus-tooltip-${d ? this._id(d, i) : ""}`,
       )
+      .style("visibility", "hidden")
       .call(boxStyles)
       .each((d: DataPoint, i: number) => {
         const id = that._id(d, i);
