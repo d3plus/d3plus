@@ -400,8 +400,8 @@ importers:
   packages/text:
     dependencies:
       '@chenglou/pretext':
-        specifier: ^0.0.3
-        version: 0.0.3
+        specifier: ^0.0.5
+        version: 0.0.5
       '@d3plus/dom':
         specifier: workspace:*
         version: link:../dom
@@ -1036,9 +1036,6 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
-
-  '@chenglou/pretext@0.0.3':
-    resolution: {integrity: sha512-RQmqMqUAPRCyv4R3LlRi/ao6KbNWYclqLA+V1HS7sWgyUUbjn3JmmlfXZSY/BjM4rbmIaMSyIVisYocYGYftiQ==}
 
   '@chenglou/pretext@0.0.5':
     resolution: {integrity: sha512-A8GZN10REdFGsyuiUgLV8jjPDDFMg5GmgxGWV0I3igxBOnzj+jgz2VMmVD7g+SFyoctfeqHFxbNatKSzVRWtRg==}
@@ -6280,8 +6277,6 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
 
   '@bcoe/v8-coverage@1.0.2': {}
-
-  '@chenglou/pretext@0.0.3': {}
 
   '@chenglou/pretext@0.0.5': {}
 

@@ -43,7 +43,7 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.3",
+    "@chenglou/pretext": "^0.0.5",
     "@d3plus/dom": "workspace:*",
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1",
