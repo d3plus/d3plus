@@ -1,5 +1,9 @@
 export default function ({name, description}) {
+  const packageName = name.replace("@d3plus/", "");
   return `# ${name}
+
+[![NPM version](https://img.shields.io/npm/v/${name}.svg)](https://www.npmjs.com/package/${name})
+[![codecov](https://codecov.io/gh/d3plus/d3plus/graph/badge.svg?flag=${packageName})](https://codecov.io/gh/d3plus/d3plus/flags)
 
 ${description}
 

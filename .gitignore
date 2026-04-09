@@ -1,6 +1,7 @@
 .claude
 .DS_Store
 build
+coverage
 es
 memory
 node_modules

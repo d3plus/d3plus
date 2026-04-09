@@ -39,7 +39,8 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'"
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'",
+    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "d3-array": "^3.2.4",

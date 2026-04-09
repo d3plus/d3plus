@@ -22,9 +22,11 @@
     "docs": "node scripts/docs/docs.js",
     "pretest": "pnpm -r --if-present run build:esm",
     "release": "node scripts/release.js",
-    "test": "pnpm -r --if-present run test"
+    "test": "pnpm -r --if-present run test",
+    "test:coverage": "pnpm -r --if-present run test:coverage"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "@octokit/rest": "^21.1.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
@@ -53,18 +55,18 @@
     "@types/d3-zoom": "^3.0.8",
     "@types/file-saver": "^2.0.7",
     "@types/topojson-client": "^3.1.5",
+    "c8": "^11.0.0",
     "canvas": "^3.1.0",
     "chokidar": "^4.0.3",
-    "@eslint/js": "^9.21.0",
     "eslint": "^9.21.0",
     "jsdom": "^26.0.0",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9",
+    "terser": "^5.39.0",
     "typedoc": "^0.28.18",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0",
-    "terser": "^5.39.0",
     "yocto-spinner": "^1.1.0"
   },
   "pnpm": {

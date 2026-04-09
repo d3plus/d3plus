@@ -26,3 +26,12 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: pnpm test
+      - name: Generate coverage reports
+        if: matrix.node-version == '22.x'
+        run: pnpm -r --if-present run test:coverage
+      - name: Upload coverage to Codecov
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          flags: unittests
+          fail_ci_if_error: false

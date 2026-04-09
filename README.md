@@ -2,6 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/@d3plus/core.svg)](https://www.npmjs.com/package/@d3plus/core)
 [![License](https://img.shields.io/npm/l/d3plus.svg)](https://github.com/d3plus/d3plus/blob/main/LICENSE)
+[![codecov](https://codecov.io/gh/d3plus/d3plus/graph/badge.svg)](https://codecov.io/gh/d3plus/d3plus)
 
 **Data visualization made easy.** An open-source TypeScript library that extends [D3](https://d3js.org/) to create beautiful, interactive SVG visualizations with minimal configuration. Tooltips, color assignments, label placements, and more — all handled automatically.
 

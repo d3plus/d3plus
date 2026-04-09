@@ -1,0 +1,81 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+      color:
+        target: 95%
+        flags: [color]
+      core:
+        target: 25%
+        flags: [core]
+      data:
+        target: 95%
+        flags: [data]
+      dom:
+        target: 95%
+        flags: [dom]
+      export:
+        target: 40%
+        flags: [export]
+      format:
+        target: 70%
+        flags: [format]
+      locales:
+        target: 95%
+        flags: [locales]
+      math:
+        target: 80%
+        flags: [math]
+      react:
+        target: 65%
+        flags: [react]
+      text:
+        target: 85%
+        flags: [text]
+    patch:
+      default:
+        target: auto
+
+flags:
+  color:
+    paths:
+      - packages/color/
+    carryforward: true
+  core:
+    paths:
+      - packages/core/
+    carryforward: true
+  data:
+    paths:
+      - packages/data/
+    carryforward: true
+  dom:
+    paths:
+      - packages/dom/
+    carryforward: true
+  export:
+    paths:
+      - packages/export/
+    carryforward: true
+  format:
+    paths:
+      - packages/format/
+    carryforward: true
+  locales:
+    paths:
+      - packages/locales/
+    carryforward: true
+  math:
+    paths:
+      - packages/math/
+    carryforward: true
+  react:
+    paths:
+      - packages/react/
+    carryforward: true
+  text:
+    paths:
+      - packages/text/
+    carryforward: true
