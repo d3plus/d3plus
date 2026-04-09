@@ -1,7 +1,7 @@
 {
   "name": "d3plus",
   "packageManager": "pnpm@10.12.4",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "license": "MIT",
   "type": "module",

@@ -43,7 +43,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **format**(`specifier`: `string`): `Formatter`
 
-Defined in: [format.ts:10](https://github.com/d3plus/d3plus/blob/fe174c3153bf379a226e4a41b6a8492a86c3a1b7/packages/format/src/format.ts#L10)
+Defined in: [format.ts:10](https://github.com/d3plus/d3plus/blob/35025276b7e98271b21e2a83ec03c1025ea4cb11/packages/format/src/format.ts#L10)
 
 #### Parameters
 
@@ -63,7 +63,7 @@ Defined in: [format.ts:10](https://github.com/d3plus/d3plus/blob/fe174c3153bf379
 
 > **formatAbbreviate**(`n`: `string` \| `number`, `locale?`: `string` \| `FormatLocaleDefinition`, `precision?`: `string`): `string`
 
-Defined in: [formatAbbreviate.ts:55](https://github.com/d3plus/d3plus/blob/fe174c3153bf379a226e4a41b6a8492a86c3a1b7/packages/format/src/formatAbbreviate.ts#L55)
+Defined in: [formatAbbreviate.ts:55](https://github.com/d3plus/d3plus/blob/35025276b7e98271b21e2a83ec03c1025ea4cb11/packages/format/src/formatAbbreviate.ts#L55)
 
 Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
 
@@ -87,7 +87,7 @@ Formats a number to an appropriate number of decimal places and rounding, adding
 
 > **formatDate**(`d`: `Date`, `dataArray`: `Date`[], `formatter?`: `DateFormatter`): `string`
 
-Defined in: [formatDate.ts:12](https://github.com/d3plus/d3plus/blob/fe174c3153bf379a226e4a41b6a8492a86c3a1b7/packages/format/src/formatDate.ts#L12)
+Defined in: [formatDate.ts:12](https://github.com/d3plus/d3plus/blob/35025276b7e98271b21e2a83ec03c1025ea4cb11/packages/format/src/formatDate.ts#L12)
 
 A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 
@@ -111,7 +111,7 @@ A default set of date formatters, which takes into account both the interval in 
 
 > **formatDefaultLocale**(`definition`: `FormatLocaleDefinition`): `Record`\<`string`, `unknown`\>
 
-Defined in: [formatDefaultLocale.ts:8](https://github.com/d3plus/d3plus/blob/fe174c3153bf379a226e4a41b6a8492a86c3a1b7/packages/format/src/formatDefaultLocale.ts#L8)
+Defined in: [formatDefaultLocale.ts:8](https://github.com/d3plus/d3plus/blob/35025276b7e98271b21e2a83ec03c1025ea4cb11/packages/format/src/formatDefaultLocale.ts#L8)
 
 An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
 
