@@ -40,42 +40,22 @@ coverage:
 
 flags:
   color:
-    paths:
-      - packages/color/
     carryforward: true
   core:
-    paths:
-      - packages/core/
     carryforward: true
   data:
-    paths:
-      - packages/data/
     carryforward: true
   dom:
-    paths:
-      - packages/dom/
     carryforward: true
   export:
-    paths:
-      - packages/export/
     carryforward: true
   format:
-    paths:
-      - packages/format/
     carryforward: true
   locales:
-    paths:
-      - packages/locales/
     carryforward: true
   math:
-    paths:
-      - packages/math/
     carryforward: true
   react:
-    paths:
-      - packages/react/
     carryforward: true
   text:
-    paths:
-      - packages/text/
     carryforward: true
