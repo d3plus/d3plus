@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/types",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "TypeScript type definitions for d3plus.",
   "license": "MIT",
   "type": "module",

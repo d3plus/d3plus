@@ -1,5 +1,8 @@
 # @d3plus/types
 
+[![NPM version](https://img.shields.io/npm/v/@d3plus/types.svg)](https://www.npmjs.com/package/@d3plus/types)
+[![codecov](https://codecov.io/gh/d3plus/d3plus/graph/badge.svg?flag=types)](https://codecov.io/gh/d3plus/d3plus/flags)
+
 TypeScript type definitions for d3plus.
 
 ## Installing
@@ -93037,7 +93040,7 @@ Allows additional custom properties.
 | <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | core/types/src/utils/D3plusConfig.d.ts:101 |
 | <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | core/types/src/utils/D3plusConfig.d.ts:103 |
 | <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:105 |
-| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:107 |
+| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:107 |
 | <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | core/types/src/utils/D3plusConfig.d.ts:109 |
 | `shapeConfig.duration?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:110 |
 | <a id="property-size"></a> `size?` | `string` | Size accessor key. | core/types/src/utils/D3plusConfig.d.ts:114 |

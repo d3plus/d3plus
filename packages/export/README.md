@@ -1,5 +1,8 @@
 # @d3plus/export
 
+[![NPM version](https://img.shields.io/npm/v/@d3plus/export.svg)](https://www.npmjs.com/package/@d3plus/export)
+[![codecov](https://codecov.io/gh/d3plus/d3plus/graph/badge.svg?flag=export)](https://codecov.io/gh/d3plus/d3plus/flags)
+
 Export methods for transforming and downloading SVG.
 
 ## Installing
@@ -37,7 +40,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: [saveElement.ts:36](https://github.com/d3plus/d3plus/blob/e9db3c74352143cd7b6bdc8d0786477ea971eb6d/packages/export/src/saveElement.ts#L36)
+Defined in: [saveElement.ts:36](https://github.com/d3plus/d3plus/blob/fe174c3153bf379a226e4a41b6a8492a86c3a1b7/packages/export/src/saveElement.ts#L36)
 
 Downloads an HTML Element as a bitmap PNG image.
 
