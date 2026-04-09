@@ -44,7 +44,7 @@ export default function (sentence: string): string[] {
   const prepared = prepareWithSegments(sentence, "10px sans-serif", {
     whiteSpace: "pre-wrap",
   });
-  const {segments, kinds, breakableWidths} = prepared;
+  const {segments, kinds, breakableFitAdvances} = prepared;
 
   const words: string[] = [];
   let prevKind: string | null = null;
@@ -62,13 +62,13 @@ export default function (sentence: string): string[] {
       words.length > 0 &&
       !isBreakable(segments[i]) &&
       !isBreakable(segments[i - 1]) &&
-      !(breakableWidths[i] !== null && wordHasBreakable)
+      !(breakableFitAdvances[i] !== null && wordHasBreakable)
     ) {
       words[words.length - 1] += segments[i];
-      if (breakableWidths[i] !== null) wordHasBreakable = true;
+      if (breakableFitAdvances[i] !== null) wordHasBreakable = true;
     } else {
       words.push(segments[i]);
-      wordHasBreakable = breakableWidths[i] !== null;
+      wordHasBreakable = breakableFitAdvances[i] !== null;
     }
     prevKind = kinds[i];
   }
