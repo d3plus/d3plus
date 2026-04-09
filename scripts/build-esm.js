@@ -34,15 +34,18 @@ files.forEach(file => {
     ? {syntax: "typescript", tsx: true}
     : {syntax: "typescript", tsx: false};
   const transform = isReact ? {react: {runtime: "automatic"}} : {};
-  const {code} = transformFileSync(file, {jsc: {parser, transform}});
-
   // .tsx → .jsx for react, .ts → .js for everything else
   const outFile = file.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
+  const outPath = path.join("es", outFile);
+  const sourceFileName = path.relative(path.dirname(outPath), file);
+
+  const {code, map} = transformFileSync(file, {jsc: {parser, transform}, sourceMaps: true, sourceFileName});
 
   const outDir = path.join("es", path.dirname(outFile));
   fs.mkdirSync(outDir, {recursive: true});
 
-  fs.writeFileSync(`es/${outFile}`, code);
+  fs.writeFileSync(outPath, code + `\n//# sourceMappingURL=${path.basename(outFile)}.map`);
+  fs.writeFileSync(`${outPath}.map`, map);
   log.done();
 });
 
