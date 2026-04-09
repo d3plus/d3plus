@@ -155,7 +155,7 @@ export interface D3plusConfig {
   /** Row key for matrix-style layouts. */
   row?: string;
   /** Scrollable container selector for tooltip positioning. */
-  scrollContainer?: string;
+  scrollContainer?: string | Window;
   /** Configuration for shape rendering. */
   shapeConfig?: {
     duration?: number;
