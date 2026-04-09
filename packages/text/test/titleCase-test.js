@@ -1,5 +1,6 @@
 import assert from "assert";
 import {default as titleCase} from "../es/src/titleCase.js";
+import it from "./jsdom.js";
 
 it("titleCase", () => {
   assert.strictEqual(
@@ -26,5 +27,17 @@ it("titleCase", () => {
     titleCase("CEOs on TV"),
     "CEOs on TV",
     "Uppercase Words (plural and singular)",
+  );
+
+  assert.strictEqual(
+    titleCase("contribution"),
+    "Contribution",
+    "Hyphenated syllables are treated as one word",
+  );
+
+  assert.strictEqual(
+    titleCase("the contribution of technology"),
+    "The Contribution of Technology",
+    "Hyphenated syllables in a sentence context",
   );
 });

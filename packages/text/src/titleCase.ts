@@ -46,6 +46,7 @@ const uppercase: string[] = acronyms.reduce(
   (arr: string[], d: string) => (arr.push(`${d}s`), arr),
   acronyms.map(d => d.toLowerCase()),
 );
+const softHyphen = "\u00AD";
 
 /**
     Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
@@ -56,15 +57,19 @@ export default function (str: string | undefined): string {
 
   return textSplit(str).reduce((str: string, word: string, i: number) => {
     let formattedWord = word;
-    const trimmedWord = word.toLowerCase().slice(0, -1);
+    const isContinuation = str.endsWith(softHyphen);
 
-    const exempt =
-      uppercase.includes(trimmedWord) ||
-      (lowercase.includes(trimmedWord) &&
-        i !== 0 &&
-        word.toLowerCase() !== trimmedWord);
-    if (!exempt) formattedWord = word.charAt(0).toUpperCase() + word.slice(1);
+    if (!isContinuation) {
+      const trimmedWord = word.toLowerCase().slice(0, -1);
+
+      const exempt =
+        uppercase.includes(trimmedWord) ||
+        (lowercase.includes(trimmedWord) &&
+          i !== 0 &&
+          word.toLowerCase() !== trimmedWord);
+      if (!exempt) formattedWord = word.charAt(0).toUpperCase() + word.slice(1);
+    }
 
     return str + formattedWord;
-  }, "");
+  }, "").replaceAll(softHyphen, "");
 }
