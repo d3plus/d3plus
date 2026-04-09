@@ -36,13 +36,83 @@ jobs:
             pkg_dir=$(echo "$lcov" | cut -d/ -f1-2)
             sed -i "s|^SF:|SF:${pkg_dir}/|" "$lcov"
           done
-      - name: Upload coverage to Codecov
+      - name: Upload color coverage
         if: matrix.node-version == '22.x'
-        run: |
-          curl -Os https://cli.codecov.io/latest/linux/codecov && chmod +x codecov
-          ./codecov create-commit -t ${{ secrets.CODECOV_TOKEN }} --git-service github
-          ./codecov create-report -t ${{ secrets.CODECOV_TOKEN }} --git-service github
-          for lcov in packages/*/coverage/lcov.info; do
-            flag=$(echo "$lcov" | cut -d/ -f2)
-            ./codecov do-upload -t ${{ secrets.CODECOV_TOKEN }} -f "$lcov" -F "$flag" --git-service github || true
-          done
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/color/coverage/lcov.info
+          flags: color
+          fail_ci_if_error: false
+      - name: Upload core coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/core/coverage/lcov.info
+          flags: core
+          fail_ci_if_error: false
+      - name: Upload data coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/data/coverage/lcov.info
+          flags: data
+          fail_ci_if_error: false
+      - name: Upload dom coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/dom/coverage/lcov.info
+          flags: dom
+          fail_ci_if_error: false
+      - name: Upload export coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/export/coverage/lcov.info
+          flags: export
+          fail_ci_if_error: false
+      - name: Upload format coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/format/coverage/lcov.info
+          flags: format
+          fail_ci_if_error: false
+      - name: Upload locales coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/locales/coverage/lcov.info
+          flags: locales
+          fail_ci_if_error: false
+      - name: Upload math coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/math/coverage/lcov.info
+          flags: math
+          fail_ci_if_error: false
+      - name: Upload react coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/react/coverage/lcov.info
+          flags: react
+          fail_ci_if_error: false
+      - name: Upload text coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/text/coverage/lcov.info
+          flags: text
+          fail_ci_if_error: false
