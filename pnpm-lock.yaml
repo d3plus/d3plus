@@ -313,8 +313,8 @@ importers:
   packages/dom:
     dependencies:
       '@chenglou/pretext':
-        specifier: ^0.0.3
-        version: 0.0.3
+        specifier: ^0.0.5
+        version: 0.0.5
       d3-selection:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1039,6 +1039,9 @@ packages:
 
   '@chenglou/pretext@0.0.3':
     resolution: {integrity: sha512-RQmqMqUAPRCyv4R3LlRi/ao6KbNWYclqLA+V1HS7sWgyUUbjn3JmmlfXZSY/BjM4rbmIaMSyIVisYocYGYftiQ==}
+
+  '@chenglou/pretext@0.0.5':
+    resolution: {integrity: sha512-A8GZN10REdFGsyuiUgLV8jjPDDFMg5GmgxGWV0I3igxBOnzj+jgz2VMmVD7g+SFyoctfeqHFxbNatKSzVRWtRg==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -6279,6 +6282,8 @@ snapshots:
   '@bcoe/v8-coverage@1.0.2': {}
 
   '@chenglou/pretext@0.0.3': {}
+
+  '@chenglou/pretext@0.0.5': {}
 
   '@csstools/color-helpers@5.1.0': {}
 
