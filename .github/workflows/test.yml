@@ -41,5 +41,5 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
+          flags: color,core,data,dom,export,format,locales,math,react,text
           fail_ci_if_error: false
