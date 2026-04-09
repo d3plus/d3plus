@@ -4,77 +4,78 @@ coverage:
       default:
         target: auto
         threshold: 1%
+      color:
+        target: 95%
+        flags: [color]
+      core:
+        target: 25%
+        flags: [core]
+      data:
+        target: 95%
+        flags: [data]
+      dom:
+        target: 95%
+        flags: [dom]
+      export:
+        target: 40%
+        flags: [export]
+      format:
+        target: 70%
+        flags: [format]
+      locales:
+        target: 95%
+        flags: [locales]
+      math:
+        target: 80%
+        flags: [math]
+      react:
+        target: 65%
+        flags: [react]
+      text:
+        target: 85%
+        flags: [text]
     patch:
       default:
         target: auto
 
-flag_management:
-  default_rules:
+flags:
+  color:
+    paths:
+      - packages/color/
     carryforward: true
-    statuses:
-      - type: project
-        target: auto
-        threshold: 1%
-      - type: patch
-        target: auto
-  individual_flags:
-    - name: color
-      paths:
-        - packages/color/
-      statuses:
-        - type: project
-          target: 95%
-    - name: core
-      paths:
-        - packages/core/
-      statuses:
-        - type: project
-          target: 25%
-    - name: data
-      paths:
-        - packages/data/
-      statuses:
-        - type: project
-          target: 95%
-    - name: dom
-      paths:
-        - packages/dom/
-      statuses:
-        - type: project
-          target: 95%
-    - name: export
-      paths:
-        - packages/export/
-      statuses:
-        - type: project
-          target: 40%
-    - name: format
-      paths:
-        - packages/format/
-      statuses:
-        - type: project
-          target: 70%
-    - name: locales
-      paths:
-        - packages/locales/
-      statuses:
-        - type: project
-          target: 95%
-    - name: math
-      paths:
-        - packages/math/
-      statuses:
-        - type: project
-          target: 80%
-    - name: react
-      paths:
-        - packages/react/
-      statuses:
-        - type: project
-          target: 65%
-    - name: text
-      paths:
-        - packages/text/
-      statuses:
-        - type: project
-          target: 85%
+  core:
+    paths:
+      - packages/core/
+    carryforward: true
+  data:
+    paths:
+      - packages/data/
+    carryforward: true
+  dom:
+    paths:
+      - packages/dom/
+    carryforward: true
+  export:
+    paths:
+      - packages/export/
+    carryforward: true
+  format:
+    paths:
+      - packages/format/
+    carryforward: true
+  locales:
+    paths:
+      - packages/locales/
+    carryforward: true
+  math:
+    paths:
+      - packages/math/
+    carryforward: true
+  react:
+    paths:
+      - packages/react/
+    carryforward: true
+  text:
+    paths:
+      - packages/text/
+    carryforward: true
