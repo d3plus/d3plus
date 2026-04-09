@@ -40,7 +40,9 @@ jobs:
         if: matrix.node-version == '22.x'
         run: |
           curl -Os https://cli.codecov.io/latest/linux/codecov && chmod +x codecov
+          ./codecov create-commit -t ${{ secrets.CODECOV_TOKEN }} --git-service github
+          ./codecov create-report -t ${{ secrets.CODECOV_TOKEN }} --git-service github
           for lcov in packages/*/coverage/lcov.info; do
             flag=$(echo "$lcov" | cut -d/ -f2)
-            ./codecov upload-process -t ${{ secrets.CODECOV_TOKEN }} -f "$lcov" -F "$flag" --git-service github || true
+            ./codecov do-upload -t ${{ secrets.CODECOV_TOKEN }} -f "$lcov" -F "$flag" --git-service github || true
           done
