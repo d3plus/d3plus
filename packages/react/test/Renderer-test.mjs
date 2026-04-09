@@ -82,4 +82,72 @@ describe("Renderer", function() {
     assert.ok(destroyed, "destroy() was called on unmount");
   });
 
+  it("invokes the callback after render", async function() {
+    let callbackCalled = false;
+    class CallbackViz {
+      config() { return this; }
+      render(cb) { if (cb) cb(); return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {
+        constructor: CallbackViz,
+        config: {},
+        callback: () => { callbackCalled = true; },
+      }));
+    });
+    assert.ok(callbackCalled, "callback was invoked");
+  });
+
+  it("handles forceUpdate prop", async function() {
+    let renderCount = 0;
+    class CountingViz {
+      config() { return this; }
+      render() { renderCount++; return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {
+        constructor: CountingViz,
+        config: {},
+        forceUpdate: true,
+      }));
+    });
+    assert.ok(renderCount >= 1, "renders at least once with forceUpdate");
+  });
+
+  it("handles dataFormat config by calling data() method", async function() {
+    let dataCalled = false;
+    let dataFormatValue = null;
+    class DataViz {
+      config() { return this; }
+      render() { return this; }
+      data(d, fmt) { dataCalled = true; dataFormatValue = fmt; }
+    }
+    const formatter = d => d;
+    await act(async () => {
+      root.render(React.createElement(Renderer, {
+        constructor: DataViz,
+        config: {data: [1, 2, 3], dataFormat: formatter},
+      }));
+    });
+    assert.ok(dataCalled, "data() was called when dataFormat is present");
+    assert.strictEqual(dataFormatValue, formatter, "dataFormat was passed to data()");
+  });
+
+  it("handles config with function values", async function() {
+    let configReceived = null;
+    class ConfigViz {
+      config(c) { configReceived = c; return this; }
+      render() { return this; }
+    }
+    const accessor = d => d.value;
+    await act(async () => {
+      root.render(React.createElement(Renderer, {
+        constructor: ConfigViz,
+        config: {x: accessor, label: "test"},
+      }));
+    });
+    assert.ok(configReceived, "config was received");
+    assert.strictEqual(configReceived.label, "test", "non-function config passed through");
+  });
+
 });

@@ -35,4 +35,30 @@ it("geom/largestRect", () => {
     JSON.stringify(rect.points.map(d => d.map(Math.round))),
     "angle option",
   );
+
+  assert.strictEqual(largestRect([[0, 0], [1, 1]]), null, "less than 3 points");
+  assert.strictEqual(largestRect([[0, 0], [1, 1]], {verbose: true}), null, "less than 3 points verbose");
+
+  assert.strictEqual(largestRect([[0, 0], [0, 0], [0, 0]]), null, "zero area polygon");
+
+  rect = largestRect(poly, {angle: "45"});
+  assert.ok(rect && rect.area > 0, "string angle option");
+
+  rect = largestRect(poly, {aspectRatio: 1});
+  assert.ok(rect && rect.area > 0, "fixed aspect ratio");
+
+  rect = largestRect(poly, {aspectRatio: "2"});
+  assert.ok(rect && rect.area > 0, "string aspect ratio");
+
+  rect = largestRect(poly, {origin: [40, 40]});
+  assert.ok(rect && rect.area > 0, "single origin point");
+
+  rect = largestRect(poly, {origin: [[40, 40], [30, 30]]});
+  assert.ok(rect && rect.area > 0, "multiple origin points");
+
+  rect = largestRect(poly, {events: true, cache: false});
+  assert.ok(rect && rect.events && rect.events.length > 0, "events tracking");
+
+  rect = largestRect(poly, {cache: false});
+  assert.ok(rect && rect.area > 0, "cache disabled");
 });

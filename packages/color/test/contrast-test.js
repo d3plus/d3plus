@@ -25,4 +25,7 @@ it("contrast", () => {
       defaults.dark === contrast("#fcf"),
     "dark",
   );
+
+  assert.strictEqual(contrast("#000", {light: "#eee"}), "#eee", "custom light override");
+  assert.strictEqual(contrast("#fff", {dark: "#111"}), "#111", "custom dark override");
 });

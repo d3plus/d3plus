@@ -33,4 +33,27 @@ it("textWrap", () => {
     "A",
     "catch for literal line break (\\n)",
   );
+
+  const truncResult = textWrap().fontFamily(font).fontSize(14).width(200).height(14)("This is a very long sentence that should definitely be truncated at some point.");
+  assert.strictEqual(truncResult.truncated, true, "truncated when height is too small");
+
+  const maxLinesResult = textWrap().fontFamily(font).fontSize(14).maxLines(1)("Hello D3plus, please wrap this sentence for me.");
+  assert.strictEqual(maxLinesResult.lines.length, 1, "maxLines limits output to 1 line");
+  assert.strictEqual(maxLinesResult.truncated, true, "maxLines truncates remaining text");
+
+  const nonString = textWrap()(42);
+  assert.strictEqual(nonString.sentence, "42", "non-string input is stringified");
+
+  const undefInput = textWrap()(undefined);
+  assert.strictEqual(undefInput.sentence, "undefined", "undefined input is stringified");
+
+  const overflowResult = textWrap().fontFamily(font).fontSize(14).width(5).overflow(false)("Superlongword");
+  assert.strictEqual(overflowResult.truncated, true, "overflow false truncates wide word");
+
+  const getters = textWrap().fontFamily(font).fontSize(14);
+  assert.strictEqual(getters.fontFamily(), font, "fontFamily getter");
+  assert.strictEqual(getters.fontSize(), 14, "fontSize getter");
+  assert.strictEqual(getters.fontWeight(), 400, "fontWeight getter");
+  assert.strictEqual(getters.overflow(), false, "overflow getter");
+  assert.strictEqual(getters.maxLines(), null, "maxLines getter");
 });

@@ -39,4 +39,25 @@ it("textSplit", () => {
 
   const shortWord = textSplit("hello world");
   assert.strictEqual(shortWord[0], "hello ", "short words are not hyphenated");
+
+  const capitalized = textSplit("JavaScript");
+  assert.strictEqual(capitalized[0], "JavaScript", "words with internal capitals are not hyphenated");
+
+  const singleWord = textSplit("hi");
+  assert.strictEqual(singleWord[0], "hi", "very short word stays intact");
+
+  const empty = textSplit("");
+  assert.ok(Array.isArray(empty), "empty string returns array");
+
+  const withNewline = textSplit("line one\nline two");
+  assert.ok(withNewline.length >= 2, "newline splits text");
+
+  const mixedCjkLatin = textSplit("Hello世界Test");
+  assert.ok(mixedCjkLatin.length >= 2, "mixed CJK and Latin are split");
+
+  const multiSpace = textSplit("hello  world");
+  assert.ok(multiSpace.length >= 1, "multiple spaces handled");
+
+  const withHyphen = textSplit("well-known fact");
+  assert.ok(withHyphen.length >= 1, "hyphenated compound word handled");
 });
