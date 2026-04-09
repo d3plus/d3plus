@@ -29,6 +29,13 @@ jobs:
       - name: Generate coverage reports
         if: matrix.node-version == '22.x'
         run: pnpm -r --if-present run test:coverage
+      - name: Fix coverage paths for monorepo
+        if: matrix.node-version == '22.x'
+        run: |
+          for lcov in packages/*/coverage/lcov.info; do
+            pkg_dir=$(echo "$lcov" | cut -d/ -f1-2)
+            sed -i "s|^SF:|SF:${pkg_dir}/|" "$lcov"
+          done
       - name: Upload coverage to Codecov
         if: matrix.node-version == '22.x'
         uses: codecov/codecov-action@v5
