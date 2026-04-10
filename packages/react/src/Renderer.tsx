@@ -38,14 +38,19 @@ export interface RendererProps {
 */
 function hash(val: unknown): string {
   const seen = new WeakSet();
-  return JSON.stringify(val, (_, v) => {
-    if (typeof v === "function") return v.toString();
-    if (typeof v === "object" && v !== null) {
-      if (seen.has(v)) return "[Circular]";
-      seen.add(v);
-    }
-    return v;
-  });
+  try {
+    return JSON.stringify(val, (_, v) => {
+      if (typeof v === "function") return v.toString();
+      if (typeof v === "object" && v !== null) {
+        if (seen.has(v)) return "[Circular]";
+        seen.add(v);
+      }
+      return v;
+    });
+  }
+  catch {
+    return String(val);
+  }
 }
 
 /**
