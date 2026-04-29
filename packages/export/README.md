@@ -40,7 +40,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: [saveElement.ts:36](https://github.com/d3plus/d3plus/blob/28157d056a88c49bd8f644f87e79a19dcedd589b/packages/export/src/saveElement.ts#L36)
+Defined in: [saveElement.ts:36](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/export/src/saveElement.ts#L36)
 
 Downloads an HTML Element as a bitmap PNG image.
 
