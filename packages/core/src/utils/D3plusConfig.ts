@@ -100,6 +100,8 @@ export interface D3plusConfig {
   depth?: number;
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y";
+  /** Default duration of transitions, in milliseconds. */
+  duration?: number;
   /** Allows removing specific geographies from topojson file to improve zoom. */
   fitFilter?:
     | number
@@ -207,8 +209,8 @@ export interface D3plusConfig {
   yConfig?: AxisConfig;
   /** Custom sort function for y-axis values. */
   ySort?: (a: DataPoint, b: DataPoint) => number;
-  /** Set to false to disable zooming on geomaps. */
-  zoom?: false;
+  /** Set to false to disable zooming on Geomap and Network. */
+  zoom?: boolean;
 
   /** Allows additional custom properties. */
   [key: string]: unknown;
