@@ -35,21 +35,22 @@
 
   <script>
 
+    // var bottom = new d3plus.AxisLeft()
+    //   .select("#my-axis")
+    //   .domain([0, 100000])
+    //   .labels([0, 20000, 100000])
+    //   .minSize(100)
+    //   // .labelOffset(false)
+    //   .render();
+
     var bottom = new d3plus.AxisLeft()
       .select("#my-axis")
-      .domain([0, 100000])
-      .labels([0, 20000, 100000])
-      .minSize(100)
-      // .labelOffset(false)
+      .domain(["Dave Landry", "Alexander Simoes", "Nick Bond", "Jimmy Mullen"])
+      .scale("ordinal")
+      .width(400)
+      .height(300)
+      .labelRotation(false)
       .render();
-
-    // var bottom = new d3plus.AxisBottom()
-    //   .select("#my-axis")
-    //   .domain(["Dave Landry", "Alexander Simoes", "Nick Bond", "Jimmy Mullen"])
-    //   .scale("ordinal")
-    //   .width(300)
-    //   .height(300)
-    //   .render();
 
     const bounds = bottom.outerBounds();
     const square = document.getElementById("bounds");

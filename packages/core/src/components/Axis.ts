@@ -352,7 +352,7 @@ export default class Axis extends BaseClass {
           this._orient === "bottom"
             ? "top"
             : this._orient === "top"
-              ? "bottom"
+              ? this._labelRotation ? "top" : "bottom"
               : "middle",
       },
       r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
@@ -747,6 +747,9 @@ export default class Axis extends BaseClass {
           ]
             .filter(Boolean)
             .sort();
+          // Nothing meaningful to round to (e.g. a zero-extent domain like
+          // [0, 0]); leave the scale's domain as-is to avoid a NaN factor.
+          if (!zeroArray.length) return;
           const diverging =
             initialDomain.some((d: number) => isNegative(d)) &&
             initialDomain.some((d: number) => d > 0);
@@ -1199,7 +1202,10 @@ export default class Axis extends BaseClass {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       textData.forEach((datum: any) => {
         const {fP, i, position} = datum;
-        const sizeName = horizontal ? "width" : "height";
+        const sizeName =
+          (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
+            ? "height"
+            : "width";
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let prev: any = i
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1392,7 +1398,7 @@ export default class Axis extends BaseClass {
                 y:
                   this._orient === "bottom"
                     ? size + (data.width - lineHeight * lines) / 2 + fP
-                    : size * 2 - (data.width + lineHeight * lines) / 2 + fP,
+                    : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
                 width: data.width,
                 height: data.height,
               }
