@@ -17,6 +17,30 @@ const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split("/")
 
 const activeBuilds = new Map();
 
+// Connected browser tabs listening for live-reload events (Server-Sent Events).
+const reloadClients = new Set();
+
+/**
+    Tells every connected dev page to reload itself.
+    @private
+*/
+function triggerReload() {
+  for (const res of reloadClients) res.write("data: reload\n\n");
+}
+
+// Snippet injected into served HTML so pages reconnect and reload on rebuild.
+const liveReloadSnippet = `
+<script>
+(function () {
+  var connect = function () {
+    var es = new EventSource("/__livereload");
+    es.onmessage = function () { location.reload(); };
+    es.onerror = function () { es.close(); setTimeout(connect, 1000); };
+  };
+  connect();
+})();
+</script>`;
+
 chokidar
   .watch(join(process.env.INIT_CWD, "packages"), {
     ignored: (path, stats) =>
@@ -96,18 +120,45 @@ if (name === "react") {
     ".png": "image/png",
   };
 
+  /**
+      Appends the live-reload snippet to an HTML buffer before sending.
+      @private
+  */
+  const sendHtml = (res, data) => {
+    let html = data.toString();
+    html = html.includes("</body>")
+      ? html.replace("</body>", `${liveReloadSnippet}\n</body>`)
+      : html + liveReloadSnippet;
+    res.writeHead(200, {"Content-Type": "text/html"});
+    res.end(html);
+  };
+
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url);
+
+    // live-reload event stream: held open, written to on each rebuild
+    if (url === "/__livereload") {
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      });
+      res.write("retry: 1000\n\n");
+      reloadClients.add(res);
+      req.on("close", () => reloadClients.delete(res));
+      return;
+    }
+
     const filePath = join("dev", url);
 
     // serve file if it exists
     try {
       const stat = fs.statSync(filePath);
       if (stat.isFile()) {
-        const data = fs.readFileSync(filePath);
         const ext = filePath.slice(filePath.lastIndexOf("."));
+        if (ext === ".html") return sendHtml(res, fs.readFileSync(filePath));
         res.writeHead(200, {"Content-Type": mimeTypes[ext] || "application/octet-stream"});
-        res.end(data);
+        res.end(fs.readFileSync(filePath));
         return;
       }
     } catch { /* fall through */ }
@@ -116,8 +167,7 @@ if (name === "react") {
     try {
       const indexPath = join(filePath, "index.html");
       const data = fs.readFileSync(indexPath);
-      res.writeHead(200, {"Content-Type": "text/html"});
-      res.end(data);
+      sendHtml(res, data);
       return;
     } catch { /* fall through */ }
 
@@ -150,8 +200,24 @@ if (name === "react") {
     res.end("Not found");
   });
 
+  // reload the browser whenever a dev page (HTML/CSS) is edited directly
+  chokidar
+    .watch("dev", {
+      ignoreInitial: true,
+      // only filter files (let directories through so they get traversed)
+      ignored: (path, stats) =>
+        path.includes("/umd/") ||
+        (stats?.isFile() && !/\.(html|css)$/.test(path)),
+    })
+    .on("all", (event, path) => {
+      log.update(`change detected in ${path}`);
+      triggerReload();
+      log.timer("watching for changes...");
+    });
+
   server.listen(port, () => {
     log.done();
-    rollup({deps: true, watch: true, env: "development", log});
+    // reload the browser whenever the UMD bundle finishes rebuilding
+    rollup({deps: true, watch: true, env: "development", log, onBuild: triggerReload});
   });
 }

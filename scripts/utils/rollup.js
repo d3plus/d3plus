@@ -81,6 +81,7 @@ export default async function (opts = {}) {
         return undefined;
       case "BUNDLE_END":
         log.done(`bundled ${output.file} in ${e.duration}ms`);
+        if (opts.onBuild) opts.onBuild();
         if (opts.watch) log.timer("watching for changes...");
         return undefined;
       case "CIRCULAR_DEPENDENCY":
