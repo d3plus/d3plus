@@ -50,6 +50,31 @@ it("textWrap", () => {
   const overflowResult = textWrap().fontFamily(font).fontSize(14).width(5).overflow(false)("Superlongword");
   assert.strictEqual(overflowResult.truncated, true, "overflow false truncates wide word");
 
+  // Re-wrapping text at the width it reports must be stable: a consumer that
+  // sizes a box to `ceil(max(widths))` should not trigger another line break.
+  // Hyphenated words exposed this (the soft-hyphen glyph counted toward the
+  // break decision but was stripped from the re-measured line width).
+  const idemSentences = [
+    "Alexander Simoes",
+    "Hello D3plus, please wrap this sentence for me.",
+    "internationalization",
+  ];
+  for (const s of idemSentences) {
+    const first = textWrap().fontFamily(font).fontSize(14).width(400).height(400)(s);
+    const boxWidth = Math.ceil(Math.max(...first.widths));
+    const refit = textWrap().fontFamily(font).fontSize(14).width(boxWidth).height(400)(s);
+    assert.deepStrictEqual(
+      refit.lines,
+      first.lines,
+      `re-wrapping "${s}" at its reported width is stable`,
+    );
+    assert.strictEqual(
+      refit.truncated,
+      false,
+      `re-wrapping "${s}" at its reported width does not truncate`,
+    );
+  }
+
   const getters = textWrap().fontFamily(font).fontSize(14);
   assert.strictEqual(getters.fontFamily(), font, "fontFamily getter");
   assert.strictEqual(getters.fontSize(), 14, "fontSize getter");

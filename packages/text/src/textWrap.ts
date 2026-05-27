@@ -88,6 +88,12 @@ export default function (): TextWrapGenerator {
       widthProg = 0;
 
     const lineData: string[] = [],
+      // The running width each line consumed while wrapping. This is the sum
+      // of the per-word widths the break logic actually compared against
+      // `width`, which can differ from re-measuring the finished line as a
+      // single string (e.g. a soft hyphen counts toward the break decision but
+      // is stripped from the rendered line, and trailing spaces measure as 0).
+      lineWidths: number[] = [],
       sizes = textWidth(words, style);
 
     for (let i = 0; i < words.length; i++) {
@@ -129,16 +135,22 @@ export default function (): TextWrapGenerator {
 
       textProg += word;
       widthProg += wordWidth;
+      lineWidths[line - 1] = widthProg;
     }
 
     // Clean remaining soft hyphens from all lines
     const lines = lineData.map(l => l.replaceAll(softHyphen, ""));
 
+    // Report each line's width as at least the width the break logic consumed,
+    // so that re-wrapping the same text at the reported width is stable (a
+    // consumer that sizes a box to `max(widths)` won't trigger another break).
+    const lineWidthsVisible = textWidth(lines, style) as number[];
+
     return {
       lines,
       sentence,
       truncated,
-      widths: textWidth(lines, style),
+      widths: lineWidthsVisible.map((w, i) => Math.max(w, lineWidths[i] || 0)),
       words,
     };
   }
