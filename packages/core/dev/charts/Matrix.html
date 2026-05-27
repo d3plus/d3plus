@@ -25,11 +25,12 @@
       colorScalePosition: "right",
       column: "Importer Continent",
       columnConfig: {
-        ticks: [],
+        // ticks: [],
         title: "Importer Continent"
       },
       data: "https://api.oec.world/tesseract/data.jsonrecords?cube=trade_i_baci_a_17&drilldowns=Year,Exporter+Continent,Importer+Continent&measures=Trade+Value&Year=2018",
       groupBy: ["Exporter Continent", "Importer Continent"],
+      height: 500,
       row: "Exporter Continent",
       // row: d => `${d["Exporter Continent"]} is an Exporter Continent with a long title that should wrap onto multiple lines of text automatically.`,
       rowConfig: {
@@ -44,7 +45,7 @@
           ["Trade Value", function(d) { return Math.round(d["Trade Value"]) }]
         ]
       },
-      width: 900
+      width: 400
     })
     .render();
 

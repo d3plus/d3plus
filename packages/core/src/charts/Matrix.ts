@@ -59,8 +59,8 @@ export default class Matrix extends Viz {
       const column = getProp.bind(this)("column", d, i);
       this.hover(
         (h: DataPoint, ii: number) =>
-          getProp.bind(this)("row", h, ii) === row ||
-          getProp.bind(this)("column", h, ii) === column,
+          (getProp.bind(this)("row", h, ii) === row ||
+          getProp.bind(this)("column", h, ii) === column) && typeof this._colorScale(h, ii) === "number",
       );
     };
 
