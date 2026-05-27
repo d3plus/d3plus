@@ -87,28 +87,47 @@ const EXTRA_KEYS = ["navigator", "ResizeObserver"];
  */
 export default function jsdomit(message, html, run) {
   if (arguments.length < 3) ((run = html), (html = defaultHTML));
-  const allKeys = ["window", "document", ...KEYS, ...EXTRA_KEYS];
   return it(message, async () => {
-    // Save any pre-existing globals (Node has natives like URL/navigator) so we
-    // can restore them afterwards rather than deleting them, which would break
-    // later code in the same process (e.g. Playwright needs Node's URL).
-    const saved = {};
-    allKeys.forEach(function (key) {
-      saved[key] = global[key];
-    });
+    const dom = new JSDOM(html);
+    augmentWindow(dom.window);
+
+    // Globals to mirror from jsdom's window. Deduplicated because
+    // "window"/"document" also appear in KEYS, and setting a key twice would
+    // corrupt the save/restore bookkeeping. (Computed here, not at module load,
+    // because the KEYS array is declared further down the file.)
+    const globalKeys = [...new Set(["window", "document", ...KEYS, ...EXTRA_KEYS])];
+
+    // Capture each global's original state once, up front, so we can restore it
+    // exactly afterwards rather than deleting it — deleting would clobber Node
+    // natives that later code relies on (e.g. Playwright needs Node's `URL`).
+    const originals = globalKeys.map(key => ({
+      key,
+      had: Object.prototype.hasOwnProperty.call(global, key),
+      value: global[key],
+    }));
+
     try {
-      const dom = new JSDOM(html);
-      augmentWindow(dom.window);
-      global.window = dom.window;
-      global.document = dom.window.document;
-      KEYS.concat(EXTRA_KEYS).forEach(function (key) {
-        global[key] = dom.window[key];
+      globalKeys.forEach(key => {
+        // `window`/`document` resolve to themselves on the jsdom window. Some
+        // globals are read-only natives on newer Node (e.g. `navigator` on
+        // Node 22+); those can't be assigned, so leave the native in place.
+        try {
+          global[key] = dom.window[key];
+        } catch {
+          /* read-only native global; leave as-is */
+        }
       });
       await runBody(run);
     } finally {
-      allKeys.forEach(function (key) {
-        if (saved[key] === undefined) delete global[key];
-        else global[key] = saved[key];
+      originals.forEach(({key, had, value}) => {
+        if (!had) delete global[key];
+        else {
+          try {
+            global[key] = value;
+          } catch {
+            /* read-only native; leave as-is */
+          }
+        }
       });
     }
   });
