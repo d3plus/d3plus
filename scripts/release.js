@@ -163,6 +163,19 @@ try {
   if (!(await confirm("Publish npm packages?"))) {
     log.warn("skipped npm publish");
   } else {
+    // Verify we have an active npm session, logging in if needed, so the
+    // publish below doesn't fail on an expired login.
+    function npmLoggedIn() {
+      return spawnSync("npm", ["whoami"], {stdio: "ignore"}).status === 0;
+    }
+    while (!npmLoggedIn()) {
+      console.log("\nNot logged in to npm.");
+      const result = spawnSync("npm", ["login"], {stdio: "inherit"});
+      if (result.status !== 0 && !(await confirm("npm login failed. Try again?"))) {
+        throw new Error("npm login required to publish");
+      }
+    }
+
     log.timer("publishing npm packages");
     execSync("pnpm -r publish --access=public", shellOpts);
     log.done();
