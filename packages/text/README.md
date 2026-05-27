@@ -48,7 +48,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **fontFamilyStringify**(`family`: `string` \| `string`[]): `string`
 
-Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/fontFamily.ts#L18)
+Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/fontFamily.ts#L18)
 
 Converts an Array of font-family names into a CSS font-family string.
 
@@ -70,7 +70,7 @@ Converts an Array of font-family names into a CSS font-family string.
 
 > **strip**(`value`: `string`, `spacer?`: `string`): `string`
 
-Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/strip.ts#L33)
+Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/strip.ts#L33)
 
 Removes all non ASCII characters from a string.
 
@@ -93,7 +93,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/textSplit.ts#L43)
+Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/textSplit.ts#L43)
 
 Splits a given sentence into an array of words.
 
@@ -115,7 +115,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:56](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/textWrap.ts#L56)
+Defined in: [textWrap.ts:56](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/textWrap.ts#L56)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -131,7 +131,7 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 > **titleCase**(`str`: `string` \| `undefined`): `string`
 
-Defined in: [titleCase.ts:55](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/titleCase.ts#L55)
+Defined in: [titleCase.ts:55](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/titleCase.ts#L55)
 
 Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
 
@@ -153,7 +153,7 @@ Capitalizes the first letter of each word in a phrase/sentence, accounting for w
 
 > `const` **fontFamily**: `string`[]
 
-Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/b48c22667cace23541ff5baeea3f4f1dc9fd5e80/packages/text/src/fontFamily.ts#L5)
+Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/fontFamily.ts#L5)
 
 The default fallback font list used for all text labels as an Array of Strings.
 

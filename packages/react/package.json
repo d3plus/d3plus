@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/react",
-  "version": "3.1.5",
+  "version": "3.1.6",
   "description": "React components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
