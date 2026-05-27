@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as Timeline} from "../../es/src/components/Timeline.js";
+import {Timeline} from "../../es/index.js";
 import it from "../jsdom.js";
 
 it("Timeline", function* () {
@@ -13,8 +13,8 @@ it("Timeline", function* () {
     "automatically added <svg> element to page",
   );
   assert.strictEqual(
-    document.getElementsByClassName("d3plus-Timeline").length,
+    document.querySelectorAll("[id^='d3plus-Axis-']").length,
     1,
-    "created <g> container element",
+    "created axis container element",
   );
 });

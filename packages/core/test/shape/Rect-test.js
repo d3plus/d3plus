@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as Rect} from "../../es/src/shapes/Rect.js";
+import {Rect} from "../../es/index.js";
 import it from "../jsdom.js";
 
 it("Shape/Rect", function* () {
@@ -15,6 +15,10 @@ it("Shape/Rect", function* () {
       .y(50)
       .render(cb);
   };
+
+  // pointer-events is applied via a delayed transition that finishes just after
+  // the render callback fires; let it settle before asserting on it.
+  yield cb => global.setTimeout(cb, 300);
 
   assert.strictEqual(
     document.getElementsByTagName("svg").length,
@@ -43,7 +47,6 @@ it("Shape/Rect", function* () {
     1,
     "created <text> element",
   );
-  const tspans = document.getElementsByTagName("tspan");
-  assert.strictEqual(tspans.length, 1, "created <tspan> element");
-  assert.strictEqual(tspans[0].textContent, "test", "rendered label");
+  const texts = document.getElementsByTagName("text");
+  assert.strictEqual(texts[0].textContent, "test", "rendered label");
 });

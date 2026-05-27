@@ -25,6 +25,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
       - run: pnpm install
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm --filter @d3plus/core exec playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @d3plus/core exec playwright install chromium
+      - name: Install Playwright system dependencies
+        run: pnpm --filter @d3plus/core exec playwright install-deps chromium
       - run: pnpm test
       - name: Generate coverage reports
         if: matrix.node-version == '22.x'

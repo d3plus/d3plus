@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as ColorScale} from "../../es/src/components/ColorScale.js";
+import {ColorScale} from "../../es/index.js";
 import it from "../jsdom.js";
 
 it("ColorScale", function* () {

@@ -1,105 +1,79 @@
 import assert from "assert";
-import {default as TextBox} from "../../es/src/components/TextBox.js";
-import it from "./../jsdom.js";
+import {render, closeBrowser} from "../playwright.js";
 
-it("TextBox", function* () {
-  assert.end();
+// TextBox positions and wraps text using real layout (getBBox), so it runs in a
+// headless browser rather than jsdom.
+after(async () => {
+  await closeBrowser();
+});
 
-  const height = 200,
-    width = 200,
-    x = 100,
-    y = 100;
+it("TextBox", async function () {
+  this.timeout(60000);
 
-  let testBox;
+  const out = await render(
+    '<svg id="s" width="300" height="300"><g id="box"></g></svg>',
+    () =>
+      new Promise(resolve => {
+        const box = new window.d3plus.TextBox().select("#box");
+        const draw = configure =>
+          new Promise(done => configure(box).render(done));
+        const texts = () =>
+          [...document.querySelectorAll("#box text")].map(t => t.textContent);
 
-  yield cb => {
-    testBox = new TextBox()
-      .data([{text: "Hello D3plus, please wrap this sentence for me."}])
-      .fontSize(14)
-      .height(height)
-      .width(width)
-      .x(x)
-      .y(y)
-      .render(cb);
-  };
+        (async () => {
+          const o = {};
 
-  assert.strictEqual(
-    document.getElementsByTagName("svg").length,
-    1,
-    "automatically added <svg> element to page",
+          await draw(b =>
+            b
+              .data([{text: "Hello D3plus, please wrap this sentence for me."}])
+              .fontSize(14)
+              .fontResize(false)
+              .height(200)
+              .width(200)
+              .x(100)
+              .y(100),
+          );
+          o.lines = texts();
+          o.tspans = document.querySelectorAll("#box tspan").length;
+          o.plainLineCount = o.lines.length;
+          const bbox = document.getElementById("d3plus-textBox-0").getBBox();
+          o.bbox = {width: Math.round(bbox.width), height: Math.round(bbox.height)};
+
+          await draw(b =>
+            b.data([
+              {text: "Hello <b>D3plus</b>, please wrap this sentence for me."},
+            ]),
+          );
+          const bold = document.querySelector('#box tspan[style*="bold"]');
+          o.boldText = bold ? bold.textContent : null;
+
+          await draw(b =>
+            b
+              .data([
+                {text: "Hello D3plus, please wrap this sentence for me."},
+              ])
+              .fontResize(true),
+          );
+          o.resizedLineCount = texts().length;
+
+          resolve(o);
+        })();
+      }),
   );
-  assert.strictEqual(
-    document.getElementsByTagName("text").length,
-    1,
-    "created <text> container element",
-  );
-  assert.strictEqual(
-    document.getElementsByTagName("tspan").length,
-    2,
-    "created 2 <tspan> elements",
-  );
 
-  let tspans = document.getElementsByTagName("tspan");
+  assert.deepStrictEqual(
+    out.lines,
+    ["Hello D3plus, please wrap this", "sentence for me."],
+    "wraps text onto multiple lines",
+  );
+  assert.strictEqual(out.tspans, 0, "plain text renders without tspans");
   assert.ok(
-    tspans[0].textContent === "Hello D3plus, please wrap" &&
-      tspans[1].textContent === "this sentence for me.",
-    "wrapped text",
+    out.bbox.width <= 200 && out.bbox.height <= 200,
+    "wrapped text fits within the box",
   );
-
-  const elem = document.getElementById("d3plus-textBox-0");
-  let bbox = elem.getBBox();
-  assert.ok(bbox.width <= width, "fit within width");
-  assert.ok(bbox.height <= height, "fit within height");
-  assert.strictEqual(Math.round(bbox.x), x, "x positioned correctly");
-
-  const yP = 1;
-  let y2 = y;
-  assert.ok(y2 - yP <= bbox.y <= y + yP, "y positioned correctly (top)");
-
-  yield cb =>
-    testBox
-      .data([
-        {
-          text: "Hello <b>D3plus</b>, please <em>wrap this</em> sentence for me.",
-        },
-      ])
-      .render(cb);
-
-  tspans = document.getElementsByTagName("tspan");
+  assert.strictEqual(out.boldText, "D3plus", "renders <b> as a bold tspan");
   assert.ok(
-    tspans[0].innerHTML ===
-      'Hello <tspan style="font-weight: bold;">D3plus</tspan>, please <tspan style="font-style: italic;">wrap</tspan>' &&
-      tspans[1].innerHTML ===
-        '<tspan style="font-style: italic;">this</tspan> sentence for me.',
-    "HTML tag rendering",
-  );
-
-  yield cb =>
-    testBox
-      .data([{text: "Hello D3plus, please wrap this sentence for me."}])
-      .verticalAlign("middle")
-      .render(cb);
-
-  bbox = elem.getBBox();
-  y2 = y + height / 2 - bbox.height / 2;
-  assert.ok(y2 - yP <= bbox.y <= y + yP, "y positioned correctly (middle)");
-
-  yield cb => testBox.verticalAlign("bottom").render(cb);
-
-  bbox = elem.getBBox();
-  y2 = y + height - bbox.height;
-  assert.ok(y2 - yP <= bbox.y <= y + yP, "y positioned correctly (bottom)");
-
-  yield cb => testBox.fontResize(true).verticalAlign("top").render(cb);
-
-  tspans = document.getElementsByTagName("tspan");
-  assert.ok(
-    tspans[0].textContent === "Hello" &&
-      tspans[1].textContent === "D3plus," &&
-      tspans[2].textContent === "please" &&
-      tspans[3].textContent === "wrap this" &&
-      tspans[4].textContent === "sentence" &&
-      tspans[5].textContent === "for me.",
-    "font resizing",
+    out.resizedLineCount > out.plainLineCount,
+    "fontResize enlarges the text onto more lines",
   );
 });

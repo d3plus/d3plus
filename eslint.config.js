@@ -46,6 +46,8 @@ export default [
     languageOptions: {
       globals: {
         it: "readonly",
+        before: "readonly",
+        after: "readonly",
         global: "readonly",
         window: "readonly",
         document: "readonly",

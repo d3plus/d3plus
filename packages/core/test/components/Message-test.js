@@ -1,6 +1,6 @@
 import assert from "assert";
 import {selectAll} from "d3-selection";
-import Message from "../../es/src/components/Message.js";
+import {Message} from "../../es/index.js";
 import it from "../jsdom.js";
 
 it("Message", function* () {

@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as Legend} from "../../es/src/components/Legend.js";
+import {Legend} from "../../es/index.js";
 import it from "../jsdom.js";
 
 it("Legend", function* () {
