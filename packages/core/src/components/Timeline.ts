@@ -1,5 +1,5 @@
 import {extent, max, min} from "d3-array";
-import {brushX} from "d3-brush";
+import {brushSelection, brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointers} from "d3-selection";
 
@@ -9,6 +9,7 @@ import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
 import {textWrap} from "@d3plus/text";
+import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {Axis, TextBox} from "../components/index.js";
 import {configPrep, constant} from "../utils/index.js";
@@ -508,6 +509,79 @@ export default class Timeline extends Axis {
   }
 
   /**
+      Extends the native Axis scene with the Timeline-specific brush selection
+      overlay (snapshotted, since d3-brush manages its DOM directly) and the
+      play-button TextBox (native).
+*/
+  toScene(): GroupNode {
+    const scene = super.toScene();
+
+    // Native brush selection + handles (no domToScene snapshot). The selection
+    // is read directly from d3-brush via brushSelection(node) — returns pixel
+    // coords. Interaction belongs to the renderer/event layer; this draws only
+    // the visual.
+    const brushNode =
+      this._brushGroup && typeof this._brushGroup.node === "function"
+        ? (this._brushGroup.node() as Element | null)
+        : null;
+    const sel = brushNode ? brushSelection(brushNode as SVGGElement) : null;
+    if (sel && Array.isArray(sel) && sel.length === 2) {
+      const {y: yKey, height: hKey} = this._position;
+      const yPos = this._outerBounds[yKey];
+      const hPos = this._outerBounds[hKey];
+      const x1 = sel[0] as number;
+      const x2 = sel[1] as number;
+      const left = Math.min(x1, x2);
+      const right = Math.max(x1, x2);
+      const handle = this._hiddenHandles ? 0 : this._handleSize;
+      const selectionPaint = {fill: "rgba(0,0,0,0.10)", stroke: "rgba(0,0,0,0.25)", strokeWidth: 1};
+      const handlePaint = {fill: "#fff", stroke: "rgba(0,0,0,0.5)", strokeWidth: 1};
+      const extras: SceneNode[] = [
+        {
+          type: "rect",
+          key: "tl-brush-selection",
+          x: left,
+          y: yPos,
+          width: right - left,
+          height: hPos,
+          paint: selectionPaint,
+        },
+      ];
+      if (handle > 0) {
+        extras.push({
+          type: "rect",
+          key: "tl-brush-handle-w",
+          x: left - handle / 2,
+          y: yPos,
+          width: handle,
+          height: hPos,
+          paint: handlePaint,
+        });
+        extras.push({
+          type: "rect",
+          key: "tl-brush-handle-e",
+          x: right - handle / 2,
+          y: yPos,
+          width: handle,
+          height: hPos,
+          paint: handlePaint,
+        });
+      }
+      scene.children.push(...extras);
+    }
+
+    const pb = this._playButtonClass as unknown as {
+      toScene?: () => GroupNode;
+      _data?: unknown[];
+    };
+    if (this._playButton && pb && typeof pb.toScene === "function" && pb._data && pb._data.length) {
+      scene.children.push(pb.toScene());
+    }
+
+    return scene;
+  }
+
+  /**
       Draws the timeline.
     @param callback Optional callback invoked after rendering completes.
 */
@@ -695,6 +769,7 @@ export default class Timeline extends Axis {
     });
 
     this._playButtonClass
+      .renderMode("compute")
       .data(
         this._playButton
           ? [

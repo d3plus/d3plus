@@ -1,5 +1,4 @@
 import type {DataPoint} from "@d3plus/data";
-import type {D3Selection} from "@d3plus/dom";
 import {largestRect, path2polygon} from "@d3plus/math";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
@@ -59,6 +58,14 @@ export default class Path extends Shape {
   }
 
   /**
+      Returns the path geometry for a data point (the raw "d" string).
+      @private
+*/
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    return {type: "path", d: String(this._d(d, i))};
+  }
+
+  /**
       Given a specific data point and index, returns the aesthetic properties of the shape.
       @param data point*
       @param index @private
@@ -67,29 +74,7 @@ export default class Path extends Shape {
     return {points: path2polygon(this._d(d, i) as string)};
   }
 
-  /**
-      Draws the paths.
-    @param callback Optional callback invoked after rendering completes.
-*/
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    const enter = this._enter
-      .attr("d", this._d as never)
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter.attr("opacity", 0).transition(this._transition).attr("opacity", 1);
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit.transition(this._transition).attr("opacity", 0);
-    }
-
-    update.call(this._applyStyle.bind(this)).attr("d", this._d as never);
-
-    return this;
-  }
+  // v4: render() is inherited from Shape — the scene path handles drawing.
 
   /**
       The "d" attribute.

@@ -17,8 +17,12 @@ it("TextBox", async function () {
         const box = new window.d3plus.TextBox().select("#box");
         const draw = configure =>
           new Promise(done => configure(box).render(done));
-        const texts = () =>
-          [...document.querySelectorAll("#box text")].map(t => t.textContent);
+        // v4 emits a single <text> per text box with one <tspan> per wrapped
+        // line. Top-level tspans (direct children of <text>) are the lines.
+        const lineTspans = () =>
+          [...document.querySelectorAll("#box text > tspan")].map(
+            t => t.textContent,
+          );
 
         (async () => {
           const o = {};
@@ -33,8 +37,12 @@ it("TextBox", async function () {
               .x(100)
               .y(100),
           );
-          o.lines = texts();
-          o.tspans = document.querySelectorAll("#box tspan").length;
+          o.lines = lineTspans();
+          // Count only the line-level tspans (not nested style spans) so the
+          // plain-text assertion below stays meaningful when bold runs appear.
+          o.tspans = document.querySelectorAll("#box text > tspan").length;
+          // Count any styled child tspans (bold/italic runs).
+          o.styledTspans = document.querySelectorAll('#box tspan tspan[style]').length;
           o.plainLineCount = o.lines.length;
           const bbox = document.getElementById("d3plus-textBox-0").getBBox();
           o.bbox = {width: Math.round(bbox.width), height: Math.round(bbox.height)};
@@ -54,7 +62,7 @@ it("TextBox", async function () {
               ])
               .fontResize(true),
           );
-          o.resizedLineCount = texts().length;
+          o.resizedLineCount = lineTspans().length;
 
           resolve(o);
         })();
@@ -78,7 +86,13 @@ it("TextBox", async function () {
     "Hello D3plus, please wrap this sentence for me.",
     "wrapped lines reconstruct the original text",
   );
-  assert.strictEqual(out.tspans, 0, "plain text renders without tspans");
+  // Scene-based rendering emits one <tspan> per wrapped line; plain text has
+  // no extra styled child spans, so tspan count equals line count.
+  assert.strictEqual(
+    out.tspans,
+    out.plainLineCount,
+    "plain text renders one tspan per line",
+  );
   assert.ok(
     out.bbox.width <= 200 && out.bbox.height <= 200,
     "wrapped text fits within the box",

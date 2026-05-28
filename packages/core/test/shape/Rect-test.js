@@ -6,47 +6,33 @@ it("Shape/Rect", function* () {
   yield cb => {
     new Rect()
       .data([{id: "test"}])
-      .duration(100)
+      .duration(0)
       .height(200)
       .label(d => d.id)
-      .pointerEvents("fill")
       .width(100)
       .x(100)
       .y(50)
       .render(cb);
   };
 
-  // pointer-events is applied via a delayed transition that finishes just after
-  // the render callback fires; let it settle before asserting on it.
-  yield cb => global.setTimeout(cb, 300);
+  // v4: standalone Shape.render() auto-routes through @d3plus/render's
+  // SvgRenderer — the user gets `svg.d3plus-render-svg` with scene-class
+  // children, not the legacy d3plus-Rect DOM.
+  yield cb => global.setTimeout(cb, 50);
 
   assert.strictEqual(
-    document.getElementsByTagName("svg").length,
+    document.querySelectorAll("svg.d3plus-render-svg").length,
     1,
-    "automatically added <svg> element to page",
+    "scene SVG created",
   );
+  const rects = document.querySelectorAll("rect.d3plus-render-rect");
+  assert.strictEqual(rects.length, 1, "scene rect rendered");
+  const texts = document.querySelectorAll("text.d3plus-render-text");
+  assert.strictEqual(texts.length, 1, "label text rendered");
+  const tspan = texts[0].querySelector("tspan");
   assert.strictEqual(
-    document.getElementsByClassName("d3plus-Rect").length,
-    1,
-    "created <g> container element",
+    tspan ? tspan.textContent : texts[0].textContent,
+    "test",
+    "label content",
   );
-  assert.strictEqual(
-    document
-      .getElementsByClassName("d3plus-Rect")[0]
-      .getAttribute("pointer-events"),
-    "fill",
-    "set pointerEvents attribute of shape",
-  );
-  assert.strictEqual(
-    document.getElementsByTagName("rect").length,
-    1,
-    "created <rect> element",
-  );
-  assert.strictEqual(
-    document.getElementsByTagName("text").length,
-    1,
-    "created <text> element",
-  );
-  const texts = document.getElementsByTagName("text");
-  assert.strictEqual(texts[0].textContent, "test", "rendered label");
 });

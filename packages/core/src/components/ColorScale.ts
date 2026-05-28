@@ -590,6 +590,8 @@ export default class ColorScale extends BaseClass {
       }
 
       this._axisTest
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .renderMode("compute" as any)
         .select(
           elem("g.d3plus-ColorScale-axisTest", {
             enter: {opacity: 0},
@@ -625,6 +627,8 @@ export default class ColorScale extends BaseClass {
         (axisConfig.padding || this._axisClass.padding());
       const transform = `translate(${offsets.x + (horizontal ? 0 : axisGroupOffset)}, ${offsets.y + (horizontal ? axisGroupOffset : 0)})`;
       this._axisClass
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .renderMode("compute" as any)
         .select(
           elem(
             "g.d3plus-ColorScale-axis",
@@ -705,7 +709,12 @@ export default class ColorScale extends BaseClass {
         this._rectConfig,
       );
 
+      // Phase D parity: force internal shapes into compute mode so they
+      // populate label/scene data without spinning up their own SvgRenderer
+      // (which would nest a second <svg> into the page — Phase D bug surfaced
+      // by the JSDOM ColorScale-test). Legend/Axis do the same.
       this._rectClass
+        .renderMode("compute")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .data((ticks || [0]) as any)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -716,6 +725,8 @@ export default class ColorScale extends BaseClass {
 
       labelConfig.height = this._outerBounds[height];
       labelConfig.width = this._outerBounds[width];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this._labelClass as any).renderMode("compute");
       this._labelClass
         .config(labelConfig)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -772,6 +783,7 @@ export default class ColorScale extends BaseClass {
       );
 
       this._legendClass
+        .renderMode("compute")
         .data(legendData)
         .select(legendGroup.node())
         .config(legendConfig)

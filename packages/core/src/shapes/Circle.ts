@@ -57,40 +57,15 @@ export default class Circle extends Shape {
       .attr("y", (d: DataPoint, i: number) => -(this._r(d, i) as number) / 2);
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the circles.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the circle geometry for a data point. The circle is centered on the
+      transform origin (cx/cy = 0); the group transform positions it.
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    const enter = this._enter.call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter
-        .attr("r", 0)
-        .attr("x", 0)
-        .attr("y", 0)
-        .transition(this._transition)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .call(this._applyPosition.bind(this) as any);
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("r", 0)
-        .attr("x", 0)
-        .attr("y", 0);
-    } else {
-      enter.call(this._applyPosition.bind(this));
-    }
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    return {type: "circle", cx: 0, cy: 0, r: Number(this._r(d, i))};
   }
 
   /**

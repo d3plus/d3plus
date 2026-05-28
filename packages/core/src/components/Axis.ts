@@ -1,5 +1,4 @@
-import {extent, max, min, range as d3Range, sum} from "d3-array";
-import {timeFormat, timeFormatDefaultLocale} from "d3-time-format";
+import {extent, min, range as d3Range} from "d3-array";
 import * as scales from "d3-scale";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
@@ -8,16 +7,14 @@ import pkg from "open-color/open-color.js";
 const {theme: openColor} = pkg;
 
 import {colorContrast, colorDefaults} from "@d3plus/color";
-import {assign, attrize, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
+import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {formatAbbreviate, formatDate} from "@d3plus/format";
-import {formatLocale, locale} from "@d3plus/locales";
-import {closest} from "@d3plus/math";
-import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
 import type {DataPoint} from "@d3plus/data";
+import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
+import {measureAxis} from "./axisLayout.js";
 import * as shapes from "../shapes/index.js";
 import {configPrep, BaseClass, constant} from "../utils/index.js";
 
@@ -258,6 +255,11 @@ export default class Axis extends BaseClass {
   _timeLocale: Record<string, unknown> | undefined;
   _title: string | undefined;
   _titleClass: TextBox;
+  _renderMode!: "full" | "compute";
+  // Stored render() intermediates so toScene() can compose natively.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _tickShape?: {toScene?: () => GroupNode; _data?: unknown[]} | any;
+  _gridLineData?: {id: unknown}[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _titleConfig: Record<string, any>;
   _width: number;
@@ -280,6 +282,7 @@ export default class Axis extends BaseClass {
   constructor() {
     super();
 
+    this._renderMode = "full";
     this._align = "middle";
     this._barConfig = {
       stroke: () => {
@@ -382,48 +385,6 @@ export default class Axis extends BaseClass {
     this._visibleTicks = [];
   }
 
-  /**
-      Sets positioning for the axis bar.
-      @param bar @private
-*/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _barPosition(bar: any): void {
-    const {height, x, y, opposite} = this._position,
-      offset = this._margin[opposite],
-      position = ["top", "left"].includes(this._orient)
-        ? this._outerBounds[y] + this._outerBounds[height] - offset
-        : this._outerBounds[y] + offset;
-
-    const x1mod =
-      this._scale === "band"
-        ? this._d3Scale.step() - this._d3Scale.bandwidth()
-        : this._scale === "point"
-          ? this._d3Scale.step() * this._d3Scale.padding()
-          : 0;
-
-    const x2mod =
-      this._scale === "band"
-        ? this._d3Scale.step()
-        : this._scale === "point"
-          ? this._d3Scale.step() * this._d3Scale.padding()
-          : 0;
-
-    const sortedDomain = (
-      this._d3ScaleNegative ? this._d3ScaleNegative.domain() : []
-    )
-      .concat(this._d3Scale ? this._d3Scale.domain() : [])
-      .sort((a: number, b: number) => a - b);
-
-    bar
-      .call(attrize, this._barConfig)
-      .attr(`${x}1`, this._getPosition(sortedDomain[0]) - x1mod)
-      .attr(
-        `${x}2`,
-        this._getPosition(sortedDomain[sortedDomain.length - 1]) + x2mod,
-      )
-      .attr(`${y}1`, position)
-      .attr(`${y}2`, position);
-  }
 
   /**
       Returns the scale's domain, taking into account negative and positive log scales.
@@ -534,29 +495,156 @@ export default class Axis extends BaseClass {
     return ticks;
   }
 
+
   /**
-      Sets positioning for the grid lines.
-      @param lines @private
+      Converts an attribute-style config (e.g. _gridConfig, _barConfig) into a Paint.
+      @private
 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _gridPosition(lines: any, last: boolean = false): void {
-    const {height, x, y, opposite} = this._position,
-      offset = this._margin[opposite],
-      position = ["top", "left"].includes(this._orient)
-        ? this._outerBounds[y] + this._outerBounds[height] - offset
-        : this._outerBounds[y] + offset,
-      scale = last
-        ? this._lastScale || this._getPosition.bind(this)
-        : this._getPosition.bind(this),
-      size = ["top", "left"].includes(this._orient) ? offset : -offset,
-      xDiff = this._scale === "band" ? this._d3Scale.bandwidth() / 2 : 0,
-      xPos = (d: Record<string, unknown>) => scale(d.id) + xDiff;
-    lines
-      .call(attrize, this._gridConfig)
-      .attr(`${x}1`, xPos)
-      .attr(`${x}2`, xPos)
-      .attr(`${y}1`, position)
-      .attr(`${y}2`, last ? position : position + size);
+  _configToPaint(cfg: Record<string, unknown>): Paint {
+    const p: Paint = {};
+    if (cfg.stroke != null) p.stroke = String(cfg.stroke);
+    if (cfg["stroke-width"] != null) p.strokeWidth = Number(cfg["stroke-width"]);
+    if (cfg["stroke-opacity"] != null) p.strokeOpacity = Number(cfg["stroke-opacity"]);
+    if (cfg["stroke-linecap"] != null)
+      p.strokeLinecap = cfg["stroke-linecap"] as Paint["strokeLinecap"];
+    if (cfg["stroke-dasharray"] != null) {
+      const parts = String(cfg["stroke-dasharray"])
+        .split(/[\s,]+/)
+        .map(Number)
+        .filter(n => Number.isFinite(n));
+      if (parts.length) p.strokeDasharray = parts;
+    }
+    if (cfg.opacity != null) p.opacity = Number(cfg.opacity);
+    if (cfg.fill != null) p.fill = String(cfg.fill);
+    return p;
+  }
+
+  /**
+      Replicates _gridPosition's math to compute each gridline's endpoints in the
+      axis's internal coordinate space.
+      @private
+*/
+  _gridLinePoints(): {points: [number, number][]}[] {
+    if (!this._gridLineData || !this._gridLineData.length) return [];
+    const {height, x: xKey, y: yKey, opposite} = this._position;
+    const offset = this._margin[opposite];
+    const position = ["top", "left"].includes(this._orient)
+      ? this._outerBounds[yKey] + this._outerBounds[height] - offset
+      : this._outerBounds[yKey] + offset;
+    const size = ["top", "left"].includes(this._orient) ? offset : -offset;
+    const xDiff = this._scale === "band" ? this._d3Scale.bandwidth() / 2 : 0;
+    const isHorizontalAxis = xKey === "x";
+    return this._gridLineData.map(d => {
+      const xPos = (this._getPosition(d.id) as number) + xDiff;
+      const a: [number, number] = isHorizontalAxis ? [xPos, position] : [position, xPos];
+      const b: [number, number] = isHorizontalAxis
+        ? [xPos, position + size]
+        : [position + size, xPos];
+      return {points: [a, b]};
+    });
+  }
+
+  /**
+      Replicates _barPosition's math to compute the domain-bar endpoints.
+      @private
+*/
+  _barLinePoints(): {points: [number, number][]} | null {
+    if (!this._d3Scale && !this._d3ScaleNegative) return null;
+    const {height, x: xKey, y: yKey, opposite} = this._position;
+    const offset = this._margin[opposite];
+    const position = ["top", "left"].includes(this._orient)
+      ? this._outerBounds[yKey] + this._outerBounds[height] - offset
+      : this._outerBounds[yKey] + offset;
+    const x1mod =
+      this._scale === "band"
+        ? this._d3Scale.step() - this._d3Scale.bandwidth()
+        : this._scale === "point"
+          ? this._d3Scale.step() * this._d3Scale.padding()
+          : 0;
+    const x2mod =
+      this._scale === "band"
+        ? this._d3Scale.step()
+        : this._scale === "point"
+          ? this._d3Scale.step() * this._d3Scale.padding()
+          : 0;
+    const sortedDomain = (
+      this._d3ScaleNegative ? this._d3ScaleNegative.domain() : []
+    )
+      .concat(this._d3Scale ? this._d3Scale.domain() : [])
+      .sort((a: number, b: number) => a - b);
+    if (!sortedDomain.length) return null;
+    const x1 = (this._getPosition(sortedDomain[0]) as number) - x1mod;
+    const x2 =
+      (this._getPosition(sortedDomain[sortedDomain.length - 1]) as number) + x2mod;
+    const isHorizontalAxis = xKey === "x";
+    return {
+      points: isHorizontalAxis
+        ? [
+            [x1, position],
+            [x2, position],
+          ]
+        : [
+            [position, x1],
+            [position, x2],
+          ],
+    };
+  }
+
+  /**
+      Produces a backend-agnostic scene graph for this axis with no DOM dependency:
+      gridlines + domain bar emitted natively, tick marks/labels composed from the
+      tick Shape's toScene(), and the title from the title TextBox's toScene().
+*/
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+
+    const gridPaint = this._configToPaint(this._gridConfig as Record<string, unknown>);
+    this._gridLinePoints().forEach((g, i) => {
+      children.push({type: "line", key: `grid-${i}`, points: g.points, paint: gridPaint});
+    });
+
+    const tickGroup =
+      this._tickShape && typeof this._tickShape.toScene === "function"
+        ? (this._tickShape.toScene() as GroupNode)
+        : null;
+    if (tickGroup) children.push(tickGroup);
+
+    const bar = this._barLinePoints();
+    if (bar) {
+      const barPaint = this._configToPaint(this._barConfig as Record<string, unknown>);
+      children.push({type: "line", key: "bar", points: bar.points, paint: barPaint});
+    }
+
+    if (
+      this._titleClass &&
+      typeof (this._titleClass as {toScene?: unknown}).toScene === "function" &&
+      (this._titleClass as {_data?: unknown[]})._data &&
+      ((this._titleClass as {_data?: unknown[]})._data as unknown[]).length
+    ) {
+      children.push((this._titleClass as {toScene: () => GroupNode}).toScene());
+    }
+
+    // The axis was placed inside a container the caller positioned (e.g. Plot's
+    // xGroup); preserve that placement on the scene root.
+    let transform: Transform | undefined;
+    const node =
+      this._select && typeof this._select.node === "function"
+        ? (this._select.node() as Element | null)
+        : null;
+    if (node && typeof node.getAttribute === "function") {
+      const attr = node.getAttribute("transform");
+      if (attr) {
+        const m = /translate\(\s*([-\d.eE]+)[\s,]+([-\d.eE]+)/.exec(attr);
+        if (m) transform = {x: Number(m[1]), y: Number(m[2])};
+      }
+    }
+
+    return {
+      type: "group",
+      key: `Axis-${this._uuid.slice(0, 8)}`,
+      ...(transform ? {transform} : {}),
+      children,
+    };
   }
 
   /**
@@ -565,796 +653,60 @@ export default class Axis extends BaseClass {
 */
   render(callback?: (...args: unknown[]) => unknown): this {
     /**
-     * Creates an SVG element to contain the axis if none
-     * has been specified using the "select" method.
+     * Creates an SVG element to contain the axis if none has been specified
+     * via the `select` method. v4: in `renderMode("compute")` the axis is
+     * scene-only — caller will read `toScene()` not the DOM — so the
+     * fallback svg is created DETACHED (not in body) to keep stray markup
+     * out of the document. Full-mode callers without a select still get
+     * a body-attached svg for back-compat. `measure()` doesn't enter
+     * render() at all.
 */
     if (this._select === void 0) {
-      this.select(
-        select("body")
-          .append("svg")
-          .attr("width", `${this._width}px`)
-          .attr("height", `${this._height}px`)
-          .node() as unknown as HTMLElement,
+      const isCompute = this._renderMode === "compute";
+      const svgNode = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg",
       );
+      svgNode.setAttribute("width", `${this._width}px`);
+      svgNode.setAttribute("height", `${this._height}px`);
+      if (!isCompute) document.body.appendChild(svgNode);
+      this.select(svgNode as unknown as HTMLElement);
     }
 
-    const timeLocale =
-      this._timeLocale || locale[this._locale] || locale["en-US"];
-    timeFormatDefaultLocale(
-      timeLocale as Parameters<typeof timeFormatDefaultLocale>[0],
-    );
+    // Pure layout pass. `measureAxis(this)` constructs the d3 scale, picks
+    // ticks, runs label textWrap, and computes outerBounds — no DOM, no
+    // rendering. It mutates `this._d3Scale`/`_outerBounds`/`_margin` etc. for
+    // consumers reading off the instance, and returns the local layout
+    // artifacts the paint phase below consumes. The standalone `measureAxis`
+    // lives in axisLayout.ts so Plot test-axes can drive it without a class
+    // instance at all (any AxisLike object works).
+    const {ticks, labels, range, textData, tickFormat, hBuff, labelHeight} =
+      measureAxis(this);
 
-    /**
-     * Declares some commonly used variables.
-*/
-    const {width, height, x, y, horizontal, opposite} = this._position,
-      clipId = `d3plus-Axis-clip-${this._uuid}`,
-      flip = ["top", "left"].includes(this._orient),
-      p = this._padding,
-      parent = this._select,
-      rangeOuter = [p, (this[`_${width}` as keyof this] as number) - p],
-      t = transition().duration(this._duration);
-
-    const tickValue =
-      this._shape === "Circle"
-        ? this._shapeConfig.r
-        : this._shape === "Rect"
-          ? this._shapeConfig[width]
-          : this._shapeConfig.strokeWidth;
-    const tickGet =
-      typeof tickValue !== "function" ? () => tickValue : tickValue;
-
-    /**
-     * Zeros out the margins for re-calculation.
-*/
-    const margin: Record<string, number> = (this._margin = {top: 0, right: 0, bottom: 0, left: 0});
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let labels: any[] = [], range: any[] = [], ticks: any[] = [];
-
-    /**
-     * Constructs the tick formatter function.
-*/
-    const tickFormat = this._tickFormat
-      ? this._tickFormat
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (d: any) => {
-          if (isNaN(d) || ["band", "ordinal", "point"].includes(this._scale)) {
-            return d;
-          } else if (this._scale === "time") {
-            const refData = (this._data.length ? this._data : this._domain)
-              .map((v: unknown) => date(v as string | number | false))
-              .filter((d): d is Date => d instanceof Date)
-              .sort((a: Date, b: Date) => +a - +b);
-            return formatDate(d, refData, timeFormat).replace(
-              /^Q/g,
-              timeLocale.quarter as string,
-            );
-          } else if (
-            this._scale === "linear" &&
-            this._tickSuffix === "smallest"
-          ) {
-            const loc =
-              typeof this._locale === "object"
-                ? this._locale
-                : formatLocale[this._locale];
-            const {separator, suffixes} = loc;
-            const suff = d >= 1000 ? suffixes[this._tickUnit + 8] : "";
-            const tick = d / Math.pow(10, 3 * this._tickUnit);
-            const number = formatAbbreviate(
-              tick,
-              loc,
-              `,.${tick.toString().length}r`,
-            );
-            return `${number}${separator}${suff}`;
-          } else {
-            const inverted = ticks[1] < ticks[0];
-            const minTick = inverted ? ticks.length - 1 : 0;
-            const maxTick = inverted ? 0 : ticks.length - 1;
-            const prefix =
-              this._rounding === "inside"
-                ? ticks.indexOf(d) === minTick
-                  ? this._roundingInsideMinPrefix
-                  : ticks.indexOf(d) === maxTick
-                    ? this._roundingInsideMaxPrefix
-                    : ""
-                : "";
-            const suffix =
-              this._rounding === "inside"
-                ? ticks.indexOf(d) === minTick
-                  ? this._roundingInsideMinSuffix
-                  : ticks.indexOf(d) === maxTick
-                    ? this._roundingInsideMaxSuffix
-                    : ""
-                : "";
-            return `${prefix}${formatAbbreviate(d, this._locale)}${suffix}`;
-          }
-        };
-
-    /**
-     * (Re)calculates the internal d3 scale
-     * @param {} newRange
-*/
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const setScale = (newRange: any[] = this._range!) => {
-      /**
-       * Calculates the internal "range" array to use, including
-       * fallbacks if not specified with the "range" method.
-*/
-      range = newRange ? newRange.slice() : [undefined, undefined];
-      let [minRange, maxRange] = rangeOuter;
-      if (this._range) {
-        if (this._range[0] !== undefined) minRange = this._range[0];
-        if (this._range[this._range.length - 1] !== undefined)
-          maxRange = this._range[this._range.length - 1]!;
-      }
-      if (range[0] === undefined || range[0] < minRange) range[0] = minRange;
-      if (range[1] === undefined || range[1] > maxRange) range[1] = maxRange;
-
-      const sizeInner = maxRange - minRange;
-      if (this._scale === "ordinal" && this._domain.length > range.length) {
-        if (newRange === this._range) {
-          const buckets = this._domain.length + 1;
-          range = d3Range(buckets)
-            .map((d: number) => range[0] + sizeInner * (d / (buckets - 1)))
-            .slice(1, buckets);
-          range = range.map((d: number) => d - range[0] / 2);
-        } else {
-          const buckets = this._domain.length;
-          const size = range[1] - range[0];
-          range = d3Range(buckets).map(
-            (d: number) => range[0] + size * (d / (buckets - 1)),
-          );
-        }
-      }
-
-      /**
-       * Sets up the initial d3 scale, using this._domain and the
-       * previously defined range variable.
-*/
-      const scale = `scale${this._scale
-        .charAt(0)
-        .toUpperCase()}${this._scale.slice(1)}`;
-
-      const initialDomain = this._domain.slice();
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._d3Scale = (scales as any)[scale]()
-        .domain(
-          this._scale === "time" ? initialDomain.map(date) : initialDomain,
-        )
-        .range(range);
-
-      if (this._rounding !== "none") {
-        const roundDomain = () => {
-          const zeroLength = (d: number) => {
-            if (smallScale) {
-              if (!d) return 0;
-              const m = `${d}`.match(/0\.(0*)/);
-              if (m)
-                return +`0.${Array(m[1].length + 1)
-                  .fill(0)
-                  .join("")}1`;
-            }
-            return `${Math.round(Math.abs(d))}`.length;
-          };
-          const smallScale = initialDomain.every(
-            (d: number) => Math.abs(d) < 1,
-          );
-          const zeroArray = [
-            zeroLength(initialDomain[0]),
-            zeroLength(initialDomain[1]),
-          ]
-            .filter(Boolean)
-            .sort();
-          // Nothing meaningful to round to (e.g. a zero-extent domain like
-          // [0, 0]); leave the scale's domain as-is to avoid a NaN factor.
-          if (!zeroArray.length) return;
-          const diverging =
-            initialDomain.some((d: number) => isNegative(d)) &&
-            initialDomain.some((d: number) => d > 0);
-          const zeros =
-            zeroArray.length === 1
-              ? zeroArray[0]
-              : zeroArray[0] > 1 && zeroArray[0] === zeroArray[1]
-                ? zeroArray[0] - 1
-                : this._rounding === "outside" || !diverging
-                  ? zeroArray[0] + (zeroArray[1] - zeroArray[0]) / 2
-                  : max(zeroArray)!;
-          let factor: number =
-            zeros < 1
-              ? fixFloat(zeros)
-              : +`1${Array(Math.floor(fixFloat(zeros)) - 1)
-                  .fill(0)
-                  .join("")}`;
-          if (factor >= Math.abs(initialDomain[1] - initialDomain[0]))
-            factor /= 2;
-          const inverted = initialDomain[1] < initialDomain[0];
-          const newDomain = [
-            Math[
-              this._rounding === "outside"
-                ? inverted
-                  ? "ceil"
-                  : "floor"
-                : inverted
-                  ? "floor"
-                  : "ceil"
-            ](initialDomain[0] / factor) * factor,
-            Math[
-              this._rounding === "outside"
-                ? inverted
-                  ? "floor"
-                  : "ceil"
-                : inverted
-                  ? "ceil"
-                  : "floor"
-            ](initialDomain[1] / factor) * factor,
-          ];
-          if (this._scale === "log") {
-            if (newDomain[0] === 0) newDomain[0] = initialDomain[0];
-            if (newDomain[1] === 0) newDomain[1] = initialDomain[1];
-          }
-          this._d3Scale.domain(newDomain.map(fixFloat));
-        };
-
-        if (this._scale === "linear") {
-          roundDomain.bind(this)();
-        } else if (this._scale === "log") {
-          const powDomain: number[] = [];
-          const inverted = initialDomain[1] < initialDomain[0];
-          powDomain[0] = (
-            this._rounding === "outside"
-              ? isNegative(initialDomain[0])
-                ? inverted
-                  ? floorPow
-                  : ceilPow
-                : inverted
-                  ? ceilPow
-                  : floorPow
-              : isNegative(initialDomain[0])
-                ? inverted
-                  ? ceilPow
-                  : floorPow
-                : inverted
-                  ? floorPow
-                  : ceilPow
-          )(initialDomain[0]);
-          powDomain[1] = (
-            this._rounding === "inside"
-              ? isNegative(initialDomain[1])
-                ? inverted
-                  ? floorPow
-                  : ceilPow
-                : inverted
-                  ? ceilPow
-                  : floorPow
-              : isNegative(initialDomain[1])
-                ? inverted
-                  ? ceilPow
-                  : floorPow
-                : inverted
-                  ? floorPow
-                  : ceilPow
-          )(initialDomain[1]);
-          const powInverted = powDomain[1] < powDomain[0];
-          if (
-            powDomain[0] !== powDomain[1] &&
-            powDomain.some((d: number) => Math.abs(d) > 10) &&
-            powInverted === inverted
-          ) {
-            this._d3Scale.domain(powDomain);
-          } else {
-            roundDomain.bind(this)();
-          }
-        }
-      }
-
-      if (this._d3Scale.padding) this._d3Scale.padding(this._scalePadding);
-      if (this._d3Scale.paddingInner)
-        this._d3Scale.paddingInner(this._paddingInner);
-      if (this._d3Scale.paddingOuter)
-        this._d3Scale.paddingOuter(this._paddingOuter);
-
-      /**
-       * Constructs a separate "negative only" scale for logarithmic
-       * domains, as they cannot pass zero.
-*/
-      this._d3ScaleNegative = null;
-      if (this._scale === "log") {
-        const domain = this._d3Scale.domain();
-        if (domain[0] === 0) {
-          const smallestNumber = min([min(this._data), Math.abs(domain[1])]);
-          domain[0] =
-            smallestNumber === 0 || smallestNumber === 1
-              ? 1e-6
-              : smallestNumber! <= 1
-                ? floorPow(smallestNumber!)
-                : 1;
-          if (isNegative(domain[1])) domain[0] *= -1;
-        } else if (domain[domain.length - 1] === 0) {
-          const smallestNumber = min([min(this._data), Math.abs(domain[0])]);
-          domain[domain.length - 1] =
-            smallestNumber === 0 || smallestNumber === 1
-              ? 1e-6
-              : smallestNumber! <= 1
-                ? floorPow(smallestNumber!)
-                : 1;
-          if (isNegative(domain[0])) domain[domain.length - 1] *= -1;
-        }
-        const range = this._d3Scale.range();
-
-        // all negatives
-        if (isNegative(domain[0]) && isNegative(domain[domain.length - 1])) {
-          this._d3ScaleNegative = this._d3Scale
-            .copy()
-            .domain(domain)
-            .range(range);
-          this._d3Scale = null;
-        }
-        // all positives
-        else if (domain[0] > 0 && domain[domain.length - 1] > 0) {
-          this._d3Scale.domain(domain).range(range);
-        }
-        // crosses zero
-        else {
-          const powers = domain
-            .map((d: number) => Math.log10(Math.abs(d)))
-            .map((d: number) => d || -1e-6);
-          const leftPercentage = powers[0] / sum(powers);
-          const zero = leftPercentage * (range[1] - range[0]);
-
-          let minPositive = min([
-            min(this._data.filter((d: unknown) => (d as number) >= 0)),
-            Math.abs(domain[1]),
-          ]);
-          if (minPositive === 1) minPositive = 1e-6;
-          let minNegative = min([
-            min(this._data.filter(isNegative)),
-            Math.abs(domain[0]),
-          ]);
-          if (minNegative === 1) minNegative = 1e-6;
-          const minPosPow =
-            minPositive === 0
-              ? 1e-6
-              : minPositive! <= 1
-                ? floorPow(minPositive!)
-                : 1;
-          const minNegPow =
-            minNegative === 0
-              ? -1e-6
-              : minNegative! <= 1
-                ? floorPow(minNegative!)
-                : 1;
-          const minValue = min([Math.abs(minPosPow), Math.abs(minNegPow)]);
-          this._d3ScaleNegative = this._d3Scale.copy();
-          (isNegative(domain[0]) ? this._d3Scale : this._d3ScaleNegative)
-            .domain([isNegative(domain[0]) ? minValue : -minValue!, domain[1]])
-            .range([range[0] + zero, range[1]]);
-          (isNegative(domain[0]) ? this._d3ScaleNegative : this._d3Scale)
-            .domain([domain[0], isNegative(domain[0]) ? -minValue! : minValue])
-            .range([range[0], range[0] + zero]);
-        }
-      }
-
-      /**
-       * Determines the of values array to use
-       * for the "ticks" and the "labels"
-*/
-      ticks = (
-        this._ticks
-          ? this._scale === "time"
-            ? (this._ticks as (string | number | false | undefined)[]).map(date)
-            : this._ticks
-          : (this._d3Scale ? this._d3Scale.ticks : this._d3ScaleNegative.ticks)
-            ? this._getTicks()
-            : this._domain
-      ).slice();
-      labels = (
-        this._labels
-          ? this._scale === "time"
-            ? (this._labels as (string | number | false | undefined)[]).map(date)
-            : this._labels
-          : (this._d3Scale ? this._d3Scale.ticks : this._d3ScaleNegative.ticks)
-            ? this._getLabels()
-            : ticks
-      ).slice();
-
-      if (this._scale === "time") {
-        ticks = ticks.map(Number);
-        labels = labels.map(Number);
-      }
-      ticks = ticks.sort(
-        (a: unknown, b: unknown) => this._getPosition(a) - this._getPosition(b),
-      );
-      labels = labels.sort(
-        (a: unknown, b: unknown) => this._getPosition(a) - this._getPosition(b),
-      );
-
-      /**
-       * Get the smallest suffix.
-*/
-      if (this._scale === "linear" && this._tickSuffix === "smallest") {
-        const suffixes = labels.filter((d: unknown) => (d as number) >= 1000);
-        if (suffixes.length > 0) {
-          const minVal = Math.min(...suffixes);
-          let i = 1;
-          while (i && i < 7) {
-            const n = Math.pow(10, 3 * i);
-            if (minVal / n >= 1) {
-              this._tickUnit = i;
-              i += 1;
-            } else {
-              break;
-            }
-          }
-        }
-      }
-
-      /**
-       * Removes ticks when they overlap other ticks.
-*/
-      const pixels: (number | false)[] = [];
-      this._availableTicks = ticks;
-      ticks.forEach((d: unknown, i: number) => {
-        let s = tickGet({id: d, tick: true}, i);
-        if (this._shape === "Circle") s *= 2;
-        const t = this._getPosition(d);
-        if (!pixels.length || Math.abs(closest(t, pixels.filter((p): p is number => p !== false))! - t) > s * 2)
-          pixels.push(t);
-        else pixels.push(false);
-      });
-      ticks = ticks.filter((_d: unknown, i: number) => pixels[i] !== false);
-      this._visibleTicks = ticks;
-    };
-    setScale();
-
-    /**
-     * Pre-calculates the size of the title, if defined, in order
-     * to adjust the internal margins.
-*/
-    if (this._title) {
-      const {fontFamily, fontSize, lineHeight} = this._titleConfig;
-      const titleWrap = textWrap()
-        .fontFamily(
-          typeof fontFamily === "function" ? fontFamily() : fontFamily,
-        )
-        .fontSize(typeof fontSize === "function" ? fontSize() : fontSize)
-        .lineHeight(
-          typeof lineHeight === "function" ? lineHeight() : lineHeight,
-        )
-        .width(range[range.length - 1] - range[0] - p * 2)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .height((this as any)[`_${height}`] - this._tickSize - p * 2);
-      const lines = titleWrap(this._title).lines.length;
-      margin[this._orient] = lines * titleWrap.lineHeight()! + p;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let hBuff: any =
-        this._shape === "Circle"
-          ? typeof this._shapeConfig.r === "function"
-            ? this._shapeConfig.r({tick: true})
-            : this._shapeConfig.r
-          : this._shape === "Rect"
-            ? typeof this._shapeConfig[height] === "function"
-              ? this._shapeConfig[height]({tick: true})
-              : this._shapeConfig[height]
-            : this._tickSize,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      wBuff: any = tickGet({tick: true});
-
-    if (typeof hBuff === "function") hBuff = max(ticks.map(hBuff));
-    if (this._shape === "Rect") hBuff /= 2;
-    if (typeof wBuff === "function") wBuff = max(ticks.map(wBuff));
-    if (this._shape !== "Circle") wBuff /= 2;
-
-    /**
-     * Calculates the text wrapping and size of a given textData object.
-     * @param {Object} datum
-*/
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const calculateLabelSize = (datum: any): any => {
-      const {d, i, fF, fP, fS, rotate, space} = datum;
-
-      const h = rotate ? "width" : "height",
-        w = rotate ? "height" : "width";
-
-      const wSize = min([this._maxSize, this._width]);
-      const hSize = min([this._maxSize, this._height]);
-
-      const wrap = textWrap()
-        .fontFamily(fF)
-        .fontSize(fS)
-        .lineHeight(
-          this._shapeConfig.lineHeight
-            ? this._shapeConfig.lineHeight(d, i)
-            : undefined,
-        );
-
-      wrap[w](
-        horizontal
-          ? space
-          : wSize! - hBuff - p - this._margin.left - this._margin.right,
-      );
-      wrap[h](
-        horizontal
-          ? hSize! - hBuff - p - this._margin.top - this._margin.bottom
-          : space,
-      );
-
-      const res = wrap(tickFormat(d)) as ReturnType<typeof wrap> & {
-        width: number;
-        height: number;
-      };
-      res.lines = res.lines.filter((d: string) => d !== "");
-
-      res.width = res.lines.length ? Math.ceil(max(res.widths)!) : 0;
-
-      res.height = res.lines.length
-        ? Math.ceil(res.lines.length * (wrap.lineHeight() as number)) + fP
-        : 0;
-
-      return res;
-    };
-
-    /** Calculates label offsets*/
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const calculateOffset = (arr: any[] = []): void => {
-      let offset = 0;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      arr.forEach((datum: any) => {
-        const prev = arr[datum.i - 1];
-
-        const h =
-            (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
-              ? "width"
-              : "height",
-          w =
-            (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
-              ? "height"
-              : "width";
-
-        if (!prev) {
-          offset = 1;
-        } else if (
-          prev.position + prev[w] / 2 >
-          datum.position - datum[w] / 2
-        ) {
-          if (offset) {
-            datum.offset = prev[h];
-            offset = 0;
-          } else offset = 1;
-        }
-      });
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let textData: any[] = [];
-    const createTextData = (offset: number = 1): void => {
-      const {fontSize} = this._shapeConfig.labelConfig;
-      const fontFamily =
-        this._shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
-      const fontPadding = this._shapeConfig.labelConfig.padding;
-
-      /**
-       * Calculates the space each label would take up, given
-       * the provided this._space size.
-*/
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      textData = labels.map((d: any, i: number) => {
-        const fF =
-            typeof fontFamily === "function" ? fontFamily(d, i) : fontFamily,
-          fP =
-            typeof fontPadding === "function" ? fontPadding(d, i) : fontPadding,
-          fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
-          position = this._getPosition(d);
-
-        const lineHeight = this._shapeConfig.lineHeight
-          ? this._shapeConfig.lineHeight(d, i)
-          : fS * 1.4;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const datum: any = {
-          d,
-          i,
-          fF,
-          fP,
-          fS,
-          lineHeight,
-          position,
-          rotate: this._labelRotation,
-        };
-        return datum;
-      });
-
-      const maxSpace =
-        this._scale === "band"
-          ? this._d3Scale.bandwidth()
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          : textData.reduce((s: number, d: any, i: number) => {
-              const {position} = d;
-              const prevPosition = !i
-                ? textData.length === 1
-                  ? rangeOuter[0]
-                  : position - (textData[i + 1].position - position)
-                : position - (position - textData[i - 1].position);
-              const prevSpace = Math.abs(position - prevPosition);
-
-              const nextPosition =
-                i == textData.length - 1
-                  ? textData.length === 1
-                    ? rangeOuter[1]
-                    : position + (position - textData[i - 1].position)
-                  : position - (position - textData[i + 1].position);
-              const nextSpace = Math.abs(position - nextPosition);
-              const mod = this._scale === "point" ? 1 : 2;
-              return max([max([prevSpace, nextSpace])! * mod, s])!;
-            }, 0);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      textData = textData.map((datum: any) => {
-        datum.space = maxSpace - datum.fP * 2;
-        const res = calculateLabelSize(datum);
-        return Object.assign(res, datum);
-      });
-
-      const reverseTextData = textData.slice().reverse();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      textData.forEach((datum: any) => {
-        const {fP, i, position} = datum;
-        const sizeName =
-          (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
-            ? "height"
-            : "width";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let prev: any = i
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ? reverseTextData.find((t: any) => t.i < i && !t.truncated)
-          : false;
-        if (i === textData.length - 1) {
-          while (
-            prev &&
-            position - datum[sizeName] / 2 - fP <
-              prev.position + prev[sizeName] / 2
-          ) {
-            prev.truncated = true;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            prev = reverseTextData.find((t: any) => t.i < i && !t.truncated);
-          }
-        }
-        datum.truncated = prev
-          ? position - datum[sizeName] / 2 - fP <
-            prev.position + prev[sizeName] / 2
-          : false;
-      });
-
-      if (offset > 1) calculateOffset(textData);
-    };
-
-    createTextData();
-    const offsetEnabled =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._labelOffset && textData.some((d: any) => d.truncated);
-    if (offsetEnabled) createTextData(2);
-
-    /**
-     * "spillover" will contain the pixel spillover of the first and last label,
-     * and then adjust the scale range accordingly.
-*/
-    const spillovers = [0, 1].map((index: number) => {
-      const datum = textData[index ? textData.length - 1 : 0];
-      if (!datum) return 0;
-      const {height: dHeight, position, rotate, width: dWidth} = datum;
-      const compPosition = index ? rangeOuter[1] : rangeOuter[0];
-      const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
-      if (Math.abs(position - compPosition) >= halfSpace) return 0;
-      const spill = halfSpace - (position - compPosition);
-      return Math.abs(spill);
-    });
-
-    const [first, last] = range;
-    const newRange = [first + spillovers[0], last - spillovers[1]];
-    if (this._range) {
-      if (this._range[0] !== undefined) newRange[0] = this._range[0];
-      if (this._range[this._range.length - 1] !== undefined)
-        newRange[1] = this._range[this._range.length - 1];
-    }
-
-    if (newRange[0] !== first || newRange[1] !== last) {
-      setScale(newRange);
-      createTextData(offsetEnabled ? 2 : 1);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const labelHeight = max(textData, (t: any) => t.height) || 0;
-    this._labelRotation =
-      horizontal && this._labelRotation === undefined
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ? textData.some((datum: any) => {
-            const {i, height: dH, position, truncated} = datum;
-            const prev = textData[i - 1];
-            return (
-              truncated ||
-              (i && prev.position + prev.height / 2 > position - dH / 2)
-            );
-          })
-        : this._labelRotation;
-
-    const globalOffset = this._labelOffset
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? max(textData, (d: any) => d.offset || 0)
-      : 0;
-    textData.forEach(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (datum: any) => (datum.offset = datum.offset ? globalOffset : 0),
-    );
-
-    const tBuff = this._shape === "Line" ? 0 : hBuff;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bounds: any = (this._outerBounds = {
-      [height]:
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (max(textData, (t: any) =>
-          Math.ceil(t[t.rotate || !horizontal ? "width" : "height"] + t.offset),
-        ) || 0) + (textData.length ? p : 0),
-      [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
-      [x]: rangeOuter[0],
-    });
-
-    bounds[height] = max([this._minSize, bounds[height]]);
-
-    margin[this._orient] += hBuff;
-    margin[opposite] =
-      this._gridSize !== undefined
-        ? max([this._gridSize, tBuff])!
-        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this as any)[`_${height}`] -
-          margin[this._orient] -
-          bounds[height] -
-          p;
-    bounds[height] += margin[opposite] + margin[this._orient];
-    bounds[y] =
-      this._align === "start"
-        ? this._padding
-        : this._align === "end"
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (this as any)[`_${height}`] - bounds[height] - this._padding
-          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (this as any)[`_${height}`] / 2 - bounds[height] / 2;
+    // Paint-local geometry helpers. `width` is intentionally not destructured
+    // here — measureAxis already used it; paint code references `height`/`x`/
+    // `y` plus the orient predicates.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {width: _width, height, x, y, horizontal, opposite} = this._position;
+    const flip = ["top", "left"].includes(this._orient);
+    const p = this._padding;
+    const parent = this._select;
+    const margin: Record<string, number> = this._margin;
+    const bounds = this._outerBounds;
 
     const group = elem(`g#d3plus-Axis-${this._uuid}`, {parent});
     this._group = group;
 
-    const grid = elem("g.grid", {parent: group})
-      .selectAll("line")
-      .data(
-        (this._gridSize !== 0
-          ? this._grid || (this._scale === "log" && !this._gridLog)
-            ? labels
-            : ticks
-          : []
-        ).map((d: unknown) => ({id: d})),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (d: any) => d.id,
-      );
-
-    grid
-      .exit()
-      .transition(t)
-      .attr("opacity", 0)
-      .call(this._gridPosition.bind(this))
-      .remove();
-
-    grid
-      .enter()
-      .append("line")
-      .attr("opacity", 0)
-      .attr("clip-path", `url(#${clipId})`)
-      .call(this._gridPosition.bind(this), true)
-      .merge(grid as never)
-      .transition(t)
-      .attr("opacity", 1)
-      .call(this._gridPosition.bind(this));
+    const gridLineData: {id: unknown}[] = (
+      this._gridSize !== 0
+        ? this._grid || (this._scale === "log" && !this._gridLog)
+          ? labels
+          : ticks
+        : []
+    ).map((d: unknown) => ({id: d}));
+    // v4 scene-only: grid lines are emitted natively by toScene() via
+    // _gridLinePoints() from this._gridLineData. No legacy <line> DOM.
+    this._gridLineData = gridLineData;
 
     const labelOnly = labels.filter(
       (d: unknown, i: number) => textData[i].lines.length && !ticks.includes(d),
@@ -1452,34 +804,30 @@ export default class Axis extends BaseClass {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    new (shapes as any)[this._shape]()
+    this._tickShape = (new (shapes as any)[this._shape]())
+      // v4: tick shape is always compute-only — the Axis composes ticks into
+      // its own toScene; the inner shape never auto-renders its own <svg>.
+      .renderMode("compute")
       .data(tickData)
       .duration(this._duration)
       .labelConfig({
         ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rotate: (d: any) => (d.rotate ? -90 : 0),
-      })
-      .select(elem("g.ticks", {parent: group}).node())
+      });
+    // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
+    // No `g.ticks` DOM wrapper needed in the detached compute.
+    this._tickShape
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .config(configPrep.bind(this as any)(this._shapeConfig))
       .labelConfig({padding: 0})
       .render();
 
-    const bar = group.selectAll("line.bar").data([null]);
-
-    bar
-      .enter()
-      .append("line")
-      .attr("class", "bar")
-      .attr("opacity", 0)
-      .call(this._barPosition.bind(this))
-      .merge(bar as never)
-      .transition(t)
-      .attr("opacity", 1)
-      .call(this._barPosition.bind(this));
+    // v4 scene-only: the domain bar is emitted natively by toScene() via
+    // _barLinePoints(). No legacy `line.bar` DOM.
 
     this._titleClass
+      .renderMode("compute")
       .data(this._title ? [{text: this._title}] : [])
       .duration(this._duration)
       .height(margin[this._orient])
@@ -1821,6 +1169,37 @@ export default class Axis extends BaseClass {
   }
 
   /**
+      Phase-E: runs the layout pass only — scale construction, tick selection,
+      label textWrap, and outerBounds — with **no DOM access**. After it
+      returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
+      exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
+      tick shapes, or label TextBoxes are created.
+
+      This is the v4 path for "how much room will this axis need?" without
+      the temp-DOM dance — see `Plot._draw`'s test-axes for the production
+      caller. Internally it delegates to the standalone `measureAxis(axis)`
+      function in axisLayout.ts; the free function shape means Plot (and
+      future callers) can run layout without owning an Axis instance.
+  */
+  measure(): this {
+    measureAxis(this);
+    return this;
+  }
+
+  /**
+      Controls whether render() does the full DOM work ("full", default) or skips
+      grid/bar/title DOM and propagates compute mode to the tick Shape ("compute").
+      See Shape.renderMode.
+*/
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode;
+    this._renderMode = _!;
+    return this;
+  }
+
+  /**
       The SVG container element as a d3 selector or DOM element.
 */
   select(): D3Selection;
@@ -1933,3 +1312,63 @@ export default class Axis extends BaseClass {
     return arguments.length ? ((this._width = _!), this) : this._width;
   }
 }
+
+/* ============================== free function ============================== */
+
+/**
+    Pure-function entry point for axis layout. Given a fully configured
+    `Axis` instance, runs the layout pass (no DOM) and returns a fresh result
+    bag — bounds, the d3 scale(s), a `getPosition` projector, plus the
+    laid-out tick state.
+
+    Callers who don't want to manage an Axis instance long-term can build
+    one on the fly, call this, and discard:
+
+    ```ts
+    const axis = new AxisBottom()
+      .domain([0, 100])
+      .width(800).height(400)
+      .data(data)
+      .config(userAxisConfig);
+    const layout = computeAxisLayout(axis);
+    // layout.bounds, layout.getPosition, layout.d3Scale all populated.
+    ```
+
+    This is the "no temp DOM, no test svg" path Plot's `_xTest`/`_yTest`
+    consume — see Plot._draw. Internally this is a thin wrapper over
+    `axis.measure()` returning a frozen snapshot of the laid-out state.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface AxisLayout {
+  bounds: Record<string, number>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  d3Scale: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  d3ScaleNegative: any;
+  getPosition: (d: unknown) => number;
+  availableTicks: unknown[];
+  visibleTicks: unknown[];
+  margin: Record<string, number>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function computeAxisLayout(axis: any): AxisLayout {
+  // Free function from axisLayout.ts. Mutates `axis` (legacy interop) and
+  // returns the layout artifacts; we re-shape its result + the mutated
+  // instance fields into the stable `AxisLayout` API.
+  measureAxis(axis);
+  return {
+    bounds: axis._outerBounds,
+    d3Scale: axis._d3Scale,
+    d3ScaleNegative: axis._d3ScaleNegative,
+    getPosition: (d: unknown) => axis._getPosition(d),
+    availableTicks: axis._availableTicks,
+    visibleTicks: axis._visibleTicks,
+    margin: axis._margin,
+  };
+}
+
+// Re-export the standalone `measureAxis` and its result type so consumers
+// can import them from the same module as the Axis class.
+export {measureAxis} from "./axisLayout.js";
+export type {AxisLayoutResult} from "./axisLayout.js";

@@ -189,8 +189,8 @@ export default class Tooltip extends BaseClass {
         i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
     };
     this._tdStyle = {};
-    this._maxWidth = constant("200px");
-    this._minWidth = constant("100px");
+    this._maxWidth = constant("300px");
+    this._minWidth = constant("200px");
     this._width = constant("auto");
   }
 

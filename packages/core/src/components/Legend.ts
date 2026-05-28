@@ -6,6 +6,7 @@ import type {DataPoint} from "@d3plus/data";
 import {assign, backgroundColor, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
+import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
 import * as shapes from "../shapes/index.js";
@@ -18,6 +19,7 @@ const padding = 5;
 */
 export default class Legend extends BaseClass {
   _titleClass: TextBox;
+  _renderMode!: "full" | "compute";
   _align: string;
   _data: DataPoint[];
   _direction: string;
@@ -53,6 +55,7 @@ export default class Legend extends BaseClass {
   constructor() {
     super();
 
+    this._renderMode = "full";
     this._titleClass = new TextBox();
 
     this._align = "center";
@@ -212,6 +215,53 @@ export default class Legend extends BaseClass {
         return (d.shapeWidth as number) + (d.width as number) + p;
       }),
     );
+  }
+
+  /**
+      Produces a backend-agnostic scene graph for this legend with no DOM dependency:
+      the title is composed from its TextBox.toScene(), and each swatch group is
+      composed from the stored Shape instances' toScene() (positions resolve through
+      the x/y accessors against this._lineData / this._outerBounds).
+*/
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+
+    if (
+      this._titleClass &&
+      typeof (this._titleClass as {toScene?: unknown}).toScene === "function" &&
+      (this._titleClass as {_data?: unknown[]})._data &&
+      ((this._titleClass as {_data?: unknown[]})._data as unknown[]).length
+    ) {
+      children.push((this._titleClass as {toScene: () => GroupNode}).toScene());
+    }
+
+    (this._shapes || []).forEach((shape: unknown) => {
+      const s = shape as {toScene?: () => GroupNode; _data?: unknown[]};
+      if (s && typeof s.toScene === "function" && s._data && s._data.length) {
+        children.push(s.toScene());
+      }
+    });
+
+    // Preserve the placement of the legend container the caller positioned.
+    let transform: Transform | undefined;
+    const node =
+      this._select && typeof this._select.node === "function"
+        ? (this._select.node() as Element | null)
+        : null;
+    if (node && typeof node.getAttribute === "function") {
+      const attr = node.getAttribute("transform");
+      if (attr) {
+        const m = /translate\(\s*([-\d.eE]+)[\s,]+([-\d.eE]+)/.exec(attr);
+        if (m) transform = {x: Number(m[1]), y: Number(m[2])};
+      }
+    }
+
+    return {
+      type: "group",
+      key: `Legend-${this._uuid.slice(0, 8)}`,
+      ...(transform ? {transform} : {}),
+      children,
+    };
   }
 
   /**
@@ -486,6 +536,7 @@ export default class Legend extends BaseClass {
     this._outerBounds.y = yOffset;
 
     this._titleClass
+      .renderMode("compute")
       .data(this._title ? [{text: this._title}] : [])
       .duration(this._duration)
       .select(this._titleGroup.node())
@@ -525,6 +576,10 @@ export default class Legend extends BaseClass {
       this._shapes.push(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         new (shapes as Record<string, new () => any>)[Shape]()
+          // v4: child shapes are always compute-only — Legend composes the
+          // swatches into its own toScene; sub-shapes never auto-render their
+          // own <svg>.
+          .renderMode("compute")
           .parent(this)
           .data(data.filter((d: Record<string, unknown>) => d.shape === Shape))
           .duration(this._duration)
@@ -647,6 +702,19 @@ function value(d) {
   padding(_: number): this;
   padding(_?: number): number | this {
     return arguments.length ? ((this._padding = _!), this) : this._padding;
+  }
+
+  /**
+      Controls whether render() does the full DOM work ("full", default) or just
+      the compute step toScene() needs ("compute"). Propagates to the title TextBox
+      and every swatch Shape.
+*/
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode;
+    this._renderMode = _!;
+    return this;
   }
 
   /**

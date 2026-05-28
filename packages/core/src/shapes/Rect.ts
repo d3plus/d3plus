@@ -40,40 +40,27 @@ export default class Rect extends Shape {
     this._width = accessor("width");
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the rectangles.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the rect geometry for a data point, matching _applyPosition: the
+      rect is centered on the transform origin (x/y = -size/2).
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    let enter: D3Selection = this._enter
-      .attr("width", 0)
-      .attr("height", 0)
-      .attr("x", 0)
-      .attr("y", 0)
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter = enter.transition(this._transition) as unknown as D3Selection;
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("width", 0)
-        .attr("height", 0)
-        .attr("x", 0)
-        .attr("y", 0);
-    }
-
-    enter.call(this._applyPosition.bind(this));
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    const w = Number(this._width(d, i));
+    const h = Number(this._height(d, i));
+    const rx = this._styleVal(this._rx, d, i);
+    const ry = this._styleVal(this._ry, d, i);
+    return {
+      type: "rect",
+      x: -w / 2,
+      y: -h / 2,
+      width: w,
+      height: h,
+      ...(rx == null ? {} : {rx: Number(rx)}),
+      ...(ry == null ? {} : {ry: Number(ry)}),
+    };
   }
 
   /**

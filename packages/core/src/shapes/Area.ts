@@ -1,6 +1,4 @@
 import {extent, groups} from "d3-array";
-import {interpolatePath} from "d3-interpolate-path";
-import {select} from "d3-selection";
 import * as paths from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
@@ -69,6 +67,35 @@ export default class Area extends Shape {
     this._y = constant(0);
     this._y0 = constant(0);
     this._y1 = accessor("y");
+  }
+
+  /**
+      Returns the area geometry as a "d" string built by the same area generator
+      render() uses, with the center offset baked into the x/x0/x1/y/y0/y1 accessors
+      so it pairs with the center-origin transform — identical geometry to the DOM.
+      @private
+*/
+  _sceneGeometry(d: DataPoint): Record<string, unknown> {
+    const cx = Number(d.x);
+    const cy = Number(d.y);
+    const userCurve = String(this._curve.bind(this)(this.config() as DataPoint));
+    const curve = (paths as Record<string, unknown>)[
+      `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
+    ];
+    const offX = (fn: AccessorFn) => (v: DataPoint, z: number) => (fn(v, z) as number) - cx;
+    const offY = (fn: AccessorFn) => (v: DataPoint, z: number) => (fn(v, z) as number) - cy;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gen = (paths as any)
+      .area()
+      .defined(this._defined)
+      .curve(curve)
+      .x(offX(this._x))
+      .x0(offX(this._x0))
+      .x1(this._x1 ? offX(this._x1) : null)
+      .y(offY(this._y))
+      .y0(offY(this._y0))
+      .y1(this._y1 ? offY(this._y1) : null);
+    return {type: "path", d: gen(d.values) || ""};
   }
 
   /**
@@ -164,117 +191,6 @@ export default class Area extends Shape {
     return areas;
   }
 
-  /**
-      Draws the area polygons.
-    @param callback Optional callback invoked after rendering completes.
-*/
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    const userCurve = this._curve.bind(this)(
-      this.config() as DataPoint,
-    ) as string;
-    const curve = (paths as Record<string, unknown>)[
-      `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
-    ];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const path = (this._path = (paths as any)
-      .area()
-      .defined(this._defined)
-      .curve(curve)
-      .x(this._x)
-      .x0(this._x0)
-      .x1(this._x1)
-      .y(this._y)
-      .y0(this._y0)
-      .y1(this._y1) as unknown as Record<string, unknown>);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const exitPath = (paths as any)
-      .area()
-      .defined((d: DataPoint) => d)
-      .curve(curve)
-      .x(this._x)
-      .y(this._y)
-      .x0((d: DataPoint, i: number) =>
-        this._x1
-          ? (this._x0(d, i) as number) +
-            ((this._x1!(d, i) as number) - (this._x0(d, i) as number)) / 2
-          : this._x0(d, i),
-      )
-      .x1((d: DataPoint, i: number) =>
-        this._x1
-          ? (this._x0(d, i) as number) +
-            ((this._x1!(d, i) as number) - (this._x0(d, i) as number)) / 2
-          : this._x0(d, i),
-      )
-      .y0((d: DataPoint, i: number) =>
-        this._y1
-          ? (this._y0(d, i) as number) +
-            ((this._y1!(d, i) as number) - (this._y0(d, i) as number)) / 2
-          : this._y0(d, i),
-      )
-      .y1((d: DataPoint, i: number) =>
-        this._y1
-          ? (this._y0(d, i) as number) +
-            ((this._y1!(d, i) as number) - (this._y0(d, i) as number)) / 2
-          : this._y0(d, i),
-      );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this._enter
-      .append("path")
-      .attr(
-        "transform",
-        (d: DataPoint) =>
-          `translate(${-(d.xR as unknown as number[])[0] - (d.width as number) / 2}, ${-(d.yR as unknown as number[])[0] - (d.height as number) / 2})`,
-      )
-      .attr("d", (d: DataPoint) => exitPath(d.values))
-      .call(this._applyStyle.bind(this))
-      .transition(this._transition) as any)
-      .attrTween("d", function (this: Element, d: DataPoint) {
-        return interpolatePath(
-          select(this).attr("d"),
-          (path as unknown as (v: unknown) => string)(
-            (d as Record<string, unknown>).values,
-          ),
-        );
-      });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this._update
-      .select("path")
-      .transition(this._transition)
-      .attr(
-        "transform",
-        (d: DataPoint) =>
-          `translate(${-(d.xR as unknown as number[])[0] - (d.width as number) / 2}, ${-(d.yR as unknown as number[])[0] - (d.height as number) / 2})`,
-      ) as any)
-      .attrTween("d", function (this: Element, d: DataPoint) {
-        return interpolatePath(
-          select(this).attr("d"),
-          (path as unknown as (v: unknown) => string)(
-            (d as Record<string, unknown>).values,
-          ),
-        );
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .call(this._applyStyle.bind(this) as any);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this._exit
-      .select("path")
-      .transition(this._transition) as any)
-      .attrTween("d", function (this: Element, d: DataPoint) {
-        return interpolatePath(
-          select(this).attr("d"),
-          exitPath((d as Record<string, unknown>).values),
-        );
-      });
-
-    return this;
-  }
 
   /**
       The d3 curve function used to interpolate the area.

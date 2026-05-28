@@ -54,56 +54,24 @@ export default class Bar extends Shape {
     this._y1 = accessor("y");
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the bars.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the bar geometry for a data point, matching _applyPosition: width/height
+      from the x/y extents, with the rect centered on the transform origin along the
+      non-measure axis.
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    let enter: D3Selection = this._enter
-      .attr("width", (d: DataPoint, i: number) =>
-        this._x1 === null ? this._getWidth(d, i) : 0,
-      )
-      .attr("height", (d: DataPoint, i: number) =>
-        this._x1 !== null ? this._getHeight(d, i) : 0,
-      )
-      .attr("x", (d: DataPoint, i: number) =>
-        this._x1 === null ? -this._getWidth(d, i) / 2 : 0,
-      )
-      .attr("y", (d: DataPoint, i: number) =>
-        this._x1 !== null ? -this._getHeight(d, i) / 2 : 0,
-      )
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter = enter.transition(this._transition) as unknown as D3Selection;
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("width", (d: DataPoint, i: number) =>
-          this._x1 === null ? this._getWidth(d, i) : 0,
-        )
-        .attr("height", (d: DataPoint, i: number) =>
-          this._x1 !== null ? this._getHeight(d, i) : 0,
-        )
-        .attr("x", (d: DataPoint, i: number) =>
-          this._x1 === null ? -this._getWidth(d, i) / 2 : 0,
-        )
-        .attr("y", (d: DataPoint, i: number) =>
-          this._x1 !== null ? -this._getHeight(d, i) / 2 : 0,
-        );
-    }
-
-    enter.call(this._applyPosition.bind(this));
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    const w = this._getWidth(d, i);
+    const h = this._getHeight(d, i);
+    return {
+      type: "rect",
+      x: this._x1 !== null ? this._getX(d, i) : -w / 2,
+      y: this._x1 === null ? this._getY(d, i) : -h / 2,
+      width: w,
+      height: h,
+    };
   }
 
   /**

@@ -53,7 +53,10 @@ function getAllMethods(obj: object): string[] {
   return props.filter(
     e =>
       e.indexOf("_") !== 0 &&
-      !["config", "constructor", "parent", "render"].includes(e),
+      // `measure` is excluded: it's an axis-layout side-effect method (runs the
+      // full layout pass, no DOM); BaseClass.config()'s reflection would invoke
+      // it as a getter and trigger spurious renders/errors.
+      !["config", "constructor", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
   );
 }
 

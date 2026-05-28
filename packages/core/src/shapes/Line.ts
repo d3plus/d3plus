@@ -1,11 +1,8 @@
-import {extent, groups, sum} from "d3-array";
-import {interpolatePath} from "d3-interpolate-path";
-import {select} from "d3-selection";
+import {extent, groups} from "d3-array";
 import * as paths from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
-import type {D3Selection} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
@@ -114,149 +111,28 @@ export default class Line extends Shape {
     return lines;
   }
 
+
   /**
-      Draws the lines.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the line geometry as a "d" string built by the same line generator
+      render() uses, with the center offset baked into the accessors so it pairs
+      with the center-origin transform — yielding identical geometry to the DOM.
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    const that = this;
-
-    /**
-        Calculates the stroke-dasharray used for animations
-        @param d data point
-        @private
-*/
-    function calculateStrokeDashArray(
-      this: SVGPathElement,
-      d: DataPoint,
-    ): void {
-      (d as Record<string, unknown>).initialLength = this.getTotalLength();
-
-      let strokeArray: number[] = (
-        that._strokeDasharray(
-          (d.values as unknown as DataPoint[])[0],
-          that._data.indexOf((d.values as unknown as DataPoint[])[0]),
-        ) as string
-      )
-        .split(" ")
-        .map(Number);
-
-      if (strokeArray.length === 1 && strokeArray[0] === 0)
-        strokeArray = [d.initialLength as number];
-      else if (strokeArray.length === 1) strokeArray.push(strokeArray[0]);
-      else if (strokeArray.length % 2)
-        strokeArray = strokeArray.concat(strokeArray);
-
-      const newStrokeArray: number[] = [];
-      let strokeLength = 0;
-      while (strokeLength < (d.initialLength as number)) {
-        for (let i = 0; i < strokeArray.length; i++) {
-          const num = strokeArray[i];
-          strokeLength += num;
-          newStrokeArray.push(num);
-          if (strokeLength >= (d.initialLength as number)) break;
-        }
-      }
-
-      if (newStrokeArray.length > 1 && newStrokeArray.length % 2)
-        newStrokeArray.pop();
-      newStrokeArray[newStrokeArray.length - 1] +=
-        (d.initialLength as number) - sum(newStrokeArray);
-      if (newStrokeArray.length % 2 === 0) newStrokeArray.push(0);
-      (d as Record<string, unknown>).initialStrokeArray =
-        newStrokeArray.join(" ");
-    }
-
-    const userCurve = this._curve.bind(this)(
-      this.config() as DataPoint,
-    ) as string;
+  _sceneGeometry(d: DataPoint): Record<string, unknown> {
+    const cx = Number(d.x);
+    const cy = Number(d.y);
+    const userCurve = String(this._curve.bind(this)(this.config() as DataPoint));
     const curve = (paths as Record<string, unknown>)[
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
     ];
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this._path as any)
+    const gen = (paths as any)
+      .line()
       .curve(curve)
       .defined(this._defined)
-      .x(this._x)
-      .y(this._y);
-
-    const enter = this._enter
-      .append("path")
-      .attr(
-        "transform",
-        (d: DataPoint) =>
-          `translate(${-(d.xR as unknown as number[])[0] - (d.width as number) / 2}, ${-(d.yR as unknown as number[])[0] - (d.height as number) / 2})`,
-      )
-      .attr("d", (d: DataPoint) =>
-        (this._path as unknown as (v: unknown) => string)(
-          (d as Record<string, unknown>).values,
-        ),
-      )
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update
-      .select("path")
-      .attr(
-        "stroke-dasharray",
-        (d: DataPoint) =>
-          that._strokeDasharray(
-            (d.values as unknown as DataPoint[])[0],
-            that._data.indexOf((d.values as unknown as DataPoint[])[0]),
-          ) as string,
-      );
-
-    if (this._duration) {
-      enter
-        .each(calculateStrokeDashArray)
-        .attr(
-          "stroke-dasharray",
-          (d: DataPoint) => `${d.initialStrokeArray} ${d.initialLength}`,
-        )
-        .attr("stroke-dashoffset", (d: DataPoint) => d.initialLength as never)
-        .transition(this._transition)
-        .attr("stroke-dashoffset", 0);
-      update = update
-        .transition(this._transition)
-        .attrTween("d", function (this: Element, d: DataPoint) {
-          return interpolatePath(
-            select(this).attr("d"),
-            (that._path as unknown as (v: unknown) => string)(
-              (d as Record<string, unknown>).values,
-            ),
-          );
-        }) as unknown as D3Selection;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this._exit.selectAll("path") as any)
-        .each(calculateStrokeDashArray)
-        .attr(
-          "stroke-dasharray",
-          (d: DataPoint) => `${d.initialStrokeArray} ${d.initialLength}`,
-        )
-        .transition(this._transition)
-        .attr(
-          "stroke-dashoffset",
-          (d: DataPoint) => -(d.initialLength as number),
-        );
-    } else {
-      update = update.attr("d", (d: DataPoint) =>
-        (that._path as unknown as (v: unknown) => string)(
-          (d as Record<string, unknown>).values,
-        ),
-      );
-    }
-
-    update
-      .attr(
-        "transform",
-        (d: DataPoint) =>
-          `translate(${-(d.xR as unknown as number[])[0] - (d.width as number) / 2}, ${-(d.yR as unknown as number[])[0] - (d.height as number) / 2})`,
-      )
-      .call(this._applyStyle.bind(this));
-
-    return this;
+      .x((v: DataPoint, z: number) => (this._x(v, z) as number) - cx)
+      .y((v: DataPoint, z: number) => (this._y(v, z) as number) - cy);
+    return {type: "path", d: gen(d.values) || ""};
   }
 
   /**

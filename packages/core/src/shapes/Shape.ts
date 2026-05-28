@@ -1,21 +1,40 @@
-import {min} from "d3-array";
 import {color} from "d3-color";
-import {pointer, select, selectAll} from "d3-selection";
-import * as paths from "d3-shape";
+import {select} from "d3-selection";
 import {transition} from "d3-transition";
-import textures from "textures";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {unique} from "@d3plus/data";
-import {assign, attrize, elem, isObject} from "@d3plus/dom";
+import {assign, isObject} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {pointDistance} from "@d3plus/math";
-import {strip} from "@d3plus/text";
+
+import {SvgRenderer} from "@d3plus/render";
+import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
-import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
+import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+
+/** Coerces a value to a finite number, or undefined. @private */
+export function numOrUndef(v: unknown): number | undefined {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/** Returns a non-empty string, or undefined. @private */
+export function strOrUndef(v: unknown): string | undefined {
+  return v == null || v === "" ? undefined : String(v);
+}
+
+/** Parses an SVG stroke-dasharray value into an array of numbers. @private */
+export function parseDash(v: unknown): number[] | undefined {
+  if (v == null || v === "none" || v === "") return undefined;
+  if (typeof v === "number") return [v];
+  const parts = String(v)
+    .split(/[\s,]+/)
+    .map(Number)
+    .filter(n => Number.isFinite(n));
+  return parts.length ? parts : undefined;
+}
 
 export interface ShapeAes {
   width?: number;
@@ -26,27 +45,6 @@ export interface ShapeAes {
   y?: number;
 }
 
-/**
- * @param {*} nodeList
- * @param {*} classNames
- * @private
-*/
-function findLastIndexWithClass(
-  nodeList: NodeListOf<ChildNode>,
-  classNames: string[],
-): number {
-  for (let x = 0; x < classNames.length; x++) {
-    const className = classNames[x];
-    for (let i = nodeList.length - 1; i >= 0; i--) {
-      // Iterate backwards
-      if ((nodeList[i] as Element).classList.contains(className)) {
-        // Check for the class
-        return i; // Return the index if found
-      }
-    }
-  }
-  return -1; // Return -1 if no element is found with the class
-}
 
 import Image from "./Image.js";
 
@@ -92,6 +90,7 @@ export default class Shape extends BaseClass {
   _strokeWidth: AccessorFn;
   _tagName: string;
   _textAnchor: AccessorFn;
+  _renderMode: "full" | "compute";
   _texture: AccessorFn;
   _textureDefault: Record<string, unknown>;
   _textureDefs: Record<string, Record<string, unknown>>;
@@ -127,6 +126,7 @@ export default class Shape extends BaseClass {
   constructor(tagName: string = "g") {
     super();
 
+    this._renderMode = "full";
     this._activeOpacity = 0.25;
     this._activeStyle = {
       stroke: (d: DataPoint, i: number) => {
@@ -208,156 +208,6 @@ export default class Shape extends BaseClass {
     return {};
   }
 
-  /**
-      Adds event listeners to each shape group or hit area.
-      @private
-*/
-  _applyEvents(handler: D3Selection): void {
-    const events = Object.keys(this._on);
-    for (let e = 0; e < events.length; e++) {
-      handler.on(events[e], (event: Event, d: DataPoint) => {
-        let i: number = 0;
-        if (!this._on[events[e]]) return;
-        if (d.i !== void 0) i = d.i as number;
-        if (d.nested && d.values) {
-          const calcPoint = (d: DataPoint, i: number): [number, number] => {
-            if (this._discrete === "x")
-              return [this._x(d, i) as number, cursor[1]];
-            else if (this._discrete === "y")
-              return [cursor[0], this._y(d, i) as number];
-            else return [this._x(d, i) as number, this._y(d, i) as number];
-          };
-          const cursor = pointer(event, this._select.node()),
-            values = (d.values as unknown as DataPoint[]).map((d: DataPoint) =>
-              pointDistance(cursor, calcPoint(d, i)),
-            );
-          i = values.indexOf(min(values)!);
-          d = (d.values as unknown as DataPoint[])[i];
-        }
-        this._on[events[e]].bind(this)(d, i, undefined, event);
-      });
-    }
-  }
-
-  /**
-      Provides the updated styling to the given shape elements.
-
-      @private
-*/
-  _updateStyle(elem: D3Selection, style: Record<string, unknown>): void {
-    const that = this;
-
-    if (elem.size() && elem.node()!.tagName === "g")
-      elem = elem.selectAll("*") as unknown as D3Selection;
-
-    /**
-        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @param d data point
-        @param i index
-        @private
-*/
-    function styleLogic(this: unknown, d: DataPoint, i: number): unknown {
-      return typeof this !== "function"
-        ? this
-        : d.nested && d.key && d.values
-          ? this(
-              (d.values as unknown as DataPoint[])[0],
-              that._data.indexOf((d.values as unknown as DataPoint[])[0]),
-            )
-          : this(d, i);
-    }
-
-    const styleObject: Record<string, unknown> = {};
-    for (const key in style) {
-      if ({}.hasOwnProperty.call(style, key)) {
-        styleObject[key] = styleLogic.bind(style[key]);
-      }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any).transition().duration(0).call(attrize, styleObject);
-  }
-
-  /**
-      Provides the default styling to the shape elements.
-      @param elem @private
-*/
-  _applyStyle(elem: D3Selection): void {
-    const that = this;
-
-    if (elem.size() && elem.node()!.tagName === "g")
-      elem = elem.selectAll("*") as unknown as D3Selection;
-
-    /**
-        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @param d data point
-        @param i index
-        @private
-*/
-    function styleLogic(this: unknown, d: DataPoint, i: number): unknown {
-      return typeof this !== "function"
-        ? this
-        : d.nested && d.key && d.values
-          ? this(
-              (d.values as unknown as DataPoint[])[0],
-              that._data.indexOf((d.values as unknown as DataPoint[])[0]),
-            )
-          : this(d, i);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
-      .attr("fill", (d: DataPoint, i: number) => {
-        const texture = this._getTextureKey.bind(this)(d, i);
-        return texture
-          ? (
-              this._textureDefs[texture] as Record<string, unknown> & {
-                url: () => string;
-              }
-            ).url()
-          : styleLogic.bind(this._fill)(d, i);
-      })
-      .attr("fill-opacity", styleLogic.bind(this._fillOpacity))
-      .attr("rx", styleLogic.bind(this._rx))
-      .attr("ry", styleLogic.bind(this._ry))
-      .attr("stroke", styleLogic.bind(this._stroke))
-      .attr("stroke-dasharray", styleLogic.bind(this._strokeDasharray))
-      .attr("stroke-linecap", styleLogic.bind(this._strokeLinecap))
-      .attr("stroke-opacity", styleLogic.bind(this._strokeOpacity))
-      .attr("stroke-width", styleLogic.bind(this._strokeWidth))
-      .attr("vector-effect", styleLogic.bind(this._vectorEffect));
-  }
-
-  /**
-      Calculates the transform for the group elements.
-      @param elem @private
-*/
-  _applyTransform(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any).attr(
-      "transform",
-      (d: DataPoint, i: number) => `
-        translate(${
-          d.__d3plusShape__
-            ? d.translate
-              ? d.translate
-              : `${this._x(d.data as DataPoint, d.i as number)},${this._y(d.data as DataPoint, d.i as number)}`
-            : `${this._x(d, i)},${this._y(d, i)}`
-        })
-        scale(${
-          d.__d3plusShape__
-            ? d.scale || this._scale(d.data as DataPoint, d.i as number)
-            : this._scale(d, i)
-        })
-        rotate(${
-          d.__d3plusShape__
-            ? d.rotate
-              ? d.rotate
-              : this._rotate((d.data || d) as DataPoint, d.i as number)
-            : this._rotate((d.data || d) as DataPoint, d.i as number)
-        })`,
-    );
-  }
 
   /**
       Returns a full JSON string of the texture config for a given data point.
@@ -435,581 +285,270 @@ export default class Shape extends BaseClass {
       );
   }
 
-  /**
-      Modifies existing shapes to show active status.
-      @private
-*/
-  _renderActive(): void {
-    const that = this;
-
-    this._group
-      .selectAll(".d3plus-Shape, .d3plus-Image, .d3plus-textBox")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .each(function (this: any, _d: unknown, i: number) {
-        let d = (_d || {}) as DataPoint;
-        if (!d.parentNode)
-          d.parentNode = (this as Element)
-            .parentNode as unknown as DataPoint[keyof DataPoint];
-        const parent = d.parentNode as unknown as Node;
-
-        if (select(this).classed("d3plus-textBox")) d = d.data as DataPoint;
-        if (d.__d3plusShape__ || d.__d3plus__) {
-          while (d && (d.__d3plusShape__ || d.__d3plus__)) {
-            i = d.i as number;
-            d = d.data as DataPoint;
-          }
-        } else i = that._data.indexOf(d);
-
-        const group: Node =
-          !that._active ||
-          typeof that._active !== "function" ||
-          !that._active(d, i)
-            ? parent
-            : that._activeGroup.node();
-        if (group !== (this as Element).parentNode) {
-          group.appendChild(this as Element);
-          if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
-            if (parent === group)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              select(this).call(that._applyStyle.bind(that) as any);
-            else
-              select(this).call(
-                that._updateStyle.bind(that, select(this), that._activeStyle),
-              );
-          }
-        }
-      });
-
-    // this._renderImage();
-    // this._renderLabels();
-
-    this._group
-      .selectAll(
-        `g.d3plus-${this._name}-shape, g.d3plus-${this._name}-image, g.d3plus-${this._name}-text`,
-      )
-      .attr(
-        "opacity",
-        this._hover
-          ? this._hoverOpacity
-          : this._active
-            ? this._activeOpacity
-            : 1,
-      );
-  }
-
-  /**
-      Modifies existing shapes to show hover status.
-      @private
-*/
-  _renderHover(): void {
-    const that = this;
-
-    this._group
-      .selectAll(
-        `g.d3plus-${this._name}-shape, g.d3plus-${this._name}-image, g.d3plus-${this._name}-text, g.d3plus-${this._name}-hover`,
-      )
-      .selectAll(".d3plus-Shape, .d3plus-Image, .d3plus-textBox")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .each(function (this: any, _d: unknown, i: number) {
-        let d = (_d || {}) as DataPoint;
-        if (!d.parentNode)
-          d.parentNode = (this as Element)
-            .parentNode as unknown as DataPoint[keyof DataPoint];
-        const parent = d.parentNode as unknown as Node;
-
-        const d3plusType = select(this).classed("d3plus-textBox")
-          ? "textBox"
-          : select(this).classed("d3plus-Image")
-            ? "Image"
-            : "Shape";
-
-        if (d3plusType === "textBox") d = d.data as DataPoint;
-        if (d.__d3plusShape__ || d.__d3plus__) {
-          while (d && (d.__d3plusShape__ || d.__d3plus__)) {
-            i = d.i as number;
-            d = d.data as DataPoint;
-          }
-        } else i = that._data.indexOf(d);
-
-        const notHovering =
-          !that._hover ||
-          typeof that._hover !== "function" ||
-          !that._hover(d, i);
-        const group = notHovering ? parent : that._hoverGroup.node();
-        if (group !== (this as Element).parentNode) {
-          const afterIndex =
-            d3plusType === "textBox"
-              ? findLastIndexWithClass(group.childNodes, [
-                  "d3plus-Image",
-                  "d3plus-Shape",
-                ])
-              : d3plusType === "Image"
-                ? findLastIndexWithClass(group.childNodes, ["d3plus-Shape"])
-                : -1;
-          if (notHovering) group.appendChild(this as Element);
-          else if (afterIndex === -1) group.prepend(this as Element);
-          else group.childNodes[afterIndex].after(this as Element);
-        }
-        if ((this as SVGElement).className.baseVal.includes("d3plus-Shape")) {
-          if (parent === group)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            select(this).call(that._applyStyle.bind(that) as any);
-          else
-            select(this).call(
-              that._updateStyle.bind(
-                that,
-                select(this),
-                that._hoverStyle,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ) as any,
-            );
-        }
-      });
-
-    // this._renderImage();
-    // this._renderLabels();
-
-    this._group
-      .selectAll(
-        `g.d3plus-${this._name}-shape, g.d3plus-${this._name}-image, g.d3plus-${this._name}-text`,
-      )
-      .attr(
-        "opacity",
-        this._hover
-          ? this._hoverOpacity
-          : this._active
-            ? this._activeOpacity
-            : 1,
-      );
-  }
-
-  /**
-      Adds background image to each shape group.
-      @private
-*/
-  _renderImage(): void {
-    const imageData: DataPoint[] = [];
-
-    this._update
-      .merge(this._enter)
-      .data()
-      .forEach((datum: DataPoint, i: number) => {
-        const aes = this._aes(datum, i);
-
-        if (aes.r || (aes.width && aes.height)) {
-          let d: DataPoint = datum;
-          if (datum.nested && datum.key && datum.values) {
-            d = (datum.values as unknown as DataPoint[])[0];
-            i = this._data.indexOf(d);
-          }
-
-          const height = aes.r ? (aes.r as number) * 2 : (aes.height as number),
-            url = this._backgroundImage(d, i),
-            width = aes.r ? (aes.r as number) * 2 : (aes.width as number);
-
-          if (url) {
-            let x: number = d.__d3plusShape__
-                ? d.translate
-                  ? (d.translate as unknown as number[])[0]
-                  : (this._x(d.data as DataPoint, d.i as number) as number)
-                : (this._x(d, i) as number),
-              y: number = d.__d3plusShape__
-                ? d.translate
-                  ? (d.translate as unknown as number[])[1]
-                  : (this._y(d.data as DataPoint, d.i as number) as number)
-                : (this._y(d, i) as number);
-
-            if (aes.x) x += aes.x as number;
-            if (aes.y) y += aes.y as number;
-
-            if (d.__d3plusShape__) {
-              d = d.data as DataPoint;
-              i = d.i as number;
-            }
-
-            imageData.push({
-              __d3plus__: true,
-              data: d,
-              height,
-              i,
-              id: this._id(d, i),
-              url,
-              width,
-              x: x + -width / 2,
-              y: y + -height / 2,
-            } as unknown as DataPoint);
-          }
-        }
-      });
-
-    this._backgroundImageClass
-      .data(imageData)
-      .duration(this._duration)
-      .opacity(this._nestWrapper(this._opacity) as AccessorFn)
-      .pointerEvents("none")
-      .select(
-        elem(`g.d3plus-${this._name}-image`, {
-          parent: this._group,
-          update: {opacity: this._active ? this._activeOpacity : 1},
-        }).node(),
-      )
-      .render();
-  }
 
   /**
       Adds labels to each shape group.
       @private
 */
-  _renderLabels(): void {
+  _buildLabelData(): DataPoint[] {
     const labelData: DataPoint[] = [];
+    const data = this._dataFilter ? this._dataFilter(this._data) : this._data;
+    data.forEach((datum: DataPoint, i: number) => {
+      let d: DataPoint = datum;
+      if (datum.nested && datum.key && datum.values) {
+        d = (datum.values as unknown as DataPoint[])[0];
+        i = this._data.indexOf(d);
+      }
 
-    this._update
-      .merge(this._enter)
-      .data()
-      .forEach((datum: DataPoint, i: number) => {
-        let d: DataPoint = datum;
-        if (datum.nested && datum.key && datum.values) {
-          d = (datum.values as unknown as DataPoint[])[0];
-          i = this._data.indexOf(d);
-        }
+      let labels: unknown = this._label(d, i);
 
-        let labels: unknown = this._label(d, i);
+      if (
+        this._labelBounds &&
+        labels !== false &&
+        labels !== undefined &&
+        labels !== null
+      ) {
+        const bounds = this._labelBounds.bind(this)(
+          d,
+          i,
+          this._aes(datum, i),
+        ) as Record<string, unknown>;
 
-        if (
-          this._labelBounds &&
-          labels !== false &&
-          labels !== undefined &&
-          labels !== null
-        ) {
-          const bounds = this._labelBounds.bind(this)(
-            d,
-            i,
-            this._aes(datum, i),
-          ) as Record<string, unknown>;
+        if (bounds) {
+          if ((labels as unknown[]).constructor !== Array) labels = [labels];
 
-          if (bounds) {
-            if ((labels as unknown[]).constructor !== Array) labels = [labels];
+          const x: number = d.__d3plusShape__
+              ? d.translate
+                ? (d.translate as unknown as number[])[0]
+                : (this._x(d.data as DataPoint, d.i as number) as number)
+              : (this._x(d, i) as number),
+            y: number = d.__d3plusShape__
+              ? d.translate
+                ? (d.translate as unknown as number[])[1]
+                : (this._y(d.data as DataPoint, d.i as number) as number)
+              : (this._y(d, i) as number);
 
-            const x: number = d.__d3plusShape__
-                ? d.translate
-                  ? (d.translate as unknown as number[])[0]
-                  : (this._x(d.data as DataPoint, d.i as number) as number)
-                : (this._x(d, i) as number),
-              y: number = d.__d3plusShape__
-                ? d.translate
-                  ? (d.translate as unknown as number[])[1]
-                  : (this._y(d.data as DataPoint, d.i as number) as number)
-                : (this._y(d, i) as number);
+          if (d.__d3plusShape__) {
+            d = d.data as DataPoint;
+            i = d.i as number;
+          }
 
-            if (d.__d3plusShape__) {
-              d = d.data as DataPoint;
-              i = d.i as number;
-            }
+          for (let l = 0; l < (labels as unknown[]).length; l++) {
+            const b = (
+              bounds.constructor === Array
+                ? (bounds as unknown as Record<string, unknown>[])[l]
+                : Object.assign({}, bounds)
+            ) as Record<string, number>;
+            const rotate = this._rotate(d, i) as number;
+            const labelConfig = d.labelConfig as DataPoint | undefined;
+            let r: number =
+              labelConfig && labelConfig.rotate
+                ? (labelConfig.rotate as number)
+                : bounds.angle !== undefined
+                  ? (bounds.angle as number)
+                  : 0;
+            r += rotate;
+            const rotateAnchor =
+              rotate !== 0
+                ? [b.x * -1 || 0, b.y * -1 || 0]
+                : [b.width / 2, b.height / 2];
 
-            for (let l = 0; l < (labels as unknown[]).length; l++) {
-              const b = (
-                bounds.constructor === Array
-                  ? (bounds as unknown as Record<string, unknown>[])[l]
-                  : Object.assign({}, bounds)
-              ) as Record<string, number>;
-              const rotate = this._rotate(d, i) as number;
-              const labelConfig = d.labelConfig as DataPoint | undefined;
-              let r: number =
-                labelConfig && labelConfig.rotate
-                  ? (labelConfig.rotate as number)
-                  : bounds.angle !== undefined
-                    ? (bounds.angle as number)
-                    : 0;
-              r += rotate;
-              const rotateAnchor =
-                rotate !== 0
-                  ? [b.x * -1 || 0, b.y * -1 || 0]
-                  : [b.width / 2, b.height / 2];
-
-              labelData.push({
-                __d3plus__: true,
-                data: d,
-                height: b.height,
-                l,
-                id: `${this._id(d, i)}_${l}`,
-                r,
-                rotateAnchor,
-                text: (labels as unknown[])[l],
-                width: b.width,
-                x: x + b.x,
-                y: y + b.y,
-              } as unknown as DataPoint);
-            }
+            labelData.push({
+              __d3plus__: true,
+              data: d,
+              height: b.height,
+              l,
+              id: `${this._id(d, i)}_${l}`,
+              r,
+              rotateAnchor,
+              text: (labels as unknown[])[l],
+              width: b.width,
+              x: x + b.x,
+              y: y + b.y,
+            } as unknown as DataPoint);
           }
         }
-      });
-
-    this._labelClass
-      .data(labelData)
-      .duration(this._duration)
-      .fontOpacity(this._nestWrapper(this._opacity) as unknown as number)
-      .pointerEvents("none")
-      .rotate(
-        ((d: DataPoint) =>
-          (d.__d3plus__
-            ? d.r
-            : (d.data as DataPoint)
-                .r) as unknown as number) as unknown as number,
-      )
-      .rotateAnchor(
-        (d: DataPoint) =>
-          (d.__d3plus__
-            ? d.rotateAnchor
-            : (d.data as DataPoint).rotateAnchor) as unknown as [
-            number,
-            number,
-          ],
-      )
-      .select(
-        elem(`g.d3plus-${this._name}-text`, {
-          parent: this._group,
-          update: {opacity: this._active ? this._activeOpacity : 1},
-        }).node(),
-      )
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._labelConfig)!)
-      .render();
+      }
+    });
+    return labelData;
   }
+
 
   /**
       Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.
     @param callback Optional callback invoked after rendering completes.
 */
-  render(callback?: () => void): this {
-    if (this._select === void 0) {
-      this.select(
-        select("body")
-          .append("svg")
-          .style("width", `${window.innerWidth}px`)
-          .style("height", `${window.innerHeight}px`)
-          .style("display", "block")
-          .node(),
-      );
+  /**
+      Resolves a style accessor for a data point, mirroring the nested-data logic
+      of _applyStyle so scene output matches DOM rendering.
+      @private
+*/
+  _styleVal(fn: unknown, d: DataPoint, i: number): unknown {
+    if (typeof fn !== "function") return fn;
+    if (d.nested && d.key && d.values) {
+      const first = (d.values as unknown as DataPoint[])[0];
+      return (fn as AccessorFn)(first, this._data.indexOf(first));
     }
+    return (fn as AccessorFn)(d, i);
+  }
 
-    this._transition = transition(this._uuid).duration(this._duration);
-
-    let data: DataPoint[] & {key?: AccessorFn} = this._data,
-      key: AccessorFn = this._id;
-    if (this._dataFilter) {
-      data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
-      if (data.key) key = data.key;
-    }
-
-    if (this._sort) {
-      data = data.sort((a: DataPoint, b: DataPoint) => {
-        while (a.__d3plusShape__ || a.__d3plus__) a = a.data as DataPoint;
-        while (b.__d3plusShape__ || b.__d3plus__) b = b.data as DataPoint;
-        return this._sort!(a, b);
-      });
-    }
-
-    const textureSet = unique(
-      data.map(
-        this._getTextureKey.bind(this) as (
-          d: DataPoint,
-          i: number,
-        ) => string | false,
-      ),
-    ).filter(Boolean) as string[];
-
-    const existingTextureDefs = Object.keys(this._textureDefs);
-
-    existingTextureDefs.forEach(key => {
-      if (!textureSet.includes(key)) {
-        select(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this._select as any)
-            .select(
-              `pattern#${(this._textureDefs[key] as Record<string, unknown> & {id: () => string}).id()}`,
-            )
-            .node().parentNode,
-        ).remove();
-        delete this._textureDefs[key];
-      }
-    });
-
-    textureSet.forEach((key: string) => {
-      if (!existingTextureDefs.includes(key)) {
-        const config = JSON.parse(key);
-        const textureClass = config.texture;
-        delete config.texture;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const t = (textures as any)[textureClass]();
-        for (const k in config) {
-          if ({}.hasOwnProperty.call(t, k) && k in t) {
-            if (k === "d" && typeof k === "function") t[k](() => config[k]);
-            else
-              config[k] instanceof Array
-                ? t[k].apply(null, config[k])
-                : t[k](config[k]);
-          }
-        }
-        this._select.call(t);
-        this._textureDefs[key] = t;
-      }
-    });
-
-    selectAll(
-      `g.d3plus-${this._name}-hover > *, g.d3plus-${this._name}-active > *`,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ).each(function (this: any, d: unknown) {
-      const dp = d as DataPoint;
-      if (dp && dp.parentNode)
-        (dp.parentNode as unknown as Node).appendChild(this);
-      else this.parentNode!.removeChild(this);
-    });
-
-    // Makes the update state of the group selection accessible.
-    this._group = elem(`g.d3plus-${this._name}-group`, {parent: this._select});
-    const update = (this._update = elem(`g.d3plus-${this._name}-shape`, {
-      parent: this._group,
-      update: {opacity: this._active ? this._activeOpacity : 1},
-    })
-      .selectAll(`.d3plus-${this._name}`)
-      .data(data, key as never));
-
-    // Orders and transforms the updating Shapes.
-    update.order();
-    if (this._duration) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      update.transition(this._transition).call(this._applyTransform.bind(this) as any);
+  /**
+      Builds the resolved Transform for a data point, mirroring _applyTransform.
+      @private
+*/
+  _sceneTransform(d: DataPoint, i: number): Transform {
+    const wrapped = Boolean(d.__d3plusShape__);
+    const dd = (wrapped ? d.data : d) as DataPoint;
+    const ii = wrapped ? (d.i as number) : i;
+    let x: number, y: number;
+    if (wrapped && d.translate) {
+      const [tx, ty] = String(d.translate).split(",").map(Number);
+      x = tx;
+      y = ty;
     } else {
-      update.call(this._applyTransform.bind(this));
+      x = Number(this._x(dd, ii));
+      y = Number(this._y(dd, ii));
     }
+    const scale =
+      wrapped && d.scale !== undefined ? Number(d.scale) : Number(this._scale(dd, ii));
+    const rotate =
+      wrapped && d.rotate !== undefined
+        ? Number(d.rotate)
+        : Number(this._rotate((d.data || d) as DataPoint, ii));
+    return {x, y, scale, rotate};
+  }
 
-    // Makes the enter state of the group selection accessible.
-    const enter = (this._enter = update
-      .enter()
-      .append(this._tagName)
-      .attr(
-        "class",
-        (d: DataPoint, i: number) =>
-          `d3plus-Shape d3plus-${this._name} d3plus-id-${strip(this._nestWrapper(this._id)(d, i) as string)}`,
-      )
-      .call(this._applyTransform.bind(this))
-      .attr("aria-label", this._ariaLabel as never)
-      .attr("role", this._role as never)
-      .attr("opacity", this._nestWrapper(this._opacity) as never));
+  /**
+      Builds the resolved Paint for a data point, mirroring _applyStyle. Texture
+      fills are not yet resolved here (a follow-up for the SVG/Canvas backends).
+      @private
+*/
+  _scenePaint(d: DataPoint, i: number): Paint {
+    // A texture resolves to a stable "pattern:<key>" token (the same JSON config
+    // render() uses); each backend materializes or degrades it.
+    const textureKey = this._getTextureKey(d, i);
+    return {
+      fill: textureKey
+        ? `pattern:${textureKey}`
+        : strOrUndef(this._styleVal(this._fill, d, i)),
+      fillOpacity: numOrUndef(this._styleVal(this._fillOpacity, d, i)),
+      stroke: strOrUndef(this._styleVal(this._stroke, d, i)),
+      strokeWidth: numOrUndef(this._styleVal(this._strokeWidth, d, i)),
+      strokeOpacity: numOrUndef(this._styleVal(this._strokeOpacity, d, i)),
+      strokeDasharray: parseDash(this._styleVal(this._strokeDasharray, d, i)),
+      strokeLinecap: strOrUndef(
+        this._styleVal(this._strokeLinecap, d, i),
+      ) as Paint["strokeLinecap"],
+      vectorEffect: strOrUndef(
+        this._styleVal(this._vectorEffect, d, i),
+      ) as Paint["vectorEffect"],
+      shapeRendering: strOrUndef(this._nestWrapper(this._shapeRendering)(d, i)),
+      opacity: numOrUndef(this._nestWrapper(this._opacity)(d, i)),
+    };
+  }
 
-    const enterUpdate = enter.merge(update);
+  /**
+      Returns the geometry-specific scene fields for a data point. Overridden by
+      each shape subclass; the base provides none.
+      @private
+*/
+  _sceneGeometry(_d: DataPoint, _i: number): Record<string, unknown> | null {
+    return null;
+  }
 
-    let enterUpdateRender = enterUpdate.attr(
-      "shape-rendering",
-      this._nestWrapper(this._shapeRendering) as never,
-    );
-
-    if (this._duration) {
-      enterUpdateRender = enterUpdateRender
-        .attr("pointer-events", "none")
-        .transition(this._transition)
-        .transition()
-        .delay(100)
-        .attr(
-          "pointer-events",
-          this._pointerEvents as never,
-        ) as unknown as D3Selection;
-    }
-
-    enterUpdateRender.attr(
-      "opacity",
-      this._nestWrapper(this._opacity) as never,
-    );
-
-    // Makes the exit state of the group selection accessible.
-    const exit = (this._exit = update.exit());
-    if (this._duration) exit.transition().delay(this._duration).remove();
-    else exit.remove();
-
-    this._renderImage();
-    this._renderLabels();
-
-    this._hoverGroup = elem(`g.d3plus-${this._name}-hover`, {
-      parent: this._group,
+  /**
+      Produces a backend-agnostic scene graph for this shape's data, reusing the
+      same accessors render() applies to the DOM. This is the migration seam toward
+      the @d3plus/render pluggable backends; it has no effect on render().
+*/
+  toScene(): GroupNode {
+    let data: DataPoint[] & {key?: AccessorFn} = this._data;
+    if (this._dataFilter)
+      data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
+    const children: SceneNode[] = [];
+    data.forEach((d, i) => {
+      const geom = this._sceneGeometry(d, i);
+      if (!geom) return;
+      children.push({
+        ...geom,
+        key: this._nestWrapper(this._id)(d, i) as string | number,
+        datum: (d.__d3plusShape__ ? d.data : d) as DataPoint,
+        index: i,
+        paint: this._scenePaint(d, i),
+        transform: this._sceneTransform(d, i),
+        aria: {
+          role: strOrUndef(this._nestWrapper(this._role)(d, i)),
+          label: strOrUndef(this._nestWrapper(this._ariaLabel)(d, i)),
+        },
+      } as unknown as SceneNode);
     });
-    this._activeGroup = elem(`g.d3plus-${this._name}-active`, {
-      parent: this._group,
-    });
-
-    const hitAreas = this._group
-      .selectAll(".d3plus-HitArea")
-      .data(
-        this._hitArea && Object.keys(this._on).length ? data : [],
-        key as never,
-      );
-
-    hitAreas.order().call(this._applyTransform.bind(this));
-
-    const isLine = this._name === "Line";
-
-    if (isLine) {
-      const curve = this._curve.bind(this)(
-        this.config() as DataPoint,
-      ) as string;
-      isLine &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this._path as any)
-          .curve(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (paths as any)[
-              `curve${curve.charAt(0).toUpperCase()}${curve.slice(1)}`
-            ],
-          )
-          .defined(this._defined)
-          .x(this._x)
-          .y(this._y);
-    }
-
-    const hitEnter = hitAreas
-      .enter()
-      .append(isLine ? "path" : "rect")
-      .attr(
-        "class",
-        (d: DataPoint, i: number) =>
-          `d3plus-HitArea d3plus-id-${strip(this._nestWrapper(this._id)(d, i) as string)}`,
-      )
-      .attr("fill", "black")
-      .attr("stroke", "black")
-      .attr("pointer-events", "painted")
-      .attr("opacity", 0)
-      .call(this._applyTransform.bind(this));
-
-    const that = this;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hitUpdates = hitAreas.merge(hitEnter as any).each(function (
-      this: any,
-      d: DataPoint,
+    // Include any labels produced by the most recent render() (the label TextBox
+    // shares this shape's coordinate space, so its nodes append directly).
+    if (
+      this._labelClass &&
+      typeof (this._labelClass as {toScene?: unknown}).toScene === "function" &&
+      this._labelClass._data &&
+      this._labelClass._data.length
     ) {
-      const i = that._data.indexOf(d);
-      const h = that._hitArea!(d, i, that._aes(d, i));
-      return h &&
-        !(
-          that._name === "Line" &&
-          parseFloat(that._strokeWidth(d, i) as string) > 10
-        )
-        ? select(this).call(
-            attrize,
-            h as Record<string, string | number | boolean>,
-          )
-        : select(this).remove();
-    });
+      children.push(...(this._labelClass.toScene().children as SceneNode[]));
+    }
+    return {type: "group", key: `${this._name}-group`, children};
+  }
 
-    hitAreas.exit().remove();
+  render(callback?: () => void): this {
+    // Populate the label TextBox so toScene() reads correct label data. The
+    // label class is always in compute mode — the scene path materializes text.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lc = this._labelClass as unknown as {renderMode?: (m: string) => any};
+    if (lc && typeof lc.renderMode === "function") lc.renderMode("compute");
+    this._labelClass.data(this._buildLabelData());
 
-    this._applyEvents(this._hitArea ? hitUpdates : enterUpdate);
+    if (this._renderMode === "compute") {
+      // A Viz pipeline is driving this shape — Viz.renderScene composes the
+      // whole chart's scene itself, so don't spin up our own SvgRenderer.
+      if (callback) setTimeout(callback, 0);
+      return this;
+    }
 
-    setTimeout(() => {
-      if (this._active) this._renderActive();
-      else if (this._hover) this._renderHover();
-      if (callback) callback();
-    }, this._duration + 100);
+    // Standalone shape rendering: route the shape's own toScene() through
+    // SvgRenderer. Preserves `new Rect().render()` ergonomics with no legacy
+    // d3-selection DOM.
+    if (this._select === undefined && typeof document !== "undefined") {
+      const div = document.createElement("div");
+      div.style.cssText = "display:block;";
+      document.body.appendChild(div);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.select(div as any);
+    }
 
+    if (this._select) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sel = this._select as any;
+      const node: Element | null =
+        sel && typeof sel.node === "function" ? sel.node() : sel;
+      if (node) {
+        const tag = (node.tagName || "").toLowerCase();
+        const isSvg = tag === "svg";
+        const width = isSvg
+          ? Number(node.getAttribute("width")) || 400
+          : (node as HTMLElement).clientWidth || 400;
+        const height = isSvg
+          ? Number(node.getAttribute("height")) || 300
+          : (node as HTMLElement).clientHeight || 300;
+        // Use the caller's element as the container — SvgRenderer creates its
+        // own <svg> inside it (nested svg-in-svg is valid SVG). The caller's
+        // element is preserved so downstream test/queries still find it.
+        while (node.firstChild) node.removeChild(node.firstChild);
+        const scene = {root: this.toScene(), width, height};
+        const renderer = new SvgRenderer();
+        renderer.mount({container: node, width, height});
+        renderer.drawScene(scene);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this as any)._sceneRenderer = renderer;
+      }
+    }
+
+    if (callback) setTimeout(callback, 0);
     return this;
   }
 
@@ -1023,11 +562,8 @@ export default class Shape extends BaseClass {
   ): ((d: DataPoint, i: number) => boolean) | null | this {
     if (!arguments.length || _ === undefined) return this._active;
     this._active = _;
-    if (this._group) {
-      // this._renderImage();
-      // this._renderLabels();
-      this._renderActive();
-    }
+    // v4: active/hover visuals come from the scene path's paint recomputation
+    // on the next render(); no DOM mutation here.
     return this;
   }
 
@@ -1135,11 +671,7 @@ export default class Shape extends BaseClass {
   ): ((d: DataPoint, i: number) => boolean) | null | this {
     if (!arguments.length || _ === void 0) return this._hover;
     this._hover = _;
-    if (this._group) {
-      // this._renderImage();
-      // this._renderLabels();
-      this._renderHover();
-    }
+    // v4: hover dim comes from the scene path's paint recomputation; no DOM here.
     return this;
   }
 
@@ -1372,6 +904,21 @@ function(d, i, shape) {
     return arguments.length
       ? ((this._scale = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._scale;
+  }
+
+  /**
+      Controls whether render() does the full d3 enter/update/exit DOM work
+      ("full", default) or skips it and only populates downstream state for
+      toScene() ("compute"). Compute mode is the migration switch that lets the
+      legacy attribute-application code stop running for charts driven by the
+      scene backends.
+*/
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode;
+    this._renderMode = _!;
+    return this;
   }
 
   /**
