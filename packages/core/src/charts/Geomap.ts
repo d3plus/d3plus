@@ -1,4 +1,3 @@
-import {extent, max, quantile} from "d3-array";
 import {color} from "d3-color";
 import {zoomTransform} from "d3-zoom";
 
@@ -12,17 +11,15 @@ const d3Geo: Record<string, (...args: unknown[]) => unknown> = Object.assign(
   d3CompositeProjections,
 );
 
-import * as scales from "d3-scale";
 import {tile} from "d3-tile";
-import {feature} from "topojson-client";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
-import {pointDistance} from "@d3plus/math";
 import {constant} from "../utils/index.js";
 
-import {geomapDef} from "./ChartDefinition.js";
+import {applyGeomapLayout, geomapDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
 
@@ -36,27 +33,6 @@ function findAttribution(url: string): string | false {
     d.matches.some((m: string) => url.includes(m)),
   );
   return a ? a.text : false;
-}
-
-/**
-    @name topo2feature
-    Converts a specific topojson object key into a feature ready for projection.
-    @param topo A valid topojson json object.
-    @param key The topojson object key to be used. If undefined, the first key available will be used.
-    @private
-*/
-function topo2feature(
-  topo: Record<string, unknown>,
-  key?: string,
-): Record<string, unknown> {
-  const k =
-    key && (topo.objects as Record<string, unknown>)[key]
-      ? key
-      : Object.keys(topo.objects as Record<string, unknown>)[0];
-  return feature(
-    topo as unknown as Parameters<typeof feature>[0],
-    k,
-  ) as unknown as Record<string, unknown>;
 }
 
 /**
@@ -241,6 +217,12 @@ export default class Geomap extends Viz {
 
   /**
       Extends the draw behavior of the abstract Viz class.
+
+      DOM mount (svg container, ocean rect, tileGroup, zoomGroup) + zoom
+      behavior extent stay here — they're lifecycle, not layout. The actual
+      projection / fit-extent / per-feature path + point computation runs as
+      `applyGeomapLayout` on `geomapDef.stages` and writes `_geomapCtx`
+      back onto the viz, which `geomapDef.emit` consumes.
       @private
   */
   _draw(callback?: () => void): this {
@@ -299,179 +281,12 @@ export default class Geomap extends Viz {
       .attr("class", "d3plus-geomap-zoomGroup")
       .merge(this._zoomGroup);
 
-    // Legacy `pathGroup`/`pointGroup` elem allocations are gone — emit doesn't
-    // take a DOM parent. `this._chartTransform` carries any offset.
+    const zoomNeedsWiring = !this._zoomSet;
+    const {shapeData} = runStages({viz: this} as any, [applyGeomapLayout]) as unknown as {
+      shapeData: Record<string, unknown>[];
+    };
 
-    const coordData: {type: string; features: Record<string, unknown>[]} =
-      (this._coordData = this._topojson
-        ? (topo2feature(this._topojson, this._topojsonKey) as {
-            type: string;
-            features: Record<string, unknown>[];
-          })
-        : {type: "FeatureCollection", features: []});
-
-    if (this._topojsonFilter)
-      coordData.features = coordData.features.filter(this._topojsonFilter);
-
-    const path = (this._path = (d3Geo.geoPath as any)().projection(this._projection));
-
-    const pointData = this._filteredData.filter(
-      (d: DataPoint, i: number) => this._point(d, i) instanceof Array,
-    );
-
-    const pathData = this._filteredData
-      .filter(
-        (d: DataPoint, i: number) => !(this._point(d, i) instanceof Array),
-      )
-      .reduce((obj: Record<string, DataPoint>, d: DataPoint) => {
-        obj[this._id(d)] = d;
-        return obj;
-      }, {});
-
-    const topoData = coordData.features.reduce(
-      (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
-        const id = this._topojsonId(feature);
-        arr.push({
-          __d3plus__: true,
-          data: pathData[id],
-          feature,
-          id,
-        });
-        return arr;
-      },
-      [],
-    );
-
-    const scaleName = `scale${this._pointSizeScale.charAt(0).toUpperCase()}${this._pointSizeScale.slice(1)}`;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const r = (scales as any)[scaleName]()
-      .domain(
-        extent(pointData, (d: DataPoint, i: number) => this._pointSize(d, i)),
-      )
-      .range([this._pointSizeMin, this._pointSizeMax]);
-
-    if (!this._zoomSet) {
-      const fitData = this._fitObject
-        ? (topo2feature(this._fitObject, this._fitKey) as {
-            type: string;
-            features: Record<string, unknown>[];
-          })
-        : coordData;
-
-      this._extentBounds = {
-        type: "FeatureCollection",
-        features: this._fitFilter
-          ? fitData.features.filter(this._fitFilter)
-          : fitData.features.slice(),
-      };
-      this._extentBounds.features = this._extentBounds.features.reduce(
-        (
-          arr: Record<string, unknown>[],
-          d: {
-            type: string;
-            id: string;
-            geometry: {type: string; coordinates: number[][][][]};
-          },
-        ) => {
-          if (d.geometry) {
-            const reduced: {
-              type: string;
-              id: string;
-              geometry: {type: string; coordinates: number[][][][]};
-            } = {
-              type: d.type,
-              id: d.id,
-              geometry: {
-                coordinates: d.geometry.coordinates,
-                type: d.geometry.type,
-              },
-            };
-
-            if (
-              d.geometry.type === "MultiPolygon" &&
-              d.geometry.coordinates.length > 1
-            ) {
-              const areas: number[] = [],
-                distances: number[] = [];
-
-              d.geometry.coordinates.forEach((c: number[][][]) => {
-                reduced.geometry.coordinates = [c];
-                areas.push(path.area(reduced));
-              });
-
-              reduced.geometry.coordinates = [
-                d.geometry.coordinates[areas.indexOf(max(areas)!)],
-              ];
-              const center = path.centroid(reduced);
-
-              d.geometry.coordinates.forEach((c: number[][][]) => {
-                reduced.geometry.coordinates = [c];
-                distances.push(pointDistance(path.centroid(reduced), center));
-              });
-
-              const distCutoff = quantile(
-                areas.reduce((arr: number[], dist: number, i: number) => {
-                  if (dist) arr.push(areas[i] / dist);
-                  return arr;
-                }, []),
-                0.9,
-              );
-
-              reduced.geometry.coordinates = d.geometry.coordinates.filter(
-                (c: number[][][], i: number) => {
-                  const dist = distances[i];
-                  return dist === 0 || areas[i] / dist >= distCutoff!;
-                },
-              );
-            }
-
-            arr.push(reduced);
-          }
-          return arr;
-        },
-        [],
-      );
-
-      if (!this._extentBounds.features.length && pointData.length) {
-        const bounds: (number | undefined)[][] = [
-          [undefined, undefined],
-          [undefined, undefined],
-        ];
-        pointData.forEach((d: DataPoint, i: number) => {
-          const point = this._projection(this._point(d, i));
-          if (bounds[0][0] === void 0 || point[0] < bounds[0][0])
-            bounds[0][0] = point[0];
-          if (bounds[1][0] === void 0 || point[0] > bounds[1][0])
-            bounds[1][0] = point[0];
-          if (bounds[0][1] === void 0 || point[1] < bounds[0][1])
-            bounds[0][1] = point[1];
-          if (bounds[1][1] === void 0 || point[1] > bounds[1][1])
-            bounds[1][1] = point[1];
-        });
-
-        this._extentBounds = {
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "MultiPoint",
-                coordinates: bounds.map((b: (number | undefined)[]) =>
-                  this._projection.invert(b),
-                ),
-              },
-            },
-          ],
-        };
-        const maxSize = max(pointData, (d: DataPoint, i: number) =>
-          r(this._pointSize(d, i)),
-        );
-        this._projectionPadding.top += maxSize;
-        this._projectionPadding.right += maxSize;
-        this._projectionPadding.bottom += maxSize;
-        this._projectionPadding.left += maxSize;
-      }
-
+    if (zoomNeedsWiring) {
       this._zoomBehavior
         .extent([
           [0, 0],
@@ -482,45 +297,10 @@ export default class Geomap extends Viz {
           [0, 0],
           [width, height],
         ]);
-
       this._zoomSet = true;
     }
 
-    this._projection = this._projection.fitExtent(
-      this._extentBounds.features.length
-        ? [
-            [this._projectionPadding.left, this._projectionPadding.top],
-            [
-              width - this._projectionPadding.right,
-              height - this._projectionPadding.bottom,
-            ],
-          ]
-        : [
-            [0, 0],
-            [width, height],
-          ],
-      this._extentBounds.features.length
-        ? this._extentBounds
-        : {type: "Sphere"},
-    );
-
-    // Country paths + point circles emitted via geomapDef.emit.
-    // Event handlers attached to the Circle instance can't carry through the
-    // scene emit yet — that's an interaction-layer concern handled by the
-    // pointer-pick path on the renderer.
-    this._geomapCtx = {
-      topoData,
-      pathFn: (d: Record<string, unknown>) => path(d.feature),
-      pointData,
-      pointR: ((d: DataPoint, i: number) => r(this._pointSize(d, i))) as any,
-      pointSort: (a: DataPoint, b: DataPoint) =>
-        this._pointSize(b) - this._pointSize(a),
-      pointX: ((d: DataPoint, i: number) =>
-        this._projection(this._point(d, i))[0]) as any,
-      pointY: ((d: DataPoint, i: number) =>
-        this._projection(this._point(d, i))[1]) as any,
-    };
-    this._chartScene = geomapDef.emit({viz: this} as any);
+    this._chartScene = geomapDef.emit({viz: this, shapeData} as any);
 
     return this;
   }

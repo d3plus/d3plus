@@ -1,17 +1,13 @@
-import {extent, groups, max, mean, min, merge} from "d3-array";
-import {forceLink, forceManyBody, forceSimulation} from "d3-force";
-import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
+import {mean, min} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
-import {polygonHull} from "d3-polygon";
-import * as scales from "d3-scale";
 import {zoomTransform} from "d3-zoom";
 
 import {assign} from "@d3plus/dom";
 import {addToQueue} from "@d3plus/data";
-import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
-import {configPrep, constant} from "../utils/index.js";
+import {constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
-import {networkDef} from "./ChartDefinition.js";
+import {applyNetworkLayout, networkDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 
 // E4: simple identity accessors generated via installFluent. `linkSize` uses
@@ -27,18 +23,6 @@ const networkSchema = [
   {key: "sizeMin", coerce: "identity" as const},
   {key: "sizeScale", coerce: "identity" as const},
 ];
-
-/** Extended node for force simulation with extra properties.*/
-interface NetworkNode extends SimulationNodeDatum {
-  id: string;
-  size?: number;
-  shape?: string;
-}
-
-/** Extended link for force simulation with a size property.*/
-interface NetworkLink extends SimulationLinkDatum<NetworkNode> {
-  size?: number;
-}
 
 /**
  * Fetches the unique ID for a data point, whether it's defined by data or nodes.
@@ -244,223 +228,21 @@ export default class Network extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
+    // Network-specific layout (force simulation + radius scaling + link/node
+    // lookups + linkConfig/linkD/nodeGroups) runs as `applyNetworkLayout` on
+    // `networkDef.stages`. The stage writes `_nodeLookup`/`_linkLookup`/
+    // `_networkCtx` back onto the viz; emit consumes `_networkCtx` and
+    // produces the SceneNodes.
+    const {shapeData} = runStages({viz: this} as any, [applyNetworkLayout]);
+
     const duration = this._duration,
       height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 
-    const data = this._filteredData.reduce((obj: any, d: any, i: any) => {
-      obj[this._id(d, i)] = d;
-      return obj;
-    }, {});
-
-    let nodes = this._nodes.reduce((obj: any, d: any, i: any) => {
-      obj[getNodeId.bind(this)(d, i)] = d;
-      return obj;
-    }, {});
-
-    nodes = Array.from(new Set(Object.keys(data).concat(Object.keys(nodes))))
-      .map((id, i) => {
-        const d = data[id],
-          n = nodes[id];
-
-        if (n === undefined) return false;
-
-        return {
-          __d3plus__: true,
-          data: d || n,
-          i,
-          id,
-          fx: d !== undefined && !isNaN(this._x(d)) ? this._x(d) : this._x(n),
-          fy: d !== undefined && !isNaN(this._y(d)) ? this._y(d) : this._y(n),
-          node: n,
-          r: this._size
-            ? d !== undefined && this._size(d) !== undefined
-              ? this._size(d)
-              : this._size(n)
-            : this._sizeMin,
-          shape:
-            d !== undefined && this._shape(d) !== undefined
-              ? this._shape(d)
-              : this._shape(n),
-        };
-      })
-      .filter((n): n is Exclude<typeof n, false> => !!n);
-
-    const nodeLookup = (this._nodeLookup = nodes.reduce((obj: any, d: any) => {
-      obj[d.id] = d;
-      return obj;
-    }, {}));
-
-    const nodeIndices = nodes.map((n: any) => n.node);
-    const links = this._links.map((l: any) => {
-      const referenceType = typeof l.source;
-      return {
-        size: this._linkSize(l),
-        source:
-          referenceType === "number"
-            ? nodes[nodeIndices.indexOf(this._nodes[l.source])]
-            : referenceType === "string"
-              ? nodeLookup[l.source]
-              : nodeLookup[l.source.id],
-        target:
-          referenceType === "number"
-            ? nodes[nodeIndices.indexOf(this._nodes[l.target])]
-            : referenceType === "string"
-              ? nodeLookup[l.target]
-              : nodeLookup[l.target.id],
-      };
-    });
-
-    this._linkLookup = links.reduce((obj: any, d: any) => {
-      if (!obj[d.source.id]) obj[d.source.id] = [];
-      obj[d.source.id].push(d.target);
-      if (!obj[d.target.id]) obj[d.target.id] = [];
-      obj[d.target.id].push(d.source);
-      return obj;
-    }, {});
-
-    const missingCoords = nodes.some(
-      (n: any) => n.fx === undefined || n.fy === undefined,
-    );
-
-    if (missingCoords) {
-      const linkStrength = scales
-        .scaleLinear()
-        .domain(
-          extent(links, (d: {size: number}) => d.size) as [number, number],
-        )
-        .range([0.1, 0.5]);
-
-      const simulation = forceSimulation()
-        .force(
-          "link",
-          forceLink(links as unknown as NetworkLink[])
-            .id((d: SimulationNodeDatum) => (d as NetworkNode).id)
-            .distance(1)
-            .strength((d: NetworkLink) => linkStrength(d.size as number))
-            .iterations(4),
-        )
-        .force("charge", forceManyBody().strength(-1))
-        .stop();
-
-      const iterations = 100;
-      const alphaMin = 0.001;
-      const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
-      simulation.velocityDecay(0);
-      simulation.alphaMin(alphaMin);
-      simulation.alphaDecay(alphaDecay);
-      simulation.alphaDecay(0);
-
-      simulation.nodes(nodes);
-      simulation.tick(iterations).stop();
-
-      const nodePositions = nodes.map((n: any) => [n.vx, n.vy] as [number, number]);
-      let angle = 0,
-        cx = 0,
-        cy = 0;
-      if (nodePositions.length === 2) {
-        angle = 100;
-      } else if (nodePositions.length > 2) {
-        const hull = polygonHull(nodePositions) || [];
-        const rect = largestRect(hull, {verbose: true})!;
-        angle = rect.angle;
-        cx = rect.cx;
-        cy = rect.cy;
-      }
-
-      nodes.forEach((n: any) => {
-        const p = pointRotate([n.vx, n.vy], -1 * ((Math.PI / 180) * angle), [
-          cx,
-          cy,
-        ]);
-        n.fx = p[0];
-        n.fy = p[1];
-      });
-    }
-
-    const xExtent = extent(nodes.map((n: any) => n.fx)) as unknown as [number, number],
-      yExtent = extent(nodes.map((n: any) => n.fy)) as unknown as [number, number];
-
-    const x = scales.scaleLinear().domain(xExtent).range([0, width]),
-      y = scales.scaleLinear().domain(yExtent).range([0, height]);
-
-    const nodeRatio =
-        (xExtent[1] - xExtent[0]) / (yExtent[1] - yExtent[0]) || 1,
-      screenRatio = width / height;
-
-    if (nodeRatio > screenRatio) {
-      const h = (height * screenRatio) / nodeRatio;
-      y.range([(height - h) / 2, height - (height - h) / 2]);
-    } else {
-      const w = (width * nodeRatio) / screenRatio;
-      x.range([(width - w) / 2, width - (width - w) / 2]);
-    }
-
-    nodes.forEach((n: any) => {
-      n.x = x(n.fx);
-      n.y = y(n.fy);
-    });
-
-    const rExtent = extent(nodes.map((n: any) => n.r)) as unknown as [number, number];
-    let rMax =
-      this._sizeMax ||
-      (max([
-        1,
-        (min(
-          merge(
-            nodes.map((n1: any) =>
-              nodes.map((n2: any) =>
-                n1 === n2 ? null : pointDistance([n1.x, n1.y], [n2.x, n2.y]),
-              ),
-            ),
-          ),
-        ) as unknown as number) / 2,
-      ]) as unknown as number);
-
-    const r = (scales as any)[
-        `scale${this._sizeScale.charAt(0).toUpperCase()}${this._sizeScale.slice(1)}`
-      ]()
-        .domain(rExtent)
-        .range([
-          rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, this._sizeMin]),
-          rMax,
-        ]),
-      xDomain = x.domain(),
-      yDomain = y.domain();
-
-    const xOldSize = xDomain[1] - xDomain[0],
-      yOldSize = yDomain[1] - yDomain[0];
-
-    nodes.forEach((n: any) => {
-      const size = r(n.r);
-      if (xDomain[0] > x.invert(n.x - size)) xDomain[0] = x.invert(n.x - size);
-      if (xDomain[1] < x.invert(n.x + size)) xDomain[1] = x.invert(n.x + size);
-      if (yDomain[0] > y.invert(n.y - size)) yDomain[0] = y.invert(n.y - size);
-      if (yDomain[1] < y.invert(n.y + size)) yDomain[1] = y.invert(n.y + size);
-    });
-
-    const xNewSize = xDomain[1] - xDomain[0],
-      yNewSize = yDomain[1] - yDomain[0];
-
-    rMax *= min([xOldSize / xNewSize, yOldSize / yNewSize])!;
-    r.range([
-      rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, this._sizeMin]),
-      rMax,
-    ]);
-    x.domain(xDomain);
-    y.domain(yDomain);
-
-    const fallbackRadius = (nodeRatio > screenRatio ? width : height) / 2;
-    nodes.forEach((n: any) => {
-      n.x = x(n.fx);
-      n.fx = n.x;
-      n.y = y(n.fy);
-      n.fy = n.y;
-      n.r = r(n.r) || fallbackRadius;
-      n.width = n.r * 2;
-      n.height = n.r * 2;
-    });
-
+    // DOM container creation stays here: zoomControls (a drawStep) reads
+    // `_container`/`_zoomGroup`, and the hitArea click handler closes over
+    // chart-instance state (`_focus`, `_zoomToBounds`, `active()`) that
+    // belongs on the class, not the pure layout stage.
     this._container = this._select.selectAll("svg.d3plus-network").data([0]);
 
     this._container = this._container
@@ -506,47 +288,13 @@ export default class Network extends Viz {
     this._zoomGroup = this._container
       .selectAll("g.d3plus-network-zoomGroup")
       .data([0]);
-    // Side effect kept (zoomGroup is referenced by interaction code below); the
-    // local `parent` var is gone because the scene-graph emit doesn't take a DOM
-    // parent — Viz.toScene's `_chartTransform` carries the offset instead.
     this._zoomGroup = this._zoomGroup
       .enter()
       .append("g")
       .attr("class", "d3plus-network-zoomGroup")
       .merge(this._zoomGroup);
 
-    const strokeExtent = extent(links, (d: {size: number}) => d.size);
-    if (strokeExtent[0] !== strokeExtent[1]) {
-      const strokeScale = (scales as any)[
-        `scale${this._linkSizeScale.charAt(0).toUpperCase()}${this._linkSizeScale.slice(1)}`
-      ]()
-        .domain(strokeExtent)
-        .range([this._linkSizeMin, r.range()[0]]);
-      links.forEach((link: any) => {
-        link.size = strokeScale(link.size);
-      });
-    }
-
-    const linkConfig = (configPrep as any).bind(this)(this._shapeConfig, "edge", "Path");
-    delete linkConfig.on;
-
-    // Links + nodes emitted by networkDef.emit.
-    const nodeShapeConfig = {
-      label: (d: any) =>
-        nodes.length <= this._dataCutoff ||
-        (this._hover && this._hover(d)) ||
-        (this._active && this._active(d))
-          ? this._drawLabel(d.data || d.node, d.i)
-          : false,
-    };
-    const linkD = (d: any) =>
-      `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
-    const nodeGroups = Array.from(groups(
-      nodes as Record<string, unknown>[],
-      (d: Record<string, unknown>) => d.shape as string,
-    ));
-    this._networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};
-    this._chartScene = networkDef.emit({viz: this} as any);
+    this._chartScene = networkDef.emit({viz: this, shapeData} as any);
     this._chartTransform = {x: this._margin.left, y: this._margin.top};
 
     return this;

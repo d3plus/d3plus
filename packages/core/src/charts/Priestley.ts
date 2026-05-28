@@ -1,11 +1,10 @@
-import {min, max, range} from "d3-array";
-import {scaleBand} from "d3-scale";
+import {min, max} from "d3-array";
 
 import {Axis} from "../components/index.js";
-import {assign, date, elem} from "@d3plus/dom";
-import {nestGroups} from "@d3plus/data";
+import {assign} from "@d3plus/dom";
 import {accessor} from "../utils/index.js";
-import {priestleyDef} from "./ChartDefinition.js";
+import {applyPriestleyLayout, priestleyDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 
 /**
@@ -43,110 +42,17 @@ export default class Priestley extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    if (!this._filteredData) return this;
-
-    const data = this._filteredData
-      .map((data: any, i: any) => ({
-        __d3plus__: true,
-        data,
-        end:
-          this._axisConfig.scale === "time"
-            ? date(this._end(data, i))
-            : this._end(data, i),
-        i,
-        id: this._id(data, i),
-        start:
-          this._axisConfig.scale === "time"
-            ? date(this._start(data, i))
-            : this._start(data, i),
-      }))
-      .filter((d: any) => d.end - d.start > 0)
-      .sort((a: any, b: any) => a.start - b.start);
-
-    let nestedData;
-    if (this._groupBy.length > 1 && this._drawDepth > 0) {
-      const keyFns = [];
-      for (let i = 0; i < this._drawDepth; i++)
-        keyFns.push((d: any) => this._groupBy[i](d.data, d.i));
-      nestedData = nestGroups(data, keyFns);
-    } else nestedData = [{values: data}];
-
-    let maxLane = 0;
-    nestedData.forEach(g => {
-      let track: any[] = [];
-      g.values.forEach((d: any) => {
-        track = track.map(t => (t <= d.start ? false : t));
-        const i = track.indexOf(false);
-        if (i < 0) {
-          d.lane = maxLane + track.length;
-          track.push(d.end);
-        } else {
-          track[i] = d.end;
-          d.lane = maxLane + i;
-        }
-      });
-      maxLane += track.length;
-    });
-
-    const axisConfig = {
-      domain: [
-        min(data, (d: {start: number | Date; end: number | Date}) => d.start) ||
-          0,
-        max(data, (d: {start: number | Date; end: number | Date}) => d.end) ||
-          0,
-      ],
-      height: this._height - this._margin.top - this._margin.bottom,
-      width: this._width - this._margin.left - this._margin.right,
+    // Priestley-specific layout (greedy first-fit lane packer + Axis
+    // mount + band scale) runs as `applyPriestleyLayout` on
+    // `priestleyDef.stages`. The stage writes `_priestleyCtx` back onto
+    // the viz and returns the laid-out per-band data; emit consumes
+    // both. `_chartTransform` stays undefined — Priestley positions in
+    // absolute scale coordinates.
+    const {shapeData} = runStages({viz: this} as any, [applyPriestleyLayout]) as unknown as {
+      shapeData: any[];
     };
-
-    const transform = `translate(${this._margin.left}, ${this._margin.top})`;
-
-    this._axisTest
-      .config(axisConfig)
-      .config(this._axisConfig)
-      .select(
-        elem("g.d3plus-priestley-axis-test", {
-          parent: this._select,
-          enter: {opacity: 0},
-        }).node(),
-      )
-      .render();
-
-    this._axis
-      .config(axisConfig)
-      .config(this._axisConfig)
-      .select(
-        elem("g.d3plus-priestley-axis", {
-          parent: this._select,
-          enter: {transform},
-          update: {transform},
-        }).node(),
-      )
-      .render();
-
-    const axisPad = this._axisTest._padding;
-
-    const xScale = this._axis._d3Scale;
-
-    const yScale = scaleBand()
-      .domain(range(0, maxLane, 1) as unknown as string[])
-      .paddingInner(this._paddingInner)
-      .paddingOuter(this._paddingOuter)
-      .rangeRound([
-        this._height -
-          this._margin.bottom -
-          this._axisTest.outerBounds().height -
-          axisPad,
-        this._margin.top + axisPad,
-      ]);
-
-    const bandWidth = yScale.bandwidth();
-
-    // Scene cells via `priestleyDef.emit`. The laid-out data + x/y scales live
-    // on `_priestleyCtx` for emit to read.
-    this._priestleyCtx = {xScale, yScale, bandWidth};
-    this._chartScene = priestleyDef.emit({viz: this, shapeData: data} as any);
-    this._chartTransform = undefined; // Priestley positions absolutely in scale coords.
+    this._chartScene = priestleyDef.emit({viz: this, shapeData} as any);
+    this._chartTransform = undefined;
     return this;
   }
 

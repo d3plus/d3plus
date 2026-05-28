@@ -1,12 +1,12 @@
 import {Axis} from "../components/index.js";
-import {assign, elem} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import {accessor, getProp} from "../utils/index.js";
 
 import {installFluent} from "../fluent.js";
-import {matrixDef} from "./ChartDefinition.js";
+import {applyMatrixLayout, matrixDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
-import prepData from "./helpers/matrixData.js";
 
 // E4: Matrix's identity-coerce accessors.
 const matrixSchema = [
@@ -97,111 +97,15 @@ export default class Matrix extends Viz {
       @private
   */
   _draw(callback?: () => void): this {
-    const {rowValues, columnValues, shapeData} = prepData.bind(this)(
-      this._filteredData,
-    );
-
-    if (!rowValues.length || !columnValues.length) return this;
-
-    const height = this._height - this._margin.top - this._margin.bottom,
-      parent = this._select,
-      transition = this._transition,
-      width = this._width - this._margin.left - this._margin.right;
-
-    const hidden = {opacity: 0};
-    const visible = {opacity: 1};
-
-    const columnRotation = width / columnValues.length < 120;
-
-    const selectElem = (name: string, opts: Record<string, unknown>) =>
-      elem(
-        `g.d3plus-Matrix-${name}`,
-        Object.assign({parent, transition}, opts),
-      ).node();
-
-    this._rowAxis
-      .select(selectElem("row", {enter: hidden, update: hidden}))
-      .domain(rowValues)
-      .height(
-        height -
-          this._margin.top -
-          this._margin.bottom -
-          this._padding.bottom -
-          this._padding.top,
-      )
-      .maxSize(width / 4)
-      .width(width)
-      .config(this._rowConfig)
-      .render();
-
-    const rowPadding = this._rowAxis.outerBounds().width;
-    this._padding.left += rowPadding;
-    let columnTransform = `translate(0, ${this._margin.top})`;
-    const hiddenTransform = Object.assign({transform: columnTransform}, hidden);
-
-    this._columnAxis
-      .select(
-        selectElem("column", {enter: hiddenTransform, update: hiddenTransform}),
-      )
-      .domain(columnValues)
-      .range([
-        this._margin.left + this._padding.left,
-        width - this._margin.right + this._padding.right,
-      ])
-      .height(height)
-      .maxSize(height / 4)
-      .width(width)
-      .labelRotation(columnRotation)
-      .config(this._columnConfig)
-      .render();
-
-    const columnPadding = this._columnAxis.outerBounds().height;
-    this._padding.top += columnPadding;
-
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const rowTransform = `translate(${this._margin.left}, ${this._margin.top})`;
-    columnTransform = `translate(0, ${this._margin.top})`;
-    const visibleTransform = Object.assign(
-      {transform: columnTransform},
-      visible,
-    );
-
-    this._rowAxis
-      .select(
-        selectElem("row", {
-          update: Object.assign({transform: rowTransform}, visible),
-        }),
-      )
-      .height(
-        height - this._margin.top - this._margin.bottom - this._padding.bottom,
-      )
-      .maxSize(rowPadding)
-      .range([columnPadding + this._columnAxis.padding(), undefined])
-      .render();
-
-    this._columnAxis
-      .select(selectElem("column", {update: visibleTransform}))
-      .range([
-        this._margin.left + this._padding.left + this._rowAxis.padding(),
-        width - this._margin.right + this._padding.right,
-      ])
-      .maxSize(columnPadding)
-      .render();
-
-    const rowScale = this._rowAxis._getPosition.bind(this._rowAxis);
-    const columnScale = this._columnAxis._getPosition.bind(this._columnAxis);
-    const cellHeight =
-      rowValues.length > 1
-        ? rowScale(rowValues[1]) - rowScale(rowValues[0])
-        : this._rowAxis.height();
-    const cellWidth =
-      columnValues.length > 1
-        ? columnScale(columnValues[1]) - columnScale(columnValues[0])
-        : this._columnAxis.width();
-
-    // Scene cells via `matrixDef.emit`.
-    this._matrixCtx = {columnScale, rowScale, cellWidth, cellHeight};
+    // Matrix-specific layout (two-pass row/column Axis render + padding
+    // mutation + cell-dim derivation) runs as `applyMatrixLayout` on
+    // `matrixDef.stages`. The stage writes `_padding`/`_matrixCtx` back
+    // onto the viz; emit consumes `_matrixCtx` and produces Rect cells.
+    const {shapeData} = runStages({viz: this} as any, [applyMatrixLayout]) as unknown as {
+      shapeData: DataPoint[];
+    };
     this._chartScene = matrixDef.emit({viz: this, shapeData} as any);
     this._chartTransform = {x: 0, y: this._margin.top};
     return this;

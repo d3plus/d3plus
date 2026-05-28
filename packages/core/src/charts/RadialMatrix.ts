@@ -1,22 +1,13 @@
-import {min} from "d3-array";
-import {arc} from "d3-shape";
-import type {DefaultArcObject} from "d3-shape";
-
 import {colorContrast} from "@d3plus/color";
-import {assign, backgroundColor, elem} from "@d3plus/dom";
+import {assign, backgroundColor} from "@d3plus/dom";
 
-/** Extended arc datum with row/column properties for the radial matrix. */
-interface MatrixArcDatum extends DefaultArcObject {
-  row: string;
-  column: string;
-}
 import {TextBox} from "../components/index.js";
 import {accessor, constant, getProp} from "../utils/index.js";
 
 import {installFluent} from "../fluent.js";
-import {radialMatrixDef} from "./ChartDefinition.js";
+import {applyRadialMatrixLayout, radialMatrixDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
-import prepData from "./helpers/matrixData.js";
 
 // E4: RadialMatrix's identity-coerce accessors.
 const radialMatrixSchema = [
@@ -25,8 +16,6 @@ const radialMatrixSchema = [
   {key: "rowList", coerce: "identity" as const},
   {key: "rowSort", coerce: "identity" as const},
 ];
-
-const tau = Math.PI * 2;
 
 /**
     Creates a radial layout of a rows/columns Matrix of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/radial-matrix/) for help getting started using the Matrix class.
@@ -106,114 +95,22 @@ export default class RadialMatrix extends Viz {
       @private
   */
   _draw(callback?: () => void) {
-    const {rowValues, columnValues, shapeData} = prepData.bind(this)(
-      this._filteredData,
-    );
-
-    if (!rowValues.length || !columnValues.length) return this;
-
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const height = this._height - this._margin.top - this._margin.bottom,
-      parent = this._select,
-      transition = this._transition,
-      width = this._width - this._margin.left - this._margin.right;
-
-    const labelHeight = 50,
-      labelWidth = 100;
-    const radius = min([height - labelHeight * 2, width - labelWidth * 2])! / 2,
-      transform = `translate(${width / 2 + this._margin.left}, ${height / 2 + this._margin.top})`;
-
-    const flippedColumns = columnValues.slice().reverse();
-    flippedColumns.unshift(flippedColumns.pop()!);
-    const total = flippedColumns.length;
-
-    const labelData = flippedColumns.map((key, i) => {
-      const radians = (i / total) * tau;
-      const angle = Math.round((radians * 180) / Math.PI);
-      const quadrant = Math.floor((((angle + 90) / 90) % 4) + 1);
-
-      const xMod = [0, 180].includes(angle)
-        ? -labelWidth / 2
-        : [2, 3].includes(quadrant)
-          ? -labelWidth
-          : 0;
-      const yMod = [90, 270].includes(angle)
-        ? -labelHeight / 2
-        : [2, 1].includes(quadrant)
-          ? -labelHeight
-          : 0;
-
-      return {
-        key,
-        angle,
-        quadrant,
-        radians,
-        x: radius * Math.sin(radians + Math.PI) + xMod,
-        y: radius * Math.cos(radians + Math.PI) + yMod,
-      };
-    });
-
-    /**
-     * Extracts the axis config "labels" Array, if it exists, it filters
-     * the column labels by the values included in the Array.
-     */
-    const displayLabels =
-      this._columnConfig.labels instanceof Array
-        ? labelData.filter(d => this._columnConfig.labels.includes(d.key))
-        : labelData;
-
-    this._columnLabels
-      .data(displayLabels)
-      .x((d: any) => d.x)
-      .y((d: any) => d.y)
-      .text((d: any) => d.key)
-      .width(labelWidth)
-      .height(labelHeight)
-      .config(this._columnConfig.shapeConfig.labelConfig)
-      .select(
-        elem("g.d3plus-RadialMatrix-columns", {
-          parent,
-          transition,
-          enter: {transform},
-          update: {transform},
-        }).node(),
-      )
-      .render();
-
-    const innerRadius = this._innerRadius(radius);
-    const rowHeight = (radius - innerRadius) / rowValues.length;
-    const columnWidth =
-      labelData.length > 1 ? labelData[1].radians - labelData[0].radians : tau;
-    const flippedRows = rowValues.slice().reverse();
-
-    const arcData = arc<MatrixArcDatum>()
-      .padAngle(this._cellPadding / radius)
-      .innerRadius(
-        d =>
-          innerRadius +
-          flippedRows.indexOf(d.row) * rowHeight +
-          this._cellPadding / 2,
-      )
-      .outerRadius(
-        d =>
-          innerRadius +
-          (flippedRows.indexOf(d.row) + 1) * rowHeight -
-          this._cellPadding / 2,
-      )
-      .startAngle(
-        d =>
-          labelData[columnValues.indexOf(d.column)].radians - columnWidth / 2,
-      )
-      .endAngle(
-        d =>
-          labelData[columnValues.indexOf(d.column)].radians + columnWidth / 2,
-      );
-
-    // Scene cells via `radialMatrixDef.emit`.
-    this._radialMatrixCtx = {arcData};
+    // RadialMatrix-specific layout (polar label geometry + arc generator
+    // + imperative column-label TextBox mount) runs as
+    // `applyRadialMatrixLayout` on `radialMatrixDef.stages`. The stage
+    // writes `_radialMatrixCtx`/`_radialMatrixWidth`/`_radialMatrixHeight`
+    // back onto the viz; emit consumes `_radialMatrixCtx` and produces
+    // the Path arc cells.
+    const {shapeData} = runStages({viz: this} as any, [applyRadialMatrixLayout]) as unknown as {
+      shapeData: any[];
+    };
     this._chartScene = radialMatrixDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {x: width / 2 + this._margin.left, y: height / 2 + this._margin.top};
+    this._chartTransform = {
+      x: this._radialMatrixWidth / 2 + this._margin.left,
+      y: this._radialMatrixHeight / 2 + this._margin.top,
+    };
     return this;
   }
 

@@ -30,7 +30,8 @@ import {hierarchy, treemap, treemapSquarify} from "d3-hierarchy";
 
 import {nestGroups} from "@d3plus/data";
 
-import {date} from "@d3plus/dom";
+import {colorContrast} from "@d3plus/color";
+import {backgroundColor, date} from "@d3plus/dom";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
@@ -265,14 +266,27 @@ import {pack, tree} from "d3-hierarchy";
 // `extent`/`min`/`max` already imported above (line 37, from d3-array).
 // `assign`/`nest` re-imported below where the Tree stage needs them, but
 // kept consolidated here to avoid duplicate-import errors.
+import {merge as d3ArrayMerge, quantile} from "d3-array";
 import {scaleLinear} from "d3-scale";
-import {assign} from "@d3plus/dom";
+import {forceLink, forceManyBody, forceSimulation} from "d3-force";
+import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
+import {polygonHull} from "d3-polygon";
+import {assign, elem} from "@d3plus/dom";
 import {nest} from "@d3plus/data";
+import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
 import {pie} from "d3-shape";
+import {pointer} from "d3-selection";
 import {sankeyJustify} from "d3-sankey";
 import {parseSides} from "@d3plus/dom";
+import {feature as topojsonFeature} from "topojson-client";
 
 import constant from "../utils/constant.js";
+
+import matrixPrepData from "./helpers/matrixData.js";
+
+// `tauRadar` is used by the Radar layout stage to compute per-axis radians.
+// Originally a module-local in Radar.ts; moved here with the layout body.
+const tauRadar = Math.PI * 2;
 
 /**
     `barChartDef` is the working definition for `BarChart`.
@@ -347,6 +361,40 @@ export const bumpChartDef: ChartDefinition = {
 /* ----------------------- Pie/Donut/Pack defs ----------------------- */
 
 /**
+    `applyPieLayout` — Pie's chart-specific layout stage. Runs the d3-shape
+    pie layout against `viz._filteredData`, tags each slice with
+    `__d3plus__` + index, builds the arc generator from `_innerRadius`/
+    `_padAngle`/`_padPixel`, and stashes `_pieData`/`_arcData`/`_pieWidth`/
+    `_pieHeight` back on the viz for emit + the chart's _chartTransform.
+*/
+export const applyPieLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
+  const outerRadius = Math.min(width, height) / 2;
+
+  const pieData = (v._pieData = v._pie
+    .padAngle(v._padAngle || v._padPixel / outerRadius)
+    .sort(v._sort)
+    .value(v._value)(v._filteredData));
+
+  pieData.forEach((d: Record<string, unknown>, i: number) => {
+    d.__d3plus__ = true;
+    d.i = i;
+  });
+
+  v._arcData = d3Shape.arc()
+    .innerRadius(v._innerRadius)
+    .outerRadius(outerRadius);
+
+  v._pieWidth = width;
+  v._pieHeight = height;
+
+  return {shapeData: pieData} as any;
+};
+
+/**
     `pieDef.emit` — given a Pie's `_pieData` (the d3-shape pie layout array),
     emits Path SceneNodes for each slice + their label TextNodes. Uses a
     transient Path in compute mode (same shape as treemapEmit).
@@ -378,7 +426,7 @@ export const pieDef: ChartDefinition = {
     value: accessor("value"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyPieLayout],
   emit: pieEmit,
 };
 
@@ -495,9 +543,10 @@ export const packDef: ChartDefinition = {
 
 /**
     `priestleyDef.emit` — Rect SceneNodes for each Priestley band (start→end
-    time interval at the assigned lane). The chart's `_draw` stashes the
-    laid-out `data`, `xScale`, `yScale`, `bandWidth` onto `viz._priestleyCtx`;
-    emit consumes them. Same transient-shape pattern as treemapEmit.
+    time interval at the assigned lane). The layout stage stashes
+    `xScale`/`yScale`/`bandWidth` onto `viz._priestleyCtx` and returns the
+    laid-out `data` as `shapeData`; emit consumes both. Same transient-
+    shape pattern as treemapEmit.
 */
 const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   if (!shapeData || !shapeData.length) return [];
@@ -520,19 +569,141 @@ const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   return collectComputed(rect);
 };
 
+/**
+    `applyPriestleyLayout` — Priestley's chart-specific layout stage.
+
+    Builds the per-row datum array from `_filteredData` (start/end coerced
+    via `date()` when `_axisConfig.scale === "time"`), groups it by the
+    nested `_groupBy` slice, then assigns each band a `lane` using a
+    greedy first-fit packer. Mounts `viz._axisTest`/`viz._axis` (two Axis
+    instances built once in the constructor) imperatively via `elem()` —
+    same axis-decoration carve-out the other stages take. Computes the
+    band-scale (`yScale` via d3-scale.scaleBand) using the test-axis's
+    measured padding, then stashes `xScale`/`yScale`/`bandWidth` on
+    `viz._priestleyCtx` for `priestleyEmit` to consume.
+
+    Returns the laid-out per-band data as `shapeData`; the chart class
+    leaves `_chartTransform` undefined since Priestley positions in
+    absolute scale coordinates.
+*/
+export const applyPriestleyLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+
+  if (!v._filteredData) return {shapeData: []} as any;
+
+  const data = v._filteredData
+    .map((datum: any, i: number) => ({
+      __d3plus__: true,
+      data: datum,
+      end:
+        v._axisConfig.scale === "time"
+          ? date(v._end(datum, i))
+          : v._end(datum, i),
+      i,
+      id: v._id(datum, i),
+      start:
+        v._axisConfig.scale === "time"
+          ? date(v._start(datum, i))
+          : v._start(datum, i),
+    }))
+    .filter((d: any) => d.end - d.start > 0)
+    .sort((a: any, b: any) => a.start - b.start);
+
+  let nestedData;
+  if (v._groupBy.length > 1 && v._drawDepth > 0) {
+    const keyFns = [];
+    for (let i = 0; i < v._drawDepth; i++)
+      keyFns.push((d: any) => v._groupBy[i](d.data, d.i));
+    nestedData = nestGroups(data, keyFns);
+  } else nestedData = [{values: data}];
+
+  let maxLane = 0;
+  nestedData.forEach((g: any) => {
+    let track: any[] = [];
+    g.values.forEach((d: any) => {
+      track = track.map((t: any) => (t <= d.start ? false : t));
+      const i = track.indexOf(false);
+      if (i < 0) {
+        d.lane = maxLane + track.length;
+        track.push(d.end);
+      } else {
+        track[i] = d.end;
+        d.lane = maxLane + i;
+      }
+    });
+    maxLane += track.length;
+  });
+
+  const axisConfig = {
+    domain: [
+      min(data, (d: {start: number | Date; end: number | Date}) => d.start) || 0,
+      max(data, (d: {start: number | Date; end: number | Date}) => d.end) || 0,
+    ],
+    height: v._height - v._margin.top - v._margin.bottom,
+    width: v._width - v._margin.left - v._margin.right,
+  };
+
+  const transform = `translate(${v._margin.left}, ${v._margin.top})`;
+
+  v._axisTest
+    .config(axisConfig)
+    .config(v._axisConfig)
+    .select(
+      elem("g.d3plus-priestley-axis-test", {
+        parent: v._select,
+        enter: {opacity: 0},
+      }).node(),
+    )
+    .render();
+
+  v._axis
+    .config(axisConfig)
+    .config(v._axisConfig)
+    .select(
+      elem("g.d3plus-priestley-axis", {
+        parent: v._select,
+        enter: {transform},
+        update: {transform},
+      }).node(),
+    )
+    .render();
+
+  const axisPad = v._axisTest._padding;
+  const xScale = v._axis._d3Scale;
+
+  const yScale = (scales as any).scaleBand()
+    .domain(range(0, maxLane, 1) as unknown as string[])
+    .paddingInner(v._paddingInner)
+    .paddingOuter(v._paddingOuter)
+    .rangeRound([
+      v._height -
+        v._margin.bottom -
+        v._axisTest.outerBounds().height -
+        axisPad,
+      v._margin.top + axisPad,
+    ]);
+
+  const bandWidth = yScale.bandwidth();
+
+  v._priestleyCtx = {xScale, yScale, bandWidth};
+  return {shapeData: data} as any;
+};
+
 export const priestleyDef: ChartDefinition = {
   name: "Priestley",
   defaults: {paddingInner: 0.05, paddingOuter: 0.05},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyPriestleyLayout],
   emit: priestleyEmit,
 };
 
 /**
-    `radarDef.emit` — Path SceneNodes for each radar polygon. `_draw` stashes
-    `groupData` + `pathConfig` on `viz._radarCtx`. The Radar's circle/rect/path
-    axis decorations are still drawn imperatively (they don't fit the
-    chart-data shape; addressed later when axis-grid emit lands).
+    `radarDef.emit` — Path SceneNodes for each radar polygon. The layout
+    stage stashes `groupData` + `pathConfig` on `viz._radarCtx`. The
+    Radar's circle/rect/path axis decorations are still drawn imperatively
+    (they don't fit the chart-data shape; addressed later when axis-grid
+    emit lands).
 */
 const radarEmit: ChartDefinition["emit"] = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -546,6 +717,219 @@ const radarEmit: ChartDefinition["emit"] = ({viz}) => {
   return collectComputed(path);
 };
 
+/**
+    `applyRadarLayout` — Radar's chart-specific layout stage.
+
+    Computes the polar geometry for the radar: per-axis (`nestedAxisData`)
+    angular positions, per-group (`nestedGroupData`) polygon vertices, the
+    max value for radius normalization, and the per-polygon `pathConfig`
+    (including event-handler wrappers that translate cursor → nearest
+    vertex). Stashes `groupData` + `pathConfig` on `viz._radarCtx` for
+    `radarEmit` to consume; returns `shapeData = groupData`.
+
+    The Circle/Rect/Path axis decorations (background grid, axis labels,
+    spokes) are still rendered imperatively here via `elem()` because no
+    scene-graph axis-grid emit exists yet — same carve-out the other
+    `apply*Layout` stages take when they need to mount an Axis. This is
+    the only side-effecting bit; the polygon path itself rides the
+    scene-graph via `radarEmit`.
+*/
+export const applyRadarLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
+
+  const radius = min([height, width])! / 2 - v._outerPadding;
+  const transform = `translate(${width / 2}, ${height / 2})`;
+
+  const nestedAxisData = groups(v._filteredData, v._metric);
+  const nestedGroupData = groups(v._filteredData, v._id, v._metric);
+
+  const maxValue = max(
+    nestedGroupData
+      .map(([, innerEntries]) =>
+        innerEntries.map(([, vals]) =>
+          sum(vals, (x, i) => v._value(x, i)),
+        ),
+      )
+      .flat(),
+  );
+
+  const circularAxis = Array.from(Array(v._levels).keys()).map(d => ({
+    id: d,
+    r: radius * ((d + 1) / v._levels),
+  }));
+
+  const circleConfig = (configPrep as any).bind(v)(
+    v._axisConfig.shapeConfig,
+    "shape",
+    "Circle",
+  );
+  delete circleConfig.label;
+
+  // Axis decoration: concentric background circles. Imperative because
+  // there's no axis-grid scene-graph emit yet — see stage docstring.
+  new Circle()
+    .data(circularAxis)
+    .select(
+      elem("g.d3plus-Radar-radial-circles", {
+        parent: v._select,
+        enter: {transform},
+        update: {transform},
+      }).node(),
+    )
+    .config(circleConfig)
+    .render();
+
+  const totalAxis = nestedAxisData.length;
+  const polarAxis = nestedAxisData
+    .map(([key, values], i) => {
+      const d = {key, values};
+      const ww = v._outerPadding;
+      const fontSize =
+        (v._shapeConfig.labelConfig.fontSize &&
+          v._shapeConfig.labelConfig.fontSize(d, i)) ||
+        11;
+
+      const lineHeight = fontSize * 1.4;
+      const hh = lineHeight * 2;
+      const padding = 10,
+        quadrant =
+          (parseInt(String(360 - ((360 / totalAxis) * i) / 90), 10) % 4) + 1,
+        radians = (tauRadar / totalAxis) * i;
+
+      let angle = (360 / totalAxis) * i;
+
+      let textAnchor = "start";
+      let x = padding;
+
+      if (quadrant === 2 || quadrant === 3) {
+        x = -ww - padding;
+        textAnchor = "end";
+        angle += 180;
+      }
+
+      const labelBounds = {
+        x,
+        y: -hh / 2,
+        width: ww,
+        height: hh,
+      };
+
+      return {
+        __d3plus__: true,
+        data: merge(d.values as DataPoint[], v._aggs),
+        i,
+        id: d.key,
+        key: d.key,
+        angle,
+        textAnchor,
+        labelBounds,
+        rotateAnchor: [-x, hh / 2],
+        x: radius * Math.cos(radians),
+        y: radius * Math.sin(radians),
+      };
+    })
+    .sort((a, b) => (a.key as number) - (b.key as number));
+
+  // Axis decoration: per-axis labels (rendered as Rect-mounted text).
+  new Rect()
+    .data(polarAxis as unknown as DataPoint[])
+    .rotate((d: any) => d.angle || 0)
+    .width(0)
+    .height(0)
+    .x((d: any) => d.x)
+    .y((d: any) => d.y)
+    .label((d: any) => d.id)
+    .labelBounds((d: any) => d.labelBounds as unknown as Record<string, unknown>)
+    .labelConfig(v._axisConfig.shapeConfig.labelConfig)
+    .select(
+      elem("g.d3plus-Radar-text", {
+        parent: v._select,
+        enter: {transform},
+        update: {transform},
+      }).node(),
+    )
+    .render();
+
+  // Axis decoration: radial spoke lines.
+  new Path()
+    .data(polarAxis as unknown as DataPoint[])
+    .d((d: any) => `M${0},${0} ${-d.x},${-d.y}`)
+    .select(
+      elem("g.d3plus-Radar-axis", {
+        parent: v._select,
+        enter: {transform},
+        update: {transform},
+      }).node(),
+    )
+    .config(
+      (configPrep as any).bind(v)(v._axisConfig.shapeConfig, "shape", "Path"),
+    )
+    .render();
+
+  const groupData = nestedGroupData.map(([hKey, innerEntries]) => {
+    const q = innerEntries.map(([, vals], i) => {
+      const value = sum(vals, (x, i) => v._value(x, i));
+      const r = (value / maxValue!) * radius,
+        radians = (tauRadar / totalAxis) * i;
+      return {
+        x: r * Math.cos(radians),
+        y: r * Math.sin(radians),
+      };
+    });
+
+    const pathD = `M ${q[0].x} ${q[0].y} ${q
+      .map(l => `L ${l.x} ${l.y}`)
+      .join(" ")} L ${q[0].x} ${q[0].y}`;
+
+    return {
+      arr: innerEntries.map(([, vals]) =>
+        merge(vals as DataPoint[], v._aggs),
+      ),
+      id: hKey,
+      points: q,
+      d: pathD,
+      __d3plus__: true,
+      data: merge(
+        innerEntries.map(([, vals]) =>
+          merge(vals as DataPoint[], v._aggs),
+        ) as DataPoint[],
+        v._aggs,
+      ),
+    };
+  });
+
+  const pathConfig = (configPrep as any).bind(v)(
+    v._shapeConfig,
+    "shape",
+    "Path",
+  );
+  // Event-handler wrappers: translate the cursor coordinate (in chart-group
+  // space) to the nearest polygon vertex so the click/mousemove resolves to
+  // a single datum out of the polygon's flattened `arr`. Stays in the
+  // layout stage (not the constructor) because the wrapper closes over
+  // `width`/`height` from this render pass.
+  const events = Object.keys(pathConfig.on as Record<string, unknown> ?? {});
+  pathConfig.on = {};
+  for (let e = 0; e < events.length; e++) {
+    const event = events[e];
+    pathConfig.on[event] = (d: any, i: any, s: any, e: any) => {
+      const xs = d.points.map((p: any) => p.x + width / 2);
+      const ys = d.points.map((p: any) => p.y + height / 2);
+      const cursor = pointer(e, v._select.node());
+      const xDist = xs.map((p: any) => Math.abs(p - cursor[0]));
+      const yDist = ys.map((p: any) => Math.abs(p - cursor[1]));
+      const dists = xDist.map((dd: any, ii: any) => dd + yDist[ii]);
+      v._on[event].bind(v)(d.arr[dists.indexOf(min(dists))], i, s, e);
+    };
+  }
+
+  v._radarCtx = {groupData, pathConfig};
+  return {shapeData: groupData} as any;
+};
+
 export const radarDef: ChartDefinition = {
   name: "Radar",
   defaults: {
@@ -557,13 +941,13 @@ export const radarDef: ChartDefinition = {
     value: accessor("value"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyRadarLayout],
   emit: radarEmit,
 };
 
 /**
-    `matrixDef.emit` — Rect cells for a Matrix chart. `_draw` stashes the
-    column/row scales + cell dims on `viz._matrixCtx`.
+    `matrixDef.emit` — Rect cells for a Matrix chart. The layout stage stashes
+    the column/row scales + cell dims on `viz._matrixCtx`.
 */
 const matrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   if (!shapeData || !shapeData.length) return [];
@@ -583,6 +967,136 @@ const matrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   return collectComputed(rect);
 };
 
+/**
+    `applyMatrixLayout` — Matrix's chart-specific layout stage.
+
+    Runs `matrixData.prepData` to derive `rowValues`/`columnValues` plus the
+    cartesian-product `shapeData`, then performs a two-pass Axis render: a
+    hidden first pass to measure `_rowAxis.outerBounds().width` and
+    `_columnAxis.outerBounds().height`, then a visible second pass that
+    consumes the computed `_padding`. Mounts the two `Axis` instances
+    (`viz._rowAxis`/`viz._columnAxis`) into `g.d3plus-Matrix-row`/
+    `g.d3plus-Matrix-column` via `elem()` — same imperative-axis carve-out
+    `applyRadarLayout` takes (no scene-graph axis emit yet).
+
+    Side effects on the viz:
+      - `_padding.left += rowPadding` (row-axis outer width)
+      - `_padding.top  += columnPadding` (column-axis outer height)
+      - `_matrixCtx = {columnScale, rowScale, cellWidth, cellHeight}` for
+        `matrixEmit` to consume.
+
+    The padding mutation mirrors the legacy `_draw` body byte-for-byte;
+    `_chartTransform` (`{x: 0, y: _margin.top}`) is still set by the chart
+    class after this stage returns.
+*/
+export const applyMatrixLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const {rowValues, columnValues, shapeData} = matrixPrepData.bind(v)(
+    v._filteredData,
+  );
+
+  if (!rowValues.length || !columnValues.length) return {shapeData: []} as any;
+
+  const height = v._height - v._margin.top - v._margin.bottom,
+    parent = v._select,
+    transition = v._transition,
+    width = v._width - v._margin.left - v._margin.right;
+
+  const hidden = {opacity: 0};
+  const visible = {opacity: 1};
+
+  const columnRotation = width / columnValues.length < 120;
+
+  const selectElem = (name: string, opts: Record<string, unknown>) =>
+    elem(
+      `g.d3plus-Matrix-${name}`,
+      Object.assign({parent, transition}, opts),
+    ).node();
+
+  v._rowAxis
+    .select(selectElem("row", {enter: hidden, update: hidden}))
+    .domain(rowValues)
+    .height(
+      height -
+        v._margin.top -
+        v._margin.bottom -
+        v._padding.bottom -
+        v._padding.top,
+    )
+    .maxSize(width / 4)
+    .width(width)
+    .config(v._rowConfig)
+    .render();
+
+  const rowPadding = v._rowAxis.outerBounds().width;
+  v._padding.left += rowPadding;
+  let columnTransform = `translate(0, ${v._margin.top})`;
+  const hiddenTransform = Object.assign({transform: columnTransform}, hidden);
+
+  v._columnAxis
+    .select(
+      selectElem("column", {enter: hiddenTransform, update: hiddenTransform}),
+    )
+    .domain(columnValues)
+    .range([
+      v._margin.left + v._padding.left,
+      width - v._margin.right + v._padding.right,
+    ])
+    .height(height)
+    .maxSize(height / 4)
+    .width(width)
+    .labelRotation(columnRotation)
+    .config(v._columnConfig)
+    .render();
+
+  const columnPadding = v._columnAxis.outerBounds().height;
+  v._padding.top += columnPadding;
+
+  const rowTransform = `translate(${v._margin.left}, ${v._margin.top})`;
+  columnTransform = `translate(0, ${v._margin.top})`;
+  const visibleTransform = Object.assign(
+    {transform: columnTransform},
+    visible,
+  );
+
+  v._rowAxis
+    .select(
+      selectElem("row", {
+        update: Object.assign({transform: rowTransform}, visible),
+      }),
+    )
+    .height(
+      height - v._margin.top - v._margin.bottom - v._padding.bottom,
+    )
+    .maxSize(rowPadding)
+    .range([columnPadding + v._columnAxis.padding(), undefined])
+    .render();
+
+  v._columnAxis
+    .select(selectElem("column", {update: visibleTransform}))
+    .range([
+      v._margin.left + v._padding.left + v._rowAxis.padding(),
+      width - v._margin.right + v._padding.right,
+    ])
+    .maxSize(columnPadding)
+    .render();
+
+  const rowScale = v._rowAxis._getPosition.bind(v._rowAxis);
+  const columnScale = v._columnAxis._getPosition.bind(v._columnAxis);
+  const cellHeight =
+    rowValues.length > 1
+      ? rowScale(rowValues[1]) - rowScale(rowValues[0])
+      : v._rowAxis.height();
+  const cellWidth =
+    columnValues.length > 1
+      ? columnScale(columnValues[1]) - columnScale(columnValues[0])
+      : v._columnAxis.width();
+
+  v._matrixCtx = {columnScale, rowScale, cellWidth, cellHeight};
+  return {shapeData} as any;
+};
+
 export const matrixDef: ChartDefinition = {
   name: "Matrix",
   defaults: {
@@ -591,13 +1105,13 @@ export const matrixDef: ChartDefinition = {
     row: accessor("row"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyMatrixLayout],
   emit: matrixEmit,
 };
 
 /**
-    `radialMatrixDef.emit` — Path SceneNodes for each arc cell. `_draw`
-    stashes the arc generator on `viz._radialMatrixCtx`.
+    `radialMatrixDef.emit` — Path SceneNodes for each arc cell. The layout
+    stage stashes the arc generator on `viz._radialMatrixCtx`.
 */
 const radialMatrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   if (!shapeData || !shapeData.length) return [];
@@ -617,6 +1131,145 @@ const radialMatrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   return collectComputed(path);
 };
 
+/**
+    `applyRadialMatrixLayout` — RadialMatrix's chart-specific layout stage.
+
+    Runs `matrixData.prepData` for `rowValues`/`columnValues`/`shapeData`,
+    then computes the polar geometry: a label-anchored outer radius, the
+    per-column label positions (`labelData` with angle/quadrant + xy), and
+    the d3-shape arc generator (`arcData`) that maps each row/column pair
+    onto its annular wedge. Mounts `viz._columnLabels` (a TextBox built
+    once in the constructor) imperatively via `elem()` — same axis-
+    decoration carve-out the other polar stages take.
+
+    Writes back on the viz:
+      - `_radialMatrixCtx = {arcData}` for `radialMatrixEmit`.
+      - `_radialMatrixWidth`/`_radialMatrixHeight` so the chart class can
+        compute `_chartTransform` (`{x: width/2 + _margin.left, y: ...}`)
+        using the same width/height the stage measured.
+
+    A local `tauRMConst` mirrors the legacy module-local `tau = Math.PI*2`
+    so the stage doesn't depend on a module-level constant shared with
+    other charts.
+*/
+export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const tauRMConst = Math.PI * 2;
+
+  const {rowValues, columnValues, shapeData} = matrixPrepData.bind(v)(
+    v._filteredData,
+  );
+
+  if (!rowValues.length || !columnValues.length) {
+    v._radialMatrixWidth = v._width - v._margin.left - v._margin.right;
+    v._radialMatrixHeight = v._height - v._margin.top - v._margin.bottom;
+    return {shapeData: []} as any;
+  }
+
+  const height = v._height - v._margin.top - v._margin.bottom,
+    parent = v._select,
+    transition = v._transition,
+    width = v._width - v._margin.left - v._margin.right;
+
+  v._radialMatrixWidth = width;
+  v._radialMatrixHeight = height;
+
+  const labelHeight = 50,
+    labelWidth = 100;
+  const radius = min([height - labelHeight * 2, width - labelWidth * 2])! / 2,
+    transform = `translate(${width / 2 + v._margin.left}, ${height / 2 + v._margin.top})`;
+
+  const flippedColumns = columnValues.slice().reverse();
+  flippedColumns.unshift(flippedColumns.pop()!);
+  const total = flippedColumns.length;
+
+  const labelData = flippedColumns.map((key: any, i: number) => {
+    const radians = (i / total) * tauRMConst;
+    const angle = Math.round((radians * 180) / Math.PI);
+    const quadrant = Math.floor((((angle + 90) / 90) % 4) + 1);
+
+    const xMod = [0, 180].includes(angle)
+      ? -labelWidth / 2
+      : [2, 3].includes(quadrant)
+        ? -labelWidth
+        : 0;
+    const yMod = [90, 270].includes(angle)
+      ? -labelHeight / 2
+      : [2, 1].includes(quadrant)
+        ? -labelHeight
+        : 0;
+
+    return {
+      key,
+      angle,
+      quadrant,
+      radians,
+      x: radius * Math.sin(radians + Math.PI) + xMod,
+      y: radius * Math.cos(radians + Math.PI) + yMod,
+    };
+  });
+
+  // Extracts the axis config "labels" Array, if it exists, it filters
+  // the column labels by the values included in the Array.
+  const displayLabels =
+    v._columnConfig.labels instanceof Array
+      ? labelData.filter((d: any) => v._columnConfig.labels.includes(d.key))
+      : labelData;
+
+  v._columnLabels
+    .data(displayLabels)
+    .x((d: any) => d.x)
+    .y((d: any) => d.y)
+    .text((d: any) => d.key)
+    .width(labelWidth)
+    .height(labelHeight)
+    .config(v._columnConfig.shapeConfig.labelConfig)
+    .select(
+      elem("g.d3plus-RadialMatrix-columns", {
+        parent,
+        transition,
+        enter: {transform},
+        update: {transform},
+      }).node(),
+    )
+    .render();
+
+  const innerRadius = v._innerRadius(radius);
+  const rowHeight = (radius - innerRadius) / rowValues.length;
+  const columnWidth =
+    labelData.length > 1
+      ? labelData[1].radians - labelData[0].radians
+      : tauRMConst;
+  const flippedRows = rowValues.slice().reverse();
+
+  const arcData = (d3Shape.arc as any)()
+    .padAngle(v._cellPadding / radius)
+    .innerRadius(
+      (d: any) =>
+        innerRadius +
+        flippedRows.indexOf(d.row) * rowHeight +
+        v._cellPadding / 2,
+    )
+    .outerRadius(
+      (d: any) =>
+        innerRadius +
+        (flippedRows.indexOf(d.row) + 1) * rowHeight -
+        v._cellPadding / 2,
+    )
+    .startAngle(
+      (d: any) =>
+        labelData[columnValues.indexOf(d.column)].radians - columnWidth / 2,
+    )
+    .endAngle(
+      (d: any) =>
+        labelData[columnValues.indexOf(d.column)].radians + columnWidth / 2,
+    );
+
+  v._radialMatrixCtx = {arcData};
+  return {shapeData} as any;
+};
+
 export const radialMatrixDef: ChartDefinition = {
   name: "RadialMatrix",
   defaults: {
@@ -625,7 +1278,7 @@ export const radialMatrixDef: ChartDefinition = {
     row: accessor("row"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyRadialMatrixLayout],
   emit: radialMatrixEmit,
 };
 
@@ -882,6 +1535,306 @@ export const treeDef: ChartDefinition = {
   emit: treeEmit,
 };
 
+/** Force-simulation node interface for `applyNetworkLayout`. */
+interface NetworkLayoutNode extends SimulationNodeDatum {
+  id: string;
+  size?: number;
+  shape?: string;
+}
+
+/** Force-simulation link interface for `applyNetworkLayout`. */
+interface NetworkLayoutLink extends SimulationLinkDatum<NetworkLayoutNode> {
+  size?: number;
+}
+
+/**
+    `applyNetworkLayout` — Network's chart-specific layout stage.
+
+    Resolves the `_nodes`/`_links`/`_data` triple into a single laid-out
+    node array (running a d3-force simulation only when fx/fy coordinates
+    are missing), computes the per-node radius scale, normalizes link
+    stroke sizes, and stashes per-node + per-link lookups on the viz for
+    the click/hover event handlers registered in Network's constructor.
+    Writes `_networkCtx` (read by `networkEmit`) with the link/node data,
+    `linkConfig`/`linkD`, and `nodeShapeConfig`/`nodeGroups`.
+*/
+export const applyNetworkLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
+
+  // Inlined `getNodeId` (kept as a local closure so the stage doesn't have
+  // to import Network's helper — the constructor's event handlers still use
+  // their own bound copy).
+  const nodeId = (d: Record<string, unknown>, i: number) =>
+    `${v._id(d, i) || v._nodeGroupBy[min([v._drawDepth, v._nodeGroupBy.length - 1])](d, i)}`;
+
+  const data = v._filteredData.reduce((obj: any, d: any, i: any) => {
+    obj[v._id(d, i)] = d;
+    return obj;
+  }, {});
+
+  let nodes = v._nodes.reduce((obj: any, d: any, i: any) => {
+    obj[nodeId(d, i)] = d;
+    return obj;
+  }, {});
+
+  nodes = Array.from(new Set(Object.keys(data).concat(Object.keys(nodes))))
+    .map((id, i) => {
+      const d = data[id],
+        n = nodes[id];
+
+      if (n === undefined) return false;
+
+      return {
+        __d3plus__: true,
+        data: d || n,
+        i,
+        id,
+        fx: d !== undefined && !isNaN(v._x(d)) ? v._x(d) : v._x(n),
+        fy: d !== undefined && !isNaN(v._y(d)) ? v._y(d) : v._y(n),
+        node: n,
+        r: v._size
+          ? d !== undefined && v._size(d) !== undefined
+            ? v._size(d)
+            : v._size(n)
+          : v._sizeMin,
+        shape:
+          d !== undefined && v._shape(d) !== undefined
+            ? v._shape(d)
+            : v._shape(n),
+      };
+    })
+    .filter((n: any): n is Exclude<typeof n, false> => !!n);
+
+  const nodeLookup = (v._nodeLookup = nodes.reduce((obj: any, d: any) => {
+    obj[d.id] = d;
+    return obj;
+  }, {}));
+
+  const nodeIndices = nodes.map((n: any) => n.node);
+  const links = v._links.map((l: any) => {
+    const referenceType = typeof l.source;
+    return {
+      size: v._linkSize(l),
+      source:
+        referenceType === "number"
+          ? nodes[nodeIndices.indexOf(v._nodes[l.source])]
+          : referenceType === "string"
+            ? nodeLookup[l.source]
+            : nodeLookup[l.source.id],
+      target:
+        referenceType === "number"
+          ? nodes[nodeIndices.indexOf(v._nodes[l.target])]
+          : referenceType === "string"
+            ? nodeLookup[l.target]
+            : nodeLookup[l.target.id],
+    };
+  });
+
+  v._linkLookup = links.reduce((obj: any, d: any) => {
+    if (!obj[d.source.id]) obj[d.source.id] = [];
+    obj[d.source.id].push(d.target);
+    if (!obj[d.target.id]) obj[d.target.id] = [];
+    obj[d.target.id].push(d.source);
+    return obj;
+  }, {});
+
+  const missingCoords = nodes.some(
+    (n: any) => n.fx === undefined || n.fy === undefined,
+  );
+
+  if (missingCoords) {
+    const linkStrength = scales
+      .scaleLinear()
+      .domain(
+        extent(links, (d: {size: number}) => d.size) as [number, number],
+      )
+      .range([0.1, 0.5]);
+
+    const simulation = forceSimulation()
+      .force(
+        "link",
+        forceLink(links as unknown as NetworkLayoutLink[])
+          .id((d: SimulationNodeDatum) => (d as NetworkLayoutNode).id)
+          .distance(1)
+          .strength((d: NetworkLayoutLink) => linkStrength(d.size as number))
+          .iterations(4),
+      )
+      .force("charge", forceManyBody().strength(-1))
+      .stop();
+
+    const iterations = 100;
+    const alphaMin = 0.001;
+    const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
+    simulation.velocityDecay(0);
+    simulation.alphaMin(alphaMin);
+    simulation.alphaDecay(alphaDecay);
+    simulation.alphaDecay(0);
+
+    simulation.nodes(nodes);
+    simulation.tick(iterations).stop();
+
+    const nodePositions = nodes.map(
+      (n: any) => [n.vx, n.vy] as [number, number],
+    );
+    let angle = 0,
+      cx = 0,
+      cy = 0;
+    if (nodePositions.length === 2) {
+      angle = 100;
+    } else if (nodePositions.length > 2) {
+      const hull = polygonHull(nodePositions) || [];
+      const rect = largestRect(hull, {verbose: true})!;
+      angle = rect.angle;
+      cx = rect.cx;
+      cy = rect.cy;
+    }
+
+    nodes.forEach((n: any) => {
+      const p = pointRotate([n.vx, n.vy], -1 * ((Math.PI / 180) * angle), [
+        cx,
+        cy,
+      ]);
+      n.fx = p[0];
+      n.fy = p[1];
+    });
+  }
+
+  const xExtent = extent(nodes.map((n: any) => n.fx)) as unknown as [
+      number,
+      number,
+    ],
+    yExtent = extent(nodes.map((n: any) => n.fy)) as unknown as [
+      number,
+      number,
+    ];
+
+  const x = scales.scaleLinear().domain(xExtent).range([0, width]),
+    y = scales.scaleLinear().domain(yExtent).range([0, height]);
+
+  const nodeRatio =
+      (xExtent[1] - xExtent[0]) / (yExtent[1] - yExtent[0]) || 1,
+    screenRatio = width / height;
+
+  if (nodeRatio > screenRatio) {
+    const h = (height * screenRatio) / nodeRatio;
+    y.range([(height - h) / 2, height - (height - h) / 2]);
+  } else {
+    const w = (width * nodeRatio) / screenRatio;
+    x.range([(width - w) / 2, width - (width - w) / 2]);
+  }
+
+  nodes.forEach((n: any) => {
+    n.x = x(n.fx);
+    n.y = y(n.fy);
+  });
+
+  const rExtent = extent(nodes.map((n: any) => n.r)) as unknown as [
+    number,
+    number,
+  ];
+  let rMax =
+    v._sizeMax ||
+    (max([
+      1,
+      (min(
+        d3ArrayMerge(
+          nodes.map((n1: any) =>
+            nodes.map((n2: any) =>
+              n1 === n2 ? null : pointDistance([n1.x, n1.y], [n2.x, n2.y]),
+            ),
+          ),
+        ),
+      ) as unknown as number) / 2,
+    ]) as unknown as number);
+
+  const r = (scales as any)[
+      `scale${v._sizeScale.charAt(0).toUpperCase()}${v._sizeScale.slice(1)}`
+    ]()
+      .domain(rExtent)
+      .range([
+        rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, v._sizeMin]),
+        rMax,
+      ]),
+    xDomain = x.domain(),
+    yDomain = y.domain();
+
+  const xOldSize = xDomain[1] - xDomain[0],
+    yOldSize = yDomain[1] - yDomain[0];
+
+  nodes.forEach((n: any) => {
+    const size = r(n.r);
+    if (xDomain[0] > x.invert(n.x - size)) xDomain[0] = x.invert(n.x - size);
+    if (xDomain[1] < x.invert(n.x + size)) xDomain[1] = x.invert(n.x + size);
+    if (yDomain[0] > y.invert(n.y - size)) yDomain[0] = y.invert(n.y - size);
+    if (yDomain[1] < y.invert(n.y + size)) yDomain[1] = y.invert(n.y + size);
+  });
+
+  const xNewSize = xDomain[1] - xDomain[0],
+    yNewSize = yDomain[1] - yDomain[0];
+
+  rMax *= min([xOldSize / xNewSize, yOldSize / yNewSize])!;
+  r.range([
+    rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, v._sizeMin]),
+    rMax,
+  ]);
+  x.domain(xDomain);
+  y.domain(yDomain);
+
+  const fallbackRadius = (nodeRatio > screenRatio ? width : height) / 2;
+  nodes.forEach((n: any) => {
+    n.x = x(n.fx);
+    n.fx = n.x;
+    n.y = y(n.fy);
+    n.fy = n.y;
+    n.r = r(n.r) || fallbackRadius;
+    n.width = n.r * 2;
+    n.height = n.r * 2;
+  });
+
+  // Link stroke scaling (depends on the final node radius range).
+  const strokeExtent = extent(links, (d: {size: number}) => d.size);
+  if (strokeExtent[0] !== strokeExtent[1]) {
+    const strokeScale = (scales as any)[
+      `scale${v._linkSizeScale.charAt(0).toUpperCase()}${v._linkSizeScale.slice(1)}`
+    ]()
+      .domain(strokeExtent)
+      .range([v._linkSizeMin, r.range()[0]]);
+    links.forEach((link: any) => {
+      link.size = strokeScale(link.size);
+    });
+  }
+
+  const linkConfig = (configPrep as any).bind(v)(
+    v._shapeConfig,
+    "edge",
+    "Path",
+  );
+  delete linkConfig.on;
+
+  const nodeShapeConfig = {
+    label: (d: any) =>
+      nodes.length <= v._dataCutoff ||
+      (v._hover && v._hover(d)) ||
+      (v._active && v._active(d))
+        ? v._drawLabel(d.data || d.node, d.i)
+        : false,
+  };
+  const linkD = (d: any) =>
+    `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
+  const nodeGroups = Array.from(
+    groups(
+      nodes as Record<string, unknown>[],
+      (d: Record<string, unknown>) => d.shape as string,
+    ),
+  );
+  v._networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};
+
+  return {shapeData: nodes} as any;
+};
+
 /**
     `networkDef.emit` — link Paths + per-shape-type node groups. `_draw`
     stashes the link data + grouped node data + shapeConfig + the `d` accessor
@@ -934,14 +1887,460 @@ export const networkDef: ChartDefinition = {
     sizeScale: "sqrt",
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyNetworkLayout],
   emit: networkEmit,
 };
 
 /**
-    `ringsDef.emit` — links + nodes for the Rings chart. `_draw` populates
-    `viz._ringsCtx` with `edges`, `nodeGroups`, `linkConfig`, `linkD`,
-    `nodeShapeConfig`.
+    `applyRingsLayout` — Rings' chart-specific layout stage. Mirrors the
+    other apply* stages: pure transformation of viz state into the
+    shapeData + chart-data structures `ringsDef.emit` consumes.
+
+    Resolves nodes/links from the filtered data + user-provided node/link
+    arrays, places the focal `center` and lays out primary + secondary
+    rings around it, sizes nodes via an extent-derived linear scale,
+    builds the bezier/straight link `d` accessor and per-node label
+    bounds, and finally stashes `edges`/`nodeGroups`/`linkConfig`/`linkD`/
+    `nodeShapeConfig` on `viz._ringsCtx` for `ringsEmit` to consume.
+    Also writes `_nodeLookup`/`_linkLookup` back on the viz for legacy
+    hover/event consumers.
+*/
+export const applyRingsLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+
+  const data = v._filteredData.reduce((obj: any, d: any, i: any) => {
+    obj[v._id(d, i)] = d;
+    return obj;
+  }, {});
+
+  let nodes = v._nodes;
+
+  if (!v._nodes.length && v._links.length) {
+    const nodeIds = Array.from(
+      new Set(
+        v._links.reduce(
+          (ids: any, link: any) => ids.concat([link.source, link.target]),
+          [],
+        ),
+      ),
+    );
+    nodes = nodeIds.map((node: any) =>
+      typeof node === "object" ? node : {id: node},
+    );
+  }
+
+  nodes = nodes.reduce((obj: any, d: any, i: any) => {
+    obj[
+      v._nodeGroupBy
+        ? v._nodeGroupBy[v._drawDepth](d, i)
+        : v._id(d, i)
+    ] = d;
+    return obj;
+  }, {});
+
+  nodes = Array.from(new Set(Object.keys(data).concat(Object.keys(nodes))))
+    .map((id, i) => {
+      const d = data[id],
+        n = nodes[id];
+
+      if (n === undefined) return false;
+
+      return {
+        __d3plus__: true,
+        data: d || n,
+        i,
+        id,
+        node: n,
+        shape:
+          d !== undefined && v._shape(d) !== undefined
+            ? v._shape(d)
+            : v._shape(n),
+      };
+    })
+    .filter((n: any) => n);
+
+  const nodeLookup = (v._nodeLookup = nodes.reduce((obj: any, d: any) => {
+    obj[d.id] = d;
+    return obj;
+  }, {}));
+
+  const links = v._links.map((link: any) => {
+    const check = ["source", "target"];
+    const edge = check.reduce((result: any, check: any) => {
+      result[check] =
+        typeof link[check] === "number"
+          ? nodes[link[check]]
+          : nodeLookup[link[check].id || link[check]];
+      return result;
+    }, {} as Record<string, any>);
+    edge.size = v._linkSize(link);
+    return edge;
+  });
+
+  const linkMap = links.reduce((map: any, link: any) => {
+    if (!map[link.source.id]) {
+      map[link.source.id] = [];
+    }
+    map[link.source.id].push(link);
+    if (!map[link.target.id]) {
+      map[link.target.id] = [];
+    }
+    map[link.target.id].push(link);
+    return map;
+  }, {});
+
+  const height = v._height - v._margin.top - v._margin.bottom,
+    width = v._width - v._margin.left - v._margin.right;
+
+  const edges: any[] = [],
+    radius = (min([height, width]) || 0) / 2,
+    ringWidth = radius / 3;
+
+  const primaryRing = ringWidth,
+    secondaryRing = ringWidth * 2;
+
+  const center = nodeLookup[v._center];
+
+  center.x = width / 2;
+  center.y = height / 2;
+  center.r = v._sizeMin
+    ? max([v._sizeMin, primaryRing * 0.65])
+    : v._sizeMax
+      ? min([v._sizeMax, primaryRing * 0.65])
+      : primaryRing * 0.65;
+
+  const claimed = [center],
+    primaries: any[] = [];
+
+  linkMap[v._center].forEach((edge: any) => {
+    const node = edge.source.id === v._center ? edge.target : edge.source;
+    node.edges = linkMap[node.id].filter(
+      (link: any) =>
+        link.source.id !== v._center || link.target.id !== v._center,
+    );
+    node.edge = edge;
+
+    claimed.push(node);
+    primaries.push(node);
+  });
+
+  primaries.sort((a, b) => a.edges.length - b.edges.length);
+
+  const secondaries: any[] = [];
+  let totalEndNodes = 0;
+
+  primaries.forEach(p => {
+    const primaryId = p.id;
+
+    p.edges = p.edges.filter(
+      (edge: any) =>
+        (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
+        (!claimed.includes(edge.target) && edge.source.id === primaryId),
+    );
+
+    totalEndNodes += p.edges.length || 1;
+
+    p.edges.forEach((edge: any) => {
+      const {source, target} = edge;
+      const claim = target.id === primaryId ? source : target;
+      claimed.push(claim);
+    });
+  });
+
+  const tau = Math.PI * 2;
+  let offset = 0;
+
+  primaries.forEach((p, i) => {
+    const children = p.edges.length || 1;
+    const space = (tau / totalEndNodes) * children;
+
+    if (i === 0) {
+      offset -= space / 2;
+    }
+
+    const angle = offset + space / 2 - tau / 4;
+
+    p.radians = angle;
+    p.x = width / 2 + primaryRing * Math.cos(angle);
+    p.y = height / 2 + primaryRing * Math.sin(angle);
+
+    offset += space;
+
+    p.edges.forEach((edge: any, i: any) => {
+      const node = edge.source.id === p.id ? edge.target : edge.source;
+      const s = tau / totalEndNodes;
+      const a = angle - (s * children) / 2 + s / 2 + s * i;
+
+      node.radians = a;
+      node.x = width / 2 + secondaryRing * Math.cos(a);
+      node.y = height / 2 + secondaryRing * Math.sin(a);
+
+      secondaries.push(node);
+    });
+  });
+
+  const primaryDistance = ringWidth / 2;
+  const secondaryDistance = ringWidth / 4;
+
+  let primaryMax = primaryDistance / 2 - 4;
+  if (primaryDistance / 2 - 4 < 8) {
+    primaryMax = min([primaryDistance / 2, 8]) || 0;
+  }
+
+  let secondaryMax = secondaryDistance / 2 - 4;
+  if (secondaryDistance / 2 - 4 < 4) {
+    secondaryMax = min([secondaryDistance / 2, 4]) || 0;
+  }
+
+  if (secondaryMax > ringWidth / 10) {
+    secondaryMax = ringWidth / 10;
+  }
+
+  if (secondaryMax > primaryMax && secondaryMax > 10) {
+    secondaryMax = primaryMax * 0.75;
+  }
+  if (primaryMax > secondaryMax * 1.5) {
+    primaryMax = secondaryMax * 1.5;
+  }
+
+  primaryMax = Math.floor(primaryMax);
+  secondaryMax = Math.floor(secondaryMax);
+
+  let radiusFn: any;
+
+  if (v._size) {
+    const domain = extent(data, (d: {size: number}) => d.size) as [
+      number,
+      number,
+    ];
+
+    if (domain[0] === domain[1]) {
+      domain[0] = 0;
+    }
+
+    radiusFn = scales
+      .scaleLinear()
+      .domain(domain)
+      .rangeRound([3, min([primaryMax, secondaryMax]) as number]);
+
+    const val = center.size;
+    center.r = radiusFn(val);
+  } else {
+    radiusFn = scales
+      .scaleLinear()
+      .domain([1, 2])
+      .rangeRound([primaryMax, secondaryMax]);
+  }
+
+  secondaries.forEach(s => {
+    s.ring = 2;
+    const val = v._size ? s.size : 2;
+    s.r = v._sizeMin
+      ? max([v._sizeMin, radiusFn(val)])
+      : v._sizeMax
+        ? min([v._sizeMax, radiusFn(val)])
+        : radiusFn(val);
+  });
+
+  primaries.forEach(p => {
+    p.ring = 1;
+    const val = v._size ? p.size : 1;
+    p.r = v._sizeMin
+      ? max([v._sizeMin, radiusFn(val)])
+      : v._sizeMax
+        ? min([v._sizeMax, radiusFn(val)])
+        : radiusFn(val);
+  });
+
+  nodes = ([center] as any[]).concat(primaries).concat(secondaries);
+
+  primaries.forEach(p => {
+    const check = ["source", "target"];
+    const {edge} = p;
+
+    check.forEach((node: any) => {
+      edge[node] = nodes.find((n: any) => n.id === edge[node].id);
+    });
+
+    edges.push(edge);
+
+    linkMap[p.id].forEach((edge: any) => {
+      const node = edge.source.id === p.id ? edge.target : edge.source;
+
+      if (node.id !== center.id) {
+        let target = secondaries.find(s => s.id === node.id);
+
+        if (!target) {
+          target = primaries.find(s => s.id === node.id);
+        }
+
+        if (target) {
+          edge.spline = true;
+
+          const centerX = width / 2;
+          const centerY = height / 2;
+          const middleRing =
+            primaryRing + (secondaryRing - primaryRing) * 0.5;
+
+          const check = ["source", "target"];
+
+          check.forEach((node: any, i: any) => {
+            edge[`${node}X`] =
+              edge[node].x +
+              Math.cos(
+                edge[node].ring === 2
+                  ? edge[node].radians + Math.PI
+                  : edge[node].radians,
+              ) *
+                edge[node].r;
+            edge[`${node}Y`] =
+              edge[node].y +
+              Math.sin(
+                edge[node].ring === 2
+                  ? edge[node].radians + Math.PI
+                  : edge[node].radians,
+              ) *
+                edge[node].r;
+            edge[`${node}BisectX`] =
+              centerX + middleRing * Math.cos(edge[node].radians);
+            edge[`${node}BisectY`] =
+              centerY + middleRing * Math.sin(edge[node].radians);
+
+            edge[node] = nodes.find((n: any) => n.id === edge[node].id);
+
+            if (edge[node].edges === undefined) edge[node].edges = {};
+
+            const oppId = i === 0 ? edge.target.id : edge.source.id;
+
+            if (edge[node].id === p.id) {
+              edge[node].edges[oppId] = {
+                angle: p.radians + Math.PI,
+                radius: ringWidth / 2,
+              };
+            } else {
+              edge[node].edges[oppId] = {
+                angle: target.radians,
+                radius: ringWidth / 2,
+              };
+            }
+          });
+
+          edges.push(edge);
+        }
+      }
+    });
+  });
+
+  nodes.forEach((node: any) => {
+    if (node.id !== v._center) {
+      const fontSize =
+        (v._shapeConfig.labelConfig.fontSize &&
+          v._shapeConfig.labelConfig.fontSize(node)) ||
+        11;
+      const lineHeight = fontSize * 1.4;
+      const height = lineHeight * 2;
+      const padding = 5;
+      const width = ringWidth - node.r;
+
+      let angle = node.radians * (180 / Math.PI);
+      let x = node.r + padding;
+      let textAnchor = "start";
+
+      if (angle < -90 || angle > 90) {
+        x = -node.r - width - padding;
+        textAnchor = "end";
+        angle += 180;
+      }
+
+      node.labelBounds = {
+        x,
+        y: -lineHeight / 2,
+        width,
+        height,
+      };
+
+      node.rotate = angle;
+      node.textAnchor = textAnchor;
+    } else {
+      node.labelBounds = {
+        x: -primaryRing / 2,
+        y: -primaryRing / 2,
+        width: primaryRing,
+        height: primaryRing,
+      };
+    }
+  });
+
+  v._linkLookup = links.reduce((obj: any, d: any) => {
+    if (!obj[d.source.id]) obj[d.source.id] = [];
+    obj[d.source.id].push(d.target);
+    if (!obj[d.target.id]) obj[d.target.id] = [];
+    obj[d.target.id].push(d.source);
+    return obj;
+  }, {});
+
+  const strokeExtent = extent(links, (d: {size: number}) => d.size);
+  if (strokeExtent[0] !== strokeExtent[1]) {
+    const radius = min(nodes as {r: number}[], (d: {r: number}) => d.r);
+    const strokeScale = (scales as any)[
+      `scale${v._linkSizeScale.charAt(0).toUpperCase()}${v._linkSizeScale.slice(1)}`
+    ]()
+      .domain(strokeExtent)
+      .range([v._linkSizeMin, radius]);
+    links.forEach((link: any) => {
+      link.size = strokeScale(link.size);
+    });
+  }
+
+  const linkConfig = configPrep.bind(v)(v._shapeConfig, "edge", "Path");
+  delete linkConfig.on;
+
+  const linkD = (d: any) =>
+    d.spline
+      ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
+      : `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
+
+  const shapeConfig = {
+    label: (d: any) =>
+      nodes.length <= v._dataCutoff ||
+      (v._hover && v._hover(d)) ||
+      (v._active && v._active(d))
+        ? v._drawLabel(d.data || d.node, d.i)
+        : false,
+    labelBounds: (d: any) => d.labelBounds,
+    labelConfig: {
+      fontColor: (d: any) =>
+        d.id === v._center
+          ? (configPrep.bind(v)(v._shapeConfig, "shape", d.key) as any)
+              .labelConfig.fontColor(d)
+          : colorContrast(
+              v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
+            ),
+      fontResize: (d: any) => d.id === v._center,
+      padding: 0,
+      textAnchor: (d: any) =>
+        nodeLookup[d.id].textAnchor ||
+        (configPrep.bind(v)(v._shapeConfig, "shape", d.key) as any).labelConfig
+          .textAnchor,
+      verticalAlign: (d: any) => (d.id === v._center ? "middle" : "top"),
+    },
+    rotate: (d: any) => nodeLookup[d.id].rotate || 0,
+  };
+
+  const nodeGroups = Array.from(groups(
+    nodes as Record<string, unknown>[],
+    (d: Record<string, unknown>) => d.shape as string,
+  ));
+  v._ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
+
+  return {shapeData: nodes} as any;
+};
+
+/**
+    `ringsDef.emit` — links + nodes for the Rings chart. The layout stage
+    populates `viz._ringsCtx` with `edges`, `nodeGroups`, `linkConfig`,
+    `linkD`, `nodeShapeConfig`.
 */
 const ringsEmit: ChartDefinition["emit"] = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -988,7 +2387,7 @@ export const ringsDef: ChartDefinition = {
     shape: constant("Circle"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyRingsLayout],
   emit: ringsEmit,
 };
 
@@ -1048,6 +2447,242 @@ export const sankeyDef: ChartDefinition = {
 };
 
 /**
+    Converts a topojson object into a feature collection for projection.
+    Local helper for `applyGeomapLayout`.
+*/
+function topo2feature(
+  topo: Record<string, unknown>,
+  key?: string,
+): {type: string; features: Record<string, unknown>[]} {
+  const k =
+    key && (topo.objects as Record<string, unknown>)[key]
+      ? key
+      : Object.keys(topo.objects as Record<string, unknown>)[0];
+  return topojsonFeature(
+    topo as unknown as Parameters<typeof topojsonFeature>[0],
+    k,
+  ) as unknown as {type: string; features: Record<string, unknown>[]};
+}
+
+/**
+    `applyGeomapLayout` — Geomap's chart-specific layout stage. Mirrors the
+    other apply* stages: pure transformation of viz state into the
+    `_geomapCtx` (topoData/pathFn + pointData/pointR/pointX/pointY/pointSort)
+    that `geomapDef.emit` consumes.
+
+    Runs the topojson → feature conversion + topojson filter, builds the
+    d3-geo path generator against `_projection`, computes the fit-extent
+    bounds (`_extentBounds`) the first time through (gated by the class's
+    `_zoomSet` flag — the class flips it after wiring `_zoomBehavior`),
+    fits the projection, and stashes the per-row r/x/y accessors that
+    emit's Circle reads. Zoom + tile rendering remain in the class
+    (DOM/lifecycle); this stage is compute-only.
+*/
+export const applyGeomapLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
+
+  const coordData: {type: string; features: Record<string, unknown>[]} =
+    (v._coordData = v._topojson
+      ? topo2feature(v._topojson, v._topojsonKey)
+      : {type: "FeatureCollection", features: []});
+
+  if (v._topojsonFilter)
+    coordData.features = coordData.features.filter(v._topojsonFilter);
+
+  const path = (v._path = (d3Geo.geoPath as any)().projection(v._projection));
+
+  const pointData = v._filteredData.filter(
+    (d: DataPoint, i: number) => v._point(d, i) instanceof Array,
+  );
+
+  const pathData = v._filteredData
+    .filter((d: DataPoint, i: number) => !(v._point(d, i) instanceof Array))
+    .reduce((obj: Record<string, DataPoint>, d: DataPoint) => {
+      obj[v._id(d)] = d;
+      return obj;
+    }, {});
+
+  const topoData = coordData.features.reduce(
+    (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
+      const id = v._topojsonId(feature);
+      arr.push({
+        __d3plus__: true,
+        data: pathData[id],
+        feature,
+        id,
+      });
+      return arr;
+    },
+    [],
+  );
+
+  const scaleName = `scale${v._pointSizeScale.charAt(0).toUpperCase()}${v._pointSizeScale.slice(1)}`;
+  const r = (scales as any)[scaleName]()
+    .domain(extent(pointData, (d: DataPoint, i: number) => v._pointSize(d, i)))
+    .range([v._pointSizeMin, v._pointSizeMax]);
+
+  if (!v._zoomSet) {
+    const fitData = v._fitObject
+      ? topo2feature(v._fitObject, v._fitKey)
+      : coordData;
+
+    v._extentBounds = {
+      type: "FeatureCollection",
+      features: v._fitFilter
+        ? fitData.features.filter(v._fitFilter)
+        : fitData.features.slice(),
+    };
+    v._extentBounds.features = v._extentBounds.features.reduce(
+      (
+        arr: Record<string, unknown>[],
+        d: {
+          type: string;
+          id: string;
+          geometry: {type: string; coordinates: number[][][][]};
+        },
+      ) => {
+        if (d.geometry) {
+          const reduced: {
+            type: string;
+            id: string;
+            geometry: {type: string; coordinates: number[][][][]};
+          } = {
+            type: d.type,
+            id: d.id,
+            geometry: {
+              coordinates: d.geometry.coordinates,
+              type: d.geometry.type,
+            },
+          };
+
+          if (
+            d.geometry.type === "MultiPolygon" &&
+            d.geometry.coordinates.length > 1
+          ) {
+            const areas: number[] = [],
+              distances: number[] = [];
+
+            d.geometry.coordinates.forEach((c: number[][][]) => {
+              reduced.geometry.coordinates = [c];
+              areas.push(path.area(reduced));
+            });
+
+            reduced.geometry.coordinates = [
+              d.geometry.coordinates[areas.indexOf(max(areas)!)],
+            ];
+            const center = path.centroid(reduced);
+
+            d.geometry.coordinates.forEach((c: number[][][]) => {
+              reduced.geometry.coordinates = [c];
+              distances.push(pointDistance(path.centroid(reduced), center));
+            });
+
+            const distCutoff = quantile(
+              areas.reduce((arr: number[], dist: number, i: number) => {
+                if (dist) arr.push(areas[i] / dist);
+                return arr;
+              }, []),
+              0.9,
+            );
+
+            reduced.geometry.coordinates = d.geometry.coordinates.filter(
+              (c: number[][][], i: number) => {
+                const dist = distances[i];
+                return dist === 0 || areas[i] / dist >= distCutoff!;
+              },
+            );
+          }
+
+          arr.push(reduced);
+        }
+        return arr;
+      },
+      [],
+    );
+
+    if (!v._extentBounds.features.length && pointData.length) {
+      const bounds: (number | undefined)[][] = [
+        [undefined, undefined],
+        [undefined, undefined],
+      ];
+      pointData.forEach((d: DataPoint, i: number) => {
+        const point = v._projection(v._point(d, i));
+        if (bounds[0][0] === void 0 || point[0] < bounds[0][0])
+          bounds[0][0] = point[0];
+        if (bounds[1][0] === void 0 || point[0] > bounds[1][0])
+          bounds[1][0] = point[0];
+        if (bounds[0][1] === void 0 || point[1] < bounds[0][1])
+          bounds[0][1] = point[1];
+        if (bounds[1][1] === void 0 || point[1] > bounds[1][1])
+          bounds[1][1] = point[1];
+      });
+
+      v._extentBounds = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "MultiPoint",
+              coordinates: bounds.map((b: (number | undefined)[]) =>
+                v._projection.invert(b),
+              ),
+            },
+          },
+        ],
+      };
+      const maxSize = max(pointData, (d: DataPoint, i: number) =>
+        r(v._pointSize(d, i)),
+      );
+      v._projectionPadding.top += maxSize;
+      v._projectionPadding.right += maxSize;
+      v._projectionPadding.bottom += maxSize;
+      v._projectionPadding.left += maxSize;
+    }
+  }
+
+  v._projection = v._projection.fitExtent(
+    v._extentBounds.features.length
+      ? [
+          [v._projectionPadding.left, v._projectionPadding.top],
+          [
+            width - v._projectionPadding.right,
+            height - v._projectionPadding.bottom,
+          ],
+        ]
+      : [
+          [0, 0],
+          [width, height],
+        ],
+    v._extentBounds.features.length
+      ? v._extentBounds
+      : {type: "Sphere"},
+  );
+
+  // Stash dimensions for the class's zoom-extent setup.
+  v._geomapWidth = width;
+  v._geomapHeight = height;
+
+  v._geomapCtx = {
+    topoData,
+    pathFn: (d: Record<string, unknown>) => path(d.feature),
+    pointData,
+    pointR: ((d: DataPoint, i: number) => r(v._pointSize(d, i))) as any,
+    pointSort: (a: DataPoint, b: DataPoint) =>
+      v._pointSize(b) - v._pointSize(a),
+    pointX: ((d: DataPoint, i: number) =>
+      v._projection(v._point(d, i))[0]) as any,
+    pointY: ((d: DataPoint, i: number) =>
+      v._projection(v._point(d, i))[1]) as any,
+  };
+
+  return {shapeData: topoData} as any;
+};
+
+/**
     `geomapDef.emit` — country Paths + point Circles. `_draw` stashes
     `topoData` + `pathFn`, `pointData` + `pointR` + `pointX` + `pointY`,
     plus shape configs on `viz._geomapCtx`.
@@ -1097,7 +2732,7 @@ export const geomapDef: ChartDefinition = {
     shape: constant("Circle"),
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applyGeomapLayout],
   emit: geomapEmit,
 };
 
