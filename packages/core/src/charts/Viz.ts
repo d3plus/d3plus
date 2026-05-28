@@ -1,4 +1,4 @@
-import {group, max, merge as arrayMerge, min, range, rollup} from "d3-array";
+import {max, merge as arrayMerge, range} from "d3-array";
 import {brush} from "d3-brush";
 import {color} from "d3-color";
 import {select} from "d3-selection";
@@ -6,7 +6,7 @@ import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
 
 import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
-import {addToQueue, merge, unique} from "@d3plus/data";
+import {addToQueue, unique} from "@d3plus/data";
 import {assign, date, getSize, inViewport} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
@@ -55,17 +55,8 @@ const vizSchema = [
 
 import {legendLabel} from "./legendLabel.js";
 import {runVizPipeline} from "./runVizPipeline.js";
-
-import {
-  backFeature,
-  colorScaleFeature,
-  legendFeature,
-  runLayout,
-  subtitleFeature,
-  timelineFeature,
-  titleFeature,
-  totalFeature,
-} from "./features.js";
+import {vizDraw} from "./vizDraw.js";
+import {vizPreDraw} from "./vizPreDraw.js";
 
 import clickShape from "./events/click.shape.js";
 import clickLegend from "./events/click.legend.js";
@@ -94,43 +85,6 @@ function debounce(
  */
 function defaultPadding(): boolean {
   return typeof window !== "undefined" ? window.innerWidth > 600 : true;
-}
-
-/**
- * Turns an array of values into a list string.
- * @private
- */
-function listify(n: DataPoint[keyof DataPoint][]): string {
-  return n.reduce<string>(
-    (str: string, item: DataPoint[keyof DataPoint], i: number) => {
-      if (!i) str += item;
-      else if (i === n.length - 1 && i === 1) str += ` and ${item}`;
-      else if (i === n.length - 1) str += `, and ${item}`;
-      else str += `, ${item}`;
-      return str;
-    },
-    "",
-  );
-}
-
-/**
- * A function that introspects the `d` Data Object for internally nested
- * d3plus data and indices, runs the accessor function on that user data.
- * @param {Function} acc Accessor function to use.
- * @param {Object} d Data Object
- * @param {Number} i Index of Data Object in Array
- * @private
- */
-function accessorFetch(
-  acc: (d: DataPoint, i: number) => DataPoint[keyof DataPoint],
-  d: DataPoint,
-  i: number,
-): DataPoint[keyof DataPoint] {
-  while (d.__d3plus__ && d.data) {
-    d = d.data as DataPoint;
-    i = d.i as number;
-  }
-  return acc(d, i);
 }
 
 /**
@@ -481,145 +435,7 @@ export default class Viz extends (BaseClass as any) {
    @private
    */
   _preDraw(): void {
-    const that = this;
-    // based on the groupBy, determine the draw depth and current depth id
-    this._drawDepth =
-      this._depth !== void 0
-        ? min([this._depth >= 0 ? this._depth : 0, this._groupBy.length - 1])
-        : this._groupBy.length - 1;
-
-    // Returns the current unique ID for a data point, coerced to a String.
-    this._id = (d: DataPoint, i: number) => {
-      const groupByDrawDepth = accessorFetch(
-        this._groupBy[this._drawDepth],
-        d,
-        i,
-      );
-      return typeof groupByDrawDepth === "number"
-        ? `${groupByDrawDepth}`
-        : groupByDrawDepth;
-    };
-
-    // Returns an array of the current unique groupBy ID for a data point, coerced to Strings.
-    this._ids = (d: DataPoint, i: number) =>
-      this._groupBy
-        .map(
-          (g: (d: DataPoint, i: number) => DataPoint[keyof DataPoint]) =>
-            `${accessorFetch(g, d, i)}`,
-        )
-        .filter(Boolean);
-
-    this._drawLabel = (
-      d: DataPoint,
-      i: number,
-      depth: number = this._drawDepth,
-    ) => {
-      if (!d) return "";
-      while (d.__d3plus__ && d.data) {
-        d = d.data as DataPoint;
-        i = d.i as number;
-      }
-      if (d._isAggregation) {
-        return `${this._thresholdName(d, i)} < ${formatAbbreviate(
-          (d._threshold as number) * 100,
-          this._locale,
-        )}%`;
-      }
-      if (this._label && depth === this._drawDepth)
-        return `${this._label(d, i)}`;
-      const l = that._ids(d, i).slice(0, depth + 1);
-      const n =
-        l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||
-        l[l.length - 1];
-      return n instanceof Array ? listify(n) : `${n}`;
-    };
-
-    // set the default timeFilter if it has not been specified
-    if (this._time && !this._timeFilter && this._data.length) {
-      const dates = this._data.map(this._time).map(date);
-      const d = this._data[0],
-        i = 0;
-
-      if (
-        this._discrete &&
-        `_${this._discrete}` in this &&
-        this[`_${this._discrete}`](d, i) === this._time(d, i)
-      ) {
-        this._timeFilter = () => true;
-      } else {
-        const latestTime = +max(dates)!;
-        this._timeFilter = (d: DataPoint, i: number) =>
-          +date(this._time(d, i))! === latestTime;
-      }
-    }
-
-    this._filteredData = [];
-    this._legendData = [];
-    let flatData: DataPoint[] = [];
-    if (this._data.length) {
-      flatData = this._timeFilter
-        ? this._data.filter(this._timeFilter)
-        : this._data;
-      if (this._filter) flatData = flatData.filter(this._filter);
-      const nestKeys: ((
-        d: DataPoint,
-        i: number,
-      ) => DataPoint[keyof DataPoint])[] = [];
-      for (let i = 0; i <= this._drawDepth; i++)
-        nestKeys.push(this._groupBy[i]);
-      if (this._discrete && `_${this._discrete}` in this)
-        nestKeys.push(this[`_${this._discrete}`]);
-      if (this._discrete && `_${this._discrete}2` in this)
-        nestKeys.push(this[`_${this._discrete}2`]);
-
-      const tree = rollup(
-        flatData,
-        (leaves: DataPoint[]) => {
-          const index = this._data.indexOf(leaves[0]);
-          const shape = this._shape(leaves[0], index);
-          const id = this._id(leaves[0], index);
-
-          const d = merge(leaves, this._aggs);
-
-          if (
-            !this._hidden.includes(id) &&
-            (!this._solo.length || this._solo.includes(id))
-          ) {
-            if (!this._discrete && shape === "Line")
-              this._filteredData = this._filteredData.concat(leaves);
-            else this._filteredData.push(d);
-          }
-          this._legendData.push(d);
-        },
-        ...nestKeys,
-      );
-
-      this._filteredData = this._thresholdFunction(this._filteredData, tree);
-    }
-
-    // overrides the hoverOpacity of shapes if data is larger than cutoff
-    const uniqueIds = group(this._filteredData, this._id).size;
-    if (uniqueIds > this._dataCutoff) {
-      if (this._userHover === undefined)
-        this._userHover = this._shapeConfig.hoverOpacity || 0.5;
-      if (this._userDuration === undefined)
-        this._userDuration = this._shapeConfig.duration || 600;
-      this._shapeConfig.hoverOpacity = 1;
-      this._shapeConfig.duration = 0;
-    } else if (this._userHover !== undefined) {
-      this._shapeConfig.hoverOpacity = this._userHover;
-      this._shapeConfig.duration = this._userDuration;
-    }
-
-    if (this._noDataMessage && !this._filteredData.length) {
-      this._messageClass.render({
-        container: this._select.node().parentNode,
-        html: this._noDataHTML(this),
-        mask: false,
-        style: this._messageStyle,
-      });
-      this._select.transition().duration(this._duration).attr("opacity", 0);
-    }
+    vizPreDraw(this);
   }
 
   /**
@@ -698,117 +514,7 @@ export default class Viz extends (BaseClass as any) {
       @private
   */
   _draw(): void {
-    // E2: reset feature-emitted scene panels at the start of each draw.
-    this._featurePanels = [];
-    // Charts that drive emit() (Treemap/Pack/etc.) populate `_chartScene`
-    // from within `_draw`. Reset on every draw.
-    this._chartScene = [];
-    this._chartTransform = undefined;
-    // Sanitizes user input for legendPosition and colorScalePosition
-    let legendPosition = this._legendPosition.bind(this)(this.config());
-    if (![false, "top", "bottom", "left", "right"].includes(legendPosition))
-      legendPosition = "bottom";
-    let colorScalePosition = this._colorScalePosition.bind(this)(this.config());
-    if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition))
-      colorScalePosition = "bottom";
-
-    // E2: legend (left/right) and colorScale (left/right/hidden) lay out
-    // first so the chart body and top-anchored features (title etc.) see
-    // their margin claim.
-    if (legendPosition === "left" || legendPosition === "right") {
-      const claim = runLayout({viz: this} as any, [legendFeature]);
-      this._margin.left += claim.margin.left;
-      this._margin.right += claim.margin.right;
-    }
-    if (
-      colorScalePosition === "left" ||
-      colorScalePosition === "right" ||
-      colorScalePosition === false
-    ) {
-      const claim = runLayout({viz: this} as any, [colorScaleFeature]);
-      this._margin.left += claim.margin.left;
-      this._margin.right += claim.margin.right;
-    }
-
-    // E2: back / title / subtitle / total / timeline / attribution all run
-    // through the layout engine. Each feature returns a panel + margin claim;
-    // subsequent features see the updated margin and position themselves
-    // accordingly.
-    const topBlocks = runLayout({viz: this} as any, [
-      backFeature,
-      titleFeature,
-      subtitleFeature,
-      totalFeature,
-    ]);
-    this._featurePanels.push(...topBlocks.panels);
-    this._margin.top += topBlocks.margin.top;
-    const timelineClaim = runLayout({viz: this} as any, [timelineFeature]);
-    this._margin.bottom += timelineClaim.margin.bottom;
-
-    // E2: legend (top/bottom) and colorScale (top/bottom).
-    if (legendPosition === "top" || legendPosition === "bottom") {
-      const claim = runLayout({viz: this} as any, [legendFeature]);
-      this._margin.top += claim.margin.top;
-      this._margin.bottom += claim.margin.bottom;
-    }
-    if (colorScalePosition === "top" || colorScalePosition === "bottom") {
-      const claim = runLayout({viz: this} as any, [colorScaleFeature]);
-      this._margin.top += claim.margin.top;
-      this._margin.bottom += claim.margin.bottom;
-    }
-
-    this._shapes = [];
-
-    // Draws a container and zoomGroup to test functionality.
-    // this._testGroup = this._select.selectAll("g.d3plus-viz-testGroup").data([0]);
-    // const enterTest = this._testGroup.enter().append("g").attr("class", "d3plus-viz-testGroup")
-    //   .merge(this._testGroup);
-    // this._testGroup = enterTest.merge(this._testGroup);
-    // const bgHeight = this._height - this._margin.top - this._margin.bottom;
-    // const bgWidth = this._width - this._margin.left - this._margin.right;
-    // new Rect()
-    //   .data([{id: "background"}])
-    //   .select(this._testGroup.node())
-    //   .x(bgWidth / 2 + this._margin.left)
-    //   .y(bgHeight / 2 + this._margin.top)
-    //   .width(bgWidth)
-    //   .height(bgHeight)
-    //   .fill("#ccc")
-    //   .render();
-
-    // this._zoomGroup = this._select.selectAll("g.d3plus-viz-zoomGroup").data([0]);
-    // const enter = this._zoomGroup.enter().append("g").attr("class", "d3plus-viz-zoomGroup")
-    //   .merge(this._zoomGroup);
-
-    // this._zoomGroup = enter.merge(this._zoomGroup);
-    // const testConfig = {
-    //   on: {
-    //     click: this._on["click.shape"],
-    //     mouseenter: this._on.mouseenter,
-    //     mouseleave: this._on.mouseleave,
-    //     mousemove: this._on["mousemove.shape"]
-    //   }
-    // };
-
-    // const testWidth = 50;
-    // this._shapes.push(new Rect()
-    //   .config(this._shapeConfig)
-    //   .config(configPrep.bind(this)(testConfig))
-    //   .data(this._filteredData)
-    //   .label("Test Label")
-    //   .select(this._zoomGroup.node())
-    //   .id(this._id)
-    //   .x(d => {
-    //     if (!d.x) d.x = Math.random() * bgWidth;
-    //     return d.x;
-    //   })
-    //   .y(d => {
-    //     if (!d.y) d.y = Math.random() * bgHeight;
-    //     return d.y;
-    //   })
-    //   .width(testWidth)
-    //   .height(testWidth)
-    //   .render());
+    vizDraw(this);
   }
 
   /**

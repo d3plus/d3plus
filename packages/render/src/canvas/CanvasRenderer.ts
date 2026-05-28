@@ -121,6 +121,8 @@ export default class CanvasRenderer implements Renderer {
   private _target?: RenderTarget;
   private _canvas?: HTMLCanvasElement;
   private _ctx?: Ctx;
+  /** Sibling host for HtmlOverlayNode mounts (same approach as SvgRenderer). */
+  private _overlayHost?: HTMLDivElement;
   private _ratio = 1;
   private _width = 0;
   private _height = 0;
@@ -137,6 +139,11 @@ export default class CanvasRenderer implements Renderer {
   mount(target: RenderTarget): void {
     this._target = target;
     this._ratio = target.pixelRatio ?? (typeof devicePixelRatio !== "undefined" ? devicePixelRatio : 1);
+    const containerStyle =
+      target.container instanceof HTMLElement ? target.container.style : null;
+    if (containerStyle && !containerStyle.position) {
+      containerStyle.position = "relative";
+    }
     const canvas = document.createElement("canvas");
     canvas.className = "d3plus-render-canvas";
     canvas.style.display = "block";
@@ -144,6 +151,19 @@ export default class CanvasRenderer implements Renderer {
     this._canvas = canvas;
     this._ctx = canvas.getContext("2d") as Ctx;
     this.resize(target.width, target.height);
+    // Overlay host for HtmlOverlayNode mounts. Mirrors SvgRenderer; HTML
+    // overlays live in a sibling div so they can host real DOM (links,
+    // buttons) that canvas can't render natively.
+    const overlayHost = document.createElement("div");
+    overlayHost.setAttribute("class", "d3plus-render-overlays");
+    overlayHost.style.position = "absolute";
+    overlayHost.style.top = "0";
+    overlayHost.style.left = "0";
+    overlayHost.style.width = "100%";
+    overlayHost.style.height = "100%";
+    overlayHost.style.pointerEvents = "none";
+    target.container.appendChild(overlayHost);
+    this._overlayHost = overlayHost;
   }
 
   resize(width: number, height: number): void {
@@ -167,9 +187,13 @@ export default class CanvasRenderer implements Renderer {
     if (!duration) {
       this._paint(scene);
       this._scene = scene;
+      this._reconcileOverlays(scene);
       opts?.onEnd?.();
       return {finished: Promise.resolve(), cancel: () => {}};
     }
+    // For animated scenes the canvas paints per-frame; HTML overlays
+    // don't animate, just snap to their target positions.
+    this._reconcileOverlays(scene);
 
     const ease = opts?.ease ?? cubicInOut;
     const interp = interpolateScene(prev, scene);
@@ -269,8 +293,70 @@ export default class CanvasRenderer implements Renderer {
         this._drawChildren(ctx, node.children, a, localAbs);
         break;
       }
+      case "htmlOverlay":
+        // HTML overlays live in the sibling overlay-host div; no canvas paint.
+        break;
     }
     ctx.restore();
+  }
+
+  /**
+      Reconciles HtmlOverlay scene nodes into the overlay-host div. Mirrors
+      `SvgRenderer._reconcileOverlays`; walks the scene tree accumulating
+      overlays + their inherited transform offsets, then keys by `node.key`
+      for enter/update/exit.
+  */
+  private _reconcileOverlays(scene: Scene): void {
+    if (!this._overlayHost) return;
+    const collected: {node: import("../scene.js").HtmlOverlayNode; ox: number; oy: number}[] = [];
+    const walk = (n: SceneNode, ox: number, oy: number): void => {
+      const tx = n.transform?.x ?? 0;
+      const ty = n.transform?.y ?? 0;
+      const cx = ox + tx;
+      const cy = oy + ty;
+      if (n.type === "htmlOverlay") {
+        collected.push({node: n, ox: cx, oy: cy});
+      } else if (n.type === "group") {
+        for (const c of (n as import("../scene.js").GroupNode).children) walk(c, cx, cy);
+      }
+    };
+    walk(scene.root, 0, 0);
+    const host = this._overlayHost;
+    // Simple keyed reconcile (no d3 dependency in CanvasRenderer).
+    const existing = new Map<string, HTMLDivElement>();
+    host.querySelectorAll<HTMLDivElement>(":scope > .d3plus-render-overlay").forEach(el => {
+      const key = el.getAttribute("data-key");
+      if (key != null) existing.set(key, el);
+    });
+    const seen = new Set<string>();
+    for (const item of collected) {
+      const key = String(item.node.key);
+      seen.add(key);
+      let el = existing.get(key);
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "d3plus-render-overlay";
+        el.setAttribute("data-key", key);
+        el.style.position = "absolute";
+        el.style.pointerEvents = "auto";
+        host.appendChild(el);
+      }
+      const o = item.node;
+      el.style.left = `${item.ox + o.x}px`;
+      el.style.top = `${item.oy + o.y}px`;
+      if (o.width !== undefined) el.style.width = `${o.width}px`;
+      if (o.height !== undefined) el.style.height = `${o.height}px`;
+      if (o.className) el.className = `d3plus-render-overlay ${o.className}`;
+      if (o.style) {
+        for (const k in o.style)
+          (el.style as unknown as Record<string, string>)[k] = String(o.style[k]);
+      }
+      if (el.innerHTML !== o.html) el.innerHTML = o.html;
+      if (o.onMount) o.onMount(el);
+    }
+    for (const [key, el] of existing.entries()) {
+      if (!seen.has(key)) el.remove();
+    }
   }
 
   private _drawText(ctx: Ctx, node: TextNode, alpha: number): void {
@@ -458,6 +544,10 @@ export default class CanvasRenderer implements Renderer {
       for (const [k, fn] of Object.entries(this._domListeners))
         this._canvas.removeEventListener(k, fn);
       this._canvas.remove();
+    }
+    if (this._overlayHost) {
+      this._overlayHost.remove();
+      this._overlayHost = undefined;
     }
     this._handlers.clear();
     this._domListeners = {};

@@ -35,6 +35,11 @@ import zoomControls from "./drawSteps/zoomControls.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function runVizPipeline(viz: any): void {
+  // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
+  // directly) so subclass overrides (Plot._preDraw, Treemap._draw, Plot._draw,
+  // Pack/Pie/Matrix/…) still run. The free functions `vizPreDraw` / `vizDraw`
+  // hold the BASE Viz behavior; subclasses' `super._preDraw()`/`super._draw()`
+  // calls hit the shim which delegates to the free functions.
   viz._preDraw();
   viz._draw();
   zoomControls.bind(viz)();

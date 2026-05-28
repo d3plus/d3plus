@@ -195,6 +195,8 @@ export default class SvgRenderer implements Renderer {
   private _target?: RenderTarget;
   private _svg?: SVGSVGElement;
   private _root?: SVGGElement;
+  /** Sibling host for HtmlOverlayNode mounts. Positioned absolutely over the svg. */
+  private _overlayHost?: HTMLDivElement;
   private _scene?: Scene;
   private _index = new Map<string, SceneNode>();
   private _textureDefs = new Map<string, {url: () => string}>();
@@ -206,6 +208,13 @@ export default class SvgRenderer implements Renderer {
 
   mount(target: RenderTarget): void {
     this._target = target;
+    // The container needs to be position-relative so absolutely-positioned
+    // overlay children (and the svg) layer correctly.
+    const containerStyle =
+      target.container instanceof HTMLElement ? target.container.style : null;
+    if (containerStyle && !containerStyle.position) {
+      containerStyle.position = "relative";
+    }
     const svg = document.createElementNS(SVG_NS, "svg") as SVGSVGElement;
     svg.setAttribute("class", "d3plus-render-svg");
     svg.style.display = "block";
@@ -216,6 +225,19 @@ export default class SvgRenderer implements Renderer {
     root.setAttribute("class", "d3plus-render-root");
     svg.appendChild(root);
     this._root = root;
+    // Overlay host for HtmlOverlayNode mounts. Pointer-events default to
+    // none so overlays don't intercept svg interactions unless they
+    // explicitly opt in via a style override per overlay.
+    const overlayHost = document.createElement("div");
+    overlayHost.setAttribute("class", "d3plus-render-overlays");
+    overlayHost.style.position = "absolute";
+    overlayHost.style.top = "0";
+    overlayHost.style.left = "0";
+    overlayHost.style.width = "100%";
+    overlayHost.style.height = "100%";
+    overlayHost.style.pointerEvents = "none";
+    target.container.appendChild(overlayHost);
+    this._overlayHost = overlayHost;
   }
 
   resize(width: number, height: number): void {
@@ -239,6 +261,7 @@ export default class SvgRenderer implements Renderer {
 
     const t = transition().duration(duration);
     this._reconcile(select(this._root) as any, scene.root.children, duration, t);
+    this._reconcileOverlays(scene);
 
     let cancelled = false;
     const finished = new Promise<void>(resolve => {
@@ -297,7 +320,10 @@ export default class SvgRenderer implements Renderer {
     duration: number,
     t: any,
   ): void {
-    const ordered = [...children].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
+    // HtmlOverlay nodes live outside the SVG; they're reconciled separately
+    // by `_reconcileOverlays` against the sibling overlay host.
+    const svgChildren = children.filter(c => c.type !== "htmlOverlay");
+    const ordered = [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
     const sel = parent.selectChildren("*").data(ordered, (d: SceneNode) => d.key);
     const resolveFill = (f?: string): string | null => this._resolveFill(f);
 
@@ -326,6 +352,57 @@ export default class SvgRenderer implements Renderer {
       if (d.type === "group")
         self._reconcile(s as any, (d as GroupNode).children, duration, t);
     });
+  }
+
+  /**
+      Reconciles HtmlOverlay scene nodes into the sibling overlay-host div.
+      Walks the entire scene tree, accumulating overlays + their inherited
+      transform offsets (from ancestor group transforms), then keys them by
+      `node.key` for enter/update/exit. Overlay DOM is intentionally outside
+      the SVG so it can host arbitrary HTML (links, buttons, foreign-content)
+      that SVG's `<foreignObject>` doesn't always portably support.
+  */
+  private _reconcileOverlays(scene: Scene): void {
+    if (!this._overlayHost) return;
+    const collected: {node: import("../scene.js").HtmlOverlayNode; ox: number; oy: number}[] = [];
+    const walk = (n: SceneNode, ox: number, oy: number): void => {
+      const tx = n.transform?.x ?? 0;
+      const ty = n.transform?.y ?? 0;
+      const cx = ox + tx;
+      const cy = oy + ty;
+      if (n.type === "htmlOverlay") {
+        collected.push({node: n, ox: cx, oy: cy});
+      } else if (n.type === "group") {
+        for (const c of (n as GroupNode).children) walk(c, cx, cy);
+      }
+    };
+    walk(scene.root, 0, 0);
+    const sel = select(this._overlayHost)
+      .selectChildren<HTMLDivElement, unknown>(".d3plus-render-overlay")
+      .data(collected, (d: any) => String(d.node.key));
+    sel.exit().remove();
+    const enter = sel
+      .enter()
+      .append("div")
+      .attr("class", "d3plus-render-overlay")
+      .style("position", "absolute")
+      .style("pointer-events", "auto");
+    enter
+      .merge(sel as any)
+      .each(function (this: HTMLDivElement, d: any) {
+        const o = d.node as import("../scene.js").HtmlOverlayNode;
+        this.style.left = `${d.ox + o.x}px`;
+        this.style.top = `${d.oy + o.y}px`;
+        if (o.width !== undefined) this.style.width = `${o.width}px`;
+        if (o.height !== undefined) this.style.height = `${o.height}px`;
+        if (o.className) this.className = `d3plus-render-overlay ${o.className}`;
+        if (o.style) {
+          for (const k in o.style)
+            (this.style as unknown as Record<string, string>)[k] = String(o.style[k]);
+        }
+        if (this.innerHTML !== o.html) this.innerHTML = o.html;
+        if (o.onMount) o.onMount(this);
+      });
   }
 
   pick(point: [number, number]): PickResult | null {
@@ -416,6 +493,10 @@ export default class SvgRenderer implements Renderer {
       for (const [k, fn] of Object.entries(this._domListeners))
         this._svg.removeEventListener(k, fn);
       this._svg.remove();
+    }
+    if (this._overlayHost) {
+      this._overlayHost.remove();
+      this._overlayHost = undefined;
     }
     this._handlers.clear();
     this._domListeners = {};

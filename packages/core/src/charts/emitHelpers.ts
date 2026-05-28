@@ -82,3 +82,33 @@ export function collectComputed(
     return [];
   }
 }
+
+/**
+    Push a compute-mode shape's scene nodes onto `viz._chartScene`. Used
+    inside chart-specific layout stages that need to mount axis decorations,
+    background rects, or other helper geometry alongside the main shape
+    emit. The shape MUST already be in `renderMode("compute")`; this helper
+    calls `shape.render()` and then absorbs both the shape and label scenes.
+
+    Lives here (not in Plot.ts) so any chart stage can call it. Optionally
+    wraps the absorbed nodes in a group with the given key + transform,
+    useful when the decoration needs its own coordinate system that's
+    distinct from the chart-wide `_chartTransform`.
+*/
+export function absorbShapeIntoChartScene(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  viz: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shape: any,
+  wrap?: {key: string; transform?: {x: number; y: number}},
+): void {
+  if (!shape || typeof shape.toScene !== "function") return;
+  if (!Array.isArray(viz._chartScene)) viz._chartScene = [];
+  const children = collectComputed(shape);
+  if (!children.length) return;
+  if (wrap) {
+    viz._chartScene.push({type: "group", ...wrap, children});
+  } else {
+    viz._chartScene.push(...children);
+  }
+}

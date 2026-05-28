@@ -208,6 +208,50 @@ export interface GroupNode extends NodeBase {
 }
 
 /**
+    Embedded HTML at an absolute pixel position over the scene. The renderer
+    mounts the HTML in a sibling `<div>` (NOT inside the SVG) positioned via
+    CSS. Backends that can't host DOM (pure-Canvas-export, server-side
+    rendering) skip these nodes — chart logic that depends on HTML overlays
+    (zoom controls, attribution links, the Tooltip portal) must degrade
+    gracefully when picked up by a non-DOM backend.
+
+    The `html` field is rendered as HTML (innerHTML). Callers that need
+    user-supplied text MUST sanitize before assigning.
+
+    Serializability note: `onMount` is the documented escape from the
+    "scene is pure data" RFC principle. Pure scene types use no functions;
+    HtmlOverlay is the explicit interactive surface and accepts a callback
+    for post-mount event wiring (e.g. zoom control buttons). Renderers call
+    it once after the host div is first appended, and again on each update
+    so consumers can re-bind handlers if they replace innerHTML. Consumers
+    are responsible for idempotent wiring (remove old listeners first).
+*/
+export interface HtmlOverlayNode extends NodeBase {
+  type: "htmlOverlay";
+  /** Top-left x position in scene coordinates. */
+  x: number;
+  /** Top-left y position in scene coordinates. */
+  y: number;
+  /** Optional explicit width (defaults to content-driven). */
+  width?: number;
+  /** Optional explicit height (defaults to content-driven). */
+  height?: number;
+  /** Raw HTML (innerHTML) for the overlay. Caller is responsible for sanitization. */
+  html: string;
+  /** Optional CSS class names applied to the host <div>. */
+  className?: string;
+  /** Optional inline-style key/value record applied to the host <div>. */
+  style?: Record<string, string | number>;
+  /**
+      Optional callback fired after the overlay's host `<div>` is first
+      mounted and on every subsequent update. Receives the host element so
+      consumers can attach event listeners or read layout. Idempotent
+      wiring is the consumer's responsibility.
+  */
+  onMount?: (el: HTMLDivElement) => void;
+}
+
+/**
     @type SceneNode
     The discriminated union of every drawable primitive. Chart logic emits these;
     a Renderer backend consumes them. Contains only resolved values — no accessors,
@@ -221,7 +265,8 @@ export type SceneNode =
   | PathNode
   | ImageNode
   | TextNode
-  | GroupNode;
+  | GroupNode
+  | HtmlOverlayNode;
 
 /**
     @interface Scene

@@ -96,6 +96,11 @@ import {applyTreemapLayout, treemapDef} from "./src/charts/ChartDefinition.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
+import {plotPaint} from "./src/charts/plotPaint.js";
+import {vizDraw} from "./src/charts/vizDraw.js";
+import {vizPreDraw} from "./src/charts/vizPreDraw.js";
+import {resolveSpec} from "./src/charts/resolveSpec.js";
+export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
 import {
   backFeature,
   colorScaleFeature,
@@ -116,7 +121,11 @@ export {
   installFluent,
   computeAxisLayout,
   measureAxis,
+  plotPaint,
+  resolveSpec,
   runVizPipeline,
+  vizDraw,
+  vizPreDraw,
 };
 export const __test_internals__ = {
   applyTreemapLayout,
@@ -125,9 +134,13 @@ export const __test_internals__ = {
   installFluent,
   computeAxisLayout,
   measureAxis,
+  plotPaint,
+  resolveSpec,
   runStages,
   runLayout,
   runVizPipeline,
+  vizDraw,
+  vizPreDraw,
   vizPreDrawStages,
   backFeature,
   colorScaleFeature,

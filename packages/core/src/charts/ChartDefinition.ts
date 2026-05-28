@@ -46,7 +46,7 @@ import accessor from "../utils/accessor.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "./features.js";
 import type {FeatureModule} from "./features.js";
 import {vizPreDrawStages} from "./stages.js";
-import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
+import {absorbShapeIntoChartScene, collectComputed, shapeConfigFor} from "./emitHelpers.js";
 import type {TransformStage, VizContext} from "./stages.js";
 
 /**
@@ -271,7 +271,7 @@ import {scaleLinear} from "d3-scale";
 import {forceLink, forceManyBody, forceSimulation} from "d3-force";
 import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
 import {polygonHull} from "d3-polygon";
-import {assign, elem} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 import {nest} from "@d3plus/data";
 import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
 import {pie} from "d3-shape";
@@ -575,11 +575,11 @@ const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
     Builds the per-row datum array from `_filteredData` (start/end coerced
     via `date()` when `_axisConfig.scale === "time"`), groups it by the
     nested `_groupBy` slice, then assigns each band a `lane` using a
-    greedy first-fit packer. Mounts `viz._axisTest`/`viz._axis` (two Axis
-    instances built once in the constructor) imperatively via `elem()` —
-    same axis-decoration carve-out the other stages take. Computes the
-    band-scale (`yScale` via d3-scale.scaleBand) using the test-axis's
-    measured padding, then stashes `xScale`/`yScale`/`bandWidth` on
+    greedy first-fit packer. Runs `viz._axisTest.measure()` (pure layout,
+    no DOM) and `viz._axis.renderMode("compute").render()` then absorbs
+    its scene into `_chartScene`. Computes the band-scale (`yScale` via
+    d3-scale.scaleBand) using the test-axis's measured padding, then
+    stashes `xScale`/`yScale`/`bandWidth` on
     `viz._priestleyCtx` for `priestleyEmit` to consume.
 
     Returns the laid-out per-band data as `shapeData`; the chart class
@@ -644,30 +644,27 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     width: v._width - v._margin.left - v._margin.right,
   };
 
-  const transform = `translate(${v._margin.left}, ${v._margin.top})`;
+  // Test axis: measure-only — populates _padding/outerBounds without DOM.
+  v._axisTest.config(axisConfig).config(v._axisConfig).measure();
 
-  v._axisTest
-    .config(axisConfig)
-    .config(v._axisConfig)
-    .select(
-      elem("g.d3plus-priestley-axis-test", {
-        parent: v._select,
-        enter: {opacity: 0},
-      }).node(),
-    )
-    .render();
-
+  // Production axis: compute-mode render → absorb the scene into
+  // _chartScene wrapped in a group with the axis transform. Priestley's
+  // _chartTransform is undefined, so the wrap transform is absolute.
   v._axis
     .config(axisConfig)
     .config(v._axisConfig)
-    .select(
-      elem("g.d3plus-priestley-axis", {
-        parent: v._select,
-        enter: {transform},
-        update: {transform},
-      }).node(),
-    )
+    .renderMode("compute")
+    .select(undefined as unknown as HTMLElement)
     .render();
+  const axisScene = v._axis.toScene();
+  if (axisScene) {
+    (v._chartScene ||= []).push({
+      type: "group",
+      key: "priestley-axis",
+      transform: {x: v._margin.left, y: v._margin.top},
+      children: axisScene.children || [],
+    });
+  }
 
   const axisPad = v._axisTest._padding;
   const xScale = v._axis._d3Scale;
@@ -728,11 +725,10 @@ const radarEmit: ChartDefinition["emit"] = ({viz}) => {
     `radarEmit` to consume; returns `shapeData = groupData`.
 
     The Circle/Rect/Path axis decorations (background grid, axis labels,
-    spokes) are still rendered imperatively here via `elem()` because no
-    scene-graph axis-grid emit exists yet — same carve-out the other
-    `apply*Layout` stages take when they need to mount an Axis. This is
-    the only side-effecting bit; the polygon path itself rides the
-    scene-graph via `radarEmit`.
+    spokes) are emitted in compute mode and absorbed into `_chartScene`
+    alongside the polygons. All three share the chart-center origin via
+    `_chartTransform` — fixes a long-standing pre-v4 offset bug where the
+    decoration group's transform didn't account for chart margins.
 */
 export const applyRadarLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -741,7 +737,6 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   const width = v._width - v._margin.left - v._margin.right;
 
   const radius = min([height, width])! / 2 - v._outerPadding;
-  const transform = `translate(${width / 2}, ${height / 2})`;
 
   const nestedAxisData = groups(v._filteredData, v._metric);
   const nestedGroupData = groups(v._filteredData, v._id, v._metric);
@@ -768,19 +763,16 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   );
   delete circleConfig.label;
 
-  // Axis decoration: concentric background circles. Imperative because
-  // there's no axis-grid scene-graph emit yet — see stage docstring.
-  new Circle()
+  // Axis decoration: concentric background circles. v4: absorb into
+  // _chartScene at chart-center origin (which is exactly what
+  // _chartTransform provides via Viz.toScene). The legacy DOM group was
+  // at (width/2, height/2) — slightly different from the polygon center
+  // — so this also fixes a long-standing decoration/polygon-offset bug.
+  const radarCircles = new Circle()
+    .renderMode("compute")
     .data(circularAxis)
-    .select(
-      elem("g.d3plus-Radar-radial-circles", {
-        parent: v._select,
-        enter: {transform},
-        update: {transform},
-      }).node(),
-    )
-    .config(circleConfig)
-    .render();
+    .config(circleConfig);
+  absorbShapeIntoChartScene(v, radarCircles, {key: "radar-radial-circles"});
 
   const totalAxis = nestedAxisData.length;
   const polarAxis = nestedAxisData
@@ -833,8 +825,10 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     })
     .sort((a, b) => (a.key as number) - (b.key as number));
 
-  // Axis decoration: per-axis labels (rendered as Rect-mounted text).
-  new Rect()
+  // Axis decoration: per-axis labels (Rect-mounted text). Absorbed into
+  // _chartScene at chart-center origin (same as the polygons).
+  const radarLabels = new Rect()
+    .renderMode("compute")
     .data(polarAxis as unknown as DataPoint[])
     .rotate((d: any) => d.angle || 0)
     .width(0)
@@ -843,31 +837,18 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     .y((d: any) => d.y)
     .label((d: any) => d.id)
     .labelBounds((d: any) => d.labelBounds as unknown as Record<string, unknown>)
-    .labelConfig(v._axisConfig.shapeConfig.labelConfig)
-    .select(
-      elem("g.d3plus-Radar-text", {
-        parent: v._select,
-        enter: {transform},
-        update: {transform},
-      }).node(),
-    )
-    .render();
+    .labelConfig(v._axisConfig.shapeConfig.labelConfig);
+  absorbShapeIntoChartScene(v, radarLabels, {key: "radar-axis-labels"});
 
   // Axis decoration: radial spoke lines.
-  new Path()
+  const radarSpokes = new Path()
+    .renderMode("compute")
     .data(polarAxis as unknown as DataPoint[])
     .d((d: any) => `M${0},${0} ${-d.x},${-d.y}`)
-    .select(
-      elem("g.d3plus-Radar-axis", {
-        parent: v._select,
-        enter: {transform},
-        update: {transform},
-      }).node(),
-    )
     .config(
       (configPrep as any).bind(v)(v._axisConfig.shapeConfig, "shape", "Path"),
-    )
-    .render();
+    );
+  absorbShapeIntoChartScene(v, radarSpokes, {key: "radar-axis-spokes"});
 
   const groupData = nestedGroupData.map(([hKey, innerEntries]) => {
     const q = innerEntries.map(([, vals], i) => {
@@ -974,10 +955,11 @@ const matrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
     cartesian-product `shapeData`, then performs a two-pass Axis render: a
     hidden first pass to measure `_rowAxis.outerBounds().width` and
     `_columnAxis.outerBounds().height`, then a visible second pass that
-    consumes the computed `_padding`. Mounts the two `Axis` instances
-    (`viz._rowAxis`/`viz._columnAxis`) into `g.d3plus-Matrix-row`/
-    `g.d3plus-Matrix-column` via `elem()` — same imperative-axis carve-out
-    `applyRadarLayout` takes (no scene-graph axis emit yet).
+    consumes the computed `_padding`. Each Axis (`viz._rowAxis`/
+    `viz._columnAxis`) is `.measure()`-d on the hidden pass and rendered
+    in compute mode on the production pass, then its scene is absorbed
+    into `_chartScene` wrapped with the axis's relative transform
+    (delta from `_chartTransform`).
 
     Side effects on the viz:
       - `_padding.left += rowPadding` (row-axis outer width)
@@ -998,46 +980,26 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
 
   if (!rowValues.length || !columnValues.length) return {shapeData: []} as any;
 
-  const height = v._height - v._margin.top - v._margin.bottom,
-    parent = v._select,
-    transition = v._transition,
-    width = v._width - v._margin.left - v._margin.right;
-
-  const hidden = {opacity: 0};
-  const visible = {opacity: 1};
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
 
   const columnRotation = width / columnValues.length < 120;
 
-  const selectElem = (name: string, opts: Record<string, unknown>) =>
-    elem(
-      `g.d3plus-Matrix-${name}`,
-      Object.assign({parent, transition}, opts),
-    ).node();
-
+  // First pass: measure-only — populates outerBounds for padding compute.
   v._rowAxis
-    .select(selectElem("row", {enter: hidden, update: hidden}))
     .domain(rowValues)
     .height(
-      height -
-        v._margin.top -
-        v._margin.bottom -
-        v._padding.bottom -
-        v._padding.top,
+      height - v._margin.top - v._margin.bottom - v._padding.bottom - v._padding.top,
     )
     .maxSize(width / 4)
     .width(width)
     .config(v._rowConfig)
-    .render();
+    .measure();
 
   const rowPadding = v._rowAxis.outerBounds().width;
   v._padding.left += rowPadding;
-  let columnTransform = `translate(0, ${v._margin.top})`;
-  const hiddenTransform = Object.assign({transform: columnTransform}, hidden);
 
   v._columnAxis
-    .select(
-      selectElem("column", {enter: hiddenTransform, update: hiddenTransform}),
-    )
     .domain(columnValues)
     .range([
       v._margin.left + v._padding.left,
@@ -1048,39 +1010,53 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .width(width)
     .labelRotation(columnRotation)
     .config(v._columnConfig)
-    .render();
+    .measure();
 
   const columnPadding = v._columnAxis.outerBounds().height;
   v._padding.top += columnPadding;
 
-  const rowTransform = `translate(${v._margin.left}, ${v._margin.top})`;
-  columnTransform = `translate(0, ${v._margin.top})`;
-  const visibleTransform = Object.assign(
-    {transform: columnTransform},
-    visible,
-  );
-
+  // Production pass: compute-mode render → absorb each axis into
+  // _chartScene wrapped with its transform. _chartTransform is set by
+  // the chart class to `{x: 0, y: _margin.top}`, so the absorbed groups
+  // get an OFFSETTING transform that lands their content at the legacy
+  // absolute position.
+  const chartTransformY = v._margin.top; // matches Matrix._draw's _chartTransform
   v._rowAxis
-    .select(
-      selectElem("row", {
-        update: Object.assign({transform: rowTransform}, visible),
-      }),
-    )
-    .height(
-      height - v._margin.top - v._margin.bottom - v._padding.bottom,
-    )
+    .renderMode("compute")
+    .select(undefined as unknown as HTMLElement)
+    .height(height - v._margin.top - v._margin.bottom - v._padding.bottom)
     .maxSize(rowPadding)
     .range([columnPadding + v._columnAxis.padding(), undefined])
     .render();
+  const rowScene = v._rowAxis.toScene();
+  if (rowScene) {
+    (v._chartScene ||= []).push({
+      type: "group",
+      key: "matrix-row-axis",
+      transform: {x: v._margin.left, y: 0}, // (margin.left, margin.top) absolute - (0, margin.top) chartTransform
+      children: rowScene.children || [],
+    });
+  }
 
   v._columnAxis
-    .select(selectElem("column", {update: visibleTransform}))
+    .renderMode("compute")
+    .select(undefined as unknown as HTMLElement)
     .range([
       v._margin.left + v._padding.left + v._rowAxis.padding(),
       width - v._margin.right + v._padding.right,
     ])
     .maxSize(columnPadding)
     .render();
+  const colScene = v._columnAxis.toScene();
+  if (colScene) {
+    (v._chartScene ||= []).push({
+      type: "group",
+      key: "matrix-column-axis",
+      transform: {x: 0, y: 0}, // legacy (0, margin.top) - chartTransform (0, margin.top) = (0,0)
+      children: colScene.children || [],
+    });
+  }
+  void chartTransformY;
 
   const rowScale = v._rowAxis._getPosition.bind(v._rowAxis);
   const columnScale = v._columnAxis._getPosition.bind(v._columnAxis);
@@ -1138,9 +1114,9 @@ const radialMatrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
     then computes the polar geometry: a label-anchored outer radius, the
     per-column label positions (`labelData` with angle/quadrant + xy), and
     the d3-shape arc generator (`arcData`) that maps each row/column pair
-    onto its annular wedge. Mounts `viz._columnLabels` (a TextBox built
-    once in the constructor) imperatively via `elem()` — same axis-
-    decoration carve-out the other polar stages take.
+    onto its annular wedge. `viz._columnLabels` (a TextBox built once in
+    the constructor) runs in compute mode and its scene is absorbed into
+    `_chartScene` — chart-center origin via `_chartTransform`.
 
     Writes back on the viz:
       - `_radialMatrixCtx = {arcData}` for `radialMatrixEmit`.
@@ -1168,8 +1144,6 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   }
 
   const height = v._height - v._margin.top - v._margin.bottom,
-    parent = v._select,
-    transition = v._transition,
     width = v._width - v._margin.left - v._margin.right;
 
   v._radialMatrixWidth = width;
@@ -1177,8 +1151,7 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
 
   const labelHeight = 50,
     labelWidth = 100;
-  const radius = min([height - labelHeight * 2, width - labelWidth * 2])! / 2,
-    transform = `translate(${width / 2 + v._margin.left}, ${height / 2 + v._margin.top})`;
+  const radius = min([height - labelHeight * 2, width - labelWidth * 2])! / 2;
 
   const flippedColumns = columnValues.slice().reverse();
   flippedColumns.unshift(flippedColumns.pop()!);
@@ -1217,7 +1190,13 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
       ? labelData.filter((d: any) => v._columnConfig.labels.includes(d.key))
       : labelData;
 
+  // v4: column labels are a TextBox absorbed into _chartScene at the
+  // chart-center origin (which is what _chartTransform provides via
+  // Viz.toScene). The legacy DOM group's transform = chart-center too,
+  // so this is a behavior-preserving migration.
   v._columnLabels
+    .renderMode("compute")
+    .select(undefined as unknown as HTMLElement)
     .data(displayLabels)
     .x((d: any) => d.x)
     .y((d: any) => d.y)
@@ -1225,15 +1204,15 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
     .width(labelWidth)
     .height(labelHeight)
     .config(v._columnConfig.shapeConfig.labelConfig)
-    .select(
-      elem("g.d3plus-RadialMatrix-columns", {
-        parent,
-        transition,
-        enter: {transform},
-        update: {transform},
-      }).node(),
-    )
     .render();
+  const labelsScene = v._columnLabels.toScene();
+  if (labelsScene) {
+    (v._chartScene ||= []).push({
+      type: "group",
+      key: "radialmatrix-columns",
+      children: labelsScene.children || [],
+    });
+  }
 
   const innerRadius = v._innerRadius(radius);
   const rowHeight = (radius - innerRadius) / rowValues.length;

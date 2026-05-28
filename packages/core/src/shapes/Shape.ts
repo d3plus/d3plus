@@ -13,6 +13,7 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+import {buildLabelData} from "./buildLabelData.js";
 
 /** Coerces a value to a finite number, or undefined. @private */
 export function numOrUndef(v: unknown): number | undefined {
@@ -291,86 +292,27 @@ export default class Shape extends BaseClass {
       @private
 */
   _buildLabelData(): DataPoint[] {
-    const labelData: DataPoint[] = [];
-    const data = this._dataFilter ? this._dataFilter(this._data) : this._data;
-    data.forEach((datum: DataPoint, i: number) => {
-      let d: DataPoint = datum;
-      if (datum.nested && datum.key && datum.values) {
-        d = (datum.values as unknown as DataPoint[])[0];
-        i = this._data.indexOf(d);
-      }
-
-      let labels: unknown = this._label(d, i);
-
-      if (
-        this._labelBounds &&
-        labels !== false &&
-        labels !== undefined &&
-        labels !== null
-      ) {
-        const bounds = this._labelBounds.bind(this)(
-          d,
-          i,
-          this._aes(datum, i),
-        ) as Record<string, unknown>;
-
-        if (bounds) {
-          if ((labels as unknown[]).constructor !== Array) labels = [labels];
-
-          const x: number = d.__d3plusShape__
-              ? d.translate
-                ? (d.translate as unknown as number[])[0]
-                : (this._x(d.data as DataPoint, d.i as number) as number)
-              : (this._x(d, i) as number),
-            y: number = d.__d3plusShape__
-              ? d.translate
-                ? (d.translate as unknown as number[])[1]
-                : (this._y(d.data as DataPoint, d.i as number) as number)
-              : (this._y(d, i) as number);
-
-          if (d.__d3plusShape__) {
-            d = d.data as DataPoint;
-            i = d.i as number;
-          }
-
-          for (let l = 0; l < (labels as unknown[]).length; l++) {
-            const b = (
-              bounds.constructor === Array
-                ? (bounds as unknown as Record<string, unknown>[])[l]
-                : Object.assign({}, bounds)
-            ) as Record<string, number>;
-            const rotate = this._rotate(d, i) as number;
-            const labelConfig = d.labelConfig as DataPoint | undefined;
-            let r: number =
-              labelConfig && labelConfig.rotate
-                ? (labelConfig.rotate as number)
-                : bounds.angle !== undefined
-                  ? (bounds.angle as number)
-                  : 0;
-            r += rotate;
-            const rotateAnchor =
-              rotate !== 0
-                ? [b.x * -1 || 0, b.y * -1 || 0]
-                : [b.width / 2, b.height / 2];
-
-            labelData.push({
-              __d3plus__: true,
-              data: d,
-              height: b.height,
-              l,
-              id: `${this._id(d, i)}_${l}`,
-              r,
-              rotateAnchor,
-              text: (labels as unknown[])[l],
-              width: b.width,
-              x: x + b.x,
-              y: y + b.y,
-            } as unknown as DataPoint);
-          }
-        }
-      }
+    // v4: thin shim over the pure `buildLabelData()` helper. The helper
+    // takes the same inputs `this` exposes but works without a Shape
+    // instance — emit functions or other callers that need only the
+    // label-record layout can call it directly without instantiating
+    // a Shape in compute mode.
+    // All Shape methods bound to `this` before handing them to the pure
+    // helper — subclasses (e.g. Line._dataFilter) reach for `this._id` and
+    // friends inside their bodies.
+    return buildLabelData({
+      data: this._data,
+      dataFilter: this._dataFilter ? this._dataFilter.bind(this) : undefined,
+      label: this._label,
+      labelBounds: this._labelBounds
+        ? this._labelBounds.bind(this)
+        : undefined,
+      x: this._x,
+      y: this._y,
+      aes: this._aes.bind(this),
+      rotate: this._rotate,
+      id: this._id,
     });
-    return labelData;
   }
 
 
