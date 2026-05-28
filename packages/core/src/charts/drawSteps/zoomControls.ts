@@ -16,6 +16,28 @@ let brushing = false;
 /**
     @name zoomControls
     Sets up initial zoom events and controls.
+
+    E2 carve-out (RFC §3.4): this step is **intentionally not** ported to a
+    `FeatureModule` in `../features.ts`. The FeatureModule contract is
+    `{panel: SceneNode | null, margin: MarginClaim}` — a panel is a chart-area
+    SVG node, and the margin claim is space the feature reserves from the chart
+    body. zoomControls fits neither half:
+
+      1. It emits an HTML `<div class="d3plus-zoom-control">` mounted as a
+         sibling of the chart's `<svg>` (via `this._select.node().parentNode`),
+         not an SVG node — `SceneNode` is a strict SVG-primitive union (rect,
+         circle, line, area, path, image, text, group) with no HTML variant.
+      2. It does not claim margin. It positions itself *inside* the existing
+         `this._margin.top` / `this._margin.left` and overlays the chart.
+      3. It also installs D3 zoom + brush behaviors (`this._zoomBehavior`,
+         `this._zoomBrush`) and wires `this._zoomToBounds` — stateful
+         interaction setup, not a pure layout pass.
+      4. It runs *after* `_draw()` (after the chart body is rendered) rather
+         than during the margin negotiation phase that runLayout drives.
+
+    Until v4 introduces an HtmlOverlay node type and a separate "post-draw
+    interaction wiring" hook in the pipeline, zoomControls stays as a
+    `drawSteps/` free function invoked directly from `Viz._draw`.
     @private
 */
 export default function (this: Viz): void {

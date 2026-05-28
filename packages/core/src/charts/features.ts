@@ -1,0 +1,732 @@
+/**
+    E2 (RFC §3.4): FeatureModule + layout engine. These are the design
+    contracts for the next layer of the v4 pipeline — promoting drawSteps
+    (drawTitle, drawSubtitle, drawTotal, drawLegend, drawTimeline, drawColorScale,
+    drawBack, drawAttribution) from `.bind(this)`-style free functions that
+    mutate `this._margin` into pure `FeatureModule` values composed by a
+    layout engine that performs **explicit margin negotiation**.
+
+    Status: **interface + first conversion sketched as documentation.** The
+    existing drawSteps still run in `Viz._draw`; this file is the contract
+    they'll target. The Title feature below is the worked example of the
+    pattern, intentionally not yet wired in — pending the E1 pipeline
+    integration first.
+*/
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {extent, min, rollup, sum} from "d3-array";
+import {select} from "d3-selection";
+
+import {merge, unique} from "@d3plus/data";
+import type {DataPoint, MergedDataPoint} from "@d3plus/data";
+import {date, elem, stylize} from "@d3plus/dom";
+
+import type {SceneNode} from "@d3plus/render";
+
+import {configPrep} from "../utils/index.js";
+
+import type {VizContext} from "./stages.js";
+
+/** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
+export interface MarginClaim {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+
+/** The shape a `layout` step returns: optional panel node + its margin claim. */
+export interface FeatureLayout {
+  panel: SceneNode | null;
+  margin: MarginClaim;
+}
+
+/**
+    @interface FeatureModule
+    A chart-level component (title, subtitle, total, legend, timeline,
+    colorScale, back, attribution) expressed as a pure value. Each feature:
+      - contributes config keys to the chart's schema (`configFields`),
+      - optionally derives extra fields onto the pipeline context (`derive`),
+      - optionally claims a margin region + emits its panel scene (`layout`),
+      - optionally registers event reducers (`events`).
+*/
+export interface FeatureModule {
+  name: string;
+  /** Keys the chart's config inherits from this feature (used by E4 fluent gen). */
+  configFields?: string[];
+  /** Extra derivations to add into the pipeline context. */
+  derive?: (ctx: VizContext) => Partial<VizContext>;
+  /**
+      Pure layout: read the (possibly updated-by-earlier-features) context and
+      return the panel scene + margin this feature claims. The layoutEngine
+      threads the margin claims through `ctx.layoutMargin` so a feature can
+      read what earlier features already took.
+  */
+  layout?: (
+    ctx: VizContext & {layoutMargin: Required<MarginClaim>},
+  ) => FeatureLayout;
+  /**
+      Event reducers `(ctx, event) => Partial<VizConfig>`. Fire when a
+      user interaction occurs on a node tagged with this feature's name.
+  */
+  events?: Record<string, (ctx: VizContext, event: unknown) => unknown>;
+}
+
+/**
+    Result of running a list of features through the layout engine.
+*/
+export interface LayoutResult {
+  /** Panel nodes in feature order, ready to compose into the scene root. */
+  panels: SceneNode[];
+  /** Final margin after every feature claimed its space. */
+  margin: Required<MarginClaim>;
+}
+
+/**
+    Runs each feature's `layout` in order, accumulating margin claims so that
+    later features see the space already taken by earlier ones. The order of
+    `features` is the layout order — this is how implicit `this._margin +=`
+    side effects from the legacy drawSteps become *explicit* data flow.
+
+    Today's order in `Viz._draw` (`drawTitle`, `drawSubtitle`, `drawTotal`,
+    `drawBack`, `drawAttribution`, `drawColorScale`, `drawLegend`,
+    `drawTimeline`) should be ported verbatim as the default sequence — port
+    the math first, then improve.
+*/
+export function runLayout(
+  ctx: VizContext,
+  features: FeatureModule[],
+): LayoutResult {
+  const margin: Required<MarginClaim> = {top: 0, right: 0, bottom: 0, left: 0};
+  const panels: SceneNode[] = [];
+  for (const f of features) {
+    if (!f.layout) continue;
+    const {panel, margin: claim} = f.layout({...ctx, layoutMargin: {...margin}});
+    if (panel) panels.push(panel);
+    margin.top += claim.top ?? 0;
+    margin.right += claim.right ?? 0;
+    margin.bottom += claim.bottom ?? 0;
+    margin.left += claim.left ?? 0;
+  }
+  return {panels, margin};
+}
+
+/* --------------------------- text-block features --------------------------- */
+
+/**
+    Shared layout logic for any "single line of text claiming margin.top" feature
+    (title, subtitle, total). Each feature passes the viz fields that source its
+    text + TextBox + config; the helper computes the panel + margin claim using
+    the TextBox's pure `_textData()` (no DOM).
+*/
+function textBlockLayout(
+  ctx: VizContext & {layoutMargin: Required<MarginClaim>},
+  opts: {
+    panelKey: string;
+    getText: (viz: any) => string | false;
+    textClassKey: string; // e.g. "_titleClass"
+    configKey: string; // e.g. "_titleConfig"
+    paddingMethod: string; // e.g. "_titlePadding"
+  },
+): FeatureLayout {
+  const {viz, layoutMargin} = ctx;
+  const text = opts.getText(viz);
+  if (!text) return {panel: null, margin: {}};
+
+  const usesPadding = (viz[opts.paddingMethod] as () => boolean)();
+  const padding = usesPadding
+    ? viz._padding
+    : {top: 0, right: 0, bottom: 0, left: 0};
+  const width =
+    viz._width -
+    (viz._margin.left + viz._margin.right + padding.left + padding.right);
+
+  const textClass = viz[opts.textClassKey];
+  textClass
+    .data([{text}])
+    .locale(viz._locale)
+    .width(width)
+    .config(viz[opts.configKey]);
+  const boxes = textClass._textData() as Array<{
+    lines: string[];
+    lH: number;
+    fS: number;
+    fF: string;
+    fC: string;
+    fO: number;
+    tA: string;
+    widths: number[];
+  }>;
+  if (!boxes.length) return {panel: null, margin: {}};
+  const box = boxes[0];
+
+  const x = layoutMargin.left + padding.left;
+  const y = layoutMargin.top;
+  const lineHeight = box.lH;
+  const blockPadding = (viz[opts.configKey]?.padding as number) ?? 0;
+  const height = box.lines.length * lineHeight + blockPadding * 2;
+
+  const lines = box.lines.map((str: string, i: number) => ({
+    text: str,
+    x:
+      box.tA === "middle"
+        ? width / 2
+        : box.tA === "end"
+          ? width
+          : 0,
+    y: (i + 1) * lineHeight - (lineHeight - box.fS),
+    width: box.widths?.[i] ?? 0,
+  }));
+
+  const panel: SceneNode = {
+    type: "text",
+    key: opts.panelKey,
+    x: 0,
+    y: 0,
+    lines,
+    font: {
+      family: box.fF,
+      size: box.fS,
+      anchor:
+        box.tA === "middle" || box.tA === "end" || box.tA === "start"
+          ? (box.tA as "middle" | "end" | "start")
+          : "start",
+      baseline: "alphabetic",
+    },
+    paint: {fill: box.fC, opacity: box.fO},
+    transform: {x, y},
+  };
+
+  return {panel, margin: {top: height}};
+}
+
+/**
+    Converts `drawTitle.ts` to a FeatureModule. The legacy free function
+    mutated `this._margin.top` as a side effect after rendering via getBBox.
+    The feature uses `_titleClass._textData()` for height (pure compute, no
+    DOM) and returns the margin claim explicitly.
+*/
+export const titleFeature: FeatureModule = {
+  name: "title",
+  configFields: ["title", "titleConfig", "titlePadding"],
+  layout: ctx =>
+    textBlockLayout(ctx, {
+      panelKey: "viz-title",
+      getText: viz => (viz._title ? viz._title(viz._filteredData || []) : false),
+      textClassKey: "_titleClass",
+      configKey: "_titleConfig",
+      paddingMethod: "_titlePadding",
+    }),
+};
+
+/** Converts `drawSubtitle.ts` to a FeatureModule. Mirrors titleFeature. */
+export const subtitleFeature: FeatureModule = {
+  name: "subtitle",
+  configFields: ["subtitle", "subtitleConfig", "subtitlePadding"],
+  layout: ctx =>
+    textBlockLayout(ctx, {
+      panelKey: "viz-subtitle",
+      getText: viz => (viz._subtitle ? viz._subtitle(viz._filteredData || []) : false),
+      textClassKey: "_subtitleClass",
+      configKey: "_subtitleConfig",
+      paddingMethod: "_subtitlePadding",
+    }),
+};
+
+/**
+    Converts `drawBack.ts` to a FeatureModule. Visible only when there are
+    drill-down history entries; emits a "← Back" TextNode at the chart's
+    top-left and claims its line height + padding × 2 from `margin.top`.
+*/
+export const backFeature: FeatureModule = {
+  name: "back",
+  configFields: ["backConfig"],
+  layout: ({viz, layoutMargin}) => {
+    if (!viz._history || !viz._history.length) return {panel: null, margin: {}};
+
+    const text = `← ${viz._translate("Back")}`;
+    viz._backClass.data([{text, x: 0, y: 0}]).config(viz._backConfig);
+    const boxes = viz._backClass._textData() as Array<{
+      lines: string[];
+      lH: number;
+      fS: number;
+      fF: string;
+      fC: string;
+      fO: number;
+      tA: string;
+      widths: number[];
+    }>;
+    // _backClass might have a fontSize/padding only style (no wrapping data),
+    // in which case _textData may be empty; fall back to direct accessor reads
+    // for the margin claim to match drawBack's math precisely.
+    const fontSize = viz._backClass.fontSize()();
+    const padding = viz._backClass.padding()();
+    const height = fontSize + padding * 2;
+
+    if (!boxes.length) {
+      return {panel: null, margin: {top: height}};
+    }
+    const box = boxes[0];
+
+    const panel: SceneNode = {
+      type: "text",
+      key: "viz-back",
+      x: 0,
+      y: 0,
+      lines: box.lines.map((str, i) => ({
+        text: str,
+        x: 0,
+        y: (i + 1) * box.lH - (box.lH - box.fS),
+        width: box.widths?.[i] ?? 0,
+      })),
+      font: {family: box.fF, size: box.fS, baseline: "alphabetic"},
+      paint: {fill: box.fC, opacity: box.fO},
+      transform: {x: layoutMargin.left, y: layoutMargin.top},
+    };
+    return {panel, margin: {top: height}};
+  },
+};
+
+/* -------------------------------- Legend --------------------------------- */
+
+const legendAttrs = ["fill", "opacity", "texture"];
+
+/**
+    Converts `drawLegend.ts` to a FeatureModule.
+
+    Layout responsibility: roll filtered data up by paint attributes, configure
+    + render the chart's `_legendClass` Legend instance (compute mode — Legend
+    contributes to the scene via its `toScene()` collected on Viz.toScene),
+    and return the margin claim corresponding to its outerBounds + padding.
+    No panel SceneNode is emitted — Legend is a component, not a panel; the
+    scene composition for Legend happens via Viz.toScene's `components` array.
+*/
+export const legendFeature: FeatureModule = {
+  name: "legend",
+  configFields: ["legend", "legendConfig", "legendPadding", "legendPosition", "legendSort"],
+  layout: ({viz, layoutMargin}) => {
+    // Source: `_legendData` from the rollupAndFilter pipeline stage — same
+    // arg drawLegend received via `drawLegend.bind(this)(this._legendData)`.
+    const data: DataPoint[] = viz._legendData || [];
+    const legendData: DataPoint[] = [];
+
+    const getAttr = (d: DataPoint, i: number, attr: string): string => {
+      const shape = viz._shape(d, i);
+      if (attr === "fill" && shape === "Line") attr = "stroke";
+      const value =
+        viz._shapeConfig[shape] && viz._shapeConfig[shape][attr]
+          ? viz._shapeConfig[shape][attr]
+          : viz._shapeConfig[attr];
+      return typeof value === "function" ? value.bind(viz)(d, i) : value;
+    };
+
+    const fill = (d: DataPoint, i: number): string =>
+      legendAttrs.map(a => getAttr(d, i, a)).join("_");
+
+    const rollupData = viz._colorScale
+      ? data.filter(
+          (d: DataPoint, i: number) => viz._colorScale(d, i) === undefined,
+        )
+      : data;
+    rollup(
+      rollupData,
+      (leaves: DataPoint[]) =>
+        legendData.push(merge(leaves, viz._aggs) as unknown as DataPoint),
+      fill,
+    );
+
+    legendData.sort(viz._legendSort);
+
+    const labels = legendData.map((d: DataPoint, i: number) =>
+      viz._ids(d, i).slice(0, viz._drawDepth + 1),
+    );
+    viz._legendDepth = 0;
+    for (let x = 0; x <= viz._drawDepth; x++) {
+      const values = labels.map((l: string[]) => l[x]);
+      if (
+        !values.some((v: string | string[]) => Array.isArray(v)) &&
+        Array.from(new Set(values)).length === legendData.length
+      ) {
+        viz._legendDepth = x;
+        break;
+      }
+    }
+
+    const hidden = (d: DataPoint, i: number): boolean => {
+      let id = viz._id(d, i);
+      if (Array.isArray(id)) id = id[0];
+      return (
+        viz._hidden.includes(id) ||
+        (viz._solo.length && !viz._solo.includes(id))
+      );
+    };
+
+    // Pre-render bounds capture is what drawLegend used to compute the margin
+    // *claim* — the previous render's outerBounds; on first render it's zero
+    // and Legend re-flows on the second render with the real space. This is
+    // the legacy behavior, preserved here so visual output is identical.
+    const legendBounds = viz._legendClass.outerBounds();
+    const config = viz.config();
+    let position = viz._legendPosition.bind(viz)(config);
+    if (![false, "top", "bottom", "left", "right"].includes(position))
+      position = "bottom";
+    const wide = ["top", "bottom"].includes(position);
+    const padding = viz._legendPadding()
+      ? viz._padding
+      : {top: 0, right: 0, bottom: 0, left: 0};
+    const transform = {
+      transform: `translate(${
+        wide ? viz._margin.left + padding.left : viz._margin.left
+      }, ${wide ? viz._margin.top : viz._margin.top + padding.top})`,
+    };
+    const visible = viz._legend.bind(viz)(config, legendData);
+
+    // The Legend instance still renders into a `g.d3plus-viz-legend` group as
+    // a child of the chart's svg. This group is created via the legacy `elem`
+    // helper so the Legend has a DOM `_select` (its `toScene()` walks from
+    // there). Once Legend is fully compute-only the elem wrapper can go.
+    const legendGroup = elem("g.d3plus-viz-legend", {
+      condition: visible && !viz._legendConfig.select,
+      enter: transform,
+      parent: viz._select,
+      duration: viz._duration,
+      update: transform,
+    }).node();
+
+    viz._legendClass
+      .renderMode("compute")
+      .id(fill)
+      .align(wide ? "center" : position)
+      .direction(wide ? "row" : "column")
+      .duration(viz._duration)
+      .data(visible ? legendData : [])
+      .height(
+        wide
+          ? viz._height - (viz._margin.bottom + viz._margin.top)
+          : viz._height -
+              (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top),
+      )
+      .locale(viz._locale)
+      .parent(viz)
+      .select(legendGroup)
+      .shape((d: DataPoint, i: number) =>
+        viz._shape(d, i) === "Circle" ? "Circle" : "Rect",
+      )
+      .verticalAlign(!wide ? "middle" : position)
+      .width(
+        wide
+          ? viz._width -
+              (viz._margin.left + viz._margin.right + padding.left + padding.right)
+          : viz._width - (viz._margin.left + viz._margin.right),
+      )
+      .shapeConfig((configPrep as any).bind(viz)(viz._shapeConfig, "legend"))
+      .shapeConfig({
+        fill: (d: DataPoint, i: number) =>
+          hidden(d, i) ? viz._hiddenColor(d, i) : getAttr(d, i, "fill"),
+        labelConfig: {
+          fontOpacity: (d: DataPoint, i: number) =>
+            hidden(d, i) ? viz._hiddenOpacity(d, i) : 1,
+        },
+      })
+      .config(viz._legendConfig)
+      .render();
+
+    // Margin claim from the *previous* render's outerBounds. This is the
+    // legacy behavior — `outerBounds()` reads stored state, so on the first
+    // render the claim is zero and Legend overlaps the chart for one frame;
+    // the next render flows with full margin. Preserved verbatim to keep the
+    // post-conversion pixels identical.
+    const margin: Record<string, number> = {};
+    if (!viz._legendConfig.select && legendBounds.height) {
+      if (wide)
+        margin[position] = legendBounds.height + viz._legendClass.padding() * 2;
+      else
+        margin[position] = legendBounds.width + viz._legendClass.padding() * 2;
+    }
+    // The `layoutMargin` argument is the cumulative claim from earlier features;
+    // the runLayout engine will accumulate this feature's claim into it. We
+    // don't read it here directly — drawLegend used `viz._margin.left` etc.,
+    // which the engine already wrote through.
+    void layoutMargin;
+    return {panel: null, margin};
+  },
+};
+
+/* -------------------------------- Timeline ------------------------------- */
+
+/**
+    Helper mirroring drawTimeline's `setTimeFilter`. Triggers a re-render when
+    the brush selection changes — kept here so the feature owns its event flow.
+*/
+function setTimeFilter(viz: any, s: Date | Date[] | number[]): void {
+  if (!Array.isArray(s)) s = [s, s] as Date[];
+  if (JSON.stringify(s) !== JSON.stringify(viz._timelineSelection)) {
+    viz._timelineSelection = s;
+    const nums = (s as Array<Date | number>).map(Number) as number[];
+    (viz.timeFilter((d: DataPoint) => {
+      const ms = (date(viz._time(d)) as Date).getTime();
+      return ms >= nums[0] && ms <= nums[1];
+    }) as any).render();
+  }
+}
+
+/**
+    Converts `drawTimeline.ts` to a FeatureModule.
+
+    Visible only when `_time` is set, `_timeline` is truthy, and there is more
+    than one distinct tick. Renders the chart's `_timelineClass` Timeline
+    instance (compute mode — scene comes from Timeline.toScene via Viz.toScene's
+    components collection) and claims `margin.bottom` from its outerBounds.
+*/
+export const timelineFeature: FeatureModule = {
+  name: "timeline",
+  configFields: ["timeline", "timelineConfig", "timelinePadding"],
+  layout: ({viz}) => {
+    let timelinePossible = viz._time && viz._timeline;
+    const ticks = (
+      timelinePossible
+        ? unique(viz._data.map(viz._time)).map(
+            (d: unknown) => date(d as string | number),
+          )
+        : []
+    ) as Date[];
+    timelinePossible = timelinePossible && ticks.length > 1;
+    const padding = viz._timelinePadding()
+      ? viz._padding
+      : {top: 0, right: 0, bottom: 0, left: 0};
+
+    const transform = {
+      transform: `translate(${viz._margin.left + padding.left}, 0)`,
+    };
+
+    const timelineGroup = elem("g.d3plus-viz-timeline", {
+      condition: timelinePossible,
+      enter: transform,
+      parent: viz._select,
+      duration: viz._duration,
+      update: transform,
+    }).node();
+
+    if (!timelinePossible) return {panel: null, margin: {}};
+
+    const data: DataPoint[] = viz._filteredData || [];
+    const timeline = viz._timelineClass
+      .renderMode("compute")
+      .domain(extent(ticks) as [Date, Date])
+      .duration(viz._duration)
+      .height(viz._height - viz._margin.bottom)
+      .locale(viz._locale)
+      .select(timelineGroup)
+      .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
+      .width(
+        viz._width -
+          (viz._margin.left + viz._margin.right + padding.left + padding.right),
+      );
+
+    const dataExtent = extent(
+      data
+        .map(viz._time)
+        .map((d: unknown) => date(d as string | number)) as Date[],
+    ) as [Date, Date];
+    if (!viz._timelineSelection) {
+      viz._timelineSelection = viz._timelineDefault || dataExtent;
+    } else {
+      if (viz._timelineSelection[0] < dataExtent[0])
+        viz._timelineSelection[0] = dataExtent[0];
+      if (viz._timelineSelection[1] > dataExtent[1])
+        viz._timelineSelection[1] = dataExtent[1];
+    }
+    timeline.selection(viz._timelineSelection);
+
+    const config = viz._timelineConfig;
+    timeline
+      .config(config)
+      .on("brush", (s: Date[]) => {
+        setTimeFilter(viz, s);
+        if (config.on && config.on.brush) config.on.brush(s);
+      })
+      .on("end", (s: Date[]) => {
+        setTimeFilter(viz, s);
+        if (config.on && config.on.end) config.on.end(s);
+      })
+      .render();
+
+    return {
+      panel: null,
+      margin: {bottom: timeline.outerBounds().height + timeline.padding() * 2},
+    };
+  },
+};
+
+/* ------------------------------- ColorScale ------------------------------ */
+
+/**
+    Converts `drawColorScale.ts` to a FeatureModule.
+
+    Visible only when `_colorScale` is truthy and `_colorScalePosition` resolves
+    to a side. Renders the chart's `_colorScaleClass` ColorScale instance and
+    claims margin along its position side.
+*/
+export const colorScaleFeature: FeatureModule = {
+  name: "colorScale",
+  configFields: [
+    "colorScale",
+    "colorScaleConfig",
+    "colorScaleMaxSize",
+    "colorScalePadding",
+    "colorScalePosition",
+  ],
+  layout: ({viz}) => {
+    const data = Array.from(
+      rollup(
+        viz._data,
+        (leaves: DataPoint[]) => merge(leaves, viz._aggs),
+        (d: DataPoint, i: number) =>
+          `${viz._time ? viz._time(d, i) : "all"}-${viz._ids(d, i).join("_")}`,
+      ).values(),
+    );
+
+    let position = viz._colorScalePosition.bind(viz)(viz.config());
+    if (![false, "top", "bottom", "left", "right"].includes(position))
+      position = "bottom";
+    const wide = ["top", "bottom"].includes(position);
+    const showColorScale = viz._colorScale && position;
+    const padding = viz._colorScalePadding()
+      ? viz._padding
+      : {top: 0, right: 0, bottom: 0, left: 0};
+
+    const availableWidth =
+      viz._width - (viz._margin.left + viz._margin.right + padding.left + padding.right);
+    const width = wide
+      ? min([viz._colorScaleMaxSize, availableWidth])!
+      : viz._width - (viz._margin.left + viz._margin.right);
+
+    const availableHeight =
+      viz._height - (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top);
+    const height = !wide
+      ? min([viz._colorScaleMaxSize, availableHeight])!
+      : viz._height - (viz._margin.bottom + viz._margin.top);
+
+    const transform = {
+      opacity: position ? 1 : 0,
+      transform: `translate(${
+        wide
+          ? viz._margin.left + padding.left + (availableWidth - width) / 2
+          : viz._margin.left
+      }, ${
+        wide
+          ? viz._margin.top
+          : viz._margin.top + padding.top + (availableHeight - height) / 2
+      })`,
+    };
+
+    const scaleGroup = elem("g.d3plus-viz-colorScale", {
+      condition: showColorScale && !viz._colorScaleConfig.select,
+      enter: transform,
+      parent: viz._select,
+      duration: viz._duration,
+      update: transform,
+    }).node();
+
+    if (!viz._colorScale) return {panel: null, margin: {}};
+
+    const scaleData = data.filter((d: MergedDataPoint, i: number) => {
+      const c = viz._colorScale(d as unknown as DataPoint, i);
+      return c !== undefined && c !== null;
+    });
+
+    viz._colorScaleClass
+      .align(
+        ({bottom: "end", left: "start", right: "end", top: "start"} as Record<string, string>)[
+          position
+        ] || "bottom",
+      )
+      .duration(viz._duration)
+      .data(scaleData)
+      .height(height)
+      .locale(viz._locale)
+      .orient(position)
+      .select(scaleGroup)
+      .value(viz._colorScale)
+      .width(width)
+      .config(viz._colorScaleConfig)
+      .render();
+
+    const margin: Record<string, number> = {};
+    if (showColorScale) {
+      const scaleBounds = viz._colorScaleClass.outerBounds();
+      if (!viz._colorScaleConfig.select && scaleBounds.height) {
+        if (wide)
+          margin[position] = scaleBounds.height + viz._legendClass.padding() * 2;
+        else
+          margin[position] = scaleBounds.width + viz._legendClass.padding() * 2;
+      }
+    }
+    return {panel: null, margin};
+  },
+};
+
+/* ------------------------------ Attribution ------------------------------ */
+
+/**
+    Converts `drawAttribution.ts` to a FeatureModule.
+
+    Attribution is an HTML `<div>` overlay positioned absolutely outside the SVG
+    plane — it doesn't fit naturally as a SceneNode in the chart scene graph.
+    Rather than encode an HTML overlay into the scene graph, this feature runs
+    the legacy DOM-creating side effect imperatively from inside `layout()`, so
+    invocation is still funneled through `runLayout` for consistency with the
+    other features. It claims zero margin and emits no panel.
+*/
+export const attributionFeature: FeatureModule = {
+  name: "attribution",
+  configFields: ["attribution", "attributionStyle"],
+  layout: ({viz}) => {
+    let attr: any = select(viz._select.node().parentNode)
+      .selectAll("div.d3plus-attribution")
+      .data(viz._attribution ? [0] : []);
+
+    const attrEnter = attr
+      .enter()
+      .append("div")
+      .attr("class", "d3plus-attribution");
+
+    attr.exit().remove();
+
+    attr = attr
+      .merge(attrEnter)
+      .style("position", "absolute")
+      .html(viz._attribution)
+      .style("right", `${viz._margin.right}px`)
+      .style("bottom", `${viz._margin.bottom}px`)
+      .call(stylize as never, viz._attributionStyle);
+
+    return {panel: null, margin: {}};
+  },
+};
+
+/**
+    Converts `drawTotal.ts` to a FeatureModule. Slightly different from title/
+    subtitle: the text comes from `sum()` over the filtered data when `_total`
+    is a function, or from `sum(data.map(_size))` when `_total === true`.
+*/
+export const totalFeature: FeatureModule = {
+  name: "total",
+  configFields: ["total", "totalConfig", "totalFormat", "totalPadding"],
+  layout: ctx =>
+    textBlockLayout(ctx, {
+      panelKey: "viz-total",
+      getText: viz => {
+        const data = viz._filteredData || [];
+        const total =
+          typeof viz._total === "function"
+            ? sum(data.map(viz._total))
+            : viz._total === true && viz._size
+              ? sum(data.map(viz._size))
+              : false;
+        return total ? viz._totalFormat(total) : false;
+      },
+      textClassKey: "_totalClass",
+      configKey: "_totalConfig",
+      paddingMethod: "_totalPadding",
+    }),
+};

@@ -19,21 +19,53 @@ import {
   Timeline,
   Tooltip,
 } from "../components/index.js";
+import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
+import type {Scene, SceneNode, Transform} from "@d3plus/render";
 import {accessor, BaseClass, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
 // import {Rect} from "../shape/index.js";
 
 import Message from "../components/Message.js";
 
-import drawBack from "./drawSteps/drawBack.js";
-import drawColorScale from "./drawSteps/drawColorScale.js";
-import {default as drawLegend, legendLabel} from "./drawSteps/drawLegend.js";
-import drawSubtitle from "./drawSteps/drawSubtitle.js";
-import drawTimeline from "./drawSteps/drawTimeline.js";
-import drawTitle from "./drawSteps/drawTitle.js";
-import drawTotal from "./drawSteps/drawTotal.js";
+// E4: Viz's identity-coerce accessor schema. installFluent installs methods on
+// Viz.prototype (once via WeakSet) so BaseClass.config() reflection picks them
+// up. Constructor assignments below seed defaults (e.g. `this._duration = 600`);
+// installFluent skips slots already set, so constructor values win.
+const vizSchema = [
+  {key: "ariaHidden", coerce: "identity" as const},
+  {key: "cache", coerce: "identity" as const},
+  {key: "dataCutoff", coerce: "identity" as const},
+  {key: "depth", coerce: "identity" as const},
+  {key: "discrete", coerce: "identity" as const},
+  {key: "duration", coerce: "identity" as const},
+  {key: "filter", coerce: "identity" as const},
+  {key: "height", coerce: "identity" as const},
+  {key: "legendSort", coerce: "identity" as const},
+  {key: "svgDesc", coerce: "identity" as const},
+  {key: "svgTitle", coerce: "identity" as const},
+  {key: "timeFilter", coerce: "identity" as const},
+  {key: "timeline", coerce: "identity" as const},
+  {key: "width", coerce: "identity" as const},
+  {key: "zoom", coerce: "identity" as const},
+  {key: "zoomFactor", coerce: "identity" as const},
+  {key: "zoomMax", coerce: "identity" as const},
+  {key: "zoomPan", coerce: "identity" as const},
+  {key: "zoomScroll", coerce: "identity" as const},
+];
 
-import zoomControls from "./drawSteps/zoomControls.js";
-import drawAttribution from "./drawSteps/drawAttribution.js";
+import {legendLabel} from "./legendLabel.js";
+import {runVizPipeline} from "./runVizPipeline.js";
+
+import {
+  backFeature,
+  colorScaleFeature,
+  legendFeature,
+  runLayout,
+  subtitleFeature,
+  timelineFeature,
+  titleFeature,
+  totalFeature,
+} from "./features.js";
 
 import clickShape from "./events/click.shape.js";
 import clickLegend from "./events/click.legend.js";
@@ -145,6 +177,17 @@ export default class Viz extends (BaseClass as any) {
     super();
 
     this._aggs = {};
+    // E4: install identity-coerce accessors on the prototype. The imperative
+    // `this._x = …` assignments below seed defaults; installFluent's "skip
+    // if slot already set" guard respects them. Methods are visible to
+    // BaseClass.config()'s `getAllMethods` reflection.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, vizSchema);
+    // v4: `renderer()` selects the @d3plus/render backend. Default
+    // `"svg"` (SvgRenderer); `"canvas"` for large N via CanvasRenderer.
+    // The legacy DOM-only opt-out was removed — scene mode is THE path.
+    this._renderer = "svg";
+    this._renderMode = "full";
     this._ariaHidden = true;
     this._attribution = false;
     const attributionBg = "rgba(255, 255, 255, 0.75)";
@@ -580,10 +623,87 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
+      Composes a backend-agnostic scene graph from the shapes/features produced
+      by the most recent render. Combines:
+      - `_chartScene` (cells from `chartDef.emit`) wrapped in viz-chart-cells
+      - legacy `_shapes` (still used by some charts) — each shape's toScene
+      - chart-level components (Legend/ColorScale/Timeline) via their toScene
+      - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
+  */
+  toScene(): Scene {
+    const children: SceneNode[] = [];
+    // Chart cells emitted via `chartDef.emit(ctx)` and stashed on _chartScene.
+    if (this._chartScene && this._chartScene.length) {
+      children.push({
+        type: "group",
+        key: "viz-chart-cells",
+        ...(this._chartTransform ? {transform: this._chartTransform} : {}),
+        children: this._chartScene.slice(),
+      });
+    }
+    // Legacy `_shapes` collection (Treemap/Pack/etc. moved off this; Plot's
+    // `absorbShapeIntoChartScene` also routes through `_chartScene`).
+    (this._shapes || []).forEach((shape: any, si: number) => {
+      if (!shape || typeof shape.toScene !== "function") return;
+      const group = shape.toScene();
+      let transform: Transform | undefined;
+      const sel = shape._select;
+      if (sel && typeof sel.attr === "function")
+        transform = parseTranslate(sel.attr("transform"));
+      children.push({
+        type: "group",
+        key: `${group.key || "shape"}-${si}`,
+        ...(transform ? {transform} : {}),
+        children: group.children,
+      });
+    });
+    // Chart-level components that have their own toScene.
+    const components: [string, any][] = [
+      ["legend", this._legendClass],
+      ["colorScale", this._colorScaleClass],
+      ["timeline", this._timelineClass],
+    ];
+    for (const [name, comp] of components) {
+      if (
+        comp &&
+        typeof comp.toScene === "function" &&
+        comp._select &&
+        typeof comp._select.node === "function" &&
+        comp._select.node()
+      ) {
+        children.push({
+          type: "group",
+          key: `viz-${name}`,
+          children: [comp.toScene()],
+        });
+      }
+    }
+    // E2: FeatureModule.layout() panels (title/subtitle/total/back).
+    if (this._featurePanels && this._featurePanels.length) {
+      children.push({
+        type: "group",
+        key: "viz-features",
+        children: this._featurePanels.slice(),
+      });
+    }
+    return {
+      width: this._width,
+      height: this._height,
+      root: {type: "group", key: "viz-root", children},
+    };
+  }
+
+  /**
       Called by render once all checks are passed.
       @private
   */
   _draw(): void {
+    // E2: reset feature-emitted scene panels at the start of each draw.
+    this._featurePanels = [];
+    // Charts that drive emit() (Treemap/Pack/etc.) populate `_chartScene`
+    // from within `_draw`. Reset on every draw.
+    this._chartScene = [];
+    this._chartTransform = undefined;
     // Sanitizes user input for legendPosition and colorScalePosition
     let legendPosition = this._legendPosition.bind(this)(this.config());
     if (![false, "top", "bottom", "left", "right"].includes(legendPosition))
@@ -592,28 +712,50 @@ export default class Viz extends (BaseClass as any) {
     if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition))
       colorScalePosition = "bottom";
 
-    // Draws legend and colorScale if they are positioned "left" or "right"
-    if (legendPosition === "left" || legendPosition === "right")
-      drawLegend.bind(this)(this._legendData);
+    // E2: legend (left/right) and colorScale (left/right/hidden) lay out
+    // first so the chart body and top-anchored features (title etc.) see
+    // their margin claim.
+    if (legendPosition === "left" || legendPosition === "right") {
+      const claim = runLayout({viz: this} as any, [legendFeature]);
+      this._margin.left += claim.margin.left;
+      this._margin.right += claim.margin.right;
+    }
     if (
       colorScalePosition === "left" ||
       colorScalePosition === "right" ||
       colorScalePosition === false
-    )
-      drawColorScale.bind(this)();
+    ) {
+      const claim = runLayout({viz: this} as any, [colorScaleFeature]);
+      this._margin.left += claim.margin.left;
+      this._margin.right += claim.margin.right;
+    }
 
-    // Draws all of the top/bottom UI elements
-    drawBack.bind(this)();
-    drawTitle.bind(this)(this._filteredData);
-    drawSubtitle.bind(this)(this._filteredData);
-    drawTotal.bind(this)(this._filteredData);
-    drawTimeline.bind(this)(this._filteredData);
+    // E2: back / title / subtitle / total / timeline / attribution all run
+    // through the layout engine. Each feature returns a panel + margin claim;
+    // subsequent features see the updated margin and position themselves
+    // accordingly.
+    const topBlocks = runLayout({viz: this} as any, [
+      backFeature,
+      titleFeature,
+      subtitleFeature,
+      totalFeature,
+    ]);
+    this._featurePanels.push(...topBlocks.panels);
+    this._margin.top += topBlocks.margin.top;
+    const timelineClaim = runLayout({viz: this} as any, [timelineFeature]);
+    this._margin.bottom += timelineClaim.margin.bottom;
 
-    // Draws legend and colorScale if they are positioned "top" or "bottom"
-    if (legendPosition === "top" || legendPosition === "bottom")
-      drawLegend.bind(this)(this._legendData);
-    if (colorScalePosition === "top" || colorScalePosition === "bottom")
-      drawColorScale.bind(this)();
+    // E2: legend (top/bottom) and colorScale (top/bottom).
+    if (legendPosition === "top" || legendPosition === "bottom") {
+      const claim = runLayout({viz: this} as any, [legendFeature]);
+      this._margin.top += claim.margin.top;
+      this._margin.bottom += claim.margin.bottom;
+    }
+    if (colorScalePosition === "top" || colorScalePosition === "bottom") {
+      const claim = runLayout({viz: this} as any, [colorScaleFeature]);
+      this._margin.top += claim.margin.top;
+      this._margin.bottom += claim.margin.bottom;
+    }
 
     this._shapes = [];
 
@@ -913,11 +1055,12 @@ export default class Viz extends (BaseClass as any) {
           .attr("dy", "-1000px")
           .html((d: {role: string; text: string}) => d.text);
 
-        // finishes the draw cycle
-        this._preDraw();
-        this._draw();
-        zoomControls.bind(this)();
-        drawAttribution.bind(this)();
+        // Run the v4 chart pipeline. Extracted to a free function so the
+        // "transform data → scene" boundary is callable without holding a
+        // Viz instance (RFC §3.1 architectural seam). Lifecycle (DOM setup,
+        // viewport detection, data loading, callback timing) stays on the
+        // class because it's inherently instance-bound.
+        runVizPipeline(this);
 
         if (
           this._messageClass._isVisible &&
@@ -949,6 +1092,108 @@ export default class Viz extends (BaseClass as any) {
     select("body").on(`touchstart.${this._uuid}`, touchstartBody.bind(this));
 
     return this;
+  }
+
+  /**
+      Selects which @d3plus/render backend paints the visible output
+      (RFC §4.6). `"svg"` = SvgRenderer (default), `"canvas"` =
+      CanvasRenderer.
+
+      The legacy DOM-only opt-out (`false`) was removed in v4: scene mode
+      is THE path, the class API just chooses between backends. Existing
+      callers passing `false` get `"svg"` (the closest equivalent).
+  */
+  renderer(): "svg" | "canvas";
+  renderer(_: "svg" | "canvas" | true | false): this;
+  renderer(_?: "svg" | "canvas" | true | false): "svg" | "canvas" | this {
+    if (!arguments.length) return this._renderer;
+    // Normalize: true → "svg", false → "svg" (legacy opt-out removed).
+    this._renderer = _ === "canvas" ? "canvas" : "svg";
+    return this;
+  }
+
+  /**
+      @deprecated Renamed to `renderer()` in v4 (RFC §4.6). Will be removed
+      in v5. Forwards to the new accessor.
+  */
+  useSceneRenderer(): "svg" | "canvas";
+  useSceneRenderer(_: "svg" | "canvas" | true | false): this;
+  useSceneRenderer(_?: "svg" | "canvas" | true | false): "svg" | "canvas" | this {
+    if (!arguments.length) return this.renderer();
+    return this.renderer(_!);
+  }
+
+  /**
+      "full" runs the legacy DOM enter/update/exit for every shape; "compute"
+      skips DOM work and only populates the scene data (`_textData`,
+      `_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
+      `renderScene` callers; users can also opt-in.
+  */
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode || "full";
+    this._renderMode = _!;
+    return this;
+  }
+
+  /**
+      Public entry point that renders this chart through the @d3plus/render
+      pluggable backends. The legacy compute happens via render() (in an svg
+      auto-created inside the target div); SvgRenderer/CanvasRenderer paints
+      the scene to the target. Returns `{renderer, scene}` so callers can
+      interact with the renderer (e.g. for picking) or read the scene data.
+  */
+  async renderScene(
+    target: Element,
+    opts?: {kind?: "svg" | "canvas"},
+  ): Promise<{renderer: Renderer; scene: Scene}> {
+    const kind = opts?.kind || (this._renderer === "canvas" ? "canvas" : "svg");
+    this._sceneTarget = target;
+    this._renderer = kind;
+    this.select(target as HTMLElement);
+    await new Promise<void>(resolve => this.render(() => resolve()));
+    return {
+      renderer: this._sceneRenderer as Renderer,
+      scene: this._lastSceneRendered as Scene,
+    };
+  }
+
+  /**
+      Renders this chart through the @d3plus/render pluggable backends. Called
+      automatically by `render()`. The legacy
+      compute path drew into `this._select` (an auto-created svg INSIDE the
+      user's target div) — that svg becomes the off-stage detached compute
+      svg. SvgRenderer mounts to the user's target div (the parent), as a
+      sibling to the detached compute svg. The compute svg's children get
+      cleared so only the scene output is visible.
+  */
+  _drawSceneToTarget(): void {
+    const kind = this._renderer === "canvas" ? "canvas" : "svg";
+    const legacySvg = this._select && this._select.node ? this._select.node() : null;
+    if (!legacySvg) return;
+    // Mount renderer INSIDE the user's `_select` (svg or div). Tests like
+    // `svgA.querySelector('[data-key="viz-legend"]')` need the scene output
+    // to live inside the user's container, not as a sibling.
+    const userTarget = this._sceneTarget || legacySvg;
+    if (!userTarget) return;
+    const scene = this.toScene();
+    const w = this._width || 400;
+    const h = this._height || 300;
+    // Reuse the renderer instance if it matches the kind, to avoid mount churn.
+    if (
+      !this._sceneRenderer ||
+      this._sceneRenderer.kind !== kind ||
+      this._sceneRenderer._target?.container !== userTarget
+    ) {
+      const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
+      this._sceneRenderer = new Ctor();
+      this._sceneRenderer.mount({container: userTarget, width: w, height: h});
+    } else {
+      this._sceneRenderer.resize(w, h);
+    }
+    this._sceneRenderer.drawScene(scene, {duration: this._duration});
+    this._lastSceneRendered = scene;
   }
 
   /**
@@ -986,12 +1231,7 @@ export default class Viz extends (BaseClass as any) {
       : this._aggs;
   }
 
-  /**
-      The "aria-hidden" attribute of the containing SVG element. The default value is "false", but if you need to hide the SVG from screen readers set this property to "true".
-*/
-  ariaHidden(_?: boolean): this | boolean {
-    return arguments.length ? ((this._ariaHidden = _), this) : this._ariaHidden;
-  }
+  // ariaHidden(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
@@ -1022,12 +1262,7 @@ export default class Viz extends (BaseClass as any) {
       : this._backConfig;
   }
 
-  /**
-      Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.
-*/
-  cache(_?: boolean): this | boolean {
-    return arguments.length ? ((this._cache = _), this) : this._cache;
-  }
+  // cache(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
@@ -1144,19 +1379,8 @@ Defaults to an empty array (`[]`).
     return this._data;
   }
 
-  /**
-      If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).
-*/
-  dataCutoff(_?: number): this | number {
-    return arguments.length ? ((this._dataCutoff = _), this) : this._dataCutoff;
-  }
-
-  /**
-      The current depth of the visualization. The value should correspond with an index in the [groupBy](#groupBy) array.
-*/
-  depth(_?: number): this | number {
-    return arguments.length ? ((this._depth = _), this) : this._depth;
-  }
+  // dataCutoff(_?: number): installed by installFluent(this, vizSchema).
+  // depth(_?: number): installed by installFluent(this, vizSchema).
 
   /**
       If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
@@ -1194,12 +1418,7 @@ Defaults to an empty array (`[]`).
       : this._detectVisibleInterval;
   }
 
-  /**
-      If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.
-*/
-  discrete(_?: string): this | string {
-    return arguments.length ? ((this._discrete = _), this) : this._discrete;
-  }
+  // discrete(_?: string): installed by installFluent(this, vizSchema).
 
   /**
       Shows a button that allows for downloading the current visualization.
@@ -1228,21 +1447,8 @@ Defaults to an empty array (`[]`).
       : this._downloadPosition;
   }
 
-  /**
-      The animation duration in milliseconds.
-*/
-  duration(_?: number): this | number {
-    return arguments.length ? ((this._duration = _), this) : this._duration;
-  }
-
-  /**
-      A filter function applied to the data before drawing.
-*/
-  filter(
-    _?: ((d: DataPoint, i: number) => boolean) | false,
-  ): this | ((d: DataPoint, i: number) => boolean) | false {
-    return arguments.length ? ((this._filter = _), this) : this._filter;
-  }
+  // duration(_?: number): installed by installFluent(this, vizSchema).
+  // filter(_?: ((d, i) => boolean) | false): installed by installFluent(this, vizSchema).
 
   /**
       The font family used throughout the visualization.
@@ -1314,12 +1520,7 @@ Defaults to an empty array (`[]`).
     );
   }
 
-  /**
-      The overall height of the visualization in pixels.
-*/
-  height(_?: number): this | number {
-    return arguments.length ? ((this._height = _), this) : this._height;
-  }
+  // height(_?: number): installed by installFluent(this, vizSchema).
 
   /**
       Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
@@ -1450,14 +1651,7 @@ Defaults to an empty array (`[]`).
       : this._legendPosition;
   }
 
-  /**
-      A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.
-*/
-  legendSort(
-    _?: (a: DataPoint, b: DataPoint) => number,
-  ): this | ((a: DataPoint, b: DataPoint) => number) {
-    return arguments.length ? ((this._legendSort = _), this) : this._legendSort;
-  }
+  // legendSort(_?: (a, b) => number): installed by installFluent(this, vizSchema).
 
   /**
       Configuration object for the legend tooltip.
@@ -1598,19 +1792,8 @@ Defaults to an empty array (`[]`).
       : this._subtitlePadding;
   }
 
-  /**
-      The description text for the SVG `<desc>` element, used for accessibility.
-*/
-  svgDesc(_?: string): this | string {
-    return arguments.length ? ((this._svgDesc = _), this) : this._svgDesc;
-  }
-
-  /**
-      The title text for the SVG `<title>` element, used for accessibility.
-*/
-  svgTitle(_?: string): this | string {
-    return arguments.length ? ((this._svgTitle = _), this) : this._svgTitle;
-  }
+  // svgDesc(_?: string): installed by installFluent(this, vizSchema).
+  // svgTitle(_?: string): installed by installFluent(this, vizSchema).
 
   /**
       The threshold value for bucketing small data points together.
@@ -1702,21 +1885,8 @@ Defaults to an empty array (`[]`).
     } else return this._time;
   }
 
-  /**
-      A filter function that limits which time periods are shown.
-*/
-  timeFilter(
-    _?: ((d: DataPoint, i: number) => boolean) | false,
-  ): this | ((d: DataPoint, i: number) => boolean) | false {
-    return arguments.length ? ((this._timeFilter = _), this) : this._timeFilter;
-  }
-
-  /**
-      Whether to display the timeline.
-*/
-  timeline(_?: boolean): this | boolean {
-    return arguments.length ? ((this._timeline = _), this) : this._timeline;
-  }
+  // timeFilter(_?: ((d, i) => boolean) | false): installed by installFluent(this, vizSchema).
+  // timeline(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       Configuration object for the timeline.
@@ -1846,19 +2016,8 @@ Defaults to an empty array (`[]`).
       : this._totalPadding;
   }
 
-  /**
-      The overall width of the visualization in pixels.
-*/
-  width(_?: number): this | number {
-    return arguments.length ? ((this._width = _), this) : this._width;
-  }
-
-  /**
-      Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.
-*/
-  zoom(_?: boolean): this | boolean {
-    return arguments.length ? ((this._zoom = _), this) : this._zoom;
-  }
+  // width(_?: number): installed by installFluent(this, vizSchema).
+  // zoom(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       The pixel stroke-width of the zoom brush area.
@@ -1924,26 +2083,9 @@ Defaults to an empty array (`[]`).
       : this._zoomControlStyleHover;
   }
 
-  /**
-      The multiplier that is used in with the control buttons when zooming in and out.
-*/
-  zoomFactor(_?: number): this | number {
-    return arguments.length ? ((this._zoomFactor = _), this) : this._zoomFactor;
-  }
-
-  /**
-      The max zoom scale.
-*/
-  zoomMax(_?: number): this | number {
-    return arguments.length ? ((this._zoomMax = _), this) : this._zoomMax;
-  }
-
-  /**
-      Toggles panning.
-*/
-  zoomPan(_?: boolean): this | boolean {
-    return arguments.length ? ((this._zoomPan = _), this) : this._zoomPan;
-  }
+  // zoomFactor(_?: number): installed by installFluent(this, vizSchema).
+  // zoomMax(_?: number): installed by installFluent(this, vizSchema).
+  // zoomPan(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       A pixel value to be used to pad all sides of a zoomed area.
@@ -1954,10 +2096,5 @@ Defaults to an empty array (`[]`).
       : this._zoomPadding;
   }
 
-  /**
-      Toggles scroll zooming.
-*/
-  zoomScroll(_?: boolean): this | boolean {
-    return arguments.length ? ((this._zoomScroll = _), this) : this._zoomScroll;
-  }
+  // zoomScroll(_?: boolean): installed by installFluent(this, vizSchema).
 }

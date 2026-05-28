@@ -1,16 +1,11 @@
 /* eslint no-cond-assign: 0*/
 
 import {
-  deviation,
-  extent,
   groups,
   max,
-  mean,
   merge,
   min,
   range,
-  rollups,
-  sum,
 } from "d3-array";
 import * as scales from "d3-scale";
 import * as d3Shape from "d3-shape";
@@ -24,9 +19,8 @@ import {
   colorDefaults,
   colorLegible,
 } from "@d3plus/color";
-import {merge as d3plusMerge, unique} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {assign, backgroundColor, date, elem, rtl, textWidth} from "@d3plus/dom";
+import {assign, backgroundColor, rtl} from "@d3plus/dom";
 import {largestRect} from "@d3plus/math";
 import {formatAbbreviate} from "@d3plus/format";
 
@@ -38,13 +32,63 @@ import {
   TextBox,
 } from "../components/index.js";
 import * as shapes from "../shapes/index.js";
-import {accessor, configPrep, constant} from "../utils/index.js";
+import {accessor, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+
+// E4: Plot's identity-coerce accessor schema (18 keys). installFluent's
+// per-key idempotence lets this co-exist with vizSchema on the parent
+// Viz.prototype — installFluent walks the actual prototype (Plot.prototype
+// here) and skips keys already present.
+const plotSchema = [
+  {key: "barPadding", coerce: "identity" as const},
+  {key: "baseline", coerce: "identity" as const},
+  {key: "lineLabels", coerce: "identity" as const},
+  {key: "shapeSort", coerce: "identity" as const},
+  {key: "sizeMax", coerce: "identity" as const},
+  {key: "sizeMin", coerce: "identity" as const},
+  {key: "sizeScale", coerce: "identity" as const},
+  {key: "stacked", coerce: "identity" as const},
+  {key: "xCutoff", coerce: "identity" as const},
+  {key: "xDomain", coerce: "identity" as const},
+  {key: "x2Domain", coerce: "identity" as const},
+  {key: "xSort", coerce: "identity" as const},
+  {key: "x2Sort", coerce: "identity" as const},
+  {key: "yCutoff", coerce: "identity" as const},
+  {key: "yDomain", coerce: "identity" as const},
+  {key: "y2Domain", coerce: "identity" as const},
+  {key: "ySort", coerce: "identity" as const},
+  {key: "y2Sort", coerce: "identity" as const},
+];
 
 const testLineShape = new shapes.Line();
 const testTextBox = new TextBox();
+import {computePlotAxisValues, computePlotInitialDomains, computePlotScales, extendPlotOppScales, formatPlotData, measurePlotLineLabels, preparePlotAxisLayout, plotDef} from "./ChartDefinition.js";
+import {shapeConfigFor} from "./emitHelpers.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 
-import {default as discreteBuffer} from "./plotBuffers/discreteBuffer.js";
+/**
+    Pulls a fully-rendered shape's scene (cells + labels) into
+    `viz._chartScene` instead of pushing onto the legacy `_shapes` array.
+    Plot's chart-as-data tail: each Bar/Line/Area/Circle/Rect/Box/Whisker
+    that used to live as a long-running `_shapes[i]` now contributes its
+    scene nodes once and is discarded.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function absorbShapeIntoChartScene(viz: any, shape: any): void {
+  if (!shape || typeof shape.toScene !== "function") return;
+  if (!Array.isArray(viz._chartScene)) viz._chartScene = [];
+  const scene = shape.toScene();
+  if (scene && Array.isArray(scene.children))
+    viz._chartScene.push(...scene.children);
+  const lbl = shape._labelClass;
+  if (lbl && typeof lbl.toScene === "function") {
+    const ls = lbl.toScene();
+    if (ls && Array.isArray(ls.children)) viz._chartScene.push(...ls.children);
+  }
+}
+import type {Scene, SceneNode} from "@d3plus/render";
+
 import {default as BarBuffer} from "./plotBuffers/Bar.js";
 import {default as BoxBuffer} from "./plotBuffers/Box.js";
 import {default as CircleBuffer} from "./plotBuffers/Circle.js";
@@ -169,13 +213,19 @@ export default class Plot extends Viz {
 */
   constructor() {
     super();
-    this._axisPersist = false;
-    this._annotations = [];
+    // E4: install identity-coerce accessors on Plot.prototype. Defaults
+    // are still applied below imperatively from plotDef; installFluent
+    // skips slots that are already set, so the constructor wins.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, plotSchema);
+    // E3: scalar defaults sourced from plotDef.
+    this._axisPersist = plotDef.defaults.axisPersist as boolean;
+    this._annotations = plotDef.defaults.annotations as any[];
     this._backgroundConfig = {
       duration: 0,
       fill: "transparent",
     };
-    this._barPadding = 0;
+    this._barPadding = plotDef.defaults.barPadding as number;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
     this._confidenceConfig = {
       fill: (d: any, i: any) => {
@@ -187,8 +237,8 @@ export default class Plot extends Viz {
       },
       fillOpacity: constant(0.5),
     };
-    this._discreteCutoff = 100;
-    this._groupPadding = 5;
+    this._discreteCutoff = plotDef.defaults.discreteCutoff as number;
+    this._groupPadding = plotDef.defaults.groupPadding as number;
     this._labelConnectorConfig = {
       strokeDasharray: "1 1",
     };
@@ -197,10 +247,10 @@ export default class Plot extends Viz {
       fill: (d: any, i: any) => colorAssign(this._id(d, i)),
       r: constant(3),
     };
-    this._lineMarkers = false;
+    this._lineMarkers = plotDef.defaults.lineMarkers as boolean;
     this._previousAnnotations = {back: [], front: []};
     this._previousShapes = [];
-    this._shape = constant("Circle");
+    this._shape = plotDef.defaults.shape;
     this._shapeConfig = assign(this._shapeConfig, {
       Area: {
         label: (d: any, i: any) => (this._stacked ? this._drawLabel(d, i) : false),
@@ -412,7 +462,11 @@ export default class Plot extends Viz {
     this._x = accessor("x");
     this._xKey = "x";
     this._xAxis = new AxisBottom().align("end");
-    this._xTest = new AxisBottom().align("end").gridSize(0);
+    // _xTest/_yTest/_x2Test/_y2Test are NOT persistent fields anymore. The
+    // measure-only test axes are allocated as locals inside `_draw` and
+    // garbage-collected after each draw — proving Plot doesn't need to
+    // own a long-lived Axis instance just for layout. See measureAxis()
+    // in axisLayout.ts for the standalone shape.
     this._xConfig = {
       gridConfig: {
         stroke: (d: any) => {
@@ -432,14 +486,12 @@ export default class Plot extends Viz {
     this._x2 = accessor("x2");
     this._x2Key = "x2";
     this._x2Axis = new AxisTop().align("start");
-    this._x2Test = new AxisTop().align("start").gridSize(0);
     this._x2Config = {};
 
     this._y = accessor("y");
     this._yKey = "y";
     this._yAxis = new AxisLeft().align("start");
     this._yKey = "y";
-    this._yTest = new AxisLeft().align("start").gridSize(0);
     this._yConfig = {
       gridConfig: {
         stroke: (d: any) => {
@@ -459,7 +511,6 @@ export default class Plot extends Viz {
     this._y2 = accessor("y2");
     this._y2Key = "y2";
     this._y2Axis = new AxisRight().align("end");
-    this._y2Test = new AxisLeft().align("end").gridSize(0);
     this._y2Config = {};
   }
 
@@ -498,597 +549,247 @@ export default class Plot extends Viz {
   }
 
   /**
+      Composes the chart's scene graph: the native shape scenes from Viz.toScene
+      (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
+      renders fully — geometry and axes — through the @d3plus/render backends.
+*/
+  toScene(): Scene {
+    const scene = (Viz.prototype.toScene as () => Scene).call(this);
+    const axisNodes: SceneNode[] = [];
+    for (const name of ["_xAxis", "_x2Axis", "_yAxis", "_y2Axis"]) {
+      const axis = this[name];
+      if (
+        axis &&
+        typeof axis.toScene === "function" &&
+        axis._select &&
+        typeof axis._select.node === "function" &&
+        axis._select.node()
+      ) {
+        // Wrap in a uniquely-keyed group so sibling axes never collide (axis
+        // snapshots reuse a per-call key counter).
+        axisNodes.push({type: "group", key: `plot-${name}`, children: [axis.toScene()]});
+      }
+    }
+    // Axes are drawn behind the shapes in the legacy DOM order.
+    scene.root.children.unshift(...axisNodes);
+    return scene;
+  }
+
+  /**
+      Wires user-registered `on()` event handlers onto a freshly-configured
+      shape instance. Splits the registered events into three buckets the
+      legacy code maintained: global (`"click"`), shape-scoped
+      (`"click.shape"`), and shape-class-scoped (`"click.Bar"` etc.). All
+      three forward into `this._on[event](d.data, d.i, x, event)`. Extracted
+      from Plot._paint so the chart-level event wiring is in one place.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _wirePlotShapeEvents(shape: any, shapeKey: string, events: string[]) {
+    const classEvents = events.filter(e => e.includes(`.${shapeKey}`));
+    const globalEvents = events.filter(e => !e.includes("."));
+    const shapeEvents = events.filter(e => e.includes(".shape"));
+    for (const evt of globalEvents) {
+      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
+        this._on[evt](d.data, d.i, x, event)) as any);
+    }
+    for (const evt of shapeEvents) {
+      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
+        this._on[evt](d.data, d.i, x, event)) as any);
+    }
+    for (const evt of classEvents) {
+      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
+        this._on[evt](d.data, d.i, x, event)) as any);
+    }
+  }
+
+  /**
       Extends the draw behavior of the abstract Viz class.
       @private
 */
   _draw(callback?: () => void) {
     if (!this._filteredData.length && !this._annotations.length) return this;
 
-    /* Determines whether or not any of the x or y axes are a "time" axis.*/
-    const firstElemTime = this._time
-      ? this._time(this._filteredData[0], 0)
-      : false;
-    const x2Time = (this._x2Time =
-        firstElemTime && this._x2(this._filteredData[0], 0) === firstElemTime),
-      xTime = (this._xTime =
-        firstElemTime && this._x(this._filteredData[0], 0) === firstElemTime),
-      y2Time = (this._y2Time =
-        firstElemTime && this._y2(this._filteredData[0], 0) === firstElemTime),
-      yTime = (this._yTime =
-        firstElemTime && this._y(this._filteredData[0], 0) === firstElemTime);
+    // Throwaway measure-only axes. Allocated per draw, configured + measured
+    // below, then garbage-collected when _draw returns. Replaces the persistent
+    // `this._xTest`/etc. fields — Plot no longer owns long-lived Axis instances
+    // just to compute layout. gridSize(0)
+    // signals "labels-only" measure: the production axes (`_xAxis`,
+    // `_yAxis`, …) handle grid rendering with their default gridSize.
+    const xTest = new AxisBottom().align("end").gridSize(0);
+    const x2Test = new AxisTop().align("start").gridSize(0);
+    const yTest = new AxisLeft().align("start").gridSize(0);
+    const y2Test = new AxisLeft().align("end").gridSize(0);
 
-    const timeAxis = xTime || x2Time || yTime || y2Time;
-
-    const stackGroup = (d: any, i: any) =>
-      `${!timeAxis && this._time ? this._time(d, i) : "time"}_${
-        this._stacked
-          ? `${
-              this._groupBy.length > 1
-                ? this._ids(d, i).slice(0, -1).join("_")
-                : "group"
-            }`
-          : `${this._ids(d, i).join("_")}`
-      }`;
-
-    const prepData = (d: any, i: any) => {
-      const newD: Record<string, unknown> = {
-        __d3plus__: true,
-        data: d,
-        group: stackGroup(d, i),
-        i,
-        hci:
-          this._confidence && this._confidence[1] && this._confidence[1](d, i),
-        id: this._ids(d, i)
-          .slice(0, this._drawDepth + 1)
-          .join("_"),
-        lci:
-          this._confidence && this._confidence[0] && this._confidence[0](d, i),
-        shape: this._shape(d, i),
-        x: xTime ? date(this._x(d, i)) : this._x(d, i),
-        x2: x2Time ? date(this._x2(d, i)) : this._x2(d, i),
-        y: yTime ? date(this._y(d, i)) : this._y(d, i),
-        y2: y2Time ? date(this._y2(d, i)) : this._y2(d, i),
-      };
-      newD.discrete =
-        newD.shape === "Bar"
-          ? `${newD[this._discrete]}_${newD.group}`
-          : `${newD[this._discrete]}`;
-      newD.id =
-        newD.shape === "Bar" ? `${newD.id}_${newD[this._discrete]}` : newD.id;
-      return newD;
+    // Plot's data-format + time-axis + sizeScale prep extracted to the
+    // `formatPlotData` TransformStage, and per-axis values extracted to
+    // `computePlotAxisValues`. Both run here; downstream paint code reads
+    // their outputs from the returned context.
+    const plotCtx = runStages({viz: this} as any, [
+      formatPlotData,
+      computePlotAxisValues,
+    ]) as {
+      plotFormattedData: any[];
+      plotAxisData: any[];
+      x2Exists: boolean;
+      y2Exists: boolean;
+      xData: any[];
+      x2Data: any[];
+      yData: any[];
+      y2Data: any[];
     };
-
-    const data = (this._formattedData = this._filteredData.map(prepData));
-    const axisData = this._axisPersist ? this._data.map(prepData) : data;
-
-    if (this._size) {
-      const rExtent = extent(axisData, (d: Record<string, unknown>) =>
-        this._size(d.data),
-      );
-      this._sizeScaleD3 = (scales as any)[
-        `scale${this._sizeScale.charAt(0).toUpperCase()}${this._sizeScale.slice(
-          1,
-        )}`
-      ]()
-        .domain(rExtent)
-        .range([
-          rExtent[0] === rExtent[1]
-            ? this._sizeMax
-            : min([this._sizeMax / 2, this._sizeMin]),
-          this._sizeMax,
-        ]);
-    } else {
-      this._sizeScaleD3 = () => this._sizeMin;
-    }
-
-    const x2Exists = axisData.some((d: any) => d.x2 !== undefined),
-      y2Exists = axisData.some((d: any) => d.y2 !== undefined);
+    const data = plotCtx.plotFormattedData;
+    const axisData = plotCtx.plotAxisData;
+    const {x2Exists, y2Exists, xData, x2Data, yData, y2Data} = plotCtx;
+    const stackGroup = (plotCtx as any).plotStackGroup as (d: any, i: number) => string;
+    // Time flags (xTime/x2Time/yTime/y2Time) are written onto `this` by
+    // `formatPlotData` and read directly via `this._xTime` etc. in the
+    // remainder of `_draw`.
 
     const height = this._height - this._margin.top - this._margin.bottom,
       opp = this._discrete ? (this._discrete === "x" ? "y" : "x") : undefined,
-      opp2 = this._discrete
-        ? this._discrete === "x"
-          ? "y2"
-          : "x2"
-        : undefined,
-      opps = [opp, opp2].filter(d => d),
+      // `opps`/`opp2` previously used inline for log/baseline domain
+      // adjustments — that's now part of `computePlotScales`. `opp` is still
+      // read by the stacking branch below.
       parent = this._select,
       transition = this._transition,
       width = this._width - this._margin.left - this._margin.right;
 
-    /**
-        Returns all unique values for a given axis.
-        @param axis Which axis to return values for, "x" or "y".
-        @private
-*/
-    function getAxisValues(this: any, axis: string) {
-      const timeData = this[`_${axis}Time`];
-      const localData = timeData ? data : axisData;
+    // xData/x2Data/yData/y2Data computed by `computePlotAxisValues` stage.
 
-      const filteredData = localData.filter(
-        (d: any) => ![NaN, undefined, false].includes(d[axis]),
-      );
-
-      if (!filteredData.length) return [];
-
-      const numericValue = typeof filteredData[0][axis] === "number";
-
-      let myData =
-        this._discrete === axis
-          ? rollups(
-              filteredData,
-              (leaves: Record<string, unknown>[]) =>
-                leaves.length === 1
-                  ? leaves[0].data
-                  : d3plusMerge(
-                      leaves.map(d => d.data) as DataPoint[],
-                      this._aggs,
-                    ),
-              (d: Record<string, unknown>) => d[axis],
-            )
-              .sort((a: [unknown, unknown], b: [unknown, unknown]) => {
-                if (this[`_${axis}Sort`])
-                  return this[`_${axis}Sort`](a[1], b[1]);
-                const aKey =
-                  timeData || numericValue
-                    ? parseFloat(a[0] as string)
-                    : (a[0] as number);
-                const bKey =
-                  timeData || numericValue
-                    ? parseFloat(b[0] as string)
-                    : (b[0] as number);
-                return aKey - bKey;
-              })
-              .map(([key]: [unknown, unknown]) =>
-                timeData
-                  ? date(key as string | number)
-                  : numericValue
-                    ? parseFloat(key as string)
-                    : key,
-              )
-          : unique(
-              filteredData
-                .sort((a: any, b: any) =>
-                  this[`_${axis}Sort`]
-                    ? this[`_${axis}Sort`](a.data, b.data)
-                    : a[axis] - b[axis],
-                )
-                .map((d: any) => d[axis]),
-              (d: any) => `${d}`,
-            );
-
-      if (this._discrete !== axis.charAt(0) && this._confidence) {
-        if (this._confidence[0])
-          myData = myData.concat(localData.map((d: any) => d.lci));
-        if (this._confidence[1])
-          myData = myData.concat(localData.map((d: any) => d.hci));
-      }
-
-      return myData;
-    }
-
-    const xData = getAxisValues.bind(this)("x");
-    const x2Data = getAxisValues.bind(this)("x2");
-    const yData = getAxisValues.bind(this)("y");
-    const y2Data = getAxisValues.bind(this)("y2");
-
-    let discreteKeys: any[], domains: any, stackData: any[], stackKeys: any[];
-    if (this._stacked) {
-      const stackedData = axisData.filter((d: any) =>
-        ["Area", "Bar"].includes(d.shape),
-      );
-
-      const groupValues = groups(
-        stackedData,
-        (d: Record<string, unknown>) => d.group as string,
-      ).reduce((obj: Record<string, number>, [key, values]) => {
-        if (!obj[key]) obj[key] = 0;
-        obj[key] += sum(
-          values as Record<string, number>[],
-          (dd: Record<string, number>) => dd[opp as string],
-        );
-        return obj;
-      }, {});
-
-      axisData.sort((a: any, b: any) => {
-        if (this[`_${this._discrete}Sort`])
-          return this[`_${this._discrete}Sort`](a.data, b.data);
-        const a1 = a[this._discrete],
-          b1 = b[this._discrete];
-        if (a1 - b1 !== 0) return a1 - b1;
-        if (a.group !== b.group)
-          return groupValues[b.group] - groupValues[a.group];
-        return b[opp as string] - a[opp as string];
-      });
-
-      discreteKeys = Array.from(new Set(axisData.map((d: any) => d.discrete)));
-      stackKeys = Array.from(new Set(axisData.map((d: any) => d.id)));
-
-      stackData = groups(
-        axisData,
-        (d: Record<string, unknown>) => d.discrete,
-      ).map(([, values]) => values);
-
-      stackData.forEach((g: any[]) => {
-        const ids = Array.from(new Set(g.map((d: any) => d.id)));
-        if (ids.length < stackKeys.length) {
-          stackKeys.forEach((k: any) => {
-            if (!ids.includes(k)) {
-              const d = axisData.filter((d: any) => d.id === k)[0];
-              if (d.shape === "Area") {
-                const group = stackGroup(d.data, d.i);
-                const fillerPoint: Record<string, unknown> = {
-                  __d3plus__: true,
-                  data: d.data,
-                  discrete:
-                    d.shape === "Bar"
-                      ? `${g[0][this._discrete]}_${group}`
-                      : `${g[0][this._discrete]}`,
-                  group,
-                  id: d.id,
-                  ids: k,
-                  shape: d.shape,
-                  [this._discrete]: g[0][this._discrete],
-                  [opp as string]: 0,
-                };
-                data.push(fillerPoint);
-              }
-            }
-          });
-        }
-      });
-
-      if (this[`_${this._discrete}Sort`]) {
-        data.sort((a: any, b: any) => this[`_${this._discrete}Sort`](a.data, b.data));
-      } else {
-        data.sort((a: any, b: any) => a[this._discrete] - b[this._discrete]);
-      }
-
-      const order = this._stackOrder;
-
-      if (order instanceof Array)
-        stackKeys.sort((a: any, b: any) => order.indexOf(a) - order.indexOf(b));
-      else if (order === d3Shape.stackOrderNone)
-        stackKeys.sort((a: any, b: any) => a.localeCompare(b));
-
-      stackData = (d3Shape
-        .stack()
-        .keys(stackKeys)
-        .offset(this._stackOffset)
-        .order(order instanceof Array ? d3Shape.stackOrderNone : order)
-        .value(((group: Record<string, unknown>[], key: string) => {
-          const d = (group as any[]).filter((g: any) => g.id === key);
-          return d.length ? (d[0] as any)[opp as string] : 0;
-        }) as never) as any)(stackData);
-
-      const discreteData = this._discrete === "x" ? xData : yData;
-
-      domains = {
-        [this._discrete]: this[`_${this._discrete}Time`]
-          ? extent(discreteData as any[])
-          : discreteData,
-        [opp as string]: [
-          min(stackData.map((g: any) => min(g.map((p: any) => p[0])) as unknown as number)),
-          max(stackData.map((g: any) => max(g.map((p: any) => p[1])) as unknown as number)),
-        ],
-      };
-    } else {
-      const discrete = this._discrete || "x";
-
-      if (this[`_${this._discrete}Sort`]) {
-        axisData.sort((a: any, b: any) => this[`_${this._discrete}Sort`](a.data, b.data));
-      } else {
-        axisData.sort((a: any, b: any) => a[discrete] - b[discrete]);
-      }
-
-      domains = {
-        x:
-          (!xTime && this._discrete === "x") || this._xSort
-            ? xData
-            : extent(xData as any[]),
-        x2:
-          (!x2Time && this._discrete === "x") || this._x2Sort
-            ? x2Data
-            : extent(x2Data as any[]),
-        y:
-          (!yTime && this._discrete === "y") || this._ySort
-            ? yData
-            : extent(yData as any[]),
-        y2:
-          (!y2Time && this._discrete === "y") || this._y2Sort
-            ? y2Data
-            : extent(y2Data as any[]),
-      };
-    }
-
-    /**
-     * Determins default scale type and domain for a given axis.
-     * @param {String} axis
-     * @private
-     */
-    function domainScaleSetup(this: any, axis: any) {
-      const scale = this[`_${axis}Time`]
-        ? "Time"
-        : this._discrete === axis || this[`_${axis}Sort`]
-          ? "Point"
-          : "Linear";
-
-      const domain = this[`_${axis}Domain`]
-          ? this[`_${axis}Domain`].slice()
-          : domains[axis],
-        domain2 = this[`_${axis}2Domain`]
-          ? this[`_${axis}2Domain`].slice()
-          : domains[`${axis}2`];
-
-      if (scale !== "Point") {
-        if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
-        if (domain && domain[1] === void 0) domain[1] = domains[axis][1];
-
-        if (domain2 && domain2[0] === void 0)
-          domain2[0] = domains[`${axis}2`][0];
-        if (domain2 && domain2[1] === void 0)
-          domain2[1] = domains[`${axis}2`][1];
-      }
-
-      return [domain, scale, domain2, scale];
-    }
-
-    const [xAutoDomain, xScale, x2AutoDomain, x2Scale] =
-      domainScaleSetup.bind(this)("x");
-    const [yAutoDomain, yScale, y2AutoDomain, y2Scale] =
-      domainScaleSetup.bind(this)("y");
-
-    const autoScale = (axis: any, fallback: any) => {
-      const userScale = this[`_${axis}Config`].scale;
-      if (userScale === "auto") {
-        if (this._discrete === axis) return fallback;
-        const values = axisData.map((d: any) => d[axis]);
-        return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
-      }
-      return userScale || fallback;
+    // Stacked/non-stacked domain construction + domain/scale setup are stages
+    // on `plotDef`. Run them together and read all the outputs the paint phase
+    // below needs.
+    const layoutCtx = runStages({
+      viz: this,
+      plotFormattedData: data,
+      plotAxisData: axisData,
+      xData,
+      x2Data,
+      yData,
+      y2Data,
+      plotStackGroup: stackGroup,
+    } as any, [computePlotInitialDomains, computePlotScales]) as {
+      plotInitialDomains: Record<string, any[]>;
+      plotDiscreteKeys: any[];
+      plotStackData: any[];
+      plotStackKeys: any[];
+      plotDomains: Record<string, any[]>;
+      plotScales: any;
+      plotConfigScales: any;
+      plotOpps: any;
     };
-
-    const yConfigScale = (this._yConfigScale = autoScale(
-      "y",
-      yScale,
-    ).toLowerCase());
-    const y2ConfigScale = (this._y2ConfigScale = autoScale(
-      "y2",
-      y2Scale,
-    ).toLowerCase());
-    const xConfigScale = (this._xConfigScale = autoScale(
-      "x",
-      xScale,
-    ).toLowerCase());
-    const x2ConfigScale = (this._x2ConfigScale = autoScale(
-      "x2",
-      x2Scale,
-    ).toLowerCase());
-
-    domains = {
-      x: xAutoDomain,
-      x2: x2AutoDomain || xAutoDomain,
-      y: yAutoDomain,
-      y2: y2AutoDomain || yAutoDomain,
-    };
-    Object.keys(domains).forEach(axis => {
-      if (this[`_${axis}ConfigScale`] === "log" && domains[axis].includes(0)) {
-        if ((min(domains[axis]) as unknown as number) < 0)
-          domains[axis][1] = max(
-            data
-              .map((d: any) => d[axis])
-              .filter((d: any) => ![NaN, undefined, false].includes(d)),
-          );
-        else
-          domains[axis][0] = min(
-            axisData
-              .map((d: any) => d[axis])
-              .filter((d: any) => ![NaN, undefined, false].includes(d)),
-          );
-      }
-    });
-
-    opps.forEach(opp => {
-      if (this[`_${opp}Config`].domain) {
-        const d = this[`_${opp}Config`].domain;
-        if (this._discrete === "x") d.reverse();
-        domains[opp!] = d;
-      } else if (opp && this._baseline !== void 0) {
-        const b = this._baseline;
-        if (domains[opp] && domains[opp][0] > b) domains[opp][0] = b;
-        else if (domains[opp] && domains[opp][1] < b) domains[opp][1] = b;
-      }
-    });
-
-    let x = (scales as any)[`scale${xScale}`]()
-        .domain(domains.x)
-        .range(range(0, width + 1, width / (domains.x.length - 1))),
-      x2 = (scales as any)[`scale${x2Scale}`]()
-        .domain(domains.x2)
-        .range(range(0, width + 1, width / (domains.x2.length - 1))),
-      y = (scales as any)[`scale${yScale}`]()
-        .domain(domains.y.reverse())
-        .range(range(0, height + 1, height / (domains.y.length - 1))),
-      y2 = (scales as any)[`scale${y2Scale}`]()
-        .domain(domains.y2.reverse())
-        .range(range(0, height + 1, height / (domains.y2.length - 1)));
+    let domains = layoutCtx.plotDomains;
+    let discreteKeys = layoutCtx.plotDiscreteKeys;
+    let stackData = layoutCtx.plotStackData;
+    let stackKeys = layoutCtx.plotStackKeys;
+    let {x, y, x2, y2} = layoutCtx.plotScales;
+    const {xScale, yScale} = layoutCtx.plotScales;
+    const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = layoutCtx.plotConfigScales;
 
     const shapeData = groups(
       data,
       (d: Record<string, unknown>) => d.shape as string,
     ).sort(([a], [b]) => this._shapeSort(a, b));
 
-    const oppScale = this._discrete === "x" ? yScale : xScale;
-    if (oppScale !== "Point") {
-      const allShapeData = groups(
-        axisData,
-        (d: Record<string, unknown>) => d.shape as string,
-      );
+    // Opposite-axis scale extension via buffers lives in the
+    // `extendPlotOppScales` stage. Reassigns x/y/x2/y2 from the stage's
+    // returned scales bundle.
+    const extCtx = runStages({
+      viz: this,
+      plotFormattedData: data,
+      plotAxisData: axisData,
+      plotScales: {...layoutCtx.plotScales, x, y, x2, y2},
+      plotConfigScales: layoutCtx.plotConfigScales,
+    } as any, [extendPlotOppScales]) as {plotScales: any};
+    x = extCtx.plotScales.x;
+    y = extCtx.plotScales.y;
+    x2 = extCtx.plotScales.x2;
+    y2 = extCtx.plotScales.y2;
 
-      allShapeData.forEach(([key, values]) => {
-        if (["Bar", "Box"].includes(key)) {
-          discreteBuffer(this._discrete === "x" ? x : y, data, this._discrete);
-        }
-        if (this._buffer[key]) {
-          const res = this._buffer[key].bind(this)({
-            data: values,
-            x,
-            y,
-            yScale: yConfigScale,
-            xScale: xConfigScale,
-            config: this._shapeConfig[key],
-          });
-          x = res[0];
-          y = res[1];
-          const res2 = this._buffer[key].bind(this)({
-            data: values,
-            x: x2,
-            y: y2,
-            yScale: y2ConfigScale,
-            xScale: x2ConfigScale,
-            x2: true,
-            y2: true,
-            config: this._shapeConfig[key],
-          });
-          x2 = res2[0];
-          y2 = res2[1];
-        }
-      });
-    }
-
-    const xDomain = x.domain();
-    const x2Domain = x2.domain();
-    const yDomain = y.domain();
-    const y2Domain = y2.domain();
-
-    const defaultConfig = {
-      barConfig: {"stroke-width": 0},
-      gridSize: 0,
-      labels: [],
-      title: false,
-      tickSize: 0,
+    // Axis-layout-prep lives in `preparePlotAxisLayout`.
+    // Produces xDomain/yDomain/etc., defaultConfig/showX/showY, yC, barLabels,
+    // and the four ticks arrays (null when ticks show, [] when redundant).
+    const prepCtx = runStages({
+      viz: this,
+      plotAxisData: axisData,
+      plotScales: {...layoutCtx.plotScales, x, y, x2, y2},
+      x2Exists,
+      y2Exists,
+      x2Data,
+      y2Data,
+      yData,
+    } as any, [preparePlotAxisLayout]) as {
+      plotDefaultConfig: any;
+      plotDefaultX2Config: any;
+      plotDefaultY2Config: any;
+      plotShowX: boolean;
+      plotShowY: boolean;
+      plotYC: any;
+      plotBarLabels: string[];
+      plotXTicks: any[] | null;
+      plotX2Ticks: any[] | null;
+      plotYTicks: any[] | null;
+      plotY2Ticks: any[] | null;
+      plotXDomain: any[];
+      plotX2Domain: any[];
+      plotYDomain: any[];
+      plotY2Domain: any[];
     };
+    const xDomain = prepCtx.plotXDomain;
+    const x2Domain = prepCtx.plotX2Domain;
+    const yDomain = prepCtx.plotYDomain;
+    const y2Domain = prepCtx.plotY2Domain;
+    const defaultConfig = prepCtx.plotDefaultConfig;
+    const defaultX2Config = prepCtx.plotDefaultX2Config;
+    const defaultY2Config = prepCtx.plotDefaultY2Config;
+    const showX = prepCtx.plotShowX;
+    const showY = prepCtx.plotShowY;
+    const yC = prepCtx.plotYC;
+    let xTicks = prepCtx.plotXTicks;
+    let x2Ticks = prepCtx.plotX2Ticks;
+    let yTicks = prepCtx.plotYTicks;
+    let y2Ticks = prepCtx.plotY2Ticks;
+    const barLabels = prepCtx.plotBarLabels;
 
-    const defaultX2Config = x2Exists ? {data: x2Data} : defaultConfig;
-    const defaultY2Config = y2Exists ? {data: y2Data} : defaultConfig;
-    const showX =
-      this._discrete === "x"
-        ? this._width > this._discreteCutoff && this._width > this._xCutoff
-        : this._width > this._xCutoff;
-    const showY =
-      this._discrete === "y"
-        ? this._height > this._discreteCutoff && this._height > this._yCutoff
-        : this._height > this._yCutoff;
-
-    const yC: Record<string, unknown> = {
-      data: yData,
-      locale: this._locale,
-      rounding: this._yDomain ? "none" : "outside",
-      scalePadding: y.padding ? y.padding() : 0,
-    };
-    if (!showX && showY) {
-      yC.barConfig = {stroke: "transparent"};
-      yC.tickSize = 0;
-      yC.shapeConfig = {
-        labelBounds: (d: any, i: any) => {
-          const {width, y} = d.labelBounds;
-          const height = this._height / 2;
-          const x = i ? -height : 0;
-          return {x, y, width, height};
-        },
-        labelConfig: {
-          padding: 0,
-          rotate: 0,
-        },
-        labelRotation: false,
-      };
-    }
-
-    const testGroup = elem("g.d3plus-plot-test", {
-      enter: {opacity: 0},
-      parent: this._select,
-    });
-
-    /**
-     * Hides an axis' ticks and labels if they all exist as labels for the data to be displayed,
-     * primarily occuring in simple BarChart visualizations where the both the x-axis ticks and
-     * the Bar rectangles would be displaying the same text.
-     */
-
-    // generates an Array of String labels using the current label function for Bar shapes
-    const barConfig = (configPrep as any).bind(this)(this._shapeConfig, "shape", "Bar");
-    const barLabelFunction =
-      barConfig.label !== undefined
-        ? typeof barConfig.label === "function"
-          ? barConfig.label
-          : constant(barConfig.label)
-        : this._drawLabel;
-    const barLabels = axisData
-      .map((d: any) => barLabelFunction(d.data, d.i))
-      .filter((d: any) => typeof d === "number" || d)
-      .map(String);
-
-    // sets an axis' ticks to [] if the axis scale is "Point" (discrete) and every tick String
-    // is also in the barLabels Array
-    let x2Ticks: unknown[] | null = unique(axisData.map((d: any) => d.x2));
-    x2Ticks =
-      x2Scale === "Point" && x2Ticks.every(t => barLabels.includes(`${t}`))
-        ? ([] as unknown[])
-        : null;
-    let xTicks: unknown[] | null = unique(axisData.map((d: any) => d.x));
-    xTicks =
-      xScale === "Point" && xTicks.every(t => barLabels.includes(`${t}`))
-        ? ([] as unknown[])
-        : null;
-    let y2Ticks: unknown[] | null = unique(axisData.map((d: any) => d.y2));
-    y2Ticks =
-      y2Scale === "Point" && y2Ticks.every(t => barLabels.includes(`${t}`))
-        ? ([] as unknown[])
-        : null;
-    let yTicks: unknown[] | null = unique(axisData.map((d: any) => d.y));
-    yTicks =
-      yScale === "Point" && yTicks.every(t => barLabels.includes(`${t}`))
-        ? ([] as unknown[])
-        : null;
-
+    // Test axes use `.measure()` instead of `.select(testGroup).render()` —
+    // pure layout pass, zero DOM creation. Eliminates the entire `g.d3plus-plot-test`
+    // DOM subtree the legacy code temporarily attached to `this._select`.
     if (showY) {
-      this._yTest
+      yTest
         .domain(yDomain)
         .height(height)
         .maxSize(width / 2)
         .range([undefined, undefined])
-        .select(testGroup.node())
         .ticks(yTicks)
         .width(width)
         .config(yC)
         .config(this._yConfig)
         .scale(yConfigScale)
-        .render();
+        .measure();
     }
 
-    let yBounds = this._yTest.outerBounds();
+    let yBounds = yTest.outerBounds();
     let yWidth = yBounds.width
-      ? yBounds.width + this._yTest.padding()
+      ? yBounds.width + yTest.padding()
       : undefined;
 
     if (y2Exists) {
-      this._y2Test
+      y2Test
         .domain(y2Domain)
         .height(height)
         .range([undefined, undefined])
-        .select(testGroup.node())
         .ticks(y2Ticks)
         .width(width)
         .config(yC)
         .config(defaultY2Config)
         .config(this._y2Config)
         .scale(y2ConfigScale)
-        .render();
+        .measure();
     }
 
-    let y2Bounds = this._y2Test.outerBounds();
+    let y2Bounds = y2Test.outerBounds();
     let y2Width = y2Bounds.width
-      ? y2Bounds.width + this._y2Test.padding()
+      ? y2Bounds.width + y2Test.padding()
       : undefined;
     const xC: Record<string, unknown> = {
       data: xData,
@@ -1118,215 +819,61 @@ export default class Plot extends Viz {
     let xRangeMax = undefined;
 
     if (showX) {
-      this._xTest
+      xTest
         .domain(xDomain)
         .height(height)
         .maxSize(height / 2)
         .range([undefined, xRangeMax])
-        .select(testGroup.node())
         .ticks(xTicks)
         .width(width)
         .config(xC)
         .config(this._xConfig)
         .scale(xConfigScale)
-        .render();
+        .measure();
     }
 
-    let largestLabel: any,
-      labelWidths: any[] = [];
+    // Line-label width measurement lives in the `measurePlotLineLabels`
+    // stage. Pre-measured test axes + label test shapes are passed via
+    // context. `showLineLabels` is still read by the shape-emission block
+    // downstream.
     const showLineLabels = this._lineLabels && !y2Exists;
-    if (showLineLabels) {
-      const labelData = data.filter((d: any) => {
-        if (d.shape !== "Line") return false;
-        return typeof this._lineLabels === "function"
-          ? this._lineLabels(d.data, d.i)
-          : true;
-      });
-
-      const lineData = groups(labelData, (d: Record<string, unknown>) => d.id);
-
-      if (lineData.length) {
-        const userConfig = (configPrep as any).bind(this)(
-          this._shapeConfig,
-          "shape",
-          "Line",
-        );
-        testLineShape.config(userConfig);
-        const lineLabelConfig = testLineShape.labelConfig();
-        const fontColorAccessor =
-          lineLabelConfig.fontColor !== undefined
-            ? lineLabelConfig.fontColor
-            : testTextBox.fontColor();
-        const fontSizeAccessor =
-          lineLabelConfig.fontSize !== undefined
-            ? lineLabelConfig.fontSize
-            : testTextBox.fontSize();
-        const fontWeightAccessor =
-          lineLabelConfig.fontWeight !== undefined
-            ? lineLabelConfig.fontWeight
-            : testTextBox.fontWeight();
-        const fontFamilyAccessor =
-          lineLabelConfig.fontFamily !== undefined
-            ? lineLabelConfig.fontFamily
-            : testTextBox.fontFamily();
-        const paddingAccessor =
-          lineLabelConfig.padding !== undefined
-            ? lineLabelConfig.padding
-            : testTextBox.padding();
-        const labelFunction = userConfig.label || this._drawLabel;
-
-        const xEstimate = (d: any) => {
-          if (xConfigScale === "log" && d === 0)
-            d =
-              xDomain[0] < 0
-                ? this._xTest._d3Scale.domain()[1]
-                : this._xTest._d3Scale.domain()[0];
-          return this._xTest._getPosition.bind(this._xTest)(d);
-        };
-
-        const yEstimate = (d: any) => {
-          if (yConfigScale === "log" && d === 0)
-            d =
-              yDomain[0] < 0
-                ? this._yTest._d3Scale.domain()[1]
-                : this._yTest._d3Scale.domain()[0];
-          return this._yTest._getPosition.bind(this._yTest)(d);
-        };
-
-        labelWidths = lineData
-          .map(
-            ([lineKey, lineValues]: [unknown, Record<string, unknown>[]]) => {
-              let d = lineValues[lineValues.length - 1] as Record<
-                string,
-                unknown
-              >;
-              let i;
-              while (d.__d3plus__ && d.data) {
-                d = d.data as Record<string, unknown>;
-                i = d.i;
-              }
-              const label =
-                typeof labelFunction === "function"
-                  ? labelFunction(d, i)
-                  : labelFunction;
-
-              const fontColor =
-                typeof fontColorAccessor === "function"
-                  ? fontColorAccessor(d, i)
-                  : fontColorAccessor;
-              const fontSize =
-                typeof fontSizeAccessor === "function"
-                  ? fontSizeAccessor(d, i)
-                  : fontSizeAccessor;
-              const fontWeight =
-                typeof fontWeightAccessor === "function"
-                  ? fontWeightAccessor(d, i)
-                  : fontWeightAccessor;
-              let fontFamily =
-                typeof fontFamilyAccessor === "function"
-                  ? fontFamilyAccessor(d, i)
-                  : fontFamilyAccessor;
-              if (fontFamily instanceof Array)
-                fontFamily = fontFamily.map(f => `'${f}'`).join(", ");
-              const labelPadding =
-                typeof paddingAccessor === "function"
-                  ? paddingAccessor(d, i)
-                  : paddingAccessor;
-
-              const labelWidth = textWidth(label, {
-                "font-size": fontSize,
-                "font-family": fontFamily,
-                "font-weight": fontWeight,
-              });
-
-              const coords = lineValues.map((d: Record<string, unknown>) => [
-                xEstimate(d.x),
-                yEstimate(d.y),
-              ]);
-              const myMaxX = max(
-                lineValues.map((d: Record<string, unknown>) => xEstimate(d.x)),
-              );
-              const labelY = (
-                lineValues.find(
-                  (d: Record<string, unknown>) => xEstimate(d.x) === myMaxX,
-                ) as Record<string, unknown>
-              ).y;
-              return {
-                id: lineKey,
-                labelWidth: labelWidth + labelPadding * 2,
-                spaceNeeded: labelWidth + labelPadding * 4,
-                value: labelY,
-                yEstimate: yEstimate(labelY),
-                padding: labelPadding,
-                fontSize,
-                fontColor,
-                maxX: myMaxX,
-                xValue: max(
-                  lineValues,
-                  (d: Record<string, unknown>) => d.x as number,
-                ),
-                coords,
-              };
-            },
-          )
-          .sort((a, b) =>
-            yDomain[1] > yDomain[0]
-              ? (a.value as number) - (b.value as number)
-              : (b.value as number) - (a.value as number),
-          )
-          .filter((d, i, arr) => {
-            const {fontSize, id, labelWidth, maxX, yEstimate} = d;
-            const closeLabels = arr.filter(
-              l =>
-                l.id !== id &&
-                l.coords.some(
-                  c =>
-                    (c[0] > maxX || (c[0] === maxX && l.maxX !== maxX)) &&
-                    c[0] <= maxX + labelWidth &&
-                    c[1] <= yEstimate + fontSize * 0.75 &&
-                    c[1] >= yEstimate - fontSize * 0.75,
-                ),
-            );
-            return closeLabels.length === 0;
-          });
-
-        const maxX = max(labelWidths, d => d.maxX);
-        largestLabel = max(labelWidths.map(d => d.labelWidth));
-        const spaceNeeded =
-          maxX === this._xTest._getRange.bind(this._xTest)()[1]
-            ? max(
-                labelWidths.filter(d => d.maxX === maxX),
-                d => d.spaceNeeded,
-              )
-            : 0;
-        if (spaceNeeded) {
-          const labelSpace = min([spaceNeeded, width / 4]);
-          xRangeMax = width - labelSpace! - this._margin.right;
-        }
-      }
-    }
+    const lineLabelCtx = runStages({
+      viz: this,
+      plotFormattedData: data,
+      plotScales: layoutCtx.plotScales,
+      plotConfigScales: layoutCtx.plotConfigScales,
+      plotTestAxes: {xTest, yTest},
+      plotLineLabelTest: {testLineShape, testTextBox},
+      y2Exists,
+    } as any, [measurePlotLineLabels]) as {
+      plotLabelWidths: any[];
+      plotLargestLabel: number | undefined;
+      plotXRangeMax: number | undefined;
+    };
+    const labelWidths = lineLabelCtx.plotLabelWidths;
+    const largestLabel = lineLabelCtx.plotLargestLabel;
+    if (lineLabelCtx.plotXRangeMax !== undefined)
+      xRangeMax = lineLabelCtx.plotXRangeMax;
 
     if (showX && xRangeMax) {
-      this._xTest
+      xTest
         .domain(xDomain)
         .height(height)
         .maxSize(height / 2)
         .range([undefined, xRangeMax])
-        .select(testGroup.node())
         .ticks(xTicks)
         .width(width)
         .config(xC)
         .config(this._xConfig)
         .scale(xConfigScale)
-        .render();
+        .measure();
     }
 
     if (x2Exists) {
-      this._x2Test
+      x2Test
         .domain(x2Domain)
         .height(height)
         .range([undefined, xRangeMax])
-        .select(testGroup.node())
         .ticks(x2Ticks)
         .width(width)
         .config(xC)
@@ -1334,23 +881,23 @@ export default class Plot extends Viz {
         .config(defaultX2Config)
         .config(this._x2Config)
         .scale(x2ConfigScale)
-        .render();
+        .measure();
     }
 
-    const xTestRange = this._xTest._getRange();
-    const x2TestRange = this._x2Test._getRange();
+    const xTestRange = xTest._getRange();
+    const x2TestRange = x2Test._getRange();
 
-    const x2Bounds = this._x2Test.outerBounds();
-    const x2Height = x2Exists ? x2Bounds.height + this._x2Test.padding() : 0;
+    const x2Bounds = x2Test.outerBounds();
+    const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
 
     let xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]]);
 
     if (showX) {
-      this._xTest.range([xOffsetLeft, undefined]).render();
+      xTest.range([xOffsetLeft, undefined]).measure();
     }
 
     const topOffset = showY
-      ? this._yTest.shapeConfig().labelConfig.fontSize() / 2
+      ? yTest.shapeConfig().labelConfig.fontSize() / 2
       : 0;
 
     let xOffsetRight = max([
@@ -1358,8 +905,8 @@ export default class Plot extends Viz {
       width - xTestRange[1],
       width - x2TestRange[1],
     ]);
-    const xBounds = this._xTest.outerBounds();
-    const xHeight = xBounds.height + (showY ? this._xTest.padding() : 0);
+    const xBounds = xTest.outerBounds();
+    const xHeight = xBounds.height + (showY ? xTest.padding() : 0);
 
     this._padding.left += xOffsetLeft;
     this._padding.right += xOffsetRight;
@@ -1367,49 +914,91 @@ export default class Plot extends Viz {
     this._padding.top += x2Height + topOffset;
 
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
     const horizontalMargin = this._margin.left + this._margin.right;
     const verticalMargin = this._margin.top + this._margin.bottom;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pCtx: any = {domains, shapeData, axisData, data, discreteKeys, stackData, stackKeys, x, y, x2, y2, xScale, yScale, xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale, xDomain, yDomain, x2Domain, y2Domain, xData, yData, x2Data, y2Data, x2Exists, y2Exists, showX, showY, defaultConfig, defaultX2Config, defaultY2Config, yC, xC, xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, largestLabel, xRangeMax, xTest, yTest, x2Test, y2Test, yBounds, y2Bounds, yWidth, y2Width, xHeight, x2Height, xOffsetLeft, xOffsetRight, topOffset, xTestRange, x2TestRange, height, width, parent, transition, opp, barLabels, showLineLabels, stackGroup, horizontalMargin, verticalMargin};
+    return this._paint(pCtx);
+  }
+
+  /**
+      Paint phase: production axis rendering, shape buffer setup, and shape
+      emission with event handlers. Receives all cross-phase locals from
+      _draw via `pCtx` (so this method has zero coupling to _draw's local
+      scope beyond the explicit context).
+  */
+  /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
+  _paint(pCtx: any) {
+    // Paint phase. All cross-phase locals captured from _draw's pre-super
+    // pipeline + measure work are received via `pCtx`. Body below is the
+    // original imperative paint code (axis painting, shape buffer setup,
+    // shape emission with event handlers), unchanged in semantics — just
+    // moved to its own method so the data/paint boundary is explicit.
+    //
+    // The destructure is split into themed chunks as a table of contents:
+    // readers can scan the categories instead of memorizing 40 names.
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    // Data & domain inputs (computed by formatPlotData / computePlotInitialDomains).
+    const {data, shapeData, axisData, domains, discreteKeys, stackData, stackKeys, xData, yData, x2Data, y2Data, xDomain, yDomain, x2Domain, y2Domain} = pCtx;
+    // Accessors / scales (from computePlotScales). `x`/`y` are reassigned
+    // below where Plot caches the resolved accessors back onto `this._xFunc`
+    // / `this._yFunc`; the other names are read-only.
+    let {x, y} = pCtx;
+    const {x2, y2, xScale, yScale, xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
+    // Axis configs & visibility flags.
+    const {defaultConfig, defaultX2Config, defaultY2Config, showX, showY, x2Exists, y2Exists, xC, yC} = pCtx;
+    // Axis measurements (from preparePlotAxisLayout): tick values + label
+    // bounds + test-axis bounds. `xTicks`/`yTicks`/`x2Ticks`/`y2Ticks` carried
+    // by `pCtx`; reads pass through directly.
+    const {xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, largestLabel, xRangeMax, xTest, yTest, x2Test, y2Test, xTestRange, x2TestRange} = pCtx;
+    // Layout offsets & viewport. `yBounds`/`yWidth`/`xOffsetLeft`/`y2Bounds`/
+    // `y2Width`/`xOffsetRight` are *re*-computed below from the production
+    // axes; the initial values from `pCtx` are the throwaway test-axis
+    // measurements and get overwritten in this method's body.
+    let {yBounds, y2Bounds, yWidth, y2Width, xOffsetLeft, xOffsetRight} = pCtx;
+    const {xHeight, x2Height, topOffset, height, width, horizontalMargin, verticalMargin} = pCtx;
+    // Paint plumbing (DOM parent + transition + stack accumulator + label flags).
+    const {parent, transition, opp, barLabels, showLineLabels, stackGroup} = pCtx;
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+
     let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
 
     if (showY) {
-      this._yTest
+      yTest
         .domain(yDomain)
         .height(height)
         .maxSize(width / 2)
         .range(yRange)
-        .select(testGroup.node())
         .ticks(yTicks)
         .width(width)
         .config(yC)
         .config(this._yConfig)
         .scale(yConfigScale)
-        .render();
+        .measure();
     }
 
-    yBounds = this._yTest.outerBounds();
-    yWidth = yBounds.width ? yBounds.width + this._yTest.padding() : undefined;
+    yBounds = yTest.outerBounds();
+    yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
     xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]]);
 
     if (y2Exists) {
-      this._y2Test
+      y2Test
         .config(yC)
         .domain(y2Domain)
         .gridSize(0)
         .height(height)
         .range(yRange)
-        .select(testGroup.node())
         .width(width - max([0, xOffsetRight - y2Width])!)
         .title(false)
         .config(this._y2Config)
         .config(defaultY2Config)
         .scale(y2ConfigScale)
-        .render();
+        .measure();
     }
 
-    y2Bounds = this._y2Test.outerBounds();
+    y2Bounds = y2Test.outerBounds();
     y2Width = y2Bounds.width
-      ? y2Bounds.width + this._y2Test.padding()
+      ? y2Bounds.width + y2Test.padding()
       : undefined;
     xOffsetRight = max([
       0,
@@ -1419,72 +1008,69 @@ export default class Plot extends Viz {
     ]);
     const xRange = [xOffsetLeft, width - (xOffsetRight + horizontalMargin)];
 
-    const rectGroup = elem("g.d3plus-plot-background", {parent, transition});
+    // Legacy `g.d3plus-plot-background` removed in v4. The background Rect
+    // (when fill != "transparent") absorbs into `_chartScene` directly —
+    // since `_chartScene` is wrapped with `_chartTransform = (margin.left,
+    // margin.top + x2Height + topOffset)`, the rect's coords are passed
+    // RELATIVE to that origin. See the absorb call further down.
 
-    const transform = `translate(${this._margin.left}, ${
-      this._margin.top + x2Height + topOffset
-    })`;
-    const x2Transform = `translate(${this._margin.left}, ${
-      this._margin.top + topOffset
-    })`;
+    // Capture the shape-group offset so `_chartScene` nodes appear at the
+    // same position legacy `g.d3plus-plot-shapes` had.
+    this._chartTransform = {
+      x: this._margin.left,
+      y: this._margin.top + x2Height + topOffset,
+    };
 
-    const xGroup = elem("g.d3plus-plot-x-axis", {
-      parent,
-      transition,
-      enter: {transform},
-      update: {transform, opacity: showX ? 1 : 0},
-    });
-    const x2Group =
-      x2Exists &&
-      elem("g.d3plus-plot-x2-axis", {
-        parent,
-        transition,
-        enter: {transform: x2Transform},
-        update: {transform: x2Transform},
-      });
-
+    // Per-axis absolute transforms (legacy values). Stored so we can derive
+    // each axis's transform RELATIVE to `_chartTransform` when absorbing
+    // axis scenes into `_chartScene` (the chart-cells group already applies
+    // _chartTransform). The 4 legacy `g.d3plus-plot-{x,x2,y,y2}-axis` elem()
+    // calls are gone — axes are scene-only in v4 (`renderMode("compute")`
+    // creates a detached svg behind the scenes; `axis.toScene()` produces
+    // the visible output).
     const xTrans = xOffsetLeft > yWidth ? xOffsetLeft - yWidth : 0;
-    const yTransform = `translate(${this._margin.left + xTrans}, ${
-      this._margin.top + topOffset
-    })`;
-    const yGroup = elem("g.d3plus-plot-y-axis", {
-      parent,
-      transition,
-      enter: {transform: yTransform},
-      update: {transform: yTransform, opacity: showY ? 1 : 0},
+    const axisAbsoluteTransforms = {
+      x: {x: this._margin.left, y: this._margin.top + x2Height + topOffset},
+      x2: {x: this._margin.left, y: this._margin.top + topOffset},
+      y: {x: this._margin.left + xTrans, y: this._margin.top + topOffset},
+      y2: {x: -this._margin.right, y: this._margin.top + topOffset},
+    };
+    const axisRelativeTransform = (which: "x" | "x2" | "y" | "y2") => ({
+      x: axisAbsoluteTransforms[which].x - this._chartTransform!.x,
+      y: axisAbsoluteTransforms[which].y - this._chartTransform!.y,
     });
-
-    const y2Transform = `translate(-${this._margin.right}, ${
-      this._margin.top + topOffset
-    })`;
-    const y2Group =
-      y2Exists &&
-      elem("g.d3plus-plot-y2-axis", {
-        parent,
-        transition,
-        enter: {transform: y2Transform},
-        update: {transform: y2Transform},
-      });
+    // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop
+    // so axes render ABOVE shapes (preserving legacy DOM z-order).
+    const axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: any}[] = [];
 
     this._xAxis
+      .renderMode("compute")
+      .select(undefined as unknown as HTMLElement)
       .domain(xDomain)
       .height(height - (x2Height + topOffset + verticalMargin))
       .maxSize(height / 2)
       .range(xRange)
-      .select(xGroup.node())
       .ticks(xTicks)
       .width(width)
       .config(xC)
       .config(this._xConfig)
       .scale(xConfigScale)
       .render();
+    if (showX) {
+      axisSceneQueue.push({
+        key: "plot-x-axis",
+        transform: axisRelativeTransform("x"),
+        axis: this._xAxis,
+      });
+    }
 
     if (x2Exists) {
       this._x2Axis
+        .renderMode("compute")
+        .select(undefined as unknown as HTMLElement)
         .domain(x2Domain)
         .height(height - (xHeight + topOffset + verticalMargin))
         .range(xRange)
-        .select(x2Group.node())
         .ticks(x2Ticks)
         .width(width)
         .config(xC)
@@ -1492,6 +1078,11 @@ export default class Plot extends Viz {
         .config(this._x2Config)
         .scale(x2ConfigScale)
         .render();
+      axisSceneQueue.push({
+        key: "plot-x2-axis",
+        transform: axisRelativeTransform("x2"),
+        axis: this._x2Axis,
+      });
     }
 
     this._xFunc = x = (d: any, x: any) => {
@@ -1518,32 +1109,46 @@ export default class Plot extends Viz {
     ];
 
     this._yAxis
+      .renderMode("compute")
+      .select(undefined as unknown as HTMLElement)
       .domain(yDomain)
       .height(height)
       .maxSize(width / 2)
       .range(yRange)
-      .select(yGroup.node())
       .ticks(yTicks)
       .width(xRange[xRange.length - 1])
       .config(yC)
       .config(this._yConfig)
       .scale(yConfigScale)
       .render();
+    if (showY) {
+      axisSceneQueue.push({
+        key: "plot-y-axis",
+        transform: axisRelativeTransform("y"),
+        axis: this._yAxis,
+      });
+    }
 
     if (y2Exists) {
       this._y2Axis
+        .renderMode("compute")
+        .select(undefined as unknown as HTMLElement)
         .config(yC)
         .domain(y2Exists ? y2Domain : yDomain)
         .gridSize(0)
         .height(height)
         .range(yRange)
-        .select(y2Group.node())
         .width(width - max([0, xOffsetRight - y2Width])!)
         .title(false)
         .config(this._y2Config)
         .config(defaultY2Config)
         .scale(y2ConfigScale)
         .render();
+      axisSceneQueue.push({
+        key: "plot-y2-axis",
+        transform: axisRelativeTransform("y2"),
+        axis: this._y2Axis,
+      });
     }
 
     let labelPositions = {};
@@ -1602,24 +1207,34 @@ export default class Plot extends Viz {
     let yOffset = this._xAxis.barConfig()["stroke-width"];
     if (yOffset) yOffset /= 2;
 
-    new shapes.Rect()
-      .data([{}])
-      .select(rectGroup.node())
-      .x(xRange[0] + (xRange[1] - xRange[0]) / 2)
-      .width(xRange[1] - xRange[0])
-      .y(this._margin.top + topOffset + yRange[0] + (yRange[1] - yRange[0]) / 2)
-      .height(yRange[1] - yRange[0])
-      .config(this._backgroundConfig)
-      .render();
+    // Background Rect: skip rendering when transparent (the default) — under
+    // the v4 scene path it would emit a 5th `rect.d3plus-render-rect` that
+    // confuses bar-counting tests. When a user customizes
+    // `backgroundConfig.fill` to a real color, render it normally.
+    if (this._backgroundConfig.fill && this._backgroundConfig.fill !== "transparent") {
+      // Coords are relative to `_chartTransform` (margin.left, margin.top +
+      // x2Height + topOffset). Legacy used absolute coords; we subtract the
+      // chart-transform offset so the absorbed scene rect lands at the same
+      // visual position. yRange[0] = x2Height (see line ~940), so the y
+      // simplification is (yRange[1] - yRange[0]) / 2.
+      const bgRect = new shapes.Rect()
+        .renderMode("compute")
+        .data([{}])
+        .x(xRange[0] - this._margin.left + (xRange[1] - xRange[0]) / 2)
+        .width(xRange[1] - xRange[0])
+        .y((yRange[1] - yRange[0]) / 2)
+        .height(yRange[1] - yRange[0])
+        .config(this._backgroundConfig);
+      bgRect.render();
+      // Prepend so the background sits BEHIND chart shapes.
+      const before = (this._chartScene || []).slice();
+      this._chartScene = [];
+      absorbShapeIntoChartScene(this, bgRect);
+      this._chartScene.push(...before);
+    }
 
     const labelConnectors = (labelWidths as any[]).filter((d: any) => d.newY !== undefined);
     if (labelConnectors.length) {
-      const connectorGroup = elem("g.d3plus-plot-connectors", {
-        parent,
-        transition,
-        enter: {transform},
-        update: {transform},
-      }).node();
       const data = labelConnectors
         .map(d =>
           assign(
@@ -1645,7 +1260,11 @@ export default class Plot extends Viz {
           ),
         );
 
-      new shapes.Line()
+      // Connector lines: compute-mode emit → absorbed into _chartScene. The
+      // legacy `g.d3plus-plot-connectors` group is gone; the chart-wide
+      // `_chartTransform` provides the same positioning the legacy group's
+      // transform did.
+      const connectorLine = new shapes.Line()
         .config({
           data: data as DataPoint[],
           stroke: (d: any) => d.fontColor,
@@ -1653,71 +1272,67 @@ export default class Plot extends Viz {
           y: (d: any) => d.y,
         })
         .config(this._labelConnectorConfig)
-        .select(connectorGroup)
-        .render();
+        .renderMode("compute");
+      connectorLine.render();
+      absorbShapeIntoChartScene(this, connectorLine);
     }
 
-    const annotationGroupBack = elem("g.d3plus-plot-annotations", {
-      parent,
-      transition,
-      enter: {transform},
-      update: {transform},
-    }).node();
-    const shapeGroup = elem("g.d3plus-plot-shapes", {
-      parent,
-      transition,
-      enter: {transform},
-      update: {transform},
-    }).node();
-    const annotationGroupFront = elem("g.d3plus-plot-annotations-front", {
-      parent,
-      transition,
-      enter: {transform},
-      update: {transform},
-    }).node();
+    // Legacy `g.d3plus-plot-annotations` / `g.d3plus-plot-annotations-front`
+    // groups removed in v4. Annotations now run in `renderMode("compute")`
+    // and their scenes are absorbed into `_chartScene`. Layering: "back"
+    // annotations absorb here (before the main shape loop below); "front"
+    // annotations queue and absorb AFTER the shape loop (preserving the
+    // legacy z-order: back → shapes → front).
+    const frontAnnotationShapes: any[] = [];
+    const renderAnnotation = (annotation: any) => {
+      const inst = new (shapes as any)[annotation.shape]()
+        .renderMode("compute")
+        .duration(this._duration)
+        .config(annotation)
+        .config({
+          x: (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+          x0:
+            this._discrete === "x"
+              ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+              : x(domains.x[0]),
+          x1:
+            this._discrete === "x"
+              ? null
+              : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+          y: (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+          y0:
+            this._discrete === "y"
+              ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+              : y(domains.y[1]) - yOffset,
+          y1:
+            this._discrete === "y"
+              ? null
+              : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+        });
+      inst.render();
+      return inst;
+    };
 
     Object.keys(this._previousAnnotations).forEach(layer => {
-      const group =
-        layer === "front" ? annotationGroupFront : annotationGroupBack;
-
       const annotationData = this._annotations.filter(
         (d: any) => (layer === "back" && !d.layer) || d.layer === layer,
       );
       const annotationShapes = annotationData.map((d: any) => d.shape);
       annotationData.forEach((annotation: any) => {
-        new (shapes as any)[annotation.shape]()
-          .duration(this._duration)
-          .config(annotation)
-          .config({
-            x: (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-            x0:
-              this._discrete === "x"
-                ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-                : x(domains.x[0]),
-            x1:
-              this._discrete === "x"
-                ? null
-                : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-            y: (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
-            y0:
-              this._discrete === "y"
-                ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-                : y(domains.y[1]) - yOffset,
-            y1:
-              this._discrete === "y"
-                ? null
-                : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-          })
-          .select(group)
-          .render();
+        const inst = renderAnnotation(annotation);
+        if (layer === "front") frontAnnotationShapes.push(inst);
+        else absorbShapeIntoChartScene(this, inst);
       });
-
+      // Exits: render with empty data in compute mode so their scenes go
+      // empty; no DOM to clean up in v4.
       const exitAnnotations = this._previousAnnotations[layer].filter(
         (d: any) => !annotationShapes.includes(d),
       );
-
       exitAnnotations.forEach((shape: any) => {
-        new (shapes as any)[shape]().data([]).select(group).render();
+        new (shapes as any)[shape]()
+          .renderMode("compute")
+          .data([])
+          .render();
       });
 
       this._previousAnnotations[layer] = annotationShapes;
@@ -1729,7 +1344,6 @@ export default class Plot extends Viz {
       discrete: this._discrete,
       duration: this._duration,
       label: (d: any) => this._drawLabel(d.data, d.i),
-      select: shapeGroup,
       x: (d: any) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
       x0:
         discrete === "x"
@@ -1779,7 +1393,10 @@ export default class Plot extends Viz {
         };
       }
 
-      const s = new (shapes as any)[d.key]().config(shapeConfigInner).data(d.values);
+      const s = new (shapes as any)[d.key]()
+        .renderMode("compute")
+        .config(shapeConfigInner)
+        .data(d.values);
 
       if (d.key === "Bar") {
         let space;
@@ -1864,6 +1481,7 @@ export default class Plot extends Viz {
             scaleFunction(this._confidence[1] ? d.hci : d[key]);
 
           const area = new shapes.Area()
+            .renderMode("compute")
             .config(areaConfig)
             .data(d.values as DataPoint[]);
           const confidenceConfig = Object.assign(
@@ -1874,13 +1492,13 @@ export default class Plot extends Viz {
           area
             .config(
               assign(
-                (configPrep as any).bind(this)(confidenceConfig, "shape", "Line"),
-                (configPrep as any).bind(this)(confidenceConfig, "shape", "Area"),
+                shapeConfigFor(this, "Line", confidenceConfig),
+                shapeConfigFor(this, "Area", confidenceConfig),
               ) as any,
             )
             .render();
 
-          this._shapes.push(area);
+          absorbShapeIntoChartScene(this, area);
         }
 
         s.config({
@@ -1927,54 +1545,25 @@ export default class Plot extends Viz {
         });
       }
 
-      const classEvents = events.filter(e => e.includes(`.${d.key}`)),
-        globalEvents = events.filter(e => !e.includes(".")),
-        shapeEvents = events.filter(e => e.includes(".shape"));
-      for (let e = 0; e < globalEvents.length; e++)
-        s.on(globalEvents[e], ((d: any, i: any, x: any, event: any) =>
-          this._on[globalEvents[e]](d.data, d.i, x, event)) as any,
-        );
-      for (let e = 0; e < shapeEvents.length; e++)
-        s.on(shapeEvents[e], ((d: any, i: any, x: any, event: any) =>
-          this._on[shapeEvents[e]](d.data, d.i, x, event)) as any,
-        );
-      for (let e = 0; e < classEvents.length; e++)
-        s.on(classEvents[e], ((d: any, i: any, x: any, event: any) =>
-          this._on[classEvents[e]](d.data, d.i, x, event)) as any,
-        );
+      this._wirePlotShapeEvents(s, d.key, events);
 
-      const userConfig = (configPrep as any).bind(this)(
-        this._shapeConfig,
-        "shape",
-        d.key,
-      );
+      const userConfig = shapeConfigFor(this, d.key);
       if (this._shapeConfig.duration === undefined) delete userConfig.duration;
       s.config(userConfig as any).render();
 
-      this._shapes.push(s);
+      absorbShapeIntoChartScene(this, s);
 
       if (d.key === "Line") {
         const markers = new shapes.Circle()
+          .renderMode("compute")
           .data(this._lineMarkers ? (d.values as DataPoint[]) : [])
           .config(shapeConfig)
           .config(this._lineMarkerConfig)
           .id(d => `${d.id}_${d.discrete}`);
 
-        for (let e = 0; e < globalEvents.length; e++)
-          markers.on(globalEvents[e], ((d: any, i: any, x: any, event: any) =>
-            this._on[globalEvents[e]](d.data, d.i, x, event)) as any,
-          );
-        for (let e = 0; e < shapeEvents.length; e++)
-          markers.on(shapeEvents[e], ((d: any, i: any, x: any, event: any) =>
-            this._on[shapeEvents[e]](d.data, d.i, x, event)) as any,
-          );
-        for (let e = 0; e < classEvents.length; e++)
-          markers.on(classEvents[e], ((d: any, i: any, x: any, event: any) =>
-            this._on[classEvents[e]](d.data, d.i, x, event)) as any,
-          );
-
+        this._wirePlotShapeEvents(markers, "Circle", events);
         markers.render();
-        this._shapes.push(markers);
+        absorbShapeIntoChartScene(this, markers);
       }
     });
 
@@ -1993,8 +1582,31 @@ export default class Plot extends Viz {
 
     this._previousShapes = dataShapes;
 
+    // Absorb queued front annotations AFTER the shape loop so they render
+    // above shapes (preserving the legacy "front" z-order).
+    frontAnnotationShapes.forEach(inst => absorbShapeIntoChartScene(this, inst));
+
+    // Absorb queued axis scenes AFTER shapes + annotations so axes render
+    // ABOVE everything else (matching the legacy DOM order: shapes →
+    // annotations → axis groups appended last). Each axis is wrapped in a
+    // group with its axis-relative transform; the chart-cells group's
+    // `_chartTransform` composes with this to land at the legacy absolute
+    // position.
+    axisSceneQueue.forEach(({key, transform, axis}) => {
+      if (!axis || typeof axis.toScene !== "function") return;
+      const scene = axis.toScene();
+      if (!scene) return;
+      (this._chartScene ||= []).push({
+        type: "group",
+        key,
+        transform,
+        children: scene.children || [],
+      });
+    });
+
     return this;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
 
   /**
       Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
@@ -2025,19 +1637,8 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._backgroundConfig;
   }
 
-  /**
-      The pixel space between each bar in a group of bars.
-*/
-  barPadding(_: any) {
-    return arguments.length ? ((this._barPadding = _), this) : this._barPadding;
-  }
-
-  /**
-      The baseline for the x/y plot.
-*/
-  baseline(_: any) {
-    return arguments.length ? ((this._baseline = _), this) : this._baseline;
-  }
+  // barPadding(_: any): installed by installFluent(this, plotSchema).
+  // baseline(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
@@ -2131,12 +1732,7 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._labelPosition;
   }
 
-  /**
-      Draws labels on the right side of any Line shapes that are drawn on the plot.
-*/
-  lineLabels(_: any) {
-    return arguments.length ? ((this._lineLabels = _), this) : this._lineLabels;
-  }
+  // lineLabels(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
@@ -2156,12 +1752,7 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._lineMarkers;
   }
 
-  /**
-      A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. "Circle", "Line", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.
-*/
-  shapeSort(_: any) {
-    return arguments.length ? ((this._shapeSort = _), this) : this._shapeSort;
-  }
+  // shapeSort(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Sets the size of bubbles to the given Number, data key, or function.
@@ -2172,33 +1763,10 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._size;
   }
 
-  /**
-      Sets the size scale maximum to the specified number.
-*/
-  sizeMax(_: any) {
-    return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
-  }
-
-  /**
-      Sets the size scale minimum to the specified number.
-*/
-  sizeMin(_: any) {
-    return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
-  }
-
-  /**
-      Sets the size scale to the specified string.
-*/
-  sizeScale(_: any) {
-    return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
-  }
-
-  /**
-      If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.
-*/
-  stacked(_: any) {
-    return arguments.length ? ((this._stacked = _), this) : this._stacked;
-  }
+  // sizeMax(_: any): installed by installFluent(this, plotSchema).
+  // sizeMin(_: any): installed by installFluent(this, plotSchema).
+  // sizeScale(_: any): installed by installFluent(this, plotSchema).
+  // stacked(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Sets the stack offset. If *value* is not specified, returns the current stack offset function.
@@ -2267,12 +1835,7 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._xConfig;
   }
 
-  /**
-      When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-*/
-  xCutoff(_: any) {
-    return arguments.length ? ((this._xCutoff = _), this) : this._xCutoff;
-  }
+  // xCutoff(_: any): installed by installFluent(this, plotSchema).
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
@@ -2283,33 +1846,10 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._x2Config;
   }
 
-  /**
-      The x domain as an array. If either value is undefined, it will be calculated from the data.
-*/
-  xDomain(_: any) {
-    return arguments.length ? ((this._xDomain = _), this) : this._xDomain;
-  }
-
-  /**
-       The x2 domain as an array. If either value is undefined, it will be calculated from the data.
-*/
-  x2Domain(_: any) {
-    return arguments.length ? ((this._x2Domain = _), this) : this._x2Domain;
-  }
-
-  /**
-      Defines a custom sorting comparitor function to be used for discrete x axes.
-*/
-  xSort(_: any) {
-    return arguments.length ? ((this._xSort = _), this) : this._xSort;
-  }
-
-  /**
-       Defines a custom sorting comparitor function to be used for discrete x2 axes.
-*/
-  x2Sort(_: any) {
-    return arguments.length ? ((this._x2Sort = _), this) : this._x2Sort;
-  }
+  // xDomain(_: any): installed by installFluent(this, plotSchema).
+  // x2Domain(_: any): installed by installFluent(this, plotSchema).
+  // xSort(_: any): installed by installFluent(this, plotSchema).
+  // x2Sort(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Accessor function or string key for the y-axis value of each data point.
@@ -2353,12 +1893,7 @@ Additionally, each config object can also contain an optional "layer" key, which
     return this._yConfig;
   }
 
-  /**
-      When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-*/
-  yCutoff(_: any) {
-    return arguments.length ? ((this._yCutoff = _), this) : this._yCutoff;
-  }
+  // yCutoff(_: any): installed by installFluent(this, plotSchema).
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
@@ -2372,31 +1907,8 @@ Additionally, each config object can also contain an optional "layer" key, which
     return this._y2Config;
   }
 
-  /**
-      The y domain as an array. If either value is undefined, it will be calculated from the data.
-*/
-  yDomain(_: any) {
-    return arguments.length ? ((this._yDomain = _), this) : this._yDomain;
-  }
-
-  /**
-       The y2 domain as an array. If either value is undefined, it will be calculated from the data.
-*/
-  y2Domain(_: any) {
-    return arguments.length ? ((this._y2Domain = _), this) : this._y2Domain;
-  }
-
-  /**
-      Defines a custom sorting comparitor function to be used for discrete y axes.
-*/
-  ySort(_: any) {
-    return arguments.length ? ((this._ySort = _), this) : this._ySort;
-  }
-
-  /**
-       Defines a custom sorting comparitor function to be used for discrete y2 axes.
-*/
-  y2Sort(_: any) {
-    return arguments.length ? ((this._y2Sort = _), this) : this._y2Sort;
-  }
+  // yDomain(_: any): installed by installFluent(this, plotSchema).
+  // y2Domain(_: any): installed by installFluent(this, plotSchema).
+  // ySort(_: any): installed by installFluent(this, plotSchema).
+  // y2Sort(_: any): installed by installFluent(this, plotSchema).
 }

@@ -1,7 +1,7 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import clickLegend from "./click.legend.js";
-import {legendLabel} from "../drawSteps/drawLegend.js";
+import {legendLabel} from "../legendLabel.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import type Viz from "../Viz.js";
