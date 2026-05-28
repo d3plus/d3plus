@@ -16,11 +16,21 @@ const sankeyAligns = {
 };
 
 import {addToQueue} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
-import {accessor, configPrep, constant} from "../utils/index.js";
-import {Path} from "../shapes/index.js";
-import * as shapes from "../shapes/index.js";
+import {assign} from "@d3plus/dom";
+import {constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import {sankeyDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
+
+// E4: Sankey's identity-coerce accessors. installFluent installs them; the
+// data-loading accessors (`links`/`nodes`) and the d3-sankey-aligned setter
+// (`nodeAlign` string→method) stay hand-written.
+const sankeySchema = [
+  {key: "iterations", coerce: "identity" as const},
+  {key: "linkSort", coerce: "identity" as const},
+  {key: "nodeSort", coerce: "identity" as const},
+  {key: "nodeWidth", coerce: "identity" as const},
+];
 
 /**
     Creates a sankey visualization based on a defined set of nodes and links. [Click here](http://d3plus.org/examples/d3plus-network/sankey-diagram/) for help getting started using the Sankey class.
@@ -34,18 +44,26 @@ export default class Sankey extends Viz {
 */
   constructor() {
     super();
-    this._iterations = 6;
-    this._nodeId = accessor("id");
-    this._nodeSort = undefined;
-    this._links = accessor("links");
-    this._linkSort = undefined;
-    this._linksSource = "source";
-    this._linksTarget = "target";
-    this._noDataMessage = false;
-    this._nodes = accessor("nodes");
-    this._nodeAlign = sankeyAligns.justify;
-    this._nodePadding = 8;
-    this._nodeWidth = 30;
+    // E3+E4: scalar defaults from sankeyDef + accessor methods from
+    // installFluent(sankeySchema). Non-schema fields (nodeId, links,
+    // linksSource, linksTarget, noDataMessage, nodes, nodeAlign, nodePadding)
+    // stay imperative — their accessors either have chart-specific coercion or
+    // are not exposed as fluent methods at all.
+    this._nodeId = sankeyDef.defaults.nodeId;
+    this._links = sankeyDef.defaults.links;
+    this._linksSource = sankeyDef.defaults.linksSource as string;
+    this._linksTarget = sankeyDef.defaults.linksTarget as string;
+    this._noDataMessage = sankeyDef.defaults.noDataMessage as false;
+    this._nodes = sankeyDef.defaults.nodes;
+    this._nodeAlign = sankeyDef.defaults.nodeAlign;
+    this._nodePadding = sankeyDef.defaults.nodePadding as number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, sankeySchema, {
+      iterations: sankeyDef.defaults.iterations,
+      linkSort: undefined,
+      nodeSort: undefined,
+      nodeWidth: sankeyDef.defaults.nodeWidth,
+    });
     this._on.mouseenter = () => {};
     this._on["mouseleave.shape"] = () => {
       this.hover(false);
@@ -172,8 +190,6 @@ export default class Sankey extends Viz {
       return obj;
     }, {});
 
-    const transform = `translate(${this._margin.left}, ${this._margin.top})`;
-
     this._sankey
       .nodeAlign(this._nodeAlign)
       .nodePadding(this._nodePadding)
@@ -185,42 +201,14 @@ export default class Sankey extends Viz {
       .iterations(this._iterations)
       .size([width, height])();
 
-    this._shapes.push(
-      new Path()
-        .config(this._shapeConfig.Path)
-        .data(links)
-        .d(this._path)
-        .select(
-          elem("g.d3plus-Links", {
-            parent: this._select,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .render(),
-    );
-    groups(
+    // Links + node groups emitted by sankeyDef.emit.
+    const nodeGroups = Array.from(groups(
       nodes as Record<string, unknown>[],
       (d: Record<string, unknown>) => d.shape as string,
-    ).forEach(([key, values]) => {
-      this._shapes.push(
-        new (shapes as any)[key]()
-          .data(values)
-          .height((d: any) => d.y1 - d.y0)
-          .width((d: any) => d.x1 - d.x0)
-          .x((d: any) => (d.x1 + d.x0) / 2)
-          .y((d: any) => (d.y1 + d.y0) / 2)
-          .select(
-            elem("g.d3plus-sankey-nodes", {
-              parent: this._select,
-              enter: {transform},
-              update: {transform},
-            }).node(),
-          )
-          .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", key))
-          .render(),
-      );
-    });
+    ));
+    this._sankeyCtx = {links, nodeGroups, pathFn: this._path};
+    this._chartScene = sankeyDef.emit({viz: this} as any);
+    this._chartTransform = {x: this._margin.left, y: this._margin.top};
     return this;
   }
 
@@ -238,9 +226,7 @@ export default class Sankey extends Viz {
   /**
       A pass-through for the d3-sankey [iterations](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_iterations) function.
 */
-  iterations(_: any) {
-    return arguments.length ? ((this._iterations = _), this) : this._iterations;
-  }
+  // iterations() generated by installFluent(sankeySchema).
 
   /**
       A predefined *Array* of edges that connect each object passed to the [node](#Sankey.node) method. The `source` and `target` keys in each link need to map to the nodes in one of one way:
@@ -260,9 +246,7 @@ The value passed should be an *Array* of data. An optional formatting function c
   /**
       A pass-through for the d3-sankey [linkSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_linkSort) function.
 */
-  linkSort(_: any) {
-    return arguments.length ? ((this._linkSort = _), this) : this._linkSort;
-  }
+  // linkSort() generated by installFluent(sankeySchema).
 
   /**
       The key inside of each link Object that references the source node.
@@ -327,16 +311,12 @@ Additionally, a custom formatting function can be passed as a second argument to
   /**
       A pass-through for the d3-sankey [nodeSort](https://github.com/d3/d3-sankey?tab=readme-ov-file#sankey_nodeSort) function.
 */
-  nodeSort(_: any) {
-    return arguments.length ? ((this._nodeSort = _), this) : this._nodeSort;
-  }
+  // nodeSort() generated by installFluent(sankeySchema).
 
   /**
       Width of the node. By default, the nodeWidth size is 30.
 */
-  nodeWidth(_: any) {
-    return arguments.length ? ((this._nodeWidth = _), this) : this._nodeWidth;
-  }
+  // nodeWidth() generated by installFluent(sankeySchema).
 
   /**
       Width of the links.

@@ -1,4 +1,5 @@
 import {min} from "d3-array";
+import {donutDef} from "./ChartDefinition.js";
 import {default as Pie} from "./Pie.js";
 
 /**
@@ -12,11 +13,14 @@ export default class Donut extends Pie {
   constructor() {
     super();
 
+    // `_innerRadius` is a closure over this._width/this._height/this._margin
+    // — stays imperative because donutDef.defaults can only hold static values.
     this._innerRadius = () =>
       min([
         this._width - this._margin.left - this._margin.right,
         this._height - this._margin.top - this._margin.bottom,
       ])! / 4;
-    this._padPixel = 2;
+    // E3: scalar default sourced from donutDef.
+    this._padPixel = donutDef.defaults.padPixel as number;
   }
 }

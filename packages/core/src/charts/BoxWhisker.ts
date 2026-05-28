@@ -1,7 +1,7 @@
 import {assign} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
-import {constant} from "../utils/index.js";
 
+import {boxWhiskerDef} from "./ChartDefinition.js";
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -14,8 +14,10 @@ export default class BoxWhisker extends Plot {
   */
   constructor() {
     super();
-    this._discrete = "x";
-    this._shape = constant("Box");
+    // E3: scalar defaults sourced from boxWhiskerDef.
+    this._discrete = boxWhiskerDef.defaults.discrete as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._shape = boxWhiskerDef.defaults.shape as any;
 
     this._tooltipConfig = assign(this._tooltipConfig, {
       title: (

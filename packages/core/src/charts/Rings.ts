@@ -2,12 +2,23 @@ import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
 import type {DataPoint} from "@d3plus/data";
 
-import {assign, backgroundColor, elem} from "@d3plus/dom";
+import {assign, backgroundColor} from "@d3plus/dom";
 import {colorContrast} from "@d3plus/color";
 import {addToQueue} from "@d3plus/data";
-import * as shapes from "../shapes/index.js";
 import {accessor, configPrep, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import {ringsDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
+
+// E4: Rings' identity-coerce accessors (center/sizeMax/sizeMin/sizeScale).
+// `linkSize`/`size` retain hand-written setters because of constant/accessor
+// coercion side effects.
+const ringsSchema = [
+  {key: "center", coerce: "identity" as const},
+  {key: "sizeMax", coerce: "identity" as const},
+  {key: "sizeMin", coerce: "identity" as const},
+  {key: "sizeScale", coerce: "identity" as const},
+];
 
 /**
     Creates a ring visualization based on a defined set of nodes and edges. [Click here](http://d3plus.org/examples/d3plus-network/simple-rings/) for help getting started using the Rings class.
@@ -22,12 +33,13 @@ export default class Rings extends Viz {
 */
   constructor() {
     super();
-    this._links = [];
-    this._linkSize = constant(1);
-    this._linkSizeMin = 1;
-    this._linkSizeScale = "sqrt";
-    this._noDataMessage = false;
-    this._nodes = [];
+    // E3: scalar defaults sourced from ringsDef.
+    this._links = ringsDef.defaults.links as any[];
+    this._linkSize = ringsDef.defaults.linkSize;
+    this._linkSizeMin = ringsDef.defaults.linkSizeMin as number;
+    this._linkSizeScale = ringsDef.defaults.linkSizeScale as string;
+    this._noDataMessage = ringsDef.defaults.noDataMessage as false;
+    this._nodes = ringsDef.defaults.nodes as any[];
     this._on.mouseenter = () => {};
     this._on["mouseleave.shape"] = () => {
       this.hover(false);
@@ -76,9 +88,14 @@ export default class Rings extends Viz {
       this._padding = {bottom: 0, left: 0, right: 0, top: 0};
       this._draw();
     };
-    this._sizeMin = 5;
-    this._sizeScale = "sqrt";
-    this._shape = constant("Circle");
+    this._shape = ringsDef.defaults.shape;
+    // E4: install Rings' identity-coerce accessors. Defaults for sizeMin and
+    // sizeScale come from ringsDef.defaults.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, ringsSchema, {
+      sizeMin: ringsDef.defaults.sizeMin,
+      sizeScale: ringsDef.defaults.sizeScale,
+    });
     this._shapeConfig = assign(this._shapeConfig, {
       ariaLabel: (d: any, i: any) => {
         const validSize = this._size ? `, ${this._size(d, i)}` : "";
@@ -189,9 +206,7 @@ export default class Rings extends Viz {
       return map;
     }, {});
 
-    const duration = this._duration,
-      height = this._height - this._margin.top - this._margin.bottom,
-      transform = `translate(${this._margin.left}, ${this._margin.top})`,
+    const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 
     const edges: any[] = [],
@@ -497,27 +512,11 @@ export default class Rings extends Viz {
     const linkConfig = configPrep.bind(this as any)(this._shapeConfig, "edge", "Path");
     delete linkConfig.on;
 
-    this._shapes.push(
-      new shapes.Path()
-        .config(linkConfig)
-        .strokeWidth((d: any) => d.size)
-        .id((d: any) => `${(d.source as DataPoint).id}_${(d.target as DataPoint).id}`)
-        .d((d: any) =>
-          d.spline
-            ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
-            : `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`,
-        )
-        .data(edges)
-        .select(
-          elem("g.d3plus-rings-links", {
-            parent: this._select,
-            duration,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .render(),
-    );
+    // Links/nodes emitted by ringsDef.emit; populated into _chartScene below.
+    const linkD = (d: any) =>
+      d.spline
+        ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
+        : `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
 
     const that = this;
 
@@ -546,26 +545,15 @@ export default class Rings extends Viz {
         verticalAlign: (d: any) => (d.id === this._center ? "middle" : "top"),
       },
       rotate: (d: any) => nodeLookup[d.id].rotate || 0,
-      select: elem("g.d3plus-rings-nodes", {
-        parent: this._select,
-        duration,
-        enter: {transform},
-        update: {transform},
-      }).node(),
     };
 
-    groups(
+    const nodeGroups = Array.from(groups(
       nodes as Record<string, unknown>[],
       (d: Record<string, unknown>) => d.shape as string,
-    ).forEach(([key, values]) => {
-      this._shapes.push(
-        new (shapes as any)[key]()
-          .config(configPrep.bind(this as any)(this._shapeConfig, "shape", key))
-          .config(shapeConfig)
-          .data(values)
-          .render(),
-      );
-    });
+    ));
+    this._ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
+    this._chartScene = ringsDef.emit({viz: this} as any);
+    this._chartTransform = {x: this._margin.left, y: this._margin.top};
 
     return this;
   }
@@ -573,9 +561,7 @@ export default class Rings extends Viz {
   /**
    The center node, specified by id.
 */
-  center(_: any) {
-    return arguments.length ? ((this._center = _), this) : this._center;
-  }
+  // center() generated by installFluent(ringsSchema).
 
   /**
       The hover callback function for highlighting shapes on mouseover.
@@ -679,24 +665,5 @@ Additionally, a custom formatting function can be passed as a second argument to
       : this._size;
   }
 
-  /**
-      The size scale maximum. By default, the maximum size is determined by half the distance of the two closest nodes.
-*/
-  sizeMax(_: any) {
-    return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
-  }
-
-  /**
-      The size scale minimum.
-*/
-  sizeMin(_: any) {
-    return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
-  }
-
-  /**
-      The size scale.
-*/
-  sizeScale(_: any) {
-    return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
-  }
+  // sizeMax(), sizeMin(), sizeScale() generated by installFluent(ringsSchema).
 }

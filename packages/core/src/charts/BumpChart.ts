@@ -1,5 +1,4 @@
-import {constant} from "../utils/index.js";
-
+import {bumpChartDef} from "./ChartDefinition.js";
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -37,8 +36,10 @@ export default class BumpChart extends Plot {
   */
   constructor() {
     super();
-    this._discrete = "x";
-    this._shape = constant("Line");
+    // E3: scalar defaults sourced from bumpChartDef.
+    this._discrete = bumpChartDef.defaults.discrete as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._shape = bumpChartDef.defaults.shape as any;
     this.y2((d: Record<string, unknown>) => this._y(d));
 
     this.yConfig({

@@ -22,6 +22,33 @@ export {
   Viz,
 } from "./src/charts/index.js";
 
+// v4 factory functions — `barChart().data(...).render()` ergonomics. Thin
+// aliases over the class constructors today (RFC §3.3 / strangler step 4).
+// Classes remain working byte-for-byte; deprecated for v5 removal.
+export {
+  areaPlot,
+  barChart,
+  boxWhisker,
+  bumpChart,
+  donut,
+  geomap,
+  linePlot,
+  matrix,
+  network,
+  pack,
+  pie,
+  plot,
+  priestley,
+  radar,
+  radialMatrix,
+  rings,
+  sankey,
+  stackedArea,
+  tree,
+  treemap,
+  viz,
+} from "./src/charts/factories.js";
+
 export {
   Axis,
   AxisBottom,
@@ -62,3 +89,51 @@ export type {
   AxisConfig,
   TooltipConfig,
 } from "./src/utils/index.js";
+
+// E3/E4 internals — exposed for parity tests + advanced users wanting to build
+// custom charts on the ChartDefinition contract. Not yet a stable public API.
+import {applyTreemapLayout, treemapDef} from "./src/charts/ChartDefinition.js";
+import {createFluent, installFluent} from "./src/fluent.js";
+import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
+import {runVizPipeline} from "./src/charts/runVizPipeline.js";
+import {
+  backFeature,
+  colorScaleFeature,
+  legendFeature,
+  runLayout,
+  subtitleFeature,
+  timelineFeature,
+  titleFeature,
+  totalFeature,
+} from "./src/charts/features.js";
+import {computeAxisLayout, measureAxis} from "./src/components/Axis.js";
+export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis.js";
+
+export {
+  applyTreemapLayout,
+  treemapDef,
+  createFluent,
+  installFluent,
+  computeAxisLayout,
+  measureAxis,
+  runVizPipeline,
+};
+export const __test_internals__ = {
+  applyTreemapLayout,
+  treemapDef,
+  createFluent,
+  installFluent,
+  computeAxisLayout,
+  measureAxis,
+  runStages,
+  runLayout,
+  runVizPipeline,
+  vizPreDrawStages,
+  backFeature,
+  colorScaleFeature,
+  legendFeature,
+  subtitleFeature,
+  timelineFeature,
+  titleFeature,
+  totalFeature,
+};

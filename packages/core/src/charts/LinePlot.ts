@@ -1,5 +1,4 @@
-import {constant} from "../utils/index.js";
-
+import {linePlotDef} from "./ChartDefinition.js";
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -16,7 +15,9 @@ export default class LinePlot extends Plot {
   */
   constructor() {
     super();
-    this._discrete = "x";
-    this._shape = constant("Line");
+    // E3: scalar defaults sourced from linePlotDef.
+    this._discrete = linePlotDef.defaults.discrete as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._shape = linePlotDef.defaults.shape as any;
   }
 }

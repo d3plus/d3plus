@@ -1,10 +1,17 @@
-import {hierarchy, pack} from "d3-hierarchy";
-
-import {assign, elem} from "@d3plus/dom";
-import {nestGroups} from "@d3plus/data";
-import {accessor, configPrep, constant} from "../utils/index.js";
-import {Circle} from "../shapes/index.js";
+import {assign} from "@d3plus/dom";
+import {accessor, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import {applyPackLayout, packDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
+
+// Pack's identity-coerce accessor schema. `layoutPadding` is shared with
+// Treemap; `sort` is the d3-hierarchy comparator. `packOpacity`/`sum` retain
+// hand-written setters (function-coerce + accessor-coerce respectively).
+const packSchema = [
+  {key: "layoutPadding", coerce: "identity" as const},
+  {key: "sort", coerce: "identity" as const},
+];
 
 const recursionCircles = (
   d: Record<string, unknown>,
@@ -35,7 +42,13 @@ export default class Pack extends Viz {
   constructor() {
     super();
 
-    this._layoutPadding = 1;
+    // E4: install identity-coerce accessors (layoutPadding, sort). Defaults
+    // for layoutPadding are seeded from packDef; sort gets seeded later
+    // (installFluent skips slots that are already set).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, packSchema, {
+      layoutPadding: packDef.defaults.layoutPadding,
+    });
 
     const defaultLegend = this._legend;
     this._legend = (config: any, arr: any) => {
@@ -71,9 +84,10 @@ export default class Pack extends Viz {
       this.hover((h: any) => hoverData.includes(h));
     };
 
-    this._pack = pack();
-    this._packOpacity = constant(0.25);
-    this._shape = constant("Circle");
+    // E3: scalar defaults sourced from packDef.
+    this._pack = packDef.defaults.pack;
+    this._packOpacity = packDef.defaults.packOpacity;
+    this._shape = packDef.defaults.shape;
     this._shapeConfig = assign(this._shapeConfig, {
       Circle: {
         label: (d: any) => (d.parent && !d.children ? d.id : false),
@@ -83,8 +97,8 @@ export default class Pack extends Viz {
         opacity: (d: any) => d.__d3plusOpacity__,
       },
     });
-    this._sort = (a: any, b: any) => b.value - a.value;
-    this._sum = accessor("value");
+    this._sort = packDef.defaults.sort;
+    this._sum = packDef.defaults.sum;
   }
 
   /**
@@ -94,54 +108,19 @@ export default class Pack extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const height = this._height - this._margin.top - this._margin.bottom,
-      width = this._width - this._margin.left - this._margin.right;
-
-    const diameter = Math.min(height, width);
-    const transform = `translate(${(width - diameter) / 2}, ${(height - diameter) / 2})`;
-
-    const nestedData = nestGroups(
-      this._filteredData,
-      this._groupBy.slice(0, this._drawDepth + 1),
-    );
-
-    const packData = this._pack
-      .padding(this._layoutPadding)
-      .size([diameter, diameter])(
-        hierarchy(
-          {key: (nestedData as unknown as Record<string, unknown>).key, values: nestedData} as Record<
-            string,
-            unknown
-          >,
-          (d: Record<string, unknown>) => d.values as Record<string, unknown>[],
-        )
-          .sum(this._sum)
-          .sort(this._sort),
-      )
-      .descendants()
-      .filter((d: any, i: any) => {
-        d.__d3plus__ = true;
-        d.i = i;
-        d.id = d.parent ? d.parent.data.key : "root";
-        d.data.__d3plusOpacity__ = d.height ? this._packOpacity(d.data, i) : 1;
-        d.data.__d3plusTooltip__ = !d.height ? true : false;
-        return !d.children || d.children.length > 1;
-      });
-
-    this._shapes.push(
-      new Circle()
-        .data(packData)
-        .select(
-          elem("g.d3plus-Pack", {
-            parent: this._select,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Circle"))
-        .render(),
-    );
-
+    // Pack's chart-specific layout (d3-hierarchy pack + descendant filter +
+    // opacity assignment) runs as the `applyPackLayout` stage on
+    // `packDef.stages`. The result feeds into `packDef.emit(ctx)` for the
+    // Circle SceneNodes. No more `_shapes.push(new Circle()...)` glue.
+    const ctx = runStages({viz: this} as any, [applyPackLayout]) as unknown as {
+      shapeData: any[];
+    };
+    const shapeData = ctx.shapeData || [];
+    this._chartScene = packDef.emit({viz: this, shapeData} as any);
+    this._chartTransform = {
+      x: this._margin.left + (this._packOffsetX || 0),
+      y: this._margin.top + (this._packOffsetY || 0),
+    };
     return this;
   }
 
@@ -156,14 +135,7 @@ export default class Pack extends Viz {
     return this;
   }
 
-  /**
-      The inner and outer padding for the pack layout.
-*/
-  layoutPadding(_: any) {
-    return arguments.length
-      ? ((this._layoutPadding = _), this)
-      : this._layoutPadding;
-  }
+  // layoutPadding(_: any): installed by installFluent(this, packSchema).
 
   /**
       The opacity of nested circles within the pack layout.
@@ -174,17 +146,7 @@ export default class Pack extends Viz {
       : this._packOpacity;
   }
 
-  /**
-      Sort comparator function for the pack layout. Defaults to descending order by the associated input data's numeric value attribute.
-
-@example
-function comparator(a, b) {
-  return b.value - a.value;
-}
-*/
-  sort(_: any) {
-    return arguments.length ? ((this._sort = _), this) : this._sort;
-  }
+  // sort(_: any): installed by installFluent(this, packSchema).
 
   /**
       The sum accessor used for sizing each circle in the pack layout.

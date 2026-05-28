@@ -6,12 +6,27 @@ import {polygonHull} from "d3-polygon";
 import * as scales from "d3-scale";
 import {zoomTransform} from "d3-zoom";
 
-import {assign, elem} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 import {addToQueue} from "@d3plus/data";
 import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
-import * as shapes from "../shapes/index.js";
-import {accessor, configPrep, constant} from "../utils/index.js";
+import {configPrep, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import {networkDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
+
+// E4: simple identity accessors generated via installFluent. `linkSize` uses
+// "const" coerce so its setter coerces non-functions to `constant(_)` (matching
+// the hand-written body). `size`/`nodeGroupBy`/`x`/`y`/`nodes` stay hand-written
+// because their setters have chart-specific side effects (aggs registration,
+// data-loading queue).
+const networkSchema = [
+  {key: "linkSize", coerce: "const" as const},
+  {key: "linkSizeMin", coerce: "identity" as const},
+  {key: "linkSizeScale", coerce: "identity" as const},
+  {key: "sizeMax", coerce: "identity" as const},
+  {key: "sizeMin", coerce: "identity" as const},
+  {key: "sizeScale", coerce: "identity" as const},
+];
 
 /** Extended node for force simulation with extra properties.*/
 interface NetworkNode extends SimulationNodeDatum {
@@ -46,13 +61,21 @@ export default class Network extends Viz {
 */
   constructor() {
     super();
-    this._links = [];
-    this._linkSize = constant(1);
-    this._linkSizeMin = 1;
-    this._linkSizeScale = "sqrt";
-    this._noDataMessage = false;
-    this._nodeGroupBy = [accessor("id")];
-    this._nodes = [];
+    // E3+E4: scalar defaults from networkDef + accessor methods from
+    // installFluent(networkSchema). installFluent seeds linkSize/linkSizeMin/
+    // linkSizeScale into the corresponding `_<key>` slots; remaining defaults
+    // (links/noDataMessage/nodeGroupBy/nodes) are not exposed as schema-driven
+    // accessors and stay imperative.
+    this._links = networkDef.defaults.links as any[];
+    this._noDataMessage = networkDef.defaults.noDataMessage as false;
+    this._nodeGroupBy = networkDef.defaults.nodeGroupBy as any[];
+    this._nodes = networkDef.defaults.nodes as any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    installFluent(this as any, networkSchema, {
+      linkSize: networkDef.defaults.linkSize,
+      linkSizeMin: networkDef.defaults.linkSizeMin,
+      linkSizeScale: networkDef.defaults.linkSizeScale,
+    });
     this._on["click.shape"] = (d: any, i: any, x: any, event: any) => {
       this._tooltipClass.data([]).render();
 
@@ -186,8 +209,8 @@ export default class Network extends Viz {
         else return filterIds.includes(`${this._ids(h, x)[this._drawDepth]}`);
       });
     };
-    this._sizeMin = 5;
-    this._sizeScale = "sqrt";
+    this._sizeMin = networkDef.defaults.sizeMin as number;
+    this._sizeScale = networkDef.defaults.sizeScale as string;
     this._shape = constant("Circle");
     this._shapeConfig = assign(this._shapeConfig, {
       ariaLabel: (d: any, i: any) => {
@@ -223,7 +246,6 @@ export default class Network extends Viz {
 
     const duration = this._duration,
       height = this._height - this._margin.top - this._margin.bottom,
-      transform = `translate(${this._margin.left}, ${this._margin.top})`,
       width = this._width - this._margin.left - this._margin.right;
 
     const data = this._filteredData.reduce((obj: any, d: any, i: any) => {
@@ -484,11 +506,14 @@ export default class Network extends Viz {
     this._zoomGroup = this._container
       .selectAll("g.d3plus-network-zoomGroup")
       .data([0]);
-    const parent = (this._zoomGroup = this._zoomGroup
+    // Side effect kept (zoomGroup is referenced by interaction code below); the
+    // local `parent` var is gone because the scene-graph emit doesn't take a DOM
+    // parent — Viz.toScene's `_chartTransform` carries the offset instead.
+    this._zoomGroup = this._zoomGroup
       .enter()
       .append("g")
       .attr("class", "d3plus-network-zoomGroup")
-      .merge(this._zoomGroup));
+      .merge(this._zoomGroup);
 
     const strokeExtent = extent(links, (d: {size: number}) => d.size);
     if (strokeExtent[0] !== strokeExtent[1]) {
@@ -505,57 +530,24 @@ export default class Network extends Viz {
     const linkConfig = (configPrep as any).bind(this)(this._shapeConfig, "edge", "Path");
     delete linkConfig.on;
 
-    this._shapes.push(
-      new shapes.Path()
-        .config(linkConfig)
-        .strokeWidth((d: any) => d.size)
-        .activeStyle({
-          "stroke-width": (d: any) => d.size,
-        })
-        .d(
-          d =>
-            `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`,
-        )
-        .data(links)
-        .select(
-          elem("g.d3plus-network-links", {
-            parent,
-            duration,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .render(),
-    );
-
-    const shapeConfig = {
+    // Links + nodes emitted by networkDef.emit.
+    const nodeShapeConfig = {
       label: (d: any) =>
         nodes.length <= this._dataCutoff ||
         (this._hover && this._hover(d)) ||
         (this._active && this._active(d))
           ? this._drawLabel(d.data || d.node, d.i)
           : false,
-      select: elem("g.d3plus-network-nodes", {
-        parent,
-        duration,
-        enter: {transform},
-        update: {transform},
-      }).node(),
     };
-
-    groups(
+    const linkD = (d: any) =>
+      `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
+    const nodeGroups = Array.from(groups(
       nodes as Record<string, unknown>[],
       (d: Record<string, unknown>) => d.shape as string,
-    ).forEach(([key, values]) => {
-      this._shapes.push(
-        new (shapes as any)[key]()
-          .config((configPrep as any).bind(this)(this._shapeConfig, "shape", key))
-          .config(shapeConfig)
-          .config((shapeConfig as any)[key] || {})
-          .data(values)
-          .render(),
-      );
-    });
+    ));
+    this._networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};
+    this._chartScene = networkDef.emit({viz: this} as any);
+    this._chartTransform = {x: this._margin.left, y: this._margin.top};
 
     return this;
   }
@@ -591,32 +583,7 @@ The value passed should either be an *Array* of data or a *String* representing 
     return this._links;
   }
 
-  /**
-      Defines the thickness of the links connecting each node. The value provided can be either a pixel Number to be used for all links, or an accessor function that returns a specific data value to be used in an automatically calculated linear scale.
-*/
-  linkSize(_?: any) {
-    return arguments.length
-      ? ((this._linkSize = typeof _ === "function" ? _ : constant(_)), this)
-      : this._linkSize;
-  }
-
-  /**
-      Defines the minimum pixel stroke width used in link sizing.
-*/
-  linkSizeMin(_?: any) {
-    return arguments.length
-      ? ((this._linkSizeMin = _), this)
-      : this._linkSizeMin;
-  }
-
-  /**
-      The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of links in the network.
-*/
-  linkSizeScale(_?: any) {
-    return arguments.length
-      ? ((this._linkSizeScale = _), this)
-      : this._linkSizeScale;
-  }
+  // linkSize, linkSizeMin, linkSizeScale generated by installFluent(networkSchema).
 
   /**
       The node group accessor(s). This method overrides the default .groupBy() function from being used with the data passed to .nodes().
@@ -664,26 +631,7 @@ Additionally, a custom formatting function can be passed as a second argument to
       : this._size;
   }
 
-  /**
-      Defines the maximum pixel radius used in size scaling. By default, the maximum size is determined by half the distance of the two closest nodes.
-*/
-  sizeMax(_?: any) {
-    return arguments.length ? ((this._sizeMax = _), this) : this._sizeMax;
-  }
-
-  /**
-      Defines the minimum pixel radius used in size scaling.
-*/
-  sizeMin(_?: any) {
-    return arguments.length ? ((this._sizeMin = _), this) : this._sizeMin;
-  }
-
-  /**
-      The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used when calculating the pixel size of nodes in the network.
-*/
-  sizeScale(_?: any) {
-    return arguments.length ? ((this._sizeScale = _), this) : this._sizeScale;
-  }
+  // sizeMax, sizeMin, sizeScale generated by installFluent(networkSchema).
 
   /**
       The x position accessor for each node. The data passed to .data() takes priority over the .nodes() data array. By default, the x and y positions are determined dynamically based on default force layout properties.

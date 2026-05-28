@@ -1,3 +1,4 @@
+import {stackedAreaDef} from "./ChartDefinition.js";
 import {default as AreaPlot} from "./AreaPlot.js";
 
 /**
@@ -13,6 +14,7 @@ export default class StackedArea extends AreaPlot {
   */
   constructor() {
     super();
-    this._stacked = true;
+    // E3: scalar default sourced from stackedAreaDef.
+    this._stacked = stackedAreaDef.defaults.stacked as boolean;
   }
 }

@@ -1,5 +1,4 @@
 import {group, sum} from "d3-array";
-import {hierarchy, treemap} from "d3-hierarchy";
 import type {DataPoint} from "@d3plus/data";
 import {
   treemapBinary,
@@ -18,12 +17,24 @@ const tileMethods = {
   treemapResquarify,
 };
 
-import {merge, nestGroups} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
+import {merge} from "@d3plus/data";
+import {assign} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
-import {Rect} from "../shapes/index.js";
-import {accessor, configPrep, constant} from "../utils/index.js";
+import {accessor} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import {applyTreemapLayout, treemapDef} from "./ChartDefinition.js";
+import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
+
+// Treemap's accessor schema lives next to its definition. `installFluent`
+// mixes these onto the instance, replacing two of the four hand-written
+// `arguments.length`-overloaded accessors. `sum`/`tile` retain hand-written
+// setters because they have chart-specific coercion logic (`sum` mirrors
+// `_thresholdKey`; `tile` string→method lookup).
+const treemapSchema = [
+  {key: "layoutPadding", coerce: "identity" as const},
+  {key: "sort", coerce: "identity" as const},
+];
 
 /**
     Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.
@@ -39,7 +50,20 @@ export default class Treemap extends Viz {
   constructor() {
     super();
 
-    this._layoutPadding = 1;
+    // E3+E4: scalar defaults sourced from treemapDef; accessor methods
+    // (layoutPadding/sort) mixed in via `installFluent` instead of hand-written
+    // `arguments.length` overloads. `sum`/`tile` retain hand-written setters
+    // (see below) — chart-specific coercion (sum: also writes _thresholdKey;
+    // tile: string→d3-hierarchy-tile-method lookup). `_treemap` is internal.
+    installFluent(this as any, treemapSchema, {
+      layoutPadding: treemapDef.defaults.layoutPadding,
+      // `sort` default is wrapped (see below) so aggregated leaves sort last;
+      // installFluent only seeds when unset, so the wrapper applied later wins.
+    });
+    this._sum = treemapDef.defaults.sum as any;
+    this._thresholdKey = this._sum;
+    this._tile = treemapDef.defaults.tile as any;
+    this._treemap = treemapDef.defaults.treemap as any;
 
     const defaultLegend = this._legend;
     this._legend = (config: any, arr: any) => {
@@ -62,14 +86,14 @@ export default class Treemap extends Viz {
         padding: 5,
       },
     });
+    // Sort takes the aggregation hint into account; reach for the default
+    // but wrap so aggregated leaves sort last.
+    const baseSort = treemapDef.defaults.sort as (a: any, b: any) => number;
     this._sort = (a: any, b: any) => {
       const aggA = isAggregated(a);
       const aggB = isAggregated(b);
-      return aggA && !aggB ? 1 : !aggA && aggB ? -1 : b.value - a.value;
+      return aggA && !aggB ? 1 : !aggA && aggB ? -1 : baseSort(a, b);
     };
-    this._sum = accessor("value");
-    this._thresholdKey = this._sum;
-    this._tile = treemapSquarify;
     this._tooltipConfig = assign({}, this._tooltipConfig, {
       tbody: [
         [
@@ -78,7 +102,6 @@ export default class Treemap extends Viz {
         ],
       ],
     });
-    this._treemap = treemap().round(true);
 
     const isAggregated = (leaf: any) =>
       leaf.children &&
@@ -93,125 +116,23 @@ export default class Treemap extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const nestedData = nestGroups(
-      this._filteredData,
-      this._groupBy.slice(0, this._drawDepth + 1),
-    );
+    // Delegates Treemap-specific layout (d3-hierarchy + recursive extract +
+    // share computation) to the chart's stage on `treemapDef`. The stage reads
+    // viz state, writes `_rankData` back for legacy consumers, and returns
+    // `shapeData` — the single source the Rect emit consumes below.
+    const ctx = runStages({viz: this} as any, [applyTreemapLayout]) as unknown as {
+      shapeData: Array<Record<string, unknown> & {x0: number; y0: number; x1: number; y1: number; share: number; data: DataPoint; i?: number}>;
+    };
+    const shapeData = ctx.shapeData || [];
 
-    const tmapData = this._treemap
-      .padding(this._layoutPadding)
-      .size([
-        this._width - this._margin.left - this._margin.right,
-        this._height - this._margin.top - this._margin.bottom,
-      ])
-      .tile(this._tile)(
-      hierarchy(
-        {values: nestedData} as Record<string, unknown>,
-        (d: Record<string, unknown>) => d.values as Record<string, unknown>[],
-      )
-        .sum(this._sum)
-        .sort(this._sort),
-    );
-
-    const shapeData: any[] = [],
-      that = this;
-
-    /**
-        Flattens and merges treemap data.
-        @private
-*/
-    function extractLayout(children: any) {
-      for (let i = 0; i < children.length; i++) {
-        const node = children[i];
-        if (node.depth <= that._drawDepth) extractLayout(node.children);
-        else {
-          const index =
-            node.data.values.length === 1
-              ? that._filteredData.indexOf(node.data.values[0])
-              : undefined;
-          node.__d3plus__ = true;
-          node.id = node.data.key;
-          node.i = index > -1 ? index : undefined;
-          node.data = merge(node.data.values, that._aggs);
-          node.x = node.x0 + (node.x1 - node.x0) / 2;
-          node.y = node.y0 + (node.y1 - node.y0) / 2;
-          shapeData.push(node);
-        }
-      }
-    }
-    if (tmapData.children) extractLayout(tmapData.children);
-
-    this._rankData = shapeData.sort(this._sort).map((d: any) => d.data);
-    const total = tmapData.value;
-    shapeData.forEach((d: any) => {
-      d.share = this._sum(d.data, d.i) / total;
-    });
-
-    const transform = `translate(${this._margin.left}, ${this._margin.top})`;
-    const rectConfig = (configPrep as any).bind(this as any)(
-      this._shapeConfig,
-      "shape",
-      "Rect",
-    );
-    const fontMax = (rectConfig.labelConfig as any).fontMax;
-    const fontMin = (rectConfig.labelConfig as any).fontMin;
-    const padding = (rectConfig.labelConfig as any).padding;
-
-    this._shapes.push(
-      new Rect()
-        .data(shapeData as any)
-        .label(((d: any) => [
-          this._drawLabel(d.data, d.i),
-          `${formatAbbreviate((d.share as number) * 100, this._locale)}%`,
-        ]) as unknown as (d: DataPoint) => DataPoint[keyof DataPoint])
-        .select(
-          elem("g.d3plus-Treemap", {
-            parent: this._select,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .config({
-          height: (d: any) => d.y1 - d.y0,
-          labelBounds: (d: any, i: any, s: any) => {
-            const h = s.height;
-            let sh = Math.min(fontMax, (h - padding * 2) * 0.5);
-            if (sh < fontMin) sh = 0;
-            return [
-              {width: s.width, height: h - sh, x: -s.width / 2, y: -h / 2},
-              {
-                width: s.width,
-                height: sh + padding * 2,
-                x: -s.width / 2,
-                y: h / 2 - sh - padding * 2,
-              },
-            ];
-          },
-          labelConfig: {
-            textAnchor: (d: any, i: any, x: any) => {
-              let line,
-                parent = x;
-              while (typeof line === "undefined" && parent) {
-                if (typeof parent.l !== "undefined") line = parent.l;
-                parent = parent.__d3plusParent__;
-              }
-              return line ? "middle" : "start";
-            },
-            verticalAlign: (d: any, i: any, x: any) => {
-              let line,
-                parent = x;
-              while (typeof line === "undefined" && parent) {
-                if (typeof parent.l !== "undefined") line = parent.l;
-                parent = parent.__d3plusParent__;
-              }
-              return line ? "bottom" : "top";
-            },
-          },
-          width: (d: any) => d.x1 - d.x0,
-        } as any)
-        .config(rectConfig)
-        .render(),
-    );
+    // Scene cells come from `treemapDef.emit(ctx)` directly.
+    // No more `new Rect().renderMode("compute").data(...).render()` glue —
+    // emit's output (rect cells + label TextNodes) is pushed straight onto
+    // `_chartScene`, which Viz.toScene composes into the root group with the
+    // chart's margin transform. The legacy DOM `g.d3plus-Treemap` group is
+    // gone; the transform travels as scene data instead.
+    this._chartScene = treemapDef.emit({viz: this, shapeData} as any);
+    this._chartTransform = {x: this._margin.left, y: this._margin.top};
 
     return this;
   }
@@ -290,29 +211,9 @@ export default class Treemap extends Viz {
   }
 
   /**
-      The inner and outer padding.
-*/
-  layoutPadding(_: any) {
-    return arguments.length
-      ? ((this._layoutPadding = typeof _ === "function" ? _ : constant(_)),
-        this)
-      : this._layoutPadding;
-  }
-
-  /**
-      Sort comparator function for the treemap layout. Defaults to descending order by the associated input data's numeric value attribute.
-
-@example
-function comparator(a, b) {
-  return b.value - a.value;
-}
-*/
-  sort(_: any) {
-    return arguments.length ? ((this._sort = _), this) : this._sort;
-  }
-
-  /**
       The sum accessor used for sizing each rectangle in the treemap.
+      Kept hand-written because the setter must also update `_thresholdKey`
+      (the threshold filter reads `_thresholdKey` directly).
 
 @example
 function sum(d) {
@@ -329,6 +230,8 @@ function sum(d) {
 
   /**
       The tiling method used when calculating the size and position of the rectangles.
+      Kept hand-written because the setter coerces `"dice"` etc. to the
+      corresponding d3-hierarchy tile method (`treemapDice`).
 
 Can either be a string referring to a d3-hierarchy [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling), or a custom function in the same format.
 */

@@ -1,5 +1,4 @@
-import {constant} from "../utils/index.js";
-
+import {areaPlotDef} from "./ChartDefinition.js";
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -17,8 +16,10 @@ export default class AreaPlot extends Plot {
   */
   constructor() {
     super();
-    this._baseline = 0;
-    this._discrete = "x";
-    this._shape = constant("Area");
+    // E3: scalar defaults sourced from areaPlotDef.
+    this._baseline = areaPlotDef.defaults.baseline as number;
+    this._discrete = areaPlotDef.defaults.discrete as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._shape = areaPlotDef.defaults.shape as any;
   }
 }

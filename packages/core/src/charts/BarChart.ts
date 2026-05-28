@@ -1,5 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
-import {constant} from "../utils/index.js";
+import {barChartDef} from "./ChartDefinition.js";
 import {default as Plot} from "./Plot.js";
 
 /**
@@ -17,8 +17,11 @@ export default class BarChart extends Plot {
   */
   constructor() {
     super();
-    this._baseline = 0;
-    this._discrete = "x";
+    // E3+E4: scalar defaults sourced from barChartDef. The chart's identity
+    // (which Plot defaults to flip) now lives in the chart-definition value.
+    this._baseline = barChartDef.defaults.baseline as number;
+    this._discrete = barChartDef.defaults.discrete as string;
+    this._shape = barChartDef.defaults.shape as (d: DataPoint, i: number) => string;
     const defaultLegend = this._legend;
     this._legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
       const legendIds = arr
@@ -32,6 +35,5 @@ export default class BarChart extends Plot {
       if (legendIds === barIds) return false;
       return defaultLegend.bind(this)(config, arr);
     };
-    this._shape = constant("Bar");
   }
 }

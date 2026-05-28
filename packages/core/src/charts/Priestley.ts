@@ -4,8 +4,8 @@ import {scaleBand} from "d3-scale";
 import {Axis} from "../components/index.js";
 import {assign, date, elem} from "@d3plus/dom";
 import {nestGroups} from "@d3plus/data";
-import {Rect} from "../shapes/index.js";
-import {accessor, configPrep} from "../utils/index.js";
+import {accessor} from "../utils/index.js";
+import {priestleyDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
 
 /**
@@ -26,8 +26,9 @@ export default class Priestley extends Viz {
     this._axisConfig = {scale: "time"};
     this._axisTest = new Axis().align("end").gridSize(0).orient("bottom");
     this.end("end");
-    this._paddingInner = 0.05;
-    this._paddingOuter = 0.05;
+    // E3: scalar defaults sourced from priestleyDef.
+    this._paddingInner = priestleyDef.defaults.paddingInner as number;
+    this._paddingOuter = priestleyDef.defaults.paddingOuter as number;
     this._shapeConfig = assign({}, this._shapeConfig, {
       ariaLabel: (d: any, i: any) =>
         `${this._drawLabel(d, i)}, ${this._start(d, i)} - ${this._end(d, i)}.`,
@@ -141,25 +142,11 @@ export default class Priestley extends Viz {
 
     const bandWidth = yScale.bandwidth();
 
-    this._shapes.push(
-      new Rect()
-        .data(data)
-        .duration(this._duration)
-        .height(bandWidth)
-        .label((d, i) => this._drawLabel(d.data, i))
-        .select(
-          elem("g.d3plus-priestley-shapes", {parent: this._select}).node(),
-        )
-        .width(d => {
-          const w = Math.abs(xScale(d.end) - xScale(d.start));
-          return w > 2 ? w - 2 : w;
-        })
-        .x(d => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
-        .y(d => yScale(d.lane as unknown as string)! + bandWidth / 2)
-        .config((configPrep as any).bind(this as any)(this._shapeConfig, "shape", "Rect"))
-        .render(),
-    );
-
+    // Scene cells via `priestleyDef.emit`. The laid-out data + x/y scales live
+    // on `_priestleyCtx` for emit to read.
+    this._priestleyCtx = {xScale, yScale, bandWidth};
+    this._chartScene = priestleyDef.emit({viz: this, shapeData: data} as any);
+    this._chartTransform = undefined; // Priestley positions absolutely in scale coords.
     return this;
   }
 

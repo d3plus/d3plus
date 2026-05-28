@@ -18,11 +18,11 @@ import {feature} from "topojson-client";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {assign, parseSides} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 import {pointDistance} from "@d3plus/math";
-import {Circle, Path} from "../shapes/index.js";
-import {accessor, configPrep, constant} from "../utils/index.js";
+import {constant} from "../utils/index.js";
 
+import {geomapDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
 
@@ -73,20 +73,21 @@ export default class Geomap extends Viz {
   constructor() {
     super();
 
-    this._fitObject = false;
-    this._noDataMessage = false;
-    this._ocean = "#d4dadc";
+    // E3: scalar defaults sourced from geomapDef.
+    this._fitObject = geomapDef.defaults.fitObject as false;
+    this._noDataMessage = geomapDef.defaults.noDataMessage as false;
+    this._ocean = geomapDef.defaults.ocean as string;
 
-    this._point = accessor("point");
-    this._pointSize = constant(1);
-    this._pointSizeMax = 10;
-    this._pointSizeMin = 5;
-    this._pointSizeScale = "linear";
+    this._point = geomapDef.defaults.point;
+    this._pointSize = geomapDef.defaults.pointSize;
+    this._pointSizeMax = geomapDef.defaults.pointSizeMax as number;
+    this._pointSizeMin = geomapDef.defaults.pointSizeMin as number;
+    this._pointSizeScale = geomapDef.defaults.pointSizeScale as string;
 
-    this._projection = d3Geo.geoMercator();
-    this._projectionPadding = parseSides(20);
+    this._projection = geomapDef.defaults.projection;
+    this._projectionPadding = geomapDef.defaults.projectionPadding;
 
-    this._shape = constant("Circle");
+    this._shape = geomapDef.defaults.shape;
     this._shapeConfig = assign(this._shapeConfig, {
       ariaLabel: (d: DataPoint, i: number) =>
         `${this._drawLabel(d, i)}, ${this._pointSize(d, i)}`,
@@ -298,14 +299,8 @@ export default class Geomap extends Viz {
       .attr("class", "d3plus-geomap-zoomGroup")
       .merge(this._zoomGroup);
 
-    let pathGroup = this._zoomGroup
-      .selectAll("g.d3plus-geomap-paths")
-      .data([0]);
-    pathGroup = pathGroup
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-geomap-paths")
-      .merge(pathGroup);
+    // Legacy `pathGroup`/`pointGroup` elem allocations are gone — emit doesn't
+    // take a DOM parent. `this._chartTransform` carries any offset.
 
     const coordData: {type: string; features: Record<string, unknown>[]} =
       (this._coordData = this._topojson
@@ -509,55 +504,23 @@ export default class Geomap extends Viz {
         : {type: "Sphere"},
     );
 
-    this._shapes.push(
-      new Path()
-        .data(topoData as DataPoint[])
-        .d((d: Record<string, unknown>) => path(d.feature))
-        .select(pathGroup.node())
-        .x(0)
-        .y(0)
-        .config(configPrep.bind(this as any)(this._shapeConfig, "shape", "Path"))
-        .render(),
-    );
-
-    let pointGroup = this._zoomGroup
-      .selectAll("g.d3plus-geomap-pins")
-      .data([0]);
-    pointGroup = pointGroup
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-geomap-pins")
-      .merge(pointGroup);
-
-    const circles = new Circle()
-      .config(configPrep.bind(this as any)(this._shapeConfig, "shape", "Circle"))
-      .data(pointData)
-      .r(((d: DataPoint, i: number) => r(this._pointSize(d, i))) as any)
-      .select(pointGroup.node())
-      .sort(
-        (a: DataPoint, b: DataPoint) => this._pointSize(b) - this._pointSize(a),
-      )
-      .x(
-        ((d: DataPoint, i: number) =>
-          this._projection(this._point(d, i))[0]) as any,
-      )
-      .y(
-        ((d: DataPoint, i: number) =>
-          this._projection(this._point(d, i))[1]) as any,
-      );
-
-    const events = Object.keys(this._on);
-    const classEvents = events.filter((e: string) => e.includes(".Circle")),
-      globalEvents = events.filter((e: string) => !e.includes(".")),
-      shapeEvents = events.filter((e: string) => e.includes(".shape"));
-    for (let e = 0; e < globalEvents.length; e++)
-      circles.on(globalEvents[e], this._on[globalEvents[e]]);
-    for (let e = 0; e < shapeEvents.length; e++)
-      circles.on(shapeEvents[e], this._on[shapeEvents[e]]);
-    for (let e = 0; e < classEvents.length; e++)
-      circles.on(classEvents[e], this._on[classEvents[e]]);
-
-    this._shapes.push(circles.render());
+    // Country paths + point circles emitted via geomapDef.emit.
+    // Event handlers attached to the Circle instance can't carry through the
+    // scene emit yet — that's an interaction-layer concern handled by the
+    // pointer-pick path on the renderer.
+    this._geomapCtx = {
+      topoData,
+      pathFn: (d: Record<string, unknown>) => path(d.feature),
+      pointData,
+      pointR: ((d: DataPoint, i: number) => r(this._pointSize(d, i))) as any,
+      pointSort: (a: DataPoint, b: DataPoint) =>
+        this._pointSize(b) - this._pointSize(a),
+      pointX: ((d: DataPoint, i: number) =>
+        this._projection(this._point(d, i))[0]) as any,
+      pointY: ((d: DataPoint, i: number) =>
+        this._projection(this._point(d, i))[1]) as any,
+    };
+    this._chartScene = geomapDef.emit({viz: this} as any);
 
     return this;
   }

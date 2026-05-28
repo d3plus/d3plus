@@ -5,8 +5,9 @@ import {colorContrast} from "@d3plus/color";
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {assign, backgroundColor, elem} from "@d3plus/dom";
-import {accessor, configPrep, constant} from "../utils/index.js";
+import {configPrep, constant} from "../utils/index.js";
 import {Circle, Path, Rect} from "../shapes/index.js";
+import {radarDef} from "./ChartDefinition.js";
 import Viz from "./Viz.js";
 
 const tau = Math.PI * 2;
@@ -44,12 +45,13 @@ export default class Radar extends Viz {
         strokeWidth: constant(1),
       },
     };
-    this._discrete = "metric";
-    this._levels = 6;
-    this._metric = accessor("metric");
-    this._outerPadding = 100;
-    this._shape = constant("Path");
-    this._value = accessor("value");
+    // E3: scalar defaults sourced from radarDef.
+    this._discrete = radarDef.defaults.discrete as string;
+    this._levels = radarDef.defaults.levels as number;
+    this._metric = radarDef.defaults.metric;
+    this._outerPadding = radarDef.defaults.outerPadding as number;
+    this._shape = radarDef.defaults.shape;
+    this._value = radarDef.defaults.value;
   }
 
   /**
@@ -238,20 +240,18 @@ export default class Radar extends Viz {
       };
     }
 
-    this._shapes.push(
-      new Path()
-        .data(groupData as unknown as DataPoint[])
-        .d(d => d.d)
-        .select(
-          elem("g.d3plus-Radar-items", {
-            parent: this._select,
-            enter: {transform},
-            update: {transform},
-          }).node(),
-        )
-        .config(pathConfig)
-        .render(),
-    );
+    // Radar polygons emitted by radarDef.emit. The Radar's axis-decoration
+    // shapes (circle/rect/path above) still render imperatively to
+    // `this._select` — that path will fold into the scene graph when the
+    // axis-grid emit lands.
+    this._radarCtx = {groupData, pathConfig};
+    this._chartScene = radarDef.emit({viz: this} as any);
+    // Center transform: same `translate(width/2, height/2)` the legacy
+    // .select wrapper used. (width/height already in scope from above.)
+    this._chartTransform = {
+      x: this._margin.left + width / 2,
+      y: this._margin.top + height / 2,
+    };
 
     return this;
   }
