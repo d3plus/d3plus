@@ -1,7 +1,7 @@
 {
-  "name": "@d3plus/core",
+  "name": "@d3plus/render",
   "version": "3.1.6",
-  "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
+  "description": "A backend-agnostic scene graph and pluggable SVG/Canvas renderers for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
   "types": "./types/index.d.ts",
@@ -11,7 +11,7 @@
       "default": "./es/index.js"
     }
   },
-  "browser": "./umd/d3plus-core.full.js",
+  "browser": "./umd/d3plus-render.full.js",
   "engines": {
     "node": ">=20"
   },
@@ -25,10 +25,13 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/d3plus/d3plus.git",
-    "directory": "packages/core"
+    "directory": "packages/render"
   },
   "keywords": [
-    "charts",
+    "canvas",
+    "svg",
+    "render",
+    "scene-graph",
     "d3",
     "d3plus",
     "data",
@@ -43,39 +46,13 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@d3plus/color": "workspace:*",
     "@d3plus/data": "workspace:*",
-    "@d3plus/dom": "workspace:*",
-    "@d3plus/format": "workspace:*",
-    "@d3plus/locales": "workspace:*",
-    "@d3plus/math": "workspace:*",
-    "@d3plus/render": "workspace:*",
-    "@d3plus/text": "workspace:*",
-    "@floating-ui/dom": "^1.6.0",
-    "d3-array": "^3.2.4",
-    "d3-brush": "^3.0.0",
     "d3-color": "^3.1.0",
-    "d3-composite-projections": "^1.4.0",
-    "d3-force": "^3.0.0",
-    "d3-geo": "^3.1.1",
-    "d3-geo-projection": "^4.0.0",
-    "d3-hierarchy": "^3.1.2",
     "d3-interpolate": "^3.0.1",
     "d3-interpolate-path": "^2.3.0",
-    "d3-polygon": "^3.0.1",
-    "d3-sankey": "^0.12.3",
-    "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
-    "d3-tile": "^1.0.0",
-    "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
-    "d3-zoom": "^3.0.0",
-    "open-color": "^1.9.1",
-    "textures": "^1.2.3",
-    "topojson-client": "^3.1.0"
-  },
-  "devDependencies": {
-    "playwright": "1.59.1"
+    "textures": "^1.2.3"
   }
 }
