@@ -505,4 +505,22 @@ function(d) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
+
+  /**
+      v4 compute-mode shim. Box is composed of inner Rect/Whisker/Circle
+      shapes (each of which honors renderMode); the Box class itself
+      doesn't yet implement a separate compute path. Accepting the call
+      and storing the mode lets Plot's per-discrete shape loop treat Box
+      uniformly with Rect/Circle/etc. without a special case. The inner
+      shapes still render as they did before — full Box compute-mode
+      emission is a follow-on.
+  */
+  _renderMode?: "full" | "compute";
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode || "full";
+    this._renderMode = _;
+    return this;
+  }
 }

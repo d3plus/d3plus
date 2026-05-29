@@ -4,7 +4,7 @@ import {zoomTransform} from "d3-zoom";
 
 import {assign} from "@d3plus/dom";
 import {addToQueue} from "@d3plus/data";
-import {constant} from "../utils/index.js";
+import {accessor, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyNetworkLayout, networkDef} from "./ChartDefinition.js";
 import {chartBounds} from "./chartGeometry.js";
