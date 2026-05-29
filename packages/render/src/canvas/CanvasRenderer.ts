@@ -3,7 +3,12 @@ import {area as d3area, line as d3line} from "d3-shape";
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
 import {curveFor} from "../paths.js";
-import type {AreaNode, GroupNode, HtmlOverlayNode, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
+import type {AreaNode, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {
+  applyOverlayToElement,
+  createOverlayHost,
+  walkOverlays,
+} from "../overlay.js";
 import type {
   DrawOptions,
   PickResult,
@@ -123,6 +128,12 @@ export default class CanvasRenderer implements Renderer {
   private _ctx?: Ctx;
   /** Sibling host for HtmlOverlayNode mounts (same approach as SvgRenderer). */
   private _overlayHost?: HTMLDivElement;
+  /**
+   * Cached key→element map for HtmlOverlay reconcile. Mutated as overlays
+   * enter/exit so the hot path (every draw, including 60Hz zoom ticks)
+   * doesn't pay for `host.querySelectorAll(':scope > .d3plus-render-overlay')`.
+   */
+  private _overlayMap: Map<string, HTMLDivElement> = new Map();
   private _ratio = 1;
   private _width = 0;
   private _height = 0;
@@ -135,35 +146,21 @@ export default class CanvasRenderer implements Renderer {
   private _hoverKey: string | number | null = null;
   private _frame = 0;
   private _cancelAnim: (() => void) | null = null;
+  private _invalidatePointerRect: (() => void) | null = null;
+  private _removePointerRectListeners: (() => void) | null = null;
 
   mount(target: RenderTarget): void {
     this._target = target;
     this._ratio = target.pixelRatio ?? (typeof devicePixelRatio !== "undefined" ? devicePixelRatio : 1);
-    const containerStyle =
-      target.container instanceof HTMLElement ? target.container.style : null;
-    if (containerStyle && !containerStyle.position) {
-      containerStyle.position = "relative";
-    }
     const canvas = document.createElement("canvas");
     canvas.className = "d3plus-render-canvas";
     canvas.style.display = "block";
-    target.container.appendChild(canvas);
+    // `createOverlayHost` handles `position: relative` on container.
+    this._overlayHost = createOverlayHost(target);
+    target.container.insertBefore(canvas, this._overlayHost);
     this._canvas = canvas;
     this._ctx = canvas.getContext("2d") as Ctx;
     this.resize(target.width, target.height);
-    // Overlay host for HtmlOverlayNode mounts. Mirrors SvgRenderer; HTML
-    // overlays live in a sibling div so they can host real DOM (links,
-    // buttons) that canvas can't render natively.
-    const overlayHost = document.createElement("div");
-    overlayHost.setAttribute("class", "d3plus-render-overlays");
-    overlayHost.style.position = "absolute";
-    overlayHost.style.top = "0";
-    overlayHost.style.left = "0";
-    overlayHost.style.width = "100%";
-    overlayHost.style.height = "100%";
-    overlayHost.style.pointerEvents = "none";
-    target.container.appendChild(overlayHost);
-    this._overlayHost = overlayHost;
   }
 
   resize(width: number, height: number): void {
@@ -174,6 +171,7 @@ export default class CanvasRenderer implements Renderer {
     this._canvas.height = Math.round(height * this._ratio);
     this._canvas.style.width = `${width}px`;
     this._canvas.style.height = `${height}px`;
+    if (this._invalidatePointerRect) this._invalidatePointerRect();
     if (this._scene) this._paint(this._scene);
   }
 
@@ -229,7 +227,15 @@ export default class CanvasRenderer implements Renderer {
       };
       this._cancelAnim = () => {
         cancelled = true;
+        // Snap to the target scene on cancel so internal state (used by
+        // resize/pick/toSVGString) matches what the user sees. Without
+        // the paint, `_scene = scene` would diverge from the canvas
+        // pixels left at the last interpolated frame, and a subsequent
+        // resize() — which calls _paint(this._scene) — would surprise
+        // the user with a jump to the final scene.
         this._scene = scene;
+        if (this._cancelAnim) this._paint(scene);
+        this._cancelAnim = null;
       };
       this._frame = raf(tick) as unknown as number;
     });
@@ -258,7 +264,18 @@ export default class CanvasRenderer implements Renderer {
 
   /** Draws a node list in z-order, accumulating alpha and the transform matrix for picking. */
   private _drawChildren(ctx: Ctx, children: SceneNode[], alpha: number, abs: Mat): void {
-    const ordered = [...children].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
+    // Skip sort allocation + comparator runs when no child has z set.
+    // The common case (every node lacks z; paint in source order).
+    let needsSort = false;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].z !== undefined) {
+        needsSort = true;
+        break;
+      }
+    }
+    const ordered = needsSort
+      ? [...children].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
+      : children;
     for (const node of ordered) this._drawNode(ctx, node, alpha, abs);
   }
 
@@ -317,26 +334,10 @@ export default class CanvasRenderer implements Renderer {
   */
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
-    const collected: {node: HtmlOverlayNode; ox: number; oy: number}[] = [];
-    const walk = (n: SceneNode, ox: number, oy: number): void => {
-      const tx = n.transform?.x ?? 0;
-      const ty = n.transform?.y ?? 0;
-      const cx = ox + tx;
-      const cy = oy + ty;
-      if (n.type === "htmlOverlay") {
-        collected.push({node: n, ox: cx, oy: cy});
-      } else if (n.type === "group") {
-        for (const c of (n as GroupNode).children) walk(c, cx, cy);
-      }
-    };
-    walk(scene.root, 0, 0);
+    const collected = walkOverlays(scene);
     const host = this._overlayHost;
-    // Simple keyed reconcile (no d3 dependency in CanvasRenderer).
-    const existing = new Map<string, HTMLDivElement>();
-    host.querySelectorAll<HTMLDivElement>(":scope > .d3plus-render-overlay").forEach(el => {
-      const key = el.getAttribute("data-key");
-      if (key != null) existing.set(key, el);
-    });
+    // Keyed reconcile against the cached map — no per-draw querySelectorAll.
+    const existing = this._overlayMap;
     const seen = new Set<string>();
     for (const item of collected) {
       const key = String(item.node.key);
@@ -350,24 +351,19 @@ export default class CanvasRenderer implements Renderer {
         el.style.position = "absolute";
         el.style.pointerEvents = "auto";
         host.appendChild(el);
+        existing.set(key, el);
       }
-      const o = item.node;
-      el.style.left = `${item.ox + o.x}px`;
-      el.style.top = `${item.oy + o.y}px`;
-      if (o.width !== undefined) el.style.width = `${o.width}px`;
-      if (o.height !== undefined) el.style.height = `${o.height}px`;
-      if (o.className) el.className = `d3plus-render-overlay ${o.className}`;
-      if (o.style) {
-        for (const k in o.style)
-          (el.style as unknown as Record<string, string>)[k] = String(o.style[k]);
-      }
-      if (el.innerHTML !== o.html) el.innerHTML = o.html;
+      applyOverlayToElement(el, item);
       // `onMount` runs once per host (entry); `onUpdate` every draw.
+      const o = item.node;
       if (justCreated && o.onMount) o.onMount(el);
       if (o.onUpdate) o.onUpdate(el);
     }
-    for (const [key, el] of existing.entries()) {
-      if (!seen.has(key)) el.remove();
+    for (const [key, el] of existing) {
+      if (!seen.has(key)) {
+        el.remove();
+        existing.delete(key);
+      }
     }
   }
 
@@ -497,9 +493,28 @@ export default class CanvasRenderer implements Renderer {
     if (!this._canvas) return;
     this._listening = true;
     const canvas = this._canvas;
+    // Cache the canvas bounding rect to avoid forced layout reflow on
+    // every pointer event (mousemove fires 60-120×/sec during a drag).
+    // Invalidated by resize observer + scroll. Recompute lazily if the
+    // cache is missing or zero-sized (initial mount, post-detach).
+    let cachedRect: DOMRect | null = null;
+    const invalidateRect = () => {
+      cachedRect = null;
+    };
+    const onResize = invalidateRect;
+    const onScroll = invalidateRect;
+    window.addEventListener("resize", onResize, {passive: true});
+    window.addEventListener("scroll", onScroll, {passive: true, capture: true});
+    this._invalidatePointerRect = invalidateRect;
+    this._removePointerRectListeners = () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll, {capture: true} as EventListenerOptions);
+    };
     const local = (e: MouseEvent): [number, number] => {
-      const rect = canvas.getBoundingClientRect();
-      return [e.clientX - rect.left, e.clientY - rect.top];
+      if (!cachedRect || (cachedRect.width === 0 && cachedRect.height === 0)) {
+        cachedRect = canvas.getBoundingClientRect();
+      }
+      return [e.clientX - cachedRect.left, e.clientY - cachedRect.top];
     };
     const emit = (type: string, e: MouseEvent): void => {
       const point = local(e);
@@ -560,6 +575,12 @@ export default class CanvasRenderer implements Renderer {
     if (this._overlayHost) {
       this._overlayHost.remove();
       this._overlayHost = undefined;
+    }
+    this._overlayMap.clear();
+    if (this._removePointerRectListeners) {
+      this._removePointerRectListeners();
+      this._removePointerRectListeners = null;
+      this._invalidatePointerRect = null;
     }
     this._handlers.clear();
     this._domListeners = {};

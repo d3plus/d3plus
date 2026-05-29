@@ -6,17 +6,19 @@
     NAMING CAVEAT: the suffix `Pure` here means **"returns a Partial<
     VizContext> describing the layout intent"**, not "free of side effects
     in the FP sense." The OUTER orchestration (margin computation,
-    legendPosition resolution, panel aggregation, reset signals) is pure-
-    ish — its observable output is the returned ctx. But the inner
-    `runLayout([features])` calls DO mutate viz:
+    legendPosition resolution, panel aggregation, reset signals) is pure
+    in the returned-ctx sense — its observable output is the ctx. The
+    inner `runLayout([features])` calls write through to viz directly:
       - reset writes (`viz._featurePanels = []`, `viz._chartScene = []`,
         `viz._chartTransform = undefined`, `viz._shapes = []`)
       - margin claims (`viz._margin.X += claim.margin.X`) so the next
         runLayout sees the updated margins
       - FeatureModule layouts that mount/measure their components
-    These mutations are NECESSARY for v4-class subclasses that read live
-    viz state — going fully pure requires migrating every FeatureModule
-    + Plot subclass override to take ctx, not `this`. That's v5/v6 work.
+    These writes are part of the v4 contract: subclasses and feature
+    modules consume live viz state during the layout body, and the shim
+    pattern (`vizDraw` calling `vizDrawPure`) is what bridges the
+    free-function v4 surface to the class instances that still hold the
+    components.
 
     The shim (`vizDraw`) wraps this and serves as the v4 public surface.
 
@@ -32,6 +34,7 @@ import {
   colorScaleFeature,
   legendFeature,
   runLayout,
+  sanitizePosition,
   subtitleFeature,
   timelineFeature,
   titleFeature,
@@ -39,7 +42,7 @@ import {
 } from "./features.js";
 
 import type {VizContext} from "./vizContext.js";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 export interface VizDrawCtx extends VizContext {
   marginDelta?: {top: number; bottom: number; left: number; right: number};
@@ -73,23 +76,48 @@ export function vizDrawPure(
   viz._chartTransform = undefined;
   viz._shapes = [];
 
-  // Sanitize positions.
-  let legendPosition = viz._legendPosition.bind(viz)(viz.config());
-  if (![false, "top", "bottom", "left", "right"].includes(legendPosition))
-    legendPosition = "bottom";
-  let colorScalePosition = viz._colorScalePosition.bind(viz)(viz.config());
-  if (![false, "top", "bottom", "left", "right"].includes(colorScalePosition))
-    colorScalePosition = "bottom";
+  // Sanitize positions via the shared `sanitizePosition` helper (same
+  // function legendFeature / colorScaleFeature use) so the three sites
+  // can't drift.
+  const legendPosition = sanitizePosition(
+    viz._legendPosition.bind(viz)(viz.config()),
+  );
+  const colorScalePosition = sanitizePosition(
+    viz._colorScalePosition.bind(viz)(viz.config()),
+  );
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 
-  // Left/right legend + colorScale claims.
-  if (legendPosition === "left" || legendPosition === "right") {
+  // Top blocks first (back / title / subtitle / total) so margin.top is
+  // updated BEFORE the left/right legend lays out — legend reads
+  // viz._margin.top to position itself. The legacy drawSteps order was
+  // title-first; v4 must preserve that or the left legend overlaps the
+  // title at y=0.
+  const topBlocks = runLayout({viz} as any, [
+    backFeature,
+    titleFeature,
+    subtitleFeature,
+    totalFeature,
+  ]);
+  viz._featurePanels.push(...topBlocks.panels);
+  out.marginDelta!.top += topBlocks.margin.top;
+  viz._margin.top += topBlocks.margin.top;
+
+  const timelineClaim = runLayout({viz} as any, [timelineFeature]);
+  out.marginDelta!.bottom += timelineClaim.margin.bottom;
+  viz._margin.bottom += timelineClaim.margin.bottom;
+
+  // Left/right legend + colorScale claims. Includes `=== false` (mirrors
+  // colorScale below) so a previously-rendered left/right legend tears
+  // down its DOM when the user toggles off via `.legendPosition(false)`.
+  if (
+    legendPosition === "left" ||
+    legendPosition === "right" ||
+    legendPosition === false
+  ) {
     const claim = runLayout({viz} as any, [legendFeature]);
     out.marginDelta!.left += claim.margin.left;
     out.marginDelta!.right += claim.margin.right;
-    // Margin changes need to land BEFORE the next runLayout call so
-    // top features see the updated horizontal margins.
     viz._margin.left += claim.margin.left;
     viz._margin.right += claim.margin.right;
   }
@@ -104,21 +132,6 @@ export function vizDrawPure(
     viz._margin.left += claim.margin.left;
     viz._margin.right += claim.margin.right;
   }
-
-  // Top blocks (back / title / subtitle / total) + timeline.
-  const topBlocks = runLayout({viz} as any, [
-    backFeature,
-    titleFeature,
-    subtitleFeature,
-    totalFeature,
-  ]);
-  viz._featurePanels.push(...topBlocks.panels);
-  out.marginDelta!.top += topBlocks.margin.top;
-  viz._margin.top += topBlocks.margin.top;
-
-  const timelineClaim = runLayout({viz} as any, [timelineFeature]);
-  out.marginDelta!.bottom += timelineClaim.margin.bottom;
-  viz._margin.bottom += timelineClaim.margin.bottom;
 
   // Top/bottom legend + colorScale.
   if (legendPosition === "top" || legendPosition === "bottom") {

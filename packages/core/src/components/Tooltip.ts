@@ -90,6 +90,13 @@ export default class Tooltip extends BaseClass {
   _data: DataPoint[];
   /** v4: optional per-chart parent element (default: global #d3plus-portal). */
   _parentEl?: HTMLElement;
+  /**
+   * v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` child of
+   * `_parentEl`). Tracked per-instance so that two Tooltips sharing a
+   * parent each own a distinct portal — and so `parent()` switches only
+   * remove THIS instance's portal, not a sibling Tooltip's.
+   */
+  _portalEl?: HTMLElement;
   _footer: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _footerStyle: Record<string, string>;
   _height: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
@@ -209,8 +216,12 @@ export default class Tooltip extends BaseClass {
     // preserved when parent() isn't set.
     const portal = this._parentEl
       ? (() => {
-          let host = this._parentEl!.querySelector(":scope > .d3plus-tooltip-portal") as HTMLElement | null;
-          if (!host) {
+          // Per-instance portal: each Tooltip owns its own
+          // `.d3plus-tooltip-portal` child of `_parentEl`. Two Tooltips
+          // pointed at the same parent get two sibling portal divs, so
+          // a `parent()` switch on one can clean up only its own portal.
+          let host = this._portalEl ?? null;
+          if (!host || host.parentNode !== this._parentEl) {
             host = document.createElement("div");
             host.setAttribute("class", "d3plus-tooltip-portal");
             host.style.position = "absolute";
@@ -220,6 +231,7 @@ export default class Tooltip extends BaseClass {
             host.style.height = "0";
             host.style.pointerEvents = "none";
             this._parentEl!.appendChild(host);
+            this._portalEl = host;
           }
           return select(host);
         })()
@@ -555,15 +567,13 @@ function value(d) {
     if (!arguments.length) return this._parentEl;
     const prev = this._parentEl;
     const next = _ || undefined;
-    if (prev && prev !== next) {
-      // Remove the previously-scoped portal so it doesn't sit orphaned in
-      // the prior parent. Re-renders against the new parent will create
-      // a fresh `.d3plus-tooltip-portal` child there. Walk direct
-      // children (instead of `querySelector(":scope > ...")`) so this
-      // works in jsdom too.
-      for (const child of Array.from(prev.children)) {
-        if (child.classList.contains("d3plus-tooltip-portal")) child.remove();
-      }
+    if (prev && prev !== next && this._portalEl) {
+      // Remove only THIS Tooltip's own portal so it doesn't sit orphaned
+      // in the prior parent. Sibling Tooltip instances that share the
+      // same prior parent keep their portals intact. Re-renders against
+      // the new parent will create a fresh portal there.
+      if (this._portalEl.parentNode === prev) this._portalEl.remove();
+      this._portalEl = undefined;
     }
     this._parentEl = next;
     return this;

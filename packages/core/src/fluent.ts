@@ -7,12 +7,23 @@
     `typeof === "function" ? _ : coerce(_)` pattern live in **one place**
     instead of being copy-pasted across every chart file.
 
-    Status: **working prototype.** This file's factory is real and unit-tested
-    (see test/fluent-test.js). What's deferred to follow-up: applying it to
-    `Treemap`/`BarChart`/etc., which requires:
-      1. E1 pipeline integration to land so the pipeline can actually run.
-      2. Bit-exact reproduction of `BaseClass.config()`'s reflection contract
-         (the React wrapper's `hash()` depends on it).
+    Status: **shipping in v4** — the factory is real and unit-tested
+    (see test/fluent-test.js) and is the implementation behind the
+    public `barChart()` / `treemap()` / etc. factories
+    (`./factories.ts`). Applying it as the SOLE accessor source for
+    every chart subclass (replacing the per-class accessor definitions)
+    is a follow-on that requires:
+      1. Bit-exact reproduction of `BaseClass.config()`'s reflection
+         contract (the React wrapper's `hash()` depends on it) — the
+         conformance test pins this.
+      2. Schema declarations for every chart's full accessor surface
+         (today the schemas exist for the v4 reference subset; growing
+         them to cover every legacy accessor is mechanical but
+         per-chart).
+    Both class and factory surfaces remain valid v4 entry points; the
+    factory uses installFluent on the chart classes themselves so
+    `new BarChart()` and `barChart()` produce config-equivalent
+    instances.
 */
 
 import accessor from "./utils/accessor.js";

@@ -45,6 +45,7 @@ import accessor from "../utils/accessor.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "./features.js";
 import type {FeatureModule} from "./features.js";
 import {vizPreDrawStages} from "./stages.js";
+import {chartBounds} from "./chartGeometry.js";
 import {absorbShapeIntoChartScene, collectComputed, shapeConfigFor} from "./emitHelpers.js";
 import type {TransformStage, VizContext} from "./stages.js";
 
@@ -53,7 +54,8 @@ import type {TransformStage, VizContext} from "./stages.js";
     The minimal shape a chart needs in v4. A chart is just this value plus a
     thin class facade that hands it to `createFluent`.
 */
-export interface ChartDefinition {
+/** Fields shared by every ChartDefinition variant. */
+interface ChartDefinitionBase {
   /** Stable name for tagging and class generation. */
   name: string;
   /**
@@ -69,24 +71,56 @@ export interface ChartDefinition {
   */
   features: FeatureModule[];
   /**
-      The data + layout pipeline. Most charts extend the canonical
-      `vizPreDrawStages` from `./stages.js` with their own chart-specific
-      stages (e.g. Treemap's `applyTreemapLayout`).
+      Documentary manifest of every stage the chart conceptually runs:
+      shared `vizPreDrawStages` followed by chart-specific layout
+      stages. The PRODUCTION preDraw runs `vizPreDrawPure` (a parallel
+      implementation in vizPreDrawPure.ts), and `runChartDraw` runs the
+      chart-specific layout stage(s) explicitly — neither reads
+      `def.stages`. This field is kept as a forward-compatible
+      declarative surface that future drivers may consume; today it's
+      documentation only. Keep it in sync if the live implementations
+      change so a future driver can switch the runtime to read from
+      here without behavioral drift.
   */
   stages: TransformStage[];
-  /**
-      Final step: given the post-stages context, emit the chart's shape
-      scene nodes (cells / bars / lines / polygons). This is the
-      equivalent of the legacy `_draw` body's "push a configured Shape into
-      this._shapes" — but as a pure function returning nodes directly.
+}
 
-      For charts still using the legacy `new Shape().renderMode("compute").
-      render()` glue path, `emit` is the *target* form — `Treemap._draw`
-      consumes the same `ctx.shapeData` the stage produced so the data
-      source is single. As compute mode goes away, callers will switch from
-      `_shapes.push(...)` to `scene.children.push(...emit(ctx))`.
-  */
+/**
+    Data-driven chart: `emit(ctx)` is the source of truth for chart
+    shape scene nodes. `runChartDraw` invokes `emit` and assigns the
+    result to `viz._chartScene`. Most charts use this variant.
+*/
+export interface DataDrivenChartDefinition extends ChartDefinitionBase {
+  paintDriven?: false;
   emit: (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
+}
+
+/**
+    Paint-driven chart: `Plot._paint` populates `viz._chartScene`
+    imperatively, and `emit` returns a snapshot of that array. Calling
+    `runChartDraw` on such a def would create a feedback loop, so it
+    throws (see runChartDraw.ts). The Plot family (BarChart, AreaPlot,
+    LinePlot, BumpChart, StackedArea, BoxWhisker, Plot) uses this.
+*/
+export interface PaintDrivenChartDefinition extends ChartDefinitionBase {
+  paintDriven: true;
+  emit: (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
+}
+
+/**
+    Discriminated union: `paintDriven` narrows. Use the `isPaintDriven`
+    type guard (or `def.paintDriven === true`) before treating a def
+    as paint-driven; data-driven defs can have `emit` invoked freely.
+*/
+export type ChartDefinition =
+  | DataDrivenChartDefinition
+  | PaintDrivenChartDefinition;
+
+/** Type guard for the paint-driven variant. */
+export function isPaintDriven(
+  def: ChartDefinition,
+): def is PaintDrivenChartDefinition {
+  return def.paintDriven === true;
 }
 
 /* --------------------------- Treemap definition --------------------------- */
@@ -318,8 +352,8 @@ const tauRadar = Math.PI * 2;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const plotShapesEmit: ChartDefinition["emit"] = ({viz}: {viz: any}) =>
   Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [];
-// Marker for `runChartDraw`'s protocol guard — see runChartDraw.ts.
-(plotShapesEmit as unknown as {__isPlotShapesEmit__: boolean}).__isPlotShapesEmit__ = true;
+// Plot-family defs set `paintDriven: true` so `runChartDraw` can refuse
+// to drive them — see runChartDraw.ts.
 
 export const barChartDef: ChartDefinition = {
   name: "BarChart",
@@ -333,6 +367,7 @@ export const barChartDef: ChartDefinition = {
   // computation; barChartDef contributes only the configuration delta.
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 /* ----------------------- other Plot subclass defs ----------------------- */
@@ -345,6 +380,7 @@ export const areaPlotDef: ChartDefinition = {
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 export const linePlotDef: ChartDefinition = {
@@ -353,6 +389,7 @@ export const linePlotDef: ChartDefinition = {
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 export const stackedAreaDef: ChartDefinition = {
@@ -361,6 +398,7 @@ export const stackedAreaDef: ChartDefinition = {
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 export const boxWhiskerDef: ChartDefinition = {
@@ -369,6 +407,7 @@ export const boxWhiskerDef: ChartDefinition = {
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 export const bumpChartDef: ChartDefinition = {
@@ -377,6 +416,7 @@ export const bumpChartDef: ChartDefinition = {
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
+  paintDriven: true,
 };
 
 /* ----------------------- Pie/Donut/Pack defs ----------------------- */
@@ -391,8 +431,8 @@ export const bumpChartDef: ChartDefinition = {
 export const applyPieLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
+
   const outerRadius = Math.min(width, height) / 2;
 
   const pieData = (v._pieData = v._pie
@@ -755,8 +795,8 @@ const radarEmit: ChartDefinition["emit"] = ({viz}) => {
 export const applyRadarLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
+
 
   const radius = min([height, width])! / 2 - v._outerPadding;
 
@@ -991,17 +1031,23 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
 
   if (!rowValues.length || !columnValues.length) return {shapeData: []};
 
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
+
 
   const columnRotation = width / columnValues.length < 120;
 
+  // Reset `_padding` at the top of the stage. `_padding` is initialized
+  // ONCE in the Viz constructor and never reset between draws, so `+=`
+  // below would compound row/column axis padding across renders,
+  // shrinking the cell grid each pass.
+  v._padding = {top: 0, right: 0, bottom: 0, left: 0};
+
   // First pass: measure-only — populates outerBounds for padding compute.
+  // `height` already excludes margin.top + margin.bottom, so DON'T
+  // subtract them again — the legacy code did, double-counting margins.
   v._rowAxis
     .domain(rowValues)
-    .height(
-      height - v._margin.top - v._margin.bottom - v._padding.bottom - v._padding.top,
-    )
+    .height(height - v._padding.bottom - v._padding.top)
     .maxSize(width / 4)
     .width(width)
     .config(v._rowConfig)
@@ -1030,12 +1076,12 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
   // _chartScene wrapped with its transform. _chartTransform is set by
   // the chart class to `{x: 0, y: _margin.top}`, so the absorbed groups
   // get an OFFSETTING transform that lands their content at the legacy
-  // absolute position.
-  const chartTransformY = v._margin.top; // matches Matrix._draw's _chartTransform
+  // absolute position. (Same height already excludes margins; only
+  // subtract _padding.bottom.)
   v._rowAxis
     .renderMode("compute")
     .select(undefined as unknown as HTMLElement)
-    .height(height - v._margin.top - v._margin.bottom - v._padding.bottom)
+    .height(height - v._padding.bottom)
     .maxSize(rowPadding)
     .range([columnPadding + v._columnAxis.padding(), undefined])
     .render();
@@ -1067,7 +1113,6 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
       children: colScene.children || [],
     });
   }
-  void chartTransformY;
 
   const rowScale = v._rowAxis._getPosition.bind(v._rowAxis);
   const columnScale = v._columnAxis._getPosition.bind(v._columnAxis);
@@ -1154,8 +1199,7 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
     return {shapeData: []};
   }
 
-  const height = v._height - v._margin.top - v._margin.bottom,
-    width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
 
   v._radialMatrixWidth = width;
   v._radialMatrixHeight = height;
@@ -1551,8 +1595,16 @@ interface NetworkLayoutLink extends SimulationLinkDatum<NetworkLayoutNode> {
 export const applyNetworkLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
+
+
+  // Bail when the chart hasn't been configured yet — early renders (React
+  // lifecycle, tests driving the stage in isolation) reach this stage
+  // before .nodes()/.links()/.data() complete. Without the guards the
+  // subsequent .reduce()/.map() calls throw on undefined.
+  if (!Array.isArray(v._filteredData)) v._filteredData = [];
+  if (!Array.isArray(v._nodes)) v._nodes = [];
+  if (!Array.isArray(v._links)) v._links = [];
 
   // Inlined `getNodeId` (kept as a local closure so the stage doesn't have
   // to import Network's helper — the constructor's event handlers still use
@@ -1898,6 +1950,18 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
 
+  // Bail when the chart hasn't been configured yet — same protection
+  // applyNetworkLayout / applySankeyLayout have.
+  if (!Array.isArray(v._filteredData)) v._filteredData = [];
+  if (!Array.isArray(v._nodes)) v._nodes = [];
+  if (!Array.isArray(v._links)) v._links = [];
+  if (!v._filteredData.length && !v._nodes.length && !v._links.length) {
+    v._nodeLookup = {};
+    v._linkLookup = {};
+    v._ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
+    return {viz};
+  }
+
   const data = v._filteredData.reduce((obj: any, d: any, i: any) => {
     obj[v._id(d, i)] = d;
     return obj;
@@ -1979,8 +2043,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     return map;
   }, {});
 
-  const height = v._height - v._margin.top - v._margin.bottom,
-    width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
 
   const edges: any[] = [],
     radius = (min([height, width]) || 0) / 2,
@@ -1990,6 +2053,12 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     secondaryRing = ringWidth * 2;
 
   const center = nodeLookup[v._center];
+  if (!center) {
+    // Configured center id doesn't appear in nodes — bail with an empty
+    // layout rather than throwing on the `.x` / `.y` writes below.
+    v._ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
+    return {viz};
+  }
 
   center.x = width / 2;
   center.y = height / 2;
@@ -2002,7 +2071,8 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   const claimed = [center],
     primaries: any[] = [];
 
-  linkMap[v._center].forEach((edge: any) => {
+  const centerLinks = linkMap[v._center] || [];
+  centerLinks.forEach((edge: any) => {
     const node = edge.source.id === v._center ? edge.target : edge.source;
     node.edges = linkMap[node.id].filter(
       (link: any) =>
@@ -2099,10 +2169,13 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   let radiusFn: any;
 
   if (v._size) {
-    const domain = extent(data, (d: {size: number}) => d.size) as [
-      number,
-      number,
-    ];
+    // `data` was built as an `{[id]: row}` object (line 1932) — extent()
+    // requires an iterable. Pass Object.values so the domain reflects
+    // real numbers instead of [undefined, undefined] → NaN radii.
+    const domain = extent(
+      Object.values(data) as {size: number}[],
+      (d: {size: number}) => d.size,
+    ) as [number, number];
 
     if (domain[0] === domain[1]) {
       domain[0] = 0;
@@ -2393,20 +2466,44 @@ export const ringsDef: ChartDefinition = {
 export const applySankeyLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
 
-  const _nodes = Array.isArray(v._nodes)
-    ? v._nodes
-    : v._links
-        .reduce((all: any, d: any) => {
-          if (!all.includes(d[v._linksSource]))
-            all.push(d[v._linksSource]);
-          if (!all.includes(d[v._linksTarget]))
-            all.push(d[v._linksTarget]);
-          return all;
-        }, [])
-        .map((id: any) => ({id}));
+
+  // Bail when neither nodes nor links are configured — e.g. a chart
+  // constructed but not yet given data, or a unit test driving this
+  // stage in isolation. Old code did `v._links.reduce(...)` and threw
+  // TypeError on undefined.
+  const hasNodes = Array.isArray(v._nodes) && v._nodes.length > 0;
+  const hasLinks = Array.isArray(v._links) && v._links.length > 0;
+  if (!hasNodes && !hasLinks) {
+    v._nodeLookup = {};
+    v._linkLookup = {};
+    return {viz};
+  }
+
+  let _nodes: any[];
+  if (hasNodes) {
+    _nodes = v._nodes;
+  } else {
+    // Derive node list from links via Set-keyed dedup (O(N) vs O(N²)
+    // Array.includes per element). Preserve insertion order so the
+    // downstream `nodes.reduce(...)` lookup indices stay stable.
+    const seen = new Set<unknown>();
+    const ids: unknown[] = [];
+    for (const d of v._links as any[]) {
+      const src = d[v._linksSource];
+      if (!seen.has(src)) {
+        seen.add(src);
+        ids.push(src);
+      }
+      const tgt = d[v._linksTarget];
+      if (!seen.has(tgt)) {
+        seen.add(tgt);
+        ids.push(tgt);
+      }
+    }
+    _nodes = ids.map((id: any) => ({id}));
+  }
 
   const nodes = _nodes.map((n: any, i: any) => ({
     __d3plus__: true,
@@ -2425,18 +2522,16 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     {},
   ));
 
-  const links = v._links.map((link: any, i: any) => {
-    const check = [v._linksSource, v._linksTarget];
-    const linkLookup = check.reduce((result: any, item: any) => {
-      result[item] = nodeLookup[link[item]];
-      return result;
-    }, {});
-    return {
-      source: linkLookup[v._linksSource],
-      target: linkLookup[v._linksTarget],
-      value: v._value(link, i),
-    };
-  });
+  // hasLinks is true unless nodes were configured directly (no links to
+  // resolve) — fall back to an empty list so downstream stages see
+  // consistent shape.
+  const links = hasLinks
+    ? (v._links as any[]).map((link: any, i: any) => ({
+        source: nodeLookup[link[v._linksSource]],
+        target: nodeLookup[link[v._linksTarget]],
+        value: v._value(link, i),
+      }))
+    : [];
 
   v._linkLookup = links.reduce((obj: any, d: any) => {
     if (!obj[d.source]) obj[d.source] = [];
@@ -2559,8 +2654,9 @@ function topo2feature(
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
-  const height = v._height - v._margin.top - v._margin.bottom;
-  const width = v._width - v._margin.left - v._margin.right;
+  const {width, height} = chartBounds(v);
+
+
 
   const coordData: {type: string; features: Record<string, unknown>[]} =
     (v._coordData = v._topojson
@@ -2715,20 +2811,30 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       const maxSize = max(pointData, (d: DataPoint, i: number) =>
         r(v._pointSize(d, i)),
       );
-      v._projectionPadding.top += maxSize;
-      v._projectionPadding.right += maxSize;
-      v._projectionPadding.bottom += maxSize;
-      v._projectionPadding.left += maxSize;
+      // Augment WITHOUT mutating the user-configured _projectionPadding.
+      // The local `effectivePadding` carries the maxSize-padded values
+      // and feeds `fitExtent` below.
+      v._effectivePadding = {
+        top: v._projectionPadding.top + maxSize,
+        right: v._projectionPadding.right + maxSize,
+        bottom: v._projectionPadding.bottom + maxSize,
+        left: v._projectionPadding.left + maxSize,
+      };
     }
   }
+
+  // Fall back to the user-configured padding when point-data didn't
+  // contribute a maxSize augmentation.
+  const effectivePadding = v._effectivePadding || v._projectionPadding;
+  v._effectivePadding = undefined;
 
   v._projection = v._projection.fitExtent(
     v._extentBounds.features.length
       ? [
-          [v._projectionPadding.left, v._projectionPadding.top],
+          [effectivePadding.left, effectivePadding.top],
           [
-            width - v._projectionPadding.right,
-            height - v._projectionPadding.bottom,
+            width - effectivePadding.right,
+            height - effectivePadding.bottom,
           ],
         ]
       : [
@@ -3558,7 +3664,10 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
 
   opps.forEach(o => {
     if (viz[`_${o}Config`].domain) {
-      const d = viz[`_${o}Config`].domain;
+      // `.slice()` first so we never mutate the user's config array in
+      // place — on the next render the (already-reversed) array would
+      // reverse back, alternating chart correctness across renders.
+      const d = (viz[`_${o}Config`].domain as unknown[]).slice();
       if (viz._discrete === "x") d.reverse();
       domains[o] = d;
     } else if (o && viz._baseline !== void 0) {
@@ -3574,11 +3683,14 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   const x2 = (scales as any)[`scale${x2Scale}`]()
     .domain(domains.x2)
     .range(range(0, width + 1, width / (domains.x2.length - 1)));
+  // `.slice().reverse()` so the domain object isn't mutated under us if
+  // it came from user config (covered by the slice above) OR from
+  // domains.y being aliased into the user config via the slice above.
   const y = (scales as any)[`scale${yScale}`]()
-    .domain(domains.y.reverse())
+    .domain(domains.y.slice().reverse())
     .range(range(0, height + 1, height / (domains.y.length - 1)));
   const y2 = (scales as any)[`scale${y2Scale}`]()
-    .domain(domains.y2.reverse())
+    .domain(domains.y2.slice().reverse())
     .range(range(0, height + 1, height / (domains.y2.length - 1)));
 
   return {
@@ -3618,4 +3730,5 @@ export const plotDef: ChartDefinition = {
     // that's measured imperatively in _draw, not as a stage.
   ],
   emit: plotShapesEmit,
+  paintDriven: true,
 };

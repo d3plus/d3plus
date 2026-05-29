@@ -823,7 +823,12 @@ export default class Axis extends BaseClass {
     this._tickShape = (new (shapes as any)[this._shape]())
       // v4: tick shape is always compute-only — the Axis composes ticks into
       // its own toScene; the inner shape never auto-renders its own <svg>.
+      // `.select(null)` is the formal no-mount signal that pairs with
+      // compute mode; without it, a future Shape.render reorder that
+      // moves the body-div fallback above the compute-mode early-return
+      // would silently leak one <div> per tick render.
       .renderMode("compute")
+      .select(null)
       .data(tickData)
       .duration(this._duration)
       .labelConfig({
@@ -1224,13 +1229,23 @@ export default class Axis extends BaseClass {
 
   /**
       The SVG container element as a d3 selector or DOM element.
+
+      Passing `null` or `undefined` deliberately leaves the axis unmounted
+      — `renderMode("compute")` plus `select(null)` produces a
+      scene-only axis (no detached SVG fallback). This is the formal
+      contract callers in `plotPaint` use to compute axis layout without
+      mounting DOM.
 */
   select(): D3Selection;
-  select(_: string | HTMLElement): this;
-  select(_?: string | HTMLElement): unknown {
-    return arguments.length
-      ? ((this._select = select(_ as never) as unknown as D3Selection), this)
-      : this._select;
+  select(_: string | HTMLElement | null | undefined): this;
+  select(_?: string | HTMLElement | null): unknown {
+    if (!arguments.length) return this._select;
+    if (_ == null) {
+      this._select = undefined as unknown as D3Selection;
+    } else {
+      this._select = select(_ as never) as unknown as D3Selection;
+    }
+    return this;
   }
 
   /**

@@ -243,11 +243,30 @@ export interface HtmlOverlayNode extends NodeBase {
   /** Optional inline-style key/value record applied to the host <div>. */
   style?: Record<string, string | number>;
   /**
+      Declarative event wiring — a record of CSS-selector → event-name →
+      handler. The renderer attaches one listener per (selector, event)
+      pair and dispatches by `event.target.closest(selector)` matching.
+      Prefer this over `onMount` for click/hover/keyboard wiring: the
+      declarative form is serializable, survives scene snapshots, and
+      keeps closures off the scene primitive (RFC §4.1).
+
+      Example:
+        events: {
+          ".zoom-in": {click: e => viz.zoomIn()},
+          ".zoom-out": {click: e => viz.zoomOut()},
+        }
+  */
+  events?: Record<
+    string,
+    Partial<Record<string, (e: Event) => void>>
+  >;
+  /**
       Optional callback fired ONCE after the overlay's host `<div>` is
-      first created. Receives the host element so consumers can attach
-      event listeners. Renderers track first-mount per `node.key` and
-      skip subsequent calls — so a chart that re-renders 60 times/sec
-      during a zoom drag doesn't re-execute setup work per frame.
+      first created — AFTER `innerHTML` / `style` / `dimensions` are
+      written so the consumer can `host.querySelector(...)` inside the
+      callback. Prefer `events` over `onMount` when possible; this is the
+      escape hatch for non-event setup (e.g. instantiating a third-party
+      widget on the host element).
   */
   onMount?: (el: HTMLDivElement) => void;
 

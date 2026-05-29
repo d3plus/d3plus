@@ -1,16 +1,16 @@
 /**
-    E2 (RFC §3.4): FeatureModule + layout engine. These are the design
-    contracts for the next layer of the v4 pipeline — promoting drawSteps
-    (drawTitle, drawSubtitle, drawTotal, drawLegend, drawTimeline, drawColorScale,
-    drawBack, drawAttribution) from `.bind(this)`-style free functions that
-    mutate `this._margin` into pure `FeatureModule` values composed by a
-    layout engine that performs **explicit margin negotiation**.
+    E2 (RFC §3.4): FeatureModule + layout engine. The chart-level
+    drawSteps (title, subtitle, total, legend, timeline, colorScale,
+    back) ship as `FeatureModule` values composed by `runLayout`, which
+    performs **explicit margin negotiation** — each feature returns a
+    `MarginClaim` + optional `panel` scene node + optional declarative
+    `vizUpdate` writes, and the engine accumulates margins across
+    features in order.
 
-    Status: **interface + first conversion sketched as documentation.** The
-    existing drawSteps still run in `Viz._draw`; this file is the contract
-    they'll target. The Title feature below is the worked example of the
-    pattern, intentionally not yet wired in — pending the E1 pipeline
-    integration first.
+    Status: **production v4 surface.** Every Plot-family + chart-shell
+    feature here is wired into `vizDrawPure` via `runLayout(ctx, [...
+    features])`. Legacy `drawSteps/*.bind(this)` free-functions have
+    been retired in favor of these modules.
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {extent, min, rollup, sum} from "d3-array";
@@ -39,12 +39,28 @@ export interface FeatureLayout {
   panel: SceneNode | null;
   margin: MarginClaim;
   /**
-      v4 purity: features that legitimately need to publish cross-feature
-      state (e.g. `_legendDepth` for legendLabel callers, `_timelineSelection`
-      for downstream stage filtering) return those writes here as
-      declarative key→value pairs. `runLayout` applies them to viz after
-      the layout call. Features should NOT mutate viz fields directly
-      from inside their `layout()` body — that's the v4 contract.
+      v4 purity: features that need to publish CROSS-FEATURE state — a
+      write that a DIFFERENT feature or downstream stage will read — return
+      those writes here as declarative key→value pairs. `runLayout`
+      applies them to viz after the layout call so the next feature in
+      the chain sees them.
+
+      Key convention: keys are auto-prefixed with `_` to match viz's
+      internal field convention. Return `{drawDepth: 2}` to write
+      `viz._drawDepth`; explicitly-underscored keys (`{_drawDepth: 2}`)
+      pass through unchanged for the rare case where the engine
+      shouldn't prepend. This rule exists because a leading underscore
+      is easy to forget and writing `viz.drawDepth` (no underscore) is
+      almost never what callers want.
+
+      Intra-feature local writes (a feature setting state that its OWN
+      component instance reads inside the same `layout()` body) are
+      legitimate direct mutations on viz — `vizUpdate` would defer the
+      write past the local read. legendFeature's `_legendDepth` is an
+      example of an intra-feature local; timelineFeature's
+      `_timelineSelection` similarly mutates from its event handler
+      context. The contract is about CROSS-feature mutation, not all
+      mutation.
   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vizUpdate?: Record<string, any>;
@@ -92,6 +108,32 @@ export interface LayoutResult {
 }
 
 /**
+    The allowed values for `legendPosition` and `colorScalePosition`.
+    `false` means "hidden" (the feature still runs to tear down DOM); the
+    four strings are the four sides.
+*/
+export type PanelPosition = false | "top" | "right" | "bottom" | "left";
+
+const VALID_POSITIONS: ReadonlySet<PanelPosition | string> = new Set([
+  false as unknown as string,
+  "top",
+  "right",
+  "bottom",
+  "left",
+]);
+
+/**
+    Canonical sanitizer for `legendPosition` / `colorScalePosition`.
+    Falls back to `"bottom"` when the user-supplied accessor returns
+    something outside the allowed set. Single source of truth — used by
+    `vizDrawPure` (for sanitized ctx publication) and by `legendFeature`
+    + `colorScaleFeature` (for their internal positioning math).
+*/
+export function sanitizePosition(raw: unknown): PanelPosition {
+  return (VALID_POSITIONS.has(raw as string) ? raw : "bottom") as PanelPosition;
+}
+
+/**
     Runs each feature's `layout` in order, accumulating margin claims so that
     later features see the space already taken by earlier ones. The order of
     `features` is the layout order — this is how implicit `this._margin +=`
@@ -120,10 +162,22 @@ export function runLayout(
     // v4 purity: features publish cross-feature viz writes declaratively
     // via `vizUpdate`. The engine applies them — features don't mutate
     // viz directly from layout(). Skips own component-instance config
-    // calls (those are local mutation, not cross-feature).
+    // calls (those are local mutation, not cross-feature). Use
+    // `Object.keys` (not `for...in`) so inherited enumerable properties
+    // on a class-instance vizUpdate don't leak onto viz.
+    //
+    // Key convention: keys are auto-prefixed with `_` to land on the
+    // viz's internal field convention (`viz._drawDepth`, `viz._legendDepth`).
+    // Features should return UNPREFIXED keys (`{drawDepth: 2}`); the
+    // engine normalizes — so feature authors can't accidentally write
+    // `viz.drawDepth` (a different non-underscore property) instead of
+    // `viz._drawDepth`. Keys that already start with `_` are passed
+    // through unchanged so future explicit-internal writes still work.
     if (vizUpdate && ctx.viz) {
-      for (const k in vizUpdate) {
-        (ctx.viz as Record<string, unknown>)[k] = vizUpdate[k];
+      const target = ctx.viz as Record<string, unknown>;
+      for (const k of Object.keys(vizUpdate)) {
+        const key = k.startsWith("_") ? k : `_${k}`;
+        target[key] = vizUpdate[k];
       }
     }
   }
@@ -360,14 +414,17 @@ export const legendFeature: FeatureModule = {
       viz._ids(d, i).slice(0, viz._drawDepth + 1),
     );
     // viz._legendDepth: the legend's drill-down depth (lowest unique
-    // groupBy level). Set INSIDE the feature body because legend's own
-    // configuration calls below (in this same layout body) read it via
-    // the legend instance's shapeConfig + label functions. Other consumers
-    // (BarChart/Tree label logic, legendLabel.ts) see the value updated
-    // for the rest of this draw. Direct mutation here (rather than
-    // FeatureLayout.vizUpdate) is the documented exception to v4's
-    // "no cross-feature mutation from layout bodies" rule — moving it to
-    // vizUpdate would defer the write past legend's own intra-body reads.
+    // groupBy level). Computed and written here BEFORE the
+    // `viz._legendClass.render()` call below, because that render
+    // invokes `legendLabel.bind(viz)` (Viz.ts:217) which reads
+    // `viz._legendDepth` live to format each legend entry. The write
+    // is INTRA-FEATURE state — it's owned by legendFeature, consumed
+    // by legendFeature's own component instance. `FeatureLayout.vizUpdate`
+    // is the CROSS-feature publishing channel (for state OTHER features
+    // need); intra-feature writes that the same feature reads in its own
+    // body legitimately live on viz directly, which is what's happening
+    // here. Downstream consumers (BarChart.ts:28, Viz.ts:210, legendLabel)
+    // observe the value after layout completes — same as before.
     viz._legendDepth = 0;
     for (let x = 0; x <= viz._drawDepth; x++) {
       const values = labels.map((l: string[]) => l[x]);
@@ -395,9 +452,7 @@ export const legendFeature: FeatureModule = {
     // the legacy behavior, preserved here so visual output is identical.
     const legendBounds = viz._legendClass.outerBounds();
     const config = viz.config();
-    let position = viz._legendPosition.bind(viz)(config);
-    if (![false, "top", "bottom", "left", "right"].includes(position))
-      position = "bottom";
+    const position = sanitizePosition(viz._legendPosition.bind(viz)(config));
     const wide = ["top", "bottom"].includes(position);
     const padding = viz._legendPadding()
       ? viz._padding
@@ -614,9 +669,7 @@ export const colorScaleFeature: FeatureModule = {
       ).values(),
     );
 
-    let position = viz._colorScalePosition.bind(viz)(viz.config());
-    if (![false, "top", "bottom", "left", "right"].includes(position))
-      position = "bottom";
+    const position = sanitizePosition(viz._colorScalePosition.bind(viz)(viz.config()));
     const wide = ["top", "bottom"].includes(position);
     const showColorScale = viz._colorScale && position;
     const padding = viz._colorScalePadding()

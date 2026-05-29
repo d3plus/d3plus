@@ -362,8 +362,13 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      Builds the resolved Paint for a data point, mirroring _applyStyle. Texture
-      fills are not yet resolved here (a follow-up for the SVG/Canvas backends).
+      Builds the resolved Paint for a data point, mirroring _applyStyle.
+      Texture fills are encoded as a stable "pattern:<key>" token at this
+      layer; the backend renderers (`SvgRenderer._resolveFill`,
+      `CanvasRenderer._resolveFill`) materialize them into a real SVG
+      pattern or a Canvas image pattern. The two-stage resolve is
+      intentional — Shapes stay backend-free, and texture
+      materialization happens once per renderer instead of per-shape.
       @private
 */
   _scenePaint(d: DataPoint, i: number): Paint {

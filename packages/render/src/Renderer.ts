@@ -100,8 +100,12 @@ export interface Renderer {
       Used by hosts that need to compare against their own DOM (e.g. to
       decide whether to remount on container change) without reaching
       into renderer-private fields.
+
+      Optional so that third-party Renderer implementations that predate
+      this method still satisfy the interface — callers must tolerate
+      `undefined` and fall back to a remount-on-change strategy.
   */
-  target(): RenderTarget | undefined;
+  target?(): RenderTarget | undefined;
 
   /**
       Reconcile the current output to `scene`, animating from the previously drawn

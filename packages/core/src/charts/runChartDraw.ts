@@ -37,7 +37,8 @@ import {marginOriginTransform} from "./chartGeometry.js";
 
 import type {Transform} from "@d3plus/render";
 import type {ChartDefinition, TransformStage} from "./ChartDefinition.js";
-import type {Viz} from "./vizTypes.js";
+import {isPaintDriven} from "./ChartDefinition.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 export function runChartDraw(
   viz: Viz,
@@ -48,23 +49,37 @@ export function runChartDraw(
   // Invariant: this helper OWNS `_chartScene` for the current draw — it
   // overwrites with `def.emit(ctx)`. The Plot family takes a different
   // flow (Plot._paint pushes into `_chartScene` imperatively, and its
-  // def.emit is `plotShapesEmit` which returns a SNAPSHOT of the current
-  // `_chartScene`). Calling `runChartDraw` on a Plot-family chart would
-  // create a feedback loop (emit returns _chartScene → we overwrite
-  // _chartScene with that same snapshot). Fail loud so future
-  // contributors who try to "unify" Plot with runChartDraw can't silently
-  // clobber the chart scene.
-  if ((def.emit as unknown as {__isPlotShapesEmit__?: boolean}).__isPlotShapesEmit__) {
+  // def.emit returns a SNAPSHOT of the current `_chartScene`). Calling
+  // `runChartDraw` on a paint-driven chart would create a feedback loop
+  // (emit returns _chartScene → we overwrite _chartScene with that same
+  // snapshot, discarding any nodes Plot._paint appended after). The
+  // ChartDefinition.paintDriven discriminant is the structural signal —
+  // failing loud so future contributors who try to "unify" Plot with
+  // runChartDraw can't silently clobber the chart scene.
+  if (isPaintDriven(def)) {
     throw new Error(
-      `runChartDraw cannot drive ${def.name} — its emit is plotShapesEmit, ` +
-      "which would create a feedback loop. Plot-family charts (BarChart, " +
-      "AreaPlot, LinePlot, BumpChart, StackedArea, BoxWhisker, Donut, Plot) " +
-      "rely on Plot._paint to populate _chartScene imperatively; their " +
-      "_draw should NOT call runChartDraw.",
+      `runChartDraw cannot drive ${def.name} — it's a paint-driven chart ` +
+      "(ChartDefinition.paintDriven=true). Paint-driven charts (BarChart, " +
+      "AreaPlot, LinePlot, BumpChart, StackedArea, BoxWhisker, Plot) rely " +
+      "on Plot._paint to populate _chartScene imperatively; their _draw " +
+      "should NOT call runChartDraw.",
     );
   }
+  // Reset _chartScene BEFORE the stage so its body has a known starting
+  // point for any decoration nodes it pushes (axes, grids, spokes).
+  viz._chartScene = [];
   const ctx = runStages({viz}, [stage]);
-  viz._chartScene = def.emit(ctx);
+  const stagePushed = Array.isArray(viz._chartScene)
+    ? viz._chartScene.slice()
+    : [];
+  const emitted = def.emit(ctx);
+  // Preserve decorations the stage pushed (Matrix/Priestley/Radar/
+  // RadialMatrix push axis/grid groups via `(v._chartScene ||= []).push`)
+  // by concatenating them with the emit output. Without this, the
+  // overwrite at the line below would silently discard every
+  // decoration — Matrix renders bare cells with no row/column axes.
+  // Stage decorations come FIRST so emit shapes paint on top.
+  viz._chartScene = [...stagePushed, ...emitted];
   viz._chartTransform = transformFn
     ? transformFn(viz)
     : marginOriginTransform(viz);

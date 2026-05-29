@@ -7,6 +7,11 @@ import textures from "textures";
 import {collapse} from "../animate/interpolate.js";
 import {areaPath, linePath} from "../paths.js";
 import type {GroupNode, HtmlOverlayNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {
+  applyOverlayToElement,
+  createOverlayHost,
+  walkOverlays,
+} from "../overlay.js";
 import type {
   DrawOptions,
   PickResult,
@@ -177,7 +182,10 @@ function applyGeometry(
       target.attr("x", node.x).attr("y", node.y);
       break;
     case "group":
-      // clip handling is a follow-up; groups only carry transform/paint for now.
+      // Groups carry transform/paint here; the renderer's keyed join
+      // recurses into `children` separately. Clip regions, when set,
+      // are applied via `_applyGroupClip` (called from the merged.each
+      // loop) which materializes a <clipPath> in <defs>.
       break;
   }
   applyPaint(target, node, resolveFill);
@@ -195,6 +203,11 @@ export default class SvgRenderer implements Renderer {
   private _target?: RenderTarget;
   private _svg?: SVGSVGElement;
   private _root?: SVGGElement;
+  /** Lazy <defs> for clipPaths / patterns. Created on first use. */
+  private _defs?: SVGDefsElement;
+  /** Stable id counter so each GroupNode clip gets a unique <clipPath>. */
+  private _clipIds = new Map<string, string>();
+  private _clipSeq = 0;
   /** Sibling host for HtmlOverlayNode mounts. Positioned absolutely over the svg. */
   private _overlayHost?: HTMLDivElement;
   private _scene?: Scene;
@@ -205,16 +218,11 @@ export default class SvgRenderer implements Renderer {
   private _listening = false;
   private _hoverKey: string | number | null = null;
   private _timers = new Set<ReturnType<typeof setTimeout>>();
+  private _invalidatePointerRect: (() => void) | null = null;
+  private _removePointerRectListeners: (() => void) | null = null;
 
   mount(target: RenderTarget): void {
     this._target = target;
-    // The container needs to be position-relative so absolutely-positioned
-    // overlay children (and the svg) layer correctly.
-    const containerStyle =
-      target.container instanceof HTMLElement ? target.container.style : null;
-    if (containerStyle && !containerStyle.position) {
-      containerStyle.position = "relative";
-    }
     const svg = document.createElementNS(SVG_NS, "svg") as SVGSVGElement;
     svg.setAttribute("class", "d3plus-render-svg");
     svg.style.display = "block";
@@ -225,19 +233,11 @@ export default class SvgRenderer implements Renderer {
     root.setAttribute("class", "d3plus-render-root");
     svg.appendChild(root);
     this._root = root;
-    // Overlay host for HtmlOverlayNode mounts. Pointer-events default to
-    // none so overlays don't intercept svg interactions unless they
-    // explicitly opt in via a style override per overlay.
-    const overlayHost = document.createElement("div");
-    overlayHost.setAttribute("class", "d3plus-render-overlays");
-    overlayHost.style.position = "absolute";
-    overlayHost.style.top = "0";
-    overlayHost.style.left = "0";
-    overlayHost.style.width = "100%";
-    overlayHost.style.height = "100%";
-    overlayHost.style.pointerEvents = "none";
-    target.container.appendChild(overlayHost);
-    this._overlayHost = overlayHost;
+    // Overlay host for HtmlOverlayNode mounts — shared helper applies
+    // pointer-events:none default + position:relative on container so
+    // overlays don't intercept svg interactions unless explicitly
+    // opted-in per overlay.
+    this._overlayHost = createOverlayHost(target);
   }
 
   resize(width: number, height: number): void {
@@ -245,6 +245,7 @@ export default class SvgRenderer implements Renderer {
     this._svg.setAttribute("width", String(width));
     this._svg.setAttribute("height", String(height));
     this._svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    if (this._invalidatePointerRect) this._invalidatePointerRect();
   }
 
   /**
@@ -358,9 +359,63 @@ export default class SvgRenderer implements Renderer {
       applyStatic(s, d);
       if (duration) applyGeometry((s as any).transition(t), d, true, resolveFill);
       else applyGeometry(s, d, false, resolveFill);
-      if (d.type === "group")
+      if (d.type === "group") {
+        self._applyGroupClip(this as SVGGElement, d as GroupNode);
         self._reconcile(s as any, (d as GroupNode).children, duration, t);
+      }
     });
+  }
+
+  /**
+      Materializes a GroupNode's `clip` (rect or path) into a <clipPath>
+      under <defs> and links it via `clip-path="url(#…)"`. Idempotent per
+      `node.key` — the same group reuses its clip element across draws.
+  */
+  private _applyGroupClip(el: SVGGElement, node: GroupNode): void {
+    if (!node.clip) {
+      // Drop any previously-applied clip (group's clip removed mid-life).
+      const prev = this._clipIds.get(String(node.key));
+      if (prev) {
+        el.removeAttribute("clip-path");
+        const clipEl = this._defs?.querySelector(`#${prev}`);
+        if (clipEl) clipEl.remove();
+        this._clipIds.delete(String(node.key));
+      }
+      return;
+    }
+    if (!this._defs && this._svg) {
+      const defs = document.createElementNS(SVG_NS, "defs") as SVGDefsElement;
+      this._svg.insertBefore(defs, this._svg.firstChild);
+      this._defs = defs;
+    }
+    if (!this._defs) return;
+    const keyStr = String(node.key);
+    let id = this._clipIds.get(keyStr);
+    if (!id) {
+      id = `d3plus-clip-${++this._clipSeq}`;
+      this._clipIds.set(keyStr, id);
+    }
+    let clipPath = this._defs.querySelector<SVGClipPathElement>(`#${id}`);
+    if (!clipPath) {
+      clipPath = document.createElementNS(SVG_NS, "clipPath") as SVGClipPathElement;
+      clipPath.setAttribute("id", id);
+      this._defs.appendChild(clipPath);
+    }
+    // Replace clip-shape child each draw — simpler than diffing.
+    while (clipPath.firstChild) clipPath.removeChild(clipPath.firstChild);
+    if (node.clip.type === "rect") {
+      const r = document.createElementNS(SVG_NS, "rect");
+      r.setAttribute("x", String(node.clip.x));
+      r.setAttribute("y", String(node.clip.y));
+      r.setAttribute("width", String(node.clip.width));
+      r.setAttribute("height", String(node.clip.height));
+      clipPath.appendChild(r);
+    } else {
+      const p = document.createElementNS(SVG_NS, "path");
+      p.setAttribute("d", node.clip.d);
+      clipPath.appendChild(p);
+    }
+    el.setAttribute("clip-path", `url(#${id})`);
   }
 
   /**
@@ -373,19 +428,7 @@ export default class SvgRenderer implements Renderer {
   */
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
-    const collected: {node: HtmlOverlayNode; ox: number; oy: number}[] = [];
-    const walk = (n: SceneNode, ox: number, oy: number): void => {
-      const tx = n.transform?.x ?? 0;
-      const ty = n.transform?.y ?? 0;
-      const cx = ox + tx;
-      const cy = oy + ty;
-      if (n.type === "htmlOverlay") {
-        collected.push({node: n, ox: cx, oy: cy});
-      } else if (n.type === "group") {
-        for (const c of (n as GroupNode).children) walk(c, cx, cy);
-      }
-    };
-    walk(scene.root, 0, 0);
+    const collected = walkOverlays(scene);
     const sel = select(this._overlayHost)
       .selectChildren<HTMLDivElement, unknown>(".d3plus-render-overlay")
       .data(collected, (d: any) => String(d.node.key));
@@ -396,29 +439,26 @@ export default class SvgRenderer implements Renderer {
       .attr("class", "d3plus-render-overlay")
       .style("position", "absolute")
       .style("pointer-events", "auto");
-    // `onMount` fires ONCE per host element (on entry). `onUpdate` fires
-    // on every draw. The previous behavior of running onMount each draw
-    // was wasteful — consumers (e.g. zoomControls' click handler wiring)
-    // ended up reassigning DOM properties hundreds of times per second
-    // during a zoom drag.
-    enter.each(function (this: HTMLDivElement, d: any) {
-      const o = d.node as HtmlOverlayNode;
-      if (o.onMount) o.onMount(this);
+    // Tag enter rows so the unified merge pass knows which need onMount.
+    enter.each(function (this: HTMLDivElement) {
+      (this as unknown as {__justEntered: boolean}).__justEntered = true;
     });
+    // `onMount` fires ONCE per host element (just after first populated).
+    // `onUpdate` fires every draw. Both run AFTER innerHTML / style /
+    // dimensions are written so a consumer's host.querySelector(...)
+    // inside either hook sees the realized DOM. The
+    // dimension/style/innerHTML/events block is identical to the
+    // Canvas backend's — both delegate to `applyOverlayToElement`.
     enter
       .merge(sel as any)
       .each(function (this: HTMLDivElement, d: any) {
+        applyOverlayToElement(this, d);
         const o = d.node as HtmlOverlayNode;
-        this.style.left = `${d.ox + o.x}px`;
-        this.style.top = `${d.oy + o.y}px`;
-        if (o.width !== undefined) this.style.width = `${o.width}px`;
-        if (o.height !== undefined) this.style.height = `${o.height}px`;
-        if (o.className) this.className = `d3plus-render-overlay ${o.className}`;
-        if (o.style) {
-          for (const k in o.style)
-            (this.style as unknown as Record<string, string>)[k] = String(o.style[k]);
+        const flags = this as unknown as {__justEntered?: boolean};
+        if (flags.__justEntered) {
+          flags.__justEntered = false;
+          if (o.onMount) o.onMount(this);
         }
-        if (this.innerHTML !== o.html) this.innerHTML = o.html;
         if (o.onUpdate) o.onUpdate(this);
       });
   }
@@ -456,9 +496,24 @@ export default class SvgRenderer implements Renderer {
     if (!this._svg) return;
     this._listening = true;
     const svg = this._svg;
+    // Cache the svg bounding rect so high-frequency pointer events
+    // (mousemove during zoom drag) don't trigger forced layout reflow.
+    let cachedRect: DOMRect | null = null;
+    const invalidateRect = (): void => {
+      cachedRect = null;
+    };
+    window.addEventListener("resize", invalidateRect, {passive: true});
+    window.addEventListener("scroll", invalidateRect, {passive: true, capture: true});
+    this._invalidatePointerRect = invalidateRect;
+    this._removePointerRectListeners = () => {
+      window.removeEventListener("resize", invalidateRect);
+      window.removeEventListener("scroll", invalidateRect, {capture: true} as EventListenerOptions);
+    };
     const local = (e: MouseEvent): [number, number] => {
-      const rect = svg.getBoundingClientRect();
-      return [e.clientX - rect.left, e.clientY - rect.top];
+      if (!cachedRect || (cachedRect.width === 0 && cachedRect.height === 0)) {
+        cachedRect = svg.getBoundingClientRect();
+      }
+      return [e.clientX - cachedRect.left, e.clientY - cachedRect.top];
     };
     const emit = (type: string, e: MouseEvent): void => {
       const point = local(e);
@@ -519,8 +574,16 @@ export default class SvgRenderer implements Renderer {
     this._handlers.clear();
     this._domListeners = {};
     this._listening = false;
+    if (this._removePointerRectListeners) {
+      this._removePointerRectListeners();
+      this._removePointerRectListeners = null;
+      this._invalidatePointerRect = null;
+    }
     this._svg = undefined;
     this._root = undefined;
+    this._defs = undefined;
+    this._clipIds.clear();
+    this._clipSeq = 0;
     this._scene = undefined;
     this._index = new Map();
     this._textureDefs = new Map();

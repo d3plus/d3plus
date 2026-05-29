@@ -32,7 +32,7 @@
 
 import {attributionFeature, runLayout} from "./features.js";
 import zoomControls from "./drawSteps/zoomControls.js";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 export function runVizPipeline(viz: Viz): void {
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions

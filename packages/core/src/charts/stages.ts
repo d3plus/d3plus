@@ -298,9 +298,17 @@ export const detectNoData: TransformStage = ({viz, filteredData}) => ({
 });
 
 /**
-    The canonical pipeline for `Viz._preDraw`. Each chart subclass that needs
-    extra stages can compose its own array; Plot/Treemap currently inherit this
-    sequence verbatim.
+    Legacy `Viz._preDraw` stage list. Wired as `def.stages` on every
+    ChartDefinition for documentation, but the production preDraw path
+    runs `vizPreDrawPure` (in `vizPreDrawPure.ts`) instead — `def.stages`
+    is not invoked by any runtime path. The two implementations should
+    be kept in sync if either is updated; future cleanup work will
+    collapse to a single source of truth (either delete this and the
+    `def.stages` field, or wire `vizPreDraw` to consume `def.stages`).
+
+    Each chart subclass that adds chart-specific stages composes them
+    onto this base (`[...vizPreDrawStages, applyTreemapLayout]`) — that
+    composition IS run via `runChartDraw` for non-paint-driven charts.
 */
 export const vizPreDrawStages: TransformStage[] = [
   resolveDrawDepth,

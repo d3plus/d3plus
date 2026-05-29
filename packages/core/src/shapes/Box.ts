@@ -5,6 +5,8 @@ import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
 import {assign, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
+import type {GroupNode, SceneNode} from "@d3plus/render";
+
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
@@ -77,7 +79,8 @@ export default class Box extends BaseClass {
       Draws the Box.
 */
   render(): this {
-    if (this._select === void 0) {
+    const compute = this._renderMode === "compute";
+    if (this._select === void 0 && !compute) {
       this.select(
         select("body")
           .append("svg")
@@ -87,6 +90,13 @@ export default class Box extends BaseClass {
           .node(),
       );
     }
+    // Compute-mode helper: mount inner shapes scene-only (no parent
+    // group needed). `select(null)` is the formal "no mount" signal —
+    // Shape.render() honors it as long as renderMode is "compute".
+    const mountInner = (parent: string): D3Selection["node"] | null => {
+      if (compute) return null as unknown as D3Selection["node"];
+      return elem(parent, {parent: this._select}).node();
+    };
 
     const outlierData: DataPoint[] = [];
 
@@ -211,7 +221,8 @@ export default class Box extends BaseClass {
       .data(filteredData)
       .x((d: DataPoint) => d.x)
       .y((d: DataPoint) => d.y)
-      .select(elem("g.d3plus-Box", {parent: this._select}).node())
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .config(configPrep.bind(this as any)(this._rectConfig, "shape")!)
       .render();
@@ -223,7 +234,8 @@ export default class Box extends BaseClass {
       .y((d: DataPoint) => (d.orient === "vertical" ? d.median : d.y))
       .height((d: DataPoint) => (d.orient === "vertical" ? 1 : d.height))
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
-      .select(elem("g.d3plus-Box-Median", {parent: this._select}).node())
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box-Median") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .config(configPrep.bind(this as any)(this._medianConfig, "shape")!)
       .render();
@@ -289,7 +301,8 @@ export default class Box extends BaseClass {
     // Draw whiskers.
     this._whisker = new Whisker()
       .data(whiskerData)
-      .select(elem("g.d3plus-Box-Whisker", {parent: this._select}).node())
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box-Whisker") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .config(configPrep.bind(this as any)(this._whiskerConfig, "shape")!)
       .render();
@@ -301,11 +314,8 @@ export default class Box extends BaseClass {
         this._whiskerEndpoint.push(
           new shapes[shapeName as string]()
             .data(values)
-            .select(
-              elem(`g.d3plus-Box-Outlier-${shapeName}`, {
-                parent: this._select,
-              }).node(),
-            )
+            .renderMode(compute ? "compute" : "full")
+            .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .config(configPrep.bind(this as any)(this._outlierConfig, "shape", shapeName as string)!)
             .render(),
@@ -314,6 +324,31 @@ export default class Box extends BaseClass {
     );
 
     return this;
+  }
+
+  /**
+      Compute-mode scene aggregation. When Box is rendered with
+      `renderMode("compute")`, the inner Rect/Whisker/Circle/etc.
+      shapes are mounted scene-only (no parent <g>); their `toScene()`
+      methods produce GroupNodes that we wrap into a single Box-level
+      group so collectComputed(boxInstance) yields the union.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+    const push = (shape: {toScene?: () => GroupNode | null | undefined} | undefined): void => {
+      const g = shape && typeof shape.toScene === "function" ? shape.toScene() : null;
+      if (g && Array.isArray(g.children)) children.push(...g.children);
+    };
+    push(this._box);
+    push(this._median);
+    push(this._whisker);
+    if (Array.isArray(this._whiskerEndpoint))
+      for (const ep of this._whiskerEndpoint) push(ep);
+    return {
+      type: "group",
+      key: "d3plus-Box-scene",
+      children,
+    };
   }
 
   /**
@@ -507,13 +542,12 @@ function(d) {
   }
 
   /**
-      v4 compute-mode shim. Box is composed of inner Rect/Whisker/Circle
-      shapes (each of which honors renderMode); the Box class itself
-      doesn't yet implement a separate compute path. Accepting the call
-      and storing the mode lets Plot's per-discrete shape loop treat Box
-      uniformly with Rect/Circle/etc. without a special case. The inner
-      shapes still render as they did before — full Box compute-mode
-      emission is a follow-on.
+      Render-mode toggle. `"compute"` propagates to every inner shape
+      (Rect/Whisker/Circle) — each is mounted scene-only via
+      `select(null)` and `renderMode("compute")`, and their
+      `toScene()` outputs are aggregated by `Box.toScene()` so a caller
+      doing `collectComputed(boxInstance)` gets the union scene.
+      `"full"` (the default) preserves the legacy DOM-mounting path.
   */
   _renderMode?: "full" | "compute";
   renderMode(): "full" | "compute";

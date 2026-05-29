@@ -558,6 +558,18 @@ export default class Plot extends Viz {
       (`"click.shape"`), and shape-class-scoped (`"click.Bar"` etc.). All
       three forward into `this._on[event](d.data, d.i, x, event)`. Extracted
       from Plot._paint so the chart-level event wiring is in one place.
+
+      MIGRATION NOTE (RFC §4.5 — interaction decoupled from DOM): each
+      shape's `.on(evt, handler)` call binds a d3-selection DOM listener
+      to its SVG nodes. That works under `SvgRenderer` but not under
+      `CanvasRenderer`, which has no per-shape DOM target — every pixel
+      lives on one <canvas>. The renderer interface already exposes
+      `Renderer.on(handler)` + `Renderer.pick(point)` for the proper
+      scene-driven path, but rewiring every Plot event through that
+      pipeline (registry-keyed-by-shape-id → pick() per pointer event →
+      dispatch by id → forward to `this._on[...]`) is a multi-file
+      refactor scheduled as a v4 follow-on. Until then, charts using
+      `.renderer("canvas")` with custom shape events silently drop them.
   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _wirePlotShapeEvents(shape: any, shapeKey: string, events: string[]) {
@@ -583,7 +595,16 @@ export default class Plot extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    if (!this._filteredData.length && !this._annotations.length) return this;
+    if (!this._filteredData.length && !this._annotations.length) {
+      // Empty data: still run super._draw so the chart shell (title /
+      // legend / total / timeline / colorScale) refreshes — features
+      // tear down their DOM via .data([]) in their layout body, and
+      // vizDrawPure resets _chartScene/_featurePanels/_shapes. Without
+      // this, the previous render's chart shell (incl. aria-labels)
+      // lingers in the DOM and toScene() emits stale nodes.
+      (super._draw as (...args: unknown[]) => unknown)(callback);
+      return this;
+    }
 
     // Throwaway measure-only axes. Allocated per draw, configured + measured
     // below, then garbage-collected when _draw returns. Replaces the persistent
@@ -906,9 +927,12 @@ export default class Plot extends Viz {
   _paint(pCtx: any) {
     const nodes = plotPaint(this, pCtx);
     // plotPaint is now a returning function (RFC §3.1 purification). Push
-    // the emitted scene nodes into _chartScene; Viz.toScene wraps the
-    // collection in viz-chart-cells + zoom transform.
-    this._chartScene = (this._chartScene || []).concat(nodes);
+    // the emitted scene nodes into _chartScene in place; allocating a
+    // fresh array via `.concat(nodes)` per draw churns GC on wide
+    // charts (1000s of bars/cells) under zoom/animation. Viz.toScene
+    // wraps the collection in viz-chart-cells + zoom transform.
+    const scene = (this._chartScene ||= []);
+    for (let i = 0; i < nodes.length; i++) scene.push(nodes[i]);
     return this;
   }
 

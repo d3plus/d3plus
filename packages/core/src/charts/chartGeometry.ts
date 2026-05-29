@@ -18,7 +18,7 @@
 */
 
 import type {Transform} from "@d3plus/render";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 /**
     Margin-adjusted chart-area dimensions. Replaces the pattern:

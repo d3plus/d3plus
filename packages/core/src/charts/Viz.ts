@@ -474,14 +474,25 @@ export default class Viz extends (BaseClass as any) {
       });
     }
     // Legacy `_shapes` collection (Treemap/Pack/etc. moved off this; Plot's
-    // `absorbShapeIntoChartScene` also routes through `_chartScene`).
+    // `absorbShapeIntoChartScene` also routes through `_chartScene`). Any
+    // remaining caller pushing into `_shapes` gets its `toScene()` walked
+    // here; we read the shape's `_select` transform via d3's transform
+    // baseVal if present, otherwise emit without a transform.
     (this._shapes || []).forEach((shape: any, si: number) => {
       if (!shape || typeof shape.toScene !== "function") return;
       const group = shape.toScene();
       let transform: Transform | undefined;
       const sel = shape._select;
-      if (sel && typeof sel.attr === "function")
-        transform = parseTranslate(sel.attr("transform"));
+      if (sel && typeof sel.attr === "function") {
+        // Parse `translate(x, y)` from the selection's transform attr.
+        // Falls back to undefined for non-translate transforms — the
+        // legacy `_shapes` path only ever used translate.
+        const t = sel.attr("transform");
+        if (typeof t === "string") {
+          const m = t.match(/translate\(\s*(-?[\d.]+)[, ]\s*(-?[\d.]+)\s*\)/);
+          if (m) transform = {x: parseFloat(m[1]), y: parseFloat(m[2])};
+        }
+      }
       children.push({
         type: "group",
         key: `${group.key || "shape"}-${si}`,
@@ -844,8 +855,8 @@ export default class Viz extends (BaseClass as any) {
   }
 
   /**
-      @deprecated Renamed to `renderer()` in v4 (RFC §4.6). Will be removed
-      in v5. Forwards to the new accessor.
+      @deprecated Renamed to `renderer()` in v4 (RFC §4.6). Kept as a
+      permanent alias — forwards to `renderer()`. No removal scheduled.
   */
   useSceneRenderer(): "svg" | "canvas";
   useSceneRenderer(_: "svg" | "canvas" | true | false): this;
@@ -913,12 +924,19 @@ export default class Viz extends (BaseClass as any) {
     const h = this._height || 300;
     // Reuse the renderer instance if it matches the kind, to avoid mount
     // churn. `target()` is the public Renderer-interface method (no
-    // reaching into renderer-private slots).
-    const currentContainer = this._sceneRenderer?.target()?.container;
+    // reaching into renderer-private slots). It's optional on the
+    // interface; third-party renderers without it fall through to
+    // remount on every draw — correct but with mount churn.
+    const currentContainer = this._sceneRenderer?.target
+      ? this._sceneRenderer.target()?.container
+      : undefined;
+    const containerChanged = this._sceneRenderer?.target
+      ? currentContainer !== userTarget
+      : false;
     if (
       !this._sceneRenderer ||
       this._sceneRenderer.kind !== kind ||
-      currentContainer !== userTarget
+      containerChanged
     ) {
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
@@ -943,6 +961,27 @@ export default class Viz extends (BaseClass as any) {
     this._resizeObserver.disconnect();
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
+    // Clear the visibility/resize/scroll poll timers + scroll listener
+    // so a destroyed chart doesn't keep firing intervals/timeouts that
+    // hold the entire viz instance alive. Without this, an SPA that
+    // mounts/unmounts charts on tab switches leaks the scene tree +
+    // a 200ms-interval timer per leaked chart.
+    if (this._visiblePoll) {
+      this._visiblePoll = clearInterval(this._visiblePoll) as never;
+    }
+    if (this._resizePoll) {
+      this._resizePoll = clearTimeout(this._resizePoll) as never;
+    }
+    if (this._scrollPoll) {
+      this._scrollPoll = clearTimeout(this._scrollPoll) as never;
+    }
+    select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
+    // Destroy the active scene renderer (clears its own pointer-rect
+    // listeners, overlay host, canvas/svg DOM, timers).
+    if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function") {
+      this._sceneRenderer.destroy();
+      this._sceneRenderer = undefined;
+    }
     return this;
   }
 

@@ -72,7 +72,7 @@ export interface VizRenderer {
     Class instances satisfy it via their `[key: string]: any` signature;
     chart-specific extensions (TreeViz, PieViz, etc.) add stash slots.
 */
-export interface Viz {
+export interface VizInstance {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   // Allow chart-specific fields to be referenced as `viz._anything` without
   // exhaustive enumeration. Most are typed below; the escape exists for

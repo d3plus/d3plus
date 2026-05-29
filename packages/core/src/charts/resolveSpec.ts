@@ -14,10 +14,12 @@
 
     `resolveSpec(viz)` returns a frozen snapshot of every user-settable
     config key for the given viz instance. The free functions
-    `vizPreDraw(viz)` / `vizDraw(viz)` (sibling to `runVizPipeline`,
-    `plotPaint`) take a viz today; in the v5 evolution they'll take
-    `(spec, prevCtx)` and return `Partial<VizContext>` without touching
-    `this`. The spec type is the contract.
+    `vizPreDraw(viz)` / `vizDraw(viz)` / `runVizPipeline(viz)` /
+    `plotPaint(viz, ctx)` all take a live viz instance — the
+    contract that's currently shipping. `resolveSpec` is provided as a
+    public seam so callers (custom drivers, tests, future refactors)
+    can pin a config snapshot independently of any draw cycle. The
+    spec type is the contract.
 
     The spec is a READONLY view: mutating it is a programming error. The
     type uses `Readonly<>` to discourage in-place writes; runtime

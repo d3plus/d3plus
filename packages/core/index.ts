@@ -125,7 +125,7 @@ export type {
   D3Selection,
   Margin,
   Padding,
-  Viz,
+  VizInstance,
   VizRenderer,
 } from "./src/charts/vizTypes.js";
 export type {

@@ -3,6 +3,8 @@ import {transition} from "d3-transition";
 
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
+import type {GroupNode, ImageNode, SceneNode} from "@d3plus/render";
+
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
@@ -53,6 +55,12 @@ export default class Image {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: () => void): this {
+    // Compute mode is a no-op for DOM emission — the caller will read
+    // `toScene()` to get a SceneNode tree, no need to mount.
+    if (this._renderMode === "compute") {
+      if (callback) setTimeout(callback, 0);
+      return this;
+    }
     if (this._select === void 0)
       this.select(
         select("body")
@@ -154,6 +162,49 @@ export default class Image {
   duration(_: number): this;
   duration(_?: number): number | this {
     return arguments.length ? ((this._duration = _!), this) : this._duration;
+  }
+
+  /**
+      Render-mode toggle parity with Shape subclasses. `"compute"` makes
+      `render()` a no-op (no DOM mount, no transitions); the caller is
+      expected to consume `toScene()` instead. `"full"` (default) keeps
+      the legacy DOM <image> emission.
+  */
+  _renderMode?: "full" | "compute";
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode || "full";
+    this._renderMode = _;
+    return this;
+  }
+
+  /**
+      Compute-mode scene emission. Mirrors Shape.toScene's shape — a
+      keyed GroupNode wrapping per-datum ImageNodes. Used by chart
+      compositors (Shape._backgroundImageClass, plotPaint) that need
+      Image to participate in the scene graph instead of the legacy
+      d3-selection DOM emission.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = (this._data || []).map(
+      (d: DataPoint, i: number) => {
+        const node: ImageNode = {
+          type: "image",
+          key: `${this._id(d, i)}`,
+          x: this._x(d, i) as number,
+          y: this._y(d, i) as number,
+          width: this._width(d, i) as number,
+          height: this._height(d, i) as number,
+          href: this._url(d, i) as string,
+          paint: {opacity: this._opacity(d, i) as number},
+          datum: d,
+          index: i,
+        };
+        return node;
+      },
+    );
+    return {type: "group", key: "d3plus-Image", children};
   }
 
   /**

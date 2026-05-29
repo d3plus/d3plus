@@ -15,11 +15,14 @@
     viz instance with `_container` / `_zoomGroup` (and the Network
     variant also wires the hitArea click handler).
 
-    Once the v5 interaction-layer redesign lands (DOM-free zoom event
-    dispatching, tile-data → image scene nodes), this helper goes away.
+    The helper stays as long as d3-zoom owns event binding and Geomap's
+    tile-loading mounts `<g>` elements directly. An eventual fully
+    scene-graph-native interaction path (renderer.on(...) dispatch +
+    tile-data → image scene nodes) would let this go away; until then,
+    it's the documented home for the imperative half of v4 zoom.
 */
 
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 export type ZoomDomKind = "network" | "geomap";
 

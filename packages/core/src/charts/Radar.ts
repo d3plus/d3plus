@@ -1,6 +1,6 @@
 import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor} from "@d3plus/dom";
-import {constant} from "../utils/index.js";
+import {accessor, constant} from "../utils/index.js";
 import {applyRadarLayout, radarDef} from "./ChartDefinition.js";
 import {chartBounds, centerChartTransform} from "./chartGeometry.js";
 import {runChartDraw} from "./runChartDraw.js";

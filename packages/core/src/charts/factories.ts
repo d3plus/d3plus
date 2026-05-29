@@ -4,17 +4,14 @@
     constructors so consumers can write `barChart().data(...).render()`
     instead of `new BarChart().data(...).render()`.
 
-    The factories are the **stable v4 entry point.** Class constructors
-    (`new BarChart()`) remain working byte-for-byte through all of v4 (per
-    RFC §8.6, deprecated with a v5 removal horizon). When the eventual
-    decoupling lands (extract `runPipeline(def, config)` as a free function;
-    remove the class hierarchy), the factories' return value gets swapped
-    transparently — consumer code unchanged.
-
-    The conformance test (`test/charts/BarChart-config-snapshot-test.js`)
-    asserts `barChart().config()` reproduces `new BarChart().config()` byte-
-    for-byte, so any future refactor that drifts from the class behavior
-    fails the test.
+    Both the factories and the class constructors (`new BarChart()`) are
+    first-class, permanent v4 entry points (RFC §8.6 revised 2026-05-29
+    — v5 removed; no scheduled deprecation). The factories are the
+    recommended modern surface; the class hierarchy stays as a
+    byte-for-byte alias for existing consumers, and the conformance test
+    (`test/charts/BarChart-config-snapshot-test.js`) asserts
+    `barChart().config()` reproduces `new BarChart().config()` so the
+    two surfaces stay in lockstep across refactors.
 
     NAMING CLASHES with d3 modules — three factories share lowercase names
     with d3 modules: `pack` (d3-hierarchy), `pie` (d3-shape), `tree`

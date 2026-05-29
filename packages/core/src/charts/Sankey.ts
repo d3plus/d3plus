@@ -16,7 +16,7 @@ const sankeyAligns = {
 
 import {addToQueue} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
-import {constant} from "../utils/index.js";
+import {accessor, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applySankeyLayout, sankeyDef} from "./ChartDefinition.js";
 import {runChartDraw} from "./runChartDraw.js";

@@ -119,3 +119,38 @@ it("Two charts on a page maintain isolated tooltip portals", () => {
 
   tipB.data([]).render();
 });
+
+it("Two Tooltips sharing one parent each own a distinct portal", () => {
+  const shared = document.createElement("div");
+  document.body.appendChild(shared);
+
+  const tip1 = new Tooltip()
+    .parent(shared)
+    .data([{id: "1", title: "Tip 1"}])
+    .render();
+  const tip2 = new Tooltip()
+    .parent(shared)
+    .data([{id: "2", title: "Tip 2"}])
+    .render();
+
+  const portals = shared.querySelectorAll(":scope > .d3plus-tooltip-portal");
+  assert.strictEqual(
+    portals.length,
+    2,
+    "two Tooltip instances → two sibling portal divs in the shared parent",
+  );
+
+  // Switching tip1's parent must not remove tip2's portal.
+  const newParent = document.createElement("div");
+  document.body.appendChild(newParent);
+  tip1.parent(newParent);
+  const remaining = shared.querySelectorAll(":scope > .d3plus-tooltip-portal");
+  assert.strictEqual(
+    remaining.length,
+    1,
+    "tip2's portal still mounted in the shared parent after tip1 switched out",
+  );
+
+  tip1.data([]).render();
+  tip2.data([]).render();
+});

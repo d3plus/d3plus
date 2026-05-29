@@ -18,12 +18,14 @@
     pure function only returns `noDataMessage: true/false` so the shim
     can act on it.
 
-    Closure carve-out: `id`/`ids`/`drawLabel` close over `viz._groupBy` /
-    `viz._label` / `viz._thresholdName` etc. These closures reflect the
-    LIVE viz state when called (not a snapshot at compute time). That's
-    the same behavior the legacy `_id = (d, i) => ...this._groupBy[this._drawDepth]...`
-    had — callers expecting referential transparency would need explicit
-    spec-passing instead, which is the future evolution.
+    Closure carve-out: `id`/`ids` snapshot `viz._groupBy` / `viz._label` /
+    `viz._thresholdName` / `viz._locale` at construction time;
+    `drawLabel` snapshots the same set but live-reads `viz._drawDepth` so
+    intra-render depth mutations (legend drill-down, subclass overrides)
+    are reflected. Callers needing referential transparency on depth
+    should pass it explicitly; the public closures are stable for the
+    snapshot set, which is the contract today and into the foreseeable
+    architectural evolution.
 */
 
 import {group, max, min, rollup} from "d3-array";
@@ -34,7 +36,7 @@ import {date} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizContext} from "./vizContext.js";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 /**
     The shape `vizPreDrawPure` returns: a `Partial<VizContext>` plus the
@@ -92,18 +94,18 @@ function accessorFetch(
 
 export function vizPreDrawPure(
   viz: Viz,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
 ): VizPreDrawResult {
-  // v4: `spec` is the frozen config snapshot, in case a future caller wants
-  // to drive the pure function from a config object rather than a live
-  // viz instance. Today the closures still read viz-internal fields (some
-  // of which aren't surfaced via .config()), so the spec is computed but
-  // not yet consumed; this paves the way for the v5 spec/ctx separation.
-  // `resolveSpec` is the public API for snapshotting; the call below is
-  // the seam that makes the future swap transparent.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _spec = typeof viz.config === "function" ? viz.config() : {};
+  // The pure function reads the live `viz` instance directly. The
+  // `resolveSpec(viz)` API exists for callers that want a frozen
+  // snapshot, but this body does NOT call it — `BaseClass.config()`
+  // reflects over every accessor method and memoizes `_configDefault`
+  // on first call, which would (a) burn ~30+ reflective accessor calls
+  // per preDraw and (b) freeze the defaults baseline to whatever
+  // partially-configured state the chart happens to be in at the first
+  // preDraw. The viz-instance read is the production contract; the
+  // exported `resolveSpec` is available to callers that need it
+  // independently.
   const out: VizPreDrawResult = {};
 
   // 1. drawDepth.
@@ -115,23 +117,21 @@ export function vizPreDrawPure(
 
   // 2. id / ids / drawLabel closures.
   //
-  // SNAPSHOT CLOSURES (v4 hardening): each closure captures the relevant
-  // viz state AT CONSTRUCTION (drawDepth, groupBy reference, label,
-  // thresholdName, locale) instead of reading viz.* at invocation. Two
-  // wins:
-  //   (a) referentially transparent — `ctx.id(d, i)` produces the same
-  //       output for the same input regardless of subsequent viz mutation.
-  //   (b) safe for callers that store closures across renders (currently
-  //       no such caller exists, but `_preDraw` is called per render and
-  //       overwrites viz._id/_ids/_drawLabel with the new closures — so
-  //       intra-render reads always hit the fresh snapshot).
+  // SNAPSHOT CLOSURES (v4 hardening): each closure captures `groupBy`,
+  // `label`, `thresholdName`, and `locale` AT CONSTRUCTION instead of
+  // reading viz.* at invocation. This makes `ctx.id(d, i)` referentially
+  // transparent for those fields — a caller holding the closure across
+  // renders gets the input's id-as-of-this-preDraw, not whatever the
+  // viz has been mutated to since.
   //
-  // The previous "live-state" form (read viz._drawDepth each call) was
-  // historically necessary because subclasses like Treemap call
-  // `.depth(n).render()` mid-interaction — but `.render()` itself runs
-  // `_preDraw` first, regenerating closures with the new depth. So the
-  // snapshot form preserves behavior while eliminating a referential-
-  // transparency footgun.
+  // EXCEPTION — `_drawDepth`: `drawLabel`'s effective depth is read LIVE
+  // from `viz._drawDepth` at call time, falling back to the snapshotted
+  // `drawDepth`. This preserves the pre-v4 behavior where features /
+  // stages / subclass overrides that mutate `viz._drawDepth` after
+  // preDraw are reflected in label/aria output. Treemap's normal
+  // `.depth(n).render()` flow still works (render reruns preDraw); the
+  // live read just covers the intra-render mutation path the old code
+  // accommodated by default.
   const snapGroupBy = viz._groupBy as ((
     d: DataPoint,
     i: number,
@@ -154,11 +154,14 @@ export function vizPreDrawPure(
       .filter(Boolean);
   out.ids = ids;
 
-  const drawLabel = (
-    d: DataPoint,
-    i: number,
-    depth: number = drawDepth,
-  ) => {
+  const drawLabel = (d: DataPoint, i: number, depth?: number) => {
+    // Resolve the effective depth at call time. Prefer the live
+    // `viz._drawDepth` over the snapshot so intra-render mutations
+    // (e.g. a feature/stage that adjusts depth post-preDraw, or a
+    // subclass override) are reflected in label/aria output.
+    // `viz._drawDepth ?? drawDepth` mirrors the pre-snapshot behavior.
+    const liveLeaf = (viz._drawDepth as number | undefined) ?? drawDepth;
+    const effDepth = depth ?? liveLeaf;
     if (!d) return "";
     while (d.__d3plus__ && d.data) {
       d = d.data as DataPoint;
@@ -170,8 +173,8 @@ export function vizPreDrawPure(
         snapLocale,
       )}%`;
     }
-    if (snapLabel && depth === drawDepth) return `${snapLabel(d, i)}`;
-    const l = ids(d, i).slice(0, depth + 1);
+    if (snapLabel && effDepth === liveLeaf) return `${snapLabel(d, i)}`;
+    const l = ids(d, i).slice(0, effDepth + 1);
     const n =
       l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||
       l[l.length - 1];

@@ -4,6 +4,8 @@ import {select} from "d3-selection";
 import type {DataPoint} from "@d3plus/data";
 import {assign, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
+import type {GroupNode, SceneNode} from "@d3plus/render";
+
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
@@ -56,7 +58,8 @@ export default class Whisker extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: () => void): this {
-    if (this._select === void 0) {
+    const compute = this._renderMode === "compute";
+    if (this._select === void 0 && !compute) {
       this.select(
         select("body")
           .append("svg")
@@ -66,6 +69,10 @@ export default class Whisker extends BaseClass {
           .node(),
       );
     }
+    const mountInner = (parent: string): D3Selection["node"] | null => {
+      if (compute) return null as unknown as D3Selection["node"];
+      return elem(parent, {parent: this._select}).node();
+    };
 
     const lineData: DataPoint[] = [];
     this._data.forEach((d: DataPoint, i: number) => {
@@ -99,13 +106,16 @@ export default class Whisker extends BaseClass {
       } as unknown as DataPoint);
     });
 
-    // Draw whisker line.
+    // Draw whisker line. Don't pass `callback` to the inner Line —
+    // doing so would fire the caller's done-callback after the LINE
+    // finished but BEFORE endpoint shapes (below) are rendered.
     this._line = new Line()
       .data(lineData)
-      .select(elem("g.d3plus-Whisker", {parent: this._select}).node())
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Whisker") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .config(configPrep.bind(this as any)(this._lineConfig, "shape")!)
-      .render(callback);
+      .render();
 
     const whiskerData = this._data.map((d: DataPoint, i: number) => {
       const dataObj: DataPoint = {} as DataPoint;
@@ -139,11 +149,8 @@ export default class Whisker extends BaseClass {
         this._whiskerEndpoint.push(
           new shapes[shapeName as string]()
             .data(values)
-            .select(
-              elem(`g.d3plus-Whisker-Endpoint-${shapeName}`, {
-                parent: this._select,
-              }).node(),
-            )
+            .renderMode(compute ? "compute" : "full")
+            .select(mountInner(`g.d3plus-Whisker-Endpoint-${shapeName}`) as never)
             .config({
               height: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 5 : 20,
@@ -157,7 +164,30 @@ export default class Whisker extends BaseClass {
       },
     );
 
+    // Fire the user's done-callback only AFTER endpoints are rendered.
+    // The inner shapes don't have a single shared transition queue we
+    // can hook into; the legacy behavior used setTimeout(duration+100)
+    // to wait for transitions to complete, so do the same here.
+    if (callback) setTimeout(callback, (this as any)._duration ? (this as any)._duration + 100 : 0);
+
     return this;
+  }
+
+  /**
+      Compute-mode scene aggregation, mirroring Box.toScene(). Returns a
+      GroupNode containing the inner Line's scene children plus each
+      endpoint shape's scene children.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+    const push = (shape: {toScene?: () => GroupNode | null | undefined} | undefined): void => {
+      const g = shape && typeof shape.toScene === "function" ? shape.toScene() : null;
+      if (g && Array.isArray(g.children)) children.push(...g.children);
+    };
+    push(this._line);
+    if (Array.isArray(this._whiskerEndpoint))
+      for (const ep of this._whiskerEndpoint) push(ep);
+    return {type: "group", key: "d3plus-Whisker-scene", children};
   }
 
   /**
@@ -300,5 +330,20 @@ function(d) {
   config(_?: Partial<WhiskerConfig>): WhiskerConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;
+  }
+
+  /**
+      Render-mode toggle. `"compute"` propagates to the inner Line +
+      endpoint shapes (each is mounted scene-only via `select(null)`);
+      `Whisker.toScene()` aggregates their scenes into a single group.
+      `"full"` (default) preserves the legacy DOM-mounting path.
+  */
+  _renderMode?: "full" | "compute";
+  renderMode(): "full" | "compute";
+  renderMode(_: "full" | "compute"): this;
+  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
+    if (!arguments.length) return this._renderMode || "full";
+    this._renderMode = _;
+    return this;
   }
 }

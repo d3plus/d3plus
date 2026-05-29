@@ -1,6 +1,7 @@
 import {zoomTransform} from "d3-zoom";
 
 import {attrize} from "@d3plus/dom";
+import {chartBounds} from "../chartGeometry.js";
 import type Viz from "../Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
@@ -69,11 +70,10 @@ function applyStyleObj(
 export default function (this: Viz): void {
   if (!this._container || !this._zoomGroup) return;
 
-  const height =
-      this._zoomHeight || this._height - this._margin.top - this._margin.bottom,
+  const bounds = chartBounds(this as never);
+  const height = this._zoomHeight || bounds.height,
     that = this,
-    width =
-      this._zoomWidth || this._width - this._margin.left - this._margin.right;
+    width = this._zoomWidth || bounds.width;
 
   this._zoomBehavior
     .extent([
@@ -95,9 +95,11 @@ export default function (this: Viz): void {
   // four buttons (in/out/reset/brush) live in pushed-into _featurePanels;
   // `onMount` is the scene's documented interactive-HTML escape hook and
   // here wires the click/hover handlers + applies the user's zoomControl
-  // style configs. Each draw re-runs onMount, so we replace listeners
-  // each time (no idempotence guards needed — the host div's contents
-  // are re-rendered via innerHTML each pass anyway).
+  // style configs. `onMount` fires ONCE per host element (after innerHTML
+  // is written, so the .zoom-in/.zoom-out querySelectors below resolve),
+  // not per draw — the html string is constant, so listeners attached
+  // here survive every subsequent draw (renderers only rewrite
+  // innerHTML when it differs from the current value).
   if (this._zoom) {
     this._featurePanels = this._featurePanels || [];
     this._featurePanels.push({
@@ -111,48 +113,56 @@ export default function (this: Viz): void {
         '<div class="zoom-control zoom-out">&#65293;</div>' +
         '<div class="zoom-control zoom-reset">&#8634;</div>' +
         '<div class="zoom-control zoom-brush">&#164;</div>',
-      onMount: (host: HTMLElement) => {
-        const handlers: [string, () => void][] = [
-          [".zoom-in", () => zoomMath.bind(that)(that._zoomFactor)],
-          [".zoom-out", () => zoomMath.bind(that)(1 / that._zoomFactor)],
-          [".zoom-reset", () => zoomMath.bind(that)(0)],
-        ];
-        for (const [sel, fn] of handlers) {
-          const el = host.querySelector(sel) as HTMLElement | null;
-          if (!el) continue;
-          // Replace any previous handler by cloning. innerHTML reset on
-          // each draw means we usually start fresh, but defensive guard.
-          el.onclick = fn;
-        }
-        const brushBtn = host.querySelector(".zoom-brush") as HTMLElement | null;
-        if (brushBtn) {
-          brushBtn.onclick = () => {
+      // Declarative click wiring — clicks bubble, so the renderer's
+      // delegated dispatcher can route them by selector. The four
+      // handlers below are the single source of truth for what each
+      // zoom button does. Hover styles can't be delegated (mouseenter
+      // / mouseleave don't bubble), so they live in onMount below as
+      // a per-button binding.
+      events: {
+        ".zoom-in": {
+          click: () => zoomMath.bind(that)(that._zoomFactor),
+        },
+        ".zoom-out": {
+          click: () => zoomMath.bind(that)(1 / that._zoomFactor),
+        },
+        ".zoom-reset": {
+          click: () => zoomMath.bind(that)(0),
+        },
+        ".zoom-brush": {
+          click: (e: Event) => {
+            const btn = e.currentTarget as HTMLElement;
             const willBrush = !isBrushing(that);
-            const isActive = brushBtn.classList.toggle("active", willBrush);
+            const isActive = btn.classList.toggle("active", willBrush);
             applyStyleObj(
-              brushBtn,
+              btn,
               isActive
                 ? that._zoomControlStyleActive || {}
                 : that._zoomControlStyle || {},
             );
             zoomEvents.bind(that)(willBrush);
-          };
-        }
-        // Base + hover styles on every button.
+          },
+        },
+      },
+      // onMount fires AFTER innerHTML is written so the querySelectorAll
+      // matches. Applies base styles + binds non-delegable hover events
+      // per button (mouseenter/mouseleave don't bubble through
+      // delegated event listeners).
+      onMount: (host: HTMLElement) => {
         const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
         buttons.forEach(btn => {
           applyStyleObj(btn, that._zoomControlStyle || {});
-          btn.onmouseenter = () => {
+          btn.addEventListener("mouseenter", () => {
             applyStyleObj(btn, that._zoomControlStyleHover || {});
-          };
-          btn.onmouseleave = () => {
+          });
+          btn.addEventListener("mouseleave", () => {
             applyStyleObj(
               btn,
               btn.classList.contains("active")
                 ? that._zoomControlStyleActive || {}
                 : that._zoomControlStyle || {},
             );
-          };
+          });
         });
       },
     });
@@ -238,10 +248,13 @@ function zoomed(
   // below is what users see in v4.
   const t = transform as {k?: number; x?: number; y?: number} | false | string;
   if (t && typeof t === "object" && "k" in t) {
+    // Nullish-coalesce rather than `||` so a legitimate zero (a deliberate
+    // collapse-to-zero scale, or pan transform at origin) doesn't get
+    // silently rewritten to the default.
     this._zoomTransform = {
-      x: t.x || 0,
-      y: t.y || 0,
-      scale: t.k || 1,
+      x: t.x ?? 0,
+      y: t.y ?? 0,
+      scale: t.k ?? 1,
     };
   } else if (t === false) {
     this._zoomTransform = undefined;

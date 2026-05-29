@@ -269,7 +269,11 @@ export default class Legend extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: (...args: unknown[]) => unknown): this {
-    if (this._select === void 0)
+    // Skip the body-svg fallback in compute mode — the caller intends
+    // a DOM-free snapshot via `toScene()`. Mirrors Axis.render's
+    // standalone-compute branch so Legend doesn't leak <svg>s into
+    // <body> on every render() call when used as a scene-emitter.
+    if (this._select === void 0 && this._renderMode !== "compute")
       this.select(
         select("body")
           .append("svg")

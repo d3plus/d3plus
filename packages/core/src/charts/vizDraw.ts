@@ -6,8 +6,13 @@
     The pure function (`vizDrawPure(viz, prevCtx) → Partial<VizDrawCtx>`)
     computes the chart-shell layout — margin claims + reset signals +
     feature panels — at the outer level. Inner FeatureModule.layout()
-    calls still mutate viz (they push panels into `viz._featurePanels`
-    and mount components); that's the next v5 layer.
+    calls also write through to `viz` directly (panel pushes, component
+    mounts, intra-feature accessor writes); they're not pure in the FP
+    sense and that's intentional — `vizUpdate` is the cross-feature
+    publishing channel, but a feature's OWN intra-body state lives on
+    viz directly because the feature's component instance (`Legend`,
+    `Timeline`) is a stateful object whose configuration calls happen
+    inline.
 
     Because the pure function ALREADY writes margin claims through to
     `viz._margin` (so the next `runLayout` sees the updated margins),
@@ -21,7 +26,7 @@
 */
 
 import {vizDrawPure} from "./vizDrawPure.js";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 export function vizDraw(viz: Viz): void {
   // The pure function does the work + has already written margin claims

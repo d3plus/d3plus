@@ -185,7 +185,9 @@ export default class ColorScale extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: (...args: unknown[]) => unknown): this {
-    if (this._select === void 0)
+    // Skip the body-svg fallback in compute mode — mirrors Axis +
+    // Legend so the caller can do a DOM-free snapshot via toScene().
+    if (this._select === void 0 && this._renderMode !== "compute")
       this.select(
         select("body")
           .append("svg")

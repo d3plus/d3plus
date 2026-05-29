@@ -27,7 +27,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import * as shapes from "../shapes/index.js";
 import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
-import type {Viz} from "./vizTypes.js";
+import type {VizInstance as Viz} from "./vizTypes.js";
 
 /**
     Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
@@ -172,7 +172,7 @@ export interface PlotMeasureResult {
 
 /**
     MEASURE phase of plotPaint. Reads `pCtx`, runs the production-mode
-    axes through `renderMode("compute").select(undefined).render()`,
+    axes through `renderMode("compute").select(null).render()`,
     computes the final `xRange`/`yRange` + offsets, sets `viz._xFunc` /
     `viz._yFunc` accessors, and queues axis scenes for the emit phase.
     Returns everything `plotEmit` needs to consume.
@@ -273,7 +273,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
 
     viz._xAxis
       .renderMode("compute")
-      .select(undefined as unknown as HTMLElement)
+      .select(null)
       .domain(xDomain)
       .height(height - (x2Height + topOffset + verticalMargin))
       .maxSize(height / 2)
@@ -295,7 +295,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
     if (x2Exists) {
       viz._x2Axis
         .renderMode("compute")
-        .select(undefined as unknown as HTMLElement)
+        .select(null)
         .domain(x2Domain)
         .height(height - (xHeight + topOffset + verticalMargin))
         .range(xRange)
@@ -338,7 +338,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
 
     viz._yAxis
       .renderMode("compute")
-      .select(undefined as unknown as HTMLElement)
+      .select(null)
       .domain(yDomain)
       .height(height)
       .maxSize(width / 2)
@@ -360,7 +360,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
     if (y2Exists) {
       viz._y2Axis
         .renderMode("compute")
-        .select(undefined as unknown as HTMLElement)
+        .select(null)
         .config(yC)
         .domain(y2Exists ? y2Domain : yDomain)
         .gridSize(0)
@@ -498,11 +498,15 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         .height(yRange[1] - yRange[0])
         .config(viz._backgroundConfig);
       bgRect.render();
-      // Background goes FIRST in `out` so it sits BEHIND chart shapes
-      // (which push after). Earlier code prepended onto a pre-populated
-      // `_chartScene`; under the purified flow `out` is empty here so a
-      // straight push yields the same z-order.
-      out.push(...collectComputed(bgRect));
+      // Background must sit BEHIND chart shapes. Unshift onto `out` so
+      // the z-order survives even if a future emit step pushes nodes
+      // before this point (i.e. the invariant is enforced at the call
+      // site rather than relying on the upstream contract that `out` is
+      // empty here). `unshift(...nodes)` is O(out.length + nodes.length)
+      // which is fine — `out` carries axis-queue items, not the full
+      // shape scene, so the prepend is a few entries at most.
+      const bgNodes = collectComputed(bgRect);
+      out.unshift(...bgNodes);
     }
 
     const labelConnectors = (labelWidths as any[]).filter((d: any) => d.newY !== undefined);
@@ -642,22 +646,33 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     };
 
     const events = Object.keys(viz._on);
+    // Precompute id→index and discrete→index Maps once per draw. Without
+    // them the per-datum closures below run two linear `Array.indexOf`
+    // scans for every shape coord access — O(stackKeys + discreteKeys)
+    // per datum, per coord, per draw. For dense stacked plots (~5k
+    // shapes × 4 coord reads × ~50 indexOf scans) that's millions of
+    // comparisons per draw before scale evaluation.
+    const stackKeyIndex = new Map<unknown, number>();
+    for (let i = 0; i < stackKeys.length; i++) stackKeyIndex.set(stackKeys[i], i);
+    const discreteKeyIndex = new Map<unknown, number>();
+    for (let i = 0; i < discreteKeys.length; i++)
+      discreteKeyIndex.set(discreteKeys[i], i);
     shapeData.forEach(([key, values]: [string, any[]]) => {
       const d = {key, values};
       const shapeConfigInner = Object.assign({}, shapeConfig);
       if (viz._stacked && ["Area", "Bar"].includes(d.key)) {
         const scale = opp === "x" ? x : y;
         (shapeConfigInner as any)[`${opp}`] = (shapeConfigInner as any)[`${opp}0`] = (d: any) => {
-          const dataIndex = stackKeys.indexOf(d.id),
-            discreteIndex = discreteKeys.indexOf(d.discrete);
+          const dataIndex = stackKeyIndex.get(d.id) ?? -1;
+          const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
           const scaleIndex = d[opp!] < 0 ? 1 : 0;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
             : scale(domains[opp!][opp === "x" ? 0 : 1]);
         };
         (shapeConfigInner as any)[`${opp}1`] = (d: any) => {
-          const dataIndex = stackKeys.indexOf(d.id),
-            discreteIndex = discreteKeys.indexOf(d.discrete);
+          const dataIndex = stackKeyIndex.get(d.id) ?? -1;
+          const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
           const scaleIndex = d[opp!] < 0 ? 0 : 1;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
@@ -848,8 +863,15 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       (d: any) => !dataShapes.includes(d),
     );
 
+    // Run exits in compute mode so Box/Whisker/Shape don't fall through
+    // to their body-svg / body-div fallback when `_select` is unset.
+    // Without `.renderMode("compute")` here, every exited shape would
+    // leak a detached <svg> (Box) or <div> (Shape) into <body>.
     exitShapes.forEach((shape: any) => {
-      new (shapes as any)[shape]().config(shapeConfig).data([]).render();
+      const inst = new (shapes as any)[shape]();
+      if (typeof inst.renderMode === "function") inst.renderMode("compute");
+      if (typeof inst.select === "function") inst.select(null);
+      inst.config(shapeConfig).data([]).render();
     });
 
     viz._previousShapes = dataShapes;
