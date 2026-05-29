@@ -144,103 +144,6 @@ export function isPaintDriven(
 import constant from "../utils/constant.js";
 
 
-/**
-    `barChartDef` is the working definition for `BarChart`.
-
-    BarChart is structurally one of d3plus's tiniest charts — it only flips
-    three Plot defaults (`baseline: 0`, `discrete: "x"`, `shape: "Bar"`). All
-    of the heavy lifting (axis layout, scale computation, shape emission)
-    lives on `Plot`, the parent class. The defs surfaces those three values
-    here so the chart's identity is fully a piece of data.
-
-    Stages/emit are inherited from Plot (still legacy) — populated as the
-    Plot `_draw` migration progresses.
-*/
-/**
-    `plotShapesEmit` — for Plot-based charts. Plot._paint runs imperatively
-    (axis production rendering + per-discrete-group shape emission via
-    `absorbShapeIntoChartScene`) which populates `viz._chartScene` as a
-    side effect. So the def's emit just returns that already-populated
-    scene — the chart's "data" IS the chart-scene Plot produced.
-
-    Consumers calling `barChartDef.emit({viz})` directly (without going
-    through Plot.render) get an empty array (since `_chartScene` won't
-    be populated yet). That's the right answer — they need to drive
-    Plot's pipeline (or use `plotPaint(viz, pCtx)`) first.
-
-    Future evolution: as plotPaint is decomposed into pure stages, the
-    paint logic moves here and the side-effect-then-snapshot pattern
-    inverts to a pure data → SceneNode[] transformation.
-*/
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const plotShapesEmit: ChartDefinition["emit"] = ({viz}: {viz: any}) =>
-  Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [];
-// Plot-family defs set `paintDriven: true` so `runChartDraw` can refuse
-// to drive them — see runChartDraw.ts.
-
-export const barChartDef: ChartDefinition = {
-  name: "BarChart",
-  defaults: {
-    baseline: 0,
-    discrete: "x",
-    shape: constant("Bar"),
-  },
-  features: defaultChartFeatures,
-  // Plot's pipeline still owns the chart-specific data prep + scale
-  // computation; barChartDef contributes only the configuration delta.
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
-
-/* ----------------------- other Plot subclass defs ----------------------- */
-
-/** Each of these is a configuration delta over `Plot`'s defaults. */
-
-export const areaPlotDef: ChartDefinition = {
-  name: "AreaPlot",
-  defaults: {baseline: 0, discrete: "x", shape: constant("Area")},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
-
-export const linePlotDef: ChartDefinition = {
-  name: "LinePlot",
-  defaults: {discrete: "x", shape: constant("Line")},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
-
-export const stackedAreaDef: ChartDefinition = {
-  name: "StackedArea",
-  defaults: {stacked: true},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
-
-export const boxWhiskerDef: ChartDefinition = {
-  name: "BoxWhisker",
-  defaults: {discrete: "x", shape: constant("Box")},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
-
-export const bumpChartDef: ChartDefinition = {
-  name: "BumpChart",
-  defaults: {discrete: "x", shape: constant("Line")},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: plotShapesEmit,
-  paintDriven: true,
-};
 
 /* ----------------------- Pie/Donut/Pack defs ----------------------- */
 
@@ -1070,6 +973,9 @@ export const plotDef: ChartDefinition = {
     // the canonical chain because it depends on test-axis state (xTest/yTest)
     // that's measured imperatively in _draw, not as a stage.
   ],
-  emit: plotShapesEmit,
+  // Plot._paint populates `viz._chartScene` imperatively; emit just snapshots it.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emit: ({viz}: {viz: any}) =>
+    Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
   paintDriven: true,
 };

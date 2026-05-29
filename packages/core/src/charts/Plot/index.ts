@@ -26,10 +26,10 @@ import {
   AxisRight,
   AxisTop,
   TextBox,
-} from "../components/index.js";
-import * as shapes from "../shapes/index.js";
-import {accessor, constant} from "../utils/index.js";
-import {installFluent} from "../fluent.js";
+} from "../../components/index.js";
+import * as shapes from "../../shapes/index.js";
+import {accessor, constant} from "../../utils/index.js";
+import {installFluent} from "../../fluent.js";
 
 // E4: Plot's identity-coerce accessor schema (18 keys). installFluent's
 // per-key idempotence lets this co-exist with vizSchema on the parent
@@ -58,18 +58,18 @@ const plotSchema = [
 
 const testLineShape = new shapes.Line();
 const testTextBox = new TextBox();
-import {computePlotAxisValues, computePlotInitialDomains, computePlotScales, extendPlotOppScales, formatPlotData, measurePlotLineLabels, preparePlotAxisLayout, plotDef} from "./ChartDefinition.js";
-import {plotPaint} from "./plotPaint.js";
-import {runStages} from "./stages.js";
-import Viz from "./Viz.js";
+import {computePlotAxisValues, computePlotInitialDomains, computePlotScales, extendPlotOppScales, formatPlotData, measurePlotLineLabels, preparePlotAxisLayout, plotDef} from "../ChartDefinition.js";
+import {plotPaint} from "../plotPaint.js";
+import {runStages} from "../stages.js";
+import Viz from "../Viz.js";
 
 import type {Scene, SceneNode} from "@d3plus/render";
 
-import {default as BarBuffer} from "./plotBuffers/Bar.js";
-import {default as BoxBuffer} from "./plotBuffers/Box.js";
-import {default as CircleBuffer} from "./plotBuffers/Circle.js";
-import {default as LineBuffer} from "./plotBuffers/Line.js";
-import {default as RectBuffer} from "./plotBuffers/Rect.js";
+import {default as BarBuffer} from "../plotBuffers/Bar.js";
+import {default as BoxBuffer} from "../plotBuffers/Box.js";
+import {default as CircleBuffer} from "../plotBuffers/Circle.js";
+import {default as LineBuffer} from "../plotBuffers/Line.js";
+import {default as RectBuffer} from "../plotBuffers/Rect.js";
 const defaultBuffers = {
   Bar: BarBuffer,
   Box: BoxBuffer,
