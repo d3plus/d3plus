@@ -600,7 +600,7 @@ export default class Plot extends Viz {
     // `formatPlotData` TransformStage, and per-axis values extracted to
     // `computePlotAxisValues`. Both run here; downstream paint code reads
     // their outputs from the returned context.
-    const plotCtx = runStages({viz: this} as any, [
+    const plotCtx = runStages({viz: this}, [
       formatPlotData,
       computePlotAxisValues,
     ]) as {

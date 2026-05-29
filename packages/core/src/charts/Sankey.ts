@@ -207,7 +207,7 @@ export default class Sankey extends Viz {
       (d: Record<string, unknown>) => d.shape as string,
     ));
     this._sankeyCtx = {links, nodeGroups, pathFn: this._path};
-    this._chartScene = sankeyDef.emit({viz: this} as any);
+    this._chartScene = sankeyDef.emit({viz: this});
     this._chartTransform = {x: this._margin.left, y: this._margin.top};
     return this;
   }

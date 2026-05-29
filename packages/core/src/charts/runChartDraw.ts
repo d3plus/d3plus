@@ -47,11 +47,8 @@ export function runChartDraw(
   stage: TransformStage,
   transformFn?: (viz: Viz) => Transform | undefined,
 ): void {
-  const {shapeData} = runStages({viz} as any, [stage]) as unknown as {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shapeData: any[];
-  };
-  viz._chartScene = def.emit({viz, shapeData} as any);
+  const ctx = runStages({viz}, [stage]);
+  viz._chartScene = def.emit(ctx);
   viz._chartTransform = transformFn
     ? transformFn(viz)
     : marginOriginTransform(viz);

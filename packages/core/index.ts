@@ -106,6 +106,7 @@ export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
 export type {VizContext} from "./src/charts/vizContext.js";
 export type {PlotPaintContext} from "./src/charts/plotPaint.js";
 export type {VizPreDrawResult} from "./src/charts/vizPreDrawPure.js";
+export type {ShapeLike, VizLike} from "./src/charts/emitHelpers.js";
 import {
   backFeature,
   colorScaleFeature,

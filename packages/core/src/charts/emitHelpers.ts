@@ -22,7 +22,37 @@
 
 import configPrep from "../utils/configPrep.js";
 
-import type {SceneNode} from "@d3plus/render";
+import type {GroupNode, SceneNode} from "@d3plus/render";
+
+/**
+    Structural minimum a Shape (or shape-like component: TextBox, Axis)
+    must satisfy for the helpers below to work with it. Captures only the
+    members the helpers touch — `render()`, optional `toScene()`, and an
+    optional inner `_labelClass` with its own `toScene()`.
+
+    Replaces the previous `shape: any` parameter on `collectComputed` and
+    `absorbShapeIntoChartScene` — both helpers consume the same surface
+    regardless of whether the actual instance is a `Shape` subclass, a
+    `TextBox`, an `Axis`, or anything else that exposes these members.
+*/
+export interface ShapeLike {
+  render(): unknown;
+  toScene?: () => GroupNode | null | undefined;
+  _labelClass?: {
+    toScene?: () => GroupNode | null | undefined;
+  };
+}
+
+/**
+    Structural minimum a Viz instance must satisfy for these helpers to
+    work. Each chart subclass has many more fields; the helpers only need
+    `_chartScene` (mutated by `absorbShapeIntoChartScene`) and
+    `_shapeConfig` (read by `shapeConfigFor`'s default-config branch).
+*/
+export interface VizLike {
+  _chartScene?: SceneNode[];
+  _shapeConfig?: Record<string, unknown>;
+}
 
 /**
     Apply a shape-config object to a chart-specific shape key, returning the
@@ -37,13 +67,14 @@ import type {SceneNode} from "@d3plus/render";
     uses `"edge"` instead.
 */
 export function shapeConfigFor(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  viz: any,
+  viz: VizLike,
   shapeKey: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config?: any,
+  config?: Record<string, unknown>,
   kind: string = "shape",
 ): Record<string, unknown> {
+  // configPrep itself isn't yet typed in @d3plus/dom; the cast lives here so
+  // every caller doesn't need to know about it. The runtime contract is
+  // `configPrep.bind(viz)(config, kind, key) → massagedConfig`.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (configPrep as any).bind(viz)(config ?? viz._shapeConfig, kind, shapeKey);
 }
@@ -61,8 +92,7 @@ export function shapeConfigFor(
                        (default true).
 */
 export function collectComputed(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shape: any,
+  shape: ShapeLike | null | undefined,
   opts: {shape?: boolean; labels?: boolean} = {},
 ): SceneNode[] {
   if (!shape) return [];
@@ -71,8 +101,8 @@ export function collectComputed(
   try {
     shape.render();
     const out: SceneNode[] = [];
-    if (includeShape) {
-      const s = typeof shape.toScene === "function" ? shape.toScene() : null;
+    if (includeShape && typeof shape.toScene === "function") {
+      const s = shape.toScene();
       if (s && Array.isArray(s.children)) out.push(...s.children);
     }
     if (includeLabels) {
@@ -101,10 +131,8 @@ export function collectComputed(
     distinct from the chart-wide `_chartTransform`.
 */
 export function absorbShapeIntoChartScene(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  viz: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shape: any,
+  viz: VizLike,
+  shape: ShapeLike | null | undefined,
   wrap?: {key: string; transform?: {x: number; y: number}},
 ): void {
   if (!shape || typeof shape.toScene !== "function") return;
@@ -112,8 +140,8 @@ export function absorbShapeIntoChartScene(
   const children = collectComputed(shape);
   if (!children.length) return;
   if (wrap) {
-    viz._chartScene.push({type: "group", ...wrap, children});
+    viz._chartScene!.push({type: "group", ...wrap, children});
   } else {
-    viz._chartScene.push(...children);
+    viz._chartScene!.push(...children);
   }
 }

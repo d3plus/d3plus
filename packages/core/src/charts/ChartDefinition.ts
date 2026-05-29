@@ -390,7 +390,7 @@ export const applyPieLayout: TransformStage = ({viz}) => {
   v._pieWidth = width;
   v._pieHeight = height;
 
-  return {shapeData: pieData} as any;
+  return {shapeData: pieData};
 };
 
 /**
@@ -589,7 +589,7 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
 
-  if (!v._filteredData) return {shapeData: []} as any;
+  if (!v._filteredData) return {shapeData: []};
 
   const data = v._filteredData
     .map((datum: any, i: number) => ({
@@ -683,7 +683,7 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
   const bandWidth = yScale.bandwidth();
 
   v._priestleyCtx = {xScale, yScale, bandWidth};
-  return {shapeData: data} as any;
+  return {shapeData: data};
 };
 
 export const priestleyDef: ChartDefinition = {
@@ -877,27 +877,26 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
 
   const pathConfig = shapeConfigFor(v, "Path");
   // Event-handler wrappers: translate the cursor coordinate (in chart-group
-  // space) to the nearest polygon vertex so the click/mousemove resolves to
-  // a single datum out of the polygon's flattened `arr`. Stays in the
+  // space) to the nearest polygon vertex so the click/mousemove resolves
+  // to a single datum out of the polygon's flattened `arr`. Stays in the
   // layout stage (not the constructor) because the wrapper closes over
   // `width`/`height` from this render pass.
-  const events = Object.keys(pathConfig.on as Record<string, unknown> ?? {});
+  const events = Object.keys((pathConfig.on as Record<string, unknown>) ?? {});
   pathConfig.on = {};
-  for (let e = 0; e < events.length; e++) {
-    const event = events[e];
-    pathConfig.on[event] = (d: any, i: any, s: any, e: any) => {
+  for (const eventName of events) {
+    pathConfig.on[eventName] = (d: any, i: any, s: any, evt: any) => {
       const xs = d.points.map((p: any) => p.x + width / 2);
       const ys = d.points.map((p: any) => p.y + height / 2);
-      const cursor = pointer(e, v._select.node());
+      const cursor = pointer(evt, v._select.node());
       const xDist = xs.map((p: any) => Math.abs(p - cursor[0]));
       const yDist = ys.map((p: any) => Math.abs(p - cursor[1]));
       const dists = xDist.map((dd: any, ii: any) => dd + yDist[ii]);
-      v._on[event].bind(v)(d.arr[dists.indexOf(min(dists))], i, s, e);
+      v._on[eventName].bind(v)(d.arr[dists.indexOf(min(dists))], i, s, evt);
     };
   }
 
   v._radarCtx = {groupData, pathConfig};
-  return {shapeData: groupData} as any;
+  return {shapeData: groupData};
 };
 
 export const radarDef: ChartDefinition = {
@@ -967,7 +966,7 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     v._filteredData,
   );
 
-  if (!rowValues.length || !columnValues.length) return {shapeData: []} as any;
+  if (!rowValues.length || !columnValues.length) return {shapeData: []};
 
   const height = v._height - v._margin.top - v._margin.bottom;
   const width = v._width - v._margin.left - v._margin.right;
@@ -1059,7 +1058,7 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
       : v._columnAxis.width();
 
   v._matrixCtx = {columnScale, rowScale, cellWidth, cellHeight};
-  return {shapeData} as any;
+  return {shapeData};
 };
 
 export const matrixDef: ChartDefinition = {
@@ -1129,7 +1128,7 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   if (!rowValues.length || !columnValues.length) {
     v._radialMatrixWidth = v._width - v._margin.left - v._margin.right;
     v._radialMatrixHeight = v._height - v._margin.top - v._margin.bottom;
-    return {shapeData: []} as any;
+    return {shapeData: []};
   }
 
   const height = v._height - v._margin.top - v._margin.bottom,
@@ -1235,7 +1234,7 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
     );
 
   v._radialMatrixCtx = {arcData};
-  return {shapeData} as any;
+  return {shapeData};
 };
 
 export const radialMatrixDef: ChartDefinition = {
@@ -1449,7 +1448,7 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   v._treeCtx = {linksData, linkD, shapeGroups, shapeConfig};
   v._previousShapes = dataShapes;
 
-  return {shapeData: treeData} as any;
+  return {shapeData: treeData};
 };
 
 /**
@@ -1555,23 +1554,26 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
 
       if (n === undefined) return false;
 
+      // Prefer the value from `d` (the linked data point) when it's defined
+      // and the accessor returns something meaningful; otherwise fall back
+      // to the node's own value. The previous double-nested ternaries made
+      // the read order hard to scan.
+      const pickFrom = <T,>(
+        accessor: (x: any) => T,
+        validate: (x: T) => boolean = v => v !== undefined,
+      ): T =>
+        d !== undefined && validate(accessor(d)) ? accessor(d) : accessor(n);
+
       return {
         __d3plus__: true,
         data: d || n,
         i,
         id,
-        fx: d !== undefined && !isNaN(v._x(d)) ? v._x(d) : v._x(n),
-        fy: d !== undefined && !isNaN(v._y(d)) ? v._y(d) : v._y(n),
+        fx: pickFrom(v._x, (val: number) => !isNaN(val)),
+        fy: pickFrom(v._y, (val: number) => !isNaN(val)),
         node: n,
-        r: v._size
-          ? d !== undefined && v._size(d) !== undefined
-            ? v._size(d)
-            : v._size(n)
-          : v._sizeMin,
-        shape:
-          d !== undefined && v._shape(d) !== undefined
-            ? v._shape(d)
-            : v._shape(n),
+        r: v._size ? pickFrom(v._size) : v._sizeMin,
+        shape: pickFrom(v._shape),
       };
     })
     .filter((n: any): n is Exclude<typeof n, false> => !!n);
@@ -1796,7 +1798,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   );
   v._networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};
 
-  return {shapeData: nodes} as any;
+  return {shapeData: nodes};
 };
 
 /**
@@ -2296,7 +2298,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   ));
   v._ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
 
-  return {shapeData: nodes} as any;
+  return {shapeData: nodes};
 };
 
 /**
@@ -2641,7 +2643,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       v._projection(v._point(d, i))[1]) as any,
   };
 
-  return {shapeData: topoData} as any;
+  return {shapeData: topoData};
 };
 
 /**
