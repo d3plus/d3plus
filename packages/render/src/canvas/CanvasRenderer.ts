@@ -84,14 +84,25 @@ function pathFor(ctx: Ctx, node: SceneNode): void {
     ("pattern:<json>") fall back to the texture's background/fill color, since
     textures.js generates SVG patterns the canvas cannot consume.
 */
+// Pattern-token resolution cache. Without it, `solidFill` runs
+// JSON.parse on every fill/stroke/text-fill call for every textured
+// node every paint — a texture-heavy chart pays the parse cost every
+// frame. SvgRenderer caches via `_textureDefs`; this is the canvas
+// equivalent. Cleared in destroy() via `_solidFillCache.clear()`.
+const _solidFillCache = new Map<string, string>();
 function solidFill(fill?: string): string | undefined {
   if (!fill || !fill.startsWith("pattern:")) return fill;
+  const cached = _solidFillCache.get(fill);
+  if (cached !== undefined) return cached;
+  let resolved = "#ccc";
   try {
     const cfg = JSON.parse(fill.slice("pattern:".length));
-    return cfg.background || cfg.fill || cfg.stroke || "#ccc";
+    resolved = cfg.background || cfg.fill || cfg.stroke || "#ccc";
   } catch {
-    return "#ccc";
+    // resolved stays "#ccc"
   }
+  _solidFillCache.set(fill, resolved);
+  return resolved;
 }
 
 /** Fills and/or strokes the context's current path (or a Path2D) per the node's paint. */
@@ -145,7 +156,12 @@ export default class CanvasRenderer implements Renderer {
   private _listening = false;
   private _hoverKey: string | number | null = null;
   private _frame = 0;
-  private _cancelAnim: (() => void) | null = null;
+  /**
+   * `_cancelAnim(soft?)` — call with `soft=true` to stop the tick loop
+   * without snap-painting the target scene; `false`/omitted snaps + paints
+   * (so external `handle.cancel()` matches what resize/toSVGString see).
+   */
+  private _cancelAnim: ((soft?: boolean) => void) | null = null;
   private _invalidatePointerRect: (() => void) | null = null;
   private _removePointerRectListeners: (() => void) | null = null;
 
@@ -186,7 +202,12 @@ export default class CanvasRenderer implements Renderer {
 
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
     if (!this._ctx) throw new Error("CanvasRenderer.drawScene called before mount()");
-    if (this._cancelAnim) this._cancelAnim();
+    // Cancel any in-flight animation with the "soft" path — don't
+    // snap-paint the previous target. The new animation that's about
+    // to start will pick up from the visible canvas pixels and
+    // smoothly transition to `scene`. Only handle.cancel() invocations
+    // by external callers want the snap-to-target behavior.
+    if (this._cancelAnim) this._cancelAnim(true);
 
     const duration = opts?.duration ?? 0;
     const prev = this._scene;
@@ -225,16 +246,17 @@ export default class CanvasRenderer implements Renderer {
           resolve();
         }
       };
-      this._cancelAnim = () => {
+      // `soft` distinguishes the two cancel paths:
+      //   - external `handle.cancel()` → snap to target + paint so a
+      //     subsequent resize/toSVGString matches the visible canvas
+      //   - internal auto-cancel from drawScene → just stop ticking;
+      //     the new animation handles the visible transition.
+      this._cancelAnim = (soft = false): void => {
         cancelled = true;
-        // Snap to the target scene on cancel so internal state (used by
-        // resize/pick/toSVGString) matches what the user sees. Without
-        // the paint, `_scene = scene` would diverge from the canvas
-        // pixels left at the last interpolated frame, and a subsequent
-        // resize() — which calls _paint(this._scene) — would surprise
-        // the user with a jump to the final scene.
-        this._scene = scene;
-        if (this._cancelAnim) this._paint(scene);
+        if (!soft) {
+          this._scene = scene;
+          this._paint(scene);
+        }
         this._cancelAnim = null;
       };
       this._frame = raf(tick) as unknown as number;

@@ -204,8 +204,14 @@ export function vizPreDrawPure(
       computedTimeFilter = () => true;
     } else {
       const latestTime = +max(dates)!;
+      // Snapshot `viz._time` into the closure. Without this, a user
+      // changing `.time(...)` after the filter is constructed would
+      // make the closure read the NEW accessor against the OLD
+      // latestTime — nonsense results. Matches the snapGroupBy /
+      // snapLabel pattern earlier in this file.
+      const snapTime = viz._time;
       computedTimeFilter = (dd: DataPoint, ii: number) =>
-        +date(viz._time(dd, ii))! === latestTime;
+        +date(snapTime(dd, ii))! === latestTime;
     }
   }
   out.computedTimeFilter = computedTimeFilter;

@@ -531,6 +531,20 @@ export default class Plot extends Viz {
 */
   toScene(): Scene {
     const scene = (Viz.prototype.toScene as () => Scene).call(this);
+    // Skip the axis walk when an explicit empty-data render just
+    // happened. Axes are constructor-allocated and never reset between
+    // renders, so a previous-render's axis._select.node() still exists
+    // after `.data([]).render()` — emitting its toScene snapshot
+    // would leak stale tick marks + grid lines under the no-data
+    // overlay. We test `length === 0` explicitly so test fixtures that
+    // construct viz without ever calling .render() (and leave
+    // _filteredData undefined) don't trip the early-return.
+    if (
+      Array.isArray(this._filteredData) &&
+      this._filteredData.length === 0 &&
+      (!this._annotations || this._annotations.length === 0)
+    )
+      return scene;
     const axisNodes: SceneNode[] = [];
     for (const name of ["_xAxis", "_x2Axis", "_yAxis", "_y2Axis"]) {
       const axis = this[name];

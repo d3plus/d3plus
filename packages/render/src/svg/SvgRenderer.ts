@@ -220,6 +220,10 @@ export default class SvgRenderer implements Renderer {
   private _timers = new Set<ReturnType<typeof setTimeout>>();
   private _invalidatePointerRect: (() => void) | null = null;
   private _removePointerRectListeners: (() => void) | null = null;
+  /** Cancel handle for the latest drawScene transition; flipped on overlap. */
+  private _cancelDraw: (() => void) | null = null;
+  /** Marks `_index` as needing a rebuild before the next external read. */
+  private _indexDirty = true;
 
   mount(target: RenderTarget): void {
     this._target = target;
@@ -261,10 +265,24 @@ export default class SvgRenderer implements Renderer {
     if (!this._root || !this._svg)
       throw new Error("SvgRenderer.drawScene called before mount()");
 
+    // Cancel any prior in-flight transition before starting a new one.
+    // Without this, the previous call's `onEnd` callback fires after
+    // the new scene has already painted — leaving subscribers to think
+    // the in-flight render finished when actually a newer one did.
+    // Mirrors CanvasRenderer's `if (this._cancelAnim) this._cancelAnim();`
+    // at the top of its drawScene.
+    if (this._cancelDraw) this._cancelDraw();
+
     const duration = opts?.duration ?? 0;
+    // Lazy `_index` rebuild: only walk the tree when the scene object
+    // identity changes. Hit-testing via `_pickFromElement` doesn't read
+    // `_index` (the d3 join + element-traversal handles it), and the
+    // index is only consumed by external callers/tests; rebuilding on
+    // every draw burns CPU on large scenes for no observable benefit.
+    // Mark for lazy rebuild — first read will populate.
+    const sceneChanged = this._scene !== scene;
     this._scene = scene;
-    this._index = new Map();
-    buildIndex(scene.root, this._index);
+    if (sceneChanged) this._indexDirty = true;
 
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
@@ -288,13 +306,12 @@ export default class SvgRenderer implements Renderer {
       this._timers.add(timer);
     });
 
-    return {
-      finished,
-      cancel: () => {
-        cancelled = true;
-        if (this._root) select(this._root).selectAll("*").interrupt();
-      },
+    const cancel = (): void => {
+      cancelled = true;
+      if (this._root) select(this._root).selectAll("*").interrupt();
     };
+    this._cancelDraw = cancel;
+    return {finished, cancel};
   }
 
   /**
@@ -331,13 +348,45 @@ export default class SvgRenderer implements Renderer {
     t: any,
   ): void {
     // HtmlOverlay nodes live outside the SVG; they're reconciled separately
-    // by `_reconcileOverlays` against the sibling overlay host.
-    const svgChildren = children.filter(c => c.type !== "htmlOverlay");
-    const ordered = [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
+    // by `_reconcileOverlays` against the sibling overlay host. Skip the
+    // filter+slice allocations when no overlays are present (the common
+    // case for deeply-nested chart groups). Skip the sort when no node
+    // has `z` set — matches the CanvasRenderer fast path.
+    let svgChildren: SceneNode[] = children;
+    let hasOverlay = false;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].type === "htmlOverlay") {
+        hasOverlay = true;
+        break;
+      }
+    }
+    if (hasOverlay)
+      svgChildren = children.filter(c => c.type !== "htmlOverlay");
+    let needsSort = false;
+    for (let i = 0; i < svgChildren.length; i++) {
+      if (svgChildren[i].z !== undefined) {
+        needsSort = true;
+        break;
+      }
+    }
+    const ordered = needsSort
+      ? [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
+      : svgChildren;
     const sel = parent.selectChildren("*").data(ordered, (d: SceneNode) => d.key);
     const resolveFill = (f?: string): string | null => this._resolveFill(f);
 
     const exit = sel.exit();
+    // Free any clipPath entries owned by exiting groups so they don't
+    // accumulate in <defs> across the chart's lifetime. _applyGroupClip
+    // is only invoked on the merge selection (live groups); without
+    // this exit cleanup, removed clipped groups leak <clipPath>
+    // elements + _clipIds entries indefinitely.
+    const self = this;
+    exit.each(function (d: SceneNode) {
+      if (d && d.type === "group") {
+        self._releaseGroupClip(String((d as GroupNode).key));
+      }
+    });
     if (duration) exit.transition(t).attr("opacity", 0).remove();
     else exit.remove();
 
@@ -353,7 +402,6 @@ export default class SvgRenderer implements Renderer {
     const merged = enter.merge(sel);
     merged.order();
 
-    const self = this;
     merged.each(function (this: Element, d: SceneNode) {
       const s = select(this);
       applyStatic(s, d);
@@ -371,6 +419,21 @@ export default class SvgRenderer implements Renderer {
       under <defs> and links it via `clip-path="url(#…)"`. Idempotent per
       `node.key` — the same group reuses its clip element across draws.
   */
+  /**
+      Removes the <clipPath> and `_clipIds` entry owned by `key`. Called
+      from the exit selection of `_reconcile` so removed groups don't
+      leak their clip element forever.
+  */
+  private _releaseGroupClip(key: string): void {
+    const id = this._clipIds.get(key);
+    if (!id) return;
+    if (this._defs) {
+      const clipEl = this._defs.querySelector(`#${id}`);
+      if (clipEl) clipEl.remove();
+    }
+    this._clipIds.delete(key);
+  }
+
   private _applyGroupClip(el: SVGGElement, node: GroupNode): void {
     if (!node.clip) {
       // Drop any previously-applied clip (group's clip removed mid-life).
@@ -471,6 +534,13 @@ export default class SvgRenderer implements Renderer {
   }
 
   private _pickFromElement(el: Element | null): PickResult | null {
+    // Build the index lazily on first read after a scene change. Avoids
+    // walking the whole tree on every drawScene when nobody picks.
+    if (this._indexDirty && this._scene) {
+      this._index = new Map();
+      buildIndex(this._scene.root, this._index);
+      this._indexDirty = false;
+    }
     let cur: Element | null = el;
     while (cur && cur !== this._svg) {
       const k = cur.getAttribute("data-key");

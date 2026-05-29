@@ -34,10 +34,14 @@ export function vizPreDraw(viz: Viz): void {
   if (ctx.drawLabel) viz._drawLabel = ctx.drawLabel;
   if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
 
-  // 2. computedTimeFilter — set only when pure function synthesized one.
-  if (ctx.computedTimeFilter && !viz._timeFilter) {
-    viz._timeFilter = ctx.computedTimeFilter;
-  }
+  // 2. computedTimeFilter — surfaced on the ctx for downstream consumers
+  // (rollupAndFilter etc.) but NOT back-assigned to `viz._timeFilter`.
+  // Back-assigning would pin the synthesized filter (which captures
+  // `latestTime` at synthesis time) to the viz, so a subsequent render
+  // with newer data would skip re-synthesis and silently filter
+  // post-latestTime rows out. The pure function consumes its own
+  // computedTimeFilter for filteredData; legacy `viz._timeFilter`
+  // consumers see the user's value (truthy) or undefined.
 
   // 3. filteredData — pre-threshold from pure, then run threshold (which
   // reads this._aggs/_drawDepth/_groupBy via the instance method).

@@ -462,7 +462,12 @@ export const legendFeature: FeatureModule = {
         wide ? viz._margin.left + padding.left : viz._margin.left
       }, ${wide ? viz._margin.top : viz._margin.top + padding.top})`,
     };
-    const visible = viz._legend.bind(viz)(config, legendData);
+    // `visible` gates the legend group's DOM presence + data binding.
+    // `position === false` forces it off so `.legendPosition(false)` is
+    // an actual hide signal: the legend's render runs against [] data,
+    // which exits any prior DOM and emits no scene.
+    const visible =
+      position === false ? false : viz._legend.bind(viz)(config, legendData);
 
     // The Legend instance still renders into a `g.d3plus-viz-legend` group as
     // a child of the chart's svg. This group is created via the legacy `elem`
@@ -737,10 +742,17 @@ export const colorScaleFeature: FeatureModule = {
     if (showColorScale) {
       const scaleBounds = viz._colorScaleClass.outerBounds();
       if (!viz._colorScaleConfig.select && scaleBounds.height) {
-        if (wide)
-          margin[position] = scaleBounds.height + viz._legendClass.padding() * 2;
-        else
-          margin[position] = scaleBounds.width + viz._legendClass.padding() * 2;
+        // Use the colorScale's OWN padding for its margin claim. Legacy
+        // drawColorScale read `viz._legendClass.padding()` here — a
+        // faithful-port carry-over that meant a custom legendPadding
+        // would shift the colorScale's claim even with the legend
+        // hidden. The colorScale class is the source of truth.
+        const csPadding =
+          typeof viz._colorScaleClass.padding === "function"
+            ? viz._colorScaleClass.padding()
+            : viz._legendClass.padding();
+        if (wide) margin[position] = scaleBounds.height + csPadding * 2;
+        else margin[position] = scaleBounds.width + csPadding * 2;
       }
     }
     return {panel: null, margin};

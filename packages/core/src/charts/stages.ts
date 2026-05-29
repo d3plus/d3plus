@@ -352,8 +352,10 @@ export function runStages(
     ctx = Object.assign({}, ctx, partial);
     // Progressive writeback: legacy code that one stage transitively invokes
     // (e.g. Treemap._thresholdFunction reading this._drawDepth) sees the
-    // values the prior stage produced.
-    for (const key in partial) {
+    // values the prior stage produced. `Object.keys` (not `for...in`) so a
+    // stage returning a class-instance partial doesn't leak prototype-bag
+    // entries onto viz — parity with runLayout's vizUpdate fix.
+    for (const key of Object.keys(partial)) {
       const field = writebackMap[key];
       if (field && (partial as any)[key] !== undefined)
         (viz as any)[field] = (partial as any)[key];

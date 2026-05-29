@@ -608,6 +608,22 @@ export default class Axis extends BaseClass {
         ? (this._tickShape.toScene() as GroupNode)
         : null;
     if (tickGroup) children.push(tickGroup);
+    // Tick LABELS — appended here because Shape.toScene no longer
+    // includes _labelClass children (collectComputed is the canonical
+    // aggregator for the chart pipeline; Axis composes labels itself).
+    if (this._tickShape) {
+      const lbl = (this._tickShape as {_labelClass?: {toScene?: () => GroupNode; _data?: unknown[]}})._labelClass;
+      if (
+        lbl &&
+        typeof lbl.toScene === "function" &&
+        lbl._data &&
+        lbl._data.length
+      ) {
+        const lblScene = lbl.toScene();
+        if (lblScene && Array.isArray(lblScene.children))
+          children.push(...(lblScene.children as SceneNode[]));
+      }
+    }
 
     const bar = this._barLinePoints();
     if (bar) {

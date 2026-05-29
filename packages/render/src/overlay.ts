@@ -11,8 +11,23 @@ import type {RenderTarget} from "./Renderer.js";
     Walks the scene tree gathering every `htmlOverlay` node and the
     inherited (x, y) translate offset from its ancestor `group`
     transforms. Both renderers run this identical walk; consolidating
-    avoids divergence (e.g. one backend gaining scale/rotate support
-    that the other misses).
+    avoids divergence between SVG and Canvas.
+
+    LIMITATION: accumulates TRANSLATE only — ancestor `scale` and
+    `rotate` are not composed into the overlay's screen position. An
+    HtmlOverlayNode inside a scaled or rotated group will be positioned
+    at the un-scaled / un-rotated coordinate, while the canvas/svg
+    children of the same group ARE rendered with the transform applied.
+    Effects: overlays drift away from anchored shapes when the wrapping
+    group's scale or rotation changes (zoom, programmatic rotation).
+
+    The right fix is a 2D-affine matrix accumulator that returns
+    `{x, y, scale, rotation}` and a renderer-side `transform: ...` on
+    the overlay div. Today no in-tree consumer puts an overlay inside a
+    scaled/rotated group (zoomControls overlays sit at the root), so
+    the translate-only model is sufficient. Callers that want anchored
+    overlays inside zoom containers should anchor at scene-level
+    coordinates after the zoom transform.
 */
 export function walkOverlays(scene: Scene): {
   node: HtmlOverlayNode;
@@ -66,10 +81,20 @@ export function applyOverlayToElement(
     already have one so the absolutely-positioned host layers correctly.
 */
 export function createOverlayHost(target: RenderTarget): HTMLDivElement {
-  const containerStyle =
-    target.container instanceof HTMLElement ? target.container.style : null;
-  if (containerStyle && !containerStyle.position) {
-    containerStyle.position = "relative";
+  // Promote the container to a positioned ancestor so absolutely-
+  // positioned overlays anchor correctly. Read the COMPUTED style (not
+  // just inline) — a container with `position: absolute` from a CSS
+  // class has `style.position === ""` but `getComputedStyle().position
+  // === "absolute"`. Without this we'd silently override the host
+  // page's CSS-driven positioning.
+  if (target.container instanceof HTMLElement) {
+    const computed =
+      typeof getComputedStyle === "function"
+        ? getComputedStyle(target.container).position
+        : "";
+    if (computed === "static" || computed === "") {
+      target.container.style.position = "relative";
+    }
   }
   const host = document.createElement("div");
   host.setAttribute("class", "d3plus-render-overlays");
@@ -102,23 +127,42 @@ export function applyDeclarativeEvents(
   type HostWithState = HTMLElement & {
     __d3plusEvents?: HtmlOverlayNode["events"];
     __d3plusEventTypes?: Set<string>;
+    __d3plusListeners?: Map<string, (e: Event) => void>;
   };
   const h = host as HostWithState;
   h.__d3plusEvents = events;
-  if (!events) return;
 
   // Collect every event type referenced in the spec.
   const needed = new Set<string>();
-  for (const selector of Object.keys(events)) {
-    const handlers = events[selector] || {};
-    for (const eventType of Object.keys(handlers)) needed.add(eventType);
+  if (events) {
+    for (const selector of Object.keys(events)) {
+      const handlers = events[selector] || {};
+      for (const eventType of Object.keys(handlers)) needed.add(eventType);
+    }
   }
 
   if (!h.__d3plusEventTypes) h.__d3plusEventTypes = new Set();
+  if (!h.__d3plusListeners) h.__d3plusListeners = new Map();
+
+  // Remove orphaned listeners — event types the previous spec needed
+  // but the new spec no longer does. Without this, every spec change
+  // accumulates dead listeners on the host element forever (per-overlay
+  // DOM-node leak across draws).
+  for (const eventType of Array.from(h.__d3plusEventTypes)) {
+    if (!needed.has(eventType)) {
+      const fn = h.__d3plusListeners.get(eventType);
+      if (fn) host.removeEventListener(eventType, fn);
+      h.__d3plusListeners.delete(eventType);
+      h.__d3plusEventTypes.delete(eventType);
+    }
+  }
+
+  if (!events) return;
+
   for (const eventType of needed) {
     if (h.__d3plusEventTypes.has(eventType)) continue;
     h.__d3plusEventTypes.add(eventType);
-    host.addEventListener(eventType, function (e: Event) {
+    const listener = function (e: Event): void {
       const spec = (host as HostWithState).__d3plusEvents;
       if (!spec) return;
       const target = e.target as Element | null;
@@ -130,6 +174,8 @@ export function applyDeclarativeEvents(
           if (handler) handler(e);
         }
       }
-    });
+    };
+    host.addEventListener(eventType, listener);
+    h.__d3plusListeners.set(eventType, listener);
   }
 }

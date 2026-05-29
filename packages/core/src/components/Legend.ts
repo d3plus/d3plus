@@ -236,9 +236,22 @@ export default class Legend extends BaseClass {
     }
 
     (this._shapes || []).forEach((shape: unknown) => {
-      const s = shape as {toScene?: () => GroupNode; _data?: unknown[]};
+      const s = shape as {
+        toScene?: () => GroupNode;
+        _data?: unknown[];
+        _labelClass?: {toScene?: () => GroupNode; _data?: unknown[]};
+      };
       if (s && typeof s.toScene === "function" && s._data && s._data.length) {
         children.push(s.toScene());
+        // Shape.toScene no longer includes labels (collectComputed is
+        // the canonical aggregator); legend composes labels per shape
+        // here so swatch text still appears.
+        const lbl = s._labelClass;
+        if (lbl && typeof lbl.toScene === "function" && lbl._data && lbl._data.length) {
+          const lblScene = lbl.toScene();
+          if (lblScene && Array.isArray(lblScene.children))
+            children.push(...(lblScene.children as SceneNode[]));
+        }
       }
     });
 

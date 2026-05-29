@@ -162,28 +162,27 @@ export default class Treemap extends Viz {
 
         if (!isFinite(thresholdPercent) || isNaN(thresholdPercent)) return null;
 
+        // Build the kept array and removed bucket in a single pass.
+        // The previous indexOf+splice-in-loop was O(N²) — for an 8k
+        // leaf Treemap with a 0.5% threshold the indexOf scans cost
+        // ~18M comparisons, ~400 ms per render. Single-pass is O(N).
         const removedItems: any[] = [];
-        const branchDataCopy = branchData.slice();
+        const kept: any[] = [];
         const thresholdValue = thresholdPercent * totalSum;
-
-        let n = branchDataCopy.length;
-        while (n--) {
-          const datum = branchDataCopy[n];
-          if (thresholdKey(datum) < thresholdValue) {
-            const index = branchDataCopy.indexOf(datum);
-            branchDataCopy.splice(index, 1);
-            removedItems.push(datum);
-          }
+        for (let i = 0; i < branchData.length; i++) {
+          const datum = branchData[i];
+          if (thresholdKey(datum) < thresholdValue) removedItems.push(datum);
+          else kept.push(datum);
         }
 
         if (removedItems.length > 0) {
           const mergedItem = merge(removedItems as DataPoint[], aggs);
           mergedItem._isAggregation = true;
           mergedItem._threshold = thresholdPercent;
-          branchDataCopy.push(mergedItem);
+          kept.push(mergedItem);
         }
 
-        return branchDataCopy;
+        return kept;
       }
 
       throw new Error("Depth is higher than the amount of grouping levels.");

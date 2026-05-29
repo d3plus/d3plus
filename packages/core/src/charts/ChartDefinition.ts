@@ -43,6 +43,19 @@ import {Circle, Path, Rect} from "../shapes/index.js";
 import * as allShapes from "../shapes/index.js";
 import accessor from "../utils/accessor.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "./features.js";
+
+/**
+    The default chart-shell feature set wired onto every ChartDefinition.
+    Centralized so adding (e.g.) an `attributionFeature` to every chart
+    is one edit instead of 20. Charts that need a custom set still inline
+    their own array.
+*/
+const defaultChartFeatures = [
+  backFeature,
+  titleFeature,
+  subtitleFeature,
+  totalFeature,
+];
 import type {FeatureModule} from "./features.js";
 import {vizPreDrawStages} from "./stages.js";
 import {chartBounds} from "./chartGeometry.js";
@@ -280,11 +293,12 @@ export const treemapDef: ChartDefinition = {
     tile: treemapSquarify,
     treemap: treemap().round(true),
   },
-  // Layout order mirrors legacy Viz._draw's drawStep order — back/title/
-  // subtitle/total run first and claim margin.top before the chart body lays
-  // itself out. As colorScale/legend/timeline drawSteps convert to
-  // FeatureModules they land here too.
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  // Per-chart features (back/title/subtitle/total). The chart-shell
+  // features colorScale/legend/timeline are NOT listed here — they
+  // live as central FeatureModules and are orchestrated by
+  // `vizDrawPure` based on `legendPosition`/`colorScalePosition` so
+  // their layout interleaves correctly with topBlocks/timeline.
+  features: defaultChartFeatures,
   // The chart's pipeline: shared viz prep + the treemap-specific layout that
   // produces `shapeData`. `_draw` runs only the chart-specific tail because
   // the prep already ran in `_preDraw`.
@@ -362,7 +376,7 @@ export const barChartDef: ChartDefinition = {
     discrete: "x",
     shape: constant("Bar"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   // Plot's pipeline still owns the chart-specific data prep + scale
   // computation; barChartDef contributes only the configuration delta.
   stages: vizPreDrawStages,
@@ -377,7 +391,7 @@ export const barChartDef: ChartDefinition = {
 export const areaPlotDef: ChartDefinition = {
   name: "AreaPlot",
   defaults: {baseline: 0, discrete: "x", shape: constant("Area")},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
   paintDriven: true,
@@ -386,7 +400,7 @@ export const areaPlotDef: ChartDefinition = {
 export const linePlotDef: ChartDefinition = {
   name: "LinePlot",
   defaults: {discrete: "x", shape: constant("Line")},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
   paintDriven: true,
@@ -395,7 +409,7 @@ export const linePlotDef: ChartDefinition = {
 export const stackedAreaDef: ChartDefinition = {
   name: "StackedArea",
   defaults: {stacked: true},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
   paintDriven: true,
@@ -404,7 +418,7 @@ export const stackedAreaDef: ChartDefinition = {
 export const boxWhiskerDef: ChartDefinition = {
   name: "BoxWhisker",
   defaults: {discrete: "x", shape: constant("Box")},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
   paintDriven: true,
@@ -413,7 +427,7 @@ export const boxWhiskerDef: ChartDefinition = {
 export const bumpChartDef: ChartDefinition = {
   name: "BumpChart",
   defaults: {discrete: "x", shape: constant("Line")},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: plotShapesEmit,
   paintDriven: true,
@@ -486,7 +500,7 @@ export const pieDef: ChartDefinition = {
     pie: pie(),
     value: accessor("value"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyPieLayout],
   emit: pieEmit,
 };
@@ -498,7 +512,7 @@ export const donutDef: ChartDefinition = {
   // Pie (the slice data shape is identical).
   name: "Donut",
   defaults: {padPixel: 2},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: vizPreDrawStages,
   emit: pieEmit,
 };
@@ -596,7 +610,7 @@ export const packDef: ChartDefinition = {
     sum: accessor("value"),
     sort: (a: any, b: any) => b.value - a.value,
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyPackLayout],
   emit: packEmit,
 };
@@ -752,7 +766,7 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
 export const priestleyDef: ChartDefinition = {
   name: "Priestley",
   defaults: {paddingInner: 0.05, paddingOuter: 0.05},
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyPriestleyLayout],
   emit: priestleyEmit,
 };
@@ -798,7 +812,11 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(v);
 
 
-  const radius = min([height, width])! / 2 - v._outerPadding;
+  // Clamp radius >= 0 so a chart smaller than 2×_outerPadding doesn't
+  // emit NaN/negative-radius paths (negative radius propagates through
+  // every coord computation and yields invalid `d` strings).
+  const rawRadius = (min([height, width]) ?? 0) / 2 - v._outerPadding;
+  const radius = Math.max(0, rawRadius);
 
   const nestedAxisData = groups(v._filteredData, v._metric);
   const nestedGroupData = groups(v._filteredData, v._id, v._metric);
@@ -812,6 +830,13 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       )
       .flat(),
   );
+
+  // Bail when there's no value range to map: maxValue undefined (no data)
+  // or 0 produces NaN/Infinity radii downstream.
+  if (!maxValue) {
+    v._radarCtx = {shapeData: [], axisData: [], polygonData: []};
+    return {shapeData: []};
+  }
 
   const circularAxis = Array.from(Array(v._levels).keys()).map(d => ({
     id: d,
@@ -972,7 +997,7 @@ export const radarDef: ChartDefinition = {
     shape: constant("Path"),
     value: accessor("value"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyRadarLayout],
   emit: radarEmit,
 };
@@ -1136,7 +1161,7 @@ export const matrixDef: ChartDefinition = {
     column: accessor("column"),
     row: accessor("row"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyMatrixLayout],
   emit: matrixEmit,
 };
@@ -1277,27 +1302,35 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
       : tauRMConst;
   const flippedRows = rowValues.slice().reverse();
 
+  // Precompute row/column index Maps once. Without these, every arc's
+  // innerRadius/outerRadius/startAngle/endAngle accessor (called by
+  // d3-shape per arc per render) would do `flippedRows.indexOf(d.row)`
+  // and `columnValues.indexOf(d.column)` linear scans — O(R*C*(R+C))
+  // per render. For a 20×20 grid that's ~32k scans per draw.
+  const rowIndex = new Map<unknown, number>();
+  flippedRows.forEach((r: unknown, i: number) => rowIndex.set(r, i));
+  const colIndex = new Map<unknown, number>();
+  columnValues.forEach((c: unknown, i: number) => colIndex.set(c, i));
+
   const arcData = (d3Shape.arc as any)()
     .padAngle(v._cellPadding / radius)
     .innerRadius(
       (d: any) =>
-        innerRadius +
-        flippedRows.indexOf(d.row) * rowHeight +
-        v._cellPadding / 2,
+        innerRadius + (rowIndex.get(d.row) ?? 0) * rowHeight + v._cellPadding / 2,
     )
     .outerRadius(
       (d: any) =>
         innerRadius +
-        (flippedRows.indexOf(d.row) + 1) * rowHeight -
+        ((rowIndex.get(d.row) ?? 0) + 1) * rowHeight -
         v._cellPadding / 2,
     )
     .startAngle(
       (d: any) =>
-        labelData[columnValues.indexOf(d.column)].radians - columnWidth / 2,
+        labelData[colIndex.get(d.column) ?? 0].radians - columnWidth / 2,
     )
     .endAngle(
       (d: any) =>
-        labelData[columnValues.indexOf(d.column)].radians + columnWidth / 2,
+        labelData[colIndex.get(d.column) ?? 0].radians + columnWidth / 2,
     );
 
   v._radialMatrixCtx = {arcData};
@@ -1311,7 +1344,7 @@ export const radialMatrixDef: ChartDefinition = {
     column: accessor("column"),
     row: accessor("row"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyRadialMatrixLayout],
   emit: radialMatrixEmit,
 };
@@ -1564,7 +1597,7 @@ export const treeDef: ChartDefinition = {
     shape: constant("Circle"),
     tree: tree(),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyTreeLayout],
   emit: treeEmit,
 };
@@ -1658,20 +1691,25 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     return obj;
   }, {}));
 
-  const nodeIndices = nodes.map((n: any) => n.node);
+  // Map from original-node reference → layoutNode for O(1) numeric-index
+  // link resolution. Previously `nodeIndices.indexOf(v._nodes[l.source])`
+  // ran per-link, giving O(N*L). With 2000 nodes + 5000 links that was
+  // ~20M scan steps per layout (~600 ms freeze on filter toggle).
+  const nodeByOriginal = new Map<unknown, unknown>();
+  for (const n of nodes as any[]) nodeByOriginal.set(n.node, n);
   const links = v._links.map((l: any) => {
     const referenceType = typeof l.source;
     return {
       size: v._linkSize(l),
       source:
         referenceType === "number"
-          ? nodes[nodeIndices.indexOf(v._nodes[l.source])]
+          ? nodeByOriginal.get(v._nodes[l.source])
           : referenceType === "string"
             ? nodeLookup[l.source]
             : nodeLookup[l.source.id],
       target:
         referenceType === "number"
-          ? nodes[nodeIndices.indexOf(v._nodes[l.target])]
+          ? nodeByOriginal.get(v._nodes[l.target])
           : referenceType === "string"
             ? nodeLookup[l.target]
             : nodeLookup[l.target.id],
@@ -1927,7 +1965,7 @@ export const networkDef: ChartDefinition = {
     sizeMin: 5,
     sizeScale: "sqrt",
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyNetworkLayout],
   emit: networkEmit,
 };
@@ -2021,10 +2059,21 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   const links = v._links.map((link: any) => {
     const check = ["source", "target"];
     const edge = check.reduce((result: any, check: any) => {
-      result[check] =
-        typeof link[check] === "number"
-          ? nodes[link[check]]
-          : nodeLookup[link[check].id || link[check]];
+      // Numeric link references are indices into the ORIGINAL v._nodes
+      // array. Translating through `v._nodes[link[check]]` first then
+      // looking up by id (or the node object itself, falling back to
+      // the resolved layoutNode by reference) mirrors Network's
+      // intent — `nodes[link[check]]` indexed the REBUILT/filtered
+      // array and silently connected the wrong pairs.
+      if (typeof link[check] === "number") {
+        const original = v._nodes && v._nodes[link[check]];
+        if (original == null) result[check] = undefined;
+        else if (typeof original === "object")
+          result[check] = nodeLookup[original.id] || nodeLookup[original];
+        else result[check] = nodeLookup[original];
+      } else {
+        result[check] = nodeLookup[link[check].id || link[check]];
+      }
       return result;
     }, {} as Record<string, any>);
     edge.size = v._linkSize(link);
@@ -2446,7 +2495,7 @@ export const ringsDef: ChartDefinition = {
     sizeScale: "sqrt",
     shape: constant("Circle"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyRingsLayout],
   emit: ringsEmit,
 };
@@ -2614,7 +2663,7 @@ export const sankeyDef: ChartDefinition = {
     nodePadding: 8,
     nodeWidth: 30,
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applySankeyLayout],
   emit: sankeyEmit,
 };
@@ -2698,7 +2747,13 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     .domain(extent(pointData, (d: DataPoint, i: number) => v._pointSize(d, i)))
     .range([v._pointSizeMin, v._pointSizeMax]);
 
-  if (!v._zoomSet) {
+  // Compute _extentBounds when (a) we haven't zoomSet yet, OR (b)
+  // zoomSet was flipped externally before the first render finished
+  // wiring it (test isolation, hot-reload remount, race conditions in
+  // SPA orchestration). The downstream `fitExtent` call at the bottom
+  // of this stage dereferences `v._extentBounds.features.length` and
+  // crashes if it's undefined.
+  if (!v._zoomSet || !v._extentBounds) {
     const fitData = v._fitObject
       ? topo2feature(v._fitObject, v._fitKey)
       : coordData;
@@ -2915,7 +2970,7 @@ export const geomapDef: ChartDefinition = {
     projectionPadding: parseSides(20),
     shape: constant("Circle"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   stages: [...vizPreDrawStages, applyGeomapLayout],
   emit: geomapEmit,
 };
@@ -3639,11 +3694,16 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   const xConfigScale = (viz._xConfigScale = autoScale("x", xScale).toLowerCase());
   const x2ConfigScale = (viz._x2ConfigScale = autoScale("x2", x2Scale).toLowerCase());
 
+  // `.slice()` the fallback so domains.x2 isn't ALIASED to domains.x
+  // (and same for y2 ↔ y). Without the slice, later in this function
+  // the baseline-extension loop does `domains[o][0] = b` — when `o`
+  // is 'y2' aliased to y, that mutation hits domains.y too, silently
+  // clobbering the y-axis bottom. Sibling of the d.reverse() fix.
   domains = {
     x: xAutoDomain,
-    x2: x2AutoDomain || xAutoDomain,
+    x2: x2AutoDomain || (xAutoDomain as unknown[]).slice(),
     y: yAutoDomain,
-    y2: y2AutoDomain || yAutoDomain,
+    y2: y2AutoDomain || (yAutoDomain as unknown[]).slice(),
   };
   Object.keys(domains).forEach(axis => {
     if (viz[`_${axis}ConfigScale`] === "log" && domains[axis].includes(0)) {
@@ -3712,7 +3772,7 @@ export const plotDef: ChartDefinition = {
     lineMarkers: false,
     shape: constant("Circle"),
   },
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: defaultChartFeatures,
   // Plot's pipeline tail: shared viz prep + Plot-specific data format +
   // per-axis values + stacked/non-stacked initial domains + scale construction.
   // Plot._draw runs these via `runStages` and continues with the paint phase

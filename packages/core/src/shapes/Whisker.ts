@@ -20,6 +20,7 @@ const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
     Creates SVG whisker based on an array of data.
 */
 export default class Whisker extends BaseClass {
+  _duration: number;
   _endpoint: AccessorFn;
   _endpointConfig: Record<string, unknown>;
   _length: AccessorFn;
@@ -39,6 +40,7 @@ export default class Whisker extends BaseClass {
   constructor() {
     super();
 
+    this._duration = 600;
     this._endpoint = accessor("endpoint", "Rect");
     this._endpointConfig = {
       Circle: {
@@ -165,10 +167,10 @@ export default class Whisker extends BaseClass {
     );
 
     // Fire the user's done-callback only AFTER endpoints are rendered.
-    // The inner shapes don't have a single shared transition queue we
-    // can hook into; the legacy behavior used setTimeout(duration+100)
-    // to wait for transitions to complete, so do the same here.
-    if (callback) setTimeout(callback, (this as any)._duration ? (this as any)._duration + 100 : 0);
+    // The inner shapes don't share a single transition queue, so we
+    // schedule against `_duration + 100` (matching the legacy behavior
+    // and Shape.render's setTimeout pattern).
+    if (callback) setTimeout(callback, this._duration + 100);
 
     return this;
   }
@@ -208,6 +210,17 @@ export default class Whisker extends BaseClass {
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
     return arguments.length ? ((this._data = _!), this) : this._data;
+  }
+
+  /**
+      The animation duration in milliseconds. Drives the
+      `setTimeout(callback, duration+100)` schedule in render() and
+      mirrors Shape.duration().
+*/
+  duration(): number;
+  duration(_: number): this;
+  duration(_?: number): number | this {
+    return arguments.length ? ((this._duration = _!), this) : this._duration;
   }
 
   /**

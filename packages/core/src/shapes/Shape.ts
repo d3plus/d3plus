@@ -414,6 +414,10 @@ export default class Shape extends BaseClass {
     if (this._dataFilter)
       data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
     const children: SceneNode[] = [];
+    // Build the backgroundImage data for emission below. Each datum that
+    // resolves to a non-false `_backgroundImage(d, i)` becomes an
+    // ImageNode positioned at the shape's geometry.
+    const imageData: DataPoint[] = [];
     data.forEach((d, i) => {
       const geom = this._sceneGeometry(d, i);
       if (!geom) return;
@@ -429,17 +433,56 @@ export default class Shape extends BaseClass {
           label: strOrUndef(this._nestWrapper(this._ariaLabel)(d, i)),
         },
       } as unknown as SceneNode);
+      // backgroundImage: collect a per-datum image when the accessor
+      // returns a truthy URL. The image is sized to the shape's
+      // geometry (preferring width/height fields when present).
+      const bg = this._nestWrapper(this._backgroundImage)(d, i) as string | false;
+      if (bg) {
+        const g = geom as Record<string, unknown>;
+        const w = typeof g.width === "number" ? g.width : undefined;
+        const h = typeof g.height === "number" ? g.height : undefined;
+        const cx = typeof g.cx === "number" ? g.cx : (typeof g.x === "number" ? g.x : 0);
+        const cy = typeof g.cy === "number" ? g.cy : (typeof g.y === "number" ? g.y : 0);
+        const r = typeof g.r === "number" ? g.r : undefined;
+        const iw = w ?? (r != null ? r * 2 : 0);
+        const ih = h ?? (r != null ? r * 2 : 0);
+        imageData.push({
+          __d3plus__: true,
+          data: d,
+          i,
+          id: this._nestWrapper(this._id)(d, i),
+          url: bg,
+          x: (cx as number) - iw / 2,
+          y: (cy as number) - ih / 2,
+          width: iw,
+          height: ih,
+        } as unknown as DataPoint);
+      }
     });
-    // Include any labels produced by the most recent render() (the label TextBox
-    // shares this shape's coordinate space, so its nodes append directly).
-    if (
-      this._labelClass &&
-      typeof (this._labelClass as {toScene?: unknown}).toScene === "function" &&
-      this._labelClass._data &&
-      this._labelClass._data.length
-    ) {
-      children.push(...(this._labelClass.toScene().children as SceneNode[]));
+    // Emit background images AFTER shape children so they paint above the
+    // shape's fill — matches the legacy DOM order where the <image> was
+    // appended as a sibling of the shape.
+    if (imageData.length) {
+      this._backgroundImageClass
+        .data(imageData)
+        .id((d: DataPoint) => `${(d as Record<string, unknown>).id}`)
+        .url((d: DataPoint) => (d as Record<string, unknown>).url as string)
+        .x((d: DataPoint) => (d as Record<string, unknown>).x as number)
+        .y((d: DataPoint) => (d as Record<string, unknown>).y as number)
+        .width((d: DataPoint) => (d as Record<string, unknown>).width as number)
+        .height((d: DataPoint) => (d as Record<string, unknown>).height as number)
+        .renderMode("compute");
+      const imgScene = this._backgroundImageClass.toScene();
+      if (imgScene && Array.isArray(imgScene.children))
+        children.push(...imgScene.children);
     }
+    // NOTE: Labels are NOT pushed here. The canonical aggregation point is
+    // `emitHelpers.collectComputed(shape)`, which appends `shape.toScene()`
+    // AND `shape._labelClass.toScene()` independently. Pushing labels here
+    // too would emit them twice in every chart that calls collectComputed
+    // (Pie/Donut/Pack/Treemap/Network/Priestley/Radar/RadialMatrix/Geomap…).
+    // Standalone shape.render() consumers (no collectComputed wrapper) get
+    // labels through Shape.render's own SvgRenderer path below.
     return {type: "group", key: `${this._name}-group`, children};
   }
 
@@ -483,11 +526,45 @@ export default class Shape extends BaseClass {
         const height = isSvg
           ? Number(node.getAttribute("height")) || 300
           : (node as HTMLElement).clientHeight || 300;
-        // Use the caller's element as the container — SvgRenderer creates its
-        // own <svg> inside it (nested svg-in-svg is valid SVG). The caller's
-        // element is preserved so downstream test/queries still find it.
-        while (node.firstChild) node.removeChild(node.firstChild);
-        const scene = {root: this.toScene(), width, height};
+        // Combine the shape's scene + label children. toScene() deliberately
+        // omits labels (collectComputed is the canonical aggregator for the
+        // chart pipeline); for the standalone render() path we add them here
+        // so `new Rect().data(...).render()` still produces label text.
+        const shapeGroup = this.toScene();
+        const labelChildren: SceneNode[] = [];
+        if (
+          this._labelClass &&
+          typeof (this._labelClass as {toScene?: unknown}).toScene === "function" &&
+          this._labelClass._data &&
+          this._labelClass._data.length
+        ) {
+          labelChildren.push(
+            ...(this._labelClass.toScene().children as SceneNode[]),
+          );
+        }
+        const root: GroupNode = {
+          ...shapeGroup,
+          children: [...shapeGroup.children, ...labelChildren],
+        };
+        const scene = {root, width, height};
+        // Tear down any previous SvgRenderer so its DOM listeners + timers
+        // are cleared instead of leaking on every re-render.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const prev = (this as any)._sceneRenderer as
+          | {destroy?: () => void}
+          | undefined;
+        if (prev && typeof prev.destroy === "function") prev.destroy();
+        // Caller's element is preserved (downstream selectors still find it);
+        // we mount SvgRenderer INSIDE it. When `node` is a <g> the result is
+        // a nested <svg>-in-<g>, which is valid SVG but visually unusual —
+        // chart code reaches this path only via the Box/Whisker full-mode
+        // fallback, which is not the recommended flow (compute mode is).
+        // Only wipe children when this is the FIRST time we're mounting
+        // here — re-renders into the same node would otherwise destroy any
+        // labels/auxiliary DOM the caller put alongside.
+        if (!prev) {
+          while (node.firstChild) node.removeChild(node.firstChild);
+        }
         const renderer = new SvgRenderer();
         renderer.mount({container: node, width, height});
         renderer.drawScene(scene);

@@ -69,9 +69,20 @@ export function runChartDraw(
   // point for any decoration nodes it pushes (axes, grids, spokes).
   viz._chartScene = [];
   const ctx = runStages({viz}, [stage]);
-  const stagePushed = Array.isArray(viz._chartScene)
-    ? viz._chartScene.slice()
-    : [];
+  if (!Array.isArray(viz._chartScene)) {
+    // A stage reassigned `viz._chartScene` to a non-array (or replaced
+    // it with undefined). Without this guard, the silent `[]` fallback
+    // would discard the stage's intent — and the comment at the
+    // concat below promises "decorations are preserved". Fail loud so
+    // accidental reassignment surfaces instead of stealth-dropping
+    // axis/grid nodes.
+    throw new Error(
+      `runChartDraw: stage for ${def.name} replaced viz._chartScene with ` +
+      `a non-array value (got ${typeof viz._chartScene}). Stages should ` +
+      "use `(v._chartScene ||= []).push(...)` rather than reassigning.",
+    );
+  }
+  const stagePushed = viz._chartScene.slice();
   const emitted = def.emit(ctx);
   // Preserve decorations the stage pushed (Matrix/Priestley/Radar/
   // RadialMatrix push axis/grid groups via `(v._chartScene ||= []).push`)
