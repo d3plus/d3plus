@@ -86,6 +86,16 @@ export default class Tree extends Viz {
     return this;
   }
 
+  // -----------------------------------------------------------------
+  // JSDoc-only blocks. The accessor METHODS for the schema below are
+  // generated at construction time by `installFluent(treeSchema)`.
+  // The docblocks remain here so docs scrapers + IDE intellisense
+  // associate the descriptions with the methods. Not leftover from a
+  // regex — this is the v4 pattern shared with Sankey/Rings/Network/
+  // RadialMatrix where accessors come from a schema instead of being
+  // hand-written.
+  // -----------------------------------------------------------------
+
   /**
       Changes the orientation of the entire Tree, either "vertical" (top to bottom) or "horizontal" (left to right).
 */

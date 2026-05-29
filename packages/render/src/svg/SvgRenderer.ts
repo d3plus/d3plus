@@ -230,6 +230,10 @@ export default class SvgRenderer implements Renderer {
     const svg = document.createElementNS(SVG_NS, "svg") as SVGSVGElement;
     svg.setAttribute("class", "d3plus-render-svg");
     svg.style.display = "block";
+    // Transparent background — without this, default UA stylesheet may
+    // give the svg a white background, which briefly bleeds through
+    // during container resize while the new scene is paint-pending.
+    svg.style.background = "transparent";
     target.container.appendChild(svg);
     this._svg = svg;
     this.resize(target.width, target.height);

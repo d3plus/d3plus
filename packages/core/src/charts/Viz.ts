@@ -20,7 +20,7 @@ import {
   Tooltip,
 } from "../components/index.js";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
-import type {Scene, SceneNode, Transform} from "@d3plus/render";
+import type {Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 // import {Rect} from "../shape/index.js";
@@ -941,6 +941,54 @@ export default class Viz extends (BaseClass as any) {
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
       this._sceneRenderer.mount({container: userTarget, width: w, height: h});
+      // Bridge renderer pointer events → viz._on handlers. Without this,
+      // tooltips never fire on the v4 scene-rendered path because
+      // `shape.on(evt, fn)` in plotPaint only wires d3-selection
+      // listeners on DOM nodes the scene renderer doesn't create.
+      // Renderer events carry the picked scene node; we look up the
+      // appropriate viz._on key based on whether the pick belongs to
+      // a chart shape, the legend, or neither.
+      this._sceneRenderer.on((event: SceneEvent) => {
+        const pick = event.pick;
+        if (!pick || !pick.node) return;
+        // Walk up from the pick to find a parent group keyed with
+        // "viz-legend" — if found, dispatch to legend handlers; else
+        // dispatch to shape handlers.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const nodeAny = pick.node as any;
+        // Try to detect legend membership by inspecting key prefixes
+        // emitted by features.ts / legendFeature.
+        const isLegendNode =
+          typeof nodeAny.key === "string" &&
+          nodeAny.key.toLowerCase().includes("legend");
+        const suffix = isLegendNode ? "legend" : "shape";
+        const handlerKey = `${event.type}.${suffix}`;
+        // Resolve the source datum + index. `pick.datum` is the raw
+        // scene datum (which Shape._sceneXxx populated). For Plot
+        // shapes that's the wrapped record; the legacy handlers
+        // expect `(d.data, d.i, x, event)`.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rawDatum: any = pick.datum;
+        const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
+        const sourceIndex =
+          rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
+        // Dispatch to the matching viz._on handler if present.
+        const dispatch = (key: string): void => {
+          const fn = this._on && this._on[key];
+          if (typeof fn === "function") {
+            try {
+              fn.call(this, sourceDatum, sourceIndex, rawDatum, event.nativeEvent);
+            } catch {
+              // swallow per-event errors so one bad handler doesn't
+              // break subsequent events.
+            }
+          }
+        };
+        dispatch(handlerKey);
+        // Also fire the un-suffixed handler (e.g. "mousemove") so
+        // user-registered global handlers see the event too.
+        dispatch(event.type);
+      });
     } else {
       this._sceneRenderer.resize(w, h);
     }
