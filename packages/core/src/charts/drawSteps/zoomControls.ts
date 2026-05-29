@@ -1,7 +1,6 @@
-import {select} from "d3-selection";
 import {zoomTransform} from "d3-zoom";
 
-import {attrize, stylize} from "@d3plus/dom";
+import {attrize} from "@d3plus/dom";
 import type Viz from "../Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
@@ -12,6 +11,23 @@ interface MutableTransform {
 }
 
 let brushing = false;
+
+/**
+    Apply a plain key/value style object to a real DOM element. v4 uses
+    HtmlOverlay nodes for the zoom-control buttons, so the d3-selection
+    `stylize` helper isn't reachable from the scene-graph escape hook.
+*/
+function applyStyleObj(
+  el: HTMLElement,
+  styles: Record<string, string | number | undefined | null | false> | false | null | undefined,
+): void {
+  if (!styles) return;
+  for (const k in styles) {
+    const v = styles[k];
+    if (v === undefined || v === null || v === false) continue;
+    (el.style as unknown as Record<string, string>)[k] = String(v);
+  }
+}
 
 /**
     @name zoomControls
@@ -64,71 +80,71 @@ export default function (this: Viz): void {
 
   this._zoomToBounds = zoomToBounds.bind(this);
 
-  let control: ReturnType<typeof select> = select(
-    this._select.node().parentNode,
-  )
-    .selectAll("div.d3plus-zoom-control")
-    .data(this._zoom ? [0] : []) as unknown as ReturnType<typeof select>;
-  const controlEnter = control
-    .enter()
-    .append("div")
-    .attr("class", "d3plus-zoom-control");
-  control.exit().remove();
-  control = control
-    .merge(controlEnter as unknown as ReturnType<typeof select>)
-    .style("position", "absolute")
-    .style("top", `${this._margin.top}px`)
-    .style("left", `${this._margin.left}px`);
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-in");
-  control
-    .select(".zoom-in")
-    .on("click", zoomMath.bind(this, this._zoomFactor))
-    .html("&#65291;");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-out");
-  control
-    .select(".zoom-out")
-    .on("click", zoomMath.bind(this, 1 / this._zoomFactor))
-    .html("&#65293;");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-reset");
-  control
-    .select(".zoom-reset")
-    .on("click", zoomMath.bind(this, 0))
-    .html("&#8634");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-brush");
-  control
-    .select(".zoom-brush")
-    .on("click", function (_event: Event) {
-      select(_event.currentTarget as Element)
-        .classed("active", !brushing)
-        .call(
-          stylize,
-          brushing
-            ? that._zoomControlStyle || {}
-            : that._zoomControlStyleActive || {},
-        );
-      zoomEvents.bind(that)(!brushing);
-    })
-    .html("&#164");
-
-  control
-    .selectAll(".zoom-control")
-    .call(stylize, that._zoomControlStyle)
-    .on("mouseenter", function (_event: Event) {
-      select(_event.currentTarget as Element).call(stylize, that._zoomControlStyleHover || {});
-    })
-    .on("mouseleave", function (_event: Event) {
-      const el = select(_event.currentTarget as Element);
-      el.call(
-        stylize,
-        el.classed("active")
-          ? that._zoomControlStyleActive || {}
-          : that._zoomControlStyle || {},
-      );
+  // v4: zoom controls ride the scene graph as an HtmlOverlay node. The
+  // four buttons (in/out/reset/brush) live in pushed-into _featurePanels;
+  // `onMount` is the scene's documented interactive-HTML escape hook and
+  // here wires the click/hover handlers + applies the user's zoomControl
+  // style configs. Each draw re-runs onMount, so we replace listeners
+  // each time (no idempotence guards needed — the host div's contents
+  // are re-rendered via innerHTML each pass anyway).
+  if (this._zoom) {
+    this._featurePanels = this._featurePanels || [];
+    this._featurePanels.push({
+      type: "htmlOverlay" as const,
+      key: "viz-zoom-controls",
+      x: this._margin.left,
+      y: this._margin.top,
+      className: "d3plus-zoom-control",
+      html:
+        '<div class="zoom-control zoom-in">&#65291;</div>' +
+        '<div class="zoom-control zoom-out">&#65293;</div>' +
+        '<div class="zoom-control zoom-reset">&#8634;</div>' +
+        '<div class="zoom-control zoom-brush">&#164;</div>',
+      onMount: (host: HTMLElement) => {
+        const handlers: [string, () => void][] = [
+          [".zoom-in", () => zoomMath.bind(that)(that._zoomFactor)],
+          [".zoom-out", () => zoomMath.bind(that)(1 / that._zoomFactor)],
+          [".zoom-reset", () => zoomMath.bind(that)(0)],
+        ];
+        for (const [sel, fn] of handlers) {
+          const el = host.querySelector(sel) as HTMLElement | null;
+          if (!el) continue;
+          // Replace any previous handler by cloning. innerHTML reset on
+          // each draw means we usually start fresh, but defensive guard.
+          el.onclick = fn;
+        }
+        const brushBtn = host.querySelector(".zoom-brush") as HTMLElement | null;
+        if (brushBtn) {
+          brushBtn.onclick = () => {
+            const isActive = brushBtn.classList.toggle("active", !brushing);
+            applyStyleObj(
+              brushBtn,
+              isActive
+                ? that._zoomControlStyleActive || {}
+                : that._zoomControlStyle || {},
+            );
+            zoomEvents.bind(that)(!brushing);
+          };
+        }
+        // Base + hover styles on every button.
+        const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
+        buttons.forEach(btn => {
+          applyStyleObj(btn, that._zoomControlStyle || {});
+          btn.onmouseenter = () => {
+            applyStyleObj(btn, that._zoomControlStyleHover || {});
+          };
+          btn.onmouseleave = () => {
+            applyStyleObj(
+              btn,
+              btn.classList.contains("active")
+                ? that._zoomControlStyleActive || {}
+                : that._zoomControlStyle || {},
+            );
+          };
+        });
+      },
     });
+  }
 
   this._zoomBrush
     .extent([
@@ -201,6 +217,26 @@ function zoomed(
         .transition()
         .duration(duration)
         .attr("transform", transform);
+  }
+
+  // v4: thread the zoom transform into the scene graph so Network/Geomap
+  // pan/zoom actually shows up under the scene renderer. The legacy
+  // `_zoomGroup.attr("transform", …)` write above survives for tests and
+  // back-compat consumers reading the legacy SVG; the scene-side update
+  // below is what users see in v4.
+  const t = transform as {k?: number; x?: number; y?: number} | false | string;
+  if (t && typeof t === "object" && "k" in t) {
+    this._zoomTransform = {
+      x: t.x || 0,
+      y: t.y || 0,
+      scale: t.k || 1,
+    };
+  } else if (t === false) {
+    this._zoomTransform = undefined;
+  }
+  // Repaint the scene so the new transform takes effect.
+  if (this._drawSceneToTarget && this._sceneRenderer) {
+    this._drawSceneToTarget();
   }
 
   if (this._renderTiles)

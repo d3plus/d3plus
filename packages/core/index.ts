@@ -98,9 +98,12 @@ import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
 import {plotPaint} from "./src/charts/plotPaint.js";
 import {vizDraw} from "./src/charts/vizDraw.js";
+import {vizDrawPure} from "./src/charts/vizDrawPure.js";
 import {vizPreDraw} from "./src/charts/vizPreDraw.js";
+import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/vizPreDrawPure.js";
 import {resolveSpec} from "./src/charts/resolveSpec.js";
 export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
+export type {VizContext} from "./src/charts/vizContext.js";
 import {
   backFeature,
   colorScaleFeature,
@@ -125,7 +128,10 @@ export {
   resolveSpec,
   runVizPipeline,
   vizDraw,
+  vizDrawPure,
+  vizPostThresholdCtx,
   vizPreDraw,
+  vizPreDrawPure,
 };
 export const __test_internals__ = {
   applyTreemapLayout,
@@ -140,7 +146,10 @@ export const __test_internals__ = {
   runLayout,
   runVizPipeline,
   vizDraw,
+  vizDrawPure,
+  vizPostThresholdCtx,
   vizPreDraw,
+  vizPreDrawPure,
   vizPreDrawStages,
   backFeature,
   colorScaleFeature,

@@ -449,12 +449,28 @@ export default class Viz extends (BaseClass as any) {
   toScene(): Scene {
     const children: SceneNode[] = [];
     // Chart cells emitted via `chartDef.emit(ctx)` and stashed on _chartScene.
+    // Wraps in two groups when a zoom transform is active:
+    //   viz-chart-cells (chart-positioning transform)
+    //     viz-zoom (zoom transform — pan/scale from d3-zoom)
+    //       … chart scene children
+    // This lets zoom apply to the chart content WITHOUT moving legend/
+    // title/total/etc. (which live in sibling viz-* groups, not under
+    // viz-chart-cells).
     if (this._chartScene && this._chartScene.length) {
+      const sliced = this._chartScene.slice();
+      const zoomNode = this._zoomTransform
+        ? [{
+            type: "group" as const,
+            key: "viz-zoom",
+            transform: this._zoomTransform,
+            children: sliced,
+          }]
+        : sliced;
       children.push({
         type: "group",
         key: "viz-chart-cells",
         ...(this._chartTransform ? {transform: this._chartTransform} : {}),
-        children: this._chartScene.slice(),
+        children: zoomNode,
       });
     }
     // Legacy `_shapes` collection (Treemap/Pack/etc. moved off this; Plot's
@@ -581,6 +597,15 @@ export default class Viz extends (BaseClass as any) {
         ? parent.select(".d3plus-viz")
         : parent.append("svg");
       this.select(svg.node());
+    }
+
+    // v4: scope this chart's tooltip to its own parent (instead of the
+    // global body-level #d3plus-portal). Multiple charts on a page now
+    // don't fight over a shared portal, and tooltips are GC'd cleanly
+    // when the parent goes away.
+    if (this._tooltipClass && this._select?.node) {
+      const tooltipParent = this._select.node()?.parentNode as HTMLElement | null;
+      if (tooltipParent) this._tooltipClass.parent(tooltipParent);
     }
 
     // Calculates the width and/or height of the Viz based on the this._select, if either has not been defined.

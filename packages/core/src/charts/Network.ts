@@ -7,6 +7,7 @@ import {addToQueue} from "@d3plus/data";
 import {constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyNetworkLayout, networkDef} from "./ChartDefinition.js";
+import {ensureZoomDom} from "./ensureZoomDom.js";
 import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 
@@ -239,60 +240,12 @@ export default class Network extends Viz {
       height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 
-    // DOM container creation stays here: zoomControls (a drawStep) reads
-    // `_container`/`_zoomGroup`, and the hitArea click handler closes over
-    // chart-instance state (`_focus`, `_zoomToBounds`, `active()`) that
-    // belongs on the class, not the pure layout stage.
-    this._container = this._select.selectAll("svg.d3plus-network").data([0]);
-
-    this._container = this._container
-      .enter()
-      .append("svg")
-      .attr("class", "d3plus-network")
-      .attr("opacity", 0)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("x", this._margin.left)
-      .attr("y", this._margin.top)
-      .style("background-color", "transparent")
-      .merge(this._container);
-
-    this._container
-      .transition()
-      .duration(duration)
-      .attr("opacity", 1)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("x", this._margin.left)
-      .attr("y", this._margin.top);
-
-    const hitArea = this._container
-      .selectAll("rect.d3plus-network-hitArea")
-      .data([0]);
-    hitArea
-      .enter()
-      .append("rect")
-      .attr("class", "d3plus-network-hitArea")
-      .merge(hitArea)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "transparent")
-      .on("click", () => {
-        if (this._focus) {
-          this.active(false);
-          this._focus = undefined;
-          this._zoomToBounds(null);
-        }
-      });
-
-    this._zoomGroup = this._container
-      .selectAll("g.d3plus-network-zoomGroup")
-      .data([0]);
-    this._zoomGroup = this._zoomGroup
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-network-zoomGroup")
-      .merge(this._zoomGroup);
+    // DOM container + zoom group + hitArea: extracted to ensureZoomDom
+    // because d3-zoom needs a real DOM element to bind to and Network's
+    // hitArea click handler closes over class state. The chart-data
+    // SCENE rides the scene graph (below) — only the zoom-event-binding
+    // surface stays imperative.
+    ensureZoomDom(this, {kind: "network", width, height, duration});
 
     this._chartScene = networkDef.emit({viz: this, shapeData} as any);
     this._chartTransform = {x: this._margin.left, y: this._margin.top};

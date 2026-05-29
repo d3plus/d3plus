@@ -88,6 +88,8 @@ export default class Tooltip extends BaseClass {
   _borderRadius: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _className: string;
   _data: DataPoint[];
+  /** v4: optional per-chart parent element (default: global #d3plus-portal). */
+  _parentEl?: HTMLElement;
   _footer: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
   _footerStyle: Record<string, string>;
   _height: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
@@ -201,7 +203,27 @@ export default class Tooltip extends BaseClass {
   render(callback?: (...args: unknown[]) => unknown): this {
     const that = this;
 
-    const portal = elem("div#d3plus-portal");
+    // v4: parent() lets a chart scope the tooltip to its own container
+    // (so multiple charts on a page don't fight over the global portal).
+    // Default behavior — append to body via the global #d3plus-portal —
+    // preserved when parent() isn't set.
+    const portal = this._parentEl
+      ? (() => {
+          let host = this._parentEl!.querySelector(":scope > .d3plus-tooltip-portal") as HTMLElement | null;
+          if (!host) {
+            host = document.createElement("div");
+            host.setAttribute("class", "d3plus-tooltip-portal");
+            host.style.position = "absolute";
+            host.style.top = "0";
+            host.style.left = "0";
+            host.style.width = "0";
+            host.style.height = "0";
+            host.style.pointerEvents = "none";
+            this._parentEl!.appendChild(host);
+          }
+          return select(host);
+        })()
+      : elem("div#d3plus-portal");
     const tooltips = portal
       .selectAll(`.${this._className}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -516,6 +538,23 @@ function value(d) {
   className(_: string): this;
   className(_?: string): unknown {
     return arguments.length ? ((this._className = _!), this) : this._className;
+  }
+
+  /**
+      Parent element that scopes the tooltip's portal. Default (unset) uses
+      the global `<div id="d3plus-portal">` appended to `<body>`. When set,
+      tooltips mount inside a `.d3plus-tooltip-portal` child of the given
+      element instead — so multiple charts on a page don't fight over the
+      global portal, and tooltips destroy cleanly when the chart goes away.
+
+      Viz auto-sets this when rendering: chart.tooltipClass.parent(chart._select.node().parentNode).
+*/
+  parent(): HTMLElement | undefined;
+  parent(_: HTMLElement | null | undefined): this;
+  parent(_?: HTMLElement | null | undefined): unknown {
+    if (!arguments.length) return this._parentEl;
+    this._parentEl = _ || undefined;
+    return this;
   }
 
   /**

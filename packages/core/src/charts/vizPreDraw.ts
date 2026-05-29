@@ -1,194 +1,70 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    `vizPreDraw(viz)` — the Viz `_preDraw` phase as a free function.
+    `vizPreDraw(viz)` — the imperative shim wrapping `vizPreDrawPure`.
 
-    RFC §3.1 architectural seam: the data-prep phase (drawDepth resolution,
-    id/ids/drawLabel accessor synthesis, timeFilter defaulting, filteredData
-    + legendData rollup, dataCutoff hover/duration overrides, no-data
-    messaging) used to live as `Viz._preDraw`; extracting it lets callers
-    drive the pre-draw step without going through the class. `Viz._preDraw`
-    is now a thin shim that calls into here, so behavior is unchanged.
+    The pure function (`vizPreDrawPure(viz, prevCtx) → Partial<VizContext>`)
+    computes the data-prep results without mutating viz. This shim:
+      1. calls the pure function;
+      2. writes the returned ctx fields back to viz (so subclass methods
+         that read `this._drawDepth` / `this._filteredData` see them);
+      3. invokes `viz._thresholdFunction(filteredData, tree)` — this is
+         an instance method that needs `this`-bound state populated by
+         step 2;
+      4. recomputes hover-cutoff overrides + no-data flag against the
+         threshold-applied data (via `vizPostThresholdCtx`);
+      5. applies the deferred DOM side effects (no-data message mount,
+         opacity fade).
 
-    @param viz The Viz instance (or any subclass).
+    `Viz._preDraw()` calls this shim so subclass overrides + the existing
+    test surface remain unchanged. Direct consumers of the architectural
+    seam should use `vizPreDrawPure` (exported from the package index).
 */
 
-import {group, max, min, rollup} from "d3-array";
-
-import {merge} from "@d3plus/data";
-import type {DataPoint} from "@d3plus/data";
-import {date} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
-
-/**
- * Turns an array of values into a list string.
- * @private
- */
-function listify(n: DataPoint[keyof DataPoint][]): string {
-  return n.reduce<string>(
-    (str: string, item: DataPoint[keyof DataPoint], i: number) => {
-      if (!i) str += item;
-      else if (i === n.length - 1 && i === 1) str += ` and ${item}`;
-      else if (i === n.length - 1) str += `, and ${item}`;
-      else str += `, ${item}`;
-      return str;
-    },
-    "",
-  );
-}
-
-/**
- * A function that introspects the `d` Data Object for internally nested
- * d3plus data and indices, runs the accessor function on that user data.
- * @param {Function} acc Accessor function to use.
- * @param {Object} d Data Object
- * @param {Number} i Index of Data Object in Array
- * @private
- */
-function accessorFetch(
-  acc: (d: DataPoint, i: number) => DataPoint[keyof DataPoint],
-  d: DataPoint,
-  i: number,
-): DataPoint[keyof DataPoint] {
-  while (d.__d3plus__ && d.data) {
-    d = d.data as DataPoint;
-    i = d.i as number;
-  }
-  return acc(d, i);
-}
+import {vizPostThresholdCtx, vizPreDrawPure} from "./vizPreDrawPure.js";
 
 export function vizPreDraw(viz: any): void {
-  const that = viz;
-  // based on the groupBy, determine the draw depth and current depth id
-  viz._drawDepth =
-    viz._depth !== void 0
-      ? min([viz._depth >= 0 ? viz._depth : 0, viz._groupBy.length - 1])
-      : viz._groupBy.length - 1;
+  const ctx = vizPreDrawPure(viz);
 
-  // Returns the current unique ID for a data point, coerced to a String.
-  viz._id = (d: DataPoint, i: number) => {
-    const groupByDrawDepth = accessorFetch(
-      viz._groupBy[viz._drawDepth],
-      d,
-      i,
-    );
-    return typeof groupByDrawDepth === "number"
-      ? `${groupByDrawDepth}`
-      : groupByDrawDepth;
-  };
+  // 1. Write computed ctx back to viz.
+  if (ctx.drawDepth !== undefined) viz._drawDepth = ctx.drawDepth;
+  if (ctx.id) viz._id = ctx.id;
+  if (ctx.ids) viz._ids = ctx.ids;
+  if (ctx.drawLabel) viz._drawLabel = ctx.drawLabel;
+  if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
 
-  // Returns an array of the current unique groupBy ID for a data point, coerced to Strings.
-  viz._ids = (d: DataPoint, i: number) =>
-    viz._groupBy
-      .map(
-        (g: (d: DataPoint, i: number) => DataPoint[keyof DataPoint]) =>
-          `${accessorFetch(g, d, i)}`,
-      )
-      .filter(Boolean);
-
-  viz._drawLabel = (
-    d: DataPoint,
-    i: number,
-    depth: number = viz._drawDepth,
-  ) => {
-    if (!d) return "";
-    while (d.__d3plus__ && d.data) {
-      d = d.data as DataPoint;
-      i = d.i as number;
-    }
-    if (d._isAggregation) {
-      return `${viz._thresholdName(d, i)} < ${formatAbbreviate(
-        (d._threshold as number) * 100,
-        viz._locale,
-      )}%`;
-    }
-    if (viz._label && depth === viz._drawDepth)
-      return `${viz._label(d, i)}`;
-    const l = that._ids(d, i).slice(0, depth + 1);
-    const n =
-      l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||
-      l[l.length - 1];
-    return n instanceof Array ? listify(n) : `${n}`;
-  };
-
-  // set the default timeFilter if it has not been specified
-  if (viz._time && !viz._timeFilter && viz._data.length) {
-    const dates = viz._data.map(viz._time).map(date);
-    const d = viz._data[0],
-      i = 0;
-
-    if (
-      viz._discrete &&
-      `_${viz._discrete}` in viz &&
-      viz[`_${viz._discrete}`](d, i) === viz._time(d, i)
-    ) {
-      viz._timeFilter = () => true;
-    } else {
-      const latestTime = +max(dates)!;
-      viz._timeFilter = (d: DataPoint, i: number) =>
-        +date(viz._time(d, i))! === latestTime;
-    }
+  // 2. computedTimeFilter — set only when pure function synthesized one.
+  const computedTimeFilter = (ctx as any).computedTimeFilter;
+  if (computedTimeFilter && !viz._timeFilter) {
+    viz._timeFilter = computedTimeFilter;
   }
 
-  viz._filteredData = [];
-  viz._legendData = [];
-  let flatData: DataPoint[] = [];
-  if (viz._data.length) {
-    flatData = viz._timeFilter
-      ? viz._data.filter(viz._timeFilter)
-      : viz._data;
-    if (viz._filter) flatData = flatData.filter(viz._filter);
-    const nestKeys: ((
-      d: DataPoint,
-      i: number,
-    ) => DataPoint[keyof DataPoint])[] = [];
-    for (let i = 0; i <= viz._drawDepth; i++)
-      nestKeys.push(viz._groupBy[i]);
-    if (viz._discrete && `_${viz._discrete}` in viz)
-      nestKeys.push(viz[`_${viz._discrete}`]);
-    if (viz._discrete && `_${viz._discrete}2` in viz)
-      nestKeys.push(viz[`_${viz._discrete}2`]);
-
-    const tree = rollup(
-      flatData,
-      (leaves: DataPoint[]) => {
-        const index = viz._data.indexOf(leaves[0]);
-        const shape = viz._shape(leaves[0], index);
-        const id = viz._id(leaves[0], index);
-
-        const d = merge(leaves, viz._aggs);
-
-        if (
-          !viz._hidden.includes(id) &&
-          (!viz._solo.length || viz._solo.includes(id))
-        ) {
-          if (!viz._discrete && shape === "Line")
-            viz._filteredData = viz._filteredData.concat(leaves);
-          else viz._filteredData.push(d);
-        }
-        viz._legendData.push(d);
-      },
-      ...nestKeys,
-    );
-
-    viz._filteredData = viz._thresholdFunction(viz._filteredData, tree);
+  // 3. filteredData — pre-threshold from pure, then run threshold (which
+  // reads this._aggs/_drawDepth/_groupBy via the instance method).
+  let filteredData = ctx.filteredData || [];
+  const thresholdTree = (ctx as any)._thresholdTree;
+  if (viz._data.length && thresholdTree) {
+    filteredData = viz._thresholdFunction(filteredData, thresholdTree);
   }
+  viz._filteredData = filteredData;
 
-  // overrides the hoverOpacity of shapes if data is larger than cutoff
-  const uniqueIds = group(viz._filteredData, viz._id).size;
-  if (uniqueIds > viz._dataCutoff) {
+  // 4. hover/duration override + noDataMessage flag — computed against
+  // the post-threshold filteredData.
+  const post = vizPostThresholdCtx(viz, filteredData, viz._id);
+  if (post.hoverOverride?.stashOriginals) {
     if (viz._userHover === undefined)
       viz._userHover = viz._shapeConfig.hoverOpacity || 0.5;
     if (viz._userDuration === undefined)
       viz._userDuration = viz._shapeConfig.duration || 600;
-    viz._shapeConfig.hoverOpacity = 1;
-    viz._shapeConfig.duration = 0;
-  } else if (viz._userHover !== undefined) {
-    viz._shapeConfig.hoverOpacity = viz._userHover;
-    viz._shapeConfig.duration = viz._userDuration;
+    viz._shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
+    viz._shapeConfig.duration = post.hoverOverride.duration;
+  } else if (post.hoverOverride?.restoreOriginals) {
+    viz._shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
+    viz._shapeConfig.duration = post.hoverOverride.duration;
   }
 
-  if (viz._noDataMessage && !viz._filteredData.length) {
+  // 5. No-data-message DOM mount + opacity fade.
+  if (post.noDataMessage) {
     viz._messageClass.render({
       container: viz._select.node().parentNode,
       html: viz._noDataHTML(viz),

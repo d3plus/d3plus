@@ -19,6 +19,7 @@ import {assign} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 
 import {applyGeomapLayout, geomapDef} from "./ChartDefinition.js";
+import {ensureZoomDom} from "./ensureZoomDom.js";
 import {runStages} from "./stages.js";
 import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
@@ -231,55 +232,17 @@ export default class Geomap extends Viz {
     const height = this._height - this._margin.top - this._margin.bottom,
       width = this._width - this._margin.left - this._margin.right;
 
-    this._container = this._select.selectAll("svg.d3plus-geomap").data([0]);
-    this._container = this._container
-      .enter()
-      .append("svg")
-      .attr("class", "d3plus-geomap")
-      .attr("opacity", 0)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("x", this._margin.left)
-      .attr("y", this._margin.top)
-      .style("background-color", this._ocean || "transparent")
-      .merge(this._container);
-    this._container
-      .transition(this._transition)
-      .attr("opacity", 1)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("x", this._margin.left)
-      .attr("y", this._margin.top);
-
-    const ocean = this._container
-      .selectAll("rect.d3plus-geomap-ocean")
-      .data([0]);
-    ocean
-      .enter()
-      .append("rect")
-      .attr("class", "d3plus-geomap-ocean")
-      .merge(ocean)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", this._ocean || "transparent");
-
-    this._tileGroup = this._container
-      .selectAll("g.d3plus-geomap-tileGroup")
-      .data([0]);
-    this._tileGroup = this._tileGroup
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-geomap-tileGroup")
-      .merge(this._tileGroup);
-
-    this._zoomGroup = this._container
-      .selectAll("g.d3plus-geomap-zoomGroup")
-      .data([0]);
-    this._zoomGroup = this._zoomGroup
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-geomap-zoomGroup")
-      .merge(this._zoomGroup);
+    // DOM container + ocean + tile group + zoom group: extracted to
+    // ensureZoomDom. d3-zoom needs a real DOM target and _renderTiles
+    // mutates the tileGroup directly with map imagery; the chart-data
+    // SCENE rides the scene graph below.
+    ensureZoomDom(this, {
+      kind: "geomap",
+      width,
+      height,
+      duration: this._duration,
+      ocean: this._ocean,
+    });
 
     const zoomNeedsWiring = !this._zoomSet;
     const {shapeData} = runStages({viz: this} as any, [applyGeomapLayout]) as unknown as {
