@@ -110,7 +110,7 @@ import {
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
-import {plotPaint} from "./src/charts/plotPaint.js";
+import {plotEmit, plotMeasure, plotPaint} from "./src/charts/plotPaint.js";
 import {vizDraw} from "./src/charts/vizDraw.js";
 import {vizDrawPure} from "./src/charts/vizDrawPure.js";
 import {vizPreDraw} from "./src/charts/vizPreDraw.js";
@@ -118,9 +118,16 @@ import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/vizPreDrawPure.j
 import {resolveSpec} from "./src/charts/resolveSpec.js";
 export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
 export type {VizContext} from "./src/charts/vizContext.js";
-export type {PlotPaintContext} from "./src/charts/plotPaint.js";
+export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/plotPaint.js";
 export type {VizPreDrawResult} from "./src/charts/vizPreDrawPure.js";
 export type {ShapeLike, VizLike} from "./src/charts/emitHelpers.js";
+export type {
+  D3Selection,
+  Margin,
+  Padding,
+  Viz,
+  VizRenderer,
+} from "./src/charts/vizTypes.js";
 export type {
   AnyShapeConfig,
   AreaConfig,
@@ -169,6 +176,8 @@ export {
   installFluent,
   computeAxisLayout,
   measureAxis,
+  plotEmit,
+  plotMeasure,
   plotPaint,
   resolveSpec,
   runVizPipeline,

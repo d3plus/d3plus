@@ -39,6 +39,7 @@ import {
 } from "./features.js";
 
 import type {VizContext} from "./vizContext.js";
+import type {Viz} from "./vizTypes.js";
 
 export interface VizDrawCtx extends VizContext {
   marginDelta?: {top: number; bottom: number; left: number; right: number};
@@ -51,7 +52,7 @@ export interface VizDrawCtx extends VizContext {
 }
 
 export function vizDrawPure(
-  viz: any,
+  viz: Viz,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
 ): Partial<VizDrawCtx> {

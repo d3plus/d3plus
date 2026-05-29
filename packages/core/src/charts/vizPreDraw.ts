@@ -22,8 +22,9 @@
 */
 
 import {vizPostThresholdCtx, vizPreDrawPure} from "./vizPreDrawPure.js";
+import type {Viz} from "./vizTypes.js";
 
-export function vizPreDraw(viz: any): void {
+export function vizPreDraw(viz: Viz): void {
   const ctx = vizPreDrawPure(viz);
 
   // 1. Write computed ctx back to viz.

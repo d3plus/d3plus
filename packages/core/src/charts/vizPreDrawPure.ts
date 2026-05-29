@@ -34,6 +34,7 @@ import {date} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizContext} from "./vizContext.js";
+import type {Viz} from "./vizTypes.js";
 
 /**
     The shape `vizPreDrawPure` returns: a `Partial<VizContext>` plus the
@@ -90,7 +91,7 @@ function accessorFetch(
 }
 
 export function vizPreDrawPure(
-  viz: any,
+  viz: Viz,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
 ): VizPreDrawResult {
@@ -274,7 +275,7 @@ export function vizPreDrawPure(
 // duplicating the logic. Takes the final filteredData (after threshold)
 // + relevant config fields and returns the hover-override + no-data flag.
 export function vizPostThresholdCtx(
-  viz: any,
+  viz: Viz,
   filteredData: DataPoint[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   id: (d: DataPoint, i: number) => any,

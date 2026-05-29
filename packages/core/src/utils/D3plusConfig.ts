@@ -198,13 +198,13 @@ export interface D3plusConfig {
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
   /** Key, index, or accessor function for x-axis values. */
-  x?: string | number | ((...args: unknown[]) => unknown);
+  x?: string | number | ((d: DataPoint, i: number) => unknown);
   /** Configuration for the x-axis. */
   xConfig?: AxisConfig;
   /** Custom sort function for x-axis values. */
   xSort?: (a: DataPoint, b: DataPoint) => number;
   /** Key, index, or accessor function for y-axis values. */
-  y?: string | number | ((...args: unknown[]) => unknown);
+  y?: string | number | ((d: DataPoint, i: number) => unknown);
   /** Configuration for the y-axis. */
   yConfig?: AxisConfig;
   /** Custom sort function for y-axis values. */

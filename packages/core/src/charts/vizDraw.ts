@@ -21,8 +21,9 @@
 */
 
 import {vizDrawPure} from "./vizDrawPure.js";
+import type {Viz} from "./vizTypes.js";
 
-export function vizDraw(viz: any): void {
+export function vizDraw(viz: Viz): void {
   // The pure function does the work + has already written margin claims
   // back to viz (necessary for FeatureModule.layout() side effects to
   // see correct intermediate margins). The shim exists as the public

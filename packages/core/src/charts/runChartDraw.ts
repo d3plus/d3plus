@@ -37,9 +37,7 @@ import {marginOriginTransform} from "./chartGeometry.js";
 
 import type {Transform} from "@d3plus/render";
 import type {ChartDefinition, TransformStage} from "./ChartDefinition.js";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Viz = any;
+import type {Viz} from "./vizTypes.js";
 
 export function runChartDraw(
   viz: Viz,

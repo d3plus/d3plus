@@ -18,9 +18,7 @@
 */
 
 import type {Transform} from "@d3plus/render";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Viz = any;
+import type {Viz} from "./vizTypes.js";
 
 /**
     Margin-adjusted chart-area dimensions. Replaces the pattern:

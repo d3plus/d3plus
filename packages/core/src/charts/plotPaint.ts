@@ -27,6 +27,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import * as shapes from "../shapes/index.js";
 import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
+import type {Viz} from "./vizTypes.js";
 
 /**
     Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
@@ -131,45 +132,61 @@ export interface PlotPaintContext {
   stackGroup: unknown;
 }
 
-export function plotPaint(viz: any, pCtx: PlotPaintContext): SceneNode[] {
-    // Paint phase. All cross-phase locals captured from _draw's pre-super
-    // pipeline + measure work are received via `pCtx`. Body below is the
-    // original imperative paint code (axis painting, shape buffer setup,
-    // shape emission with event handlers), unchanged in semantics — just
-    // moved to its own method so the data/paint boundary is explicit.
-    //
-    // RFC §3.1 purification: plotPaint now ACCUMULATES emitted scene nodes
-    // into a local `out: SceneNode[]` and returns it, instead of pushing
-    // into `viz._chartScene` via `absorbShapeIntoChartScene`. The caller
-    // (`Plot._paint`) is responsible for merging the returned nodes into
-    // `_chartScene`. This makes `plotDef.emit({viz})` build its scene from
-    // clean inputs — a prerequisite for the v4 scene-graph rewrite.
-    const out: SceneNode[] = [];
-    //
-    // The destructure is split into themed chunks as a table of contents:
-    // readers can scan the categories instead of memorizing 40 names.
+/**
+    Result of the MEASURE phase of plotPaint. Captures everything the EMIT
+    phase needs to know that was computed/reassigned during measure:
+      - `x`/`y`: the production-axis accessor closures (reassigned by
+        measure onto `viz._xFunc`/`viz._yFunc`).
+      - `xRange`/`yRange`: recomputed from the production axes' outer
+        bounds.
+      - `xOffsetLeft`/`xOffsetRight`/`yWidth`/`y2Width`/`yBounds`/`y2Bounds`:
+        production-axis bounds (the pCtx values were throwaway test-axis
+        measurements; these are the real ones).
+      - `axisSceneQueue`: deferred axis scenes, populated during measure
+        and drained at the END of emit (so axes layer above shapes).
+      - `yOffset`: half the x-axis bar stroke width — used to nudge
+        annotation and shape y0/y1 baselines so shapes don't visually
+        overlap the axis stroke.
+      - `labelPositions`: map of line-label id → bumped y position
+        (computed from `labelWidths`); read by the line-label
+        `labelBounds` config in emit.
+*/
+export interface PlotMeasureResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  x: (d: any, axis?: any) => number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  y: (d: any, axis?: any) => number;
+  xRange: number[];
+  yRange: number[];
+  xOffsetLeft: number;
+  xOffsetRight: number;
+  yWidth: number | undefined;
+  y2Width: number | undefined;
+  yBounds: {width: number; height: number; x: number; y: number};
+  y2Bounds: {width: number; height: number; x: number; y: number};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: any}[];
+  yOffset: number;
+  labelPositions: Record<string, number>;
+}
+
+/**
+    MEASURE phase of plotPaint. Reads `pCtx`, runs the production-mode
+    axes through `renderMode("compute").select(undefined).render()`,
+    computes the final `xRange`/`yRange` + offsets, sets `viz._xFunc` /
+    `viz._yFunc` accessors, and queues axis scenes for the emit phase.
+    Returns everything `plotEmit` needs to consume.
+*/
+export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    // Data & domain inputs (computed by formatPlotData / computePlotInitialDomains).
-    const {data, shapeData, axisData, domains, discreteKeys, stackData, stackKeys, xData, yData, x2Data, y2Data, xDomain, yDomain, x2Domain, y2Domain} = pCtx;
-    // Accessors / scales (from computePlotScales). `x`/`y` are reassigned
-    // below where Plot caches the resolved accessors back onto `viz._xFunc`
-    // / `viz._yFunc`; the other names are read-only.
+    const {domains, xDomain, yDomain, x2Domain, y2Domain} = pCtx;
     let {x, y} = pCtx;
-    const {x2, y2, xScale, yScale, xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
-    // Axis configs & visibility flags.
-    const {defaultConfig, defaultX2Config, defaultY2Config, showX, showY, x2Exists, y2Exists, xC, yC} = pCtx;
-    // Axis measurements (from preparePlotAxisLayout): tick values + label
-    // bounds + test-axis bounds. `xTicks`/`yTicks`/`x2Ticks`/`y2Ticks` carried
-    // by `pCtx`; reads pass through directly.
-    const {xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, largestLabel, xRangeMax, xTest, yTest, x2Test, y2Test, xTestRange, x2TestRange} = pCtx;
-    // Layout offsets & viewport. `yBounds`/`yWidth`/`xOffsetLeft`/`y2Bounds`/
-    // `y2Width`/`xOffsetRight` are *re*-computed below from the production
-    // axes; the initial values from `pCtx` are the throwaway test-axis
-    // measurements and get overwritten in this method's body.
+    const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
+    const {defaultX2Config, defaultY2Config, showX, showY, x2Exists, y2Exists, xC, yC} = pCtx;
+    const {xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, yTest, x2TestRange, xTestRange} = pCtx;
     let {yBounds, y2Bounds, yWidth, y2Width, xOffsetLeft, xOffsetRight} = pCtx;
     const {xHeight, x2Height, topOffset, height, width, horizontalMargin, verticalMargin} = pCtx;
-    // Paint plumbing (DOM parent + transition + stack accumulator + label flags).
-    const {parent, transition, opp, barLabels, showLineLabels, stackGroup} = pCtx;
+    const {y2Test} = pCtx;
     /* eslint-enable @typescript-eslint/no-explicit-any */
 
     let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
@@ -417,6 +434,50 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): SceneNode[] {
 
     let yOffset = viz._xAxis.barConfig()["stroke-width"];
     if (yOffset) yOffset /= 2;
+
+    return {
+      x,
+      y,
+      xRange,
+      yRange,
+      xOffsetLeft: xOffsetLeft as number,
+      xOffsetRight: xOffsetRight as number,
+      yWidth,
+      y2Width,
+      yBounds,
+      y2Bounds,
+      axisSceneQueue,
+      yOffset: yOffset || 0,
+      labelPositions: labelPositions as Record<string, number>,
+    };
+}
+
+/**
+    EMIT phase of plotPaint. Takes the `PlotMeasureResult` from
+    `plotMeasure` and produces ALL the scene nodes: background rect,
+    connector lines, back/front annotations, the main shape loop, line
+    markers, and the deferred axis scenes (drained from the queue).
+    Returns the flat `SceneNode[]` array that the caller (`Plot._paint`)
+    merges into `_chartScene`.
+*/
+export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResult): SceneNode[] {
+    const out: SceneNode[] = [];
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    // Re-destructure pCtx for emit-only reads. Names listed are exactly
+    // what the emit body below references; measure-only names (xTest /
+    // yTest / x2Test / y2Test / xTestRange / x2TestRange / showX /
+    // showY / xTicks / x2Ticks / y2Ticks / defaultConfig / defaultX2Config /
+    // defaultY2Config) are intentionally omitted.
+    const {data, shapeData, domains, discreteKeys, stackData, stackKeys, xDomain, yDomain} = pCtx;
+    const {xScale, yScale} = pCtx;
+    const {x2Exists, y2Exists} = pCtx;
+    const {labelWidths, largestLabel, yTicks} = pCtx;
+    const {xHeight, x2Height, topOffset, height, width, verticalMargin} = pCtx;
+    const {opp, showLineLabels} = pCtx;
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+
+    const {x, y, xRange, yRange, yOffset, axisSceneQueue, labelPositions} = mCtx;
 
     // Background Rect: skip rendering when transparent (the default) — under
     // the v4 scene path it would emit a 5th `rect.d3plus-render-rect` that
@@ -816,4 +877,22 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): SceneNode[] {
     });
 
     return out;
+}
+
+/**
+    Plot paint phase as a free function — orchestrates MEASURE + EMIT.
+
+    Splits into `plotMeasure` (production-axis renders + offset
+    reassignments + `viz._xFunc`/`viz._yFunc` accessor setup) and
+    `plotEmit` (background rect → connectors → back annotations →
+    shape loop → line markers → front annotations → axis scenes).
+    `Plot._paint` is a thin shim that concats the returned nodes onto
+    `viz._chartScene`.
+
+    @param viz  The Plot instance (or any subclass: BarChart, LinePlot, …).
+    @param pCtx Cross-phase locals produced by `Plot._draw`.
+*/
+export function plotPaint(viz: Viz, pCtx: PlotPaintContext): SceneNode[] {
+  const mCtx = plotMeasure(viz, pCtx);
+  return plotEmit(viz, pCtx, mCtx);
 }

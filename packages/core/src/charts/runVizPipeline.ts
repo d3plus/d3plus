@@ -32,9 +32,9 @@
 
 import {attributionFeature, runLayout} from "./features.js";
 import zoomControls from "./drawSteps/zoomControls.js";
+import type {Viz} from "./vizTypes.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function runVizPipeline(viz: any): void {
+export function runVizPipeline(viz: Viz): void {
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
   // directly) so subclass overrides (Plot._preDraw, Treemap._draw, Plot._draw,
   // Pack/Pie/Matrix/…) still run. The free functions `vizPreDraw` / `vizDraw`

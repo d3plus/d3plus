@@ -19,8 +19,7 @@
     dispatching, tile-data → image scene nodes), this helper goes away.
 */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Viz = any;
+import type {Viz} from "./vizTypes.js";
 
 export type ZoomDomKind = "network" | "geomap";
 

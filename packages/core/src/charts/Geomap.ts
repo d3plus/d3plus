@@ -15,8 +15,8 @@ import {tile} from "d3-tile";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
-import {constant} from "../utils/index.js";
+import {assign, parseSides} from "@d3plus/dom";
+import {accessor, constant} from "../utils/index.js";
 
 import {applyGeomapLayout, geomapDef} from "./ChartDefinition.js";
 import {chartBounds} from "./chartGeometry.js";

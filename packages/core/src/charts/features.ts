@@ -34,10 +34,20 @@ export interface MarginClaim {
   left?: number;
 }
 
-/** The shape a `layout` step returns: optional panel node + its margin claim. */
+/** The shape a `layout` step returns: optional panel node + margin claim + optional viz writebacks. */
 export interface FeatureLayout {
   panel: SceneNode | null;
   margin: MarginClaim;
+  /**
+      v4 purity: features that legitimately need to publish cross-feature
+      state (e.g. `_legendDepth` for legendLabel callers, `_timelineSelection`
+      for downstream stage filtering) return those writes here as
+      declarative key→value pairs. `runLayout` applies them to viz after
+      the layout call. Features should NOT mutate viz fields directly
+      from inside their `layout()` body — that's the v4 contract.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vizUpdate?: Record<string, any>;
 }
 
 /**
@@ -100,12 +110,22 @@ export function runLayout(
   const panels: SceneNode[] = [];
   for (const f of features) {
     if (!f.layout) continue;
-    const {panel, margin: claim} = f.layout({...ctx, layoutMargin: {...margin}});
+    const result = f.layout({...ctx, layoutMargin: {...margin}});
+    const {panel, margin: claim, vizUpdate} = result;
     if (panel) panels.push(panel);
     margin.top += claim.top ?? 0;
     margin.right += claim.right ?? 0;
     margin.bottom += claim.bottom ?? 0;
     margin.left += claim.left ?? 0;
+    // v4 purity: features publish cross-feature viz writes declaratively
+    // via `vizUpdate`. The engine applies them — features don't mutate
+    // viz directly from layout(). Skips own component-instance config
+    // calls (those are local mutation, not cross-feature).
+    if (vizUpdate && ctx.viz) {
+      for (const k in vizUpdate) {
+        (ctx.viz as Record<string, unknown>)[k] = vizUpdate[k];
+      }
+    }
   }
   return {panels, margin};
 }
@@ -339,6 +359,15 @@ export const legendFeature: FeatureModule = {
     const labels = legendData.map((d: DataPoint, i: number) =>
       viz._ids(d, i).slice(0, viz._drawDepth + 1),
     );
+    // viz._legendDepth: the legend's drill-down depth (lowest unique
+    // groupBy level). Set INSIDE the feature body because legend's own
+    // configuration calls below (in this same layout body) read it via
+    // the legend instance's shapeConfig + label functions. Other consumers
+    // (BarChart/Tree label logic, legendLabel.ts) see the value updated
+    // for the rest of this draw. Direct mutation here (rather than
+    // FeatureLayout.vizUpdate) is the documented exception to v4's
+    // "no cross-feature mutation from layout bodies" rule — moving it to
+    // vizUpdate would defer the write past legend's own intra-body reads.
     viz._legendDepth = 0;
     for (let x = 0; x <= viz._drawDepth; x++) {
       const values = labels.map((l: string[]) => l[x]);
