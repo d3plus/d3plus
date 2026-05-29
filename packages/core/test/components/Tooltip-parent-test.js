@@ -52,3 +52,70 @@ it("Tooltip.render() without parent() falls back to body #d3plus-portal", () => 
 
   tip.data([]).render();
 });
+
+it("Tooltip.parent() leaves no orphan portal when switched to a different parent", () => {
+  const containerA = document.createElement("div");
+  const containerB = document.createElement("div");
+  document.body.appendChild(containerA);
+  document.body.appendChild(containerB);
+
+  const tip = new Tooltip()
+    .parent(containerA)
+    .data([{id: "switch-test", title: "in A"}])
+    .render();
+  assert.ok(
+    containerA.querySelector(".d3plus-tooltip-portal"),
+    "portal exists in A after first render",
+  );
+
+  // Switch to B — A's portal should be cleaned up.
+  tip.parent(containerB).data([{id: "switch-test", title: "in B"}]).render();
+  assert.strictEqual(
+    containerA.querySelector(".d3plus-tooltip-portal"),
+    null,
+    "stale portal in A removed when parent switched",
+  );
+  assert.ok(
+    containerB.querySelector(".d3plus-tooltip-portal"),
+    "fresh portal mounted in B",
+  );
+
+  tip.data([]).render();
+});
+
+it("Two charts on a page maintain isolated tooltip portals", () => {
+  const containerA = document.createElement("div");
+  const containerB = document.createElement("div");
+  document.body.appendChild(containerA);
+  document.body.appendChild(containerB);
+
+  const tipA = new Tooltip()
+    .parent(containerA)
+    .data([{id: "a", title: "Chart A tip"}])
+    .render();
+  const tipB = new Tooltip()
+    .parent(containerB)
+    .data([{id: "b", title: "Chart B tip"}])
+    .render();
+
+  const portalA = containerA.querySelector(".d3plus-tooltip-portal");
+  const portalB = containerB.querySelector(".d3plus-tooltip-portal");
+  assert.ok(portalA && portalB, "both charts got their own portal");
+  assert.notStrictEqual(portalA, portalB, "portals are distinct DOM nodes");
+
+  // Each portal contains ONLY its own tooltip.
+  const tooltipsA = portalA.querySelectorAll(".d3plus-tooltip");
+  const tooltipsB = portalB.querySelectorAll(".d3plus-tooltip");
+  assert.strictEqual(tooltipsA.length, 1, "A has exactly 1 tooltip");
+  assert.strictEqual(tooltipsB.length, 1, "B has exactly 1 tooltip");
+
+  // Dismiss A; B's portal should still have its tooltip.
+  tipA.data([]).render();
+  assert.strictEqual(
+    containerB.querySelector(".d3plus-tooltip-portal").querySelectorAll(".d3plus-tooltip").length,
+    1,
+    "B's tooltip unaffected by A's dismissal",
+  );
+
+  tipB.data([]).render();
+});

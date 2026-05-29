@@ -92,7 +92,21 @@ export type {
 
 // E3/E4 internals — exposed for parity tests + advanced users wanting to build
 // custom charts on the ChartDefinition contract. Not yet a stable public API.
-import {applyTreemapLayout, treemapDef} from "./src/charts/ChartDefinition.js";
+import {
+  applyGeomapLayout,
+  applyMatrixLayout,
+  applyNetworkLayout,
+  applyPackLayout,
+  applyPieLayout,
+  applyPriestleyLayout,
+  applyRadarLayout,
+  applyRadialMatrixLayout,
+  applyRingsLayout,
+  applySankeyLayout,
+  applyTreeLayout,
+  applyTreemapLayout,
+  treemapDef,
+} from "./src/charts/ChartDefinition.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
@@ -136,7 +150,20 @@ import {computeAxisLayout, measureAxis} from "./src/components/Axis.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis.js";
 
 export {
+  // Chart-specific layout stages (all 12 chart subclasses).
+  applyGeomapLayout,
+  applyMatrixLayout,
+  applyNetworkLayout,
+  applyPackLayout,
+  applyPieLayout,
+  applyPriestleyLayout,
+  applyRadarLayout,
+  applyRadialMatrixLayout,
+  applyRingsLayout,
+  applySankeyLayout,
+  applyTreeLayout,
   applyTreemapLayout,
+  // Core pipeline + factory infrastructure.
   treemapDef,
   createFluent,
   installFluent,
@@ -151,23 +178,14 @@ export {
   vizPreDraw,
   vizPreDrawPure,
 };
-export const __test_internals__ = {
-  applyTreemapLayout,
-  treemapDef,
-  createFluent,
-  installFluent,
-  computeAxisLayout,
-  measureAxis,
-  plotPaint,
-  resolveSpec,
+
+// The pipeline runners and feature modules are exported directly (above
+// + below) — no separate `__test_internals__` indirection. Tests and
+// advanced consumers reach for the same surface; making them go through
+// a sentinel namespace was redundant noise.
+export {
   runStages,
   runLayout,
-  runVizPipeline,
-  vizDraw,
-  vizDrawPure,
-  vizPostThresholdCtx,
-  vizPreDraw,
-  vizPreDrawPure,
   vizPreDrawStages,
   backFeature,
   colorScaleFeature,

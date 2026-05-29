@@ -16,6 +16,17 @@
     for-byte, so any future refactor that drifts from the class behavior
     fails the test.
 
+    NAMING CLASHES with d3 modules — three factories share lowercase names
+    with d3 modules: `pack` (d3-hierarchy), `pie` (d3-shape), `tree`
+    (d3-hierarchy). If you import both in the same file:
+
+        import {pack as d3Pack} from "d3-hierarchy";
+        import {pack} from "@d3plus/core";
+
+    use renamed aliases or namespace imports (`import * as d3p from
+    "@d3plus/core"`). The Pascal-cased class exports
+    (`Pack`/`Pie`/`Tree`) don't clash and remain available.
+
     @module
 */
 

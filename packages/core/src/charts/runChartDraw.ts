@@ -47,6 +47,24 @@ export function runChartDraw(
   stage: TransformStage,
   transformFn?: (viz: Viz) => Transform | undefined,
 ): void {
+  // Invariant: this helper OWNS `_chartScene` for the current draw — it
+  // overwrites with `def.emit(ctx)`. The Plot family takes a different
+  // flow (Plot._paint pushes into `_chartScene` imperatively, and its
+  // def.emit is `plotShapesEmit` which returns a SNAPSHOT of the current
+  // `_chartScene`). Calling `runChartDraw` on a Plot-family chart would
+  // create a feedback loop (emit returns _chartScene → we overwrite
+  // _chartScene with that same snapshot). Fail loud so future
+  // contributors who try to "unify" Plot with runChartDraw can't silently
+  // clobber the chart scene.
+  if ((def.emit as unknown as {__isPlotShapesEmit__?: boolean}).__isPlotShapesEmit__) {
+    throw new Error(
+      `runChartDraw cannot drive ${def.name} — its emit is plotShapesEmit, ` +
+      "which would create a feedback loop. Plot-family charts (BarChart, " +
+      "AreaPlot, LinePlot, BumpChart, StackedArea, BoxWhisker, Donut, Plot) " +
+      "rely on Plot._paint to populate _chartScene imperatively; their " +
+      "_draw should NOT call runChartDraw.",
+    );
+  }
   const ctx = runStages({viz}, [stage]);
   viz._chartScene = def.emit(ctx);
   viz._chartTransform = transformFn

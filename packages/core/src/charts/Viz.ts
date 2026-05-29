@@ -899,7 +899,7 @@ export default class Viz extends (BaseClass as any) {
       sibling to the detached compute svg. The compute svg's children get
       cleared so only the scene output is visible.
   */
-  _drawSceneToTarget(): void {
+  _drawSceneToTarget(durationOverride?: number): void {
     const kind = this._renderer === "canvas" ? "canvas" : "svg";
     const legacySvg = this._select && this._select.node ? this._select.node() : null;
     if (!legacySvg) return;
@@ -911,11 +911,14 @@ export default class Viz extends (BaseClass as any) {
     const scene = this.toScene();
     const w = this._width || 400;
     const h = this._height || 300;
-    // Reuse the renderer instance if it matches the kind, to avoid mount churn.
+    // Reuse the renderer instance if it matches the kind, to avoid mount
+    // churn. `target()` is the public Renderer-interface method (no
+    // reaching into renderer-private slots).
+    const currentContainer = this._sceneRenderer?.target()?.container;
     if (
       !this._sceneRenderer ||
       this._sceneRenderer.kind !== kind ||
-      this._sceneRenderer._target?.container !== userTarget
+      currentContainer !== userTarget
     ) {
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
@@ -923,7 +926,13 @@ export default class Viz extends (BaseClass as any) {
     } else {
       this._sceneRenderer.resize(w, h);
     }
-    this._sceneRenderer.drawScene(scene, {duration: this._duration});
+    // `durationOverride` defaults to the chart's `_duration` for normal
+    // re-renders. Interaction handlers (zoomed, hover, etc.) pass 0 to
+    // skip the transition machinery — animating every wheel/drag tick
+    // accumulates `setTimeout(duration+10)` per event.
+    const drawDuration =
+      durationOverride !== undefined ? durationOverride : this._duration;
+    this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
   }
 

@@ -16,7 +16,9 @@ export type {
   ImageNode,
   TextNode,
   TextLine,
+  TextRun,
   GroupNode,
+  HtmlOverlayNode,
   SceneNode,
   Scene,
 } from "./src/scene.js";

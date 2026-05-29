@@ -3,7 +3,7 @@ import {area as d3area, line as d3line} from "d3-shape";
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
 import {curveFor} from "../paths.js";
-import type {AreaNode, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
+import type {AreaNode, GroupNode, HtmlOverlayNode, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
 import type {
   DrawOptions,
   PickResult,
@@ -177,6 +177,15 @@ export default class CanvasRenderer implements Renderer {
     if (this._scene) this._paint(this._scene);
   }
 
+  /**
+      Public view onto the mount target. See SvgRenderer.target — same
+      contract: host code uses this to detect container changes without
+      reaching into the private `_target` slot.
+  */
+  target(): RenderTarget | undefined {
+    return this._target;
+  }
+
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
     if (!this._ctx) throw new Error("CanvasRenderer.drawScene called before mount()");
     if (this._cancelAnim) this._cancelAnim();
@@ -308,7 +317,7 @@ export default class CanvasRenderer implements Renderer {
   */
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
-    const collected: {node: import("../scene.js").HtmlOverlayNode; ox: number; oy: number}[] = [];
+    const collected: {node: HtmlOverlayNode; ox: number; oy: number}[] = [];
     const walk = (n: SceneNode, ox: number, oy: number): void => {
       const tx = n.transform?.x ?? 0;
       const ty = n.transform?.y ?? 0;
@@ -317,7 +326,7 @@ export default class CanvasRenderer implements Renderer {
       if (n.type === "htmlOverlay") {
         collected.push({node: n, ox: cx, oy: cy});
       } else if (n.type === "group") {
-        for (const c of (n as import("../scene.js").GroupNode).children) walk(c, cx, cy);
+        for (const c of (n as GroupNode).children) walk(c, cx, cy);
       }
     };
     walk(scene.root, 0, 0);
@@ -333,6 +342,7 @@ export default class CanvasRenderer implements Renderer {
       const key = String(item.node.key);
       seen.add(key);
       let el = existing.get(key);
+      const justCreated = !el;
       if (!el) {
         el = document.createElement("div");
         el.className = "d3plus-render-overlay";
@@ -352,7 +362,9 @@ export default class CanvasRenderer implements Renderer {
           (el.style as unknown as Record<string, string>)[k] = String(o.style[k]);
       }
       if (el.innerHTML !== o.html) el.innerHTML = o.html;
-      if (o.onMount) o.onMount(el);
+      // `onMount` runs once per host (entry); `onUpdate` every draw.
+      if (justCreated && o.onMount) o.onMount(el);
+      if (o.onUpdate) o.onUpdate(el);
     }
     for (const [key, el] of existing.entries()) {
       if (!seen.has(key)) el.remove();

@@ -318,6 +318,8 @@ const tauRadar = Math.PI * 2;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const plotShapesEmit: ChartDefinition["emit"] = ({viz}: {viz: any}) =>
   Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [];
+// Marker for `runChartDraw`'s protocol guard — see runChartDraw.ts.
+(plotShapesEmit as unknown as {__isPlotShapesEmit__: boolean}).__isPlotShapesEmit__ = true;
 
 export const barChartDef: ChartDefinition = {
   name: "BarChart",

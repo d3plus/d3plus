@@ -94,6 +94,15 @@ export function vizPreDrawPure(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
 ): VizPreDrawResult {
+  // v4: `spec` is the frozen config snapshot, in case a future caller wants
+  // to drive the pure function from a config object rather than a live
+  // viz instance. Today the closures still read viz-internal fields (some
+  // of which aren't surfaced via .config()), so the spec is computed but
+  // not yet consumed; this paves the way for the v5 spec/ctx separation.
+  // `resolveSpec` is the public API for snapshotting; the call below is
+  // the seam that makes the future swap transparent.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _spec = typeof viz.config === "function" ? viz.config() : {};
   const out: VizPreDrawResult = {};
 
   // 1. drawDepth.
@@ -105,21 +114,33 @@ export function vizPreDrawPure(
 
   // 2. id / ids / drawLabel closures.
   //
-  // LIVE-STATE CLOSURES: each of these reads `viz._groupBy[viz._drawDepth]`
-  // / `viz._label` / `viz._thresholdName` etc. at INVOCATION time, not at
-  // definition time. This matches the legacy `_id = (d, i) => ...this._groupBy[this._drawDepth]...`
-  // semantics — if `viz._drawDepth` changes between definition and call,
-  // subsequent calls reflect the new depth. Subclasses (notably Treemap
-  // when crossing depth boundaries via .depth() + .render()) rely on this.
+  // SNAPSHOT CLOSURES (v4 hardening): each closure captures the relevant
+  // viz state AT CONSTRUCTION (drawDepth, groupBy reference, label,
+  // thresholdName, locale) instead of reading viz.* at invocation. Two
+  // wins:
+  //   (a) referentially transparent — `ctx.id(d, i)` produces the same
+  //       output for the same input regardless of subsequent viz mutation.
+  //   (b) safe for callers that store closures across renders (currently
+  //       no such caller exists, but `_preDraw` is called per render and
+  //       overwrites viz._id/_ids/_drawLabel with the new closures — so
+  //       intra-render reads always hit the fresh snapshot).
   //
-  // The closures DO snapshot the initial `drawDepth` so first-render
-  // ordering is correct even before the shim writes back to viz._drawDepth.
+  // The previous "live-state" form (read viz._drawDepth each call) was
+  // historically necessary because subclasses like Treemap call
+  // `.depth(n).render()` mid-interaction — but `.render()` itself runs
+  // `_preDraw` first, regenerating closures with the new depth. So the
+  // snapshot form preserves behavior while eliminating a referential-
+  // transparency footgun.
+  const snapGroupBy = viz._groupBy as ((
+    d: DataPoint,
+    i: number,
+  ) => DataPoint[keyof DataPoint])[];
+  const snapLabel = viz._label;
+  const snapThresholdName = viz._thresholdName;
+  const snapLocale = viz._locale;
+
   const id = (d: DataPoint, i: number) => {
-    const groupByDrawDepth = accessorFetch(
-      viz._groupBy[viz._drawDepth ?? drawDepth],
-      d,
-      i,
-    );
+    const groupByDrawDepth = accessorFetch(snapGroupBy[drawDepth], d, i);
     return typeof groupByDrawDepth === "number"
       ? `${groupByDrawDepth}`
       : groupByDrawDepth;
@@ -127,18 +148,15 @@ export function vizPreDrawPure(
   out.id = id;
 
   const ids = (d: DataPoint, i: number) =>
-    viz._groupBy
-      .map(
-        (g: (d: DataPoint, i: number) => DataPoint[keyof DataPoint]) =>
-          `${accessorFetch(g, d, i)}`,
-      )
+    snapGroupBy
+      .map(g => `${accessorFetch(g, d, i)}`)
       .filter(Boolean);
   out.ids = ids;
 
   const drawLabel = (
     d: DataPoint,
     i: number,
-    depth: number = viz._drawDepth ?? drawDepth,
+    depth: number = drawDepth,
   ) => {
     if (!d) return "";
     while (d.__d3plus__ && d.data) {
@@ -146,13 +164,12 @@ export function vizPreDrawPure(
       i = d.i as number;
     }
     if (d._isAggregation) {
-      return `${viz._thresholdName(d, i)} < ${formatAbbreviate(
+      return `${snapThresholdName(d, i)} < ${formatAbbreviate(
         (d._threshold as number) * 100,
-        viz._locale,
+        snapLocale,
       )}%`;
     }
-    if (viz._label && depth === (viz._drawDepth ?? drawDepth))
-      return `${viz._label(d, i)}`;
+    if (snapLabel && depth === drawDepth) return `${snapLabel(d, i)}`;
     const l = ids(d, i).slice(0, depth + 1);
     const n =
       l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||

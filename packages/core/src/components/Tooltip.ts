@@ -553,7 +553,19 @@ function value(d) {
   parent(_: HTMLElement | null | undefined): this;
   parent(_?: HTMLElement | null | undefined): unknown {
     if (!arguments.length) return this._parentEl;
-    this._parentEl = _ || undefined;
+    const prev = this._parentEl;
+    const next = _ || undefined;
+    if (prev && prev !== next) {
+      // Remove the previously-scoped portal so it doesn't sit orphaned in
+      // the prior parent. Re-renders against the new parent will create
+      // a fresh `.d3plus-tooltip-portal` child there. Walk direct
+      // children (instead of `querySelector(":scope > ...")`) so this
+      // works in jsdom too.
+      for (const child of Array.from(prev.children)) {
+        if (child.classList.contains("d3plus-tooltip-portal")) child.remove();
+      }
+    }
+    this._parentEl = next;
     return this;
   }
 

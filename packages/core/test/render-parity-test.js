@@ -652,8 +652,7 @@ it("treemapDef.emit produces rect nodes structurally identical to legacy Rect ce
 
     // Pull the laid-out shapeData from the stage, run emit, and compare to
     // what the legacy Rect compute pass produced (it consumed the same data).
-    const {applyTreemapLayout, treemapDef} =
-      window.d3plusCore.__test_internals__ || {};
+    const {applyTreemapLayout, treemapDef} = window.d3plusCore;
     if (!applyTreemapLayout || !treemapDef) return {missing: true};
 
     const {shapeData} = applyTreemapLayout({viz});
@@ -710,8 +709,7 @@ it("treemapDef.emit yields label-aware scene nodes (rect + text) in a browser", 
       .select(target);
     await new Promise(resolve => viz.render(resolve));
 
-    const {applyTreemapLayout, treemapDef} =
-      window.d3plusCore.__test_internals__ || {};
+    const {applyTreemapLayout, treemapDef} = window.d3plusCore;
     const {shapeData} = applyTreemapLayout({viz});
     const emitted = treemapDef.emit({viz, shapeData});
     return {

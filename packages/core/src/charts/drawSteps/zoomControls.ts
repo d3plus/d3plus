@@ -10,7 +10,18 @@ interface MutableTransform {
   y: number;
 }
 
-let brushing = false;
+/**
+    Brush mode is per-chart, not global. Previously a module-level
+    `let brushing = false` was shared across all chart instances on the
+    page — toggling brush on chart A silently flipped chart B's state.
+    Now lives on `viz._brushing` and is read/written via helpers.
+*/
+function isBrushing(viz: Viz): boolean {
+  return Boolean(viz._brushing);
+}
+function setBrushing(viz: Viz, value: boolean): void {
+  viz._brushing = value;
+}
 
 /**
     Apply a plain key/value style object to a real DOM element. v4 uses
@@ -116,14 +127,15 @@ export default function (this: Viz): void {
         const brushBtn = host.querySelector(".zoom-brush") as HTMLElement | null;
         if (brushBtn) {
           brushBtn.onclick = () => {
-            const isActive = brushBtn.classList.toggle("active", !brushing);
+            const willBrush = !isBrushing(that);
+            const isActive = brushBtn.classList.toggle("active", willBrush);
             applyStyleObj(
               brushBtn,
               isActive
                 ? that._zoomControlStyleActive || {}
                 : that._zoomControlStyle || {},
             );
-            zoomEvents.bind(that)(!brushing);
+            zoomEvents.bind(that)(willBrush);
           };
         }
         // Base + hover styles on every button.
@@ -176,12 +188,12 @@ export default function (this: Viz): void {
     @private
 */
 function zoomEvents(this: Viz, brush: boolean = false): void {
-  brushing = brush;
+  setBrushing(this, brush);
 
-  if (brushing) this._brushGroup.style("display", "inline");
+  if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
 
-  if (!brushing && this._zoom) {
+  if (!brush && this._zoom) {
     this._container.call(this._zoomBehavior);
     if (!this._zoomScroll) {
       this._container.on("wheel.zoom", null);
@@ -234,9 +246,15 @@ function zoomed(
   } else if (t === false) {
     this._zoomTransform = undefined;
   }
-  // Repaint the scene so the new transform takes effect.
+  // Repaint the scene so the new transform takes effect. Pass the
+  // caller's `duration` through — d3-zoom dispatches `"zoom"` events
+  // with duration=0 (per pixel of pan/wheel), so we MUST NOT use the
+  // chart-level `_duration` (default 600 ms) for those: it would queue
+  // a 600 ms transition per event, causing visible lag + setTimeout
+  // accumulation. Programmatic zooms (zoomMath, zoomToBounds) pass an
+  // explicit duration when they want animation.
   if (this._drawSceneToTarget && this._sceneRenderer) {
-    this._drawSceneToTarget();
+    this._drawSceneToTarget(duration);
   }
 
   if (this._renderTiles)

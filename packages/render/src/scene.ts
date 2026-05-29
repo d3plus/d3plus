@@ -243,12 +243,22 @@ export interface HtmlOverlayNode extends NodeBase {
   /** Optional inline-style key/value record applied to the host <div>. */
   style?: Record<string, string | number>;
   /**
-      Optional callback fired after the overlay's host `<div>` is first
-      mounted and on every subsequent update. Receives the host element so
-      consumers can attach event listeners or read layout. Idempotent
-      wiring is the consumer's responsibility.
+      Optional callback fired ONCE after the overlay's host `<div>` is
+      first created. Receives the host element so consumers can attach
+      event listeners. Renderers track first-mount per `node.key` and
+      skip subsequent calls — so a chart that re-renders 60 times/sec
+      during a zoom drag doesn't re-execute setup work per frame.
   */
   onMount?: (el: HTMLDivElement) => void;
+
+  /**
+      Optional callback fired on EVERY draw (including the first). Mirror
+      of `onMount` for state that must reflect each render's data —
+      typically reading `node.html` is enough and you don't need this.
+      Use when listeners must rebind because their closures captured
+      stale-by-design state.
+  */
+  onUpdate?: (el: HTMLDivElement) => void;
 }
 
 /**

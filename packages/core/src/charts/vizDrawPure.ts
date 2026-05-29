@@ -1,19 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    `vizDrawPure(viz, prevCtx)` — the pure form of `vizDraw`.
+    `vizDrawPure(viz, prevCtx)` — RFC §3.1 returning-form of `vizDraw`.
 
-    RFC §3.1 contract: `(spec, prevCtx) → Partial<VizContext>`. Computes
-    the chart-shell layout (margin claims + reset signals + feature panel
-    list) without mutating viz at the OUTER level. The inner
-    `runLayout([features])` calls still trigger FeatureModule side effects
-    (component mounts, panel emission) — those are not yet pure; that's
-    the next layer of v5 work.
+    NAMING CAVEAT: the suffix `Pure` here means **"returns a Partial<
+    VizContext> describing the layout intent"**, not "free of side effects
+    in the FP sense." The OUTER orchestration (margin computation,
+    legendPosition resolution, panel aggregation, reset signals) is pure-
+    ish — its observable output is the returned ctx. But the inner
+    `runLayout([features])` calls DO mutate viz:
+      - reset writes (`viz._featurePanels = []`, `viz._chartScene = []`,
+        `viz._chartTransform = undefined`, `viz._shapes = []`)
+      - margin claims (`viz._margin.X += claim.margin.X`) so the next
+        runLayout sees the updated margins
+      - FeatureModule layouts that mount/measure their components
+    These mutations are NECESSARY for v4-class subclasses that read live
+    viz state — going fully pure requires migrating every FeatureModule
+    + Plot subclass override to take ctx, not `this`. That's v5/v6 work.
 
-    The shim (`vizDraw`) writes the returned values back to viz.
+    The shim (`vizDraw`) wraps this and serves as the v4 public surface.
 
     Returns a context with:
-      - `marginDelta` (top/bottom/left/right) — to be ADDED to viz._margin
+      - `marginDelta` (top/bottom/left/right) — total added to viz._margin
       - `featurePanels` — final aggregated panel list
       - `resetChartScene`/`resetChartTransform`/`resetShapes` (always true)
       - `legendPosition`/`colorScalePosition` — sanitized values

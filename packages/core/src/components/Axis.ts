@@ -653,23 +653,27 @@ export default class Axis extends BaseClass {
 */
   render(callback?: (...args: unknown[]) => unknown): this {
     /**
-     * Creates an SVG element to contain the axis if none has been specified
-     * via the `select` method. v4: in `renderMode("compute")` the axis is
-     * scene-only — caller will read `toScene()` not the DOM — so the
-     * fallback svg is created DETACHED (not in body) to keep stray markup
-     * out of the document. Full-mode callers without a select still get
-     * a body-attached svg for back-compat. `measure()` doesn't enter
-     * render() at all.
+     * In `renderMode("compute")` the axis is scene-only — the caller will
+     * read `toScene()`, not the DOM. We skip creating any SVG element at
+     * all: the elem() calls later in render() are no-ops when `_select`
+     * is undefined (d3-selection.select(undefined) yields a null-wrapped
+     * selection whose .append/.select on it short-circuit). This also
+     * fixes the "every Axis instance holds a detached svg forever" leak
+     * — Plot has four long-lived axes and was accumulating 4 detached
+     * SVGs per chart instance.
+     *
+     * In `renderMode("full")` and `_select` unset, we still create a
+     * body-attached svg for back-compat (legacy callers do
+     * `new Axis().render()` standalone).
 */
-    if (this._select === void 0) {
-      const isCompute = this._renderMode === "compute";
+    if (this._select === void 0 && this._renderMode !== "compute") {
       const svgNode = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "svg",
       );
       svgNode.setAttribute("width", `${this._width}px`);
       svgNode.setAttribute("height", `${this._height}px`);
-      if (!isCompute) document.body.appendChild(svgNode);
+      document.body.appendChild(svgNode);
       this.select(svgNode as unknown as HTMLElement);
     }
 
@@ -694,7 +698,19 @@ export default class Axis extends BaseClass {
     const margin: Record<string, number> = this._margin;
     const bounds = this._outerBounds;
 
-    const group = elem(`g#d3plus-Axis-${this._uuid}`, {parent});
+    // Skip the wrapper group only when in compute mode WITHOUT a real
+    // `_select` (the standalone compute path used by Plot's axes — toScene
+    // is the consumer, no DOM mount needed). When `_select` is set, the
+    // group still mounts because consumers (Timeline extends Axis and
+    // calls `elem("g.brushGroup", {parent: this._group})` after super
+    // render) expect it.
+    const standaloneCompute =
+      this._renderMode === "compute" &&
+      (this._select === void 0 || this._select === null ||
+        (typeof this._select.node === "function" && this._select.node() === null));
+    const group = standaloneCompute
+      ? null
+      : elem(`g#d3plus-Axis-${this._uuid}`, {parent});
     this._group = group;
 
     const gridLineData: {id: unknown}[] = (
@@ -826,13 +842,20 @@ export default class Axis extends BaseClass {
     // v4 scene-only: the domain bar is emitted natively by toScene() via
     // _barLinePoints(). No legacy `line.bar` DOM.
 
+    // Title TextBox runs in compute mode regardless. When there's no
+    // parent group (standaloneCompute path above), skip the title's
+    // DOM mount — its scene comes via toScene() anyway.
     this._titleClass
       .renderMode("compute")
       .data(this._title ? [{text: this._title}] : [])
       .duration(this._duration)
       .height(margin[this._orient])
       .rotate(this._orient === "left" ? -90 : this._orient === "right" ? 90 : 0)
-      .select(elem("g.d3plus-Axis-title", {parent: group}).node())
+      .select(
+        !group
+          ? (null as unknown as HTMLElement)
+          : elem("g.d3plus-Axis-title", {parent: group}).node(),
+      )
       .text(((d: DataPoint) => d.text) as unknown as string)
       .verticalAlign("middle")
       .width(range[range.length - 1] - range[0])

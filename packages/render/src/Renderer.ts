@@ -96,6 +96,14 @@ export interface Renderer {
   resize(width: number, height: number): void;
 
   /**
+      Return the mount target the renderer is currently attached to.
+      Used by hosts that need to compare against their own DOM (e.g. to
+      decide whether to remount on container change) without reaching
+      into renderer-private fields.
+  */
+  target(): RenderTarget | undefined;
+
+  /**
       Reconcile the current output to `scene`, animating from the previously drawn
       scene when `opts.duration` is positive. The single method that matters.
   */

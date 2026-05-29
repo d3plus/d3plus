@@ -6,7 +6,7 @@ import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
 import {areaPath, linePath} from "../paths.js";
-import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
+import type {GroupNode, HtmlOverlayNode, Scene, SceneNode, TextNode} from "../scene.js";
 import type {
   DrawOptions,
   PickResult,
@@ -247,6 +247,15 @@ export default class SvgRenderer implements Renderer {
     this._svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   }
 
+  /**
+      Public view onto the mount target. v4: callers (e.g. `Viz._drawSceneToTarget`)
+      use this to compare the current target's container against their
+      desired one without reaching into the private `_target` field.
+  */
+  target(): RenderTarget | undefined {
+    return this._target;
+  }
+
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
     if (!this._root || !this._svg)
       throw new Error("SvgRenderer.drawScene called before mount()");
@@ -364,7 +373,7 @@ export default class SvgRenderer implements Renderer {
   */
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
-    const collected: {node: import("../scene.js").HtmlOverlayNode; ox: number; oy: number}[] = [];
+    const collected: {node: HtmlOverlayNode; ox: number; oy: number}[] = [];
     const walk = (n: SceneNode, ox: number, oy: number): void => {
       const tx = n.transform?.x ?? 0;
       const ty = n.transform?.y ?? 0;
@@ -387,10 +396,19 @@ export default class SvgRenderer implements Renderer {
       .attr("class", "d3plus-render-overlay")
       .style("position", "absolute")
       .style("pointer-events", "auto");
+    // `onMount` fires ONCE per host element (on entry). `onUpdate` fires
+    // on every draw. The previous behavior of running onMount each draw
+    // was wasteful — consumers (e.g. zoomControls' click handler wiring)
+    // ended up reassigning DOM properties hundreds of times per second
+    // during a zoom drag.
+    enter.each(function (this: HTMLDivElement, d: any) {
+      const o = d.node as HtmlOverlayNode;
+      if (o.onMount) o.onMount(this);
+    });
     enter
       .merge(sel as any)
       .each(function (this: HTMLDivElement, d: any) {
-        const o = d.node as import("../scene.js").HtmlOverlayNode;
+        const o = d.node as HtmlOverlayNode;
         this.style.left = `${d.ox + o.x}px`;
         this.style.top = `${d.oy + o.y}px`;
         if (o.width !== undefined) this.style.width = `${o.width}px`;
@@ -401,7 +419,7 @@ export default class SvgRenderer implements Renderer {
             (this.style as unknown as Record<string, string>)[k] = String(o.style[k]);
         }
         if (this.innerHTML !== o.html) this.innerHTML = o.html;
-        if (o.onMount) o.onMount(this);
+        if (o.onUpdate) o.onUpdate(this);
       });
   }
 
