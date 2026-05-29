@@ -65,26 +65,29 @@ export type {
 
 // E3/E4 internals — exposed for parity tests + advanced users wanting to build
 // custom charts on the ChartDefinition contract. Not yet a stable public API.
-import {
-  applyGeomapLayout,
-  applyNetworkLayout,
-  applyRingsLayout,
-  applySankeyLayout,
-  applyTreeLayout,
-} from "./src/charts/ChartDefinition.js";
+import {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 import {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
+import {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
+import {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
+import {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 import {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
 import {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
 import {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 import {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 import {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
+import {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 import {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
+import {geomapDef} from "./src/charts/Geomap/index.js";
 import {matrixDef} from "./src/charts/Matrix/index.js";
+import {networkDef} from "./src/charts/Network/index.js";
+import {ringsDef} from "./src/charts/Rings/index.js";
+import {sankeyDef} from "./src/charts/Sankey/index.js";
 import {packDef} from "./src/charts/Pack/index.js";
 import {pieDef} from "./src/charts/Pie/index.js";
 import {priestleyDef} from "./src/charts/Priestley/index.js";
 import {radarDef} from "./src/charts/Radar/index.js";
 import {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+import {treeDef} from "./src/charts/Tree/index.js";
 import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
@@ -150,12 +153,17 @@ export {
   applyTreeLayout,
   applyTreemapLayout,
   // Core pipeline + factory infrastructure.
+  geomapDef,
   matrixDef,
+  networkDef,
   packDef,
   pieDef,
   priestleyDef,
   radarDef,
   radialMatrixDef,
+  ringsDef,
+  sankeyDef,
+  treeDef,
   treemapDef,
   createFluent,
   installFluent,

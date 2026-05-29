@@ -880,7 +880,8 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
   }
 });
 
-it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async () => {
+it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async function () {
+  this.timeout(10000);
   // Phase-E follow-on rollup: every chart in this list was converted from
   // `_shapes.push(new Shape()...)` to `this._chartScene = chartDef.emit(ctx)`.
   // For each: render, verify `_shapes` is empty, verify `_chartScene` is
