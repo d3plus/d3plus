@@ -4,7 +4,7 @@ import {
   computePlotAxisValues,
   computePlotScales,
   formatPlotData,
-} from "../../es/src/charts/ChartDefinition.js";
+} from "../../es/src/charts/Plot/pipeline.js";
 import accessor from "../../es/src/utils/accessor.js";
 
 // E3 follow-on: Plot's chart-specific layout was a 1500-line monolith inside

@@ -58,7 +58,7 @@ const plotSchema = [
 
 const testLineShape = new shapes.Line();
 const testTextBox = new TextBox();
-import {computePlotAxisValues, computePlotInitialDomains, computePlotScales, extendPlotOppScales, formatPlotData, measurePlotLineLabels, preparePlotAxisLayout, plotDef} from "../ChartDefinition.js";
+import {computePlotAxisValues, computePlotInitialDomains, computePlotScales, extendPlotOppScales, formatPlotData, measurePlotLineLabels, preparePlotAxisLayout, plotDef} from "./pipeline.js";
 import {plotPaint} from "../plotPaint.js";
 import {runStages} from "../stages.js";
 import Viz from "../Viz.js";
