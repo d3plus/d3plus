@@ -1,33 +1,27 @@
 /**
-    E4 (RFC §3.3): generate the fluent chart API from a schema.
+    Generate the fluent chart API from a schema.
 
-    Replaces the ~80 hand-written `arguments.length`-overloaded accessor
-    methods per chart with one factory that generates them from a config
-    schema. The `arguments.length` getter/setter dance + the
-    `typeof === "function" ? _ : coerce(_)` pattern live in **one place**
-    instead of being copy-pasted across every chart file.
+    `installFluent` mixes generated `(value?) => value | this` accessors onto
+    a class instance, storing each field as `this._<key>`. Each accessor's
+    `arguments.length` overload + coercion lives in this one factory instead
+    of being copy-pasted per chart.
 
-    Status: **shipping in v4** — the factory is real and unit-tested
-    (see test/fluent-test.js) and is the implementation behind the
-    public `barChart()` / `treemap()` / etc. factories
-    (`./factories.ts`). Applying it as the SOLE accessor source for
-    every chart subclass (replacing the per-class accessor definitions)
-    is a follow-on that requires:
-      1. Bit-exact reproduction of `BaseClass.config()`'s reflection
-         contract (the React wrapper's `hash()` depends on it) — the
-         conformance test pins this.
-      2. Schema declarations for every chart's full accessor surface
-         (today the schemas exist for the v4 reference subset; growing
-         them to cover every legacy accessor is mechanical but
-         per-chart).
-    Both class and factory surfaces remain valid v4 entry points; the
-    factory uses installFluent on the chart classes themselves so
-    `new BarChart()` and `barChart()` produce config-equivalent
-    instances.
+    `createFluent` is the standalone variant — returns a plain object with
+    the same accessor surface plus `config()`. Used where a chart shape is
+    handed back as a value (not bound to a Viz instance).
 */
 
 import accessor from "./utils/accessor.js";
 import constant from "./utils/constant.js";
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return (
+    v !== null &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    Object.getPrototypeOf(v) === Object.prototype
+  );
+}
 
 /**
     @interface ConfigField
@@ -36,16 +30,36 @@ import constant from "./utils/constant.js";
 export interface ConfigField {
   key: string;
   /**
-      How to coerce a setter argument before storing it:
+      Setter-argument coercion:
       - `"identity"` (default): store as-is.
-      - `"accessor"`: a string is wrapped in `accessor(string)`; a non-function
-        in `constant(...)`. Use for value-accessor configs like `x`, `y`, `r`,
-        `width`, `fill`, etc.
-      - `"const"`: a non-function value is wrapped in `constant(value)`. Use
-        for accessors that don't accept a string key, only a function or a
-        literal (e.g. `rotate`, `opacity`).
+      - `"accessor"`: string → `accessor(string)`, non-function → `constant(...)`.
+      - `"const"`: non-function → `constant(value)`.
+      - function form: full custom coercion (receives the raw value, returns the stored value).
   */
-  coerce?: "identity" | "accessor" | "const";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  coerce?: "identity" | "accessor" | "const" | ((value: unknown) => any);
+  /** Static default applied to `schema.<key>` when unset. */
+  default?: unknown;
+  /**
+      Viz-bound default. Called with the live `viz` at init so the value
+      can close over instance state (e.g. tooltip cells that read live config).
+      Mutually exclusive with `default`.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  factory?: (viz: any) => unknown;
+  /**
+      Merge semantics: when set, default/factory output is merged into the
+      existing value (shallow assign) instead of replacing it. Use for
+      config bags (`shapeConfig`, `tooltipConfig`) that should extend the
+      parent's defaults rather than overwrite them.
+  */
+  merge?: boolean;
+  /** Side-effect run after the value is stored, both at init and on every set. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSet?: (viz: any, value: unknown) => void;
+  /** One-shot wrap of the default value at init time; result is stored. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  decorate?: (viz: any, value: unknown) => unknown;
 }
 
 /**
@@ -61,6 +75,7 @@ export interface FluentInstance<C = Record<string, unknown>> {
 }
 
 function coerceValue(field: ConfigField, value: unknown): unknown {
+  if (typeof field.coerce === "function") return field.coerce(value);
   switch (field.coerce) {
     case "accessor":
       if (typeof value === "function") return value;
@@ -152,35 +167,83 @@ export function installFluent(
   schema: ConfigField[],
   defaults: Record<string, unknown> = {},
 ): void {
-  // Per-instance defaults seeding (preserves the parent-constructor-set values).
+  // Storage canonically lives on `target.schema.<key>`. `_<key>` is installed
+  // as a per-instance getter/setter alias so existing code that still reads
+  // `viz._sum` keeps working until each call site migrates.
+  if (!target.schema) target.schema = {};
+
   for (const field of schema) {
-    const slot = `_${field.key}`;
-    if (target[slot] === undefined && field.key in defaults) {
-      target[slot] = coerceValue(field, defaults[field.key]);
+    const key = field.key;
+    const slot = `_${key}`;
+
+    // Install the underscore alias once per instance. If a parent
+    // constructor already wrote `target._<key> = X` as a data property,
+    // migrate that value into `schema` and replace the data prop with
+    // the alias so subsequent reads/writes route through `schema`.
+    const existing = Object.getOwnPropertyDescriptor(target, slot);
+    if (!existing || "value" in existing) {
+      if (existing && "value" in existing && target.schema[key] === undefined) {
+        target.schema[key] = existing.value;
+      }
+      Object.defineProperty(target, slot, {
+        configurable: true,
+        enumerable: false,
+        get(this: {schema: Record<string, unknown>}) {
+          return this.schema[key];
+        },
+        set(this: {schema: Record<string, unknown>}, v: unknown) {
+          this.schema[key] = v;
+        },
+      });
+    }
+
+    // Two seed sources with different precedence:
+    //   - field.default / field.factory: declared by the chart def; an
+    //     explicit claim that overrides any parent-set value.
+    //   - defaults parameter: caller-supplied seed; only applies when unset.
+    const fieldHasSeed = "default" in field || field.factory !== undefined;
+    const paramHasSeed = key in defaults;
+
+    if (fieldHasSeed) {
+      const raw =
+        "default" in field ? field.default : (field.factory as (v: typeof target) => unknown)(target);
+      let value = coerceValue(field, raw);
+      if (field.decorate) value = field.decorate(target, value);
+      const existing = target.schema[key];
+      const merged =
+        field.merge && isPlainObject(existing) && isPlainObject(value)
+          ? Object.assign({}, existing, value)
+          : value;
+      target.schema[key] = merged;
+      field.onSet?.(target, merged);
+    } else if (paramHasSeed && target.schema[key] === undefined) {
+      const value = coerceValue(field, defaults[key]);
+      target.schema[key] = value;
+      field.onSet?.(target, value);
     }
   }
 
-  // Prototype-level method installation. Each method closes over the schema
-  // field and reads/writes `this._<key>` so per-instance state is honored.
-  // Visible to `BaseClass.config()`'s `getAllMethods` reflection because it
-  // walks the prototype chain. Per-key idempotence (instead of per-proto):
-  // a single prototype may receive multiple installFluent calls (e.g. Treemap
-  // gets both vizSchema via super() and treemapSchema in its own constructor),
-  // and we want each schema's keys installed once.
+  // Methods are installed on the prototype so `BaseClass.config()` reflection
+  // can see them. Per-key idempotence.
   const proto = Object.getPrototypeOf(target);
-  if (proto) {
-    for (const field of schema) {
-      if (Object.prototype.hasOwnProperty.call(proto, field.key)) continue;
-      const slot = `_${field.key}`;
-      proto[field.key] = function (
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this: any,
-        ...args: unknown[]
-      ) {
-        if (!args.length) return this[slot];
-        this[slot] = coerceValue(field, args[0]);
-        return this;
-      };
-    }
+  if (!proto) return;
+  for (const field of schema) {
+    if (Object.prototype.hasOwnProperty.call(proto, field.key)) continue;
+    const key = field.key;
+    proto[key] = function (
+      this: {schema: Record<string, unknown>},
+      ...args: unknown[]
+    ) {
+      if (!args.length) return this.schema[key];
+      const value = coerceValue(field, args[0]);
+      const existing = this.schema[key];
+      const next =
+        field.merge && isPlainObject(existing) && isPlainObject(value)
+          ? Object.assign({}, existing, value)
+          : value;
+      this.schema[key] = next;
+      field.onSet?.(this, next);
+      return this;
+    };
   }
 }

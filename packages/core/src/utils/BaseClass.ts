@@ -64,6 +64,11 @@ function getAllMethods(obj: object): string[] {
     Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 */
 export default class BaseClass {
+  /** User-set values from fluent accessors (`.sum(...)`, `.x(...)`, …). */
+  schema: Record<string, unknown>;
+  /** Chart-internal scratch (d3 layout instances, computed derived state). */
+  ctx: Record<string, unknown>;
+
   _locale: string;
   _on: Record<string, (...args: unknown[]) => unknown>;
   _parent: Record<string, unknown>;
@@ -77,6 +82,8 @@ export default class BaseClass {
       @private
 */
   constructor() {
+    this.schema = {};
+    this.ctx = {};
     this._locale = "en-US";
     this._on = {};
     this._parent = {};

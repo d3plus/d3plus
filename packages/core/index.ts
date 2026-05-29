@@ -22,33 +22,6 @@ export {
   Viz,
 } from "./src/charts/index.js";
 
-// v4 factory functions — `barChart().data(...).render()` ergonomics. Thin
-// aliases over the class constructors today (RFC §3.3 / strangler step 4).
-// Classes remain working byte-for-byte; deprecated for v5 removal.
-export {
-  areaPlot,
-  barChart,
-  boxWhisker,
-  bumpChart,
-  donut,
-  geomap,
-  linePlot,
-  matrix,
-  network,
-  pack,
-  pie,
-  plot,
-  priestley,
-  radar,
-  radialMatrix,
-  rings,
-  sankey,
-  stackedArea,
-  tree,
-  treemap,
-  viz,
-} from "./src/charts/factories.js";
-
 export {
   Axis,
   AxisBottom,
@@ -96,17 +69,20 @@ import {
   applyGeomapLayout,
   applyMatrixLayout,
   applyNetworkLayout,
-  applyPackLayout,
-  applyPieLayout,
-  applyPriestleyLayout,
   applyRadarLayout,
   applyRadialMatrixLayout,
   applyRingsLayout,
   applySankeyLayout,
   applyTreeLayout,
-  applyTreemapLayout,
-  treemapDef,
 } from "./src/charts/ChartDefinition.js";
+import {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
+import {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
+import {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
+import {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
+import {packDef} from "./src/charts/Pack/index.js";
+import {pieDef} from "./src/charts/Pie/index.js";
+import {priestleyDef} from "./src/charts/Priestley/index.js";
+import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
@@ -171,6 +147,9 @@ export {
   applyTreeLayout,
   applyTreemapLayout,
   // Core pipeline + factory infrastructure.
+  packDef,
+  pieDef,
+  priestleyDef,
   treemapDef,
   createFluent,
   installFluent,

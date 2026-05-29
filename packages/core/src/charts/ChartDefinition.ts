@@ -24,11 +24,9 @@
 import type {SceneNode} from "@d3plus/render";
 
 import {merge} from "@d3plus/data";
-import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
-import {hierarchy, treemap, treemapSquarify} from "d3-hierarchy";
+import {hierarchy} from "d3-hierarchy";
 
-import {nestGroups} from "@d3plus/data";
 
 import {colorContrast} from "@d3plus/color";
 import {backgroundColor, date} from "@d3plus/dom";
@@ -68,34 +66,47 @@ import type {TransformStage, VizContext} from "./stages.js";
     thin class facade that hands it to `createFluent`.
 */
 /** Fields shared by every ChartDefinition variant. */
+import type {VizInstance} from "./vizTypes.js";
+
 interface ChartDefinitionBase {
   /** Stable name for tagging and class generation. */
   name: string;
+  /** Chart-internal scratch seeded onto `viz.ctx.<key>` at construction. */
+  ctx?: Record<string, unknown>;
   /**
-      Constructor-time defaults. Replaces the imperative
-      `this._x = accessor("x"); this._y = accessor("y"); ...` of the legacy
-      class constructor. The fluent factory uses these as the seed config.
+      Scalar defaults seeded onto `viz._<key>` at construction.
+      Older chart defs still in transition use this; new defs migrate
+      user-facing values into `fields[].default` (where they get fluent
+      accessors generated) and chart-internal scratch into `ctx`.
   */
-  defaults: Record<string, unknown>;
-  /**
-      Chart-level features composed in (title, subtitle, total, legend,
-      timeline, colorScale, back, attribution). Order matters: features
-      claim margin in sequence.
-  */
+  defaults?: Record<string, unknown>;
+  /** Fluent accessor declarations; `makeChart` installs each as `viz.<key>()`. */
+  fields?: import("../fluent.js").ConfigField[];
+  /** Chart-level features composed in; order is layout order. */
   features: FeatureModule[];
-  /**
-      Documentary manifest of every stage the chart conceptually runs:
-      shared `vizPreDrawStages` followed by chart-specific layout
-      stages. The PRODUCTION preDraw runs `vizPreDrawPure` (a parallel
-      implementation in vizPreDrawPure.ts), and `runChartDraw` runs the
-      chart-specific layout stage(s) explicitly — neither reads
-      `def.stages`. This field is kept as a forward-compatible
-      declarative surface that future drivers may consume; today it's
-      documentation only. Keep it in sync if the live implementations
-      change so a future driver can switch the runtime to read from
-      here without behavioral drift.
-  */
+  /** Documentary manifest of every stage the chart conceptually runs. */
   stages: TransformStage[];
+  /**
+      Chart-specific layout stage run in `_draw` after the shared
+      `vizPreDrawStages`. If absent, `makeChart` doesn't invoke
+      `runChartDraw` — the chart relies on its parent's `_draw` only.
+  */
+  layoutStage?: TransformStage;
+
+  /** Optional pure threshold algorithm (replaces `Viz._thresholdFunction`). */
+  thresholdFunction?: (viz: VizInstance, data: unknown[]) => unknown[];
+  /**
+      Optional chart-specific `_chartTransform` builder. Receives the viz
+      after the layout stage runs; returns the transform applied to the
+      chart scene. Default: margin-origin translation.
+  */
+  chartTransform?: (viz: VizInstance) => import("@d3plus/render").Transform | undefined;
+  /**
+      Imperative per-instance setup hook — runs once after `applyDefinition`
+      seeds the chart. Use for event handler overrides and shadowed methods
+      that don't fit the declarative `fields`/`ctx` surface.
+  */
+  setup?: (viz: VizInstance) => void;
 }
 
 /**
@@ -136,219 +147,11 @@ export function isPaintDriven(
   return def.paintDriven === true;
 }
 
-/* --------------------------- Treemap definition --------------------------- */
-
-/**
-    `applyTreemapLayout` — Treemap's chart-specific layout stage.
-
-    Reads `viz._filteredData` (produced by the canonical viz stages) plus the
-    treemap config (`_treemap`/`_tile`/`_layoutPadding`/`_sum`/`_sort`) and
-    produces the laid-out `shapeData` array each Rect renders against. Also
-    publishes `_rankData` onto the viz for legacy consumers (ariaLabel,
-    legend ordering).
-
-    This is the *only* Treemap-specific computation — extracting it out of
-    `_draw` is the concrete demonstration that `_draw` collapses to "run
-    stages, then emit scene nodes."
-*/
-export const applyTreemapLayout: TransformStage = ({viz}) => {
-  if (!viz._filteredData || !viz._filteredData.length) {
-    return {shapeData: []};
-  }
-  const nestedData = nestGroups(
-    viz._filteredData,
-    viz._groupBy.slice(0, viz._drawDepth + 1),
-  );
-
-  const tmapData = viz._treemap
-    .padding(viz._layoutPadding)
-    .size([
-      viz._width - viz._margin.left - viz._margin.right,
-      viz._height - viz._margin.top - viz._margin.bottom,
-    ])
-    .tile(viz._tile)(
-    hierarchy(
-      {values: nestedData} as Record<string, unknown>,
-      (d: Record<string, unknown>) => d.values as Record<string, unknown>[],
-    )
-      .sum(viz._sum)
-      .sort(viz._sort),
-  );
-
-  const shapeData: any[] = [];
-
-  function extractLayout(children: any[]) {
-    for (let i = 0; i < children.length; i++) {
-      const node = children[i];
-      if (node.depth <= viz._drawDepth) extractLayout(node.children);
-      else {
-        const index =
-          node.data.values.length === 1
-            ? viz._filteredData.indexOf(node.data.values[0])
-            : undefined;
-        node.__d3plus__ = true;
-        node.id = node.data.key;
-        node.i = index !== undefined && index > -1 ? index : undefined;
-        node.data = merge(node.data.values as DataPoint[], viz._aggs);
-        node.x = node.x0 + (node.x1 - node.x0) / 2;
-        node.y = node.y0 + (node.y1 - node.y0) / 2;
-        shapeData.push(node);
-      }
-    }
-  }
-  if (tmapData.children) extractLayout(tmapData.children);
-
-  // Publish the ranked dataset onto the viz for legacy ariaLabel/legendSort.
-  // This is the only side effect — kept narrow so converting more charts to
-  // this pattern doesn't grow into the writeback-map game.
-  viz._rankData = shapeData.slice().sort(viz._sort).map((d: any) => d.data);
-
-  const total = tmapData.value as number;
-  shapeData.forEach((d: any) => {
-    d.share = viz._sum(d.data, d.i) / total;
-  });
-
-  return {shapeData};
-};
-
-/**
-    `treemapDef.emit` — given the laid-out shapeData, produces a label-aware
-    scene: each cell is a `group` of `{rect, ...labelTexts}`. Internally this
-    delegates label layout to a transient Rect+TextBox pair (the same impl
-    `Treemap._draw` uses today) — so emit IS the chart's scene contract even
-    while Rect's label compute remains the layout backend. As Rect's label
-    machinery is extracted into a pure helper, emit will switch to that;
-    callers see no API change.
-*/
-const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
-  if (!shapeData || !shapeData.length) return [];
-  const locale = viz._locale;
-  const drawLabel = viz._drawLabel;
-
-  // Resolve a value that may be a per-datum accessor or a literal.
-  const resolve = (val: unknown, d: unknown, i: number): unknown =>
-    typeof val === "function"
-      ? (val as (a: unknown, b: number) => unknown)(d, i)
-      : val;
-  const sc =
-    (viz as unknown as {_shapeConfig?: Record<string, unknown>})._shapeConfig ||
-    {};
-
-  // Rect cells with aria + paint — paint pulled from `viz._shapeConfig`
-  // so legacy fill/stroke/opacity accessors (defined in Viz.ts) drive
-  // the scene cells the same way they used to drive the Rect shape
-  // class. Without this the rects emit with no paint and render as
-  // unstyled (black on most renderers).
-  const rectNodes = shapeData.map((d: any) => {
-    const fill = resolve(sc.fill, d.data, d.i);
-    const stroke = resolve(sc.stroke, d.data, d.i);
-    const opacity = resolve(sc.opacity, d.data, d.i);
-    const strokeWidth = resolve(sc.strokeWidth, d.data, d.i);
-    return {
-      type: "rect" as const,
-      key: `treemap-${d.id}`,
-      x: d.x0,
-      y: d.y0,
-      width: d.x1 - d.x0,
-      height: d.y1 - d.y0,
-      datum: d.data,
-      paint: {
-        fill: typeof fill === "string" ? fill : undefined,
-        stroke: typeof stroke === "string" || stroke == null ? stroke as string | undefined : String(stroke),
-        opacity: typeof opacity === "number" ? opacity : undefined,
-        strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
-      },
-      aria: {
-        label: `${drawLabel(d.data, d.i)}, ${viz._sum(d.data, d.i)}, ${formatAbbreviate((d.share as number) * 100, locale)}%`,
-      },
-    };
-  });
-
-  // Label nodes: delegate to a transient Rect in compute mode and pull
-  // the TextBox scene via `collectComputed`. The labelBounds formula is
-  // Treemap-specific (split into title + share% bands).
-  const rect = new Rect()
-    .renderMode("compute")
-    .data(shapeData as any)
-    .label((d: any) => [
-      drawLabel(d.data, d.i),
-      `${formatAbbreviate((d.share as number) * 100, locale)}%`,
-    ])
-    .x((d: any) => d.x0 + (d.x1 - d.x0) / 2)
-    .y((d: any) => d.y0 + (d.y1 - d.y0) / 2)
-    .width((d: any) => d.x1 - d.x0)
-    .height((d: any) => d.y1 - d.y0)
-    .labelBounds((d: any, _i: number, s: any) => {
-      const fontMax = 32;
-      const fontMin = 8;
-      const padding = 5;
-      const h = s.height;
-      let sh = Math.min(fontMax, (h - padding * 2) * 0.5);
-      if (sh < fontMin) sh = 0;
-      return [
-        {width: s.width, height: h - sh, x: -s.width / 2, y: -h / 2},
-        {
-          width: s.width,
-          height: sh + padding * 2,
-          x: -s.width / 2,
-          y: h / 2 - sh - padding * 2,
-        },
-      ];
-    })
-    // Per-label-index styling — labelBounds emits two labels per cell
-    // (title `l=0`, share-% `l=1`). The TextBox calls these accessors
-    // with the LABEL RECORD as `d`, so `d.l` distinguishes the bands.
-    // fontColor reads `d.data` (the source datum) and resolves contrast
-    // against the cell's fill.
-    .labelConfig({
-      textAnchor: (d: any) => (d && d.l === 0 ? "start" : "middle"),
-      verticalAlign: (d: any) => (d && d.l === 0 ? "top" : "bottom"),
-      fontColor: (d: any) => {
-        const src = d && d.data ? d.data : d;
-        const fillVal = resolve(sc.fill, src, src && src.i) as string;
-        return typeof fillVal === "string" ? colorContrast(fillVal) : undefined;
-      },
-    } as any);
-  const labelNodes = collectComputed(rect, {shape: false});
-
-  // Combine: rect cells + their label text nodes in a single emit group per
-  // chart. Returning a flat array keeps the parity test that counts rect nodes
-  // happy; label nodes follow as additional SceneNodes.
-  return [...rectNodes, ...labelNodes];
-};
-
-/**
-    `treemapDef` is the working definition for `Treemap`. The class shell in
-    Treemap.ts reads `defaults` here, calls `applyTreemapLayout` (via this
-    file's `stages`) inside `_draw`, and would consume `emit()` directly once
-    the legacy Rect compute path is retired.
-*/
-export const treemapDef: ChartDefinition = {
-  name: "Treemap",
-  defaults: {
-    layoutPadding: 1,
-    sort: (a: any, b: any) => b.value - a.value,
-    sum: accessor("value"),
-    tile: treemapSquarify,
-    treemap: treemap().round(true),
-  },
-  // Per-chart features (back/title/subtitle/total). The chart-shell
-  // features colorScale/legend/timeline are NOT listed here — they
-  // live as central FeatureModules and are orchestrated by
-  // `vizDrawPure` based on `legendPosition`/`colorScalePosition` so
-  // their layout interleaves correctly with topBlocks/timeline.
-  features: defaultChartFeatures,
-  // The chart's pipeline: shared viz prep + the treemap-specific layout that
-  // produces `shapeData`. `_draw` runs only the chart-specific tail because
-  // the prep already ran in `_preDraw`.
-  stages: [...vizPreDrawStages, applyTreemapLayout],
-  emit: treemapEmit,
-};
 
 /* ------------------------- chart definitions ------------------------- */
 
 import * as d3Geo from "d3-geo";
-import {pack, tree} from "d3-hierarchy";
+import {tree} from "d3-hierarchy";
 // `extent`/`min`/`max` already imported above (line 37, from d3-array).
 // `assign`/`nest` re-imported below where the Tree stage needs them, but
 // kept consolidated here to avoid duplicate-import errors.
@@ -360,7 +163,6 @@ import {polygonHull} from "d3-polygon";
 import {assign} from "@d3plus/dom";
 import {nest} from "@d3plus/data";
 import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
-import {pie} from "d3-shape";
 import {pointer} from "d3-selection";
 import {sankeyJustify} from "d3-sankey";
 import {parseSides} from "@d3plus/dom";
@@ -474,360 +276,11 @@ export const bumpChartDef: ChartDefinition = {
 
 /* ----------------------- Pie/Donut/Pack defs ----------------------- */
 
-/**
-    `applyPieLayout` — Pie's chart-specific layout stage. Runs the d3-shape
-    pie layout against `viz._filteredData`, tags each slice with
-    `__d3plus__` + index, builds the arc generator from `_innerRadius`/
-    `_padAngle`/`_padPixel`, and stashes `_pieData`/`_arcData`/`_pieWidth`/
-    `_pieHeight` back on the viz for emit + the chart's _chartTransform.
-*/
-export const applyPieLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
-  const {width, height} = chartBounds(v);
-
-  const outerRadius = Math.min(width, height) / 2;
-
-  const pieData = (v._pieData = v._pie
-    .padAngle(v._padAngle || v._padPixel / outerRadius)
-    .sort(v._sort)
-    .value(v._value)(v._filteredData));
-
-  pieData.forEach((d: Record<string, unknown>, i: number) => {
-    d.__d3plus__ = true;
-    d.i = i;
-  });
-
-  v._arcData = d3Shape.arc()
-    .innerRadius(v._innerRadius)
-    .outerRadius(outerRadius);
-
-  v._pieWidth = width;
-  v._pieHeight = height;
-
-  return {shapeData: pieData};
-};
-
-/**
-    `pieDef.emit` — given a Pie's `_pieData` (the d3-shape pie layout array),
-    emits Path SceneNodes for each slice + their label TextNodes. Uses a
-    transient Path in compute mode (same shape as treemapEmit).
-*/
-const pieEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
-  if (!shapeData || !shapeData.length) return [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const arcMaker = (viz as any)._arcData;
-  const path = new Path()
-    .renderMode("compute")
-    .data(shapeData as any)
-    .d(arcMaker as any)
-    .config({
-      id: (d: any) => viz._ids(d).join("-"),
-      x: 0,
-      y: 0,
-    })
-    .label(viz._drawLabel)
-    .config(shapeConfigFor(viz, "Path"));
-  return collectComputed(path);
-};
-
-export const pieDef: ChartDefinition = {
-  name: "Pie",
-  defaults: {
-    innerRadius: 0,
-    padPixel: 0,
-    pie: pie(),
-    value: accessor("value"),
-  },
-  features: defaultChartFeatures,
-  stages: [...vizPreDrawStages, applyPieLayout],
-  emit: pieEmit,
-};
-
-export const donutDef: ChartDefinition = {
-  // Donut extends Pie. Its only purely-scalar override is `padPixel`. The
-  // `innerRadius` closure depends on `this._width`/`_height`/`_margin` at
-  // call time, so it stays imperative in the constructor. Same emit as
-  // Pie (the slice data shape is identical).
-  name: "Donut",
-  defaults: {padPixel: 2},
-  features: defaultChartFeatures,
-  stages: vizPreDrawStages,
-  emit: pieEmit,
-};
-
-/**
-    `applyPackLayout` — Pack's chart-specific layout stage. Mirrors
-    `applyTreemapLayout`: runs the d3-hierarchy pack against the rolled-up
-    nested data and writes `packData` (filtered descendants) onto the
-    context. The chart-body diameter is also stored on `viz._packDiameter`
-    so the `_chartTransform` can center it.
-*/
-export const applyPackLayout: TransformStage = ({viz}) => {
-  if (!viz._filteredData || !viz._filteredData.length) {
-    return {shapeData: []};
-  }
-  const height = viz._height - viz._margin.top - viz._margin.bottom;
-  const width = viz._width - viz._margin.left - viz._margin.right;
-  const diameter = Math.min(height, width);
-
-  const nestedData = nestGroups(
-    viz._filteredData,
-    viz._groupBy.slice(0, viz._drawDepth + 1),
-  );
-
-  const packed = viz._pack
-    .padding(viz._layoutPadding)
-    .size([diameter, diameter])(
-      hierarchy(
-        {
-          key: (nestedData as Record<string, unknown>).key,
-          values: nestedData,
-        } as Record<string, unknown>,
-        (d: Record<string, unknown>) => d.values as Record<string, unknown>[],
-      )
-        .sum(viz._sum)
-        .sort(viz._sort),
-    )
-    .descendants()
-    .filter((d: any, i: number) => {
-      d.__d3plus__ = true;
-      d.i = i;
-      d.id = d.parent ? d.parent.data.key : "root";
-      d.data.__d3plusOpacity__ = d.height ? viz._packOpacity(d.data, i) : 1;
-      d.data.__d3plusTooltip__ = !d.height ? true : false;
-      return !d.children || d.children.length > 1;
-    });
-
-  viz._packDiameter = diameter;
-  viz._packOffsetX = (width - diameter) / 2;
-  viz._packOffsetY = (height - diameter) / 2;
-  return {shapeData: packed};
-};
-
-/**
-    `packDef.emit` — Circle SceneNodes (one per leaf in the pack). The label
-    pass uses the same transient-Circle pattern that Treemap's emit uses:
-    instantiates a Circle in compute mode to populate its labelClass, then
-    extracts the label nodes via TextBox.toScene.
-*/
-const packEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
-  if (!shapeData || !shapeData.length) return [];
-
-  // Resolve a value that may be a per-datum accessor or a literal.
-  const resolve = (val: unknown, d: unknown, i: number): unknown =>
-    typeof val === "function"
-      ? (val as (a: unknown, b: number) => unknown)(d, i)
-      : val;
-  const sc =
-    (viz as unknown as {_shapeConfig?: Record<string, unknown>})._shapeConfig ||
-    {};
-
-  const circleNodes = shapeData.map((d: any) => {
-    const fill = resolve(sc.fill, d.data, d.i);
-    const stroke = resolve(sc.stroke, d.data, d.i);
-    const strokeWidth = resolve(sc.strokeWidth, d.data, d.i);
-    return {
-      type: "circle" as const,
-      key: `pack-${d.id}-${d.i}`,
-      cx: d.x,
-      cy: d.y,
-      r: d.r,
-      datum: d.data,
-      paint: {
-        fill: typeof fill === "string" ? fill : undefined,
-        stroke: typeof stroke === "string" || stroke == null ? stroke as string | undefined : String(stroke),
-        opacity: d.data.__d3plusOpacity__,
-        strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
-      },
-    };
-  });
-
-  // Label compute via a transient Circle (same shape as treemapEmit).
-  const labelData = shapeData.map((d: any) => ({...d, label: (!d.children && d.parent) ? d.data.key : false}));
-  const circle = new Circle()
-    .renderMode("compute")
-    .data(labelData as any)
-    .label((d: any) => d.label)
-    .x((d: any) => d.x)
-    .y((d: any) => d.y)
-    .r((d: any) => d.r)
-    .config(shapeConfigFor(viz, "Circle"));
-  const labelNodes = collectComputed(circle, {shape: false});
-
-  return [...circleNodes, ...labelNodes];
-};
-
-export const packDef: ChartDefinition = {
-  name: "Pack",
-  defaults: {
-    layoutPadding: 1,
-    pack: pack(),
-    packOpacity: constant(0.25),
-    shape: constant("Circle"),
-    sum: accessor("value"),
-    sort: (a: any, b: any) => b.value - a.value,
-  },
-  features: defaultChartFeatures,
-  stages: [...vizPreDrawStages, applyPackLayout],
-  emit: packEmit,
-};
+// Pie, Donut, and Pack moved to ./Pie/, ./Donut/, ./Pack/.
 
 /* ----------------------- specialized chart defs ----------------------- */
 
-/**
-    `priestleyDef.emit` — Rect SceneNodes for each Priestley band (start→end
-    time interval at the assigned lane). The layout stage stashes
-    `xScale`/`yScale`/`bandWidth` onto `viz._priestleyCtx` and returns the
-    laid-out `data` as `shapeData`; emit consumes both. Same transient-
-    shape pattern as treemapEmit.
-*/
-const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
-  if (!shapeData || !shapeData.length) return [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const c = (viz as any)._priestleyCtx;
-  if (!c) return [];
-  const rect = new Rect()
-    .renderMode("compute")
-    .data(shapeData as any)
-    .duration(viz._duration)
-    .height(c.bandWidth)
-    .label((d: any, i: number) => viz._drawLabel(d.data, i))
-    .width((d: any) => {
-      const w = Math.abs(c.xScale(d.end) - c.xScale(d.start));
-      return w > 2 ? w - 2 : w;
-    })
-    .x((d: any) => c.xScale(d.start) + (c.xScale(d.end) - c.xScale(d.start)) / 2)
-    .y((d: any) => c.yScale(d.lane) + c.bandWidth / 2)
-    .config(shapeConfigFor(viz, "Rect"));
-  return collectComputed(rect);
-};
-
-/**
-    `applyPriestleyLayout` — Priestley's chart-specific layout stage.
-
-    Builds the per-row datum array from `_filteredData` (start/end coerced
-    via `date()` when `_axisConfig.scale === "time"`), groups it by the
-    nested `_groupBy` slice, then assigns each band a `lane` using a
-    greedy first-fit packer. Runs `viz._axisTest.measure()` (pure layout,
-    no DOM) and `viz._axis.renderMode("compute").render()` then absorbs
-    its scene into `_chartScene`. Computes the band-scale (`yScale` via
-    d3-scale.scaleBand) using the test-axis's measured padding, then
-    stashes `xScale`/`yScale`/`bandWidth` on
-    `viz._priestleyCtx` for `priestleyEmit` to consume.
-
-    Returns the laid-out per-band data as `shapeData`; the chart class
-    leaves `_chartTransform` undefined since Priestley positions in
-    absolute scale coordinates.
-*/
-export const applyPriestleyLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
-
-  if (!v._filteredData) return {shapeData: []};
-
-  const data = v._filteredData
-    .map((datum: any, i: number) => ({
-      __d3plus__: true,
-      data: datum,
-      end:
-        v._axisConfig.scale === "time"
-          ? date(v._end(datum, i))
-          : v._end(datum, i),
-      i,
-      id: v._id(datum, i),
-      start:
-        v._axisConfig.scale === "time"
-          ? date(v._start(datum, i))
-          : v._start(datum, i),
-    }))
-    .filter((d: any) => d.end - d.start > 0)
-    .sort((a: any, b: any) => a.start - b.start);
-
-  let nestedData;
-  if (v._groupBy.length > 1 && v._drawDepth > 0) {
-    const keyFns = [];
-    for (let i = 0; i < v._drawDepth; i++)
-      keyFns.push((d: any) => v._groupBy[i](d.data, d.i));
-    nestedData = nestGroups(data, keyFns);
-  } else nestedData = [{values: data}];
-
-  let maxLane = 0;
-  nestedData.forEach((g: any) => {
-    let track: any[] = [];
-    g.values.forEach((d: any) => {
-      track = track.map((t: any) => (t <= d.start ? false : t));
-      const i = track.indexOf(false);
-      if (i < 0) {
-        d.lane = maxLane + track.length;
-        track.push(d.end);
-      } else {
-        track[i] = d.end;
-        d.lane = maxLane + i;
-      }
-    });
-    maxLane += track.length;
-  });
-
-  const axisConfig = {
-    domain: [
-      min(data, (d: {start: number | Date; end: number | Date}) => d.start) || 0,
-      max(data, (d: {start: number | Date; end: number | Date}) => d.end) || 0,
-    ],
-    height: v._height - v._margin.top - v._margin.bottom,
-    width: v._width - v._margin.left - v._margin.right,
-  };
-
-  // Test axis: measure-only — populates _padding/outerBounds without DOM.
-  v._axisTest.config(axisConfig).config(v._axisConfig).measure();
-
-  // Production axis: compute-mode render → absorb the scene into
-  // _chartScene wrapped in a group with the axis transform. Priestley's
-  // _chartTransform is undefined, so the wrap transform is absolute.
-  v._axis
-    .config(axisConfig)
-    .config(v._axisConfig)
-    .renderMode("compute")
-    .select(undefined as unknown as HTMLElement)
-    .render();
-  const axisScene = v._axis.toScene();
-  if (axisScene) {
-    (v._chartScene ||= []).push({
-      type: "group",
-      key: "priestley-axis",
-      transform: {x: v._margin.left, y: v._margin.top},
-      children: axisScene.children || [],
-    });
-  }
-
-  const axisPad = v._axisTest._padding;
-  const xScale = v._axis._d3Scale;
-
-  const yScale = (scales as any).scaleBand()
-    .domain(range(0, maxLane, 1) as unknown as string[])
-    .paddingInner(v._paddingInner)
-    .paddingOuter(v._paddingOuter)
-    .rangeRound([
-      v._height -
-        v._margin.bottom -
-        v._axisTest.outerBounds().height -
-        axisPad,
-      v._margin.top + axisPad,
-    ]);
-
-  const bandWidth = yScale.bandwidth();
-
-  v._priestleyCtx = {xScale, yScale, bandWidth};
-  return {shapeData: data};
-};
-
-export const priestleyDef: ChartDefinition = {
-  name: "Priestley",
-  defaults: {paddingInner: 0.05, paddingOuter: 0.05},
-  features: defaultChartFeatures,
-  stages: [...vizPreDrawStages, applyPriestleyLayout],
-  emit: priestleyEmit,
-};
+// Priestley moved to ./Priestley/.
 
 /**
     `radarDef.emit` — Path SceneNodes for each radar polygon. The layout
