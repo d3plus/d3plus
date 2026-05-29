@@ -225,19 +225,44 @@ const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const locale = viz._locale;
   const drawLabel = viz._drawLabel;
 
-  // Rect cells with aria — pure data, no Rect class involved.
-  const rectNodes = shapeData.map((d: any) => ({
-    type: "rect" as const,
-    key: `treemap-${d.id}`,
-    x: d.x0,
-    y: d.y0,
-    width: d.x1 - d.x0,
-    height: d.y1 - d.y0,
-    datum: d.data,
-    aria: {
-      label: `${drawLabel(d.data, d.i)}, ${viz._sum(d.data, d.i)}, ${formatAbbreviate((d.share as number) * 100, locale)}%`,
-    },
-  }));
+  // Resolve a value that may be a per-datum accessor or a literal.
+  const resolve = (val: unknown, d: unknown, i: number): unknown =>
+    typeof val === "function"
+      ? (val as (a: unknown, b: number) => unknown)(d, i)
+      : val;
+  const sc =
+    (viz as unknown as {_shapeConfig?: Record<string, unknown>})._shapeConfig ||
+    {};
+
+  // Rect cells with aria + paint — paint pulled from `viz._shapeConfig`
+  // so legacy fill/stroke/opacity accessors (defined in Viz.ts) drive
+  // the scene cells the same way they used to drive the Rect shape
+  // class. Without this the rects emit with no paint and render as
+  // unstyled (black on most renderers).
+  const rectNodes = shapeData.map((d: any) => {
+    const fill = resolve(sc.fill, d.data, d.i);
+    const stroke = resolve(sc.stroke, d.data, d.i);
+    const opacity = resolve(sc.opacity, d.data, d.i);
+    const strokeWidth = resolve(sc.strokeWidth, d.data, d.i);
+    return {
+      type: "rect" as const,
+      key: `treemap-${d.id}`,
+      x: d.x0,
+      y: d.y0,
+      width: d.x1 - d.x0,
+      height: d.y1 - d.y0,
+      datum: d.data,
+      paint: {
+        fill: typeof fill === "string" ? fill : undefined,
+        stroke: typeof stroke === "string" || stroke == null ? stroke as string | undefined : String(stroke),
+        opacity: typeof opacity === "number" ? opacity : undefined,
+        strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+      },
+      aria: {
+        label: `${drawLabel(d.data, d.i)}, ${viz._sum(d.data, d.i)}, ${formatAbbreviate((d.share as number) * 100, locale)}%`,
+      },
+    };
+  });
 
   // Label nodes: delegate to a transient Rect in compute mode and pull
   // the TextBox scene via `collectComputed`. The labelBounds formula is
@@ -269,7 +294,21 @@ const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
           y: h / 2 - sh - padding * 2,
         },
       ];
-    });
+    })
+    // Per-label-index styling — labelBounds emits two labels per cell
+    // (title `l=0`, share-% `l=1`). The TextBox calls these accessors
+    // with the LABEL RECORD as `d`, so `d.l` distinguishes the bands.
+    // fontColor reads `d.data` (the source datum) and resolves contrast
+    // against the cell's fill.
+    .labelConfig({
+      textAnchor: (d: any) => (d && d.l === 0 ? "start" : "middle"),
+      verticalAlign: (d: any) => (d && d.l === 0 ? "top" : "bottom"),
+      fontColor: (d: any) => {
+        const src = d && d.data ? d.data : d;
+        const fillVal = resolve(sc.fill, src, src && src.i) as string;
+        return typeof fillVal === "string" ? colorContrast(fillVal) : undefined;
+      },
+    } as any);
   const labelNodes = collectComputed(rect, {shape: false});
 
   // Combine: rect cells + their label text nodes in a single emit group per
@@ -575,15 +614,34 @@ export const applyPackLayout: TransformStage = ({viz}) => {
 const packEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   if (!shapeData || !shapeData.length) return [];
 
-  const circleNodes = shapeData.map((d: any) => ({
-    type: "circle" as const,
-    key: `pack-${d.id}-${d.i}`,
-    cx: d.x,
-    cy: d.y,
-    r: d.r,
-    datum: d.data,
-    paint: {opacity: d.data.__d3plusOpacity__},
-  }));
+  // Resolve a value that may be a per-datum accessor or a literal.
+  const resolve = (val: unknown, d: unknown, i: number): unknown =>
+    typeof val === "function"
+      ? (val as (a: unknown, b: number) => unknown)(d, i)
+      : val;
+  const sc =
+    (viz as unknown as {_shapeConfig?: Record<string, unknown>})._shapeConfig ||
+    {};
+
+  const circleNodes = shapeData.map((d: any) => {
+    const fill = resolve(sc.fill, d.data, d.i);
+    const stroke = resolve(sc.stroke, d.data, d.i);
+    const strokeWidth = resolve(sc.strokeWidth, d.data, d.i);
+    return {
+      type: "circle" as const,
+      key: `pack-${d.id}-${d.i}`,
+      cx: d.x,
+      cy: d.y,
+      r: d.r,
+      datum: d.data,
+      paint: {
+        fill: typeof fill === "string" ? fill : undefined,
+        stroke: typeof stroke === "string" || stroke == null ? stroke as string | undefined : String(stroke),
+        opacity: d.data.__d3plusOpacity__,
+        strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+      },
+    };
+  });
 
   // Label compute via a transient Circle (same shape as treemapEmit).
   const labelData = shapeData.map((d: any) => ({...d, label: (!d.children && d.parent) ? d.data.key : false}));

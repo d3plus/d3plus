@@ -2,7 +2,7 @@ import defaults, {ColorDefaults} from "./defaults.js";
 import {rgb} from "d3-color";
 
 /**
-    A set of default color values used when assigning colors based on data.
+    Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color.
     @param c A valid CSS color string.
     @param u An object containing overrides of the default colors.
 */

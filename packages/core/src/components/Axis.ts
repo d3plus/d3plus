@@ -501,21 +501,42 @@ export default class Axis extends BaseClass {
       @private
 */
   _configToPaint(cfg: Record<string, unknown>): Paint {
+    // Resolve a config value that may be a function (the legacy
+    // d3-selection style accessor invocation pattern) or a literal.
+    // Functions are evaluated against the Axis instance with no args
+    // — config-level paints aren't per-datum.
+    const resolve = (v: unknown): unknown => {
+      if (typeof v === "function") {
+        try {
+          return (v as (this: unknown) => unknown).call(this);
+        } catch {
+          return undefined;
+        }
+      }
+      return v;
+    };
     const p: Paint = {};
-    if (cfg.stroke != null) p.stroke = String(cfg.stroke);
-    if (cfg["stroke-width"] != null) p.strokeWidth = Number(cfg["stroke-width"]);
-    if (cfg["stroke-opacity"] != null) p.strokeOpacity = Number(cfg["stroke-opacity"]);
-    if (cfg["stroke-linecap"] != null)
-      p.strokeLinecap = cfg["stroke-linecap"] as Paint["strokeLinecap"];
-    if (cfg["stroke-dasharray"] != null) {
-      const parts = String(cfg["stroke-dasharray"])
+    const stroke = resolve(cfg.stroke);
+    if (stroke != null) p.stroke = String(stroke);
+    const strokeWidth = resolve(cfg["stroke-width"]);
+    if (strokeWidth != null) p.strokeWidth = Number(strokeWidth);
+    const strokeOpacity = resolve(cfg["stroke-opacity"]);
+    if (strokeOpacity != null) p.strokeOpacity = Number(strokeOpacity);
+    const strokeLinecap = resolve(cfg["stroke-linecap"]);
+    if (strokeLinecap != null)
+      p.strokeLinecap = strokeLinecap as Paint["strokeLinecap"];
+    const dasharray = resolve(cfg["stroke-dasharray"]);
+    if (dasharray != null) {
+      const parts = String(dasharray)
         .split(/[\s,]+/)
         .map(Number)
         .filter(n => Number.isFinite(n));
       if (parts.length) p.strokeDasharray = parts;
     }
-    if (cfg.opacity != null) p.opacity = Number(cfg.opacity);
-    if (cfg.fill != null) p.fill = String(cfg.fill);
+    const opacity = resolve(cfg.opacity);
+    if (opacity != null) p.opacity = Number(opacity);
+    const fill = resolve(cfg.fill);
+    if (fill != null) p.fill = String(fill);
     return p;
   }
 

@@ -166,11 +166,22 @@ export default class Shape extends BaseClass {
     this._id = (d: DataPoint, i?: number) => (d.id !== void 0 ? d.id : i!);
     this._label = constant(false);
     this._labelClass = new TextBox();
+    // Shape's label defaults. These are pushed to `_labelClass` via
+    // `_labelClass.config(this._labelConfig)` in render() so the
+    // TextBox actually picks them up (was: defaults stored but never
+    // applied → flat black labels with no padding).
+    // textAnchor defaults to "start" (left-aligned) — Treemap, Pie,
+    // etc. rely on this. Bar overrides to "middle" in its constructor.
     this._labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
         colorContrast(this._fill(d, i) as string),
+      fontResize: true,
+      fontMax: 50,
+      fontMin: 8,
       fontSize: 12,
       padding: 5,
+      textAnchor: "start",
+      verticalAlign: "top",
     };
     this._name = "Shape";
     this._opacity = constant(1);
@@ -492,6 +503,18 @@ export default class Shape extends BaseClass {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lc = this._labelClass as unknown as {renderMode?: (m: string) => any};
     if (lc && typeof lc.renderMode === "function") lc.renderMode("compute");
+    // Apply Shape's labelConfig (fontColor, fontResize, padding, textAnchor,
+    // verticalAlign, fontSize, …) to the underlying TextBox. Function
+    // accessors receive the LABEL RECORD (with `d.data` = source
+    // datum, `d.l` = which label index in a multi-label-per-datum
+    // setup, `d.text` = label text, etc.). That gives consumers like
+    // Treemap (two labels per cell — title + share %) the context to
+    // vary anchor / color / etc. based on which label they're styling.
+    // Shape's default `fontColor` uses `this._fill(d, i)` — since
+    // `_fill` is the configPrep-wrapped accessor, it unwraps `d.data`
+    // back to the source datum automatically before invoking the user
+    // fill function.
+    this._labelClass.config(this._labelConfig as Record<string, unknown>);
     this._labelClass.data(this._buildLabelData());
 
     if (this._renderMode === "compute") {

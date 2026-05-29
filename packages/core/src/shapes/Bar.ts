@@ -46,6 +46,11 @@ export default class Bar extends Shape {
       x: this._x1 !== null ? this._getX(d, i) : -(s.width as number) / 2,
       y: this._x1 === null ? this._getY(d, i) : -(s.height as number) / 2,
     });
+    // Bar labels are horizontally centered inside their bar (vs. Shape's
+    // "start" default used by Treemap/Pie/etc.). Pre-merged into the
+    // Shape.labelConfig defaults so plotPaint's userConfig override
+    // path doesn't have to know about it.
+    Object.assign(this._labelConfig, {textAnchor: "middle"});
     this._width = constant(10);
     this._x = accessor("x");
     this._x0 = accessor("x");
