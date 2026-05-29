@@ -11,7 +11,7 @@
       - its labels via `shape._labelClass.toScene().children`
 
     These two helpers reduce that boilerplate to a single call and
-    centralize the `configPrep.bind(viz)(viz._shapeConfig, "shape", key)`
+    centralize the `configPrep.bind(viz)(viz.schema.shapeConfig, "shape", key)`
     incantation. The helpers swallow exceptions (returning `[]`) to
     preserve the existing pure-Node fallback: tests that run without
     loading the shape registry continue to see an empty emit instead
@@ -22,6 +22,7 @@
 
 import configPrep from "../utils/configPrep.js";
 
+import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 /**
@@ -47,18 +48,64 @@ export interface ShapeLike {
     Structural minimum a Viz instance must satisfy for these helpers to
     work. Each chart subclass has many more fields; the helpers only need
     `_chartScene` (mutated by `absorbShapeIntoChartScene`) and
-    `_shapeConfig` (read by `shapeConfigFor`'s default-config branch).
+    `schema.shapeConfig` (read by `shapeConfigFor`'s default-config branch).
 */
 export interface VizLike {
   _chartScene?: SceneNode[];
-  _shapeConfig?: Record<string, unknown>;
+  schema: Record<string, unknown>;
+}
+
+/**
+    Resolve a per-datum accessor — either a function `(d, i) => T` or a bare
+    value. The pattern repeats in every flat-data emit (Treemap, Pack, Pie,
+    Priestley, …). Centralized here so each emit doesn't need its own copy.
+*/
+export function resolveAccessor<T>(
+  val: unknown,
+  d: DataPoint,
+  i: number | undefined,
+): T | undefined {
+  if (typeof val === "function") {
+    return (val as (d: DataPoint, i: number | undefined) => T)(d, i);
+  }
+  return val as T | undefined;
+}
+
+/**
+    Resolve the standard paint properties (`fill`, `stroke`, `strokeWidth`,
+    `opacity`) from a shape-config record for a single datum. Returns a
+    `Paint`-shaped object compatible with `SceneNode.paint`. `fill` is
+    forced to `string | undefined` to match `Paint.fill` (texture/object
+    fills fall through to `undefined`; the existing flat-data emits already
+    do this same coercion).
+*/
+export function paintFromShapeConfig(
+  sc: Record<string, unknown>,
+  d: DataPoint,
+  i: number | undefined,
+): {
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  opacity?: number;
+} {
+  const fill = resolveAccessor<unknown>(sc.fill, d, i);
+  const stroke = resolveAccessor<string>(sc.stroke, d, i);
+  const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d, i);
+  const opacity = resolveAccessor<number>(sc.opacity, d, i);
+  return {
+    fill: typeof fill === "string" ? fill : undefined,
+    stroke,
+    strokeWidth,
+    opacity,
+  };
 }
 
 /**
     Apply a shape-config object to a chart-specific shape key, returning the
     configPrep-massaged object suitable for `.config(...)`. Equivalent to
     `(configPrep as any).bind(viz)(config, "shape", key)`. When `config` is
-    omitted it defaults to `viz._shapeConfig` (the common case — 11 sites);
+    omitted it defaults to `viz.schema.shapeConfig` (the common case — 11 sites);
     callers that compose a transient config object (e.g. Plot's confidence
     bands) pass it explicitly.
 
@@ -76,7 +123,7 @@ export function shapeConfigFor(
   // every caller doesn't need to know about it. The runtime contract is
   // `configPrep.bind(viz)(config, kind, key) → massagedConfig`.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (configPrep as any).bind(viz)(config ?? viz._shapeConfig, kind, shapeKey);
+  return (configPrep as any).bind(viz)(config ?? viz.schema.shapeConfig, kind, shapeKey);
 }
 
 /**

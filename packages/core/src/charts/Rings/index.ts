@@ -31,22 +31,22 @@ export const ringsDef: ChartDefinition = {
   emit: ringsEmit,
 
   setup: (viz: VizInstance) => {
-    viz._on.mouseenter = () => undefined;
-    viz._on["mouseleave.shape"] = () => {
+    viz.schema.on.mouseenter = () => undefined;
+    viz.schema.on["mouseleave.shape"] = () => {
       (viz as any).hover(false);
     };
-    const defaultMouseMove = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+    const defaultMouseMove = viz.schema.on["mousemove.shape"];
+    viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
         (viz as any).hover(false);
-        viz._on.mouseenter.bind(viz)(d, i, x, event);
+        viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
         viz._focus = undefined;
         return;
       }
       const id =
-          viz._nodeGroupBy && viz._nodeGroupBy[viz._drawDepth](d, i)
-            ? viz._nodeGroupBy[viz._drawDepth](d, i)
+          viz.schema.nodeGroupBy && viz.schema.nodeGroupBy[viz._drawDepth](d, i)
+            ? viz.schema.nodeGroupBy[viz._drawDepth](d, i)
             : viz._id(d, i);
       const links = viz.ctx.linkLookup[id];
       const node = viz.ctx.nodeLookup[id];
@@ -65,8 +65,8 @@ export const ringsDef: ChartDefinition = {
         return filterIds.includes(viz._ids(h, x)[viz._drawDepth]);
       });
     };
-    viz._on["click.shape"] = (d: any) => {
-      viz._center = d.id;
+    viz.schema.on["click.shape"] = (d: any) => {
+      viz.schema.center = d.id;
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
       (viz as any)._draw();
@@ -77,24 +77,24 @@ export const ringsDef: ChartDefinition = {
         (addToQueue as any).bind(this)(_, f, "links");
         return this;
       }
-      return this._links;
+      return this.schema.links;
     };
     (viz as any).nodes = function(this: VizInstance, _: any, f?: any) {
       if (arguments.length) {
         (addToQueue as any).bind(this)(_, f, "nodes");
         return this;
       }
-      return this._nodes;
+      return this.schema.nodes;
     };
     (viz as any).linkSize = function(this: VizInstance, _: any) {
       return arguments.length
-        ? ((this._linkSize = typeof _ === "function" ? _ : constant(_)), this)
-        : this._linkSize;
+        ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_)), this)
+        : this.schema.linkSize;
     };
     (viz as any).nodeGroupBy = function(this: VizInstance, _: any) {
-      if (!arguments.length) return this._nodeGroupBy;
+      if (!arguments.length) return this.schema.nodeGroupBy;
       if (!(_ instanceof Array)) _ = [_];
-      this._nodeGroupBy = _.map((k: any) => {
+      this.schema.nodeGroupBy = _.map((k: any) => {
         if (typeof k === "function") return k;
         if (!this._aggs[k]) {
           this._aggs[k] = (a: any, c: any) => {
@@ -114,7 +114,7 @@ export const ringsDef: ChartDefinition = {
     (viz as any).hover = function(this: VizInstance, _: any) {
       this._hover = _;
       this._shapes.forEach((s: any) => s.hover(_));
-      if (this._legend) this._legendClass.hover(_);
+      if (this.schema.legend) this._legendClass.hover(_);
       return this;
     };
   },

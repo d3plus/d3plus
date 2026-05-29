@@ -47,8 +47,8 @@ export const matrixDef: ChartDefinition = {
   chartTransform: (viz: VizInstance) => ({x: 0, y: viz._margin.top}),
 
   setup: (viz: VizInstance) => {
-    const baseMouseMoveShape = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (
+    const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
+    viz.schema.on["mousemove.shape"] = (
       d: DataPoint, i: number, x: unknown, event: unknown,
     ) => {
       baseMouseMoveShape(d, i, x, event);

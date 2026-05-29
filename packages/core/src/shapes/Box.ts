@@ -8,7 +8,8 @@ import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
@@ -17,27 +18,42 @@ import Whisker from "./Whisker.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
+// Box's x/y setters wrap every non-function (including numbers) in
+// `accessor(...)`, unlike the "accessor" coerce which would `constant(...)`
+// a non-string — so a custom coerce preserves the exact behavior.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toAccessor = (value: unknown): any =>
+  typeof value === "function" ? value : accessor(value as string);
+
+/** Box's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const boxSchema: ConfigField[] = [
+  {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
+  {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
+  {key: "rectWidth", coerce: "const", default: constant(50)},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {
+    key: "whiskerMode",
+    coerce: v => (Array.isArray(v) ? v : [v, v]),
+    default: ["tukey", "tukey"],
+  },
+  {key: "x", coerce: toAccessor, default: accessor("x", 250)},
+  {key: "y", coerce: toAccessor, default: accessor("y", 250)},
+];
+
 /**
     Creates SVG box based on an array of data.
 */
 export default class Box extends BaseClass {
-  _medianConfig: Record<string, unknown>;
-  _orient: AccessorFn;
-  _outlier: AccessorFn;
-  _outlierConfig: Record<string, unknown>;
-  _rectConfig: Record<string, unknown>;
-  _rectWidth: AccessorFn;
-  _whiskerConfig: Record<string, unknown>;
-  _whiskerMode: (string | number)[];
-  _x: AccessorFn;
-  _y: AccessorFn;
+  // installFluent generates the config accessors (orient, x, rectWidth, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _data!: DataPoint[];
   _select!: D3Selection;
   _box!: Rect;
   _median!: Rect;
   _whisker!: Whisker;
   _whiskerEndpoint: (Circle | Rect)[];
-  _duration!: number;
 
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
@@ -45,33 +61,25 @@ export default class Box extends BaseClass {
 */
   constructor() {
     super();
-
-    this._medianConfig = {
-      fill: constant("black"),
-    };
-    this._orient = accessor("orient", "vertical");
-    this._outlier = accessor("outlier", "Circle");
-    this._outlierConfig = {
+    installFluent(this, boxSchema);
+    this.schema.medianConfig = {fill: constant("black")};
+    this.schema.outlierConfig = {
       Circle: {
         r: accessor("r", 5),
       },
       Rect: {
         height: (d: DataPoint, i: number) =>
-          this._orient(d, i) === "vertical" ? 5 : 20,
+          this.schema.orient(d, i) === "vertical" ? 5 : 20,
         width: (d: DataPoint, i: number) =>
-          this._orient(d, i) === "vertical" ? 20 : 5,
+          this.schema.orient(d, i) === "vertical" ? 20 : 5,
       },
     };
-    this._rectConfig = {
+    this.schema.rectConfig = {
       fill: constant("white"),
       stroke: constant("black"),
       strokeWidth: constant(1),
     };
-    this._rectWidth = constant(50);
-    this._whiskerConfig = {};
-    this._whiskerMode = ["tukey", "tukey"];
-    this._x = accessor("x", 250);
-    this._y = accessor("y", 250);
+    this.schema.whiskerConfig = {};
     this._whiskerEndpoint = [];
   }
 
@@ -79,7 +87,7 @@ export default class Box extends BaseClass {
       Draws the Box.
 */
   render(): this {
-    const compute = this._renderMode === "compute";
+    const compute = this.schema.renderMode === "compute";
     if (this._select === void 0 && !compute) {
       this.select(
         select("body")
@@ -101,7 +109,9 @@ export default class Box extends BaseClass {
     const outlierData: DataPoint[] = [];
 
     const filteredData = groups(this._data, (d: DataPoint, i: number) =>
-      this._orient(d, i) === "vertical" ? this._x(d, i) : this._y(d, i),
+      this.schema.orient(d, i) === "vertical"
+        ? this.schema.x(d, i)
+        : this.schema.y(d, i),
     ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
       const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
       (d as Record<string, unknown>).data = merge(
@@ -110,14 +120,14 @@ export default class Box extends BaseClass {
       (d as Record<string, unknown>).i = this._data.indexOf(
         (d.values as unknown as DataPoint[])[0],
       );
-      (d as Record<string, unknown>).orient = this._orient(
+      (d as Record<string, unknown>).orient = this.schema.orient(
         d.data as DataPoint,
         d.i as number,
       );
       const values: number[] = (d.values as unknown as DataPoint[]).map(
         (d as Record<string, unknown>).orient === "vertical"
-          ? this._y
-          : this._x,
+          ? this.schema.y
+          : this.schema.x,
       ) as unknown as number[];
       values.sort((a: number, b: number) => a - b);
 
@@ -125,7 +135,7 @@ export default class Box extends BaseClass {
       (d as Record<string, unknown>).median = quantile(values, 0.5);
       (d as Record<string, unknown>).third = quantile(values, 0.75);
 
-      const mode = this._whiskerMode;
+      const mode = this.schema.whiskerMode;
 
       if (mode[0] === "tukey") {
         (d as Record<string, unknown>).lowerLimit =
@@ -154,24 +164,24 @@ export default class Box extends BaseClass {
       // Compute values for vertical orientation.
       if (d.orient === "vertical") {
         (d as Record<string, unknown>).height = rectLength;
-        (d as Record<string, unknown>).width = this._rectWidth(
+        (d as Record<string, unknown>).width = this.schema.rectWidth(
           d.data as DataPoint,
           d.i as number,
         );
-        (d as Record<string, unknown>).x = this._x(
+        (d as Record<string, unknown>).x = this.schema.x(
           d.data as DataPoint,
           d.i as number,
         );
         (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
       } else if (d.orient === "horizontal") {
         // Compute values for horizontal orientation.
-        (d as Record<string, unknown>).height = this._rectWidth(
+        (d as Record<string, unknown>).height = this.schema.rectWidth(
           d.data as DataPoint,
           d.i as number,
         );
         (d as Record<string, unknown>).width = rectLength;
         (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-        (d as Record<string, unknown>).y = this._y(
+        (d as Record<string, unknown>).y = this.schema.y(
           d.data as DataPoint,
           d.i as number,
         );
@@ -182,8 +192,8 @@ export default class Box extends BaseClass {
         (eachValue: DataPoint, index: number) => {
           const value =
             d.orient === "vertical"
-              ? (this._y(eachValue, index) as number)
-              : (this._x(eachValue, index) as number);
+              ? (this.schema.y(eachValue, index) as number)
+              : (this.schema.x(eachValue, index) as number);
 
           if (
             value < (d.lowerLimit as number) ||
@@ -193,7 +203,7 @@ export default class Box extends BaseClass {
             (dataObj as Record<string, unknown>).__d3plus__ = true;
             (dataObj as Record<string, unknown>).data = eachValue;
             (dataObj as Record<string, unknown>).i = index;
-            (dataObj as Record<string, unknown>).outlier = this._outlier(
+            (dataObj as Record<string, unknown>).outlier = this.schema.outlier(
               eachValue,
               index,
             );
@@ -224,7 +234,7 @@ export default class Box extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._rectConfig, "shape")!)
+      .config(configPrep.bind(this as any)(this.schema.rectConfig, "shape")!)
       .render();
 
     // Draw median.
@@ -237,7 +247,7 @@ export default class Box extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._medianConfig, "shape")!)
+      .config(configPrep.bind(this as any)(this.schema.medianConfig, "shape")!)
       .render();
 
     // Draw 2 lines using Whisker class.
@@ -304,7 +314,7 @@ export default class Box extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._whiskerConfig, "shape")!)
+      .config(configPrep.bind(this as any)(this.schema.whiskerConfig, "shape")!)
       .render();
 
     // Draw outliers.
@@ -317,7 +327,7 @@ export default class Box extends BaseClass {
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .config(configPrep.bind(this as any)(this._outlierConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as any)(this.schema.outlierConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
@@ -393,30 +403,8 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._medianConfig = assign(this._medianConfig, _!)), this)
-      : this._medianConfig;
-  }
-
-  /**
-      The orientation of the box shape.
-*/
-  orient(): AccessorFn;
-  orient(_: AccessorFn | string): this;
-  orient(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._orient;
-  }
-
-  /**
-      Whether to show outlier points.
-*/
-  outlier(): AccessorFn;
-  outlier(_: AccessorFn | string): this;
-  outlier(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._outlier = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._outlier;
+      ? ((this.schema.medianConfig = assign(this.schema.medianConfig, _!)), this)
+      : this.schema.medianConfig;
   }
 
   /**
@@ -426,8 +414,8 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._outlierConfig = assign(this._outlierConfig, _!)), this)
-      : this._outlierConfig;
+      ? ((this.schema.outlierConfig = assign(this.schema.outlierConfig, _!)), this)
+      : this.schema.outlierConfig;
   }
 
   /**
@@ -437,24 +425,8 @@ export default class Box extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._rectConfig = assign(this._rectConfig, _!)), this)
-      : this._rectConfig;
-  }
-
-  /**
-      The width accessor for each box.
-
-@example
-function(d) {
-  return d.width;
-}
-*/
-  rectWidth(): AccessorFn;
-  rectWidth(_: AccessorFn | number): this;
-  rectWidth(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._rectWidth = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._rectWidth;
+      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      : this.schema.rectConfig;
   }
 
   /**
@@ -475,57 +447,8 @@ function(d) {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._whiskerConfig = assign(this._whiskerConfig, _!)), this)
-      : this._whiskerConfig;
-  }
-
-  /**
-      Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `"tukey"`, `"extent"`, or a Number representing a quantile.
-*/
-  whiskerMode(): (string | number)[];
-  whiskerMode(_: (string | number)[] | string | number): this;
-  whiskerMode(
-    _?: (string | number)[] | string | number,
-  ): (string | number)[] | this {
-    return arguments.length
-      ? ((this._whiskerMode = _ instanceof Array ? _ : [_!, _!]), this)
-      : this._whiskerMode;
-  }
-
-  /**
-      The x position accessor for each box.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x =
-          typeof _ === "function" ? _ : accessor(_ as unknown as string)),
-        this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each box.
-
-@example
-function(d) {
-  return d.y;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y =
-          typeof _ === "function" ? _ : accessor(_ as unknown as string)),
-        this)
-      : this._y;
+      ? ((this.schema.whiskerConfig = assign(this.schema.whiskerConfig, _!)), this)
+      : this.schema.whiskerConfig;
   }
 
   /**
@@ -535,26 +458,8 @@ function(d) {
   */
   config(): BoxConfig;
   config(_: Partial<BoxConfig>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config(_?: Partial<BoxConfig>): BoxConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;
-  }
-
-  /**
-      Render-mode toggle. `"compute"` propagates to every inner shape
-      (Rect/Whisker/Circle) — each is mounted scene-only via
-      `select(null)` and `renderMode("compute")`, and their
-      `toScene()` outputs are aggregated by `Box.toScene()` so a caller
-      doing `collectComputed(boxInstance)` gets the union scene.
-      `"full"` (the default) preserves the legacy DOM-mounting path.
-  */
-  _renderMode?: "full" | "compute";
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode || "full";
-    this._renderMode = _;
-    return this;
   }
 }

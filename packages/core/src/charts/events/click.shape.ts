@@ -24,10 +24,10 @@ export default function (
     this.hover(false);
     if (this._tooltip(d, i)) this._tooltipClass.data([]).render();
 
-    const oldFilter = this._filter;
+    const oldFilter = this.schema.filter;
 
     this._history.push({
-      depth: this._depth,
+      depth: this.schema.depth,
       filter: oldFilter,
     });
 

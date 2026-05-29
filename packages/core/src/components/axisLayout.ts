@@ -5,6 +5,10 @@
     both `Axis.render()` (which then runs a paint phase against the result)
     and `Axis.measure()` (which returns immediately).
 
+    Config is read from `axis.schema.<key>` (the `installFluent` storage);
+    scratch state (`_d3Scale`, `_margin`, `_position`, etc.) reads and writes
+    `axis._<key>` directly.
+
     The function mutates the input `axis` to populate `_d3Scale`,
     `_d3ScaleNegative`, `_outerBounds`, `_margin`, `_availableTicks`,
     `_visibleTicks`, `_labelRotation`, `_tickUnit` — matching the side effects
@@ -76,21 +80,21 @@ export interface AxisLayoutResult {
 */
 export function measureAxis(axis: any): AxisLayoutResult {
   const timeLocaleObj =
-    axis._timeLocale || locale[axis._locale] || locale["en-US"];
+    axis.schema.timeLocale || locale[axis._locale] || locale["en-US"];
   timeFormatDefaultLocale(
     timeLocaleObj as Parameters<typeof timeFormatDefaultLocale>[0],
   );
 
   const {width, height, x, y, horizontal, opposite} = axis._position,
-    p = axis._padding,
-    rangeOuter = [p, (axis[`_${width}`] as number) - p];
+    p = axis.schema.padding,
+    rangeOuter = [p, (axis.schema[width] as number) - p];
 
   const tickValue =
-    axis._shape === "Circle"
-      ? axis._shapeConfig.r
-      : axis._shape === "Rect"
-        ? axis._shapeConfig[width]
-        : axis._shapeConfig.strokeWidth;
+    axis.schema.shape === "Circle"
+      ? axis.schema.shapeConfig.r
+      : axis.schema.shape === "Rect"
+        ? axis.schema.shapeConfig[width]
+        : axis.schema.shapeConfig.strokeWidth;
   const tickGet =
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
@@ -98,13 +102,13 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   let labels: any[] = [], range: any[] = [], ticks: any[] = [];
 
-  const tickFormat = axis._tickFormat
-    ? axis._tickFormat
+  const tickFormat = axis.schema.tickFormat
+    ? axis.schema.tickFormat
     : (d: any) => {
-        if (isNaN(d) || ["band", "ordinal", "point"].includes(axis._scale)) {
+        if (isNaN(d) || ["band", "ordinal", "point"].includes(axis.schema.scale)) {
           return d;
-        } else if (axis._scale === "time") {
-          const refData = (axis._data.length ? axis._data : axis._domain)
+        } else if (axis.schema.scale === "time") {
+          const refData = (axis._data.length ? axis._data : axis.schema.domain)
             .map((v: unknown) => date(v as string | number | false))
             .filter((d: Date | false): d is Date => d instanceof Date)
             .sort((a: Date, b: Date) => +a - +b);
@@ -113,8 +117,8 @@ export function measureAxis(axis: any): AxisLayoutResult {
             timeLocaleObj.quarter as string,
           );
         } else if (
-          axis._scale === "linear" &&
-          axis._tickSuffix === "smallest"
+          axis.schema.scale === "linear" &&
+          axis.schema.tickSuffix === "smallest"
         ) {
           const loc =
             typeof axis._locale === "object"
@@ -134,46 +138,46 @@ export function measureAxis(axis: any): AxisLayoutResult {
           const minTick = inverted ? ticks.length - 1 : 0;
           const maxTick = inverted ? 0 : ticks.length - 1;
           const prefix =
-            axis._rounding === "inside"
+            axis.schema.rounding === "inside"
               ? ticks.indexOf(d) === minTick
-                ? axis._roundingInsideMinPrefix
+                ? axis.schema.roundingInsideMinPrefix
                 : ticks.indexOf(d) === maxTick
-                  ? axis._roundingInsideMaxPrefix
+                  ? axis.schema.roundingInsideMaxPrefix
                   : ""
               : "";
           const suffix =
-            axis._rounding === "inside"
+            axis.schema.rounding === "inside"
               ? ticks.indexOf(d) === minTick
-                ? axis._roundingInsideMinSuffix
+                ? axis.schema.roundingInsideMinSuffix
                 : ticks.indexOf(d) === maxTick
-                  ? axis._roundingInsideMaxSuffix
+                  ? axis.schema.roundingInsideMaxSuffix
                   : ""
               : "";
           return `${prefix}${formatAbbreviate(d, axis._locale)}${suffix}`;
         }
       };
 
-  const setScale = (newRange: any[] = axis._range!) => {
+  const setScale = (newRange: any[] = axis.schema.range!) => {
     range = newRange ? newRange.slice() : [undefined, undefined];
     let [minRange, maxRange] = rangeOuter;
-    if (axis._range) {
-      if (axis._range[0] !== undefined) minRange = axis._range[0];
-      if (axis._range[axis._range.length - 1] !== undefined)
-        maxRange = axis._range[axis._range.length - 1]!;
+    if (axis.schema.range) {
+      if (axis.schema.range[0] !== undefined) minRange = axis.schema.range[0];
+      if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
+        maxRange = axis.schema.range[axis.schema.range.length - 1]!;
     }
     if (range[0] === undefined || range[0] < minRange) range[0] = minRange;
     if (range[1] === undefined || range[1] > maxRange) range[1] = maxRange;
 
     const sizeInner = maxRange - minRange;
-    if (axis._scale === "ordinal" && axis._domain.length > range.length) {
-      if (newRange === axis._range) {
-        const buckets = axis._domain.length + 1;
+    if (axis.schema.scale === "ordinal" && axis.schema.domain.length > range.length) {
+      if (newRange === axis.schema.range) {
+        const buckets = axis.schema.domain.length + 1;
         range = d3Range(buckets)
           .map((d: number) => range[0] + sizeInner * (d / (buckets - 1)))
           .slice(1, buckets);
         range = range.map((d: number) => d - range[0] / 2);
       } else {
-        const buckets = axis._domain.length;
+        const buckets = axis.schema.domain.length;
         const size = range[1] - range[0];
         range = d3Range(buckets).map(
           (d: number) => range[0] + size * (d / (buckets - 1)),
@@ -181,19 +185,19 @@ export function measureAxis(axis: any): AxisLayoutResult {
       }
     }
 
-    const scale = `scale${axis._scale
+    const scale = `scale${axis.schema.scale
       .charAt(0)
-      .toUpperCase()}${axis._scale.slice(1)}`;
+      .toUpperCase()}${axis.schema.scale.slice(1)}`;
 
-    const initialDomain = axis._domain.slice();
+    const initialDomain = axis.schema.domain.slice();
 
     axis._d3Scale = (scales as any)[scale]()
       .domain(
-        axis._scale === "time" ? initialDomain.map(date) : initialDomain,
+        axis.schema.scale === "time" ? initialDomain.map(date) : initialDomain,
       )
       .range(range);
 
-    if (axis._rounding !== "none") {
+    if (axis.schema.rounding !== "none") {
       const roundDomain = () => {
         const zeroLength = (d: number) => {
           if (smallScale) {
@@ -222,7 +226,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
             ? zeroArray[0]
             : zeroArray[0] > 1 && zeroArray[0] === zeroArray[1]
               ? zeroArray[0] - 1
-              : axis._rounding === "outside" || !diverging
+              : axis.schema.rounding === "outside" || !diverging
                 ? zeroArray[0] + (zeroArray[1] - zeroArray[0]) / 2
                 : max(zeroArray)!;
         let factor: number =
@@ -234,7 +238,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
         const inverted = initialDomain[1] < initialDomain[0];
         const newDomain = [
           Math[
-            axis._rounding === "outside"
+            axis.schema.rounding === "outside"
               ? inverted
                 ? "ceil"
                 : "floor"
@@ -243,7 +247,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
                 : "ceil"
           ](initialDomain[0] / factor) * factor,
           Math[
-            axis._rounding === "outside"
+            axis.schema.rounding === "outside"
               ? inverted
                 ? "floor"
                 : "ceil"
@@ -252,20 +256,20 @@ export function measureAxis(axis: any): AxisLayoutResult {
                 : "floor"
           ](initialDomain[1] / factor) * factor,
         ];
-        if (axis._scale === "log") {
+        if (axis.schema.scale === "log") {
           if (newDomain[0] === 0) newDomain[0] = initialDomain[0];
           if (newDomain[1] === 0) newDomain[1] = initialDomain[1];
         }
         axis._d3Scale.domain(newDomain.map(fixFloat));
       };
 
-      if (axis._scale === "linear") {
+      if (axis.schema.scale === "linear") {
         roundDomain();
-      } else if (axis._scale === "log") {
+      } else if (axis.schema.scale === "log") {
         const powDomain: number[] = [];
         const inverted = initialDomain[1] < initialDomain[0];
         powDomain[0] = (
-          axis._rounding === "outside"
+          axis.schema.rounding === "outside"
             ? isNegative(initialDomain[0])
               ? inverted
                 ? floorPow
@@ -282,7 +286,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
                 : ceilPow
         )(initialDomain[0]);
         powDomain[1] = (
-          axis._rounding === "inside"
+          axis.schema.rounding === "inside"
             ? isNegative(initialDomain[1])
               ? inverted
                 ? floorPow
@@ -311,14 +315,14 @@ export function measureAxis(axis: any): AxisLayoutResult {
       }
     }
 
-    if (axis._d3Scale.padding) axis._d3Scale.padding(axis._scalePadding);
+    if (axis._d3Scale.padding) axis._d3Scale.padding(axis.schema.scalePadding);
     if (axis._d3Scale.paddingInner)
-      axis._d3Scale.paddingInner(axis._paddingInner);
+      axis._d3Scale.paddingInner(axis.schema.paddingInner);
     if (axis._d3Scale.paddingOuter)
-      axis._d3Scale.paddingOuter(axis._paddingOuter);
+      axis._d3Scale.paddingOuter(axis.schema.paddingOuter);
 
     axis._d3ScaleNegative = null;
-    if (axis._scale === "log") {
+    if (axis.schema.scale === "log") {
       const domain = axis._d3Scale.domain();
       if (domain[0] === 0) {
         const smallestNumber = min([min(axis._data), Math.abs(domain[1])]);
@@ -390,25 +394,25 @@ export function measureAxis(axis: any): AxisLayoutResult {
     }
 
     ticks = (
-      axis._ticks
-        ? axis._scale === "time"
-          ? (axis._ticks as (string | number | false | undefined)[]).map(date)
-          : axis._ticks
+      axis.schema.ticks
+        ? axis.schema.scale === "time"
+          ? (axis.schema.ticks as (string | number | false | undefined)[]).map(date)
+          : axis.schema.ticks
         : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative.ticks)
           ? axis._getTicks()
-          : axis._domain
+          : axis.schema.domain
     ).slice();
     labels = (
-      axis._labels
-        ? axis._scale === "time"
-          ? (axis._labels as (string | number | false | undefined)[]).map(date)
-          : axis._labels
+      axis.schema.labels
+        ? axis.schema.scale === "time"
+          ? (axis.schema.labels as (string | number | false | undefined)[]).map(date)
+          : axis.schema.labels
         : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative.ticks)
           ? axis._getLabels()
           : ticks
     ).slice();
 
-    if (axis._scale === "time") {
+    if (axis.schema.scale === "time") {
       ticks = ticks.map(Number);
       labels = labels.map(Number);
     }
@@ -419,7 +423,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
       (a: unknown, b: unknown) => axis._getPosition(a) - axis._getPosition(b),
     );
 
-    if (axis._scale === "linear" && axis._tickSuffix === "smallest") {
+    if (axis.schema.scale === "linear" && axis.schema.tickSuffix === "smallest") {
       const suffixes = labels.filter((d: unknown) => (d as number) >= 1000);
       if (suffixes.length > 0) {
         const minVal = Math.min(...suffixes);
@@ -440,7 +444,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
     axis._availableTicks = ticks;
     ticks.forEach((d: unknown, i: number) => {
       let s = tickGet({id: d, tick: true}, i);
-      if (axis._shape === "Circle") s *= 2;
+      if (axis.schema.shape === "Circle") s *= 2;
       const t = axis._getPosition(d);
       if (!pixels.length || Math.abs(closest(t, pixels.filter((pix): pix is number => pix !== false))! - t) > s * 2)
         pixels.push(t);
@@ -451,8 +455,8 @@ export function measureAxis(axis: any): AxisLayoutResult {
   };
   setScale();
 
-  if (axis._title) {
-    const {fontFamily, fontSize, lineHeight} = axis._titleConfig;
+  if (axis.schema.title) {
+    const {fontFamily, fontSize, lineHeight} = axis.schema.titleConfig;
     const titleWrap = textWrap()
       .fontFamily(
         typeof fontFamily === "function" ? fontFamily() : fontFamily,
@@ -462,42 +466,42 @@ export function measureAxis(axis: any): AxisLayoutResult {
         typeof lineHeight === "function" ? lineHeight() : lineHeight,
       )
       .width(range[range.length - 1] - range[0] - p * 2)
-      .height((axis[`_${height}`] as number) - axis._tickSize - p * 2);
-    const lines = titleWrap(axis._title).lines.length;
-    margin[axis._orient] = lines * titleWrap.lineHeight()! + p;
+      .height((axis.schema[height] as number) - axis.schema.tickSize - p * 2);
+    const lines = titleWrap(axis.schema.title).lines.length;
+    margin[axis.schema.orient] = lines * titleWrap.lineHeight()! + p;
   }
 
   let hBuff: any =
-      axis._shape === "Circle"
-        ? typeof axis._shapeConfig.r === "function"
-          ? axis._shapeConfig.r({tick: true})
-          : axis._shapeConfig.r
-        : axis._shape === "Rect"
-          ? typeof axis._shapeConfig[height] === "function"
-            ? axis._shapeConfig[height]({tick: true})
-            : axis._shapeConfig[height]
-          : axis._tickSize,
+      axis.schema.shape === "Circle"
+        ? typeof axis.schema.shapeConfig.r === "function"
+          ? axis.schema.shapeConfig.r({tick: true})
+          : axis.schema.shapeConfig.r
+        : axis.schema.shape === "Rect"
+          ? typeof axis.schema.shapeConfig[height] === "function"
+            ? axis.schema.shapeConfig[height]({tick: true})
+            : axis.schema.shapeConfig[height]
+          : axis.schema.tickSize,
     wBuff: any = tickGet({tick: true});
 
   if (typeof hBuff === "function") hBuff = max(ticks.map(hBuff));
-  if (axis._shape === "Rect") hBuff /= 2;
+  if (axis.schema.shape === "Rect") hBuff /= 2;
   if (typeof wBuff === "function") wBuff = max(ticks.map(wBuff));
-  if (axis._shape !== "Circle") wBuff /= 2;
+  if (axis.schema.shape !== "Circle") wBuff /= 2;
 
   const calculateLabelSize = (datum: any): any => {
     const {d, i, fF, fP, fS, rotate, space} = datum;
     const h = rotate ? "width" : "height",
       w = rotate ? "height" : "width";
 
-    const wSize = min([axis._maxSize, axis._width]);
-    const hSize = min([axis._maxSize, axis._height]);
+    const wSize = min([axis.schema.maxSize, axis.schema.width]);
+    const hSize = min([axis.schema.maxSize, axis.schema.height]);
 
     const wrap = textWrap()
       .fontFamily(fF)
       .fontSize(fS)
       .lineHeight(
-        axis._shapeConfig.lineHeight
-          ? axis._shapeConfig.lineHeight(d, i)
+        axis.schema.shapeConfig.lineHeight
+          ? axis.schema.shapeConfig.lineHeight(d, i)
           : undefined,
       );
 
@@ -553,10 +557,10 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   let textData: any[] = [];
   const createTextData = (offset: number = 1): void => {
-    const {fontSize} = axis._shapeConfig.labelConfig;
+    const {fontSize} = axis.schema.shapeConfig.labelConfig;
     const fontFamilyConfig =
-      axis._shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
-    const fontPadding = axis._shapeConfig.labelConfig.padding;
+      axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
+    const fontPadding = axis.schema.shapeConfig.labelConfig.padding;
 
     textData = labels.map((d: any, i: number) => {
       const fF =
@@ -566,8 +570,8 @@ export function measureAxis(axis: any): AxisLayoutResult {
         fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
         position = axis._getPosition(d);
 
-      const lineHeight = axis._shapeConfig.lineHeight
-        ? axis._shapeConfig.lineHeight(d, i)
+      const lineHeight = axis.schema.shapeConfig.lineHeight
+        ? axis.schema.shapeConfig.lineHeight(d, i)
         : fS * 1.4;
       const datum: any = {
         d,
@@ -583,7 +587,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
     });
 
     const maxSpace =
-      axis._scale === "band"
+      axis.schema.scale === "band"
         ? axis._d3Scale.bandwidth()
         : textData.reduce((s: number, d: any, i: number) => {
             const {position} = d;
@@ -601,7 +605,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
                   : position + (position - textData[i - 1].position)
                 : position - (position - textData[i + 1].position);
             const nextSpace = Math.abs(position - nextPosition);
-            const mod = axis._scale === "point" ? 1 : 2;
+            const mod = axis.schema.scale === "point" ? 1 : 2;
             return max([max([prevSpace, nextSpace])! * mod, s])!;
           }, 0);
 
@@ -642,7 +646,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   createTextData();
   const offsetEnabled =
-    axis._labelOffset && textData.some((d: any) => d.truncated);
+    axis.schema.labelOffset && textData.some((d: any) => d.truncated);
   if (offsetEnabled) createTextData(2);
 
   const spillovers = [0, 1].map((index: number) => {
@@ -658,10 +662,10 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   const [first, last] = range;
   const newRange = [first + spillovers[0], last - spillovers[1]];
-  if (axis._range) {
-    if (axis._range[0] !== undefined) newRange[0] = axis._range[0];
-    if (axis._range[axis._range.length - 1] !== undefined)
-      newRange[1] = axis._range[axis._range.length - 1];
+  if (axis.schema.range) {
+    if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
+    if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
+      newRange[1] = axis.schema.range[axis.schema.range.length - 1];
   }
 
   if (newRange[0] !== first || newRange[1] !== last) {
@@ -682,14 +686,14 @@ export function measureAxis(axis: any): AxisLayoutResult {
         })
       : axis._labelRotation;
 
-  const globalOffset = axis._labelOffset
+  const globalOffset = axis.schema.labelOffset
     ? max(textData, (d: any) => d.offset || 0)
     : 0;
   textData.forEach(
     (datum: any) => (datum.offset = datum.offset ? globalOffset : 0),
   );
 
-  const tBuff = axis._shape === "Line" ? 0 : hBuff;
+  const tBuff = axis.schema.shape === "Line" ? 0 : hBuff;
   const bounds: any = (axis._outerBounds = {
     [height]:
       (max(textData, (t: any) =>
@@ -699,20 +703,20 @@ export function measureAxis(axis: any): AxisLayoutResult {
     [x]: rangeOuter[0],
   });
 
-  bounds[height] = max([axis._minSize, bounds[height]]);
+  bounds[height] = max([axis.schema.minSize, bounds[height]]);
 
-  margin[axis._orient] += hBuff;
+  margin[axis.schema.orient] += hBuff;
   margin[opposite] =
-    axis._gridSize !== undefined
-      ? max([axis._gridSize, tBuff])!
-      : (axis[`_${height}`] as number) - margin[axis._orient] - bounds[height] - p;
-  bounds[height] += margin[opposite] + margin[axis._orient];
+    axis.schema.gridSize !== undefined
+      ? max([axis.schema.gridSize, tBuff])!
+      : (axis.schema[height] as number) - margin[axis.schema.orient] - bounds[height] - p;
+  bounds[height] += margin[opposite] + margin[axis.schema.orient];
   bounds[y] =
-    axis._align === "start"
-      ? axis._padding
-      : axis._align === "end"
-        ? (axis[`_${height}`] as number) - bounds[height] - axis._padding
-        : (axis[`_${height}`] as number) / 2 - bounds[height] / 2;
+    axis.schema.align === "start"
+      ? axis.schema.padding
+      : axis.schema.align === "end"
+        ? (axis.schema[height] as number) - bounds[height] - axis.schema.padding
+        : (axis.schema[height] as number) / 2 - bounds[height] / 2;
 
   return {
     ticks,

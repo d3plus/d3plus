@@ -29,7 +29,7 @@ export const barChartDef: ChartDefinition = {
     {
       key: "legend",
       factory: (viz: VizInstance) => {
-        const base = viz._legend as (config: any, arr: DataPoint[]) => unknown;
+        const base = viz.schema.legend as (config: any, arr: DataPoint[]) => unknown;
         return (config: any, arr: DataPoint[]) => {
           const legendIds = arr
             .map(viz._groupBy[viz._legendDepth].bind(viz))

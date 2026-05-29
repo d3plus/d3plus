@@ -33,8 +33,8 @@ it("toScene() omits viz-zoom group when _zoomTransform is unset", () => {
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
   chart._zoomTransform = undefined;
-  chart._width = 400;
-  chart._height = 300;
+  chart.schema.width = 400;
+  chart.schema.height = 300;
   const scene = chart.toScene();
   const cells = findGroup(scene, "viz-chart-cells");
   assert.ok(cells, "viz-chart-cells group exists when _chartScene has content");
@@ -51,8 +51,8 @@ it("toScene() wraps _chartScene in a viz-zoom group when _zoomTransform is set",
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
   chart._zoomTransform = {x: 25, y: 50, scale: 2};
-  chart._width = 400;
-  chart._height = 300;
+  chart.schema.width = 400;
+  chart.schema.height = 300;
   const scene = chart.toScene();
   const zoom = findGroup(scene, "viz-zoom");
   assert.ok(zoom, "viz-zoom group present when _zoomTransform is set");
@@ -79,8 +79,8 @@ it("toScene() composes _chartTransform OUTSIDE the viz-zoom group", () => {
   ];
   chart._chartTransform = {x: 10, y: 20};
   chart._zoomTransform = {x: 30, y: 40, scale: 1.5};
-  chart._width = 400;
-  chart._height = 300;
+  chart.schema.width = 400;
+  chart.schema.height = 300;
   const scene = chart.toScene();
   const cells = findGroup(scene, "viz-chart-cells");
   assert.deepStrictEqual(
@@ -105,8 +105,8 @@ it("Clearing _zoomTransform back to undefined removes the viz-zoom group", () =>
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
-  chart._width = 400;
-  chart._height = 300;
+  chart.schema.width = 400;
+  chart.schema.height = 300;
   chart._zoomTransform = {x: 5, y: 5, scale: 1.2};
   assert.ok(findGroup(chart.toScene(), "viz-zoom"), "viz-zoom present");
   chart._zoomTransform = undefined;

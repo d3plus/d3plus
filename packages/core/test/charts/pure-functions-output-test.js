@@ -121,11 +121,11 @@ it("vizPreDrawPure stashes _thresholdTree for the shim to consume", () => {
   assert.ok(ctx._thresholdTree, "_thresholdTree carried");
 });
 
-it("vizPostThresholdCtx flags noDataMessage iff data is empty AND _noDataMessage truthy", () => {
+it("vizPostThresholdCtx flags noDataMessage iff data is empty AND noDataMessage truthy", () => {
   const chart = new BarChart();
-  chart._noDataMessage = "no data";
+  chart.schema.noDataMessage = "no data";
   const idFn = d => d.id;
-  // Empty filteredData + _noDataMessage truthy → flag fires.
+  // Empty filteredData + noDataMessage truthy → flag fires.
   assert.strictEqual(
     vizPostThresholdCtx(chart, [], idFn).noDataMessage,
     true,
@@ -137,8 +137,8 @@ it("vizPostThresholdCtx flags noDataMessage iff data is empty AND _noDataMessage
     false,
     "non-empty → false",
   );
-  // _noDataMessage off → never fires.
-  chart._noDataMessage = false;
+  // noDataMessage off → never fires.
+  chart.schema.noDataMessage = false;
   assert.strictEqual(
     vizPostThresholdCtx(chart, [], idFn).noDataMessage,
     false,
@@ -148,7 +148,7 @@ it("vizPostThresholdCtx flags noDataMessage iff data is empty AND _noDataMessage
 
 it("vizPostThresholdCtx returns hoverOverride past the cutoff", () => {
   const chart = new BarChart();
-  chart._dataCutoff = 2;
+  chart.schema.dataCutoff = 2;
   chart._shapeConfig = {hoverOpacity: 0.5, duration: 600};
   const idFn = d => d.id;
   const data = [{id: "a"}, {id: "b"}, {id: "c"}, {id: "d"}];

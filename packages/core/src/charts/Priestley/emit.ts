@@ -28,7 +28,7 @@ export const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const xScale = viz.ctx.xScale as (v: number | Date) => number;
   const yScale = viz.ctx.yScale as (k: string) => number;
   const bandWidth = viz.ctx.bandWidth as number;
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   const rectNodes: SceneNode[] = data.map((d, i) => {
     const fill = resolveAccessor<string>(sc.fill, d.data, i);

@@ -17,6 +17,8 @@ import {TextBox} from "../components/index.js";
 import {measureAxis} from "./axisLayout.js";
 import * as shapes from "../shapes/index.js";
 import {configPrep, BaseClass, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 /* catches for -0 and less*/
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
@@ -59,7 +61,7 @@ function calculateStep(
   const size = Math.abs(scaleRange[1] - scaleRange[0]);
   let step = Math.floor(stepScale(size));
 
-  if (this._scale === "time") {
+  if (this.schema.scale === "time") {
     if (this._data && this._data.length) {
       const dataExtent = extent(this._data);
       const distance = this._data.reduce(
@@ -98,7 +100,7 @@ function calculateTicks(
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
-  if (this._scale === "time" && this._data.length) {
+  if (this.schema.scale === "time" && this._data.length) {
     const newDomain = extent(this._data);
     const range = (newDomain as unknown[]).map(scale);
     scaleClone.domain(newDomain).range(range);
@@ -108,7 +110,7 @@ function calculateTicks(
   const inverted = domain[1] < domain[0];
   const step = calculateStep.bind(this)(scaleClone, minorTicks);
 
-  if (!minorTicks && this._scale === "log") {
+  if (!minorTicks && this.schema.scale === "log") {
     const roundDomain = domain.map((d: number) =>
       Math.log10(d) % 1 === 0 ? d : (inverted ? ceilPow : floorPow)(d),
     );
@@ -145,7 +147,7 @@ function calculateTicks(
     ticks = scaleClone.ticks(step);
     if (
       !minorTicks &&
-      !["log", "time"].includes(this._scale) &&
+      !["log", "time"].includes(this.schema.scale) &&
       ticks.length > 1
     ) {
       const majorDiff = Math.abs(fixFloat((ticks[1] as number) - (ticks[0] as number)) * 2);
@@ -161,7 +163,7 @@ function calculateTicks(
   }
 
   // for time scale, if data array has been provided, filter out ticks that are not in the array
-  if (this._scale === "time" && this._data.length) {
+  if (this.schema.scale === "time" && this._data.length) {
     const dataNumbers = this._data.map(Number);
     ticks = ticks.filter((t: unknown) => {
       const tn = +(t as number);
@@ -195,37 +197,57 @@ function calculateTicks(
   return ticks;
 }
 
+/** Axis's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const axisSchema: ConfigField[] = [
+  {key: "align", coerce: "identity", default: "middle"},
+  {key: "domain", coerce: "identity", default: [0, 10]},
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "grid", coerce: "identity"},
+  {key: "gridLog", coerce: "identity", default: false},
+  {key: "gridSize", coerce: "identity"},
+  {key: "height", coerce: "identity", default: 400},
+  {key: "labels", coerce: "identity"},
+  {key: "labelOffset", coerce: "identity", default: false},
+  {key: "maxSize", coerce: "identity"},
+  {key: "minSize", coerce: "identity"},
+  {key: "padding", coerce: "identity", default: 5},
+  {key: "paddingInner", coerce: "identity", default: 0.1},
+  {key: "paddingOuter", coerce: "identity", default: 0.1},
+  {key: "range", coerce: "identity"},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "rounding", coerce: "identity", default: "none"},
+  {key: "roundingInsideMinPrefix", coerce: "identity", default: "< "},
+  {key: "roundingInsideMinSuffix", coerce: "identity", default: ""},
+  {key: "roundingInsideMaxPrefix", coerce: "identity", default: ""},
+  {key: "roundingInsideMaxSuffix", coerce: "identity", default: "+"},
+  {key: "scale", coerce: "identity", default: "linear"},
+  {key: "scalePadding", coerce: "identity", default: 0.5},
+  {key: "shape", coerce: "identity", default: "Line"},
+  {key: "tickFormat", coerce: "identity"},
+  {key: "ticks", coerce: "identity"},
+  {key: "tickSize", coerce: "identity", default: 8},
+  {key: "tickSuffix", coerce: "identity", default: "normal"},
+  {key: "timeLocale", coerce: "identity", default: undefined},
+  {key: "title", coerce: "identity"},
+  {key: "width", coerce: "identity", default: 400},
+];
+
 /**
     Creates an SVG scale based on an array of data.
 */
 export default class Axis extends BaseClass {
+  // installFluent generates the config accessors (scale, domain, ticks, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _select!: D3Selection;
-  _align: string;
-  _barConfig: Record<string, unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _data: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _domain: any[];
-  _duration: number;
-  _gridConfig: Record<string, unknown>;
-  _gridLog: boolean;
-  _gridSize: number | undefined;
-  _grid: unknown[] | undefined;
-  _height: number;
-  _labelOffset: boolean;
   _labelRotation: boolean | undefined;
-  _labels: unknown[] | undefined;
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   declare _locale: any;
   _margin: Record<string, number>;
-  _maxSize!: number;
-  _minSize!: number;
-  _orient!: string;
   _outerBounds: Record<string, number>;
-  _padding: number;
-  _paddingInner: number;
-  _paddingOuter: number;
   _position!: {
     horizontal: boolean;
     width: string;
@@ -234,35 +256,12 @@ export default class Axis extends BaseClass {
     y: string;
     opposite: string;
   };
-  _range: (number | undefined)[] | undefined;
-  _rounding: string;
-  _roundingInsideMinPrefix: string;
-  _roundingInsideMinSuffix: string;
-  _roundingInsideMaxPrefix: string;
-  _roundingInsideMaxSuffix: string;
-  _scale: string;
-  _scalePadding: number;
-  _shape: string;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _shapeConfig: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _tickFormat: any;
-  _ticks: unknown[] | undefined;
-  _tickSize: number;
-  _tickSuffix: string;
   _tickUnit: number;
-  _timeLocale: Record<string, unknown> | undefined;
-  _title: string | undefined;
   _titleClass: TextBox;
-  _renderMode!: "full" | "compute";
   // Stored render() intermediates so toScene() can compose natively.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _tickShape?: {toScene?: () => GroupNode; _data?: unknown[]} | any;
   _gridLineData?: {id: unknown}[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _titleConfig: Record<string, any>;
-  _width: number;
   // D3 scales have complex polymorphic types that vary at runtime
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _d3Scale: any;
@@ -281,20 +280,18 @@ export default class Axis extends BaseClass {
 */
   constructor() {
     super();
+    installFluent(this, axisSchema);
 
-    this._renderMode = "full";
-    this._align = "middle";
-    this._barConfig = {
+    this._data = [];
+    this._labelRotation = false;
+    this.schema.barConfig = {
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         return colorContrast(bg);
       },
       "stroke-width": 1,
     };
-    this._data = [];
-    this._domain = [0, 10];
-    this._duration = 600;
-    this._gridConfig = {
+    this.schema.gridConfig = {
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         const contrast = colorContrast(bg);
@@ -302,24 +299,9 @@ export default class Axis extends BaseClass {
       },
       "stroke-width": 1,
     };
-    this._gridLog = false;
-    this._height = 400;
-    this._labelOffset = false;
-    this._labelRotation = false;
     this.orient("bottom");
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
-    this._padding = 5;
-    this._paddingInner = 0.1;
-    this._paddingOuter = 0.1;
-    this._rounding = "none";
-    this._roundingInsideMinPrefix = "< ";
-    this._roundingInsideMinSuffix = "";
-    this._roundingInsideMaxPrefix = "";
-    this._roundingInsideMaxSuffix = "+";
-    this._scale = "linear";
-    this._scalePadding = 0.5;
-    this._shape = "Line";
-    this._shapeConfig = {
+    this.schema.shapeConfig = {
       fill: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         return colorContrast(bg);
@@ -337,24 +319,24 @@ export default class Axis extends BaseClass {
         padding: 5,
         textAnchor: () => {
           const rtl = detectRTL();
-          return this._orient === "left"
+          return this.schema.orient === "left"
             ? rtl
               ? "start"
               : "end"
-            : this._orient === "right"
+            : this.schema.orient === "right"
               ? rtl
                 ? "end"
                 : "start"
               : this._labelRotation
-                ? this._orient === "bottom"
+                ? this.schema.orient === "bottom"
                   ? "end"
                   : "start"
                 : "middle";
         },
         verticalAlign: () =>
-          this._orient === "bottom"
+          this.schema.orient === "bottom"
             ? "top"
-            : this._orient === "top"
+            : this.schema.orient === "top"
               ? this._labelRotation ? "top" : "bottom"
               : "middle",
       },
@@ -366,12 +348,9 @@ export default class Axis extends BaseClass {
       strokeWidth: 1,
       width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
     };
-    this._tickSize = 8;
-    this._tickSuffix = "normal";
     this._tickUnit = 0;
-    this._timeLocale = undefined;
     this._titleClass = new TextBox();
-    this._titleConfig = {
+    this.schema.titleConfig = {
       fontColor: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         return colorContrast(bg);
@@ -379,7 +358,6 @@ export default class Axis extends BaseClass {
       fontSize: 12,
       textAnchor: "middle",
     };
-    this._width = 400;
     this._margin = {top: 0, right: 0, bottom: 0, left: 0};
     this._availableTicks = [];
     this._visibleTicks = [];
@@ -395,7 +373,7 @@ export default class Axis extends BaseClass {
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.domain();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.domain());
 
-    const domain = ["band", "ordinal", "point"].includes(this._scale)
+    const domain = ["band", "ordinal", "point"].includes(this.schema.scale)
       ? ticks
       : extent(ticks as number[]);
     return (ticks[0] as number) > (ticks[1] as number)
@@ -408,7 +386,7 @@ export default class Axis extends BaseClass {
       @param d @private
 */
   _getPosition(d: unknown): number {
-    if (this._scale === "log") {
+    if (this.schema.scale === "log") {
       if (d === 0)
         return (this._d3Scale || this._d3ScaleNegative).range()[
           this._d3Scale ? 0 : 1
@@ -445,7 +423,7 @@ export default class Axis extends BaseClass {
       );
     if (this._d3Scale)
       labels = labels.concat(calculateTicks.bind(this)(this._d3Scale, false));
-    if (this._scale === "log") {
+    if (this.schema.scale === "log") {
       const diverging =
         labels.some((d: unknown) => isNegative(d as number)) &&
         labels.some((d: unknown) => (d as number) > 0);
@@ -477,11 +455,11 @@ export default class Axis extends BaseClass {
 */
   _getTicks(): unknown[] {
     if (
-      ["band", "ordinal", "point", "time"].includes(this._scale) &&
+      ["band", "ordinal", "point", "time"].includes(this.schema.scale) &&
       this._data.length &&
-      this._data.length < this._width / 4
+      this._data.length < this.schema.width / 4
     ) {
-      return this._scale === "time" ? this._data.map(date) : this._data;
+      return this.schema.scale === "time" ? this._data.map(date) : this._data;
     }
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative)
@@ -490,14 +468,14 @@ export default class Axis extends BaseClass {
       );
     if (this._d3Scale)
       ticks = ticks.concat(calculateTicks.bind(this)(this._d3Scale, true));
-    if (this._scale === "log" && ticks.includes(-1) && ticks.includes(1))
+    if (this.schema.scale === "log" && ticks.includes(-1) && ticks.includes(1))
       ticks.splice(ticks.indexOf(-1), 1);
     return ticks;
   }
 
 
   /**
-      Converts an attribute-style config (e.g. _gridConfig, _barConfig) into a Paint.
+      Converts an attribute-style config (e.g. gridConfig, barConfig) into a Paint.
       @private
 */
   _configToPaint(cfg: Record<string, unknown>): Paint {
@@ -549,11 +527,11 @@ export default class Axis extends BaseClass {
     if (!this._gridLineData || !this._gridLineData.length) return [];
     const {height, x: xKey, y: yKey, opposite} = this._position;
     const offset = this._margin[opposite];
-    const position = ["top", "left"].includes(this._orient)
+    const position = ["top", "left"].includes(this.schema.orient)
       ? this._outerBounds[yKey] + this._outerBounds[height] - offset
       : this._outerBounds[yKey] + offset;
-    const size = ["top", "left"].includes(this._orient) ? offset : -offset;
-    const xDiff = this._scale === "band" ? this._d3Scale.bandwidth() / 2 : 0;
+    const size = ["top", "left"].includes(this.schema.orient) ? offset : -offset;
+    const xDiff = this.schema.scale === "band" ? this._d3Scale.bandwidth() / 2 : 0;
     const isHorizontalAxis = xKey === "x";
     return this._gridLineData.map(d => {
       const xPos = (this._getPosition(d.id) as number) + xDiff;
@@ -573,19 +551,19 @@ export default class Axis extends BaseClass {
     if (!this._d3Scale && !this._d3ScaleNegative) return null;
     const {height, x: xKey, y: yKey, opposite} = this._position;
     const offset = this._margin[opposite];
-    const position = ["top", "left"].includes(this._orient)
+    const position = ["top", "left"].includes(this.schema.orient)
       ? this._outerBounds[yKey] + this._outerBounds[height] - offset
       : this._outerBounds[yKey] + offset;
     const x1mod =
-      this._scale === "band"
+      this.schema.scale === "band"
         ? this._d3Scale.step() - this._d3Scale.bandwidth()
-        : this._scale === "point"
+        : this.schema.scale === "point"
           ? this._d3Scale.step() * this._d3Scale.padding()
           : 0;
     const x2mod =
-      this._scale === "band"
+      this.schema.scale === "band"
         ? this._d3Scale.step()
-        : this._scale === "point"
+        : this.schema.scale === "point"
           ? this._d3Scale.step() * this._d3Scale.padding()
           : 0;
     const sortedDomain = (
@@ -619,7 +597,7 @@ export default class Axis extends BaseClass {
   toScene(): GroupNode {
     const children: SceneNode[] = [];
 
-    const gridPaint = this._configToPaint(this._gridConfig as Record<string, unknown>);
+    const gridPaint = this._configToPaint(this.schema.gridConfig as Record<string, unknown>);
     this._gridLinePoints().forEach((g, i) => {
       children.push({type: "line", key: `grid-${i}`, points: g.points, paint: gridPaint});
     });
@@ -648,7 +626,7 @@ export default class Axis extends BaseClass {
 
     const bar = this._barLinePoints();
     if (bar) {
-      const barPaint = this._configToPaint(this._barConfig as Record<string, unknown>);
+      const barPaint = this._configToPaint(this.schema.barConfig as Record<string, unknown>);
       children.push({type: "line", key: "bar", points: bar.points, paint: barPaint});
     }
 
@@ -703,13 +681,13 @@ export default class Axis extends BaseClass {
      * body-attached svg for back-compat (legacy callers do
      * `new Axis().render()` standalone).
 */
-    if (this._select === void 0 && this._renderMode !== "compute") {
+    if (this._select === void 0 && this.schema.renderMode !== "compute") {
       const svgNode = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "svg",
       );
-      svgNode.setAttribute("width", `${this._width}px`);
-      svgNode.setAttribute("height", `${this._height}px`);
+      svgNode.setAttribute("width", `${this.schema.width}px`);
+      svgNode.setAttribute("height", `${this.schema.height}px`);
       document.body.appendChild(svgNode);
       this.select(svgNode as unknown as HTMLElement);
     }
@@ -729,8 +707,8 @@ export default class Axis extends BaseClass {
     // `y` plus the orient predicates.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {width: _width, height, x, y, horizontal, opposite} = this._position;
-    const flip = ["top", "left"].includes(this._orient);
-    const p = this._padding;
+    const flip = ["top", "left"].includes(this.schema.orient);
+    const p = this.schema.padding;
     const parent = this._select;
     const margin: Record<string, number> = this._margin;
     const bounds = this._outerBounds;
@@ -742,7 +720,7 @@ export default class Axis extends BaseClass {
     // calls `elem("g.brushGroup", {parent: this._group})` after super
     // render) expect it.
     const standaloneCompute =
-      this._renderMode === "compute" &&
+      this.schema.renderMode === "compute" &&
       (this._select === void 0 || this._select === null ||
         (typeof this._select.node === "function" && this._select.node() === null));
     const group = standaloneCompute
@@ -751,8 +729,8 @@ export default class Axis extends BaseClass {
     this._group = group;
 
     const gridLineData: {id: unknown}[] = (
-      this._gridSize !== 0
-        ? this._grid || (this._scale === "log" && !this._gridLog)
+      this.schema.gridSize !== 0
+        ? this.schema.grid || (this.schema.scale === "log" && !this.schema.gridLog)
           ? labels
           : ticks
         : []
@@ -779,14 +757,14 @@ export default class Axis extends BaseClass {
       const lineHeight = data ? data.lineHeight : 1;
       const fP = data ? data.fP : 0;
 
-      const labelOffset = data && this._labelOffset ? data.offset : 0;
+      const labelOffset = data && this.schema.labelOffset ? data.offset : 0;
 
       const labelWidth = horizontal
         ? space
         : bounds.width -
           margin[this._position.opposite] -
           hBuff -
-          margin[this._orient] +
+          margin[this.schema.orient] +
           p;
 
       const offset = margin[opposite],
@@ -801,7 +779,7 @@ export default class Axis extends BaseClass {
             ? {
                 x: -data.width / 2 + data.fS / 4,
                 y:
-                  this._orient === "bottom"
+                  this.schema.orient === "bottom"
                     ? size + (data.width - lineHeight * lines) / 2 + fP
                     : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
                 width: data.width,
@@ -810,11 +788,11 @@ export default class Axis extends BaseClass {
             : {
                 x: horizontal
                   ? -space / 2
-                  : this._orient === "left"
+                  : this.schema.orient === "left"
                     ? -labelWidth - p + size
                     : size + p,
                 y: horizontal
-                  ? this._orient === "bottom"
+                  ? this.schema.orient === "bottom"
                     ? size + fP
                     : size - labelHeight - fP
                   : -space / 2,
@@ -824,7 +802,7 @@ export default class Axis extends BaseClass {
         rotate: data ? data.rotate : false,
         size:
           labels.includes(d) ||
-          (this._scale === "log" && Math.log10(Math.abs(d)) % 1 === 0)
+          (this.schema.scale === "log" && Math.log10(Math.abs(d)) % 1 === 0)
             ? size
             : ticks.includes(d)
               ? Math.ceil(size / 2)
@@ -838,14 +816,14 @@ export default class Axis extends BaseClass {
             : false,
         tick: ticks.includes(d),
         [x]:
-          xPos + (this._scale === "band" ? this._d3Scale.bandwidth() / 2 : 0),
+          xPos + (this.schema.scale === "band" ? this._d3Scale.bandwidth() / 2 : 0),
         [y]: yPos,
       };
 
       return tickConfig;
     });
 
-    if (this._shape === "Line") {
+    if (this.schema.shape === "Line") {
       tickData = tickData.concat(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tickData.map((d: any) => {
@@ -857,7 +835,7 @@ export default class Axis extends BaseClass {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._tickShape = (new (shapes as any)[this._shape]())
+    this._tickShape = (new (shapes as any)[this.schema.shape]())
       // v4: tick shape is always compute-only — the Axis composes ticks into
       // its own toScene; the inner shape never auto-renders its own <svg>.
       // `.select(null)` is the formal no-mount signal that pairs with
@@ -867,7 +845,7 @@ export default class Axis extends BaseClass {
       .renderMode("compute")
       .select(null)
       .data(tickData)
-      .duration(this._duration)
+      .duration(this.schema.duration)
       .labelConfig({
         ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -877,7 +855,7 @@ export default class Axis extends BaseClass {
     // No `g.ticks` DOM wrapper needed in the detached compute.
     this._tickShape
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._shapeConfig))
+      .config(configPrep.bind(this as any)(this.schema.shapeConfig))
       .labelConfig({padding: 0})
       .render();
 
@@ -889,10 +867,10 @@ export default class Axis extends BaseClass {
     // DOM mount — its scene comes via toScene() anyway.
     this._titleClass
       .renderMode("compute")
-      .data(this._title ? [{text: this._title}] : [])
-      .duration(this._duration)
-      .height(margin[this._orient])
-      .rotate(this._orient === "left" ? -90 : this._orient === "right" ? 90 : 0)
+      .data(this.schema.title ? [{text: this.schema.title}] : [])
+      .duration(this.schema.duration)
+      .height(margin[this.schema.orient])
+      .rotate(this.schema.orient === "left" ? -90 : this.schema.orient === "right" ? 90 : 0)
       .select(
         !group
           ? (null as unknown as HTMLElement)
@@ -904,7 +882,7 @@ export default class Axis extends BaseClass {
       .x(
         horizontal
           ? range[0]
-          : this._orient === "left"
+          : this.schema.orient === "left"
             ? bounds.x +
               margin.left / 2 -
               (range[range.length - 1] - range[0]) / 2
@@ -915,31 +893,22 @@ export default class Axis extends BaseClass {
       )
       .y(
         horizontal
-          ? this._orient === "bottom"
+          ? this.schema.orient === "bottom"
             ? bounds.y + bounds.height - margin.bottom
             : bounds.y
           : range[0] +
               (range[range.length - 1] - range[0]) / 2 -
-              margin[this._orient] / 2,
+              margin[this.schema.orient] / 2,
       )
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._titleConfig))
+      .config(configPrep.bind(this as any)(this.schema.titleConfig))
       .render();
 
     this._lastScale = this._getPosition.bind(this);
 
-    if (callback) setTimeout(callback, this._duration + 100);
+    if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
-  }
-
-  /**
-      The horizontal alignment.
-*/
-  align(): string;
-  align(_: string): this;
-  align(_?: string): string | this {
-    return arguments.length ? ((this._align = _!), this) : this._align;
   }
 
   /**
@@ -949,8 +918,8 @@ export default class Axis extends BaseClass {
   barConfig(_: Record<string, unknown>): this;
   barConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._barConfig = Object.assign(this._barConfig, _)), this)
-      : this._barConfig;
+      ? ((this.schema.barConfig = Object.assign(this.schema.barConfig, _)), this)
+      : this.schema.barConfig;
   }
 
   /**
@@ -966,91 +935,14 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      Scale domain of the axis.
-*/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  domain(): any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  domain(_: any[]): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  domain(_?: any[]): unknown {
-    return arguments.length ? ((this._domain = _!), this) : this._domain;
-  }
-
-  /**
-      Transition duration of the axis.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      Grid values of the axis.
-*/
-  grid(): unknown[] | undefined;
-  grid(_: unknown[]): this;
-  grid(_?: unknown[]): unknown {
-    return arguments.length ? ((this._grid = _), this) : this._grid;
-  }
-
-  /**
       Grid config of the axis.
 */
   gridConfig(): Record<string, unknown>;
   gridConfig(_: Record<string, unknown>): this;
   gridConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._gridConfig = Object.assign(this._gridConfig, _)), this)
-      : this._gridConfig;
-  }
-
-  /**
-      Grid behavior of the axis when scale is logarithmic.
-*/
-  gridLog(): boolean;
-  gridLog(_: boolean): this;
-  gridLog(_?: boolean): boolean | this {
-    return arguments.length ? ((this._gridLog = _!), this) : this._gridLog;
-  }
-
-  /**
-      Grid size of the axis.
-*/
-  gridSize(): number | undefined;
-  gridSize(_: number): this;
-  gridSize(_?: number): number | undefined | this {
-    return arguments.length ? ((this._gridSize = _), this) : this._gridSize;
-  }
-
-  /**
-      Overall height of the axis.
-*/
-  height(): number;
-  height(_: number): this;
-  height(_?: number): number | this {
-    return arguments.length ? ((this._height = _!), this) : this._height;
-  }
-
-  /**
-      Visible tick labels of the axis.
-*/
-  labels(): unknown[] | undefined;
-  labels(_: unknown[]): this;
-  labels(_?: unknown[]): unknown {
-    return arguments.length ? ((this._labels = _), this) : this._labels;
-  }
-
-  /**
-      Whether to offset overlapping labels further from the axis to prevent collisions.
-*/
-  labelOffset(): boolean;
-  labelOffset(_: boolean): this;
-  labelOffset(_?: boolean): boolean | this {
-    return arguments.length
-      ? ((this._labelOffset = _!), this)
-      : this._labelOffset;
+      ? ((this.schema.gridConfig = Object.assign(this.schema.gridConfig, _)), this)
+      : this.schema.gridConfig;
   }
 
   /**
@@ -1062,24 +954,6 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this._labelRotation = _), this)
       : this._labelRotation;
-  }
-
-  /**
-      Maximum size allowed for the space that contains the axis tick labels and title.
-*/
-  maxSize(): number;
-  maxSize(_: number): this;
-  maxSize(_?: number): number | this {
-    return arguments.length ? ((this._maxSize = _!), this) : this._maxSize;
-  }
-
-  /**
-      Minimum size alloted for the space that contains the axis tick labels and title.
-*/
-  minSize(): number;
-  minSize(_: number): this;
-  minSize(_?: number): number | this {
-    return arguments.length ? ((this._minSize = _!), this) : this._minSize;
   }
 
   /**
@@ -1106,9 +980,9 @@ export default class Axis extends BaseClass {
         opposite: opps[_!],
       };
 
-      return ((this._orient = _!), this);
+      return ((this.schema.orient = _!), this);
     }
-    return this._orient;
+    return this.schema.orient;
   }
 
   /**
@@ -1118,119 +992,6 @@ export default class Axis extends BaseClass {
 */
   outerBounds(): Record<string, number> {
     return this._outerBounds;
-  }
-
-  /**
-      The padding between each tick label.
-*/
-  padding(): number;
-  padding(_: number): this;
-  padding(_?: number): number | this {
-    return arguments.length ? ((this._padding = _!), this) : this._padding;
-  }
-
-  /**
-      The inner padding of band scale.
-*/
-  paddingInner(): number;
-  paddingInner(_: number): this;
-  paddingInner(_?: number): number | this {
-    return arguments.length
-      ? ((this._paddingInner = _!), this)
-      : this._paddingInner;
-  }
-
-  /**
-      The outer padding of band scales.
-*/
-  paddingOuter(): number;
-  paddingOuter(_: number): this;
-  paddingOuter(_?: number): number | this {
-    return arguments.length
-      ? ((this._paddingOuter = _!), this)
-      : this._paddingOuter;
-  }
-
-  /**
-      Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value.
-*/
-  range(): (number | undefined)[] | undefined;
-  range(_: (number | undefined)[]): this;
-  range(_?: (number | undefined)[]): unknown {
-    return arguments.length ? ((this._range = _), this) : this._range;
-  }
-
-  /**
-      The rounding method for more evenly spaced ticks at the extents of the scale. Can be "none" (default), "outside", or "inside".
-*/
-  rounding(): string;
-  rounding(_: string): this;
-  rounding(_?: string): string | this {
-    return arguments.length ? ((this._rounding = _!), this) : this._rounding;
-  }
-
-  /**
-      The prefix for the minimum value of "inside" rounding scales.
-*/
-  roundingInsideMinPrefix(): string;
-  roundingInsideMinPrefix(_: string): this;
-  roundingInsideMinPrefix(_?: string): string | this {
-    return arguments.length
-      ? ((this._roundingInsideMinPrefix = _!), this)
-      : this._roundingInsideMinPrefix;
-  }
-
-  /**
-      The suffix for the minimum value of "inside" rounding scales.
-*/
-  roundingInsideMinSuffix(): string;
-  roundingInsideMinSuffix(_: string): this;
-  roundingInsideMinSuffix(_?: string): string | this {
-    return arguments.length
-      ? ((this._roundingInsideMinSuffix = _!), this)
-      : this._roundingInsideMinSuffix;
-  }
-
-  /**
-      The prefix for the maximum value of "inside" rounding scales.
-*/
-  roundingInsideMaxPrefix(): string;
-  roundingInsideMaxPrefix(_: string): this;
-  roundingInsideMaxPrefix(_?: string): string | this {
-    return arguments.length
-      ? ((this._roundingInsideMaxPrefix = _!), this)
-      : this._roundingInsideMaxPrefix;
-  }
-
-  /**
-      The suffix for the maximum value of "inside" rounding scales.
-*/
-  roundingInsideMaxSuffix(): string;
-  roundingInsideMaxSuffix(_: string): this;
-  roundingInsideMaxSuffix(_?: string): string | this {
-    return arguments.length
-      ? ((this._roundingInsideMaxSuffix = _!), this)
-      : this._roundingInsideMaxSuffix;
-  }
-
-  /**
-      Scale of the axis.
-*/
-  scale(): string;
-  scale(_: string): this;
-  scale(_?: string): string | this {
-    return arguments.length ? ((this._scale = _!), this) : this._scale;
-  }
-
-  /**
-      The "padding" property of the scale, often used in point scales.
-*/
-  scalePadding(): number;
-  scalePadding(_: number): this;
-  scalePadding(_?: number): number | this {
-    return arguments.length
-      ? ((this._scalePadding = _!), this)
-      : this._scalePadding;
   }
 
   /**
@@ -1248,19 +1009,6 @@ export default class Axis extends BaseClass {
   */
   measure(): this {
     measureAxis(this);
-    return this;
-  }
-
-  /**
-      Controls whether render() does the full DOM work ("full", default) or skips
-      grid/bar/title DOM and propagates compute mode to the tick Shape ("compute").
-      See Shape.renderMode.
-*/
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode;
-    this._renderMode = _!;
     return this;
   }
 
@@ -1286,15 +1034,6 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      Tick shape constructor.
-*/
-  shape(): string;
-  shape(_: string): this;
-  shape(_?: string): string | this {
-    return arguments.length ? ((this._shape = _!), this) : this._shape;
-  }
-
-  /**
       Tick style of the axis.
 */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1304,67 +1043,8 @@ export default class Axis extends BaseClass {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shapeConfig(_?: Record<string, any>): unknown {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _ as Record<string, unknown>)), this)
-      : this._shapeConfig;
-  }
-
-  /**
-      Tick formatter.
-*/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tickFormat(): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tickFormat(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tickFormat(_?: any): unknown {
-    return arguments.length ? ((this._tickFormat = _), this) : this._tickFormat;
-  }
-
-  /**
-      Tick values of the axis.
-*/
-  ticks(): unknown[] | undefined;
-  ticks(_: unknown[]): this;
-  ticks(_?: unknown[]): unknown {
-    return arguments.length ? ((this._ticks = _), this) : this._ticks;
-  }
-
-  /**
-      Tick size of the axis.
-*/
-  tickSize(): number;
-  tickSize(_: number): this;
-  tickSize(_?: number): number | this {
-    return arguments.length ? ((this._tickSize = _!), this) : this._tickSize;
-  }
-
-  /**
-      The tick abbreviation behavior for linear scales. Accepts "normal" (uses formatAbbreviate) or "smallest" (uses the suffix from the smallest tick as reference for every tick).
-*/
-  tickSuffix(): string;
-  tickSuffix(_: string): this;
-  tickSuffix(_?: string): string | this {
-    return arguments.length
-      ? ((this._tickSuffix = _!), this)
-      : this._tickSuffix;
-  }
-
-  /**
-      Defines a custom locale object to be used in time scale. This object must include the following properties: dateTime, date, time, periods, days, shortDays, months, shortMonths. For more information, you can revise [d3p.d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale).
-*/
-  timeLocale(): Record<string, unknown> | undefined;
-  timeLocale(_: Record<string, unknown>): this;
-  timeLocale(_?: Record<string, unknown>): unknown {
-    return arguments.length ? ((this._timeLocale = _), this) : this._timeLocale;
-  }
-
-  /**
-      Title of the axis.
-*/
-  title(): string | undefined;
-  title(_: string): this;
-  title(_?: string): string | undefined | this {
-    return arguments.length ? ((this._title = _), this) : this._title;
+      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _ as Record<string, unknown>)), this)
+      : this.schema.shapeConfig;
   }
 
   /**
@@ -1374,17 +1054,8 @@ export default class Axis extends BaseClass {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._titleConfig = Object.assign(this._titleConfig, _)), this)
-      : this._titleConfig;
-  }
-
-  /**
-      Overall width of the axis.
-*/
-  width(): number;
-  width(_: number): this;
-  width(_?: number): number | this {
-    return arguments.length ? ((this._width = _!), this) : this._width;
+      ? ((this.schema.titleConfig = Object.assign(this.schema.titleConfig, _)), this)
+      : this.schema.titleConfig;
   }
 }
 
@@ -1413,7 +1084,6 @@ export default class Axis extends BaseClass {
     consume — see Plot._draw. Internally this is a thin wrapper over
     `axis.measure()` returning a frozen snapshot of the laid-out state.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface AxisLayout {
   bounds: Record<string, number>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -4,7 +4,6 @@
     each by extent, builds bezier link `d` accessor, and stashes
     `ringsCtx` + `nodeLookup`/`linkLookup` on `viz.ctx`.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
@@ -17,103 +16,177 @@ import {chartBounds} from "../chartGeometry.js";
 import {shapeConfigFor} from "../emitHelpers.js";
 import type {TransformStage} from "../stages.js";
 
+/**
+    Single laid-out node — accreted across the layout's passes. Each
+    field is filled in by one of the steps below; collected here so a
+    single type captures the union of accreted state.
+*/
+interface RingsNode {
+  __d3plus__: true;
+  data: DataPoint;
+  i: number;
+  id: string;
+  node: DataPoint;
+  shape: string;
+  // Set by the placement pass.
+  x?: number;
+  y?: number;
+  r?: number;
+  ring?: 1 | 2;
+  radians?: number;
+  // Set by the per-link traversal.
+  edges?: RingsEdge[] | Record<string, {angle: number; radius: number}>;
+  edge?: RingsEdge;
+  size?: number;
+  // Set by the label-bounds pass.
+  labelBounds?: {x: number; y: number; width: number; height: number};
+  rotate?: number;
+  textAnchor?: string;
+}
+
+/**
+    Resolved bezier link. Source/target get rewritten in-place during
+    the placement pass; the bezier-control fields (`sourceX`, etc.) and
+    the `spline` flag are added by the same pass.
+*/
+interface RingsEdge {
+  source: RingsNode;
+  target: RingsNode;
+  size: number;
+  spline?: boolean;
+  sourceX?: number;
+  sourceY?: number;
+  sourceBisectX?: number;
+  sourceBisectY?: number;
+  targetX?: number;
+  targetY?: number;
+  targetBisectX?: number;
+  targetBisectY?: number;
+}
+
+interface RScale {
+  (v: number): number;
+  domain: (d: [number, number]) => RScale;
+  range: ((r: [number, number]) => RScale) & (() => [number, number]);
+  rangeRound: (r: [number, number]) => RScale;
+}
+
 export const applyRingsLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const v = viz as any;
 
   if (!Array.isArray(v._filteredData)) v._filteredData = [];
-  if (!Array.isArray(v._nodes)) v._nodes = [];
-  if (!Array.isArray(v._links)) v._links = [];
-  if (!v._filteredData.length && !v._nodes.length && !v._links.length) {
+  if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
+  if (!Array.isArray(v.schema.links)) v.schema.links = [];
+  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) {
     v.ctx.nodeLookup = {};
     v.ctx.linkLookup = {};
     v.ctx.ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
     return {viz};
   }
 
-  const data = v._filteredData.reduce((obj: any, d: any, i: any) => {
-    obj[v._id(d, i)] = d;
-    return obj;
-  }, {});
+  const data: Record<string, DataPoint> = (v._filteredData as DataPoint[]).reduce(
+    (obj: Record<string, DataPoint>, d, i) => {
+      obj[v._id(d, i) as string] = d;
+      return obj;
+    },
+    {},
+  );
 
-  let nodes = v._nodes;
-  if (!v._nodes.length && v._links.length) {
+  type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
+  let rawNodes: DataPoint[] = v.schema.nodes as DataPoint[];
+  if (!rawNodes.length && (v.schema.links as RawLink[]).length) {
     const nodeIds = Array.from(
       new Set(
-        v._links.reduce(
-          (ids: any, link: any) => ids.concat([link.source, link.target]),
+        (v.schema.links as RawLink[]).reduce(
+          (ids: unknown[], link) => ids.concat([link.source, link.target]),
           [],
         ),
       ),
     );
-    nodes = nodeIds.map((node: any) => typeof node === "object" ? node : {id: node});
+    rawNodes = nodeIds.map(node =>
+      typeof node === "object" ? (node as DataPoint) : ({id: node} as unknown as DataPoint),
+    );
   }
 
-  nodes = nodes.reduce((obj: any, d: any, i: any) => {
-    obj[
-      v._nodeGroupBy ? v._nodeGroupBy[v._drawDepth](d, i) : v._id(d, i)
-    ] = d;
-    return obj;
-  }, {});
+  const nodesById: Record<string, DataPoint> = rawNodes.reduce(
+    (obj: Record<string, DataPoint>, d, i) => {
+      const key = (v.schema.nodeGroupBy
+        ? v.schema.nodeGroupBy[v._drawDepth](d, i)
+        : v._id(d, i)) as string;
+      obj[key] = d;
+      return obj;
+    },
+    {},
+  );
 
-  nodes = Array.from(new Set(Object.keys(data).concat(Object.keys(nodes))))
+  let nodes: RingsNode[] = Array.from(new Set(Object.keys(data).concat(Object.keys(nodesById))))
     .map((id, i) => {
       const d = data[id];
-      const n = nodes[id];
-      if (n === undefined) return false;
+      const n = nodesById[id];
+      if (n === undefined) return false as const;
       return {
         __d3plus__: true,
-        data: d || n,
+        data: (d || n) as DataPoint,
         i,
         id,
         node: n,
-        shape:
-          d !== undefined && v._shape(d) !== undefined
-            ? v._shape(d)
-            : v._shape(n),
-      };
+        shape: (d !== undefined && v._shape(d) !== undefined
+          ? v._shape(d)
+          : v._shape(n)) as string,
+      } satisfies RingsNode;
     })
-    .filter((n: any) => n);
+    .filter((n): n is RingsNode => !!n);
 
-  const nodeLookup = nodes.reduce((obj: any, d: any) => {
-    obj[d.id] = d;
-    return obj;
-  }, {});
+  const nodeLookup: Record<string, RingsNode> = nodes.reduce(
+    (obj: Record<string, RingsNode>, d) => {
+      obj[d.id] = d;
+      return obj;
+    },
+    {},
+  );
   v.ctx.nodeLookup = nodeLookup;
 
-  const links = v._links.map((link: any) => {
-    const checks = ["source", "target"];
-    const edge = checks.reduce((result: any, check: any) => {
-      if (typeof link[check] === "number") {
-        const original = v._nodes && v._nodes[link[check]];
-        if (original == null) result[check] = undefined;
-        else if (typeof original === "object")
-          result[check] = nodeLookup[original.id] || nodeLookup[original];
-        else result[check] = nodeLookup[original];
-      } else {
-        result[check] = nodeLookup[link[check].id || link[check]];
+  const links: RingsEdge[] = (v.schema.links as RawLink[]).map(link => {
+    const resolve = (refIdx: 0 | 1): RingsNode => {
+      const ref = refIdx === 0 ? link.source : link.target;
+      if (typeof ref === "number") {
+        const original = v.schema.nodes && (v.schema.nodes as DataPoint[])[ref];
+        if (original == null) return undefined as unknown as RingsNode;
+        if (typeof original === "object")
+          return (nodeLookup[(original as DataPoint).id as string] ||
+            nodeLookup[original as unknown as string]) as RingsNode;
+        return nodeLookup[original as unknown as string];
       }
-      return result;
-    }, {} as Record<string, any>);
-    edge.size = v._linkSize(link);
-    return edge;
+      const key = typeof ref === "object" ? ((ref as DataPoint).id as string) : (ref as string);
+      return nodeLookup[key];
+    };
+    return {
+      source: resolve(0),
+      target: resolve(1),
+      size: v.schema.linkSize(link) as number,
+    };
   });
 
-  const linkMap = links.reduce((map: any, link: any) => {
-    if (!map[link.source.id]) map[link.source.id] = [];
-    map[link.source.id].push(link);
-    if (!map[link.target.id]) map[link.target.id] = [];
-    map[link.target.id].push(link);
-    return map;
-  }, {});
+  const linkMap: Record<string, RingsEdge[]> = links.reduce(
+    (map: Record<string, RingsEdge[]>, link) => {
+      if (!map[link.source.id]) map[link.source.id] = [];
+      map[link.source.id].push(link);
+      if (!map[link.target.id]) map[link.target.id] = [];
+      map[link.target.id].push(link);
+      return map;
+    },
+    {},
+  );
 
   const {width, height} = chartBounds(v);
-  const edges: any[] = [];
+  const edges: RingsEdge[] = [];
   const radius = (min([height, width]) || 0) / 2;
   const ringWidth = radius / 3;
   const primaryRing = ringWidth;
   const secondaryRing = ringWidth * 2;
 
-  const center = nodeLookup[v._center];
+  const center = nodeLookup[v.schema.center];
   if (!center) {
     v.ctx.ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
     return {viz};
@@ -121,38 +194,37 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
 
   center.x = width / 2;
   center.y = height / 2;
-  center.r = v._sizeMin
-    ? max([v._sizeMin, primaryRing * 0.65])
-    : v._sizeMax
-      ? min([v._sizeMax, primaryRing * 0.65])
+  center.r = v.schema.sizeMin
+    ? max([v.schema.sizeMin, primaryRing * 0.65])
+    : v.schema.sizeMax
+      ? min([v.schema.sizeMax, primaryRing * 0.65])
       : primaryRing * 0.65;
 
-  const claimed = [center];
-  const primaries: any[] = [];
-  const centerLinks = linkMap[v._center] || [];
-  centerLinks.forEach((edge: any) => {
-    const node = edge.source.id === v._center ? edge.target : edge.source;
+  const claimed: RingsNode[] = [center];
+  const primaries: RingsNode[] = [];
+  const centerLinks = linkMap[v.schema.center as string] || [];
+  centerLinks.forEach(edge => {
+    const node = edge.source.id === v.schema.center ? edge.target : edge.source;
     node.edges = linkMap[node.id].filter(
-      (link: any) => link.source.id !== v._center || link.target.id !== v._center,
+      link => link.source.id !== v.schema.center || link.target.id !== v.schema.center,
     );
     node.edge = edge;
     claimed.push(node);
     primaries.push(node);
   });
 
-  primaries.sort((a, b) => a.edges.length - b.edges.length);
-  const secondaries: any[] = [];
+  primaries.sort((a, b) => (a.edges as RingsEdge[]).length - (b.edges as RingsEdge[]).length);
+  const secondaries: RingsNode[] = [];
   let totalEndNodes = 0;
 
   primaries.forEach(p => {
     const primaryId = p.id;
-    p.edges = p.edges.filter(
-      (edge: any) =>
-        (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
-        (!claimed.includes(edge.target) && edge.source.id === primaryId),
+    p.edges = (p.edges as RingsEdge[]).filter(edge =>
+      (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
+      (!claimed.includes(edge.target) && edge.source.id === primaryId),
     );
-    totalEndNodes += p.edges.length || 1;
-    p.edges.forEach((edge: any) => {
+    totalEndNodes += (p.edges as RingsEdge[]).length || 1;
+    (p.edges as RingsEdge[]).forEach(edge => {
       const {source, target} = edge;
       const claim = target.id === primaryId ? source : target;
       claimed.push(claim);
@@ -163,7 +235,8 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   let offset = 0;
 
   primaries.forEach((p, i) => {
-    const children = p.edges.length || 1;
+    const pEdges = p.edges as RingsEdge[];
+    const children = pEdges.length || 1;
     const space = (tau / totalEndNodes) * children;
     if (i === 0) offset -= space / 2;
     const angle = offset + space / 2 - tau / 4;
@@ -172,7 +245,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     p.y = height / 2 + primaryRing * Math.sin(angle);
     offset += space;
 
-    p.edges.forEach((edge: any, j: any) => {
+    pEdges.forEach((edge, j) => {
       const node = edge.source.id === p.id ? edge.target : edge.source;
       const s = tau / totalEndNodes;
       const a = angle - (s * children) / 2 + s / 2 + s * j;
@@ -197,98 +270,97 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   primaryMax = Math.floor(primaryMax);
   secondaryMax = Math.floor(secondaryMax);
 
-  let radiusFn: any;
+  let radiusFn: (v: number) => number;
   if (v._size) {
     const domain = extent(
-      Object.values(data) as {size: number}[],
-      (d: {size: number}) => d.size,
+      Object.values(data),
+      (d: DataPoint) => d.size as number,
     ) as [number, number];
     if (domain[0] === domain[1]) domain[0] = 0;
     radiusFn = scales.scaleLinear()
       .domain(domain)
-      .rangeRound([3, min([primaryMax, secondaryMax]) as number]);
-    const val = center.size;
-    center.r = radiusFn(val);
+      .rangeRound([3, min([primaryMax, secondaryMax]) as number]) as unknown as (v: number) => number;
+    center.r = radiusFn(center.size as number);
   } else {
     radiusFn = scales.scaleLinear()
       .domain([1, 2])
-      .rangeRound([primaryMax, secondaryMax]);
+      .rangeRound([primaryMax, secondaryMax]) as unknown as (v: number) => number;
   }
 
   secondaries.forEach(s => {
     s.ring = 2;
-    const val = v._size ? s.size : 2;
-    s.r = v._sizeMin
-      ? max([v._sizeMin, radiusFn(val)])
-      : v._sizeMax
-        ? min([v._sizeMax, radiusFn(val)])
+    const val = (v._size ? s.size : 2) as number;
+    s.r = v.schema.sizeMin
+      ? (max([v.schema.sizeMin, radiusFn(val)]) as number)
+      : v.schema.sizeMax
+        ? (min([v.schema.sizeMax, radiusFn(val)]) as number)
         : radiusFn(val);
   });
   primaries.forEach(p => {
     p.ring = 1;
-    const val = v._size ? p.size : 1;
-    p.r = v._sizeMin
-      ? max([v._sizeMin, radiusFn(val)])
-      : v._sizeMax
-        ? min([v._sizeMax, radiusFn(val)])
+    const val = (v._size ? p.size : 1) as number;
+    p.r = v.schema.sizeMin
+      ? (max([v.schema.sizeMin, radiusFn(val)]) as number)
+      : v.schema.sizeMax
+        ? (min([v.schema.sizeMax, radiusFn(val)]) as number)
         : radiusFn(val);
   });
 
-  nodes = ([center] as any[]).concat(primaries).concat(secondaries);
+  nodes = [center].concat(primaries).concat(secondaries);
 
   primaries.forEach(p => {
-    const checks = ["source", "target"];
-    const {edge} = p;
-    checks.forEach((node: any) => {
-      edge[node] = nodes.find((n: any) => n.id === edge[node].id);
+    type EndKey = "source" | "target";
+    const checks: EndKey[] = ["source", "target"];
+    const pEdge = p.edge as RingsEdge;
+    checks.forEach(node => {
+      pEdge[node] = nodes.find(n => n.id === pEdge[node].id) as RingsNode;
     });
-    edges.push(edge);
+    edges.push(pEdge);
 
-    linkMap[p.id].forEach((edge: any) => {
-      const node = edge.source.id === p.id ? edge.target : edge.source;
-      if (node.id === center.id) return;
-      let target = secondaries.find(s => s.id === node.id);
-      if (!target) target = primaries.find(s => s.id === node.id);
+    linkMap[p.id].forEach(edge => {
+      const otherNode = edge.source.id === p.id ? edge.target : edge.source;
+      if (otherNode.id === center.id) return;
+      let target = secondaries.find(s => s.id === otherNode.id);
+      if (!target) target = primaries.find(s => s.id === otherNode.id);
       if (!target) return;
       edge.spline = true;
 
       const centerX = width / 2;
       const centerY = height / 2;
       const middleRing = primaryRing + (secondaryRing - primaryRing) * 0.5;
-      const checks2 = ["source", "target"];
+      const checks2: EndKey[] = ["source", "target"];
 
-      checks2.forEach((node: any, i: any) => {
-        edge[`${node}X`] =
-          edge[node].x +
-          Math.cos(
-            edge[node].ring === 2
-              ? edge[node].radians + Math.PI
-              : edge[node].radians,
-          ) * edge[node].r;
-        edge[`${node}Y`] =
-          edge[node].y +
-          Math.sin(
-            edge[node].ring === 2
-              ? edge[node].radians + Math.PI
-              : edge[node].radians,
-          ) * edge[node].r;
-        edge[`${node}BisectX`] = centerX + middleRing * Math.cos(edge[node].radians);
-        edge[`${node}BisectY`] = centerY + middleRing * Math.sin(edge[node].radians);
-        edge[node] = nodes.find((n: any) => n.id === edge[node].id);
-        if (edge[node].edges === undefined) edge[node].edges = {};
-        const oppId = i === 0 ? edge.target.id : edge.source.id;
-        if (edge[node].id === p.id) {
-          edge[node].edges[oppId] = {angle: p.radians + Math.PI, radius: ringWidth / 2};
+      checks2.forEach((endKey, i) => {
+        const endNode = edge[endKey];
+        const endRadians = endNode.radians as number;
+        const endRing = endNode.ring;
+        const endRX = endNode.x as number;
+        const endRY = endNode.y as number;
+        const endRR = endNode.r as number;
+        const rotated = endRing === 2 ? endRadians + Math.PI : endRadians;
+        edge[`${endKey}X` as const] = endRX + Math.cos(rotated) * endRR;
+        edge[`${endKey}Y` as const] = endRY + Math.sin(rotated) * endRR;
+        edge[`${endKey}BisectX` as const] = centerX + middleRing * Math.cos(endRadians);
+        edge[`${endKey}BisectY` as const] = centerY + middleRing * Math.sin(endRadians);
+        edge[endKey] = nodes.find(n => n.id === endNode.id) as RingsNode;
+        const ringNode = edge[endKey];
+        if (ringNode.edges === undefined) {
+          ringNode.edges = {} as Record<string, {angle: number; radius: number}>;
+        }
+        const oppId = (i === 0 ? edge.target.id : edge.source.id) as string;
+        const edgeMap = ringNode.edges as Record<string, {angle: number; radius: number}>;
+        if (ringNode.id === p.id) {
+          edgeMap[oppId] = {angle: (p.radians as number) + Math.PI, radius: ringWidth / 2};
         } else {
-          edge[node].edges[oppId] = {angle: target.radians, radius: ringWidth / 2};
+          edgeMap[oppId] = {angle: target!.radians as number, radius: ringWidth / 2};
         }
       });
       edges.push(edge);
     });
   });
 
-  nodes.forEach((node: any) => {
-    if (node.id === v._center) {
+  nodes.forEach(node => {
+    if (node.id === v.schema.center) {
       node.labelBounds = {
         x: -primaryRing / 2,
         y: -primaryRing / 2,
@@ -297,19 +369,22 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
       };
       return;
     }
+    const labelConfigRef = (v._shapeConfig as Record<string, unknown>).labelConfig as
+      | {fontSize?: (d: RingsNode) => number}
+      | undefined;
     const fontSize =
-      (v._shapeConfig.labelConfig.fontSize && v._shapeConfig.labelConfig.fontSize(node)) || 11;
+      (labelConfigRef?.fontSize && labelConfigRef.fontSize(node)) || 11;
     const lineHeight = fontSize * 1.4;
     const h = lineHeight * 2;
     const padding = 5;
-    const w = ringWidth - node.r;
+    const w = ringWidth - (node.r as number);
 
-    let angle = node.radians * (180 / Math.PI);
-    let x = node.r + padding;
+    let angle = (node.radians as number) * (180 / Math.PI);
+    let x = (node.r as number) + padding;
     let textAnchor = "start";
 
     if (angle < -90 || angle > 90) {
-      x = -node.r - w - padding;
+      x = -(node.r as number) - w - padding;
       textAnchor = "end";
       angle += 180;
     }
@@ -318,23 +393,26 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     node.textAnchor = textAnchor;
   });
 
-  v.ctx.linkLookup = links.reduce((obj: any, d: any) => {
-    if (!obj[d.source.id]) obj[d.source.id] = [];
-    obj[d.source.id].push(d.target);
-    if (!obj[d.target.id]) obj[d.target.id] = [];
-    obj[d.target.id].push(d.source);
-    return obj;
-  }, {});
+  v.ctx.linkLookup = links.reduce(
+    (obj: Record<string, RingsNode[]>, d) => {
+      if (!obj[d.source.id]) obj[d.source.id] = [];
+      obj[d.source.id].push(d.target);
+      if (!obj[d.target.id]) obj[d.target.id] = [];
+      obj[d.target.id].push(d.source);
+      return obj;
+    },
+    {},
+  );
 
-  const strokeExtent = extent(links, (d: {size: number}) => d.size);
+  const strokeExtent = extent(links, d => d.size);
   if (strokeExtent[0] !== strokeExtent[1]) {
-    const rNodeMin = min(nodes as {r: number}[], (d: {r: number}) => d.r);
-    const strokeScale = (scales as any)[
-      `scale${v._linkSizeScale.charAt(0).toUpperCase()}${v._linkSizeScale.slice(1)}`
+    const rNodeMin = min(nodes, d => d.r as number);
+    const strokeScale = (scales as unknown as Record<string, () => RScale>)[
+      `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
     ]()
-      .domain(strokeExtent)
-      .range([v._linkSizeMin, rNodeMin]);
-    links.forEach((link: any) => {
+      .domain(strokeExtent as [number, number])
+      .range([v.schema.linkSizeMin as number, rNodeMin as number]);
+    links.forEach(link => {
       link.size = strokeScale(link.size);
     });
   }
@@ -342,43 +420,38 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   const linkConfig = shapeConfigFor(v, "Path", v._shapeConfig, "edge");
   delete linkConfig.on;
 
-  const linkD = (d: any) =>
+  const linkD = (d: RingsEdge) =>
     d.spline
       ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
-      : `M${(d.source as DataPoint).x},${(d.source as DataPoint).y} ${(d.target as DataPoint).x},${(d.target as DataPoint).y}`;
+      : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
 
   const shapeConfig = {
-    label: (d: any) =>
-      nodes.length <= v._dataCutoff ||
+    label: (d: RingsNode) =>
+      nodes.length <= v.schema.dataCutoff ||
       (v._hover && v._hover(d)) ||
       (v._active && v._active(d))
         ? v._drawLabel(d.data || d.node, d.i)
         : false,
-    labelBounds: (d: any) => d.labelBounds,
+    labelBounds: (d: RingsNode) => d.labelBounds,
     labelConfig: {
-      fontColor: (d: any) =>
-        d.id === v._center
-          ? (shapeConfigFor(v, d.key) as any).labelConfig.fontColor(d)
+      fontColor: (d: RingsNode & {key?: string}) =>
+        d.id === v.schema.center
+          ? (shapeConfigFor(v, (d.key ?? d.shape)) as {labelConfig: {fontColor: (d: RingsNode) => string}}).labelConfig.fontColor(d)
           : colorContrast(
               v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
             ),
-      fontResize: (d: any) => d.id === v._center,
+      fontResize: (d: RingsNode) => d.id === v.schema.center,
       padding: 0,
-      textAnchor: (d: any) =>
+      textAnchor: (d: RingsNode & {key?: string}) =>
         nodeLookup[d.id].textAnchor ||
-        (shapeConfigFor(v, d.key) as any).labelConfig.textAnchor,
-      verticalAlign: (d: any) => (d.id === v._center ? "middle" : "top"),
+        (shapeConfigFor(v, (d.key ?? d.shape)) as {labelConfig: {textAnchor: string}}).labelConfig.textAnchor,
+      verticalAlign: (d: RingsNode) => (d.id === v.schema.center ? "middle" : "top"),
     },
-    rotate: (d: any) => nodeLookup[d.id].rotate || 0,
+    rotate: (d: RingsNode) => nodeLookup[d.id].rotate || 0,
   };
 
-  const nodeGroups = Array.from(
-    groups(
-      nodes as Record<string, unknown>[],
-      (d: Record<string, unknown>) => d.shape as string,
-    ),
-  );
+  const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
 
-  return {shapeData: nodes};
+  return {shapeData: nodes as unknown as DataPoint[]};
 };

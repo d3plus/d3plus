@@ -20,7 +20,23 @@ interface VizContext {
   _cache: boolean;
   _lrucache: {set(key: string, value: DataPoint[] | DataPoint[][]): void};
   config(obj: Record<string, unknown>): void;
+  schema?: Record<string, unknown>;
   [key: string]: unknown;
+}
+
+/**
+  Stores a loaded value under its instance key. Core data slots own a real
+  `_<key>` property (e.g. `_data`); schema-managed fold keys (links, nodes,
+  topojson, fitObject) live on `schema`.
+  @private
+*/
+function storeLoaded(
+  ctx: VizContext,
+  key: string,
+  value: DataPoint[] | DataPoint[][],
+): void {
+  if (`_${key}` in ctx) ctx[`_${key}`] = value;
+  else if (ctx.schema) ctx.schema[key] = value;
 }
 
 /**
@@ -154,7 +170,7 @@ export default function (
             result = concat(loaded.filter(Boolean) as DataPoint[][], "data");
           }
 
-          if (key && `_${key}` in this) this[`_${key}`] = result;
+          if (key) storeLoaded(this, key, result);
           if (callback) callback(undefined, result);
         }
       })

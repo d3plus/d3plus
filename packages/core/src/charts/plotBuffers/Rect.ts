@@ -48,8 +48,8 @@ export default function (
   const xR = x.range(),
     yR = y.range();
 
-  if (!x.invert && x.padding) discreteBuffer(x, data, this._discrete);
-  if (!y.invert && y.padding) discreteBuffer(y, data, this._discrete);
+  if (!x.invert && x.padding) discreteBuffer(x, data, this.schema.discrete);
+  if (!y.invert && y.padding) discreteBuffer(y, data, this.schema.discrete);
 
   if (x.invert || y.invert) {
     data.forEach((d: Record<string, unknown>) => {

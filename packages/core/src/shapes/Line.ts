@@ -4,31 +4,26 @@ import * as paths from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
 import {constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import type {LineConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** Line's own fluent accessor schema, layered on top of Shape's. */
+const lineSchema: ConfigField[] = [
+  {key: "curve", coerce: "const", default: constant("linear")},
+  {
+    key: "defined",
+    coerce: "identity",
+    default: (d: DataPoint) => d as unknown as DataPoint[keyof DataPoint],
+  },
+];
 
 /**
     Creates SVG lines based on an array of data.
 */
 export default class Line extends Shape {
-  declare _curve: AccessorFn;
-  declare _defined: AccessorFn;
-  declare _fill: AccessorFn;
-  declare _hitArea:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown>)
-    | null;
-  declare _name: string;
-  declare _path: Record<string, unknown>;
-  declare _stroke: AccessorFn;
-  declare _strokeWidth: AccessorFn;
-  declare _strokeDasharray: AccessorFn;
-
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
@@ -36,11 +31,20 @@ export default class Line extends Shape {
   constructor() {
     super();
 
-    this._curve = constant("linear");
-    this._defined = (d: DataPoint) =>
-      d as unknown as DataPoint[keyof DataPoint];
-    this._fill = constant("none");
-    this._hitArea = constant({
+    installFluent(this, lineSchema);
+
+    this._name = "Line";
+    this._path = (
+      paths as unknown as Record<string, unknown> & {
+        line: () => Record<string, unknown>;
+      }
+    ).line() as unknown as Record<string, unknown>;
+
+    // Line-specific overrides of inherited Shape defaults.
+    this.schema.fill = constant("none");
+    this.schema.stroke = constant("black");
+    this.schema.strokeWidth = constant(1);
+    this.schema.hitArea = constant({
       d: (d: DataPoint) =>
         (this._path as unknown as (v: unknown) => string)(
           (d as Record<string, unknown>).values,
@@ -48,19 +52,7 @@ export default class Line extends Shape {
       fill: "none",
       "stroke-width": 10,
       transform: null,
-    }) as unknown as (
-      d: DataPoint,
-      i: number,
-      aes: ShapeAes,
-    ) => Record<string, unknown>;
-    this._name = "Line";
-    this._path = (
-      paths as unknown as Record<string, unknown> & {
-        line: () => Record<string, unknown>;
-      }
-    ).line() as unknown as Record<string, unknown>;
-    this._stroke = constant("black");
-    this._strokeWidth = constant(1);
+    });
   }
 
   /**
@@ -70,7 +62,7 @@ export default class Line extends Shape {
   _dataFilter(data: DataPoint[]): DataPoint[] {
     const lines: DataPoint[] & {
       key?: (d: DataPoint) => DataPoint[keyof DataPoint];
-    } = groups(data, this._id).map(
+    } = groups(data, this.schema.id).map(
       ([key, values]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
         const d: DataPoint = {key, values} as unknown as DataPoint;
         (d as Record<string, unknown>).data = merge(
@@ -82,7 +74,7 @@ export default class Line extends Shape {
 
         const x = extent(
           d.values as unknown as DataPoint[],
-          this._x as unknown as (d: DataPoint) => number,
+          this.schema.x as unknown as (d: DataPoint) => number,
         );
         (d as Record<string, unknown>).xR = x;
         (d as Record<string, unknown>).width =
@@ -92,7 +84,7 @@ export default class Line extends Shape {
 
         const y = extent(
           d.values as unknown as DataPoint[],
-          this._y as unknown as (d: DataPoint) => number,
+          this.schema.y as unknown as (d: DataPoint) => number,
         );
         (d as Record<string, unknown>).yR = y;
         (d as Record<string, unknown>).height =
@@ -122,7 +114,9 @@ export default class Line extends Shape {
   _sceneGeometry(d: DataPoint): Record<string, unknown> {
     const cx = Number(d.x);
     const cy = Number(d.y);
-    const userCurve = String(this._curve.bind(this)(this.config() as DataPoint));
+    const userCurve = String(
+      this.schema.curve.bind(this)(this.config() as DataPoint),
+    );
     const curve = (paths as Record<string, unknown>)[
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
     ];
@@ -130,9 +124,9 @@ export default class Line extends Shape {
     const gen = (paths as any)
       .line()
       .curve(curve)
-      .defined(this._defined)
-      .x((v: DataPoint, z: number) => (this._x(v, z) as number) - cx)
-      .y((v: DataPoint, z: number) => (this._y(v, z) as number) - cy);
+      .defined(this.schema.defined)
+      .x((v: DataPoint, z: number) => (this.schema.x(v, z) as number) - cx)
+      .y((v: DataPoint, z: number) => (this.schema.y(v, z) as number) - cy);
     return {type: "path", d: gen(d.values) || ""};
   }
 
@@ -144,30 +138,10 @@ export default class Line extends Shape {
   _aes(d: DataPoint, i: number): ShapeAes {
     return {
       points: (d.values as unknown as DataPoint[]).map((p: DataPoint) => [
-        this._x(p, i) as number,
-        this._y(p, i) as number,
+        this.schema.x(p, i) as number,
+        this.schema.y(p, i) as number,
       ]),
     };
-  }
-
-  /**
-      The d3 curve function used to interpolate the line.
-*/
-  curve(): AccessorFn;
-  curve(_: AccessorFn | string): this;
-  curve(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._curve = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._curve;
-  }
-
-  /**
-      An accessor function that determines whether a data point is defined (not a gap in the line).
-*/
-  defined(): AccessorFn;
-  defined(_: AccessorFn): this;
-  defined(_?: AccessorFn): AccessorFn | this {
-    return arguments.length ? ((this._defined = _!), this) : this._defined;
   }
 
   /**
@@ -177,7 +151,6 @@ export default class Line extends Shape {
   */
   config(): LineConfig;
   config(_: Partial<LineConfig>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config(_?: Partial<LineConfig>): LineConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;

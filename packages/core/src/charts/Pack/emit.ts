@@ -26,7 +26,7 @@ export const packEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as PackLeaf[];
   if (!nodes.length) return [];
 
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
   // Pack's per-shape config is nested under `Circle`.
   const circleConfig = (sc.Circle ?? {}) as Record<string, unknown>;
   const labelFn = circleConfig.label as ((d: DataPoint, i: number) => unknown) | undefined;

@@ -23,8 +23,8 @@ export const applyPackLayout: TransformStage = ({viz}) => {
   const data = viz._filteredData as DataPoint[] | undefined;
   if (!data || !data.length) return {shapeData: []};
 
-  const height = viz._height - viz._margin.top - viz._margin.bottom;
-  const width = viz._width - viz._margin.left - viz._margin.right;
+  const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
+  const width = viz.schema.width - viz._margin.left - viz._margin.right;
   const diameter = Math.min(height, width);
 
   type Branch = {key?: string | number; values?: DataPoint[]} & DataPoint;
@@ -34,9 +34,6 @@ export const applyPackLayout: TransformStage = ({viz}) => {
     viz._groupBy.slice(0, viz._drawDepth + 1),
   ) as unknown as Branch;
 
-  const packLayout = viz.ctx.pack as (
-    root: ReturnType<typeof hierarchy<Branch>>,
-  ) => HierarchyCircularNode<Branch>;
   const packOpacityFn = viz.schema.packOpacity as (d: DataPoint, i: number) => number;
 
   const built = (viz.ctx.pack as {

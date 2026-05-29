@@ -31,7 +31,7 @@ export const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
 
   const locale = viz._locale;
   const drawLabel = viz._drawLabel;
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   const rectNodes: SceneNode[] = nodes.map(d => {
     const fill = resolveAccessor<string>(sc.fill, d.data, d.i);
@@ -56,7 +56,7 @@ export const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
         strokeWidth,
       },
       aria: {
-        label: `${drawLabel(d.data, d.i ?? 0)}, ${(viz._sum as (d: DataPoint) => number)(d.data)}, ${formatAbbreviate(d.share * 100, locale)}%`,
+        label: `${drawLabel(d.data, d.i ?? 0)}, ${(viz.schema.sum as (d: DataPoint) => number)(d.data)}, ${formatAbbreviate(d.share * 100, locale)}%`,
       },
     } as SceneNode;
   });

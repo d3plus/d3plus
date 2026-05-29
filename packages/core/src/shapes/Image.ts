@@ -6,7 +6,22 @@ import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, ImageNode, SceneNode} from "@d3plus/render";
 
 import {accessor, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
+
+/** Image's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const imageSchema: ConfigField[] = [
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "height", coerce: "const", default: accessor("height")},
+  {key: "id", coerce: "identity", default: accessor("id")},
+  {key: "opacity", coerce: "const", default: constant(1)},
+  {key: "pointerEvents", coerce: "const", default: constant("auto")},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "url", coerce: "identity", default: accessor("url")},
+  {key: "width", coerce: "const", default: accessor("width")},
+  {key: "x", coerce: "const", default: accessor("x", 0)},
+  {key: "y", coerce: "const", default: accessor("y", 0)},
+];
 
 /**
     Creates SVG images based on an array of data.
@@ -22,16 +37,13 @@ image().data([data])();
 image().data([data])(function() { alert("draw complete!"); })
 */
 export default class Image {
-  _duration: number;
-  _height: AccessorFn;
-  _id: AccessorFn;
-  _opacity: AccessorFn;
-  _pointerEvents: AccessorFn;
+  // installFluent generates the config accessors (width, x, url, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema!: Record<string, any>;
   _select!: D3Selection;
-  _url: AccessorFn;
-  _width: AccessorFn;
-  _x: AccessorFn;
-  _y: AccessorFn;
   _data!: DataPoint[];
 
   /**
@@ -39,15 +51,7 @@ export default class Image {
       @private
 */
   constructor() {
-    this._duration = 600;
-    this._height = accessor("height");
-    this._id = accessor("id");
-    this._opacity = constant(1);
-    this._pointerEvents = constant("auto");
-    this._url = accessor("url");
-    this._width = accessor("width");
-    this._x = accessor("x", 0);
-    this._y = accessor("y", 0);
+    installFluent(this, imageSchema);
   }
 
   /**
@@ -57,7 +61,7 @@ export default class Image {
   render(callback?: () => void): this {
     // Compute mode is a no-op for DOM emission — the caller will read
     // `toScene()` to get a SceneNode tree, no need to mount.
-    if (this._renderMode === "compute") {
+    if (this.schema.renderMode === "compute") {
       if (callback) setTimeout(callback, 0);
       return this;
     }
@@ -74,7 +78,7 @@ export default class Image {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const images = (this._select as any)
       .selectAll(".d3plus-Image")
-      .data(this._data, this._id);
+      .data(this._data, this.schema.id);
 
     const enter = images
       .enter()
@@ -86,30 +90,30 @@ export default class Image {
       .attr(
         "x",
         (d: DataPoint, i: number) =>
-          (this._x(d, i) as number) + (this._width(d, i) as number) / 2,
+          (this.schema.x(d, i) as number) + (this.schema.width(d, i) as number) / 2,
       )
       .attr(
         "y",
         (d: DataPoint, i: number) =>
-          (this._y(d, i) as number) + (this._height(d, i) as number) / 2,
+          (this.schema.y(d, i) as number) + (this.schema.height(d, i) as number) / 2,
       );
 
-    const t = transition().duration(this._duration),
+    const t = transition().duration(this.schema.duration),
       that = this,
       update = enter.merge(images);
 
     update
-      .attr("xlink:href", this._url)
-      .style("pointer-events", this._pointerEvents)
+      .attr("xlink:href", this.schema.url)
+      .style("pointer-events", this.schema.pointerEvents)
       .transition(t)
-      .attr("opacity", this._opacity)
-      .attr("width", (d: DataPoint, i: number) => this._width(d, i))
-      .attr("height", (d: DataPoint, i: number) => this._height(d, i))
-      .attr("x", (d: DataPoint, i: number) => this._x(d, i))
-      .attr("y", (d: DataPoint, i: number) => this._y(d, i))
+      .attr("opacity", this.schema.opacity)
+      .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
+      .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
+      .attr("x", (d: DataPoint, i: number) => this.schema.x(d, i))
+      .attr("y", (d: DataPoint, i: number) => this.schema.y(d, i))
       .each(function (this: Element, d: DataPoint, i: number) {
         const image = select(this),
-          link = that._url(d, i) as string;
+          link = that.schema.url(d, i) as string;
         const fullAddress =
           link.indexOf("http://") === 0 || link.indexOf("https://") === 0;
         if (!fullAddress || link.indexOf(window.location.hostname) === 0) {
@@ -134,14 +138,14 @@ export default class Image {
     images
       .exit()
       .transition(t)
-      .attr("width", (d: DataPoint, i: number) => this._width(d, i))
-      .attr("height", (d: DataPoint, i: number) => this._height(d, i))
-      .attr("x", (d: DataPoint, i: number) => this._x(d, i))
-      .attr("y", (d: DataPoint, i: number) => this._y(d, i))
+      .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
+      .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
+      .attr("x", (d: DataPoint, i: number) => this.schema.x(d, i))
+      .attr("y", (d: DataPoint, i: number) => this.schema.y(d, i))
       .attr("opacity", 0)
       .remove();
 
-    if (callback) setTimeout(callback, this._duration + 100);
+    if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
   }
@@ -156,30 +160,6 @@ export default class Image {
   }
 
   /**
-      The animation duration in milliseconds.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      Render-mode toggle parity with Shape subclasses. `"compute"` makes
-      `render()` a no-op (no DOM mount, no transitions); the caller is
-      expected to consume `toScene()` instead. `"full"` (default) keeps
-      the legacy DOM <image> emission.
-  */
-  _renderMode?: "full" | "compute";
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode || "full";
-    this._renderMode = _;
-    return this;
-  }
-
-  /**
       Compute-mode scene emission. Mirrors Shape.toScene's shape — a
       keyed GroupNode wrapping per-datum ImageNodes. Used by chart
       compositors (Shape._backgroundImageClass, plotPaint) that need
@@ -191,13 +171,13 @@ export default class Image {
       (d: DataPoint, i: number) => {
         const node: ImageNode = {
           type: "image",
-          key: `${this._id(d, i)}`,
-          x: this._x(d, i) as number,
-          y: this._y(d, i) as number,
-          width: this._width(d, i) as number,
-          height: this._height(d, i) as number,
-          href: this._url(d, i) as string,
-          paint: {opacity: this._opacity(d, i) as number},
+          key: `${this.schema.id(d, i)}`,
+          x: this.schema.x(d, i) as number,
+          y: this.schema.y(d, i) as number,
+          width: this.schema.width(d, i) as number,
+          height: this.schema.height(d, i) as number,
+          href: this.schema.url(d, i) as string,
+          paint: {opacity: this.schema.opacity(d, i) as number},
           datum: d,
           index: i,
         };
@@ -205,59 +185,6 @@ export default class Image {
       },
     );
     return {type: "group", key: "d3plus-Image", children};
-  }
-
-  /**
-      The height accessor for each image.
-
-@example
-function(d) {
-  return d.height;
-}
-*/
-  height(): AccessorFn;
-  height(_: AccessorFn | number): this;
-  height(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._height;
-  }
-
-  /**
-      The unique id accessor for each image.
-
-@example
-function(d) {
-  return d.id;
-}
-*/
-  id(): AccessorFn;
-  id(_: AccessorFn): this;
-  id(_?: AccessorFn): AccessorFn | this {
-    return arguments.length ? ((this._id = _!), this) : this._id;
-  }
-
-  /**
-      The opacity of each image.
-*/
-  opacity(): AccessorFn;
-  opacity(_: AccessorFn | number): this;
-  opacity(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._opacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._opacity;
-  }
-
-  /**
-      The pointer-events.
-*/
-  pointerEvents(): AccessorFn;
-  pointerEvents(_: AccessorFn | string): this;
-  pointerEvents(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._pointerEvents;
   }
 
   /**
@@ -269,67 +196,5 @@ function(d) {
     return arguments.length
       ? ((this._select = select(_ as string) as unknown as D3Selection), this)
       : this._select;
-  }
-
-  /**
-      Accessor function for the URL of each image.
-
-@example
-function(d) {
-  return d.url;
-}
-*/
-  url(): AccessorFn;
-  url(_: AccessorFn): this;
-  url(_?: AccessorFn): AccessorFn | this {
-    return arguments.length ? ((this._url = _!), this) : this._url;
-  }
-
-  /**
-      The width accessor for each image.
-
-@example
-function(d) {
-  return d.width;
-}
-*/
-  width(): AccessorFn;
-  width(_: AccessorFn | number): this;
-  width(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._width;
-  }
-
-  /**
-      The x position accessor for each image.
-
-@example
-function(d) {
-  return d.x || 0;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each image.
-
-@example
-function(d) {
-  return d.y || 0;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._y;
   }
 }

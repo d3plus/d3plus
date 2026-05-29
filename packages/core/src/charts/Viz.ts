@@ -29,7 +29,7 @@ import Message from "../components/Message.js";
 
 // E4: Viz's identity-coerce accessor schema. installFluent installs methods on
 // Viz.prototype (once via WeakSet) so BaseClass.config() reflection picks them
-// up. Constructor assignments below seed defaults (e.g. `this._duration = 600`);
+// up. Constructor assignments below seed defaults (e.g. `this.schema.duration = 600`);
 // installFluent skips slots already set, so constructor values win.
 const vizSchema = [
   {key: "ariaHidden", coerce: "identity" as const},
@@ -142,7 +142,7 @@ export default class Viz extends (BaseClass as any) {
     // The legacy DOM-only opt-out was removed — scene mode is THE path.
     this._renderer = "svg";
     this._renderMode = "full";
-    this._ariaHidden = true;
+    this.schema.ariaHidden = true;
     this._attribution = false;
     const attributionBg = "rgba(255, 255, 255, 0.75)";
     this._attributionStyle = {
@@ -169,7 +169,7 @@ export default class Viz extends (BaseClass as any) {
       padding: 5,
       resize: false,
     };
-    this._cache = true;
+    this.schema.cache = true;
 
     this._color = (d: DataPoint, i: number) => this._groupBy[0](d, i);
     this._colorDefaults = {
@@ -185,11 +185,11 @@ export default class Viz extends (BaseClass as any) {
     };
     this._colorScalePadding = defaultPadding;
     this._colorScalePosition = () =>
-      this._width > this._height * 1.5 ? "right" : "bottom";
+      this.schema.width > this.schema.height * 1.5 ? "right" : "bottom";
     this._colorScaleMaxSize = 600;
 
     this._data = [];
-    this._dataCutoff = 100;
+    this.schema.dataCutoff = 100;
     this._detectResize = true;
     this._detectResizeDelay = 400;
     this._detectVisible = true;
@@ -197,7 +197,7 @@ export default class Viz extends (BaseClass as any) {
     this._downloadButton = false;
     this._downloadConfig = {type: "png"};
     this._downloadPosition = "top";
-    this._duration = 600;
+    this.schema.duration = 600;
     this._fontFamily = fontFamily;
     this._hidden = [];
     this._hiddenColor = constant("#aaa");
@@ -205,7 +205,7 @@ export default class Viz extends (BaseClass as any) {
     this._history = [];
     this._groupBy = [accessor("id")];
 
-    this._legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
+    this.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
       const maxGrouped = max(arr, (d: DataPoint, i: number) => {
         const id = this._groupBy[this._legendDepth].bind(this)(d, i);
         return id instanceof Array ? id.length : 1;
@@ -227,10 +227,10 @@ export default class Viz extends (BaseClass as any) {
     this._legendFilterInvert = constant(false);
     this._legendPadding = defaultPadding;
     this._legendPosition = () =>
-      this._width > this._height * 1.5 ? "right" : "bottom";
-    this._legendSort = (a: DataPoint, b: DataPoint) =>
+      this.schema.width > this.schema.height * 1.5 ? "right" : "bottom";
+    this.schema.legendSort = (a: DataPoint, b: DataPoint) =>
       this._drawLabel(a).localeCompare(this._drawLabel(b));
-    this._legendTooltip = {};
+    this.schema.legendTooltip = {};
 
     this._loadingHTML = () => `
     <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
@@ -258,8 +258,8 @@ export default class Viz extends (BaseClass as any) {
       <strong>${this._translate("No Data Available")}</strong>
     </div>`;
 
-    this._noDataMessage = true;
-    this._on = {
+    this.schema.noDataMessage = true;
+    this.schema.on = {
       "click.shape": clickShape.bind(this),
       "click.legend": clickLegend.bind(this),
       mouseenter: mouseenter.bind(this),
@@ -272,7 +272,7 @@ export default class Viz extends (BaseClass as any) {
       debounce((entries: ResizeObserverEntry[]) => {
         const {width, height} = entries[0]!.contentRect;
         if (
-          ((width !== this._width && this._autoWidth) || (height !== this._height && this._autoHeight)) &&
+          ((width !== this.schema.width && this._autoWidth) || (height !== this.schema.height && this._autoHeight)) &&
           width &&
           height
         ) {
@@ -282,9 +282,9 @@ export default class Viz extends (BaseClass as any) {
       }, this._detectResizeDelay),
     );
     this._scrollContainer = typeof window === "undefined" ? "" : window;
-    this._shape = constant("Rect");
+    this.schema.shape = constant("Rect");
     this._shapes = [];
-    this._shapeConfig = {
+    this.schema.shapeConfig = {
       ariaLabel: (d: DataPoint, i: number) => this._drawLabel(d, i),
       fill: (d: DataPoint, i: number) => {
         while (d.__d3plus__ && d.data) {
@@ -315,18 +315,18 @@ export default class Viz extends (BaseClass as any) {
       labelConfig: {
         fontColor: (d: DataPoint, i: number) => {
           const c =
-            typeof this._shapeConfig.fill === "function"
-              ? this._shapeConfig.fill(d, i)
-              : this._shapeConfig.fill;
+            typeof this.schema.shapeConfig.fill === "function"
+              ? this.schema.shapeConfig.fill(d, i)
+              : this.schema.shapeConfig.fill;
           return colorContrast(c);
         },
       },
       opacity: constant(1),
       stroke: (d: DataPoint, i: number) => {
         const c =
-          typeof this._shapeConfig.fill === "function"
-            ? this._shapeConfig.fill(d, i)
-            : this._shapeConfig.fill;
+          typeof this.schema.shapeConfig.fill === "function"
+            ? this.schema.shapeConfig.fill(d, i)
+            : this.schema.shapeConfig.fill;
         return color(c)!.darker(0.25);
       },
       role: "presentation",
@@ -344,10 +344,10 @@ export default class Viz extends (BaseClass as any) {
     };
     this._subtitlePadding = defaultPadding;
 
-    this._svgDesc = "";
-    this._svgTitle = "";
+    this.schema.svgDesc = "";
+    this.schema.svgTitle = "";
 
-    this._timeline = true;
+    this.schema.timeline = true;
     this._timelineClass = new Timeline().align("end");
     this._timelineConfig = {
       padding: 5,
@@ -370,7 +370,7 @@ export default class Viz extends (BaseClass as any) {
 
     this._tooltip = constant(true);
     this._tooltipClass = new Tooltip();
-    this._tooltipConfig = {
+    this.schema.tooltipConfig = {
       pointerEvents: "none",
       titleStyle: {
         "max-width": "200px",
@@ -388,7 +388,7 @@ export default class Viz extends (BaseClass as any) {
       `${this._translate("Total")}: ${formatAbbreviate(d, this._locale)}`;
     this._totalPadding = defaultPadding;
 
-    this._zoom = false;
+    this.schema.zoom = false;
     this._zoomBehavior = zoom();
     this._zoomBrush = brush();
     this._zoomBrushHandleSize = 1;
@@ -423,11 +423,11 @@ export default class Viz extends (BaseClass as any) {
       cursor: "pointer",
       opacity: 1,
     };
-    this._zoomFactor = 2;
-    this._zoomMax = 16;
+    this.schema.zoomFactor = 2;
+    this.schema.zoomMax = 16;
     this._zoomPadding = 20;
-    this._zoomPan = true;
-    this._zoomScroll = true;
+    this.schema.zoomPan = true;
+    this.schema.zoomScroll = true;
   }
 
   /**
@@ -530,8 +530,8 @@ export default class Viz extends (BaseClass as any) {
       });
     }
     return {
-      width: this._width,
-      height: this._height,
+      width: this.schema.width,
+      height: this.schema.height,
       root: {type: "group", key: "viz-root", children},
     };
   }
@@ -567,17 +567,17 @@ export default class Viz extends (BaseClass as any) {
     h! -= parseFloat(this._select.style("border-top-width"));
     h! -= parseFloat(this._select.style("border-bottom-width"));
     
-    if (this._autoWidth && this._width !== w) {
+    if (this._autoWidth && this.schema.width !== w) {
       this.width(w);
       this._select
-        .style("width", `${this._width}px`)
-        .attr("width", `${this._width}px`);
+        .style("width", `${this.schema.width}px`)
+        .attr("width", `${this.schema.width}px`);
     }
-    if (this._autoHeight && this._height !== h) {
+    if (this._autoHeight && this.schema.height !== h) {
       this.height(h);
       this._select
-        .style("height", `${this._height}px`)
-        .attr("height", `${this._height}px`);
+        .style("height", `${this.schema.height}px`)
+        .attr("height", `${this.schema.height}px`);
     }
   }
 
@@ -621,11 +621,11 @@ export default class Viz extends (BaseClass as any) {
 
     // Calculates the width and/or height of the Viz based on the this._select, if either has not been defined.
     if (
-      (!this._width || !this._height) &&
+      (!this.schema.width || !this.schema.height) &&
       (!this._detectVisible || inViewport(this._select.node()))
     ) {
-      this._autoWidth = this._width === undefined;
-      this._autoHeight = this._height === undefined;
+      this._autoWidth = this.schema.width === undefined;
+      this._autoHeight = this.schema.height === undefined;
       this._setSVGSize();
     }
 
@@ -633,7 +633,7 @@ export default class Viz extends (BaseClass as any) {
 
     this._select
       .attr("class", "d3plus-viz")
-      .attr("aria-hidden", this._ariaHidden)
+      .attr("aria-hidden", this.schema.ariaHidden)
       .attr("aria-labelledby", `${this._uuid}-title ${this._uuid}-desc`)
       .attr("role", "img")
       .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -642,19 +642,19 @@ export default class Viz extends (BaseClass as any) {
       .style("top", parent.style("padding-top"))
       .style("left", parent.style("padding-left"))
       .transition()
-      .duration(this._duration)
+      .duration(this.schema.duration)
       .style(
         "width",
-        this._width !== undefined ? `${this._width}px` : undefined,
+        this.schema.width !== undefined ? `${this.schema.width}px` : undefined,
       )
       .style(
         "height",
-        this._height !== undefined ? `${this._height}px` : undefined,
+        this.schema.height !== undefined ? `${this.schema.height}px` : undefined,
       )
-      .attr("width", this._width !== undefined ? `${this._width}px` : undefined)
+      .attr("width", this.schema.width !== undefined ? `${this.schema.width}px` : undefined)
       .attr(
         "height",
-        this._height !== undefined ? `${this._height}px` : undefined,
+        this.schema.height !== undefined ? `${this.schema.height}px` : undefined,
       );
 
     // sets "position: relative" on the SVG parent if currently undefined
@@ -671,7 +671,7 @@ export default class Viz extends (BaseClass as any) {
       .enter()
       .append("title")
       .attr("id", `${this._uuid}-title`);
-    svgTitle.merge(svgTitleEnter).text(this._svgTitle);
+    svgTitle.merge(svgTitleEnter).text(this.schema.svgTitle);
 
     // Updates the <desc> tag if already exists else creates a new <desc> tag on this.select.
     const svgDesc = this._select.selectAll("desc").data([0]);
@@ -679,7 +679,7 @@ export default class Viz extends (BaseClass as any) {
       .enter()
       .append("desc")
       .attr("id", `${this._uuid}-desc`);
-    svgDesc.merge(svgDescEnter).text(this._svgDesc);
+    svgDesc.merge(svgDescEnter).text(this.schema.svgDesc);
 
     this._visiblePoll = clearInterval(this._visiblePoll);
     this._resizePoll = clearTimeout(this._resizePoll);
@@ -726,7 +726,7 @@ export default class Viz extends (BaseClass as any) {
             string,
           ],
         ) => {
-          const cache = this._cache
+          const cache = this.schema.cache
             ? this._lrucache.get(`${p[3]}_${p[1]}`)
             : undefined;
           if (!cache) {
@@ -738,7 +738,11 @@ export default class Viz extends (BaseClass as any) {
                 });
               }),
             );
-          } else this[`_${p[3]}`] = p[2] ? p[2](cache) : cache;
+          } else {
+            const val = p[2] ? p[2](cache) : cache;
+            if (`_${p[3]}` in this) this[`_${p[3]}`] = val;
+            else this.schema[p[3]] = val;
+          }
         },
       );
       this._queue = [];
@@ -754,7 +758,7 @@ export default class Viz extends (BaseClass as any) {
 
       Promise.all(promises).then(() => {
         // creates a data table as DOM elements inside of the SVG for accessibility
-        // only if this._ariaHidden is set to true
+        // only if this.schema.ariaHidden is set to true
         const columns =
           this._data instanceof Array && this._data.length > 0
             ? Object.keys(this._data[0])
@@ -762,7 +766,7 @@ export default class Viz extends (BaseClass as any) {
         const svgTable = this._select
           .selectAll("g.data-table")
           .data(
-            !this._ariaHidden &&
+            !this.schema.ariaHidden &&
               this._data instanceof Array &&
               this._data.length
               ? [0]
@@ -806,13 +810,13 @@ export default class Viz extends (BaseClass as any) {
 
         if (
           this._messageClass._isVisible &&
-          (!this._noDataMessage || this._filteredData.length)
+          (!this.schema.noDataMessage || this._filteredData.length)
         ) {
           this._messageClass.hide();
           if (this._select.attr("opacity") === "0")
             this._select
               .transition()
-              .duration(this._duration)
+              .duration(this.schema.duration)
               .attr("opacity", 1);
         }
 
@@ -826,7 +830,7 @@ export default class Viz extends (BaseClass as any) {
           setTimeout(() => {
             callback();
             this._callback = undefined;
-          }, this._duration + 100);
+          }, this.schema.duration + 100);
       });
     }
 
@@ -920,8 +924,8 @@ export default class Viz extends (BaseClass as any) {
     const userTarget = this._sceneTarget || legacySvg;
     if (!userTarget) return;
     const scene = this.toScene();
-    const w = this._width || 400;
-    const h = this._height || 300;
+    const w = this.schema.width || 400;
+    const h = this.schema.height || 300;
     // Reuse the renderer instance if it matches the kind, to avoid mount
     // churn. `target()` is the public Renderer-interface method (no
     // reaching into renderer-private slots). It's optional on the
@@ -941,12 +945,12 @@ export default class Viz extends (BaseClass as any) {
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
       this._sceneRenderer.mount({container: userTarget, width: w, height: h});
-      // Bridge renderer pointer events → viz._on handlers. Without this,
+      // Bridge renderer pointer events → viz.schema.on handlers. Without this,
       // tooltips never fire on the v4 scene-rendered path because
       // `shape.on(evt, fn)` in plotPaint only wires d3-selection
       // listeners on DOM nodes the scene renderer doesn't create.
       // Renderer events carry the picked scene node; we look up the
-      // appropriate viz._on key based on whether the pick belongs to
+      // appropriate viz.schema.on key based on whether the pick belongs to
       // a chart shape, the legend, or neither.
       this._sceneRenderer.on((event: SceneEvent) => {
         const pick = event.pick;
@@ -972,9 +976,9 @@ export default class Viz extends (BaseClass as any) {
         const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
         const sourceIndex =
           rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
-        // Dispatch to the matching viz._on handler if present.
+        // Dispatch to the matching viz.schema.on handler if present.
         const dispatch = (key: string): void => {
-          const fn = this._on && this._on[key];
+          const fn = this.schema.on && this.schema.on[key];
           if (typeof fn === "function") {
             try {
               fn.call(this, sourceDatum, sourceIndex, rawDatum, event.nativeEvent);
@@ -997,7 +1001,7 @@ export default class Viz extends (BaseClass as any) {
     // skip the transition machinery — animating every wheel/drag tick
     // accumulates `setTimeout(duration+10)` per event.
     const drawDuration =
-      durationOverride !== undefined ? durationOverride : this._duration;
+      durationOverride !== undefined ? durationOverride : this.schema.duration;
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
   }
@@ -1041,9 +1045,9 @@ export default class Viz extends (BaseClass as any) {
   ): this | ((d: DataPoint, i: number) => boolean) | false {
     this._active = _;
 
-    if (this._shapeConfig.activeOpacity !== 1) {
+    if (this.schema.shapeConfig.activeOpacity !== 1) {
       this._shapes.forEach((s: {active: (...args: unknown[]) => unknown}) => s.active(_));
-      if (this._legend) this._legendClass.active(_);
+      if (this.schema.legend) this._legendClass.active(_);
     }
 
     return this;
@@ -1197,7 +1201,7 @@ Defaults to an empty array (`[]`).
         this._userData &&
         JSON.stringify(_) !== JSON.stringify(this._userData)
       ) {
-        this._timeFilter = false;
+        this.schema.timeFilter = false;
         this._timelineSelection = false;
       }
       this._userData = _;
@@ -1378,7 +1382,7 @@ Defaults to an empty array (`[]`).
   hover(_?: ((d: DataPoint, i: number) => boolean) | false): this {
     let hoverFunction = (this._hover = _);
 
-    if (this._shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
+    if (this.schema.shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
       if (typeof _ === "function") {
         let shapeData = arrayMerge(
           this._shapes.map((s: {data: () => DataPoint[]}) => s.data()),
@@ -1404,7 +1408,7 @@ Defaults to an empty array (`[]`).
       }
 
       this._shapes.forEach((s: {hover: (...args: unknown[]) => unknown}) => s.hover(hoverFunction));
-      if (this._legend) this._legendClass.hover(hoverFunction);
+      if (this.schema.legend) this._legendClass.hover(hoverFunction);
     }
 
     return this;
@@ -1417,8 +1421,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
     return arguments.length
-      ? ((this._label = typeof _ === "function" ? _ : constant(_)), this)
-      : this._label;
+      ? ((this.schema.label = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.label;
   }
 
   /**
@@ -1433,8 +1437,8 @@ Defaults to an empty array (`[]`).
     | boolean
     | ((config: Record<string, unknown>, arr: DataPoint[]) => boolean) {
     return arguments.length
-      ? ((this._legend = typeof _ === "function" ? _ : constant(_)), this)
-      : this._legend;
+      ? ((this.schema.legend = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.legend;
   }
 
   /**
@@ -1487,8 +1491,8 @@ Defaults to an empty array (`[]`).
 */
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._legendTooltip = assign(this._legendTooltip, _!)), this)
-      : this._legendTooltip;
+      ? ((this.schema.legendTooltip = assign(this.schema.legendTooltip, _!)), this)
+      : this.schema.legendTooltip;
   }
 
   /**
@@ -1545,8 +1549,8 @@ Defaults to an empty array (`[]`).
 */
   noDataMessage(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this._noDataMessage = _), this)
-      : this._noDataMessage;
+      ? ((this.schema.noDataMessage = _), this)
+      : this.schema.noDataMessage;
   }
 
   /**
@@ -1576,8 +1580,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
     return arguments.length
-      ? ((this._shape = typeof _ === "function" ? _ : constant(_)), this)
-      : this._shape;
+      ? ((this.schema.shape = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.shape;
   }
 
   /**
@@ -1585,8 +1589,8 @@ Defaults to an empty array (`[]`).
 */
   shapeConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
-      : this._shapeConfig;
+      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
+      : this.schema.shapeConfig;
   }
 
   /**
@@ -1700,14 +1704,14 @@ Defaults to an empty array (`[]`).
           this._userTime &&
           JSON.stringify(_) !== JSON.stringify(this._userTime)
         ) {
-          this._timeFilter = false;
+          this.schema.timeFilter = false;
           this._timelineSelection = false;
         }
         this._userTime = _;
       } else {
         this._time = undefined;
         this._userTime = undefined;
-        this._timeFilter = false;
+        this.schema.timeFilter = false;
         this._timelineSelection = false;
       }
       return this;
@@ -1798,8 +1802,8 @@ Defaults to an empty array (`[]`).
 */
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._tooltipConfig = assign(this._tooltipConfig, _!)), this)
-      : this._tooltipConfig;
+      ? ((this.schema.tooltipConfig = assign(this.schema.tooltipConfig, _!)), this)
+      : this.schema.tooltipConfig;
   }
 
   /**

@@ -21,21 +21,21 @@ export default function (
     const defaultClick = clickShape.bind(this).toString();
 
     // does the shape have any user-defined click events?
-    const hasUserClick = Object.keys(this._on).some(
+    const hasUserClick = Object.keys(this.schema.on).some(
       (e: string) =>
         // all valid click event keys,
         ["click", "click.shape"].includes(e) &&
         // truthy values (no nulls),
-        this._on[e] &&
+        this.schema.on[e] &&
         // and it is not our default click.shape function
-        this._on[e].toString() !== defaultClick,
+        this.schema.on[e].toString() !== defaultClick,
     );
 
     // does the shape still have our default "click.shape" event?
     // (if the user only sets "click", both functions will fire)
     const hasDefaultClick =
-      this._on["click.shape"] &&
-      this._on["click.shape"].toString() === defaultClick;
+      this.schema.on["click.shape"] &&
+      this.schema.on["click.shape"].toString() === defaultClick;
 
     // can the viz show deeper data?
     const hasDeeperLevel = this._drawDepth < this._groupBy.length - 1;
@@ -59,7 +59,7 @@ export default function (
       )
       .title(this._drawLabel)
       .position(position)
-      .config(configPrep.bind(this as unknown as VizContext)(this._tooltipConfig))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.tooltipConfig))
       .render();
   }
 }

@@ -38,21 +38,21 @@ export default function (
     const defaultClick = clickLegend.bind(this).toString();
 
     // does the legend have any user-defined click events?
-    const hasUserClick = Object.keys(this._on).some(
+    const hasUserClick = Object.keys(this.schema.on).some(
       (e: string) =>
         // all valid click event keys,
         ["click", "click.legend"].includes(e) &&
         // truthy values (no nulls),
-        this._on[e] &&
+        this.schema.on[e] &&
         // and it is not our default click.legend function
-        this._on[e].toString() !== defaultClick,
+        this.schema.on[e].toString() !== defaultClick,
     );
 
     // does the legend still have our default "click.legend" event?
     // (if the user only sets "click", both functions will fire)
     const hasDefaultClick =
-      this._on["click.legend"] &&
-      this._on["click.legend"].toString() === defaultClick;
+      this.schema.on["click.legend"] &&
+      this.schema.on["click.legend"].toString() === defaultClick;
 
     // can the viz show deeper data?
     const hasDeeperLevel = this._drawDepth < this._groupBy.length - 1;
@@ -93,8 +93,8 @@ export default function (
           : legendLabel.bind(this),
       )
       .position(position)
-      .config(configPrep.bind(this as unknown as VizContext)(this._tooltipConfig))
-      .config(configPrep.bind(this as unknown as VizContext)(this._legendTooltip))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.tooltipConfig))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.legendTooltip))
       .render();
   }
 }

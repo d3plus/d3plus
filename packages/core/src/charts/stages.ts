@@ -68,7 +68,7 @@ export interface VizContext {
   timeFilter?: (d: DataPoint, i?: number) => boolean;
   filteredData?: DataPoint[];
   legendData?: DataPoint[];
-  /** Adjustments to `viz._shapeConfig` deferred until writeback. */
+  /** Adjustments to `viz.schema.shapeConfig` deferred until writeback. */
   shapeConfigOverrides?: {hoverOpacity?: number; duration?: number};
   /** True when no data passes filters and the noData message should display. */
   displayNoData?: boolean;
@@ -142,8 +142,8 @@ export type TransformStage = (ctx: VizContext) => Partial<VizContext>;
 /** Resolve which depth of the groupBy hierarchy is being drawn. */
 export const resolveDrawDepth: TransformStage = ({viz}) => ({
   drawDepth:
-    viz._depth !== void 0
-      ? min([viz._depth >= 0 ? viz._depth : 0, viz._groupBy.length - 1])!
+    viz.schema.depth !== void 0
+      ? min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz._groupBy.length - 1])!
       : viz._groupBy.length - 1,
 });
 
@@ -176,7 +176,7 @@ export const buildDrawLabel: TransformStage = ({viz, drawDepth, ids}) => ({
         viz._locale,
       )}%`;
     }
-    if (viz._label && depth === drawDepth) return `${viz._label(d, i)}`;
+    if (viz.schema.label && depth === drawDepth) return `${viz.schema.label(d, i)}`;
     const l = ids!(d, i).slice(0, depth + 1);
     const n =
       l.reverse().find((ll: unknown) => !Array.isArray(ll)) || l[l.length - 1];
@@ -189,16 +189,16 @@ export const buildDrawLabel: TransformStage = ({viz, drawDepth, ids}) => ({
     keeps the data unfiltered; otherwise the filter pins to the latest time.
 */
 export const applyTimeFilter: TransformStage = ({viz}) => {
-  if (!viz._time || viz._timeFilter || !viz._data.length) {
-    return {timeFilter: viz._timeFilter};
+  if (!viz._time || viz.schema.timeFilter || !viz._data.length) {
+    return {timeFilter: viz.schema.timeFilter};
   }
   const dates = viz._data.map(viz._time).map(date);
   const d = viz._data[0];
   const i = 0;
   if (
-    viz._discrete &&
-    `_${viz._discrete}` in viz &&
-    viz[`_${viz._discrete}`](d, i) === viz._time(d, i)
+    viz.schema.discrete &&
+    `_${viz.schema.discrete}` in viz &&
+    viz[`_${viz.schema.discrete}`](d, i) === viz._time(d, i)
   ) {
     return {timeFilter: () => true};
   }
@@ -219,12 +219,12 @@ export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}
   if (!viz._data.length) return {filteredData: filteredOut, legendData};
 
   let flatData: DataPoint[] = timeFilter ? viz._data.filter(timeFilter) : viz._data;
-  if (viz._filter) flatData = flatData.filter(viz._filter);
+  if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
 
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
   for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz._groupBy[i]);
-  if (viz._discrete && `_${viz._discrete}` in viz) nestKeys.push(viz[`_${viz._discrete}`]);
-  if (viz._discrete && `_${viz._discrete}2` in viz) nestKeys.push(viz[`_${viz._discrete}2`]);
+  if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
+  if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
 
   let collected: DataPoint[] = filteredOut;
 
@@ -232,14 +232,14 @@ export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}
     flatData,
     (leaves: DataPoint[]) => {
       const index = viz._data.indexOf(leaves[0]);
-      const shape = viz._shape(leaves[0], index);
+      const shape = viz.schema.shape(leaves[0], index);
       const idValue = id!(leaves[0], index);
       const d = merge(leaves, viz._aggs) as unknown as DataPoint;
       if (
         !viz._hidden.includes(idValue) &&
         (!viz._solo.length || viz._solo.includes(idValue))
       ) {
-        if (!viz._discrete && shape === "Line") collected = collected.concat(leaves);
+        if (!viz.schema.discrete && shape === "Line") collected = collected.concat(leaves);
         else collected.push(d);
       }
       legendData.push(d);
@@ -256,11 +256,11 @@ export const applyThreshold: TransformStage = ({viz, filteredData, id: _id, draw
   // Rebuild the rollup tree for the threshold function to consume.
   if (!viz._data.length) return {filteredData};
   let flatData: DataPoint[] = timeFilter ? viz._data.filter(timeFilter) : viz._data;
-  if (viz._filter) flatData = flatData.filter(viz._filter);
+  if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
   for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz._groupBy[i]);
-  if (viz._discrete && `_${viz._discrete}` in viz) nestKeys.push(viz[`_${viz._discrete}`]);
-  if (viz._discrete && `_${viz._discrete}2` in viz) nestKeys.push(viz[`_${viz._discrete}2`]);
+  if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
+  if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
   const tree = rollup(flatData, () => null, ...nestKeys);
   return {filteredData: viz._thresholdFunction(filteredData, tree)};
 };
@@ -274,11 +274,11 @@ export const applyThreshold: TransformStage = ({viz, filteredData, id: _id, draw
 */
 export const adjustForLargeData: TransformStage = ({viz, filteredData, id}) => {
   const uniqueIds = group(filteredData!, id! as any).size;
-  if (uniqueIds > viz._dataCutoff) {
+  if (uniqueIds > viz.schema.dataCutoff) {
     if (viz._userHover === undefined)
-      viz._userHover = viz._shapeConfig.hoverOpacity || 0.5;
+      viz._userHover = viz.schema.shapeConfig.hoverOpacity || 0.5;
     if (viz._userDuration === undefined)
-      viz._userDuration = viz._shapeConfig.duration || 600;
+      viz._userDuration = viz.schema.shapeConfig.duration || 600;
     return {shapeConfigOverrides: {hoverOpacity: 1, duration: 0}};
   }
   if (viz._userHover !== undefined) {
@@ -294,7 +294,7 @@ export const adjustForLargeData: TransformStage = ({viz, filteredData, id}) => {
 
 /** Flag empty-data state so the runner can mount the no-data message. */
 export const detectNoData: TransformStage = ({viz, filteredData}) => ({
-  displayNoData: viz._noDataMessage && !filteredData!.length,
+  displayNoData: viz.schema.noDataMessage && !filteredData!.length,
 });
 
 /**

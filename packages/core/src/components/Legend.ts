@@ -11,40 +11,47 @@ import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 import {TextBox} from "../components/index.js";
 import * as shapes from "../shapes/index.js";
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 const padding = 5;
+
+/** Legend's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const legendSchema: ConfigField[] = [
+  {key: "align", coerce: "identity", default: "center"},
+  {key: "direction", coerce: "identity", default: "row"},
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "height", coerce: "identity", default: 200},
+  {key: "id", coerce: "identity", default: accessor("id")},
+  {key: "label", coerce: "const", default: accessor("id")},
+  {key: "padding", coerce: "identity", default: 5},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "shape", coerce: "const", default: constant("Rect")},
+  {key: "title", coerce: "identity"},
+  {key: "verticalAlign", coerce: "identity", default: "middle"},
+  {key: "width", coerce: "identity", default: 400},
+];
 
 /**
     Creates an SVG legend based on an array of data.
 */
 export default class Legend extends BaseClass {
+  // installFluent generates the config accessors (align, width, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _titleClass: TextBox;
-  _renderMode!: "full" | "compute";
-  _align: string;
   _data: DataPoint[];
-  _direction: string;
-  _duration: number;
-  _height: number;
-   
-  _id: (d: DataPoint, i?: number) => unknown;
-  _label: (d: DataPoint, i?: number) => unknown;
   _lineData: Record<string, unknown>[];
   _outerBounds: Record<string, number>;
-  _padding: number;
-  _shape: (d: DataPoint, i?: number) => unknown;
   _select!: D3Selection;
   _shapes: unknown[];
-  _shapeConfig: Record<string, unknown>;
-  _titleConfig: Record<string, unknown>;
-  _verticalAlign: string;
-  _width: number;
   _rtl: boolean;
   _group!: D3Selection;
   _titleGroup!: D3Selection;
   _shapeGroup!: D3Selection;
   _titleHeight: number;
   _titleWidth: number;
-  _title: string | undefined;
   _wrapLines: (() => void) | undefined;
   _wrapRows: (() => void) | undefined;
 
@@ -54,23 +61,15 @@ export default class Legend extends BaseClass {
 */
   constructor() {
     super();
+    installFluent(this, legendSchema);
 
-    this._renderMode = "full";
     this._titleClass = new TextBox();
 
-    this._align = "center";
     this._data = [];
-    this._direction = "row";
-    this._duration = 600;
-    this._height = 200;
-    this._id = accessor("id");
-    this._label = accessor("id");
     this._lineData = [];
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
-    this._padding = 5;
-    this._shape = constant("Rect");
     this._shapes = [];
-    this._shapeConfig = {
+    this.schema.shapeConfig = {
       fill: accessor("color"),
       height: constant(12),
       hitArea: (dd: DataPoint, i: number) => {
@@ -89,7 +88,7 @@ export default class Legend extends BaseClass {
         if (d.shape === "Circle") x -= (d.shapeR as number) / 2;
         const height = max([d.shapeHeight as number, d.height as number]);
         const rtlMod = this._rtl
-          ? (d.shapeWidth as number) + (d.width as number) + this._padding * 2
+          ? (d.shapeWidth as number) + (d.width as number) + this.schema.padding * 2
           : 0;
         return {
           width: d.width as number,
@@ -115,10 +114,10 @@ export default class Legend extends BaseClass {
         const datum = this._lineData[i];
         const y = datum.y;
         const pad =
-          this._align === "left" ||
-          (this._align === "right" && this._direction === "column")
+          this.schema.align === "left" ||
+          (this.schema.align === "right" && this.schema.direction === "column")
             ? 0
-            : this._align === "center"
+            : this.schema.align === "center"
               ? (this._outerBounds.width -
                   this._rowWidth(
                     this._lineData.filter(
@@ -133,10 +132,10 @@ export default class Legend extends BaseClass {
         const prevWords = this._lineData
           .slice(0, i)
           .filter((l: Record<string, unknown>) => y === l.y);
-        const rtlMod = this._rtl ? (datum.width as number) + this._padding : 0;
+        const rtlMod = this._rtl ? (datum.width as number) + this.schema.padding : 0;
         return (
           this._rowWidth(prevWords) +
-          this._padding * (prevWords.length ? (datum.sentence ? 2 : 1) : 0) +
+          this.schema.padding * (prevWords.length ? (datum.sentence ? 2 : 1) : 0) +
           this._outerBounds.x +
           (datum.shapeWidth as number) / 2 +
           pad +
@@ -163,11 +162,9 @@ export default class Legend extends BaseClass {
         );
       },
     };
-    this._titleConfig = {
+    this.schema.titleConfig = {
       fontSize: 12,
     };
-    this._verticalAlign = "middle";
-    this._width = 400;
     this._rtl = false;
     this._titleHeight = 0;
     this._titleWidth = 0;
@@ -180,10 +177,10 @@ export default class Legend extends BaseClass {
     @private
   */
   _fetchConfig(key: string, d: DataPoint, i: number): unknown {
-    const labelConfig = this._shapeConfig.labelConfig as Record<string, unknown> | undefined;
+    const labelConfig = this.schema.shapeConfig.labelConfig as Record<string, unknown> | undefined;
     const val =
-      this._shapeConfig[key] !== undefined
-        ? this._shapeConfig[key]
+      this.schema.shapeConfig[key] !== undefined
+        ? this.schema.shapeConfig[key]
         : labelConfig?.[key];
     if (!val && key === "lineHeight")
       return (this._fetchConfig("fontSize", d, i) as number) * 1.4;
@@ -200,7 +197,7 @@ export default class Legend extends BaseClass {
         row
           .map((d: Record<string, unknown>) => d.height as number)
           .concat(row.map((d: Record<string, unknown>) => d.shapeHeight as number)),
-      )! + this._padding
+      )! + this.schema.padding
     );
   }
 
@@ -211,7 +208,7 @@ export default class Legend extends BaseClass {
   _rowWidth(row: Record<string, unknown>[]): number {
     return sum(
       row.map((d: Record<string, unknown>, i: number) => {
-        const p = this._padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
+        const p = this.schema.padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
         return (d.shapeWidth as number) + (d.width as number) + p;
       }),
     );
@@ -286,12 +283,12 @@ export default class Legend extends BaseClass {
     // a DOM-free snapshot via `toScene()`. Mirrors Axis.render's
     // standalone-compute branch so Legend doesn't leak <svg>s into
     // <body> on every render() call when used as a scene-emitter.
-    if (this._select === void 0 && this._renderMode !== "compute")
+    if (this._select === void 0 && this.schema.renderMode !== "compute")
       this.select(
         select("body")
           .append("svg")
-          .attr("width", `${this._width}px`)
-          .attr("height", `${this._height}px`)
+          .attr("width", `${this.schema.width}px`)
+          .attr("height", `${this.schema.height}px`)
           .node(),
       );
 
@@ -300,38 +297,38 @@ export default class Legend extends BaseClass {
     this._titleGroup = elem("g.d3plus-Legend-title", {parent: this._group});
     this._shapeGroup = elem("g.d3plus-Legend-shape", {parent: this._group});
 
-    let availableHeight = this._height;
+    let availableHeight = this.schema.height;
     this._titleHeight = 0;
     this._titleWidth = 0;
-    if (this._title) {
+    if (this.schema.title) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const f = (this._titleConfig.fontFamily || (this._titleClass.fontFamily() as any)()) as string,
+      const f = (this.schema.titleConfig.fontFamily || (this._titleClass.fontFamily() as any)()) as string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        s = (this._titleConfig.fontSize || (this._titleClass.fontSize() as any)()) as number;
-      let lH = (this._titleConfig.lineHeight || this._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
+        s = (this.schema.titleConfig.fontSize || (this._titleClass.fontSize() as any)()) as number;
+      let lH = (this.schema.titleConfig.lineHeight || this._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
       lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
 
       const res = textWrap()
         .fontFamily(f)
         .fontSize(s)
         .lineHeight(lH)
-        .width(this._width)
-        .height(this._height)(this._title);
-      this._titleHeight = lH + res.lines.length + this._padding;
+        .width(this.schema.width)
+        .height(this.schema.height)(this.schema.title);
+      this._titleHeight = lH + res.lines.length + this.schema.padding;
       this._titleWidth = max(res.widths)!;
       availableHeight -= this._titleHeight;
     }
 
     // Calculate Text Sizes
     this._lineData = this._data.map((d: DataPoint, i: number) => {
-      const label = this._label(d, i);
-      const shape = this._shape(d, i);
+      const label = this.schema.label(d, i);
+      const shape = this.schema.shape(d, i);
       const r = this._fetchConfig("r", d, i) as number;
 
       let res: Record<string, unknown> = {
         data: d,
         i,
-        id: this._id(d, i),
+        id: this.schema.id(d, i),
         shape,
         shapeR: r,
         shapeWidth:
@@ -353,8 +350,8 @@ export default class Legend extends BaseClass {
         lh = this._fetchConfig("lineHeight", d, i) as number,
         s = this._fetchConfig("fontSize", d, i) as number;
 
-      const h = availableHeight - (this._data.length + 1) * this._padding,
-        w = this._width;
+      const h = availableHeight - (this._data.length + 1) * this.schema.padding,
+        w = this.schema.width;
 
       const newRes = textWrap()
         .fontFamily(f)
@@ -384,10 +381,10 @@ export default class Legend extends BaseClass {
     });
 
     let spaceNeeded: number;
-    const availableWidth = this._width - this._padding * 2;
+    const availableWidth = this.schema.width - this.schema.padding * 2;
     spaceNeeded = this._rowWidth(this._lineData);
 
-    if (this._direction === "column" || spaceNeeded > availableWidth) {
+    if (this.schema.direction === "column" || spaceNeeded > availableWidth) {
       let lines = 1,
         newRows: Record<string, unknown>[][] = [];
 
@@ -406,7 +403,7 @@ export default class Legend extends BaseClass {
               this._lineData
                 .filter(
                   (d: Record<string, unknown>) =>
-                    (d.width as number) + (d.shapeWidth as number) + this._padding * (d.width ? 2 : 1) >
+                    (d.width as number) + (d.shapeWidth as number) + this.schema.padding * (d.width ? 2 : 1) >
                       availableWidth && (d.words as unknown[]).length >= lines,
                 )
                 .sort(
@@ -458,7 +455,7 @@ export default class Legend extends BaseClass {
           rowWidth = 0;
         for (let i = 0; i < this._lineData.length; i++) {
           const d = this._lineData[i],
-            w = (d.width as number) + this._padding * (d.width ? 2 : 1) + (d.shapeWidth as number);
+            w = (d.width as number) + this.schema.padding * (d.width ? 2 : 1) + (d.shapeWidth as number);
           if (
             sum(
               newRows.map((row: Record<string, unknown>[]) =>
@@ -477,13 +474,13 @@ export default class Legend extends BaseClass {
             break;
           } else if (rowWidth + w < availableWidth) {
             rowWidth += w;
-          } else if (this._direction !== "column") {
+          } else if (this.schema.direction !== "column") {
             rowWidth = w;
             row++;
           }
           if (!newRows[row - 1]) newRows[row - 1] = [];
           newRows[row - 1].push(d);
-          if (this._direction === "column") {
+          if (this.schema.direction === "column") {
             rowWidth = 0;
             row++;
           }
@@ -494,15 +491,15 @@ export default class Legend extends BaseClass {
 
       if (
         !newRows.length ||
-        sum(newRows, this._rowHeight.bind(this)) + this._padding >
+        sum(newRows, this._rowHeight.bind(this)) + this.schema.padding >
           availableHeight
       ) {
         spaceNeeded =
           sum(
             this._lineData.map(
-              (d: Record<string, unknown>) => (d.shapeWidth as number) + this._padding,
+              (d: Record<string, unknown>) => (d.shapeWidth as number) + this.schema.padding,
             ),
-          ) - this._padding;
+          ) - this.schema.padding;
         for (let i = 0; i < this._lineData.length; i++) {
           this._lineData[i].width = 0;
           this._lineData[i].height = 0;
@@ -512,7 +509,7 @@ export default class Legend extends BaseClass {
 
       if (
         newRows.length &&
-        sum(newRows, this._rowHeight.bind(this)) + this._padding <
+        sum(newRows, this._rowHeight.bind(this)) + this.schema.padding <
           availableHeight
       ) {
         newRows.forEach((row: Record<string, unknown>[], i: number) => {
@@ -540,33 +537,33 @@ export default class Legend extends BaseClass {
     this._outerBounds.width = innerWidth;
     this._outerBounds.height = innerHeight;
 
-    let xOffset = this._padding,
-      yOffset = this._padding;
-    if (this._align === "center") xOffset = (this._width - innerWidth) / 2;
-    else if (this._align === "right")
-      xOffset = this._width - this._padding - innerWidth;
-    if (this._verticalAlign === "middle")
-      yOffset = (this._height - innerHeight) / 2;
-    else if (this._verticalAlign === "bottom")
-      yOffset = this._height - this._padding - innerHeight;
+    let xOffset = this.schema.padding,
+      yOffset = this.schema.padding;
+    if (this.schema.align === "center") xOffset = (this.schema.width - innerWidth) / 2;
+    else if (this.schema.align === "right")
+      xOffset = this.schema.width - this.schema.padding - innerWidth;
+    if (this.schema.verticalAlign === "middle")
+      yOffset = (this.schema.height - innerHeight) / 2;
+    else if (this.schema.verticalAlign === "bottom")
+      yOffset = this.schema.height - this.schema.padding - innerHeight;
     this._outerBounds.x = xOffset;
     this._outerBounds.y = yOffset;
 
     this._titleClass
       .renderMode("compute")
-      .data(this._title ? [{text: this._title}] : [])
-      .duration(this._duration)
+      .data(this.schema.title ? [{text: this.schema.title}] : [])
+      .duration(this.schema.duration)
       .select(this._titleGroup.node())
-      .textAnchor(({left: "start", center: "middle", right: "end"} as Record<string, string>)[this._align])
-      .width(this._width - this._padding * 2)
-      .x(this._padding)
+      .textAnchor(({left: "start", center: "middle", right: "end"} as Record<string, string>)[this.schema.align])
+      .width(this.schema.width - this.schema.padding * 2)
+      .x(this.schema.padding)
       .y(this._outerBounds.y)
-      .config(this._titleConfig)
+      .config(this.schema.titleConfig)
       .render();
 
     this._shapes = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const baseConfig = configPrep.bind(this as any)(this._shapeConfig, "legend"),
+    const baseConfig = configPrep.bind(this as any)(this.schema.shapeConfig, "legend"),
       config = {
         id: (d: Record<string, unknown>) => d.id,
         label: (d: Record<string, unknown>) => d.label,
@@ -578,10 +575,10 @@ export default class Legend extends BaseClass {
         __d3plus__: true,
         data: d,
         i,
-        id: this._id(d, i),
-        label: this._lineData[i].width ? this._label(d, i) : false,
+        id: this.schema.id(d, i),
+        label: this._lineData[i].width ? this.schema.label(d, i) : false,
         lH: this._fetchConfig("lineHeight", d, i),
-        shape: this._shape(d, i),
+        shape: this.schema.shape(d, i),
       };
 
       return obj;
@@ -599,7 +596,7 @@ export default class Legend extends BaseClass {
           .renderMode("compute")
           .parent(this)
           .data(data.filter((d: Record<string, unknown>) => d.shape === Shape))
-          .duration(this._duration)
+          .duration(this.schema.duration)
           .labelConfig({padding: 0})
           .select(this._shapeGroup.node())
           .verticalAlign("top")
@@ -608,7 +605,7 @@ export default class Legend extends BaseClass {
       );
     });
 
-    if (callback) setTimeout(callback, this._duration + 100);
+    if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
   }
@@ -624,48 +621,12 @@ export default class Legend extends BaseClass {
   }
 
   /**
-      The horizontal alignment.
-*/
-  align(): string;
-  align(_: string): this;
-  align(_?: string): string | this {
-    return arguments.length ? ((this._align = _!), this) : this._align;
-  }
-
-  /**
       The data array used to create shapes. A shape key will be drawn for each object in the array.
 */
   data(): DataPoint[];
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): DataPoint[] | this {
     return arguments.length ? ((this._data = _!), this) : this._data;
-  }
-
-  /**
-      The flow direction of the legend items.
-*/
-  direction(): string;
-  direction(_: string): this;
-  direction(_?: string): string | this {
-    return arguments.length ? ((this._direction = _!), this) : this._direction;
-  }
-
-  /**
-      Transition duration of the legend.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      Overall height of the legend.
-*/
-  height(): number;
-  height(_: number): this;
-  height(_?: number): number | this {
-    return arguments.length ? ((this._height = _!), this) : this._height;
   }
 
   /**
@@ -679,59 +640,12 @@ export default class Legend extends BaseClass {
   }
 
   /**
-      The unique id accessor for each legend entry.
-
-@example
-function value(d) {
-  return d.id;
-}
-*/
-  id(): (d: DataPoint, i?: number) => unknown;
-  id(_: (d: DataPoint, i?: number) => unknown): this;
-  id(_?: (d: DataPoint, i?: number) => unknown): ((d: DataPoint, i?: number) => unknown) | this {
-    return arguments.length ? ((this._id = _!), this) : this._id;
-  }
-
-  /**
-      The label accessor for each legend entry. Uses the id accessor by default.
-*/
-  label(): (d: DataPoint, i?: number) => unknown;
-  label(_: ((d: DataPoint, i?: number) => unknown) | unknown): this;
-  label(_?: ((d: DataPoint, i?: number) => unknown) | unknown): ((d: DataPoint, i?: number) => unknown) | this {
-    return arguments.length
-      ? ((this._label = typeof _ === "function" ? _ as (d: DataPoint, i?: number) => unknown : constant(_)), this)
-      : this._label;
-  }
-
-  /**
       Returns the outer bounds of the legend content. Must be called after rendering.
       @example
 {"width": 180, "height": 24, "x": 10, "y": 20}
 */
   outerBounds(): Record<string, number> {
     return this._outerBounds;
-  }
-
-  /**
-      The padding between each key.
-*/
-  padding(): number;
-  padding(_: number): this;
-  padding(_?: number): number | this {
-    return arguments.length ? ((this._padding = _!), this) : this._padding;
-  }
-
-  /**
-      Controls whether render() does the full DOM work ("full", default) or just
-      the compute step toScene() needs ("compute"). Propagates to the title TextBox
-      and every swatch Shape.
-*/
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode;
-    this._renderMode = _!;
-    return this;
   }
 
   /**
@@ -751,34 +665,14 @@ function value(d) {
   }
 
   /**
-      The shape type used for each legend entry.
-*/
-  shape(): (d: DataPoint, i?: number) => unknown;
-  shape(_: ((d: DataPoint, i?: number) => unknown) | unknown): this;
-  shape(_?: ((d: DataPoint, i?: number) => unknown) | unknown): ((d: DataPoint, i?: number) => unknown) | this {
-    return arguments.length
-      ? ((this._shape = typeof _ === "function" ? _ as (d: DataPoint, i?: number) => unknown : constant(_)), this)
-      : this._shape;
-  }
-
-  /**
       Methods that correspond to the key/value pairs for each shape.
 */
   shapeConfig(): Record<string, unknown>;
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig, _!)), this)
-      : this._shapeConfig;
-  }
-
-  /**
-      Title of the legend.
-*/
-  title(): string | undefined;
-  title(_: string): this;
-  title(_?: string): string | undefined | this {
-    return arguments.length ? ((this._title = _), this) : this._title;
+      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
+      : this.schema.shapeConfig;
   }
 
   /**
@@ -788,27 +682,7 @@ function value(d) {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._titleConfig = assign(this._titleConfig, _!)), this)
-      : this._titleConfig;
-  }
-
-  /**
-      The vertical alignment.
-*/
-  verticalAlign(): string;
-  verticalAlign(_: string): this;
-  verticalAlign(_?: string): string | this {
-    return arguments.length
-      ? ((this._verticalAlign = _!), this)
-      : this._verticalAlign;
-  }
-
-  /**
-      Overall width of the legend.
-*/
-  width(): number;
-  width(_: number): this;
-  width(_?: number): number | this {
-    return arguments.length ? ((this._width = _!), this) : this._width;
+      ? ((this.schema.titleConfig = assign(this.schema.titleConfig, _!)), this)
+      : this.schema.titleConfig;
   }
 }

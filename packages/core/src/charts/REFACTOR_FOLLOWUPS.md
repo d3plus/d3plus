@@ -5,80 +5,81 @@ The 20-chart migration to `makeChart(def)` is complete (commits `cfcf9d03`,
 `plotDef` were moved into `Plot/pipeline.ts`. `ChartDefinition.ts` is now
 just the type interface (86 LOC, down from 3852).
 
-Three known follow-up workstreams remain. None block correctness — all
-104 tests pass against the current code. They're code-cleanliness
-improvements.
+The three follow-up workstreams below are addressed in the same branch:
 
-## 1. Replace transient-shape compute mode with pure-data emit
+- emit refactor (Item 1) — done for all six charts.
+- type tightening (Item 2) — `any` count slashed across the four
+  layout files (Rings 39 → 2, Network 57 → 4, Geomap 37 → 25, Sankey 26 → 20).
+  Residual `any`s in `index.ts` files are concentrated in the
+  `(viz as any).<method> = function(...) {...}` per-instance install
+  pattern, which needs a broader Viz-instance type extension (out of
+  scope for the layout-tightening work).
+- `viz._<key>` alias (Item 3) — all in-tree readers migrated to
+  `viz.schema.<key>` directly. The alias is still installed by
+  `installFluent` so external consumers and instance-poking tests
+  (`chart._foo = "x"`) keep working.
 
-**Affected files:**
+## 1. Pure-data emit — DONE
+
+Each of the six charts' `emit.ts` now constructs flat SceneNodes
+(`{type, x, y, paint, ...}`) directly instead of spinning up a transient
+`new Shape().renderMode("compute")` and harvesting via `collectComputed`.
+Labels go through `emitLabels()` where present.
+
+**Helpers added to `emitHelpers.ts`:**
+
+- `resolveAccessor<T>(val, d, i)` — previously duplicated in
+  `Treemap/Pack/Pie/Priestley/emit.ts`.
+- `paintFromShapeConfig(sc, d, i)` — the per-datum fill/stroke/
+  strokeWidth/opacity resolution.
+
+**Affected files (all refactored):**
+
+- `charts/Geomap/emit.ts` (and `Geomap/applyLayout.ts`)
+- `charts/Tree/emit.ts`
+- `charts/Sankey/emit.ts`
 - `charts/Network/emit.ts`
 - `charts/Rings/emit.ts`
-- `charts/Sankey/emit.ts`
-- `charts/Tree/emit.ts`
-- `charts/Radar/{applyLayout,emit}.ts`
-- `charts/Geomap/emit.ts`
+- `charts/Radar/{applyLayout,emit}.ts` — the layout-side
+  `absorbShapeIntoChartScene` decorations (radial axis circles, axis
+  labels, radial spokes) are now emitted as flat scene nodes wrapped in
+  `{type: "group", key, children: …}`.
 
-**Pattern today:** spin up a `new Shape()` (Path / Circle / Rect / Box)
-in `renderMode("compute")`, configure it with per-datum accessors,
-then `collectComputed(shape)` to harvest both the shape geometry and
-its labels into scene nodes.
+## 2. Tighten `any` types in Tier B chart layouts — DONE
 
-**Target:** emit shape SceneNodes directly as flat data
-(`{type, x, y, paint, ...}`), and use `emitLabels()` (already in
-`shapes/emitLabels.ts`) for labels. Mirrors how `Treemap/emit.ts`,
-`Pack/emit.ts`, `Pie/emit.ts`, `Priestley/emit.ts` already work.
+Each layout file picked up named intermediate interfaces capturing the
+state accreted across passes (e.g. `NetworkNode`, `RingsEdge`,
+`SankeyWrappedNode`, `RingsNode`). Function-signature `any`s on
+accessors, event handlers, and reducer/map callbacks were replaced with
+either concrete types or `unknown` + narrowing.
 
-**Per-chart effort:** ~1–2 hours each, because each emit currently uses
-the compute-mode shape's accessor-resolution logic (e.g. Circle's `.r`,
-Path's `.d`, Rect's `.width`/`.height`) — that resolution has to be
-re-implemented at the flat-data layer with explicit `resolveAccessor()`
-calls per paint property.
+**Remaining (deferred):**
 
-## 2. Tighten `any` types in Tier B chart layouts
+- Each chart's `index.ts` still has ~20 `(viz as any).<method> = …`
+  per-instance method installs. Untyping these wants a generic
+  `VizExtensions<TKeys>` mixin layered on `VizInstance` — separate from
+  the layout-internal cleanup.
+- `Plot/index.ts` has 126 `any`s carried over verbatim from the old
+  Plot.ts. The Plot refactor is its own workstream.
 
-**Affected files (count of `any`):**
-- `charts/Rings/applyLayout.ts` — 39
-- `charts/Network/{index,applyLayout}.ts` — 32 + 25
-- `charts/Geomap/{index,applyLayout}.ts` — 31 + 6
-- `charts/Sankey/{index,applyLayout}.ts` — 18 + 8
+## 3. Drop `viz._<key>` reads inside chart code — DONE (alias stays)
 
-**Why `any` is dense:** these layouts walk heterogeneous data
-structures that mutate as they go — a node is built as `{id, fx, fy}`,
-then layout writes `.r`, `.shape`, `.radians`, `.edges`, etc. onto it
-across multiple passes. Modelling this in TypeScript needs per-chart
-intermediate interfaces (NetworkLayoutNode → NetworkPositionedNode →
-NetworkScaledNode etc.) or builder-style pattern.
+`installFluent` still installs the per-instance `viz._<key>` getter/
+setter alias, so external code that reads `viz._sum` and tests that do
+`chart._foo = "x"` keep working. **In-tree chart code no longer relies
+on the alias.** The mechanical sweep (~820 read sites, 50+ files)
+rewrote `viz._<key>` and `this._<key>` to `viz.schema.<key>` and
+`this.schema.<key>` for every key declared in a chart's `def.fields` or
+in `Viz`'s `vizSchema` array.
 
-**Per-chart effort:** ~1 hour each for the function-signature `any`s
-(events, accessors), more for the deep reducer `any`s.
+**Why keep the alias installed?** It costs one `Object.defineProperty`
+per schema key per instance — modest. Removing it would break (a) any
+out-of-tree consumer reading instance underscore slots and (b) tests
+that hand-roll viz stubs with `_<key>` properties. Dropping the alias
+installation itself is a follow-on if/when those external dependencies
+are also migrated.
 
-**Not in scope (pre-existing):** `Plot/index.ts` has 126 `any`s but
-those came over verbatim from the old Plot.ts — separate problem.
-
-## 3. Drop `viz._<key>` getter/setter aliases
-
-**Currently:** `installFluent` installs per-instance getter/setter on
-`viz._<key>` that routes to `viz.schema[key]`. The transitional alias
-lets old code reading `viz._sum` keep working while new code writes
-into `viz.schema.sum`.
-
-**Scope to remove:** ~3500 read sites across 93 files
-(`features.ts`, `Viz.ts` internals, every chart's `applyLayout`/`emit`/
-`setup` that reads `viz._sum`/`viz._x`/`viz._y`/etc.).
-
-**Tactic:** find every `viz._<key>` where `<key>` is a field declared
-in any chart's `def.fields`, replace with `viz.schema.<key>`. Per-chart
-audit because different charts have different schema keys.
-
-**Special case:** `BaseClass.config()` reflection walks prototype
-methods and invokes each to read `this._<key>`. Either keep the alias
-on (since `config()` is the public contract) or refactor `config()` to
-read `this.schema` directly.
-
-**Effort:** estimated 4–6 hours for a careful sweep with test
-verification after each batch.
-
-## Estimated total: 12–20 hours
-
-Each item is independently shippable and doesn't block the others.
+**Reflection still works.** `BaseClass.config()` walks prototype
+methods (`getAllMethods`) and invokes each as a getter; the
+prototype-installed fluent accessor reads from `this.schema[key]`, so
+`config()` returns the correct values without traversing `_<key>`.

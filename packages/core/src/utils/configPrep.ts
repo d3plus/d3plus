@@ -31,6 +31,7 @@ export interface VizContext {
   _shapeConfig: ConfigObject;
   _duration: number;
   _on: Record<string, DataAccessor>;
+  schema?: {duration?: number; [key: string]: unknown};
   [key: string]: unknown;
 }
 
@@ -46,7 +47,10 @@ export default function configPrep(
   type: string = "shape",
   nest: string | false = false,
 ): ConfigObject {
-  const newConfig: ConfigObject = {duration: this._duration, on: {}};
+  const newConfig: ConfigObject = {
+    duration: this.schema?.duration ?? this._duration,
+    on: {},
+  };
 
   const wrapFunction =
     (func: DataAccessor) =>

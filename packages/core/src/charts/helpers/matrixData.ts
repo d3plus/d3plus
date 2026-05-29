@@ -27,12 +27,12 @@ export default function (
   shapeData: Record<string, unknown>[];
 } {
   const data = this._filteredData;
-  const rowValues = (this._rowList || unique(data.map(this._row))).sort(
-    this._rowSort,
+  const rowValues = (this.schema.rowList || unique(data.map(this.schema.row))).sort(
+    this.schema.rowSort,
   );
   const columnValues = (
-    this._columnList || unique(data.map(this._column))
-  ).sort(this._columnSort);
+    this.schema.columnList || unique(data.map(this.schema.column))
+  ).sort(this.schema.columnSort);
 
   if (!rowValues.length || !columnValues.length)
     return {rowValues: [], columnValues: [], shapeData: []};
@@ -47,7 +47,7 @@ export default function (
       };
       const dataIndex = data.findIndex(
         (d: DataPoint, i: number) =>
-          this._row(d, i) === rowValue && this._column(d, i) === columnValue,
+          this.schema.row(d, i) === rowValue && this.schema.column(d, i) === columnValue,
       );
       if (dataIndex >= 0) {
         dataObj.i = dataIndex;

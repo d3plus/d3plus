@@ -13,6 +13,8 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
@@ -50,76 +52,72 @@ export interface ShapeAes {
 
 import Image from "./Image.js";
 
+/** Shape's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const shapeSchema: ConfigField[] = [
+  {key: "activeOpacity", coerce: "identity", default: 0.25},
+  {key: "ariaLabel", coerce: "const", default: constant("")},
+  {key: "backgroundImage", coerce: "const", default: constant(false)},
+  {key: "discrete", coerce: "identity"},
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "fill", coerce: "const", default: constant("black")},
+  {key: "fillOpacity", coerce: "const", default: constant(1)},
+  {key: "hitArea", coerce: "const"},
+  {key: "hoverOpacity", coerce: "identity", default: 0.5},
+  {
+    key: "id",
+    coerce: "identity",
+    default: (d: DataPoint, i?: number) => (d.id !== void 0 ? d.id : i!),
+  },
+  {key: "label", coerce: "const", default: constant(false)},
+  {key: "labelBounds", coerce: "const"},
+  {key: "opacity", coerce: "const", default: constant(1)},
+  {key: "pointerEvents", coerce: "const", default: constant("visiblePainted")},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "role", coerce: "const", default: constant("presentation")},
+  {key: "rotate", coerce: "const", default: constant(0)},
+  {key: "rx", coerce: "const", default: constant(0)},
+  {key: "ry", coerce: "const", default: constant(0)},
+  {key: "scale", coerce: "const", default: constant(1)},
+  {key: "shapeRendering", coerce: "const", default: constant("geometricPrecision")},
+  {key: "stroke", coerce: "const"},
+  {key: "strokeDasharray", coerce: "const", default: constant("0")},
+  {key: "strokeLinecap", coerce: "const", default: constant("butt")},
+  {key: "strokeOpacity", coerce: "const", default: constant(1)},
+  {key: "strokeWidth", coerce: "const", default: constant(0)},
+  {key: "textAnchor", coerce: "const", default: constant("start")},
+  {key: "texture", coerce: "const", default: constant(false)},
+  {key: "vectorEffect", coerce: "const", default: constant("non-scaling-stroke")},
+  {key: "verticalAlign", coerce: "const", default: constant("top")},
+  {key: "x", coerce: "const", default: accessor("x", 0)},
+  {key: "y", coerce: "const", default: accessor("y", 0)},
+];
+
 /**
     An abstracted class for generating shapes.
 */
 export default class Shape extends BaseClass {
-  _activeOpacity: number;
-  _activeStyle: Record<string, unknown>;
-  _ariaLabel: AccessorFn;
-  _backgroundImage: AccessorFn;
+  // installFluent generates the config accessors (fill, x, id, …) at runtime;
+  // the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+
   _backgroundImageClass: Image;
   _data: DataPoint[];
-  _duration: number;
-  _fill: AccessorFn;
-  _fillOpacity: AccessorFn;
-  _hoverOpacity: number;
-  _hoverStyle: Record<string, unknown>;
-  _id: AccessorFn;
-  _label: AccessorFn;
   _labelClass: TextBox;
-  _labelConfig: Record<string, unknown>;
-  _labelBounds!:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown> | null | false)
-    | null;
   _name: string;
-  _opacity: AccessorFn;
-  _pointerEvents: AccessorFn;
-  _role: AccessorFn;
-  _rotate: AccessorFn;
-  _rx: AccessorFn;
-  _ry: AccessorFn;
-  _scale: AccessorFn;
-  _shapeRendering: AccessorFn;
-  _stroke: AccessorFn;
-  _strokeDasharray: AccessorFn;
-  _strokeLinecap: AccessorFn;
-  _strokeOpacity: AccessorFn;
-  _strokeWidth: AccessorFn;
   _tagName: string;
-  _textAnchor: AccessorFn;
-  _renderMode: "full" | "compute";
-  _texture: AccessorFn;
-  _textureDefault: Record<string, unknown>;
   _textureDefs: Record<string, Record<string, unknown>>;
-  _vectorEffect: AccessorFn;
-  _verticalAlign: AccessorFn;
-  _x: AccessorFn;
-  _y: AccessorFn;
   _select!: D3Selection;
   _transition!: ReturnType<typeof transition>;
   /** @param data The raw data array to filter. */
   _dataFilter?(data: DataPoint[]): DataPoint[];
-  _sort!: ((a: DataPoint, b: DataPoint) => number) | null;
   _group!: D3Selection;
   _update!: D3Selection;
   _enter!: D3Selection;
   _exit!: D3Selection;
   _hoverGroup!: D3Selection;
   _activeGroup!: D3Selection;
-  _hitArea!:
-    | ((d: DataPoint, i: number, aes: ShapeAes) => Record<string, unknown>)
-    | null;
-  _active!: ((d: DataPoint, i: number) => boolean) | null;
-  _hover!: ((d: DataPoint, i: number) => boolean) | null;
-  _discrete: string | undefined;
   _path!: Record<string, unknown>;
-  _defined!: AccessorFn;
-  _curve!: AccessorFn;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -128,53 +126,54 @@ export default class Shape extends BaseClass {
   constructor(tagName: string = "g") {
     super();
 
-    this._renderMode = "full";
-    this._activeOpacity = 0.25;
-    this._activeStyle = {
+    installFluent(this, shapeSchema);
+
+    this._backgroundImageClass = new Image();
+    this._data = [];
+    this._labelClass = new TextBox();
+    this._name = "Shape";
+    this._tagName = tagName;
+    this._textureDefs = {};
+
+    // stroke defaults to a darker shade of fill — closes over `this.schema`
+    // so it tracks the current fill accessor.
+    this.schema.stroke = (d: DataPoint, i?: number) =>
+      color(this.schema.fill(d, i) as string)!
+        .darker(1)
+        .formatHex();
+
+    this.schema.activeStyle = {
       stroke: (d: DataPoint, i: number) => {
-        let c = this._fill(d, i) as string;
+        let c = this.schema.fill(d, i) as string;
         if (["transparent", "none"].includes(c))
-          c = this._stroke(d, i) as string;
+          c = this.schema.stroke(d, i) as string;
         return color(c)!.darker(1);
       },
       "stroke-width": (d: DataPoint, i: number) => {
-        const s = (this._strokeWidth(d, i) as number) || 1;
+        const s = (this.schema.strokeWidth(d, i) as number) || 1;
         return s * 3;
       },
     };
-    this._ariaLabel = constant("");
-    this._backgroundImage = constant(false);
-    this._backgroundImageClass = new Image();
-    this._data = [];
-    this._duration = 600;
-    this._fill = constant("black");
-    this._fillOpacity = constant(1);
-
-    this._hoverOpacity = 0.5;
-    this._hoverStyle = {
+    this.schema.hoverStyle = {
       stroke: (d: DataPoint, i: number) => {
-        let c = this._fill(d, i) as string;
+        let c = this.schema.fill(d, i) as string;
         if (["transparent", "none"].includes(c))
-          c = this._stroke(d, i) as string;
+          c = this.schema.stroke(d, i) as string;
         return color(c)!.darker(0.5);
       },
       "stroke-width": (d: DataPoint, i: number) => {
-        const s = (this._strokeWidth(d, i) as number) || 1;
+        const s = (this.schema.strokeWidth(d, i) as number) || 1;
         return s * 2;
       },
     };
-    this._id = (d: DataPoint, i?: number) => (d.id !== void 0 ? d.id : i!);
-    this._label = constant(false);
-    this._labelClass = new TextBox();
     // Shape's label defaults. These are pushed to `_labelClass` via
-    // `_labelClass.config(this._labelConfig)` in render() so the
-    // TextBox actually picks them up (was: defaults stored but never
-    // applied → flat black labels with no padding).
+    // `_labelClass.config(this.schema.labelConfig)` in render() so the
+    // TextBox actually picks them up.
     // textAnchor defaults to "start" (left-aligned) — Treemap, Pie,
     // etc. rely on this. Bar overrides to "middle" in its constructor.
-    this._labelConfig = {
+    this.schema.labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
-        colorContrast(this._fill(d, i) as string),
+        colorContrast(this.schema.fill(d, i) as string),
       fontResize: true,
       fontMax: 50,
       fontMin: 8,
@@ -183,33 +182,7 @@ export default class Shape extends BaseClass {
       textAnchor: "start",
       verticalAlign: "top",
     };
-    this._name = "Shape";
-    this._opacity = constant(1);
-    this._pointerEvents = constant("visiblePainted");
-    this._role = constant("presentation");
-    this._rotate = constant(0);
-    this._rx = constant(0);
-    this._ry = constant(0);
-    this._scale = constant(1);
-    this._shapeRendering = constant("geometricPrecision");
-    this._stroke = (d: DataPoint, i?: number) =>
-      color(this._fill(d, i) as string)!
-        .darker(1)
-        .formatHex();
-    this._strokeDasharray = constant("0");
-    this._strokeLinecap = constant("butt");
-    this._strokeOpacity = constant(1);
-    this._strokeWidth = constant(0);
-    this._tagName = tagName;
-    this._textAnchor = constant("start");
-    this._texture = constant(false);
-    this._textureDefault = {};
-    this._textureDefs = {};
-    this._vectorEffect = constant("non-scaling-stroke");
-    this._verticalAlign = constant("top");
-
-    this._x = accessor("x", 0);
-    this._y = accessor("y", 0);
+    this.schema.textureDefault = {};
   }
 
   /**
@@ -228,7 +201,7 @@ export default class Shape extends BaseClass {
       @private
 */
   _getTextureKey(d: DataPoint, i: number): string | false {
-    const textureVal: unknown = this._texture(d, i);
+    const textureVal: unknown = this.schema.texture(d, i);
     if (!textureVal) return false;
 
     /**
@@ -246,15 +219,15 @@ export default class Shape extends BaseClass {
           : (_ as AccessorFn)(d, i);
     };
 
-    const fallback = this._textureDefault;
+    const fallback = this.schema.textureDefault;
 
     let texture: Record<string, unknown>;
     if (!isObject(textureVal))
       texture = {texture: textureVal} as Record<string, unknown>;
     else texture = textureVal as Record<string, unknown>;
-    if (!texture.background) texture.background = styleLogic(this._fill);
+    if (!texture.background) texture.background = styleLogic(this.schema.fill);
     if (!texture.stroke && !fallback.stroke)
-      texture.stroke = styleLogic(this._stroke);
+      texture.stroke = styleLogic(this.schema.stroke);
     const pathNames = [
       "squares",
       "nylon",
@@ -310,20 +283,20 @@ export default class Shape extends BaseClass {
     // label-record layout can call it directly without instantiating
     // a Shape in compute mode.
     // All Shape methods bound to `this` before handing them to the pure
-    // helper — subclasses (e.g. Line._dataFilter) reach for `this._id` and
-    // friends inside their bodies.
+    // helper — subclasses (e.g. Line._dataFilter) reach for `this.schema.id`
+    // and friends inside their bodies.
     return buildLabelData({
       data: this._data,
       dataFilter: this._dataFilter ? this._dataFilter.bind(this) : undefined,
-      label: this._label,
-      labelBounds: this._labelBounds
-        ? this._labelBounds.bind(this)
+      label: this.schema.label,
+      labelBounds: this.schema.labelBounds
+        ? this.schema.labelBounds.bind(this)
         : undefined,
-      x: this._x,
-      y: this._y,
+      x: this.schema.x,
+      y: this.schema.y,
       aes: this._aes.bind(this),
-      rotate: this._rotate,
-      id: this._id,
+      rotate: this.schema.rotate,
+      id: this.schema.id,
     });
   }
 
@@ -360,15 +333,17 @@ export default class Shape extends BaseClass {
       x = tx;
       y = ty;
     } else {
-      x = Number(this._x(dd, ii));
-      y = Number(this._y(dd, ii));
+      x = Number(this.schema.x(dd, ii));
+      y = Number(this.schema.y(dd, ii));
     }
     const scale =
-      wrapped && d.scale !== undefined ? Number(d.scale) : Number(this._scale(dd, ii));
+      wrapped && d.scale !== undefined
+        ? Number(d.scale)
+        : Number(this.schema.scale(dd, ii));
     const rotate =
       wrapped && d.rotate !== undefined
         ? Number(d.rotate)
-        : Number(this._rotate((d.data || d) as DataPoint, ii));
+        : Number(this.schema.rotate((d.data || d) as DataPoint, ii));
     return {x, y, scale, rotate};
   }
 
@@ -389,20 +364,24 @@ export default class Shape extends BaseClass {
     return {
       fill: textureKey
         ? `pattern:${textureKey}`
-        : strOrUndef(this._styleVal(this._fill, d, i)),
-      fillOpacity: numOrUndef(this._styleVal(this._fillOpacity, d, i)),
-      stroke: strOrUndef(this._styleVal(this._stroke, d, i)),
-      strokeWidth: numOrUndef(this._styleVal(this._strokeWidth, d, i)),
-      strokeOpacity: numOrUndef(this._styleVal(this._strokeOpacity, d, i)),
-      strokeDasharray: parseDash(this._styleVal(this._strokeDasharray, d, i)),
+        : strOrUndef(this._styleVal(this.schema.fill, d, i)),
+      fillOpacity: numOrUndef(this._styleVal(this.schema.fillOpacity, d, i)),
+      stroke: strOrUndef(this._styleVal(this.schema.stroke, d, i)),
+      strokeWidth: numOrUndef(this._styleVal(this.schema.strokeWidth, d, i)),
+      strokeOpacity: numOrUndef(this._styleVal(this.schema.strokeOpacity, d, i)),
+      strokeDasharray: parseDash(
+        this._styleVal(this.schema.strokeDasharray, d, i),
+      ),
       strokeLinecap: strOrUndef(
-        this._styleVal(this._strokeLinecap, d, i),
+        this._styleVal(this.schema.strokeLinecap, d, i),
       ) as Paint["strokeLinecap"],
       vectorEffect: strOrUndef(
-        this._styleVal(this._vectorEffect, d, i),
+        this._styleVal(this.schema.vectorEffect, d, i),
       ) as Paint["vectorEffect"],
-      shapeRendering: strOrUndef(this._nestWrapper(this._shapeRendering)(d, i)),
-      opacity: numOrUndef(this._nestWrapper(this._opacity)(d, i)),
+      shapeRendering: strOrUndef(
+        this._nestWrapper(this.schema.shapeRendering)(d, i),
+      ),
+      opacity: numOrUndef(this._nestWrapper(this.schema.opacity)(d, i)),
     };
   }
 
@@ -426,7 +405,7 @@ export default class Shape extends BaseClass {
       data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
     const children: SceneNode[] = [];
     // Build the backgroundImage data for emission below. Each datum that
-    // resolves to a non-false `_backgroundImage(d, i)` becomes an
+    // resolves to a non-false `backgroundImage(d, i)` becomes an
     // ImageNode positioned at the shape's geometry.
     const imageData: DataPoint[] = [];
     data.forEach((d, i) => {
@@ -434,20 +413,22 @@ export default class Shape extends BaseClass {
       if (!geom) return;
       children.push({
         ...geom,
-        key: this._nestWrapper(this._id)(d, i) as string | number,
+        key: this._nestWrapper(this.schema.id)(d, i) as string | number,
         datum: (d.__d3plusShape__ ? d.data : d) as DataPoint,
         index: i,
         paint: this._scenePaint(d, i),
         transform: this._sceneTransform(d, i),
         aria: {
-          role: strOrUndef(this._nestWrapper(this._role)(d, i)),
-          label: strOrUndef(this._nestWrapper(this._ariaLabel)(d, i)),
+          role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
+          label: strOrUndef(this._nestWrapper(this.schema.ariaLabel)(d, i)),
         },
       } as unknown as SceneNode);
       // backgroundImage: collect a per-datum image when the accessor
       // returns a truthy URL. The image is sized to the shape's
       // geometry (preferring width/height fields when present).
-      const bg = this._nestWrapper(this._backgroundImage)(d, i) as string | false;
+      const bg = this._nestWrapper(this.schema.backgroundImage)(d, i) as
+        | string
+        | false;
       if (bg) {
         const g = geom as Record<string, unknown>;
         const w = typeof g.width === "number" ? g.width : undefined;
@@ -461,7 +442,7 @@ export default class Shape extends BaseClass {
           __d3plus__: true,
           data: d,
           i,
-          id: this._nestWrapper(this._id)(d, i),
+          id: this._nestWrapper(this.schema.id)(d, i),
           url: bg,
           x: (cx as number) - iw / 2,
           y: (cy as number) - ih / 2,
@@ -471,7 +452,7 @@ export default class Shape extends BaseClass {
       }
     });
     // Emit background images AFTER shape children so they paint above the
-    // shape's fill — matches the legacy DOM order where the <image> was
+    // shape's fill — matches the DOM order where the <image> was
     // appended as a sibling of the shape.
     if (imageData.length) {
       this._backgroundImageClass
@@ -510,14 +491,14 @@ export default class Shape extends BaseClass {
     // setup, `d.text` = label text, etc.). That gives consumers like
     // Treemap (two labels per cell — title + share %) the context to
     // vary anchor / color / etc. based on which label they're styling.
-    // Shape's default `fontColor` uses `this._fill(d, i)` — since
-    // `_fill` is the configPrep-wrapped accessor, it unwraps `d.data`
+    // Shape's default `fontColor` uses `this.schema.fill(d, i)` — since
+    // `fill` is the configPrep-wrapped accessor, it unwraps `d.data`
     // back to the source datum automatically before invoking the user
     // fill function.
-    this._labelClass.config(this._labelConfig as Record<string, unknown>);
+    this._labelClass.config(this.schema.labelConfig as Record<string, unknown>);
     this._labelClass.data(this._buildLabelData());
 
-    if (this._renderMode === "compute") {
+    if (this.schema.renderMode === "compute") {
       // A Viz pipeline is driving this shape — Viz.renderScene composes the
       // whole chart's scene itself, so don't spin up our own SvgRenderer.
       if (callback) setTimeout(callback, 0);
@@ -525,7 +506,7 @@ export default class Shape extends BaseClass {
     }
 
     // Standalone shape rendering: route the shape's own toScene() through
-    // SvgRenderer. Preserves `new Rect().render()` ergonomics with no legacy
+    // SvgRenderer. Preserves `new Rect().render()` ergonomics with no
     // d3-selection DOM.
     if (this._select === undefined && typeof document !== "undefined") {
       const div = document.createElement("div");
@@ -608,22 +589,11 @@ export default class Shape extends BaseClass {
   active(
     _?: ((d: DataPoint, i: number) => boolean) | null,
   ): ((d: DataPoint, i: number) => boolean) | null | this {
-    if (!arguments.length || _ === undefined) return this._active;
-    this._active = _;
+    if (!arguments.length || _ === undefined) return this.schema.active;
+    this.schema.active = _;
     // v4: active/hover visuals come from the scene path's paint recomputation
     // on the next render(); no DOM mutation here.
     return this;
-  }
-
-  /**
-      When shapes are active, this is the opacity of any shape that is not active.
-*/
-  activeOpacity(): number;
-  activeOpacity(_: number): this;
-  activeOpacity(_?: number): number | this {
-    return arguments.length
-      ? ((this._activeOpacity = _!), this)
-      : this._activeOpacity;
   }
 
   /**
@@ -633,31 +603,9 @@ export default class Shape extends BaseClass {
   activeStyle(_: Record<string, unknown>): this;
   activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._activeStyle = assign({}, this._activeStyle, _!)), this)
-      : this._activeStyle;
-  }
-
-  /**
-      The aria-label attribute for each shape.
-*/
-  ariaLabel(): AccessorFn;
-  ariaLabel(_: AccessorFn | string): this;
-  ariaLabel(_?: AccessorFn | string): AccessorFn | this {
-    return _ !== undefined
-      ? ((this._ariaLabel = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._ariaLabel;
-  }
-
-  /**
-      The background-image accessor for each shape.
-*/
-  backgroundImage(): AccessorFn;
-  backgroundImage(_: AccessorFn | string): this;
-  backgroundImage(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._backgroundImage = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
+      ? ((this.schema.activeStyle = assign({}, this.schema.activeStyle, _!)),
         this)
-      : this._backgroundImage;
+      : this.schema.activeStyle;
   }
 
   /**
@@ -670,46 +618,6 @@ export default class Shape extends BaseClass {
   }
 
   /**
-      Determines if either the X or Y position is discrete along a Line, which helps in determining the nearest data point on a line for a hit area event.
-*/
-  discrete(): string | undefined;
-  discrete(_: string): this;
-  discrete(_?: string): string | undefined | this {
-    return arguments.length ? ((this._discrete = _), this) : this._discrete;
-  }
-
-  /**
-      The animation duration in milliseconds.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      The fill color accessor for each shape.
-*/
-  fill(): AccessorFn;
-  fill(_: AccessorFn | string): this;
-  fill(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._fill = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._fill;
-  }
-
-  /**
-      Defines the "fill-opacity" attribute for the shapes.
-*/
-  fillOpacity(): AccessorFn;
-  fillOpacity(_: AccessorFn | number): this;
-  fillOpacity(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._fillOpacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._fillOpacity;
-  }
-
-  /**
       The hover callback function for highlighting shapes on mouseover.
 */
   hover(): ((d: DataPoint, i: number) => boolean) | null;
@@ -717,8 +625,8 @@ export default class Shape extends BaseClass {
   hover(
     _?: ((d: DataPoint, i: number) => boolean) | null,
   ): ((d: DataPoint, i: number) => boolean) | null | this {
-    if (!arguments.length || _ === void 0) return this._hover;
-    this._hover = _;
+    if (!arguments.length || _ === void 0) return this.schema.hover;
+    this.schema.hover = _;
     // v4: hover dim comes from the scene path's paint recomputation; no DOM here.
     return this;
   }
@@ -730,139 +638,8 @@ export default class Shape extends BaseClass {
   hoverStyle(_: Record<string, unknown>): this;
   hoverStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._hoverStyle = assign({}, this._hoverStyle, _!)), this)
-      : this._hoverStyle;
-  }
-
-  /**
-      The opacity of non-hovered shapes when any shape is hovered.
-*/
-  hoverOpacity(): number;
-  hoverOpacity(_: number): this;
-  hoverOpacity(_?: number): number | this {
-    return arguments.length
-      ? ((this._hoverOpacity = _!), this)
-      : this._hoverOpacity;
-  }
-
-  /**
-      The mouse hit area accessor function.
-      @example
-function(d, i, shape) {
-  return {
-    "width": shape.width,
-    "height": shape.height,
-    "x": -shape.width / 2,
-    "y": -shape.height / 2
-  };
-}
-*/
-  hitArea():
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: Record<string, unknown>,
-      ) => Record<string, unknown>)
-    | null;
-  hitArea(
-    _:
-      | ((
-          d: DataPoint,
-          i: number,
-          aes: Record<string, unknown>,
-        ) => Record<string, unknown>)
-      | Record<string, unknown>,
-  ): this;
-  hitArea(
-    _?:
-      | ((
-          d: DataPoint,
-          i: number,
-          aes: Record<string, unknown>,
-        ) => Record<string, unknown>)
-      | Record<string, unknown>,
-  ):
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: Record<string, unknown>,
-      ) => Record<string, unknown>)
-    | null
-    | this {
-    return arguments.length
-      ? ((this._hitArea = (typeof _ === "function" ? _ : constant(_)) as unknown as (d: DataPoint, i: number, aes: ShapeAes) => Record<string, unknown>), this)
-      : this._hitArea;
-  }
-
-  /**
-      The unique id accessor for each shape.
-*/
-  id(): AccessorFn;
-  id(_: AccessorFn): this;
-  id(_?: AccessorFn): AccessorFn | this {
-    return arguments.length ? ((this._id = _!), this) : this._id;
-  }
-
-  /**
-      The text label accessor for each shape.
-*/
-  label(): AccessorFn;
-  label(_: AccessorFn | string | string[]): this;
-  label(_?: AccessorFn | string | string[]): AccessorFn | this {
-    return arguments.length
-      ? ((this._label =
-          typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn)),
-        this)
-      : this._label;
-  }
-
-  /**
-      The label bounds accessor function.
-      @example
-function(d, i, shape) {
-  return {
-    "width": shape.width,
-    "height": shape.height,
-    "x": -shape.width / 2,
-    "y": -shape.height / 2
-  };
-}
-*/
-  labelBounds():
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: Record<string, unknown>,
-      ) => Record<string, unknown> | null | false)
-    | null;
-  labelBounds(
-    _:
-      | ((
-          d: DataPoint,
-          i: number,
-          aes: Record<string, unknown>,
-        ) => Record<string, unknown> | null | false)
-      | Record<string, unknown>,
-  ): this;
-  labelBounds(
-    _?:
-      | ((
-          d: DataPoint,
-          i: number,
-          aes: Record<string, unknown>,
-        ) => Record<string, unknown> | null | false)
-      | Record<string, unknown>,
-  ):
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: Record<string, unknown>,
-      ) => Record<string, unknown> | null | false)
-    | null
-    | this {
-    return arguments.length
-      ? ((this._labelBounds = (typeof _ === "function" ? _ : constant(_)) as unknown as typeof this._labelBounds), this)
-      : this._labelBounds;
+      ? ((this.schema.hoverStyle = assign({}, this.schema.hoverStyle, _!)), this)
+      : this.schema.hoverStyle;
   }
 
   /**
@@ -872,101 +649,8 @@ function(d, i, shape) {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._labelConfig = assign(this._labelConfig, _!)), this)
-      : this._labelConfig;
-  }
-
-  /**
-      The opacity accessor for each shape.
-*/
-  opacity(): AccessorFn;
-  opacity(_: AccessorFn | number): this;
-  opacity(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._opacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._opacity;
-  }
-
-  /**
-      The pointer-events CSS property for each shape.
-*/
-  pointerEvents(): AccessorFn;
-  pointerEvents(_: AccessorFn | string): this;
-  pointerEvents(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._pointerEvents;
-  }
-
-  /**
-      The role attribute.
-*/
-  role(): AccessorFn;
-  role(_: AccessorFn | string): this;
-  role(_?: AccessorFn | string): AccessorFn | this {
-    return _ !== undefined
-      ? ((this._role = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._role;
-  }
-
-  /**
-      The rotation angle in degrees for each shape.
-*/
-  rotate(): AccessorFn;
-  rotate(_: AccessorFn | number): this;
-  rotate(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._rotate = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._rotate;
-  }
-
-  /**
-      Defines the "rx" attribute for the shapes.
-*/
-  rx(): AccessorFn;
-  rx(_: AccessorFn | number): this;
-  rx(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._rx = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._rx;
-  }
-
-  /**
-      Defines the "rx" attribute for the shapes.
-*/
-  ry(): AccessorFn;
-  ry(_: AccessorFn | number): this;
-  ry(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._ry = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._ry;
-  }
-
-  /**
-      The scale transform accessor for each shape.
-*/
-  scale(): AccessorFn;
-  scale(_: AccessorFn | number): this;
-  scale(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._scale = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._scale;
-  }
-
-  /**
-      Controls whether render() does the full d3 enter/update/exit DOM work
-      ("full", default) or skips it and only populates downstream state for
-      toScene() ("compute"). Compute mode is the migration switch that lets the
-      legacy attribute-application code stop running for charts driven by the
-      scene backends.
-*/
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode;
-    this._renderMode = _!;
-    return this;
+      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      : this.schema.labelConfig;
   }
 
   /**
@@ -981,23 +665,6 @@ function(d, i, shape) {
   }
 
   /**
-      The shape-rendering.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  shapeRendering(): AccessorFn;
-  shapeRendering(_: AccessorFn | string): this;
-  shapeRendering(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._shapeRendering = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._shapeRendering;
-  }
-
-  /**
       A comparator function used to sort shapes for layering order.
 */
   sort(): ((a: DataPoint, b: DataPoint) => number) | null;
@@ -1005,91 +672,9 @@ function(d) {
   sort(
     _?: ((a: DataPoint, b: DataPoint) => number) | null,
   ): ((a: DataPoint, b: DataPoint) => number) | null | this {
-    return arguments.length ? ((this._sort = _ ?? null), this) : this._sort;
-  }
-
-  /**
-      The stroke color accessor for each shape.
-*/
-  stroke(): AccessorFn;
-  stroke(_: AccessorFn | string): this;
-  stroke(_?: AccessorFn | string): AccessorFn | this {
     return arguments.length
-      ? ((this._stroke = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._stroke;
-  }
-
-  /**
-      Defines the "stroke-dasharray" attribute for the shapes.
-*/
-  strokeDasharray(): AccessorFn;
-  strokeDasharray(_: AccessorFn | string): this;
-  strokeDasharray(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._strokeDasharray = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._strokeDasharray;
-  }
-
-  /**
-      Defines the "stroke-linecap" attribute for the shapes. Accepted values are `"butt"`, `"round"`, and `"square"`.
-*/
-  strokeLinecap(): AccessorFn;
-  strokeLinecap(_: AccessorFn | string): this;
-  strokeLinecap(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._strokeLinecap = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._strokeLinecap;
-  }
-
-  /**
-      Defines the "stroke-opacity" attribute for the shapes.
-*/
-  strokeOpacity(): AccessorFn;
-  strokeOpacity(_: AccessorFn | number): this;
-  strokeOpacity(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._strokeOpacity = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
-        this)
-      : this._strokeOpacity;
-  }
-
-  /**
-      The stroke-width.
-*/
-  strokeWidth(): AccessorFn;
-  strokeWidth(_: AccessorFn | number): this;
-  strokeWidth(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._strokeWidth = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._strokeWidth;
-  }
-
-  /**
-      The text-anchor.
-*/
-  textAnchor(): AccessorFn;
-  textAnchor(_: AccessorFn | string): this;
-  textAnchor(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._textAnchor = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._textAnchor;
-  }
-
-  /**
-      Defines the texture used inside of each shape. This uses the [textures.js](https://riccardoscalco.it/textures/) package, and expects either a simple string (`"lines"` or `"circles"`) or a more complex Object containing the various properties of the texture (ie. `{texture: "lines", orientation: "3/8", stroke: "darkorange"}`). If multiple textures are necessary, provide an accsesor Function that returns the correct String/Object for each given data point and index.
-*/
-  texture(): AccessorFn;
-  texture(_: AccessorFn | string | Record<string, unknown>): this;
-  texture(
-    _?: AccessorFn | string | Record<string, unknown>,
-  ): AccessorFn | this {
-    return arguments.length
-      ? ((this._texture =
-          typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn)),
-        this)
-      : this._texture;
+      ? ((this.schema.sort = _ ?? null), this)
+      : this.schema.sort;
   }
 
   /**
@@ -1099,63 +684,9 @@ function(d) {
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._textureDefault = assign(this._textureDefault, _!)), this)
-      : this._textureDefault;
-  }
-
-  /**
-      The vector-effect.
-*/
-  vectorEffect(): AccessorFn;
-  vectorEffect(_: AccessorFn | string): this;
-  vectorEffect(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._vectorEffect = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._vectorEffect;
-  }
-
-  /**
-      The vertical alignment.
-*/
-  verticalAlign(): AccessorFn;
-  verticalAlign(_: AccessorFn | string): this;
-  verticalAlign(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._verticalAlign = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn),
+      ? ((this.schema.textureDefault = assign(this.schema.textureDefault, _!)),
         this)
-      : this._verticalAlign;
-  }
-
-  /**
-      The x position accessor for each shape.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each shape.
-
-@example
-function(d) {
-  return d.y;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._y;
+      : this.schema.textureDefault;
   }
 
   /**
@@ -1165,7 +696,6 @@ function(d) {
   */
   config(): BaseShapeConfig;
   config(_: Partial<BaseShapeConfig>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config(_?: Partial<BaseShapeConfig>): BaseShapeConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;

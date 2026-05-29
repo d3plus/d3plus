@@ -37,7 +37,7 @@ it("createFluent generates accessors with arguments.length getter/setter semanti
   assert.strictEqual(f.duration(), 750, "identity coercion preserves the literal");
 });
 
-it("installFluent installs accessors on a class instance that read/write _<key>", () => {
+it("installFluent installs accessors on a class instance that read/write schema.<key>", () => {
   class Chart {}
   const c = new Chart();
   installFluent(c, [
@@ -45,37 +45,38 @@ it("installFluent installs accessors on a class instance that read/write _<key>"
     {key: "sum", coerce: "accessor"},
   ], {layoutPadding: 5, sum: "value"});
 
-  // Defaults applied to the underscored slots.
-  assert.strictEqual(c._layoutPadding, 5, "default seeded onto _layoutPadding");
-  assert.strictEqual(typeof c._sum, "function", "accessor default seeded onto _sum");
-  assert.strictEqual(c._sum({value: 7}), 7, "_sum reads via accessor");
+  // Defaults applied to the schema store.
+  assert.strictEqual(c.schema.layoutPadding, 5, "default seeded onto schema.layoutPadding");
+  assert.strictEqual(typeof c.schema.sum, "function", "accessor default seeded onto schema.sum");
+  assert.strictEqual(c.schema.sum({value: 7}), 7, "schema.sum reads via accessor");
 
-  // Accessor returns the underscored value.
-  assert.strictEqual(c.layoutPadding(), 5, "layoutPadding() reads _layoutPadding");
+  // Accessor returns the schema value.
+  assert.strictEqual(c.layoutPadding(), 5, "layoutPadding() reads schema.layoutPadding");
 
   // Setter writes through and returns `this` for chaining.
   const ret = c.layoutPadding(10);
   assert.strictEqual(ret, c, "setter returns the instance for chaining");
-  assert.strictEqual(c._layoutPadding, 10, "setter wrote to _layoutPadding");
+  assert.strictEqual(c.schema.layoutPadding, 10, "setter wrote to schema.layoutPadding");
 
   // Coercion respected on set.
   c.sum("score");
-  assert.strictEqual(c._sum({score: 99}), 99, "string→accessor on set");
+  assert.strictEqual(c.schema.sum({score: 99}), 99, "string→accessor on set");
 });
 
-it("installFluent does NOT overwrite pre-existing slot values", () => {
+it("installFluent does NOT overwrite pre-existing schema values", () => {
   class Chart {
     constructor() {
+      this.schema = {};
       // Parent class wrote this first; installFluent should respect it.
-      this._sum = "PRE_EXISTING";
+      this.schema.sum = "PRE_EXISTING";
     }
   }
   const c = new Chart();
   installFluent(c, [{key: "sum", coerce: "accessor"}], {sum: "value"});
-  assert.strictEqual(c._sum, "PRE_EXISTING", "pre-existing _sum preserved");
+  assert.strictEqual(c.schema.sum, "PRE_EXISTING", "pre-existing schema.sum preserved");
   // But the accessor method is still installed.
   c.sum("newKey");
-  assert.strictEqual(typeof c._sum, "function", "setter still works post-install");
+  assert.strictEqual(typeof c.schema.sum, "function", "setter still works post-install");
 });
 
 it("createFluent.config() is round-trip-symmetric with the per-key accessors", () => {

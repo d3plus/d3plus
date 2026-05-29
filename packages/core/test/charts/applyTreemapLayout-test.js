@@ -8,19 +8,32 @@ function fieldDefault(key) {
 }
 
 function mockViz(extra = {}) {
+  // The chart-def refactor routes Viz schema fields (width, height, …) through
+  // `viz.schema.<key>`. `_width`/`_height` overrides on this mock get
+  // re-homed onto `schema` so the internal accessors find them.
+  const schemaOverride = {};
+  if ("_width" in extra) {
+    schemaOverride.width = extra._width;
+    delete extra._width;
+  }
+  if ("_height" in extra) {
+    schemaOverride.height = extra._height;
+    delete extra._height;
+  }
   return {
     _filteredData: [],
     _groupBy: [d => d.id],
     _drawDepth: 0,
     _aggs: {},
-    _width: 100,
-    _height: 100,
     _margin: {top: 0, right: 0, bottom: 0, left: 0},
     schema: {
+      width: 100,
+      height: 100,
       tile: fieldDefault("tile"),
       layoutPadding: 0,
       sum: fieldDefault("sum"),
       sort: fieldDefault("sort"),
+      ...schemaOverride,
     },
     ctx: {
       treemap: treemapDef.ctx.treemap,
@@ -43,8 +56,8 @@ it("applyTreemapLayout produces shapeData laid out within the chart box", () => 
   assert.strictEqual(partial.shapeData.length, 3, "one node per leaf");
 
   for (const node of partial.shapeData) {
-    assert.ok(node.x0 >= 0 && node.x1 <= viz._width, "x in [0, width]");
-    assert.ok(node.y0 >= 0 && node.y1 <= viz._height, "y in [0, height]");
+    assert.ok(node.x0 >= 0 && node.x1 <= viz.schema.width, "x in [0, width]");
+    assert.ok(node.y0 >= 0 && node.y1 <= viz.schema.height, "y in [0, height]");
     assert.ok(typeof node.share === "number", "share is computed");
     assert.ok(node.share > 0 && node.share <= 1, "share is a normalized fraction");
     assert.ok(node.__d3plus__, "node tagged with __d3plus__");

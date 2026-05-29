@@ -49,7 +49,7 @@ export const packDef: ChartDefinition = {
     const supHover = (viz as VizInstance & {hover: HoverFn}).hover.bind(viz);
     (viz as VizInstance & {hover: HoverFn}).hover = ((fn: (h: DataPoint) => boolean) => {
       supHover(fn);
-      if (viz._legend) {
+      if (viz.schema.legend) {
         (viz._legendClass as {hover: (fn: unknown) => unknown}).hover(fn);
       }
       return viz;
@@ -98,7 +98,7 @@ export const packDef: ChartDefinition = {
     {
       key: "legend",
       factory: (viz: VizInstance) => {
-        const base = viz._legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
+        const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
         return (config: D3plusConfig, arr: DataPoint[]) => {
           if (arr.length === viz._filteredData.length) return false;
           return base.call(viz, config, arr);
@@ -113,10 +113,10 @@ export const packDef: ChartDefinition = {
       key: "on",
       merge: true,
       factory: (viz: VizInstance) => {
-        const baseLegend = viz._on["mousemove.legend"] as (
+        const baseLegend = viz.schema.on["mousemove.legend"] as (
           d: DataPoint, i: number, x: unknown, event: unknown,
         ) => void;
-        const baseShape = viz._on["mousemove.shape"] as (
+        const baseShape = viz.schema.on["mousemove.shape"] as (
           d: DataPoint, i: number, x: unknown, event: unknown,
         ) => void;
         const callHover = (fn: (h: DataPoint) => boolean) =>

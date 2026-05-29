@@ -18,7 +18,7 @@
     pure function only returns `noDataMessage: true/false` so the shim
     can act on it.
 
-    Closure carve-out: `id`/`ids` snapshot `viz._groupBy` / `viz._label` /
+    Closure carve-out: `id`/`ids` snapshot `viz._groupBy` / `viz.schema.label` /
     `viz._thresholdName` / `viz._locale` at construction time;
     `drawLabel` snapshots the same set but live-reads `viz._drawDepth` so
     intra-render depth mutations (legend drill-down, subclass overrides)
@@ -51,10 +51,9 @@ import type {VizInstance as Viz} from "./vizTypes.js";
         `drawDepth` back.
       - `computedTimeFilter` is the time-filter function the pure version
         synthesized (when `_time` is set but `_timeFilter` isn't). The
-        shim back-assigns it to `viz._timeFilter` for back-compat
+        shim back-assigns it to `viz.schema.timeFilter` for back-compat
         consumers reading the legacy slot.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ThresholdTree = any;
 type TimeFilterFn =
   | ((d: DataPoint, i: number) => boolean)
@@ -110,8 +109,8 @@ export function vizPreDrawPure(
 
   // 1. drawDepth.
   const drawDepth =
-    viz._depth !== void 0
-      ? (min([viz._depth >= 0 ? viz._depth : 0, viz._groupBy.length - 1]) as number)
+    viz.schema.depth !== void 0
+      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz._groupBy.length - 1]) as number)
       : viz._groupBy.length - 1;
   out.drawDepth = drawDepth;
 
@@ -136,7 +135,7 @@ export function vizPreDrawPure(
     d: DataPoint,
     i: number,
   ) => DataPoint[keyof DataPoint])[];
-  const snapLabel = viz._label;
+  const snapLabel = viz.schema.label;
   const snapThresholdName = viz._thresholdName;
   const snapLocale = viz._locale;
 
@@ -186,20 +185,20 @@ export function vizPreDrawPure(
   // leaves alone. The pure return surfaces it via a synthesized "computed
   // timeFilter" we encode as part of the context. Since timeFilter is a
   // *config-side* concern (it's a user accessor that the legacy code
-  // back-assigns to `viz._timeFilter`), keep it as a returned suggestion;
+  // back-assigns to `viz.schema.timeFilter`), keep it as a returned suggestion;
   // the shim writes it back.
   let computedTimeFilter:
     | ((d: DataPoint, i: number) => boolean)
     | (() => boolean)
     | undefined;
-  if (viz._time && !viz._timeFilter && viz._data.length) {
+  if (viz._time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data.map(viz._time).map(date);
     const d = viz._data[0],
       i = 0;
     if (
-      viz._discrete &&
-      `_${viz._discrete}` in viz &&
-      viz[`_${viz._discrete}`](d, i) === viz._time(d, i)
+      viz.schema.discrete &&
+      `_${viz.schema.discrete}` in viz &&
+      viz[`_${viz.schema.discrete}`](d, i) === viz._time(d, i)
     ) {
       computedTimeFilter = () => true;
     } else {
@@ -223,27 +222,27 @@ export function vizPreDrawPure(
   const legendData: DataPoint[] = [];
   let flatData: DataPoint[] = [];
   if (viz._data.length) {
-    const effectiveTimeFilter = viz._timeFilter || computedTimeFilter;
+    const effectiveTimeFilter = viz.schema.timeFilter || computedTimeFilter;
     flatData = effectiveTimeFilter
       ? viz._data.filter(effectiveTimeFilter)
       : viz._data;
-    if (viz._filter) flatData = flatData.filter(viz._filter);
+    if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
 
     const nestKeys: ((
       d: DataPoint,
       i: number,
     ) => DataPoint[keyof DataPoint])[] = [];
     for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz._groupBy[i]);
-    if (viz._discrete && `_${viz._discrete}` in viz)
-      nestKeys.push(viz[`_${viz._discrete}`]);
-    if (viz._discrete && `_${viz._discrete}2` in viz)
-      nestKeys.push(viz[`_${viz._discrete}2`]);
+    if (viz.schema.discrete && `_${viz.schema.discrete}` in viz)
+      nestKeys.push(viz[`_${viz.schema.discrete}`]);
+    if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz)
+      nestKeys.push(viz[`_${viz.schema.discrete}2`]);
 
     const tree = rollup(
       flatData,
       (leaves: DataPoint[]) => {
         const index = viz._data.indexOf(leaves[0]);
-        const shape = viz._shape(leaves[0], index);
+        const shape = viz.schema.shape(leaves[0], index);
         const localId = id(leaves[0], index);
 
         const d = merge(leaves, viz._aggs);
@@ -252,7 +251,7 @@ export function vizPreDrawPure(
           !viz._hidden.includes(localId) &&
           (!viz._solo.length || viz._solo.includes(localId))
         ) {
-          if (!viz._discrete && shape === "Line")
+          if (!viz.schema.discrete && shape === "Line")
             filteredData.push(...leaves);
           else filteredData.push(d);
         }
@@ -286,7 +285,6 @@ export function vizPreDrawPure(
 export function vizPostThresholdCtx(
   viz: Viz,
   filteredData: DataPoint[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   id: (d: DataPoint, i: number) => any,
 ): {
   hoverOverride?: {
@@ -299,7 +297,7 @@ export function vizPostThresholdCtx(
 } {
   const result: ReturnType<typeof vizPostThresholdCtx> = {noDataMessage: false};
   const uniqueIds = group(filteredData, id).size;
-  if (uniqueIds > viz._dataCutoff) {
+  if (uniqueIds > viz.schema.dataCutoff) {
     result.hoverOverride = {
       hoverOpacity: 1,
       duration: 0,
@@ -312,6 +310,6 @@ export function vizPostThresholdCtx(
       restoreOriginals: true,
     };
   }
-  result.noDataMessage = !!(viz._noDataMessage && !filteredData.length);
+  result.noDataMessage = !!(viz.schema.noDataMessage && !filteredData.length);
   return result;
 }

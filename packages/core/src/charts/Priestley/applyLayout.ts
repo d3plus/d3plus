@@ -82,8 +82,8 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
       min(data, d => Number(d.start)) ?? 0,
       max(data, d => Number(d.end)) ?? 0,
     ],
-    height: viz._height - viz._margin.top - viz._margin.bottom,
-    width: viz._width - viz._margin.left - viz._margin.right,
+    height: viz.schema.height - viz._margin.top - viz._margin.bottom,
+    width: viz.schema.width - viz._margin.left - viz._margin.right,
   };
 
   type AxisLike = {
@@ -94,7 +94,7 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     render: () => AxisLike;
     outerBounds: () => {height: number};
     toScene: () => {children?: unknown[]} | undefined;
-    _padding: number;
+    schema: {padding: number};
     _d3Scale: (v: number | Date) => number;
   };
   const axisTest = viz.ctx.axisTest as AxisLike;
@@ -131,8 +131,8 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     .paddingInner(viz.schema.paddingInner as number)
     .paddingOuter(viz.schema.paddingOuter as number)
     .rangeRound([
-      viz._height - viz._margin.bottom - axisTest.outerBounds().height - axisTest._padding,
-      viz._margin.top + axisTest._padding,
+      viz.schema.height - viz._margin.bottom - axisTest.outerBounds().height - axisTest.schema.padding,
+      viz._margin.top + axisTest.schema.padding,
     ]);
 
   viz.ctx.xScale = axis._d3Scale;

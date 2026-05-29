@@ -33,19 +33,19 @@ export default function (
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";
 
-  const oppScale = this._discrete === "x" ? y : x;
+  const oppScale = this.schema.discrete === "x" ? y : x;
 
   const oppDomain = oppScale.domain().slice();
 
-  const isDiscreteX = this._discrete === "x";
+  const isDiscreteX = this.schema.discrete === "x";
 
   if (isDiscreteX) oppDomain.reverse();
 
   let negVals: number[], posVals: number[];
-  if (this._stacked) {
+  if (this.schema.stacked) {
     const groupedData = groups(
       data,
-      (d: Record<string, unknown>) => d[this._discrete],
+      (d: Record<string, unknown>) => d[this.schema.discrete],
     ).map(([, values]: [unknown, Record<string, unknown>[]]) =>
       values.map(
         (x: Record<string, unknown>) => x[isDiscreteX ? yKey : xKey] as number,

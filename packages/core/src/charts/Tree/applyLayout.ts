@@ -34,11 +34,11 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   const isHorizontal = orient === "horizontal";
 
   const height = isVertical
-    ? viz._height - viz._margin.top - viz._margin.bottom
-    : viz._width - viz._margin.left - viz._margin.right;
+    ? viz.schema.height - viz._margin.top - viz._margin.bottom
+    : viz.schema.width - viz._margin.left - viz._margin.right;
   const width = isHorizontal
-    ? viz._height - viz._margin.top - viz._margin.bottom
-    : viz._width - viz._margin.left - viz._margin.right;
+    ? viz.schema.height - viz._margin.top - viz._margin.bottom
+    : viz.schema.width - viz._margin.left - viz._margin.right;
   const left: "left" | "top" = isVertical ? "left" : "top";
 
   type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<string, unknown>;
@@ -85,7 +85,7 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     d.i = i;
   });
 
-  const sc = viz._shapeConfig as Record<string, unknown>;
+  const sc = viz.schema.shapeConfig as Record<string, unknown>;
   let r = sc.r as ((d: DataPoint, i: number) => number) | number;
   if (typeof r !== "function") {
     const rv = r as number;

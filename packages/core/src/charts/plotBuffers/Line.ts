@@ -32,22 +32,22 @@ export default function (
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";
 
-  const s = this._discrete === "x" ? y : x;
+  const s = this.schema.discrete === "x" ? y : x;
 
   const d = s.domain().slice();
 
-  if (this._discrete === "x") d.reverse();
+  if (this.schema.discrete === "x") d.reverse();
 
   const vals = data.map(
-    (d: Record<string, unknown>) => d[this._discrete === "x" ? yKey : xKey],
+    (d: Record<string, unknown>) => d[this.schema.discrete === "x" ? yKey : xKey],
   ) as number[];
   const b = s.invert(
-    s(max(vals) as number) + (this._discrete === "x" ? -10 : 10),
+    s(max(vals) as number) + (this.schema.discrete === "x" ? -10 : 10),
   );
 
   if (b > d[1]) d[1] = b;
 
-  if (this._discrete === "x") d.reverse();
+  if (this.schema.discrete === "x") d.reverse();
 
   s.domain(d);
 

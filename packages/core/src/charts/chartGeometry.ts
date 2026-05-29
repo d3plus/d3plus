@@ -23,13 +23,13 @@ import type {VizInstance as Viz} from "./vizTypes.js";
 /**
     Margin-adjusted chart-area dimensions. Replaces the pattern:
 
-      const height = viz._height - viz._margin.top - viz._margin.bottom;
-      const width = viz._width - viz._margin.left - viz._margin.right;
+      const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
+      const width = viz.schema.width - viz._margin.left - viz._margin.right;
 */
 export function chartBounds(viz: Viz): {width: number; height: number} {
   return {
-    width: viz._width - viz._margin.left - viz._margin.right,
-    height: viz._height - viz._margin.top - viz._margin.bottom,
+    width: viz.schema.width - viz._margin.left - viz._margin.right,
+    height: viz.schema.height - viz._margin.top - viz._margin.bottom,
   };
 }
 

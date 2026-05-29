@@ -2,8 +2,8 @@
     `applyRadarLayout` — Radar's chart-specific layout stage. Computes per-
     axis angular positions, per-group polygon vertices, the max value for
     radius normalization, and the per-polygon `pathConfig` (with event-
-    handler wrappers that translate cursor → nearest vertex). Absorbs
-    background circles, axis-label boxes, and radial spokes into
+    handler wrappers that translate cursor → nearest vertex). Emits flat
+    SceneNodes for background circles, axis labels, and radial spokes into
     `_chartScene`. Stashes `groupData` + `pathConfig` on `viz.ctx`.
 */
 
@@ -12,9 +12,10 @@ import {pointer} from "d3-selection";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
+import type {SceneNode} from "@d3plus/render";
 
-import {Circle, Path, Rect} from "../../shapes/index.js";
-import {absorbShapeIntoChartScene, shapeConfigFor} from "../emitHelpers.js";
+import {emitLabels} from "../../shapes/emitLabels.js";
+import {paintFromShapeConfig, shapeConfigFor} from "../emitHelpers.js";
 import type {TransformStage} from "../stages.js";
 import {chartBounds} from "../chartGeometry.js";
 
@@ -75,20 +76,43 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     return {shapeData: []};
   }
 
-  const circularAxis = Array.from({length: levels}).map((_, d) => ({
-    id: d,
-    r: radius * ((d + 1) / levels),
-  }));
+  // Decorations: emitted as flat SceneNodes onto `_chartScene` (the
+  // chart-transformed group). Replaces the old `absorbShapeIntoChartScene`
+  // calls that span up transient `Circle`/`Rect`/`Path` instances in
+  // compute mode.
+  const chartScene: SceneNode[] = Array.isArray(viz._chartScene)
+    ? (viz._chartScene as SceneNode[])
+    : (viz._chartScene = [] as SceneNode[]);
 
-  const circleConfig = shapeConfigFor(viz, "Circle", axisConfig.shapeConfig as Record<string, unknown>);
+  const axisShapeConfig = (axisConfig.shapeConfig ?? {}) as Record<string, unknown>;
+  const circleConfig = shapeConfigFor(viz, "Circle", axisShapeConfig);
   delete circleConfig.label;
-  const radarCircles = new Circle()
-    .renderMode("compute")
-    .data(circularAxis as unknown as DataPoint[])
-    .config(circleConfig);
-  absorbShapeIntoChartScene(viz, radarCircles, {key: "radar-radial-circles"});
 
-  const labelConfig = (viz._shapeConfig as Record<string, unknown>)?.labelConfig as {
+  // Background concentric circles, one per level.
+  const radialCircleChildren: SceneNode[] = [];
+  for (let d = 0; d < levels; d++) {
+    const r = radius * ((d + 1) / levels);
+    const datum = {id: d, r} as unknown as DataPoint;
+    const paint = paintFromShapeConfig(circleConfig, datum, d);
+    radialCircleChildren.push({
+      type: "circle",
+      key: `radar-radial-${d}`,
+      cx: 0,
+      cy: 0,
+      r,
+      datum,
+      paint,
+    } as SceneNode);
+  }
+  if (radialCircleChildren.length) {
+    chartScene.push({
+      type: "group",
+      key: "radar-radial-circles",
+      children: radialCircleChildren,
+    } as SceneNode);
+  }
+
+  const labelConfig = (viz.schema.shapeConfig as Record<string, unknown>)?.labelConfig as {
     fontSize?: (d: unknown, i: number) => number;
   } | undefined;
 
@@ -129,28 +153,47 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     })
     .sort((a, b) => Number(a.key) - Number(b.key));
 
-  const radarLabels = new Rect()
-    .renderMode("compute")
-    .data(polarAxis as unknown as DataPoint[])
-    .rotate((d: unknown) => (d as PolarAxisDatum).angle || 0)
-    .width(0)
-    .height(0)
-    .x((d: unknown) => (d as PolarAxisDatum).x)
-    .y((d: unknown) => (d as PolarAxisDatum).y)
-    .label((d: unknown) => (d as PolarAxisDatum).id)
-    .labelBounds((d: unknown) => (d as PolarAxisDatum).labelBounds as unknown as Record<string, unknown>)
-    .labelConfig((axisConfig.shapeConfig?.labelConfig ?? {}) as Record<string, unknown>);
-  absorbShapeIntoChartScene(viz, radarLabels, {key: "radar-axis-labels"});
+  // Axis labels: one TextNode per axis, positioned at the axis vertex,
+  // rotated to read along the spoke. The original code used a Rect with
+  // zero width/height + label; here we emit only labels.
+  const axisLabelChildren = emitLabels({
+    data: polarAxis as unknown as DataPoint[],
+    label: d => (d as unknown as PolarAxisDatum).id,
+    x: d => (d as unknown as PolarAxisDatum).x,
+    y: d => (d as unknown as PolarAxisDatum).y,
+    aes: () => ({}),
+    rotate: d => (d as unknown as PolarAxisDatum).angle || 0,
+    id: d => (d as unknown as PolarAxisDatum).id,
+    labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
+    labelConfig: (axisConfig.shapeConfig?.labelConfig ?? {}) as Record<string, unknown>,
+  });
+  if (axisLabelChildren.length) {
+    chartScene.push({
+      type: "group",
+      key: "radar-axis-labels",
+      children: axisLabelChildren,
+    } as SceneNode);
+  }
 
-  const radarSpokes = new Path()
-    .renderMode("compute")
-    .data(polarAxis as unknown as DataPoint[])
-    .d((d: unknown) => {
-      const p = d as PolarAxisDatum;
-      return `M0,0 ${-p.x},${-p.y}`;
-    })
-    .config(shapeConfigFor(viz, "Path", axisConfig.shapeConfig as Record<string, unknown>));
-  absorbShapeIntoChartScene(viz, radarSpokes, {key: "radar-axis-spokes"});
+  // Radial spokes: one Path from center to each axis vertex.
+  const pathDecorConfig = shapeConfigFor(viz, "Path", axisShapeConfig);
+  const spokeChildren: SceneNode[] = polarAxis.map((p, i) => {
+    const paint = paintFromShapeConfig(pathDecorConfig, p as unknown as DataPoint, i);
+    return {
+      type: "path",
+      key: `radar-spoke-${p.id}`,
+      d: `M0,0 ${-p.x},${-p.y}`,
+      datum: p as unknown as DataPoint,
+      paint,
+    } as SceneNode;
+  });
+  if (spokeChildren.length) {
+    chartScene.push({
+      type: "group",
+      key: "radar-axis-spokes",
+      children: spokeChildren,
+    } as SceneNode);
+  }
 
   const groupData: GroupDatum[] = nestedGroupData.map(([hKey, innerEntries]) => {
     const q = innerEntries.map(([, vals], i) => {
@@ -192,7 +235,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       const xDist = xs.map(p => Math.abs(p - cursor[0]));
       const yDist = ys.map(p => Math.abs(p - cursor[1]));
       const dists = xDist.map((dd, ii) => dd + yDist[ii]);
-      const handler = viz._on[eventName] as (...args: unknown[]) => unknown;
+      const handler = viz.schema.on[eventName] as (...args: unknown[]) => unknown;
       handler.call(viz, d.arr[dists.indexOf(min(dists)!)], i, s, evt);
     };
   }

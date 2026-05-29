@@ -152,9 +152,7 @@ export interface PlotPaintContext {
         `labelBounds` config in emit.
 */
 export interface PlotMeasureResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   x: (d: any, axis?: any) => number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   y: (d: any, axis?: any) => number;
   xRange: number[];
   yRange: number[];
@@ -164,7 +162,6 @@ export interface PlotMeasureResult {
   y2Width: number | undefined;
   yBounds: {width: number; height: number; x: number; y: number};
   y2Bounds: {width: number; height: number; x: number; y: number};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: any}[];
   yOffset: number;
   labelPositions: Record<string, number>;
@@ -178,7 +175,6 @@ export interface PlotMeasureResult {
     Returns everything `plotEmit` needs to consume.
 */
 export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     const {domains, xDomain, yDomain, x2Domain, y2Domain} = pCtx;
     let {x, y} = pCtx;
     const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
@@ -463,7 +459,6 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
 export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResult): SceneNode[] {
     const out: SceneNode[] = [];
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     // Re-destructure pCtx for emit-only reads. Names listed are exactly
     // what the emit body below references; measure-only names (xTest /
     // yTest / x2Test / y2Test / xTestRange / x2TestRange / showX /
@@ -475,7 +470,6 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     const {labelWidths, largestLabel, yTicks} = pCtx;
     const {xHeight, x2Height, topOffset, height, width, verticalMargin} = pCtx;
     const {opp, showLineLabels} = pCtx;
-    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     const {x, y, xRange, yRange, yOffset, axisSceneQueue, labelPositions} = mCtx;
 
@@ -563,25 +557,25 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     const renderAnnotation = (annotation: any) => {
       const inst = new (shapes as any)[annotation.shape]()
         .renderMode("compute")
-        .duration(viz._duration)
+        .duration(viz.schema.duration)
         .config(annotation)
         .config({
           x: (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
           x0:
-            viz._discrete === "x"
+            viz.schema.discrete === "x"
               ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
               : x(domains.x[0]),
           x1:
-            viz._discrete === "x"
+            viz.schema.discrete === "x"
               ? null
               : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
           y: (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
           y0:
-            viz._discrete === "y"
+            viz.schema.discrete === "y"
               ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
               : y(domains.y[1]) - yOffset,
           y1:
-            viz._discrete === "y"
+            viz.schema.discrete === "y"
               ? null
               : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
         });
@@ -614,19 +608,19 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       viz._previousAnnotations[layer] = annotationShapes;
     });
 
-    const discrete = viz._discrete || "x";
+    const discrete = viz.schema.discrete || "x";
 
     const shapeConfig = {
-      discrete: viz._discrete,
-      duration: viz._duration,
+      discrete: viz.schema.discrete,
+      duration: viz.schema.duration,
       label: (d: any) => viz._drawLabel(d.data, d.i),
       x: (d: any) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
       x0:
         discrete === "x"
           ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
           : x(
-              typeof viz._baseline === "number"
-                ? viz._baseline
+              typeof viz.schema.baseline === "number"
+                ? viz.schema.baseline
                 : domains.x[0],
             ),
       x1: discrete === "x" ? null : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
@@ -635,8 +629,8 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         discrete === "y"
           ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
           : y(
-              typeof viz._baseline === "number"
-                ? viz._baseline
+              typeof viz.schema.baseline === "number"
+                ? viz.schema.baseline
                 : domains.y[1],
             ) - yOffset,
       y1:
@@ -645,7 +639,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
           : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
     };
 
-    const events = Object.keys(viz._on);
+    const events = Object.keys(viz.schema.on);
     // Precompute id→index and discrete→index Maps once per draw. Without
     // them the per-datum closures below run two linear `Array.indexOf`
     // scans for every shape coord access — O(stackKeys + discreteKeys)
@@ -660,7 +654,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     shapeData.forEach(([key, values]: [string, any[]]) => {
       const d = {key, values};
       const shapeConfigInner = Object.assign({}, shapeConfig);
-      if (viz._stacked && ["Area", "Bar"].includes(d.key)) {
+      if (viz.schema.stacked && ["Area", "Bar"].includes(d.key)) {
         const scale = opp === "x" ? x : y;
         (shapeConfigInner as any)[`${opp}`] = (shapeConfigInner as any)[`${opp}0`] = (d: any) => {
           const dataIndex = stackKeyIndex.get(d.id) ?? -1;
@@ -687,13 +681,13 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 
       if (d.key === "Bar") {
         let space;
-        const scale = viz._discrete === "x" ? x : y;
-        const scaleType = viz._discrete === "x" ? xScale : yScale;
-        const vals = viz._discrete === "x" ? xDomain : yDomain;
-        const range = viz._discrete === "x" ? xRange : yRange;
+        const scale = viz.schema.discrete === "x" ? x : y;
+        const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
+        const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
+        const range = viz.schema.discrete === "x" ? xRange : yRange;
         if (scaleType !== "Point" && vals.length === 2) {
           const allPositions = Array.from(
-            new Set(d.values.map((d: any) => scale(d[viz._discrete as string]))),
+            new Set(d.values.map((d: any) => scale(d[viz.schema.discrete as string]))),
           );
           allPositions.unshift(
             (range[0] as number) -
@@ -720,7 +714,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 
         const barGroups = groups(
           d.values as Record<string, unknown>[],
-          (d: Record<string, unknown>) => d[viz._discrete],
+          (d: Record<string, unknown>) => d[viz.schema.discrete],
           (d: Record<string, unknown>) => d.group,
         );
 
@@ -732,10 +726,10 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         if (
           max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1
         ) {
-          (s as any)[viz._discrete]((d: any, i: any) => (shapeConfig as any)[viz._discrete](d, i));
+          (s as any)[viz.schema.discrete]((d: any, i: any) => (shapeConfig as any)[viz.schema.discrete](d, i));
         } else {
           barSize =
-            (barSize - viz._barPadding * uniqueIds.length - 1) /
+            (barSize - viz.schema.barPadding * uniqueIds.length - 1) /
             uniqueIds.length;
 
           const offset = space / 2 - barSize / 2;
@@ -745,9 +739,9 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
             .domain([0, uniqueIds.length - 1])
             .range([-offset, offset]);
 
-          (s as any)[viz._discrete](
+          (s as any)[viz.schema.discrete](
             (d: any, i: any) =>
-              (shapeConfig as any)[viz._discrete](d, i) +
+              (shapeConfig as any)[viz.schema.discrete](d, i) +
               xMod(uniqueIds.indexOf(d.group)),
           );
         }
@@ -759,7 +753,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 
         if (viz._confidence) {
           const areaConfig = Object.assign({}, shapeConfig);
-          const discrete = viz._discrete || "x";
+          const discrete = viz.schema.discrete || "x";
           const key = discrete === "x" ? "y" : "x";
           const scaleFunction = discrete === "x" ? y : x;
           (areaConfig as any)[`${key}0`] = (d: any) =>
@@ -772,7 +766,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
             .config(areaConfig)
             .data(d.values as DataPoint[]);
           const confidenceConfig = Object.assign(
-            viz._shapeConfig,
+            viz.schema.shapeConfig,
             viz._confidenceConfig,
           );
 
@@ -793,8 +787,8 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
           label: showLineLabels
             ? (d: any, i: any) => {
                 const visible =
-                  typeof viz._lineLabels === "function"
-                    ? viz._lineLabels(d.data, d.i)
+                  typeof viz.schema.lineLabels === "function"
+                    ? viz.schema.lineLabels(d.data, d.i)
                     : true;
                 if (!visible) return false;
                 const labelData = labelWidths.find((l: any) => l.id === d.id);
@@ -817,7 +811,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
             ? (d: any, i: any, s: any) => {
                 const [firstX, firstY] = s.points[0];
                 const [lastX, lastY] = s.points[s.points.length - 1];
-                const height = viz._height / 4;
+                const height = viz.schema.height / 4;
                 const mod = (labelPositions as any)[d.id]
                   ? lastY - (labelPositions as any)[d.id]
                   : 0;
@@ -835,7 +829,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       viz._wirePlotShapeEvents(s, d.key, events);
 
       const userConfig = shapeConfigFor(viz, d.key);
-      if (viz._shapeConfig.duration === undefined) delete userConfig.duration;
+      if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
       s.config(userConfig as any).render();
 
       out.push(...collectComputed(s));

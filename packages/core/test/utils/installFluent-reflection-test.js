@@ -28,9 +28,9 @@ it("installFluent-installed accessors are writable via config({...})", () => {
   // (chart.config({width: ...}) flows through) but called out explicitly here.
   const pie = new Pie();
   pie.config({padAngle: 0.2, value: "score"});
-  assert.strictEqual(pie._padAngle, 0.2, "padAngle written via config()");
-  assert.strictEqual(typeof pie._value, "function", "value coerced to accessor");
-  assert.strictEqual(pie._value({score: 42}), 42, "accessor reads the key");
+  assert.strictEqual(pie.schema.padAngle, 0.2, "padAngle written via config()");
+  assert.strictEqual(typeof pie.schema.value, "function", "value coerced to accessor");
+  assert.strictEqual(pie.schema.value({score: 42}), 42, "accessor reads the key");
 });
 
 it("Treemap installFluent accessors round-trip through config()", () => {

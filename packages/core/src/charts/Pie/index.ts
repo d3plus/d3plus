@@ -52,14 +52,14 @@ export const pieDef: ChartDefinition = {
     {
       key: "sort",
       factory: (viz: VizInstance) => {
-        const valueFn = viz._value as (d: DataPoint) => number;
+        const valueFn = viz.schema.value as (d: DataPoint) => number;
         return (a: DataPoint, b: DataPoint) => valueFn(b) - valueFn(a);
       },
     },
     {
       key: "legendSort",
       factory: (viz: VizInstance) => {
-        const valueFn = viz._value as (d: DataPoint) => number;
+        const valueFn = viz.schema.value as (d: DataPoint) => number;
         return (a: DataPoint, b: DataPoint) => valueFn(b) - valueFn(a);
       },
     },
@@ -70,7 +70,7 @@ export const pieDef: ChartDefinition = {
         ariaLabel: (d: DataPoint, i: number) => {
           const pieData = viz.ctx.pieData as {index: number}[] | undefined;
           if (!pieData) return "";
-          return `${++pieData[i].index}. ${viz._drawLabel(d, i)}, ${(viz._value as (d: DataPoint, i: number) => number)(d, i)}.`;
+          return `${++pieData[i].index}. ${viz._drawLabel(d, i)}, ${(viz.schema.value as (d: DataPoint, i: number) => number)(d, i)}.`;
         },
         Path: {labelConfig: {fontResize: true}},
       }),
@@ -78,7 +78,7 @@ export const pieDef: ChartDefinition = {
     {
       key: "legend",
       factory: (viz: VizInstance) => {
-        const base = viz._legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
+        const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
         return (config: D3plusConfig, arr: DataPoint[]) => {
           if (arr.length === viz._filteredData.length) return false;
           return base.call(viz, config, arr);

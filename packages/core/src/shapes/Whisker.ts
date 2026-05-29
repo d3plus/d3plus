@@ -6,8 +6,9 @@ import {assign, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
-import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {accessor, BaseClass, configPrep} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
 import Line from "./Line.js";
@@ -16,18 +17,25 @@ import type {WhiskerConfig} from "./shapeConfig.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
+/** Whisker's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const whiskerSchema: ConfigField[] = [
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "endpoint", coerce: "const", default: accessor("endpoint", "Rect")},
+  {key: "length", coerce: "const", default: accessor("length", 25)},
+  {key: "orient", coerce: "const", default: accessor("orient", "top")},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "x", coerce: "const", default: accessor("x", 0)},
+  {key: "y", coerce: "const", default: accessor("y", 0)},
+];
+
 /**
     Creates SVG whisker based on an array of data.
 */
 export default class Whisker extends BaseClass {
-  _duration: number;
-  _endpoint: AccessorFn;
-  _endpointConfig: Record<string, unknown>;
-  _length: AccessorFn;
-  _lineConfig: Record<string, unknown>;
-  _orient: AccessorFn;
-  _x: AccessorFn;
-  _y: AccessorFn;
+  // installFluent generates the config accessors (length, orient, x, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _data!: DataPoint[];
   _select!: D3Selection;
   _line!: Line;
@@ -39,19 +47,9 @@ export default class Whisker extends BaseClass {
 */
   constructor() {
     super();
-
-    this._duration = 600;
-    this._endpoint = accessor("endpoint", "Rect");
-    this._endpointConfig = {
-      Circle: {
-        r: accessor("r", 5),
-      },
-    };
-    this._length = accessor("length", 25);
-    this._lineConfig = {};
-    this._orient = accessor("orient", "top");
-    this._x = accessor("x", 0);
-    this._y = accessor("y", 0);
+    installFluent(this, whiskerSchema);
+    this.schema.endpointConfig = {Circle: {r: accessor("r", 5)}};
+    this.schema.lineConfig = {};
     this._whiskerEndpoint = [];
   }
 
@@ -60,7 +58,7 @@ export default class Whisker extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: () => void): this {
-    const compute = this._renderMode === "compute";
+    const compute = this.schema.renderMode === "compute";
     if (this._select === void 0 && !compute) {
       this.select(
         select("body")
@@ -78,17 +76,17 @@ export default class Whisker extends BaseClass {
 
     const lineData: DataPoint[] = [];
     this._data.forEach((d: DataPoint, i: number) => {
-      const orient = this._orient(d, i) as string;
-      const x = this._x(d, i) as number;
-      const y = this._y(d, i) as number;
+      const orient = this.schema.orient(d, i) as string;
+      const x = this.schema.x(d, i) as number;
+      const y = this.schema.y(d, i) as number;
 
       let endpointX = x;
-      if (orient === "left") endpointX -= this._length(d, i) as number;
-      else if (orient === "right") endpointX += this._length(d, i) as number;
+      if (orient === "left") endpointX -= this.schema.length(d, i) as number;
+      else if (orient === "right") endpointX += this.schema.length(d, i) as number;
 
       let endpointY = y;
-      if (orient === "top") endpointY -= this._length(d, i) as number;
-      else if (orient === "bottom") endpointY += this._length(d, i) as number;
+      if (orient === "top") endpointY -= this.schema.length(d, i) as number;
+      else if (orient === "bottom") endpointY += this.schema.length(d, i) as number;
 
       lineData.push({
         __d3plus__: true,
@@ -116,7 +114,7 @@ export default class Whisker extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Whisker") as never)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._lineConfig, "shape")!)
+      .config(configPrep.bind(this as any)(this.schema.lineConfig, "shape")!)
       .render();
 
     const whiskerData = this._data.map((d: DataPoint, i: number) => {
@@ -124,16 +122,16 @@ export default class Whisker extends BaseClass {
       (dataObj as Record<string, unknown>).__d3plus__ = true;
       (dataObj as Record<string, unknown>).data = d;
       (dataObj as Record<string, unknown>).i = i;
-      (dataObj as Record<string, unknown>).endpoint = this._endpoint(d, i);
-      (dataObj as Record<string, unknown>).length = this._length(d, i);
-      (dataObj as Record<string, unknown>).orient = this._orient(d, i);
+      (dataObj as Record<string, unknown>).endpoint = this.schema.endpoint(d, i);
+      (dataObj as Record<string, unknown>).length = this.schema.length(d, i);
+      (dataObj as Record<string, unknown>).orient = this.schema.orient(d, i);
 
-      let endpointX = this._x(d, i) as number;
+      let endpointX = this.schema.x(d, i) as number;
       if (dataObj.orient === "left") endpointX -= dataObj.length as number;
       else if (dataObj.orient === "right")
         endpointX += dataObj.length as number;
 
-      let endpointY = this._y(d, i) as number;
+      let endpointY = this.schema.y(d, i) as number;
       if (dataObj.orient === "top") endpointY -= dataObj.length as number;
       else if (dataObj.orient === "bottom")
         endpointY += dataObj.length as number;
@@ -160,17 +158,16 @@ export default class Whisker extends BaseClass {
                 d.orient === "top" || d.orient === "bottom" ? 20 : 5,
             })
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .config(configPrep.bind(this as any)(this._endpointConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as any)(this.schema.endpointConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
     );
 
-    // Fire the user's done-callback only AFTER endpoints are rendered.
-    // The inner shapes don't share a single transition queue, so we
-    // schedule against `_duration + 100` (matching the legacy behavior
-    // and Shape.render's setTimeout pattern).
-    if (callback) setTimeout(callback, this._duration + 100);
+    // Fire the user's done-callback only after endpoints render. The inner
+    // shapes don't share one transition queue, so schedule against
+    // `duration + 100`.
+    if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
   }
@@ -213,36 +210,14 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      The animation duration in milliseconds. Drives the
-      `setTimeout(callback, duration+100)` schedule in render() and
-      mirrors Shape.duration().
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      The endpoint shape type for each whisker.
-*/
-  endpoint(): AccessorFn;
-  endpoint(_: AccessorFn | string): this;
-  endpoint(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._endpoint = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._endpoint;
-  }
-
-  /**
       Configuration object for each endpoint.
 */
   endpointConfig(): Record<string, unknown>;
   endpointConfig(_: Record<string, unknown>): this;
   endpointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._endpointConfig = assign(this._endpointConfig, _!)), this)
-      : this._endpointConfig;
+      ? ((this.schema.endpointConfig = assign(this.schema.endpointConfig, _!)), this)
+      : this.schema.endpointConfig;
   }
 
   /**
@@ -257,36 +232,14 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      Length accessor for whisker.
-*/
-  length(): AccessorFn;
-  length(_: AccessorFn | number): this;
-  length(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._length = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._length;
-  }
-
-  /**
       Configuration object for the line shape.
 */
   lineConfig(): Record<string, unknown>;
   lineConfig(_: Record<string, unknown>): this;
   lineConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._lineConfig = assign(this._lineConfig, _!)), this)
-      : this._lineConfig;
-  }
-
-  /**
-      The orientation of the whisker shape.
-*/
-  orient(): AccessorFn;
-  orient(_: AccessorFn | string): this;
-  orient(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._orient;
+      ? ((this.schema.lineConfig = assign(this.schema.lineConfig, _!)), this)
+      : this.schema.lineConfig;
   }
 
   /**
@@ -301,62 +254,14 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-    The x position accessor for each whisker.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each whisker.
-
-@example
-function(d) {
-  return d.y;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._y;
-  }
-
-  /**
       Narrowed `.config()` for Whisker. Inherited surface from
       `BaseClass.config()`; the override exists only to surface per-shape
       keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
   */
   config(): WhiskerConfig;
   config(_: Partial<WhiskerConfig>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config(_?: Partial<WhiskerConfig>): WhiskerConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;
-  }
-
-  /**
-      Render-mode toggle. `"compute"` propagates to the inner Line +
-      endpoint shapes (each is mounted scene-only via `select(null)`);
-      `Whisker.toScene()` aggregates their scenes into a single group.
-      `"full"` (default) preserves the legacy DOM-mounting path.
-  */
-  _renderMode?: "full" | "compute";
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode || "full";
-    this._renderMode = _;
-    return this;
   }
 }

@@ -26,7 +26,7 @@ export const matrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const cellWidth = viz.ctx.cellWidth as number;
   const cellHeight = viz.ctx.cellHeight as number;
   const cellPadding = (viz.schema.cellPadding as number) ?? 0;
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   return cells.map((d, i): SceneNode => {
     const fill = resolveAccessor<string>(sc.fill, d as DataPoint, i);

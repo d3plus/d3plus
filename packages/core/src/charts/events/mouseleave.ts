@@ -9,7 +9,7 @@ import type Viz from "../Viz.js";
 export default function (this: Viz, d: DataPoint, i: number): void {
   setTimeout(() => {
     if (
-      this._shapeConfig.hoverOpacity !== 1 && this._hover
+      this.schema.shapeConfig.hoverOpacity !== 1 && this._hover
         ? this._hover(d, i)
         : true
     ) {

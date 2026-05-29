@@ -11,7 +11,6 @@
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type {SceneNode} from "@d3plus/render";
 import {date} from "@d3plus/dom";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
 import * as scales from "d3-scale";
@@ -65,7 +64,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
 
   const stackGroup = (d: any, i: number) =>
     `${!timeAxis && viz._time ? viz._time(d, i) : "time"}_${
-      viz._stacked
+      viz.schema.stacked
         ? `${
             viz._groupBy.length > 1
               ? viz._ids(d, i).slice(0, -1).join("_")
@@ -87,7 +86,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
         .join("_"),
       lci:
         viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
-      shape: viz._shape(d, i),
+      shape: viz.schema.shape(d, i),
       x: xTime ? date(viz._x(d, i)) : viz._x(d, i),
       x2: x2Time ? date(viz._x2(d, i)) : viz._x2(d, i),
       y: yTime ? date(viz._y(d, i)) : viz._y(d, i),
@@ -95,10 +94,10 @@ export const formatPlotData: TransformStage = ({viz}) => {
     };
     newD.discrete =
       newD.shape === "Bar"
-        ? `${newD[viz._discrete]}_${newD.group}`
-        : `${newD[viz._discrete]}`;
+        ? `${newD[viz.schema.discrete]}_${newD.group}`
+        : `${newD[viz.schema.discrete]}`;
     newD.id =
-      newD.shape === "Bar" ? `${newD.id}_${newD[viz._discrete]}` : newD.id;
+      newD.shape === "Bar" ? `${newD.id}_${newD[viz.schema.discrete]}` : newD.id;
     return newD;
   };
 
@@ -110,17 +109,17 @@ export const formatPlotData: TransformStage = ({viz}) => {
       viz._size(d.data),
     );
     viz._sizeScaleD3 = (scales as any)[
-      `scale${viz._sizeScale.charAt(0).toUpperCase()}${viz._sizeScale.slice(1)}`
+      `scale${viz.schema.sizeScale.charAt(0).toUpperCase()}${viz.schema.sizeScale.slice(1)}`
     ]()
       .domain(rExtent)
       .range([
         rExtent[0] === rExtent[1]
-          ? viz._sizeMax
-          : min([viz._sizeMax / 2, viz._sizeMin]),
-        viz._sizeMax,
+          ? viz.schema.sizeMax
+          : min([viz.schema.sizeMax / 2, viz.schema.sizeMin]),
+        viz.schema.sizeMax,
       ]);
   } else {
-    viz._sizeScaleD3 = () => viz._sizeMin;
+    viz._sizeScaleD3 = () => viz.schema.sizeMin;
   }
 
   const x2Exists = axisData.some((d: any) => d.x2 !== undefined);
@@ -161,7 +160,7 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
     const numericValue = typeof filteredData[0][axis] === "number";
 
     let myData =
-      viz._discrete === axis
+      viz.schema.discrete === axis
         ? rollups(
             filteredData,
             (leaves: Record<string, unknown>[]) =>
@@ -174,8 +173,8 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
             (d: Record<string, unknown>) => d[axis],
           )
             .sort((a: [unknown, unknown], b: [unknown, unknown]) => {
-              if (viz[`_${axis}Sort`])
-                return viz[`_${axis}Sort`](a[1], b[1]);
+              if (viz.schema[`${axis}Sort`])
+                return viz.schema[`${axis}Sort`](a[1], b[1]);
               const aKey =
                 timeData || numericValue
                   ? parseFloat(a[0] as string)
@@ -196,15 +195,15 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
         : unique(
             filteredData
               .sort((a: any, b: any) =>
-                viz[`_${axis}Sort`]
-                  ? viz[`_${axis}Sort`](a.data, b.data)
+                viz.schema[`${axis}Sort`]
+                  ? viz.schema[`${axis}Sort`](a.data, b.data)
                   : a[axis] - b[axis],
               )
               .map((d: any) => d[axis]),
             (d: any) => `${d}`,
           );
 
-    if (viz._discrete !== axis.charAt(0) && viz._confidence) {
+    if (viz.schema.discrete !== axis.charAt(0) && viz._confidence) {
       if (viz._confidence[0])
         myData = myData.concat(localData.map((d: any) => d.lci));
       if (viz._confidence[1])
@@ -243,7 +242,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
   const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = plotConfigScales;
   const xScale = plotScales.xScale, yScale = plotScales.yScale;
 
-  const oppScale = viz._discrete === "x" ? yScale : xScale;
+  const oppScale = viz.schema.discrete === "x" ? yScale : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,
@@ -251,7 +250,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
     );
     allShapeData.forEach(([key, values]) => {
       if (["Bar", "Box"].includes(key)) {
-        discreteBufferFn(viz._discrete === "x" ? x : y, data, viz._discrete);
+        discreteBufferFn(viz.schema.discrete === "x" ? x : y, data, viz.schema.discrete);
       }
       if (viz._buffer[key]) {
         const res = viz._buffer[key].bind(viz)({
@@ -260,7 +259,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
           y,
           yScale: yConfigScale,
           xScale: xConfigScale,
-          config: viz._shapeConfig[key],
+          config: viz.schema.shapeConfig[key],
         });
         x = res[0];
         y = res[1];
@@ -272,7 +271,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
           xScale: x2ConfigScale,
           x2: true,
           y2: true,
-          config: viz._shapeConfig[key],
+          config: viz.schema.shapeConfig[key],
         });
         x2 = res2[0];
         y2 = res2[1];
@@ -314,18 +313,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const defaultX2Config = x2Exists ? {data: x2Data} : defaultConfig;
   const defaultY2Config = y2Exists ? {data: y2Data} : defaultConfig;
   const showX =
-    viz._discrete === "x"
-      ? viz._width > viz._discreteCutoff && viz._width > viz._xCutoff
-      : viz._width > viz._xCutoff;
+    viz.schema.discrete === "x"
+      ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
+      : viz.schema.width > viz.schema.xCutoff;
   const showY =
-    viz._discrete === "y"
-      ? viz._height > viz._discreteCutoff && viz._height > viz._yCutoff
-      : viz._height > viz._yCutoff;
+    viz.schema.discrete === "y"
+      ? viz.schema.height > viz._discreteCutoff && viz.schema.height > viz.schema.yCutoff
+      : viz.schema.height > viz.schema.yCutoff;
 
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz._locale,
-    rounding: viz._yDomain ? "none" : "outside",
+    rounding: viz.schema.yDomain ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
   };
   if (!showX && showY) {
@@ -334,7 +333,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     yC.shapeConfig = {
       labelBounds: (d: any, i: number) => {
         const {width: w, y: yy} = d.labelBounds;
-        const h = viz._height / 2;
+        const h = viz.schema.height / 2;
         const xx = i ? -h : 0;
         return {x: xx, y: yy, width: w, height: h};
       },
@@ -394,13 +393,13 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 */
 export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, plotScales, plotConfigScales, plotTestAxes, plotLineLabelTest, y2Exists}) => {
   const data = plotFormattedData || [];
-  if (!viz._lineLabels || y2Exists) {
+  if (!viz.schema.lineLabels || y2Exists) {
     return {plotLabelWidths: [], plotLargestLabel: undefined, plotXRangeMax: undefined};
   }
   const labelData = data.filter((d: any) => {
     if (d.shape !== "Line") return false;
-    return typeof viz._lineLabels === "function"
-      ? viz._lineLabels(d.data, d.i)
+    return typeof viz.schema.lineLabels === "function"
+      ? viz.schema.lineLabels(d.data, d.i)
       : true;
   });
   const lineData = groups(labelData, (d: Record<string, unknown>) => d.id);
@@ -414,7 +413,7 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   const yDomain = plotScales.y.domain();
   const xConfigScale = plotConfigScales.xConfigScale;
   const yConfigScale = plotConfigScales.yConfigScale;
-  const width = viz._width - viz._margin.left - viz._margin.right;
+  const width = viz.schema.width - viz._margin.left - viz._margin.right;
 
   const userConfig = shapeConfigFor(viz, "Line");
   testLineShape.config(userConfig);
@@ -522,7 +521,7 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
     raw per-axis values (`xData`/`yData`/etc.) into the initial `domains`
     object that `computePlotScales` consumes. Handles both branches:
 
-    - **Stacked** (`viz._stacked`): filters to Area/Bar shapes, computes
+    - **Stacked** (`viz.schema.stacked`): filters to Area/Bar shapes, computes
       group totals, sorts axisData by discrete-then-group-sum-then-opp,
       builds `discreteKeys`/`stackKeys`/`stackData`, fills in missing Area
       filler points, runs d3-stack with the configured order/offset, then
@@ -539,7 +538,7 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   const stackGroup = plotStackGroup as (d: any, i: number) => string;
-  const opp = viz._discrete ? (viz._discrete === "x" ? "y" : "x") : undefined;
+  const opp = viz.schema.discrete ? (viz.schema.discrete === "x" ? "y" : "x") : undefined;
   const xTime = viz._xTime, x2Time = viz._x2Time, yTime = viz._yTime, y2Time = viz._y2Time;
 
   let discreteKeys: any[] = [];
@@ -547,7 +546,7 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
   let stackData: any[] = [];
   let stackKeys: any[] = [];
 
-  if (viz._stacked) {
+  if (viz.schema.stacked) {
     const stackedData = axisData.filter((d: any) =>
       ["Area", "Bar"].includes(d.shape),
     );
@@ -565,10 +564,10 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
     }, {});
 
     axisData.sort((a: any, b: any) => {
-      if (viz[`_${viz._discrete}Sort`])
-        return viz[`_${viz._discrete}Sort`](a.data, b.data);
-      const a1 = a[viz._discrete],
-        b1 = b[viz._discrete];
+      if (viz.schema[`${viz.schema.discrete}Sort`])
+        return viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data);
+      const a1 = a[viz.schema.discrete],
+        b1 = b[viz.schema.discrete];
       if (a1 - b1 !== 0) return a1 - b1;
       if (a.group !== b.group)
         return groupValues[b.group] - groupValues[a.group];
@@ -596,13 +595,13 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
                 data: d.data,
                 discrete:
                   d.shape === "Bar"
-                    ? `${g[0][viz._discrete]}_${group}`
-                    : `${g[0][viz._discrete]}`,
+                    ? `${g[0][viz.schema.discrete]}_${group}`
+                    : `${g[0][viz.schema.discrete]}`,
                 group,
                 id: d.id,
                 ids: k,
                 shape: d.shape,
-                [viz._discrete]: g[0][viz._discrete],
+                [viz.schema.discrete]: g[0][viz.schema.discrete],
                 [opp as string]: 0,
               };
               data.push(fillerPoint);
@@ -612,10 +611,10 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
       }
     });
 
-    if (viz[`_${viz._discrete}Sort`]) {
-      data.sort((a: any, b: any) => viz[`_${viz._discrete}Sort`](a.data, b.data));
+    if (viz.schema[`${viz.schema.discrete}Sort`]) {
+      data.sort((a: any, b: any) => viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data));
     } else {
-      data.sort((a: any, b: any) => a[viz._discrete] - b[viz._discrete]);
+      data.sort((a: any, b: any) => a[viz.schema.discrete] - b[viz.schema.discrete]);
     }
 
     const order = viz._stackOrder;
@@ -635,10 +634,10 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
         return d.length ? (d[0] as any)[opp as string] : 0;
       }) as never) as any)(stackData);
 
-    const discreteData = viz._discrete === "x" ? xData : yData;
+    const discreteData = viz.schema.discrete === "x" ? xData : yData;
 
     domains = {
-      [viz._discrete]: viz[`_${viz._discrete}Time`]
+      [viz.schema.discrete]: viz[`_${viz.schema.discrete}Time`]
         ? extent(discreteData as any[])
         : discreteData,
       [opp as string]: [
@@ -647,29 +646,29 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
       ],
     };
   } else {
-    const discrete = viz._discrete || "x";
+    const discrete = viz.schema.discrete || "x";
 
-    if (viz[`_${viz._discrete}Sort`]) {
-      axisData.sort((a: any, b: any) => viz[`_${viz._discrete}Sort`](a.data, b.data));
+    if (viz.schema[`${viz.schema.discrete}Sort`]) {
+      axisData.sort((a: any, b: any) => viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data));
     } else {
       axisData.sort((a: any, b: any) => a[discrete] - b[discrete]);
     }
 
     domains = {
       x:
-        (!xTime && viz._discrete === "x") || viz._xSort
+        (!xTime && viz.schema.discrete === "x") || viz.schema.xSort
           ? xData
           : extent(xData as any[]),
       x2:
-        (!x2Time && viz._discrete === "x") || viz._x2Sort
+        (!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
           ? x2Data
           : extent(x2Data as any[]),
       y:
-        (!yTime && viz._discrete === "y") || viz._ySort
+        (!yTime && viz.schema.discrete === "y") || viz.schema.ySort
           ? yData
           : extent(yData as any[]),
       y2:
-        (!y2Time && viz._discrete === "y") || viz._y2Sort
+        (!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
           ? y2Data
           : extent(y2Data as any[]),
     };
@@ -703,25 +702,25 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let domains = plotInitialDomains as Record<string, any[]>;
-  const width = viz._width - viz._margin.left - viz._margin.right;
-  const height = viz._height - viz._margin.top - viz._margin.bottom;
-  const opp = viz._discrete ? (viz._discrete === "x" ? "y" : "x") : undefined;
-  const opp2 = viz._discrete
-    ? viz._discrete === "x" ? "y2" : "x2"
+  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
+  const opp = viz.schema.discrete ? (viz.schema.discrete === "x" ? "y" : "x") : undefined;
+  const opp2 = viz.schema.discrete
+    ? viz.schema.discrete === "x" ? "y2" : "x2"
     : undefined;
   const opps = [opp, opp2].filter(d => d) as string[];
 
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : viz._discrete === axis || viz[`_${axis}Sort`]
+      : viz.schema.discrete === axis || viz.schema[`${axis}Sort`]
         ? "Point"
         : "Linear";
-    const domain = viz[`_${axis}Domain`]
-        ? viz[`_${axis}Domain`].slice()
+    const domain = viz.schema[`${axis}Domain`]
+        ? viz.schema[`${axis}Domain`].slice()
         : domains[axis],
-      domain2 = viz[`_${axis}2Domain`]
-        ? viz[`_${axis}2Domain`].slice()
+      domain2 = viz.schema[`${axis}2Domain`]
+        ? viz.schema[`${axis}2Domain`].slice()
         : domains[`${axis}2`];
     if (scale !== "Point") {
       if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
@@ -740,7 +739,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   const autoScale = (axis: string, fallback: string) => {
     const userScale = viz[`_${axis}Config`].scale;
     if (userScale === "auto") {
-      if (viz._discrete === axis) return fallback;
+      if (viz.schema.discrete === axis) return fallback;
       const values = axisData.map((d: any) => d[axis]);
       return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
     }
@@ -786,10 +785,10 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
       // place — on the next render the (already-reversed) array would
       // reverse back, alternating chart correctness across renders.
       const d = (viz[`_${o}Config`].domain as unknown[]).slice();
-      if (viz._discrete === "x") d.reverse();
+      if (viz.schema.discrete === "x") d.reverse();
       domains[o] = d;
-    } else if (o && viz._baseline !== void 0) {
-      const b = viz._baseline;
+    } else if (o && viz.schema.baseline !== void 0) {
+      const b = viz.schema.baseline;
       if (domains[o] && domains[o][0] > b) domains[o][0] = b;
       else if (domains[o] && domains[o][1] < b) domains[o][1] = b;
     }
@@ -848,7 +847,6 @@ export const plotDef: ChartDefinition = {
     // that's measured imperatively in _draw, not as a stage.
   ],
   // Plot._paint populates `viz._chartScene` imperatively; emit just snapshots it.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   emit: ({viz}: {viz: any}) =>
     Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
   paintDriven: true,

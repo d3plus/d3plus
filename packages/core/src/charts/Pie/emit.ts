@@ -28,7 +28,7 @@ export const pieEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   if (!slices.length) return [];
 
   const arcMaker = viz.ctx.arcData as (d: Slice) => string;
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   const pathNodes: SceneNode[] = slices.map(d => {
     const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);

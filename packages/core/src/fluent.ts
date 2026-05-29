@@ -2,7 +2,7 @@
     Generate the fluent chart API from a schema.
 
     `installFluent` mixes generated `(value?) => value | this` accessors onto
-    a class instance, storing each field as `this._<key>`. Each accessor's
+    a class instance, storing each field as `this.schema.<key>`. Each accessor's
     `arguments.length` overload + coercion lives in this one factory instead
     of being copy-pasted per chart.
 
@@ -140,26 +140,25 @@ export function createFluent<C extends Record<string, unknown>>(
 
 /**
     Class-instance variant: mixes generated accessors onto an existing `this`,
-    storing each field as `this._<key>`. Lets a legacy chart class inherit
-    its accessor surface from a `ChartDefinition`'s schema while keeping the
-    legacy `this._sum`, `this._tile`, … direct-read pattern intact for the
-    rest of the chart body.
+    storing each field as `this.schema.<key>`. A chart class inherits its
+    accessor surface from a `ChartDefinition`'s schema, and the rest of the
+    chart body reads the same values through `this.schema.<key>`.
 
-    Seeds `this._<key>` from `defaults` (with the same coercion) only if the
-    field isn't already set — so an `extends Viz` chain that already wrote
-    `this._sum = constant(...)` in `Viz`'s constructor is respected.
+    Seeds `this.schema.<key>` from `defaults` (with the same coercion) only if
+    the field isn't already set — so an `extends Viz` chain that already wrote
+    `this.schema.sum = constant(...)` in `Viz`'s constructor is respected.
 
-    Methods are installed on the target's **prototype**, once per prototype
-    (idempotent via a WeakSet). This is load-bearing for `BaseClass.config()`
-    reflection — its `getAllMethods(Object.getPrototypeOf(this))` only sees
-    prototype methods, so per-instance methods would be invisible to it
-    (causing the React wrapper's hash() to miss user-set values like
-    `.padAngle(0.05)`). The methods themselves close over the schema and use
-    `this._<key>` for storage, so per-instance state is preserved.
+    Methods are installed on the target's **prototype**, once per key (skipped
+    if the prototype already owns that method). This is load-bearing for
+    `BaseClass.config()` reflection — its `getAllMethods(Object.getPrototypeOf(this))`
+    only sees prototype methods, so per-instance methods would be invisible to
+    it (causing the React wrapper's hash() to miss user-set values like
+    `.padAngle(0.05)`). The methods close over the schema and read/write
+    `this.schema.<key>`, so per-instance state is preserved.
 
     @param target Object to install methods on (typically a class instance).
     @param schema Same field schema `createFluent` consumes.
-    @param defaults Default values (applied to `this._<key>` when unset).
+    @param defaults Default values (applied to `this.schema.<key>` when unset).
 */
 export function installFluent(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,35 +166,13 @@ export function installFluent(
   schema: ConfigField[],
   defaults: Record<string, unknown> = {},
 ): void {
-  // Storage canonically lives on `target.schema.<key>`. `_<key>` is installed
-  // as a per-instance getter/setter alias so existing code that still reads
-  // `viz._sum` keeps working until each call site migrates.
+  // Storage lives on `target.schema.<key>`. Accessors (installed on the
+  // prototype below) and all chart code read/write through `schema`
+  // directly.
   if (!target.schema) target.schema = {};
 
   for (const field of schema) {
     const key = field.key;
-    const slot = `_${key}`;
-
-    // Install the underscore alias once per instance. If a parent
-    // constructor already wrote `target._<key> = X` as a data property,
-    // migrate that value into `schema` and replace the data prop with
-    // the alias so subsequent reads/writes route through `schema`.
-    const existing = Object.getOwnPropertyDescriptor(target, slot);
-    if (!existing || "value" in existing) {
-      if (existing && "value" in existing && target.schema[key] === undefined) {
-        target.schema[key] = existing.value;
-      }
-      Object.defineProperty(target, slot, {
-        configurable: true,
-        enumerable: false,
-        get(this: {schema: Record<string, unknown>}) {
-          return this.schema[key];
-        },
-        set(this: {schema: Record<string, unknown>}, v: unknown) {
-          this.schema[key] = v;
-        },
-      });
-    }
 
     // Two seed sources with different precedence:
     //   - field.default / field.factory: declared by the chart def; an

@@ -13,39 +13,36 @@ import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {Axis, TextBox} from "../components/index.js";
 import {configPrep, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 const colorMid = "#bbb";
+
+/** Timeline's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const timelineSchema: ConfigField[] = [
+  {key: "buttonPadding", coerce: "identity", default: 10},
+  {key: "brushing", coerce: "identity", default: true},
+  {key: "brushFilter", coerce: "identity"},
+  {key: "brushMin", coerce: "const", default: constant(1)},
+  {key: "buttonAlign", coerce: "identity", default: "middle"},
+  {key: "buttonBehavior", coerce: "identity", default: "auto"},
+  {key: "buttonHeight", coerce: "identity", default: 24},
+  {key: "handleSize", coerce: "identity", default: 6},
+  {key: "playButton", coerce: "identity", default: true},
+  {key: "playButtonInterval", coerce: "identity", default: 1000},
+  {key: "selection", coerce: "identity"},
+  {key: "snapping", coerce: "identity", default: true},
+];
 
 /**
     Creates an interactive timeline brush component for selecting time periods within a visualization.
 */
 export default class Timeline extends Axis {
-  _brushing: boolean;
-   
-  _brushFilter: (event: unknown) => boolean;
-  _brushMin: () => number;
-  _buttonAlign: string;
-  _buttonBehavior: string;
   _buttonBehaviorCurrent: string;
-  _buttonPadding: number;
-  _buttonHeight: number;
-   
-  _handleConfig: Record<string, unknown>;
-  _handleSize: number;
   _hiddenHandles: boolean;
-   
   declare _on: Record<string, (...args: unknown[]) => unknown>;
-  _playButton: boolean;
   _playButtonClass: TextBox;
-   
-  _playButtonConfig: Record<string, unknown>;
-  _playButtonInterval: number;
   _playTimer!: ReturnType<typeof setInterval> | false;
-  _selection: unknown;
-   
-  _selectionConfig: Record<string, unknown>;
-  _snapping: boolean;
-   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _brush: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,38 +56,25 @@ export default class Timeline extends Axis {
 */
   constructor() {
     super();
+    installFluent(this, timelineSchema);
 
-    this._barConfig = assign({}, this._barConfig, {
-      stroke: () =>
-        this._buttonBehaviorCurrent === "buttons" ? "transparent" : colorMid,
-      "stroke-width": () => (this._buttonBehaviorCurrent === "buttons" ? 0 : 1),
-    });
-    this._brushing = true;
-     
-    this._brushFilter = (event: unknown) => {
+    this.schema.brushFilter = (event: unknown) => {
       const e = event as Record<string, unknown>;
       return !e.button && (e.detail as number) < 2;
     };
-    this._brushMin = constant(1);
-    this._buttonAlign = "middle";
-    this._buttonBehavior = "auto";
-    this._buttonPadding = 10;
-    this._buttonHeight = 24;
-    this._domain = [2001, 2010];
-    this._gridSize = 0;
-    this._handleConfig = {
+    this.schema.domain = [2001, 2010];
+    this.schema.gridSize = 0;
+    this.schema.handleConfig = {
       fill: colorDefaults.light,
       stroke: "#228be6",
       "stroke-width": 2,
       rx: 2,
       ry: 2,
     };
-    this._handleSize = 6;
-    this._height = 100;
-    this._labelOffset = false;
+    this.schema.height = 100;
+    this.schema.labelOffset = false;
     this._on = {};
     this.orient("bottom");
-    this._playButton = true;
     this._playButtonClass = new TextBox()
       .on("click", () => {
         // if playing, pause
@@ -103,13 +87,13 @@ export default class Timeline extends Axis {
         else {
           let firstTime = true;
           const nextYear = () => {
-            let selection: unknown[] = (this._selection || [
-              this._domain[this._domain.length - 1],
+            let selection: unknown[] = (this.schema.selection || [
+              this.schema.domain[this.schema.domain.length - 1],
             ]) as unknown[];
             if (!(selection instanceof Array)) selection = [selection];
             selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
             if (selection.length === 1) selection.push(selection[0]);
-            const ticks = this._ticks!.map(Number);
+            const ticks = this.schema.ticks!.map(Number);
             const firstIndex = ticks.indexOf(selection[0] as number);
             const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
             if (lastIndex === ticks.length - 1) {
@@ -119,8 +103,8 @@ export default class Timeline extends Axis {
                 this._playButtonClass.render();
               } else {
                 this.selection([
-                  this._ticks![0],
-                  this._ticks![lastIndex - firstIndex],
+                  this.schema.ticks![0],
+                  this.schema.ticks![lastIndex - firstIndex],
                 ]).render();
               }
             } else {
@@ -129,42 +113,46 @@ export default class Timeline extends Axis {
                 this._playTimer = false;
               }
               this.selection([
-                this._ticks![firstIndex + 1],
-                this._ticks![lastIndex + 1],
+                this.schema.ticks![firstIndex + 1],
+                this.schema.ticks![lastIndex + 1],
               ]).render();
             }
             firstTime = false;
           };
-          this._playTimer = setInterval(nextYear, this._playButtonInterval);
+          this._playTimer = setInterval(nextYear, this.schema.playButtonInterval);
           nextYear();
         }
       })
       .on("mousemove", () =>
         this._playButtonClass.select().style("cursor", "pointer"),
       );
-    this._playButtonConfig = {
+    this.schema.playButtonConfig = {
       fontColor: colorDefaults.dark,
       fontSize: 15,
       text: () => (this._playTimer ? "\u23F8" : "\u23F5"),
       textAnchor: "middle",
       verticalAlign: "middle",
     };
-    this._playButtonInterval = 1000;
-    this._selectionConfig = {
+    this.schema.selectionConfig = {
       fill: "#228be6",
       "fill-opacity": () =>
         this._buttonBehaviorCurrent === "buttons" ? 0.3 : 1,
       "stroke-width": 0,
     };
-    this._shape = "Rect";
-    this._shapeConfig = assign({}, this._shapeConfig, {
+    this.schema.shape = "Rect";
+    this.schema.barConfig = assign({}, this.schema.barConfig, {
+      stroke: () =>
+        this._buttonBehaviorCurrent === "buttons" ? "transparent" : colorMid,
+      "stroke-width": () => (this._buttonBehaviorCurrent === "buttons" ? 0 : 1),
+    });
+    this.schema.shapeConfig = assign({}, this.schema.shapeConfig, {
       labelBounds: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? {
               x: (d.labelBounds as Record<string, unknown>).x,
-              y: -this._buttonHeight / 2 + 1,
+              y: -this.schema.buttonHeight / 2 + 1,
               width: (d.labelBounds as Record<string, unknown>).width,
-              height: this._buttonHeight,
+              height: this.schema.buttonHeight,
             }
           : d.labelBounds,
       labelConfig: {
@@ -182,40 +170,39 @@ export default class Timeline extends Axis {
         this._buttonBehaviorCurrent === "buttons" ? colorMid : "transparent",
       height: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
-          ? this._buttonHeight
+          ? this.schema.buttonHeight
           : d.tick
-            ? this._handleSize
+            ? this.schema.handleSize
             : 0,
       width: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? this._ticksWidth / this._availableTicks.length
           : d.tick
-            ? this._domain.map(Number).includes(d.id as number)
+            ? this.schema.domain.map(Number).includes(d.id as number)
               ? 2
               : 1
             : 0,
       y: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
-          ? this._align === "middle"
-            ? this._height / 2
-            : this._align === "start"
-              ? this._margin.top + this._buttonHeight / 2
-              : this._height - this._buttonHeight / 2 - this._margin.bottom
+          ? this.schema.align === "middle"
+            ? this.schema.height / 2
+            : this.schema.align === "start"
+              ? this._margin.top + this.schema.buttonHeight / 2
+              : this.schema.height - this.schema.buttonHeight / 2 - this._margin.bottom
           : d.y,
       rx: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? 0
-          : this._domain.map(Number).includes(d.id as number)
+          : this.schema.domain.map(Number).includes(d.id as number)
             ? 1
             : 0,
       ry: (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
           ? 0
-          : this._domain.map(Number).includes(d.id as number)
+          : this.schema.domain.map(Number).includes(d.id as number)
             ? 1
             : 0,
     });
-    this._snapping = true;
     this._buttonBehaviorCurrent = "auto";
     this._hiddenHandles = false;
     this._paddingLeft = 0;
@@ -232,7 +219,7 @@ export default class Timeline extends Axis {
       event.sourceEvent &&
       (event.sourceEvent as Record<string, unknown>).offsetX &&
       event.selection !== null &&
-      (!this._brushing || this._snapping)
+      (!this.schema.brushing || this.schema.snapping)
     ) {
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
@@ -243,7 +230,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.brush) (this._on.brush as (...args: unknown[]) => unknown)(this._selection);
+    if (this._on.brush) (this._on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
   }
 
   /**
@@ -258,12 +245,12 @@ export default class Timeline extends Axis {
 
     this._brushStyle();
 
-    if (this._brushing || !this._snapping)
+    if (this.schema.brushing || !this.schema.snapping)
       this._brushGroup
         .transition(this._transition)
         .call(this._brush.move, this._updateBrushLimit(domain));
 
-    if (this._on.end) (this._on.end as (...args: unknown[]) => unknown)(this._selection);
+    if (this._on.end) (this._on.end as (...args: unknown[]) => unknown)(this.schema.selection);
   }
 
   /**
@@ -272,7 +259,7 @@ export default class Timeline extends Axis {
 */
    
   _brushStart(event: Record<string, unknown>): void {
-    if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
+    if (event.sourceEvent !== null && (!this.schema.brushing || this.schema.snapping)) {
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
       this._playButtonClass.render();
@@ -292,36 +279,36 @@ export default class Timeline extends Axis {
   _brushStyle(): void {
     const {height} = this._position;
     const timelineHeight =
-      this._shape === "Circle"
-        ? typeof this._shapeConfig.r === "function"
-          ? this._shapeConfig.r({tick: true}) * 2
-          : this._shapeConfig.r
-        : this._shape === "Rect"
-          ? typeof this._shapeConfig[height] === "function"
-            ? this._shapeConfig[height]({tick: true})
-            : this._shapeConfig[height]
-          : this._tickSize;
+      this.schema.shape === "Circle"
+        ? typeof this.schema.shapeConfig.r === "function"
+          ? this.schema.shapeConfig.r({tick: true}) * 2
+          : this.schema.shapeConfig.r
+        : this.schema.shape === "Rect"
+          ? typeof this.schema.shapeConfig[height] === "function"
+            ? this.schema.shapeConfig[height]({tick: true})
+            : this.schema.shapeConfig[height]
+          : this.schema.tickSize;
 
     const brushSelection = this._brushGroup
       .selectAll(".selection")
-      .call(attrize, this._selectionConfig)
+      .call(attrize, this.schema.selectionConfig)
       .attr("transform", "translate(0,-1)")
       .attr("height", timelineHeight + 2);
 
     const brushHandle = this._brushGroup
       .selectAll(".handle")
-      .call(attrize, this._handleConfig)
+      .call(attrize, this.schema.handleConfig)
       .attr("display", this._hiddenHandles ? "none" : "block")
       .attr("transform", (d: Record<string, unknown>) =>
         this._buttonBehaviorCurrent === "buttons"
-          ? `translate(${d.type === "w" ? -this._handleSize / 2 : 0},-1)`
+          ? `translate(${d.type === "w" ? -this.schema.handleSize / 2 : 0},-1)`
           : "",
       )
       .attr(
         "height",
         this._buttonBehaviorCurrent === "buttons"
-          ? this._buttonHeight + 2
-          : timelineHeight + this._handleSize,
+          ? this.schema.buttonHeight + 2
+          : timelineHeight + this.schema.handleSize,
       );
 
     this._brushGroup
@@ -332,30 +319,30 @@ export default class Timeline extends Axis {
         "transform",
         `translate(0,${
           this._buttonBehaviorCurrent === "buttons"
-            ? this._buttonHeight / 2
-            : -this._handleSize
+            ? this.schema.buttonHeight / 2
+            : -this.schema.handleSize
         })`,
       )
       .attr(
         "width",
         this._buttonBehaviorCurrent === "buttons"
           ? this._ticksWidth
-          : this._width,
+          : this.schema.width,
       )
       .attr(
         "height",
         this._buttonBehaviorCurrent === "buttons"
-          ? this._buttonHeight
-          : this._handleSize * 2,
+          ? this.schema.buttonHeight
+          : this.schema.handleSize * 2,
       );
 
     if (this._buttonBehaviorCurrent === "buttons") {
       const yTransform =
-        this._align === "middle"
-          ? this._height / 2 - this._buttonHeight / 2
-          : this._align === "start"
+        this.schema.align === "middle"
+          ? this.schema.height / 2 - this.schema.buttonHeight / 2
+          : this.schema.align === "start"
             ? this._margin.top
-            : this._height - this._buttonHeight - this._margin.bottom;
+            : this.schema.height - this.schema.buttonHeight - this._margin.bottom;
 
       brushHandle.attr("y", yTransform);
       brushSelection.attr("y", yTransform);
@@ -370,7 +357,7 @@ export default class Timeline extends Axis {
   _updateDomain(event: Record<string, unknown>): unknown[] {
     const x = pointers(event, this._select.node());
     let domain: unknown[] =
-      (event.selection && this._brushing) || !x.length
+      (event.selection && this.schema.brushing) || !x.length
         ? (event.selection as unknown[])
         : [x[0][0], x[0][0]];
 
@@ -380,7 +367,7 @@ export default class Timeline extends Axis {
 
     if (
       event.type === "brush" &&
-      this._brushing &&
+      this.schema.brushing &&
       this._buttonBehaviorCurrent === "buttons"
     ) {
       const diffs = (event.selection as number[]).map((d: number) =>
@@ -418,7 +405,7 @@ export default class Timeline extends Axis {
       // example, a brushMin of "2" means that the min and max domain
       // values need to be "1" space apart from eachother.
       let ticksApart = Math.abs(maxIndex - minIndex);
-      const minTicksAllowed = this._brushMin() - 1;
+      const minTicksAllowed = this.schema.brushMin() - 1;
 
       // if the min and max are not far enough apart to satisfy
       // brushMin, then forcibly extend the domain.
@@ -449,7 +436,7 @@ export default class Timeline extends Axis {
     // if the brush event has finished, update the current "selection" value
     const single = +(domain[0] as number) === +(domain[1] as number);
     if (event.type === "brush" || event.type === "end") {
-      this._selection =
+      this.schema.selection =
         this._buttonBehaviorCurrent === "ticks"
           ? single
             ? domain[0]
@@ -498,7 +485,7 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      const handleSize = this._hiddenHandles ? 0 : this._handleSize;
+      const handleSize = this._hiddenHandles ? 0 : this.schema.handleSize;
       const buttonWidth =
         0.5 * (this._ticksWidth / this._availableTicks.length - handleSize);
       selection[0] -= buttonWidth;
@@ -533,7 +520,7 @@ export default class Timeline extends Axis {
       const x2 = sel[1] as number;
       const left = Math.min(x1, x2);
       const right = Math.max(x1, x2);
-      const handle = this._hiddenHandles ? 0 : this._handleSize;
+      const handle = this._hiddenHandles ? 0 : this.schema.handleSize;
       const selectionPaint = {fill: "rgba(0,0,0,0.10)", stroke: "rgba(0,0,0,0.25)", strokeWidth: 1};
       const handlePaint = {fill: "#fff", stroke: "rgba(0,0,0,0.5)", strokeWidth: 1};
       const extras: SceneNode[] = [
@@ -574,7 +561,7 @@ export default class Timeline extends Axis {
       toScene?: () => GroupNode;
       _data?: unknown[];
     };
-    if (this._playButton && pb && typeof pb.toScene === "function" && pb._data && pb._data.length) {
+    if (this.schema.playButton && pb && typeof pb.toScene === "function" && pb._data && pb._data.length) {
       scene.children.push(pb.toScene());
     }
 
@@ -588,22 +575,22 @@ export default class Timeline extends Axis {
   render(callback?: (...args: unknown[]) => unknown): this {
     const {height, y} = this._position;
 
-    if (this._ticks) this._ticks = (this._ticks as (string | number | false | undefined)[]).map(date);
+    if (this.schema.ticks) this.schema.ticks = (this.schema.ticks as (string | number | false | undefined)[]).map(date);
     if (this._data) this._data = (this._data as (string | number | false | undefined)[]).map(date);
 
-    let ticks = this._ticks ? this._ticks : this._domain.map(date);
-    if (!this._ticks) {
+    let ticks = this.schema.ticks ? this.schema.ticks : this.schema.domain.map(date);
+    if (!this.schema.ticks) {
       const d3Scale = scaleTime()
         .domain(ticks as Date[])
-        .range([0, this._width]);
+        .range([0, this.schema.width]);
       ticks = d3Scale.ticks();
     }
 
     const timeLocale =
-      this._timeLocale || locale[this._locale] || locale["en-US"];
+      this.schema.timeLocale || locale[this._locale] || locale["en-US"];
     if (this._userFormat === undefined)
-      this._userFormat = this._tickFormat || false;
-    const tickFormat = (this._tickFormat = this._userFormat
+      this._userFormat = this.schema.tickFormat || false;
+    const tickFormat = (this.schema.tickFormat = this._userFormat
       ? this._userFormat
       : (d: Date) =>
           formatDate(d, ticks as Date[]).replace(
@@ -612,11 +599,11 @@ export default class Timeline extends Axis {
           ));
 
     // Measures size of ticks
-    this._ticksWidth = this._width;
-    if (["auto", "buttons"].includes(this._buttonBehavior)) {
+    this._ticksWidth = this.schema.width;
+    if (["auto", "buttons"].includes(this.schema.buttonBehavior)) {
       let maxLabel = 0;
       ticks.forEach((d: unknown, i: number) => {
-        const {fontFamily, fontSize} = this._shapeConfig.labelConfig;
+        const {fontFamily, fontSize} = this.schema.shapeConfig.labelConfig;
 
         const f =
             typeof fontFamily === "function" ? fontFamily(d, i) : fontFamily,
@@ -626,8 +613,8 @@ export default class Timeline extends Axis {
           .fontFamily(f)
           .fontSize(s)
           .lineHeight(
-            this._shapeConfig.lineHeight
-              ? this._shapeConfig.lineHeight(d, i)
+            this.schema.shapeConfig.lineHeight
+              ? this.schema.shapeConfig.lineHeight(d, i)
               : undefined,
           );
 
@@ -645,60 +632,60 @@ export default class Timeline extends Axis {
           : 0;
 
         if (width % 2) width++;
-        if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
+        if (maxLabel < width) maxLabel = width + 2 * this.schema.buttonPadding;
       });
       this._ticksWidth = maxLabel * ticks.length;
     }
 
-    const playButtonWidth: number = this._playButton
-      ? (this._playButtonConfig.width as number) || this._buttonHeight
+    const playButtonWidth: number = this.schema.playButton
+      ? (this.schema.playButtonConfig.width as number) || this.schema.buttonHeight
       : 0;
-    const space = this._width - playButtonWidth;
+    const space = this.schema.width - playButtonWidth;
 
     this._buttonBehaviorCurrent =
-      this._buttonBehavior === "auto"
+      this.schema.buttonBehavior === "auto"
         ? this._ticksWidth < space
           ? "buttons"
           : "ticks"
-        : this._buttonBehavior;
+        : this.schema.buttonBehavior;
     const hiddenHandles = (this._hiddenHandles =
-      this._buttonBehaviorCurrent === "buttons" && !this._brushing);
+      this._buttonBehaviorCurrent === "buttons" && !this.schema.brushing);
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      this._scale = "ordinal";
+      this.schema.scale = "ordinal";
       const domain = scaleTime()
-        .domain(this._domain.map(date) as Date[])
+        .domain(this.schema.domain.map(date) as Date[])
         .ticks()
         .map(Number);
 
-      this._domain = this._ticks
-        ? this._ticks
+      this.schema.domain = this.schema.ticks
+        ? this.schema.ticks
         : Array.from(
             Array(domain[domain.length - 1] - domain[0] + 1),
             (_: unknown, x: number) => domain[0] + x,
           ).map(date);
 
-      this._ticks = this._domain;
+      this.schema.ticks = this.schema.domain;
 
-      const buttonMargin = (0.5 * this._ticksWidth) / this._ticks.length;
+      const buttonMargin = (0.5 * this._ticksWidth) / this.schema.ticks.length;
 
-      const emptySpace = this._width - this._ticksWidth - playButtonWidth;
+      const emptySpace = this.schema.width - this._ticksWidth - playButtonWidth;
 
       this._paddingLeft =
-        this._buttonAlign === "middle"
+        this.schema.buttonAlign === "middle"
           ? emptySpace / 2 + playButtonWidth
-          : this._buttonAlign === "end"
+          : this.schema.buttonAlign === "end"
             ? emptySpace + playButtonWidth
             : playButtonWidth;
 
-      this._range = [
+      this.schema.range = [
         this._paddingLeft + buttonMargin,
         this._paddingLeft + this._ticksWidth - buttonMargin,
       ];
     } else {
-      this._scale = "time";
-      this._domain = extent(ticks as Date[]) as unknown as (string | number | boolean | Date)[];
-      this._range = [
+      this.schema.scale = "time";
+      this.schema.domain = extent(ticks as Date[]) as unknown as (string | number | boolean | Date)[];
+      this.schema.range = [
         playButtonWidth ? playButtonWidth * 1.5 : undefined,
         undefined,
       ];
@@ -715,8 +702,8 @@ export default class Timeline extends Axis {
         [range[0], offset],
         [range[range.length - 1], offset + this._outerBounds[height]],
       ])
-      .filter(this._brushFilter)
-      .handleSize(hiddenHandles ? 0 : this._handleSize)
+      .filter(this.schema.brushFilter)
+      .handleSize(hiddenHandles ? 0 : this.schema.handleSize)
       .on("start", this._brushStart.bind(this))
       .on("brush", this._brushBrush.bind(this))
       .on("end", this._brushEnd.bind(this)));
@@ -727,25 +714,25 @@ export default class Timeline extends Axis {
 
     // the default selection, if needed
     const defaultSelection = [
-      this._brushMin() > defaultData.length
+      this.schema.brushMin() > defaultData.length
         ? defaultData[0]
-        : defaultData[defaultData.length - this._brushMin()],
+        : defaultData[defaultData.length - this.schema.brushMin()],
       defaultData[defaultData.length - 1],
     ];
 
     // the current selection, considering user input, defaults, and data
     const selection: unknown[] =
-      this._selection === void 0
+      this.schema.selection === void 0
         ? defaultSelection
-        : this._selection instanceof Array
+        : this.schema.selection instanceof Array
           ? this._buttonBehaviorCurrent === "buttons"
-            ? this._selection
+            ? this.schema.selection
                 .map(date)
-                .map((d: unknown) => range[this._ticks!.map(Number).indexOf(+(d as number))])
-            : this._selection.map(date)
+                .map((d: unknown) => range[this.schema.ticks!.map(Number).indexOf(+(d as number))])
+            : this.schema.selection.map(date)
           : this._buttonBehaviorCurrent === "buttons"
-            ? [range[this._ticks!.map(Number).indexOf(+(this._selection as number))]]
-            : [this._selection];
+            ? [range[this.schema.ticks!.map(Number).indexOf(+(this.schema.selection as number))]]
+            : [this.schema.selection];
 
     if (selection.length === 1) selection.push(selection[0]);
     this._updateBrushLimit(selection);
@@ -761,8 +748,8 @@ export default class Timeline extends Axis {
           : selection,
       );
 
-    this._outerBounds.y -= this._handleSize / 2;
-    this._outerBounds.height += this._handleSize / 2;
+    this._outerBounds.y -= this.schema.handleSize / 2;
+    this._outerBounds.height += this.schema.handleSize / 2;
 
     const playButtonGroup = elem("g.d3plus-Timeline-play", {
       parent: this._group,
@@ -771,115 +758,32 @@ export default class Timeline extends Axis {
     this._playButtonClass
       .renderMode("compute")
       .data(
-        this._playButton
+        this.schema.playButton
           ? [
               {
                 x: this._paddingLeft - playButtonWidth,
                 y:
                   this._buttonBehaviorCurrent === "buttons"
-                    ? this._align === "middle"
-                      ? this._height / 2 - this._buttonHeight / 2
-                      : this._align === "start"
+                    ? this.schema.align === "middle"
+                      ? this.schema.height / 2 - this.schema.buttonHeight / 2
+                      : this.schema.align === "start"
                         ? this._margin.top
-                        : this._height -
-                          this._buttonHeight -
+                        : this.schema.height -
+                          this.schema.buttonHeight -
                           this._margin.bottom
                     : this._outerBounds.y,
                 width: playButtonWidth,
-                height: this._buttonHeight,
+                height: this.schema.buttonHeight,
               },
             ]
           : [],
       )
       .select(playButtonGroup.node())
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._playButtonConfig))
+      .config(configPrep.bind(this as any)(this.schema.playButtonConfig))
       .render();
 
     return this;
-  }
-
-  /**
-        Button padding.
-*/
-  buttonPadding(): number;
-  buttonPadding(_: number): this;
-  buttonPadding(_?: number): number | this {
-    return arguments.length
-      ? ((this._buttonPadding = _!), this)
-      : this._buttonPadding;
-  }
-
-  /**
-      Toggles the brushing value.
-*/
-  brushing(): boolean;
-  brushing(_: boolean): this;
-  brushing(_?: boolean): boolean | this {
-    return arguments.length ? ((this._brushing = _!), this) : this._brushing;
-  }
-
-  /**
-      Brush event filter.
-
-@example
-function() {
-  return !event.button && event.detail < 2;
-}
-*/
-   
-  brushFilter(): (event: unknown) => boolean;
-
-  brushFilter(_: (event: unknown) => boolean): this;
-
-  brushFilter(_?: (event: unknown) => boolean): unknown {
-    return arguments.length
-      ? ((this._brushFilter = _!), this)
-      : this._brushFilter;
-  }
-
-  /**
-      The minimum number of ticks that can be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods.
-*/
-  brushMin(): () => number;
-  brushMin(_: (() => number) | number): this;
-  brushMin(_?: (() => number) | number): unknown {
-    return arguments.length
-      ? ((this._brushMin = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._brushMin;
-  }
-
-  /**
-      Toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`.
-*/
-  buttonAlign(): string;
-  buttonAlign(_: string): this;
-  buttonAlign(_?: string): string | this {
-    return arguments.length
-      ? ((this._buttonAlign = _!), this)
-      : this._buttonAlign;
-  }
-
-  /**
-      Toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`.
-*/
-  buttonBehavior(): string;
-  buttonBehavior(_: string): this;
-  buttonBehavior(_?: string): string | this {
-    return arguments.length
-      ? ((this._buttonBehavior = _!), this)
-      : this._buttonBehavior;
-  }
-
-  /**
-        Button height.
-*/
-  buttonHeight(): number;
-  buttonHeight(_: number): this;
-  buttonHeight(_?: number): number | this {
-    return arguments.length
-      ? ((this._buttonHeight = _!), this)
-      : this._buttonHeight;
   }
 
   /**
@@ -889,19 +793,8 @@ function() {
   handleConfig(_: Record<string, unknown>): this;
   handleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._handleConfig = assign(this._handleConfig, _!)), this)
-      : this._handleConfig;
-  }
-
-  /**
-      Handle size.
-*/
-  handleSize(): number;
-  handleSize(_: number): this;
-  handleSize(_?: number): number | this {
-    return arguments.length
-      ? ((this._handleSize = _!), this)
-      : this._handleSize;
+      ? ((this.schema.handleConfig = assign(this.schema.handleConfig, _!)), this)
+      : this.schema.handleConfig;
   }
 
   /**
@@ -926,36 +819,14 @@ function() {
   }
 
   /**
-      Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.
-*/
-  playButton(): boolean;
-  playButton(_: boolean): this;
-  playButton(_?: boolean): boolean | this {
-    return arguments.length
-      ? ((this._playButton = _!), this)
-      : this._playButton;
-  }
-
-  /**
       The config Object for the Rect class used to create the playButton.
 */
   playButtonConfig(): Record<string, unknown>;
   playButtonConfig(_: Record<string, unknown>): this;
   playButtonConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._playButtonConfig = assign(this._playButtonConfig, _!)), this)
-      : this._playButtonConfig;
-  }
-
-  /**
-      The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.
-*/
-  playButtonInterval(): number;
-  playButtonInterval(_: number): this;
-  playButtonInterval(_?: number): number | this {
-    return arguments.length
-      ? ((this._playButtonInterval = _!), this)
-      : this._playButtonInterval;
+      ? ((this.schema.playButtonConfig = assign(this.schema.playButtonConfig, _!)), this)
+      : this.schema.playButtonConfig;
   }
 
   /**
@@ -965,25 +836,7 @@ function() {
   selectionConfig(_: Record<string, unknown>): this;
   selectionConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._selectionConfig = assign(this._selectionConfig, _!)), this)
-      : this._selectionConfig;
-  }
-
-  /**
-      Selection. Defaults to the most recent year in the timeline.
-*/
-  selection(): unknown;
-  selection(_: unknown): this;
-  selection(_?: unknown): unknown {
-    return arguments.length ? ((this._selection = _), this) : this._selection;
-  }
-
-  /**
-      Toggles the snapping value.
-*/
-  snapping(): boolean;
-  snapping(_: boolean): this;
-  snapping(_?: boolean): boolean | this {
-    return arguments.length ? ((this._snapping = _!), this) : this._snapping;
+      ? ((this.schema.selectionConfig = assign(this.schema.selectionConfig, _!)), this)
+      : this.schema.selectionConfig;
   }
 }

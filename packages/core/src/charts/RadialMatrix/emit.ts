@@ -22,7 +22,7 @@ export const radialMatrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const cells = (shapeData ?? []) as RmCell[];
   if (!cells.length) return [];
   const arcData = viz.ctx.arcData as (d: RmCell) => string;
-  const sc = (viz._shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   return cells.map((d, i): SceneNode => {
     const fill = resolveAccessor<string>(sc.fill, d as DataPoint, i);

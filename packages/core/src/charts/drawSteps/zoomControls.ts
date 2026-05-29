@@ -80,7 +80,7 @@ export default function (this: Viz): void {
       [0, 0],
       [width, height],
     ])
-    .scaleExtent([1, this._zoomMax])
+    .scaleExtent([1, this.schema.zoomMax])
     .translateExtent([
       [0, 0],
       [width, height],
@@ -100,7 +100,7 @@ export default function (this: Viz): void {
   // not per draw — the html string is constant, so listeners attached
   // here survive every subsequent draw (renderers only rewrite
   // innerHTML when it differs from the current value).
-  if (this._zoom) {
+  if (this.schema.zoom) {
     this._featurePanels = this._featurePanels || [];
     this._featurePanels.push({
       type: "htmlOverlay" as const,
@@ -121,10 +121,10 @@ export default function (this: Viz): void {
       // a per-button binding.
       events: {
         ".zoom-in": {
-          click: () => zoomMath.bind(that)(that._zoomFactor),
+          click: () => zoomMath.bind(that)(that.schema.zoomFactor),
         },
         ".zoom-out": {
-          click: () => zoomMath.bind(that)(1 / that._zoomFactor),
+          click: () => zoomMath.bind(that)(1 / that.schema.zoomFactor),
         },
         ".zoom-reset": {
           click: () => zoomMath.bind(that)(0),
@@ -203,12 +203,12 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
   if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
 
-  if (!brush && this._zoom) {
+  if (!brush && this.schema.zoom) {
     this._container.call(this._zoomBehavior);
-    if (!this._zoomScroll) {
+    if (!this.schema.zoomScroll) {
       this._container.on("wheel.zoom", null);
     }
-    if (!this._zoomPan) {
+    if (!this.schema.zoomPan) {
       this._container
         .on("mousedown.zoom mousemove.zoom", null)
         .on(
@@ -306,7 +306,7 @@ function zoomMath(this: Viz, factor: number = 0): void {
     }
   }
 
-  zoomed.bind(this)(t, this._duration);
+  zoomed.bind(this)(t, this.schema.duration);
 }
 
 /**
@@ -318,7 +318,7 @@ function zoomMath(this: Viz, factor: number = 0): void {
 function zoomToBounds(
   this: Viz,
   bounds: number[][] | null,
-  duration: number = this._duration,
+  duration: number = this.schema.duration,
 ): void {
   const scaleExtent = this._zoomBehavior.scaleExtent(),
     t = zoomTransform(this._container.node()) as unknown as MutableTransform;

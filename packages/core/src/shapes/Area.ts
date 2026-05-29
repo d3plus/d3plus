@@ -6,33 +6,22 @@ import {merge} from "@d3plus/data";
 import {largestRect} from "@d3plus/math";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import type {AreaConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** Area's own fluent accessor schema, layered on top of Shape's. */
+const areaSchema: ConfigField[] = [
+  {key: "curve", coerce: "const", default: constant("linear")},
+  {key: "defined", coerce: "identity", default: () => true},
+];
 
 /**
     Creates SVG areas based on an array of data.
 */
 export default class Area extends Shape {
-  _curve: AccessorFn;
-  _defined: (d: DataPoint) => boolean;
-  declare _labelBounds:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown> | null | false)
-    | null;
-  declare _labelConfig: Record<string, unknown>;
-  declare _name: string;
-  declare _x: AccessorFn;
-  _x0: AccessorFn;
-  _x1: AccessorFn | null;
-  declare _y: AccessorFn;
-  _y0: AccessorFn;
-  _y1: AccessorFn | null;
-  declare _path: Record<string, unknown>;
-
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
@@ -40,34 +29,30 @@ export default class Area extends Shape {
   constructor() {
     super();
 
-    this._curve = constant("linear");
-    this._defined = () => true;
-    this._labelBounds = (
-      d: DataPoint,
-      i: number,
-      aes: ShapeAes,
-    ) => {
+    installFluent(this, areaSchema);
+
+    this._name = "Area";
+    this.schema.labelBounds = (d: DataPoint, i: number, aes: ShapeAes) => {
       const r = largestRect(aes.points as unknown as [number, number][]);
       if (!r) return null;
       return {
         angle: r.angle,
         width: r.width,
         height: r.height,
-        x: r.cx - r.width / 2 - (this._x(d, i) as number),
-        y: r.cy - r.height / 2 - (this._y(d, i) as number),
+        x: r.cx - r.width / 2 - (this.schema.x(d, i) as number),
+        y: r.cy - r.height / 2 - (this.schema.y(d, i) as number),
       };
     };
-    this._labelConfig = Object.assign(this._labelConfig, {
+    this.schema.labelConfig = Object.assign(this.schema.labelConfig, {
       textAnchor: "middle",
       verticalAlign: "middle",
     });
-    this._name = "Area";
-    this._x = accessor("x");
-    this._x0 = accessor("x");
-    this._x1 = null;
-    this._y = constant(0);
-    this._y0 = constant(0);
-    this._y1 = accessor("y");
+    this.schema.x = accessor("x");
+    this.schema.x0 = accessor("x");
+    this.schema.x1 = null;
+    this.schema.y = constant(0);
+    this.schema.y0 = constant(0);
+    this.schema.y1 = accessor("y");
   }
 
   /**
@@ -79,23 +64,27 @@ export default class Area extends Shape {
   _sceneGeometry(d: DataPoint): Record<string, unknown> {
     const cx = Number(d.x);
     const cy = Number(d.y);
-    const userCurve = String(this._curve.bind(this)(this.config() as DataPoint));
+    const userCurve = String(
+      this.schema.curve.bind(this)(this.config() as DataPoint),
+    );
     const curve = (paths as Record<string, unknown>)[
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
     ];
-    const offX = (fn: AccessorFn) => (v: DataPoint, z: number) => (fn(v, z) as number) - cx;
-    const offY = (fn: AccessorFn) => (v: DataPoint, z: number) => (fn(v, z) as number) - cy;
+    const offX = (fn: AccessorFn) => (v: DataPoint, z: number) =>
+      (fn(v, z) as number) - cx;
+    const offY = (fn: AccessorFn) => (v: DataPoint, z: number) =>
+      (fn(v, z) as number) - cy;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const gen = (paths as any)
       .area()
-      .defined(this._defined)
+      .defined(this.schema.defined)
       .curve(curve)
-      .x(offX(this._x))
-      .x0(offX(this._x0))
-      .x1(this._x1 ? offX(this._x1) : null)
-      .y(offY(this._y))
-      .y0(offY(this._y0))
-      .y1(this._y1 ? offY(this._y1) : null);
+      .x(offX(this.schema.x))
+      .x0(offX(this.schema.x0))
+      .x1(this.schema.x1 ? offX(this.schema.x1) : null)
+      .y(offY(this.schema.y))
+      .y0(offY(this.schema.y0))
+      .y1(this.schema.y1 ? offY(this.schema.y1) : null);
     return {type: "path", d: gen(d.values) || ""};
   }
 
@@ -108,22 +97,22 @@ export default class Area extends Shape {
     const values = (d.values as unknown as DataPoint[])
       .slice()
       .sort((a: DataPoint, b: DataPoint) =>
-        this._y1
-          ? (this._x(a) as number) - (this._x(b) as number)
-          : (this._y(a) as number) - (this._y(b) as number),
+        this.schema.y1
+          ? (this.schema.x(a) as number) - (this.schema.x(b) as number)
+          : (this.schema.y(a) as number) - (this.schema.y(b) as number),
       );
     const points1: [number, number][] = values.map(
       (v: DataPoint, z: number) => [
-        this._x0(v, z) as number,
-        this._y0(v, z) as number,
+        this.schema.x0(v, z) as number,
+        this.schema.y0(v, z) as number,
       ],
     );
     const points2: [number, number][] = values
       .reverse()
       .map((v: DataPoint, z: number) =>
-        this._y1
-          ? [this._x(v, z) as number, this._y1!(v, z) as number]
-          : [this._x1!(v, z) as number, this._y(v, z) as number],
+        this.schema.y1
+          ? [this.schema.x(v, z) as number, this.schema.y1(v, z) as number]
+          : [this.schema.x1(v, z) as number, this.schema.y(v, z) as number],
       );
     let points = points1.concat(points2);
     if (points1[0][1] > points2[0][1]) points = points.reverse();
@@ -138,7 +127,7 @@ export default class Area extends Shape {
   _dataFilter(data: DataPoint[]): DataPoint[] {
     const areas: DataPoint[] & {
       key?: (d: DataPoint) => DataPoint[keyof DataPoint];
-    } = groups(data, this._id).map(
+    } = groups(data, this.schema.id).map(
       ([key, values]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
         const d: DataPoint = {key, values} as unknown as DataPoint;
         (d as Record<string, unknown>).data = merge(
@@ -150,11 +139,11 @@ export default class Area extends Shape {
 
         const x = extent(
           (d.values as unknown as DataPoint[])
-            .map(this._x)
-            .concat((d.values as unknown as DataPoint[]).map(this._x0))
+            .map(this.schema.x)
+            .concat((d.values as unknown as DataPoint[]).map(this.schema.x0))
             .concat(
-              this._x1
-                ? (d.values as unknown as DataPoint[]).map(this._x1)
+              this.schema.x1
+                ? (d.values as unknown as DataPoint[]).map(this.schema.x1)
                 : [],
             ) as number[],
         );
@@ -166,11 +155,11 @@ export default class Area extends Shape {
 
         const y = extent(
           (d.values as unknown as DataPoint[])
-            .map(this._y)
-            .concat((d.values as unknown as DataPoint[]).map(this._y0))
+            .map(this.schema.y)
+            .concat((d.values as unknown as DataPoint[]).map(this.schema.y0))
             .concat(
-              this._y1
-                ? (d.values as unknown as DataPoint[]).map(this._y1)
+              this.schema.y1
+                ? (d.values as unknown as DataPoint[]).map(this.schema.y1)
                 : [],
             ) as number[],
         );
@@ -194,34 +183,14 @@ export default class Area extends Shape {
 
 
   /**
-      The d3 curve function used to interpolate the area.
-*/
-  curve(): AccessorFn;
-  curve(_: AccessorFn | string): this;
-  curve(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._curve = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._curve;
-  }
-
-  /**
-      An accessor function that determines whether a data point is defined (not a gap in the area).
-*/
-  defined(): (d: DataPoint) => boolean;
-  defined(_: (d: DataPoint) => boolean): this;
-  defined(_?: (d: DataPoint) => boolean): ((d: DataPoint) => boolean) | this {
-    return arguments.length ? ((this._defined = _!), this) : this._defined;
-  }
-
-  /**
       The x position accessor. Also sets x0 to the same value.
 */
   x(): AccessorFn;
   x(_: AccessorFn | number): this;
   x(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._x;
-    this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn;
-    this._x0 = this._x;
+    if (!arguments.length) return this.schema.x;
+    this.schema.x = typeof _ === "function" ? _ : constant(_);
+    this.schema.x0 = this.schema.x;
     return this;
   }
 
@@ -231,10 +200,9 @@ export default class Area extends Shape {
   x0(): AccessorFn;
   x0(_: AccessorFn | number): this;
   x0(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._x0;
-    this._x0 =
-      typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn);
-    this._x = this._x0;
+    if (!arguments.length) return this.schema.x0;
+    this.schema.x0 = typeof _ === "function" ? _ : constant(_);
+    this.schema.x = this.schema.x0;
     return this;
   }
 
@@ -245,14 +213,10 @@ export default class Area extends Shape {
   x1(_: AccessorFn | number | null): this;
   x1(_?: AccessorFn | number | null): AccessorFn | null | this {
     return arguments.length
-      ? ((this._x1 =
-          typeof _ === "function"
-            ? _
-            : _ === null
-              ? null
-              : (constant(_) as unknown as AccessorFn)),
+      ? ((this.schema.x1 =
+          typeof _ === "function" ? _ : _ === null ? null : constant(_)),
         this)
-      : this._x1;
+      : this.schema.x1;
   }
 
   /**
@@ -261,9 +225,9 @@ export default class Area extends Shape {
   y(): AccessorFn;
   y(_: AccessorFn | number): this;
   y(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._y;
-    this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn;
-    this._y0 = this._y;
+    if (!arguments.length) return this.schema.y;
+    this.schema.y = typeof _ === "function" ? _ : constant(_);
+    this.schema.y0 = this.schema.y;
     return this;
   }
 
@@ -273,10 +237,9 @@ export default class Area extends Shape {
   y0(): AccessorFn;
   y0(_: AccessorFn | number): this;
   y0(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._y0;
-    this._y0 =
-      typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn);
-    this._y = this._y0;
+    if (!arguments.length) return this.schema.y0;
+    this.schema.y0 = typeof _ === "function" ? _ : constant(_);
+    this.schema.y = this.schema.y0;
     return this;
   }
 
@@ -287,14 +250,10 @@ export default class Area extends Shape {
   y1(_: AccessorFn | number | null): this;
   y1(_?: AccessorFn | number | null): AccessorFn | null | this {
     return arguments.length
-      ? ((this._y1 =
-          typeof _ === "function"
-            ? _
-            : _ === null
-              ? null
-              : (constant(_) as unknown as AccessorFn)),
+      ? ((this.schema.y1 =
+          typeof _ === "function" ? _ : _ === null ? null : constant(_)),
         this)
-      : this._y1;
+      : this.schema.y1;
   }
 
   /**
@@ -304,7 +263,6 @@ export default class Area extends Shape {
   */
   config(): AreaConfig;
   config(_: Partial<AreaConfig>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config(_?: Partial<AreaConfig>): AreaConfig | this {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (arguments.length ? super.config(_ as any) : super.config()) as any;

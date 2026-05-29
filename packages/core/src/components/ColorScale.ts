@@ -15,62 +15,65 @@ import type {DataPoint} from "@d3plus/data";
 
 import {Axis, TextBox} from "../components/index.js";
 import {Rect} from "../shapes/index.js";
-import {accessor, BaseClass, constant} from "../utils/index.js";
+import {accessor, BaseClass} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import Legend from "./Legend.js";
+
+/** ColorScale's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const colorScaleSchema: ConfigField[] = [
+  {key: "align", coerce: "identity", default: "middle"},
+  {key: "buckets", coerce: "identity", default: 5},
+  {key: "bucketAxis", coerce: "identity", default: false},
+  {key: "bucketFormat", coerce: "identity"},
+  {
+    key: "bucketJoiner",
+    coerce: "identity",
+    default: (a: string, b: string): string => (a !== b ? `${a} - ${b}` : `${a}`),
+  },
+  {key: "centered", coerce: "identity", default: true},
+  {
+    key: "color",
+    coerce: "identity",
+    default: ["#54478C", "#2C699A", "#0DB39E", "#83E377", "#EFEA5A"],
+  },
+  {key: "colorMax", coerce: "identity", default: colorDefaults.on},
+  {key: "colorMid", coerce: "identity", default: colorDefaults.light},
+  {key: "colorMin", coerce: "identity", default: colorDefaults.off},
+  {key: "domain", coerce: "identity"},
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "height", coerce: "identity", default: 200},
+  {key: "midpoint", coerce: "identity", default: 0},
+  {key: "orient", coerce: "identity", default: "bottom"},
+  {key: "padding", coerce: "identity", default: 5},
+  {key: "scale", coerce: "identity", default: "linear"},
+  {key: "size", coerce: "identity", default: 10},
+  {key: "value", coerce: "const", default: accessor("value")},
+  {key: "width", coerce: "identity", default: 400},
+];
 
 /**
     Creates an SVG color scale based on an array of data.
 */
 export default class ColorScale extends BaseClass {
+  // installFluent generates the config accessors (align, buckets, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _select!: D3Selection;
   _axisClass: Axis;
-   
-  _axisConfig: Record<string, unknown>;
   _axisTest: Axis;
-  _align: string;
-  _buckets: number | number[];
-  _bucketAxis: boolean;
-  _bucketFormat: (
-    tick: number,
-    i: number,
-    ticks: number[],
-    allValues: number[],
-  ) => string;
-  _bucketJoiner: (a: string, b: string) => string;
-  _centered: boolean;
-  _color: string | string[];
-  _colorMax: string;
-  _colorMid: string;
-  _colorMin: string;
-   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _colorScale: any;
   _data: DataPoint[];
-  _domain: number[] | undefined;
-  _duration: number;
   _group!: D3Selection;
-  _height: number;
   _labelClass: TextBox;
-   
-  _labelConfig: Record<string, unknown>;
   _labelMin: string | undefined;
   _labelMax: string | undefined;
   _legendClass: Legend;
-   
-  _legendConfig: Record<string, unknown>;
-  _midpoint: number;
-  _orient: string;
   _outerBounds: Record<string, number>;
-  _padding: number;
   _rectClass: Rect;
-   
-  _rectConfig: Record<string, unknown>;
-  _scale: string;
-  _size: number;
-   
-  _value: (d: DataPoint, i?: number) => unknown;
-  _width: number;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -78,23 +81,21 @@ export default class ColorScale extends BaseClass {
 */
   constructor() {
     super();
+    installFluent(this, colorScaleSchema);
 
     this._axisClass = new Axis();
-    this._axisConfig = {
+    this.schema.axisConfig = {
       gridSize: 0,
     };
     this._axisTest = new Axis();
-    this._align = "middle";
-    this._buckets = 5;
-    this._bucketAxis = false;
-    this._bucketFormat = (
+    this.schema.bucketFormat = (
       tick: number,
       i: number,
       ticks: number[],
       allValues: number[],
     ): string => {
-      const format = (this._axisConfig.tickFormat
-        ? this._axisConfig.tickFormat
+      const format = (this.schema.axisConfig.tickFormat
+        ? this.schema.axisConfig.tickFormat
         : formatAbbreviate) as (v: number | undefined) => string;
 
       const next = ticks[i + 1];
@@ -135,21 +136,12 @@ export default class ColorScale extends BaseClass {
                 ] as number[]),
               );
 
-        return this._bucketJoiner(prevValue, nextValue);
+        return this.schema.bucketJoiner(prevValue, nextValue);
       }
     };
-    this._bucketJoiner = (a: string, b: string) =>
-      a !== b ? `${a} - ${b}` : `${a}`;
-    this._centered = true;
-    this._color = ["#54478C", "#2C699A", "#0DB39E", "#83E377", "#EFEA5A"];
-    this._colorMax = colorDefaults.on;
-    this._colorMid = colorDefaults.light;
-    this._colorMin = colorDefaults.off;
     this._data = [];
-    this._duration = 600;
-    this._height = 200;
     this._labelClass = new TextBox();
-    this._labelConfig = {
+    this.schema.labelConfig = {
       fontColor: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         return colorContrast(bg);
@@ -157,27 +149,20 @@ export default class ColorScale extends BaseClass {
       fontSize: 12,
     };
     this._legendClass = new Legend();
-    this._legendConfig = {
+    this.schema.legendConfig = {
       shapeConfig: {
         stroke: colorDefaults.dark,
         strokeWidth: 1,
       },
     };
-    this._midpoint = 0;
-    this._orient = "bottom";
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
-    this._padding = 5;
     this._rectClass = new Rect().parent(
       this as unknown as Record<string, unknown>,
     );
-    this._rectConfig = {
+    this.schema.rectConfig = {
       stroke: "#999",
       strokeWidth: 1,
     };
-    this._scale = "linear";
-    this._size = 10;
-    this._value = accessor("value");
-    this._width = 400;
   }
 
   /**
@@ -191,12 +176,12 @@ export default class ColorScale extends BaseClass {
       this.select(
         select("body")
           .append("svg")
-          .attr("width", `${this._width}px`)
-          .attr("height", `${this._height}px`)
+          .attr("width", `${this.schema.width}px`)
+          .attr("height", `${this.schema.height}px`)
           .node() as unknown as HTMLElement,
       );
 
-    const horizontal = ["bottom", "top"].includes(this._orient);
+    const horizontal = ["bottom", "top"].includes(this.schema.orient);
 
     const height = horizontal ? "height" : "width",
       width = horizontal ? "width" : "height",
@@ -207,18 +192,18 @@ export default class ColorScale extends BaseClass {
     this._group = elem("g.d3plus-ColorScale", {parent: this._select});
 
     const allValues = (this._data
-      .map(this._value)
+      .map(this.schema.value)
       .filter((d: unknown) => d !== null && typeof d === "number") as number[])
       .sort((a: number, b: number) => a - b);
 
-    const domain = this._domain || extent(allValues);
-    const negative = (domain as number[])[0] < this._midpoint;
-    const positive = (domain as number[])[1] > this._midpoint;
+    const domain = this.schema.domain || extent(allValues);
+    const negative = (domain as number[])[0] < this.schema.midpoint;
+    const positive = (domain as number[])[1] > this.schema.midpoint;
     const diverging = negative && positive;
 
     const numBuckets = min([
-      this._buckets instanceof Array ? this._buckets.length : this._buckets,
-      diverging && this._scale !== "jenks"
+      this.schema.buckets instanceof Array ? this.schema.buckets.length : this.schema.buckets,
+      diverging && this.schema.scale !== "jenks"
         ? 2 * Math.floor(unique(allValues).length / 2) - 1
         : unique(allValues).length,
     ])!;
@@ -226,11 +211,11 @@ export default class ColorScale extends BaseClass {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let colors: any =
         diverging &&
-        (!this._color ||
-          (this._color instanceof Array &&
-            !this._color.includes(this._colorMid)))
+        (!this.schema.color ||
+          (this.schema.color instanceof Array &&
+            !this.schema.color.includes(this.schema.colorMid)))
           ? undefined
-          : this._color,
+          : this.schema.color,
       labels: number[] | undefined,
       ticks: number[] | undefined;
 
@@ -240,7 +225,7 @@ export default class ColorScale extends BaseClass {
         .reverse();
     }
 
-    if (this._scale === "jenks") {
+    if (this.schema.scale === "jenks") {
       const buckets = min([
         colors ? colors.length : numBuckets,
         numBuckets,
@@ -249,19 +234,19 @@ export default class ColorScale extends BaseClass {
 
       let jenks: number[][] = [];
 
-      if (this._buckets instanceof Array) {
-        ticks = this._buckets;
+      if (this.schema.buckets instanceof Array) {
+        ticks = this.schema.buckets;
       } else {
-        if (diverging && this._centered) {
+        if (diverging && this.schema.centered) {
           const half = Math.floor(buckets / 2);
           const residual = buckets % 2;
 
-          const negatives = allValues.filter((d: number) => d < this._midpoint);
+          const negatives = allValues.filter((d: number) => d < this.schema.midpoint);
           const negativesDeviation = deviation(negatives);
 
           const positives = allValues
-            .concat(this._midpoint)
-            .filter((d: number) => d >= this._midpoint);
+            .concat(this.schema.midpoint)
+            .filter((d: number) => d >= this.schema.midpoint);
           const positivesDeviation = deviation(positives);
 
           const isNegativeMax =
@@ -292,22 +277,22 @@ export default class ColorScale extends BaseClass {
 
       if (!colors) {
         if (diverging) {
-          colors = [this._colorMin, this._colorMid, this._colorMax];
+          colors = [this.schema.colorMin, this.schema.colorMid, this.schema.colorMax];
           const negatives = ticks
             .slice(0, buckets)
             .filter(
               (d: number, i: number) =>
-                d < this._midpoint && ticks![i + 1] <= this._midpoint,
+                d < this.schema.midpoint && ticks![i + 1] <= this.schema.midpoint,
             );
           const spanning = ticks
             .slice(0, buckets)
             .filter(
               (d: number, i: number) =>
-                d <= this._midpoint && ticks![i + 1] > this._midpoint,
+                d <= this.schema.midpoint && ticks![i + 1] > this.schema.midpoint,
             );
           const positives = ticks
             .slice(0, buckets)
-            .filter((d: number) => d > this._midpoint);
+            .filter((d: number) => d > this.schema.midpoint);
           const negativeColors = negatives.map((_d: number, i: number) =>
             !i ? colors[0] : colorLighter(colors[0], i / negatives.length),
           );
@@ -320,7 +305,7 @@ export default class ColorScale extends BaseClass {
           colors = negativeColors.concat(spanningColors).concat(positiveColors);
         } else {
           colors = range(0, numBuckets, 1)
-            .map((i: number) => colorLighter(this._colorMax, i / numBuckets))
+            .map((i: number) => colorLighter(this.schema.colorMax, i / numBuckets))
             .reverse();
         }
       }
@@ -331,24 +316,24 @@ export default class ColorScale extends BaseClass {
 
       this._colorScale = scaleThreshold().domain(ticks).range(colors);
     } else {
-      let buckets = this._buckets instanceof Array ? this._buckets : undefined;
+      let buckets = this.schema.buckets instanceof Array ? this.schema.buckets : undefined;
       if (diverging && !colors) {
         const half = Math.floor(numBuckets / 2);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const negativeColorScale = (interpolateRgb as any).gamma(2.2)(
-          this._colorMin,
-          this._colorMid,
+          this.schema.colorMin,
+          this.schema.colorMid,
         );
         const negativeColors = range(0, half, 1).map((i: number) =>
           negativeColorScale(i / half),
         );
         const spanningColors = (numBuckets % 2 ? [0] : []).map(
-          () => this._colorMid,
+          () => this.schema.colorMid,
         );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const positiveColorScale = (interpolateRgb as any).gamma(2.2)(
-          this._colorMax,
-          this._colorMid,
+          this.schema.colorMax,
+          this.schema.colorMid,
         );
         const positiveColors = range(0, half, 1)
           .map((i: number) => positiveColorScale(i / half))
@@ -358,59 +343,59 @@ export default class ColorScale extends BaseClass {
           const step = (colors.length - 1) / 2;
           buckets = [
             (domain as number[])[0],
-            this._midpoint,
+            this.schema.midpoint,
             (domain as number[])[1],
           ];
           buckets = range(
             (domain as number[])[0],
-            this._midpoint,
-            -((domain as number[])[0] - this._midpoint) / step,
+            this.schema.midpoint,
+            -((domain as number[])[0] - this.schema.midpoint) / step,
           )
             .concat(
               range(
-                this._midpoint,
+                this.schema.midpoint,
                 (domain as number[])[1],
-                ((domain as number[])[1] - this._midpoint) / step,
+                ((domain as number[])[1] - this.schema.midpoint) / step,
               ),
             )
             .concat([(domain as number[])[1]]);
         }
       } else {
         if (!colors) {
-          if (this._scale === "buckets" || this._scale === "quantile") {
+          if (this.schema.scale === "buckets" || this.schema.scale === "quantile") {
             colors = range(0, numBuckets, 1).map((i: number) =>
               colorLighter(
-                negative ? this._colorMin : this._colorMax,
+                negative ? this.schema.colorMin : this.schema.colorMax,
                 i / numBuckets,
               ),
             );
             if (positive) colors = colors.reverse();
           } else {
             colors = negative
-              ? [this._colorMin, colorLighter(this._colorMin, 0.8)]
-              : [colorLighter(this._colorMax, 0.8), this._colorMax];
+              ? [this.schema.colorMin, colorLighter(this.schema.colorMin, 0.8)]
+              : [colorLighter(this.schema.colorMax, 0.8), this.schema.colorMax];
           }
         }
         if (!buckets) {
-          if (this._scale === "quantile") {
+          if (this.schema.scale === "quantile") {
             const step = 1 / (colors.length - 1);
             buckets = range(0, 1 + step / 2, step).map((d: number) =>
               quantile(allValues, d),
             ) as number[];
-          } else if (diverging && this._color && this._centered) {
-            const midIndex = colors.indexOf(this._colorMid);
+          } else if (diverging && this.schema.color && this.schema.centered) {
+            const midIndex = colors.indexOf(this.schema.colorMid);
             const negativeStep =
-              (this._midpoint - (domain as number[])[0]) / midIndex;
+              (this.schema.midpoint - (domain as number[])[0]) / midIndex;
             const positiveStep =
-              ((domain as number[])[1] - this._midpoint) /
+              ((domain as number[])[1] - this.schema.midpoint) /
               (colors.length - midIndex);
             const negativeBuckets = range(
               (domain as number[])[0],
-              this._midpoint,
+              this.schema.midpoint,
               negativeStep,
             );
             const positiveBuckets = range(
-              this._midpoint,
+              this.schema.midpoint,
               (domain as number[])[1] + positiveStep / 2,
               positiveStep,
             );
@@ -429,10 +414,10 @@ export default class ColorScale extends BaseClass {
         }
       }
 
-      if (this._scale === "buckets" || this._scale === "quantile") {
+      if (this.schema.scale === "buckets" || this.schema.scale === "quantile") {
         ticks = buckets;
         colors = [colors[0]].concat(colors);
-      } else if (this._scale === "log") {
+      } else if (this.schema.scale === "log") {
         const negativeBuckets = (buckets as number[]).filter((d: number) => d < 0);
         if (negativeBuckets.length) {
           const minVal = negativeBuckets[0];
@@ -459,7 +444,7 @@ export default class ColorScale extends BaseClass {
           (buckets as number[])[(buckets as number[]).indexOf(0)] = 1;
       }
 
-      const scaleFn = this._scale === "buckets" || this._scale === "quantile"
+      const scaleFn = this.schema.scale === "buckets" || this.schema.scale === "quantile"
         ? scaleThreshold
         : scaleLinear;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -471,9 +456,9 @@ export default class ColorScale extends BaseClass {
     if (this._colorScale.clamp) this._colorScale.clamp(true);
 
     const gradient =
-      this._bucketAxis ||
-      !["buckets", "jenks", "quantile"].includes(this._scale);
-    const t = transition().duration(this._duration);
+      this.schema.bucketAxis ||
+      !["buckets", "jenks", "quantile"].includes(this.schema.scale);
+    const t = transition().duration(this.schema.duration);
     const groupParams: Record<string, unknown> = {
       enter: {opacity: 0},
       exit: {opacity: 0},
@@ -498,7 +483,7 @@ export default class ColorScale extends BaseClass {
       const offsets: Record<string, number> = {x: 0, y: 0};
 
       const axisDomain = (domain as number[]).slice();
-      if (this._bucketAxis) {
+      if (this.schema.bucketAxis) {
         const last = axisDomain[axisDomain.length - 1];
         const prev = axisDomain[axisDomain.length - 2];
         const mod = last ? last / 10 : prev / 10;
@@ -518,27 +503,27 @@ export default class ColorScale extends BaseClass {
       const axisConfig: Record<string, any> = assign(
         {
           domain: horizontal ? axisDomain : axisDomain.slice().reverse(),
-          duration: this._duration,
-          height: this._height,
+          duration: this.schema.duration,
+          height: this.schema.height,
           labels: labels || ticks,
-          orient: this._orient,
-          padding: this._padding,
-          scale: this._scale === "log" ? "log" : "linear",
+          orient: this.schema.orient,
+          padding: this.schema.padding,
+          scale: this.schema.scale === "log" ? "log" : "linear",
           ticks,
-          width: this._width,
+          width: this.schema.width,
         },
-        this._axisConfig,
+        this.schema.axisConfig,
       );
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const labelConfig: Record<string, any> = assign(
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          height: (this as any)[`_${height}`] / 2,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          width: (this as any)[`_${width}`] / 2,
+           
+          height: this.schema[height] / 2,
+           
+          width: this.schema[width] / 2,
         },
-        this._labelConfig,
+        this.schema.labelConfig,
       );
 
       this._labelClass.config(labelConfig);
@@ -559,10 +544,10 @@ export default class ColorScale extends BaseClass {
           labelCSS["font-family"] = labelCSS["font-family"][0];
         let labelMinWidth = textWidth(this._labelMin, labelCSS);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (labelMinWidth && labelMinWidth < (this as any)[`_${width}`] / 2) {
+         
+        if (labelMinWidth && labelMinWidth < this.schema[width] / 2) {
           labelData.push(this._labelMin);
-          labelMinWidth += this._padding;
+          labelMinWidth += this.schema.padding;
           if (horizontal) offsets.x += labelMinWidth;
           axisConfig[width] -= labelMinWidth;
         }
@@ -582,10 +567,10 @@ export default class ColorScale extends BaseClass {
           labelCSS["font-family"] = labelCSS["font-family"][0];
         let labelMaxWidth = textWidth(this._labelMax, labelCSS);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (labelMaxWidth && labelMaxWidth < (this as any)[`_${width}`] / 2) {
+         
+        if (labelMaxWidth && labelMaxWidth < this.schema[width] / 2) {
           labelData.push(this._labelMax);
-          labelMaxWidth += this._padding;
+          labelMaxWidth += this.schema.padding;
           if (!horizontal) offsets.y += labelMaxWidth;
           axisConfig[width] -= labelMaxWidth;
         }
@@ -606,26 +591,26 @@ export default class ColorScale extends BaseClass {
 
       const axisBounds = this._axisTest.outerBounds();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._outerBounds[width] = (this as any)[`_${width}`] - this._padding * 2;
-      this._outerBounds[height] = axisBounds[height] + this._size;
+       
+      this._outerBounds[width] = this.schema[width] - this.schema.padding * 2;
+      this._outerBounds[height] = axisBounds[height] + this.schema.size;
 
-      this._outerBounds[x] = this._padding;
-      this._outerBounds[y] = this._padding;
-      if (this._align === "middle")
+      this._outerBounds[x] = this.schema.padding;
+      this._outerBounds[y] = this.schema.padding;
+      if (this.schema.align === "middle")
         this._outerBounds[y] =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((this as any)[`_${height}`] - this._outerBounds[height]) / 2;
-      else if (this._align === "end")
+           
+          (this.schema[height] - this._outerBounds[height]) / 2;
+      else if (this.schema.align === "end")
         this._outerBounds[y] =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this as any)[`_${height}`] -
-          this._padding -
+           
+          this.schema[height] -
+          this.schema.padding -
           this._outerBounds[height];
 
       const axisGroupOffset =
         this._outerBounds[y] +
-        (["bottom", "right"].includes(this._orient) ? this._size : 0) -
+        (["bottom", "right"].includes(this.schema.orient) ? this.schema.size : 0) -
         (axisConfig.padding || this._axisClass.padding());
       const transform = `translate(${offsets.x + (horizontal ? 0 : axisGroupOffset)}, ${offsets.y + (horizontal ? axisGroupOffset : 0)})`;
       this._axisClass
@@ -688,7 +673,7 @@ export default class ColorScale extends BaseClass {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rectConfig: Record<string, any> = assign(
         {
-          duration: this._duration,
+          duration: this.schema.duration,
           fill: ticks
             ? (d: number) => this._colorScale(d)
             : `url(#gradient-${this._uuid})`,
@@ -696,19 +681,19 @@ export default class ColorScale extends BaseClass {
             ? (d: number, i: number) =>
                 axisScale(d) +
                 bucketWidth(d, i) / 2 -
-                (["left", "right"].includes(this._orient)
+                (["left", "right"].includes(this.schema.orient)
                   ? bucketWidth(d, i)
                   : 0)
             : (scaleRange[0] as number) + ((scaleRange[1] as number) - (scaleRange[0] as number)) / 2 + offsets[x],
           [y]:
             this._outerBounds[y] +
-            (["top", "left"].includes(this._orient) ? axisBounds[height] : 0) +
-            this._size / 2 +
+            (["top", "left"].includes(this.schema.orient) ? axisBounds[height] : 0) +
+            this.schema.size / 2 +
             offsets[y],
           [width]: ticks ? bucketWidth : (scaleRange[1] as number) - (scaleRange[0] as number),
-          [height]: this._size,
+          [height]: this.schema.size,
         },
-        this._rectConfig,
+        this.schema.rectConfig,
       );
 
       // Phase D parity: force internal shapes into compute mode so they
@@ -736,7 +721,7 @@ export default class ColorScale extends BaseClass {
         .select(labelGroup.node())
         .x(((d: DataPoint) =>
           (d as unknown as string) === this._labelMax
-            ? rectConfig.x + rectConfig.width / 2 + this._padding
+            ? rectConfig.x + rectConfig.width / 2 + this.schema.padding
             : this._outerBounds.x) as unknown as number)
         .y(
           ((d: DataPoint) =>
@@ -745,7 +730,7 @@ export default class ColorScale extends BaseClass {
               2) as unknown as number,
         )
         .text(((d: DataPoint) => d) as unknown as string)
-        .rotate(horizontal ? 0 : this._orient === "right" ? 90 : -90)
+        .rotate(horizontal ? 0 : this.schema.orient === "right" ? 90 : -90)
         .render();
     } else {
       elem(
@@ -754,7 +739,7 @@ export default class ColorScale extends BaseClass {
       );
 
       let legendData = ticks!.reduce((arr: {color: string; id: string}[], tick: number, i: number) => {
-        const label = this._bucketFormat.bind(this)(tick, i, ticks!, allValues);
+        const label = this.schema.bucketFormat.bind(this)(tick, i, ticks!, allValues);
         arr.push({color: colors[i + 1], id: label});
 
         return arr;
@@ -765,23 +750,23 @@ export default class ColorScale extends BaseClass {
         {
           align: horizontal
             ? "center"
-            : ({start: "left", middle: "center", end: "right"} as Record<string, string>)[this._align],
+            : ({start: "left", middle: "center", end: "right"} as Record<string, string>)[this.schema.align],
           direction: horizontal ? "row" : "column",
-          duration: this._duration,
-          height: this._height,
-          padding: this._padding,
+          duration: this.schema.duration,
+          height: this.schema.height,
+          padding: this.schema.padding,
           shapeConfig: assign(
-            {duration: this._duration} as Record<string, unknown>,
-            (this._axisConfig.shapeConfig || {}) as Record<string, unknown>,
+            {duration: this.schema.duration} as Record<string, unknown>,
+            (this.schema.axisConfig.shapeConfig || {}) as Record<string, unknown>,
           ),
-          title: this._axisConfig.title,
-          titleConfig: (this._axisConfig.titleConfig || {}) as Record<string, unknown>,
-          width: this._width,
+          title: this.schema.axisConfig.title,
+          titleConfig: (this.schema.axisConfig.titleConfig || {}) as Record<string, unknown>,
+          width: this.schema.width,
           verticalAlign: horizontal
-            ? ({start: "top", middle: "middle", end: "bottom"} as Record<string, string>)[this._align]
+            ? ({start: "top", middle: "middle", end: "bottom"} as Record<string, string>)[this.schema.align]
             : "middle",
         } as Record<string, unknown>,
-        this._legendConfig,
+        this.schema.legendConfig,
       );
 
       this._legendClass
@@ -794,7 +779,7 @@ export default class ColorScale extends BaseClass {
       this._outerBounds = this._legendClass.outerBounds();
     }
 
-    if (callback) setTimeout(callback, this._duration + 100);
+    if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
   }
@@ -806,123 +791,8 @@ export default class ColorScale extends BaseClass {
   axisConfig(_: Record<string, unknown>): this;
   axisConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._axisConfig = assign(this._axisConfig, _!)), this)
-      : this._axisConfig;
-  }
-
-  /**
-      The horizontal alignment.
-*/
-  align(): string;
-  align(_: string): this;
-  align(_?: string): unknown {
-    return arguments.length ? ((this._align = _!), this) : this._align;
-  }
-
-  /**
-      The number of discrete buckets to create in a bucketed color scale. Will be overridden by any custom Array of colors passed to the `color` method. Optionally, users can supply an Array of values used to separate buckets, such as `[0, 10, 25, 50, 90]` for a percentage scale. This value would create 4 buckets, with each value representing the break point between each bucket (so 5 values makes 4 buckets).
-*/
-  buckets(): number | number[];
-  buckets(_: number | number[]): this;
-  buckets(_?: number | number[]): unknown {
-    return arguments.length ? ((this._buckets = _!), this) : this._buckets;
-  }
-
-  /**
-      Determines whether or not to use an Axis to display bucket scales (both "buckets" and "jenks"). When set to `false`, bucketed scales will use the `Legend` class to display squares for each range of data. When set to `true`, bucketed scales will be displayed on an `Axis`, similar to "linear" scales.
-*/
-  bucketAxis(): boolean;
-  bucketAxis(_: boolean): this;
-  bucketAxis(_?: boolean): unknown {
-    return arguments.length
-      ? ((this._bucketAxis = _!), this)
-      : this._bucketAxis;
-  }
-
-  /**
-      A function for formatting the labels associated to each bucket in a bucket-type scale ("jenks", "quantile", etc). The function is passed four arguments: the start value of the current bucket, it's index in the full Array of buckets, the full Array of buckets, and an Array of every value present in the data used to construct the buckets. Keep in mind that the end value for the bucket is not actually the next bucket in the list, but includes every value up until that next bucket value (less than, but not equal to). By default, d3plus will make the end value slightly less than it's current value, so that it does not overlap with the start label for the next bucket.
-*/
-  bucketFormat(): (
-    tick: number,
-    i: number,
-    ticks: number[],
-    allValues: number[],
-  ) => string;
-  bucketFormat(
-    _: (
-      tick: number,
-      i: number,
-      ticks: number[],
-      allValues: number[],
-    ) => string,
-  ): this;
-  bucketFormat(
-    _?: (
-      tick: number,
-      i: number,
-      ticks: number[],
-      allValues: number[],
-    ) => string,
-  ): unknown {
-    return arguments.length
-      ? ((this._bucketFormat = _!), this)
-      : this._bucketFormat;
-  }
-
-  /**
-      A function that receives the minimum and maximum values of a bucket, and is expected to return the full label.
-*/
-  bucketJoiner(): (a: string, b: string) => string;
-  bucketJoiner(_: (a: string, b: string) => string): this;
-  bucketJoiner(_?: (a: string, b: string) => string): unknown {
-    return arguments.length
-      ? ((this._bucketJoiner = _!), this)
-      : this._bucketJoiner;
-  }
-
-  /**
-      Determines whether or not to display a midpoint centered Axis. Does not apply to quantile scales.
-*/
-  centered(): boolean;
-  centered(_: boolean): this;
-  centered(_?: boolean): unknown {
-    return arguments.length ? ((this._centered = _!), this) : this._centered;
-  }
-
-  /**
-      Overrides the default internal logic of `colorMin`, `colorMid`, and `colorMax` to only use just this specified color. If a single color is given as a String, then the scale is interpolated by lightening that color. Otherwise, the function expects an Array of color values to be used in order for the scale.
-*/
-  color(): string | string[];
-  color(_: string | string[]): this;
-  color(_?: string | string[]): unknown {
-    return arguments.length ? ((this._color = _!), this) : this._color;
-  }
-
-  /**
-      Defines the color to be used for numbers greater than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-*/
-  colorMax(): string;
-  colorMax(_: string): this;
-  colorMax(_?: string): unknown {
-    return arguments.length ? ((this._colorMax = _!), this) : this._colorMax;
-  }
-
-  /**
-      Defines the color to be used for the midpoint of a diverging scale, based on the current value of the `midpoint` method (defaults to `0`). Colors in between this value and the values of `colorMin` and `colorMax` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-*/
-  colorMid(): string;
-  colorMid(_: string): this;
-  colorMid(_?: string): unknown {
-    return arguments.length ? ((this._colorMid = _!), this) : this._colorMid;
-  }
-
-  /**
-      Defines the color to be used for numbers less than the value of the `midpoint` on the scale (defaults to `0`). Colors in between this value and the value of `colorMid` will be interpolated, unless a custom Array of colors has been specified using the `color` method.
-*/
-  colorMin(): string;
-  colorMin(_: string): this;
-  colorMin(_?: string): unknown {
-    return arguments.length ? ((this._colorMin = _!), this) : this._colorMin;
+      ? ((this.schema.axisConfig = assign(this.schema.axisConfig, _!)), this)
+      : this.schema.axisConfig;
   }
 
   /**
@@ -935,41 +805,14 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      In a linear scale, this Array of 2 values defines the min and max values used in the color scale. Any values outside of this range will be mapped to the nearest color value.
-*/
-  domain(): number[] | undefined;
-  domain(_: number[]): this;
-  domain(_?: number[]): unknown {
-    return arguments.length ? ((this._domain = _), this) : this._domain;
-  }
-
-  /**
-      Transition duration of the ColorScale.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): unknown {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      Overall height of the ColorScale.
-*/
-  height(): number;
-  height(_: number): this;
-  height(_?: number): unknown {
-    return arguments.length ? ((this._height = _!), this) : this._height;
-  }
-
-  /**
       A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
 */
   labelConfig(): Record<string, unknown>;
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._labelConfig = assign(this._labelConfig, _!)), this)
-      : this._labelConfig;
+      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      : this.schema.labelConfig;
   }
 
   /**
@@ -997,26 +840,8 @@ export default class ColorScale extends BaseClass {
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._legendConfig = assign(this._legendConfig, _!)), this)
-      : this._legendConfig;
-  }
-
-  /**
-      The number value to be used as the anchor for `colorMid`, and defines the center point of the diverging color scale.
-*/
-  midpoint(): number;
-  midpoint(_: number): this;
-  midpoint(_?: number): unknown {
-    return arguments.length ? ((this._midpoint = _!), this) : this._midpoint;
-  }
-
-  /**
-      The flow orientation of the ColorScale items.
-*/
-  orient(): string;
-  orient(_: string): this;
-  orient(_?: string): unknown {
-    return arguments.length ? ((this._orient = _!), this) : this._orient;
+      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      : this.schema.legendConfig;
   }
 
   /**
@@ -1029,32 +854,14 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      The padding between each key.
-*/
-  padding(): number;
-  padding(_: number): this;
-  padding(_?: number): unknown {
-    return arguments.length ? ((this._padding = _!), this) : this._padding;
-  }
-
-  /**
       The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 */
   rectConfig(): Record<string, unknown>;
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._rectConfig = assign(this._rectConfig, _!)), this)
-      : this._rectConfig;
-  }
-
-  /**
-      Scale of the ColorScale.
-*/
-  scale(): string;
-  scale(_: string): this;
-  scale(_?: string): unknown {
-    return arguments.length ? ((this._scale = _!), this) : this._scale;
+      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      : this.schema.rectConfig;
   }
 
   /**
@@ -1066,43 +873,5 @@ export default class ColorScale extends BaseClass {
     return arguments.length
       ? ((this._select = select(_ as never) as unknown as D3Selection), this)
       : this._select;
-  }
-
-  /**
-      The height of horizontal color scales, and width when positioned vertical.
-*/
-  size(): number;
-  size(_: number): this;
-  size(_?: number): unknown {
-    return arguments.length ? ((this._size = _!), this) : this._size;
-  }
-
-  /**
-      The value accessor used to determine each data point's position on the color scale.
-
-@example
-function value(d) {
-  return d.value;
-}
-*/
-  value(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  value(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  value(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._value = typeof _ === "function" ? _ : constant(_)), this)
-      : this._value;
-  }
-
-  /**
-      Overall width of the ColorScale.
-*/
-  width(): number;
-  width(_: number): this;
-  width(_?: number): unknown {
-    return arguments.length ? ((this._width = _!), this) : this._width;
   }
 }

@@ -56,7 +56,6 @@ export interface VizDrawCtx extends VizContext {
 
 export function vizDrawPure(
   viz: Viz,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
 ): Partial<VizDrawCtx> {
   const out: Partial<VizDrawCtx> = {

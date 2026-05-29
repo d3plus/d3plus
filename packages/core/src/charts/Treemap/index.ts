@@ -113,7 +113,7 @@ export const treemapDef: ChartDefinition = {
       factory: (viz: VizInstance) => ({
         ariaLabel: (d: DataPoint & {rank?: number}, i: number) => {
           const rank = typeof d.rank === "number" ? `${d.rank + 1}. ` : "";
-          const sumFn = viz._sum as (d: DataPoint, i: number) => number;
+          const sumFn = viz.schema.sum as (d: DataPoint, i: number) => number;
           return `${rank}${viz._drawLabel(d, i)}, ${sumFn(d, i)}.`;
         },
         labelConfig: {fontMax: 32, fontMin: 8, fontResize: true, padding: 5},
@@ -140,14 +140,14 @@ export const treemapDef: ChartDefinition = {
     {
       key: "legendSort",
       factory: (viz: VizInstance) => {
-        const sumFn = viz._sum as (d: DataPoint) => number;
+        const sumFn = viz.schema.sum as (d: DataPoint) => number;
         return (a: DataPoint, b: DataPoint) => sumFn(b) - sumFn(a);
       },
     },
     {
       key: "legend",
       factory: (viz: VizInstance) => {
-        const base = viz._legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
+        const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
         return (config: D3plusConfig, arr: DataPoint[]) => {
           if (arr.length === viz._filteredData.length) return false;
           return base.call(viz, config, arr);

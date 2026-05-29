@@ -50,8 +50,8 @@ export const radialMatrixDef: ChartDefinition = {
     ),
 
   setup: (viz: VizInstance) => {
-    const baseMouseMoveShape = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (
+    const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
+    viz.schema.on["mousemove.shape"] = (
       d: DataPoint, i: number, x: unknown, event: unknown,
     ) => {
       baseMouseMoveShape(d, i, x, event);

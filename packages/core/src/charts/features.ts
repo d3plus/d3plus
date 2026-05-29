@@ -62,7 +62,6 @@ export interface FeatureLayout {
       context. The contract is about CROSS-feature mutation, not all
       mutation.
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vizUpdate?: Record<string, any>;
 }
 
@@ -211,7 +210,7 @@ function textBlockLayout(
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
   const width =
-    viz._width -
+    viz.schema.width -
     (viz._margin.left + viz._margin.right + padding.left + padding.right);
 
   const textClass = viz[opts.textClassKey];
@@ -384,12 +383,12 @@ export const legendFeature: FeatureModule = {
     const legendData: DataPoint[] = [];
 
     const getAttr = (d: DataPoint, i: number, attr: string): string => {
-      const shape = viz._shape(d, i);
+      const shape = viz.schema.shape(d, i);
       if (attr === "fill" && shape === "Line") attr = "stroke";
       const value =
-        viz._shapeConfig[shape] && viz._shapeConfig[shape][attr]
-          ? viz._shapeConfig[shape][attr]
-          : viz._shapeConfig[attr];
+        viz.schema.shapeConfig[shape] && viz.schema.shapeConfig[shape][attr]
+          ? viz.schema.shapeConfig[shape][attr]
+          : viz.schema.shapeConfig[attr];
       return typeof value === "function" ? value.bind(viz)(d, i) : value;
     };
 
@@ -408,7 +407,7 @@ export const legendFeature: FeatureModule = {
       fill,
     );
 
-    legendData.sort(viz._legendSort);
+    legendData.sort(viz.schema.legendSort);
 
     const labels = legendData.map((d: DataPoint, i: number) =>
       viz._ids(d, i).slice(0, viz._drawDepth + 1),
@@ -467,7 +466,7 @@ export const legendFeature: FeatureModule = {
     // an actual hide signal: the legend's render runs against [] data,
     // which exits any prior DOM and emits no scene.
     const visible =
-      position === false ? false : viz._legend.bind(viz)(config, legendData);
+      position === false ? false : viz.schema.legend.bind(viz)(config, legendData);
 
     // The Legend instance still renders into a `g.d3plus-viz-legend` group as
     // a child of the chart's svg. This group is created via the legacy `elem`
@@ -477,7 +476,7 @@ export const legendFeature: FeatureModule = {
       condition: visible && !viz._legendConfig.select,
       enter: transform,
       parent: viz._select,
-      duration: viz._duration,
+      duration: viz.schema.duration,
       update: transform,
     }).node();
 
@@ -486,28 +485,28 @@ export const legendFeature: FeatureModule = {
       .id(fill)
       .align(wide ? "center" : position)
       .direction(wide ? "row" : "column")
-      .duration(viz._duration)
+      .duration(viz.schema.duration)
       .data(visible ? legendData : [])
       .height(
         wide
-          ? viz._height - (viz._margin.bottom + viz._margin.top)
-          : viz._height -
+          ? viz.schema.height - (viz._margin.bottom + viz._margin.top)
+          : viz.schema.height -
               (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top),
       )
       .locale(viz._locale)
       .parent(viz)
       .select(legendGroup)
       .shape((d: DataPoint, i: number) =>
-        viz._shape(d, i) === "Circle" ? "Circle" : "Rect",
+        viz.schema.shape(d, i) === "Circle" ? "Circle" : "Rect",
       )
       .verticalAlign(!wide ? "middle" : position)
       .width(
         wide
-          ? viz._width -
+          ? viz.schema.width -
               (viz._margin.left + viz._margin.right + padding.left + padding.right)
-          : viz._width - (viz._margin.left + viz._margin.right),
+          : viz.schema.width - (viz._margin.left + viz._margin.right),
       )
-      .shapeConfig((configPrep as any).bind(viz)(viz._shapeConfig, "legend"))
+      .shapeConfig((configPrep as any).bind(viz)(viz.schema.shapeConfig, "legend"))
       .shapeConfig({
         fill: (d: DataPoint, i: number) =>
           hidden(d, i) ? viz._hiddenColor(d, i) : getAttr(d, i, "fill"),
@@ -570,7 +569,7 @@ export const timelineFeature: FeatureModule = {
   name: "timeline",
   configFields: ["timeline", "timelineConfig", "timelinePadding"],
   layout: ({viz}) => {
-    let timelinePossible = viz._time && viz._timeline;
+    let timelinePossible = viz._time && viz.schema.timeline;
     const ticks = (
       timelinePossible
         ? unique(viz._data.map(viz._time)).map(
@@ -591,7 +590,7 @@ export const timelineFeature: FeatureModule = {
       condition: timelinePossible,
       enter: transform,
       parent: viz._select,
-      duration: viz._duration,
+      duration: viz.schema.duration,
       update: transform,
     }).node();
 
@@ -601,13 +600,13 @@ export const timelineFeature: FeatureModule = {
     const timeline = viz._timelineClass
       .renderMode("compute")
       .domain(extent(ticks) as [Date, Date])
-      .duration(viz._duration)
-      .height(viz._height - viz._margin.bottom)
+      .duration(viz.schema.duration)
+      .height(viz.schema.height - viz._margin.bottom)
       .locale(viz._locale)
       .select(timelineGroup)
       .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
       .width(
-        viz._width -
+        viz.schema.width -
           (viz._margin.left + viz._margin.right + padding.left + padding.right),
       );
 
@@ -682,16 +681,16 @@ export const colorScaleFeature: FeatureModule = {
       : {top: 0, right: 0, bottom: 0, left: 0};
 
     const availableWidth =
-      viz._width - (viz._margin.left + viz._margin.right + padding.left + padding.right);
+      viz.schema.width - (viz._margin.left + viz._margin.right + padding.left + padding.right);
     const width = wide
       ? min([viz._colorScaleMaxSize, availableWidth])!
-      : viz._width - (viz._margin.left + viz._margin.right);
+      : viz.schema.width - (viz._margin.left + viz._margin.right);
 
     const availableHeight =
-      viz._height - (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top);
+      viz.schema.height - (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top);
     const height = !wide
       ? min([viz._colorScaleMaxSize, availableHeight])!
-      : viz._height - (viz._margin.bottom + viz._margin.top);
+      : viz.schema.height - (viz._margin.bottom + viz._margin.top);
 
     const transform = {
       opacity: position ? 1 : 0,
@@ -710,7 +709,7 @@ export const colorScaleFeature: FeatureModule = {
       condition: showColorScale && !viz._colorScaleConfig.select,
       enter: transform,
       parent: viz._select,
-      duration: viz._duration,
+      duration: viz.schema.duration,
       update: transform,
     }).node();
 
@@ -727,7 +726,7 @@ export const colorScaleFeature: FeatureModule = {
           position
         ] || "bottom",
       )
-      .duration(viz._duration)
+      .duration(viz.schema.duration)
       .data(scaleData)
       .height(height)
       .locale(viz._locale)

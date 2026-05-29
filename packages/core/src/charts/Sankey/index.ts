@@ -5,8 +5,6 @@
       - `applyLayout.ts` — node + link resolution + d3-sankey layout.
       - `emit.ts` — link Paths + per-shape-type node Rects.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   sankey,
   sankeyCenter,
@@ -46,67 +44,86 @@ export const sankeyDef: ChartDefinition = {
   emit: sankeyEmit,
 
   setup: (viz: VizInstance) => {
-    viz._on.mouseenter = () => undefined;
-    viz._on["mouseleave.shape"] = () => {
+    viz.schema.on.mouseenter = () => undefined;
+    viz.schema.on["mouseleave.shape"] = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (viz as any).hover(false);
     };
-    const defaultMouseMove = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+    const defaultMouseMove = viz.schema.on["mousemove.shape"];
+    viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (viz as any).hover(false);
-        viz._on.mouseenter.bind(viz)(d, i, x, event);
+        viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
         viz._focus = undefined;
         return;
       }
-      const id = viz._nodeId(d, i);
-      const node = viz.ctx.nodeLookup[id];
-      const nodeLookup = Object.keys(viz.ctx.nodeLookup).reduce((all: any, item: any) => {
-        all[viz.ctx.nodeLookup[item]] = !isNaN(item) ? parseInt(item, 10) : item;
-        return all;
-      }, {});
-      const links = viz.ctx.linkLookup[node];
-      const filterIds = [id];
-      links.forEach((l: any) => filterIds.push(nodeLookup[l]));
-      (viz as any).hover((h: any, x: any) => {
+      const id = viz.schema.nodeId(d, i) as string | number;
+      const node = (viz.ctx.nodeLookup as Record<string, number>)[String(id)];
+      const lookup = viz.ctx.nodeLookup as Record<string, number>;
+      const nodeLookup = Object.keys(lookup).reduce(
+        (all: Record<number, string | number>, item: string) => {
+          all[lookup[item]] = !isNaN(Number(item)) ? parseInt(item, 10) : item;
+          return all;
+        },
+        {},
+      );
+      const links = (viz.ctx.linkLookup as Record<number, number[]>)[node] ?? [];
+      const filterIds: (string | number)[] = [id];
+      links.forEach(l => filterIds.push(nodeLookup[l]));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (viz as any).hover((h: DataPoint & {source?: DataPoint; target?: DataPoint}, hi: number) => {
         if (h.source && h.target) return h.source.id === id || h.target.id === id;
-        return filterIds.includes(viz._nodeId(h, x));
+        return filterIds.includes(viz.schema.nodeId(h, hi) as string | number);
       });
     };
 
-    (viz as any).links = function(this: VizInstance, _: any, f?: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).links = function(this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as any).bind(this)(_, f, "links");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
         return this;
       }
-      return this._links;
+      return this.schema.links;
     };
-    (viz as any).nodes = function(this: VizInstance, _: any, f?: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).nodes = function(this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as any).bind(this)(_, f, "nodes");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
         return this;
       }
-      return this._nodes;
+      return this.schema.nodes;
     };
-    (viz as any).nodeAlign = function(this: VizInstance, _: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).nodeAlign = function(this: VizInstance, _: unknown) {
       return arguments.length
-        ? ((this._nodeAlign = typeof _ === "function" ? _ : (sankeyAligns as any)[_]), this)
-        : this._nodeAlign;
+        ? ((this.schema.nodeAlign = typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : (sankeyAligns as unknown as Record<string, unknown>)[_ as string]), this)
+        : this.schema.nodeAlign;
     };
-    (viz as any).nodeId = function(this: VizInstance, _: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).nodeId = function(this: VizInstance, _: unknown) {
       return arguments.length
-        ? ((this._nodeId = typeof _ === "function" ? _ : accessor(_)), this)
-        : this._nodeId;
+        ? ((this.schema.nodeId = typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : accessor(_ as string)), this)
+        : this.schema.nodeId;
     };
-    (viz as any).value = function(this: VizInstance, _: any) {
-      return arguments.length
-        ? ((this._value = typeof _ === "function" ? _ : accessor(_)), this)
-        : this._value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).value = function(this: VizInstance, _: unknown) {
+      if (!arguments.length) return this.schema.value;
+      this.schema.value = (typeof _ === "function"
+        ? (_ as (...a: unknown[]) => unknown)
+        : accessor(_ as string)) as (d: DataPoint, i: number) => number;
+      return this;
     };
-    (viz as any).hover = function(this: VizInstance, _: any) {
-      this._hover = _;
-      this._shapes.forEach((s: any) => s.hover(_));
-      if (this._legend) this._legendClass.hover(_);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (viz as any).hover = function(this: VizInstance, _: unknown) {
+      this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
+      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
+      if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
       return this;
     };
   },
@@ -134,27 +151,29 @@ export const sankeyDef: ChartDefinition = {
     {
       key: "shapeConfig",
       merge: true,
-      factory: () => ({
-        Path: {
-          fill: "none",
-          hoverStyle: {
-            "stroke-width": (d: any) =>
-              Math.max(
-                1,
-                Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2,
-              ),
+      factory: () => {
+        type SankeyLinkDatum = {
+          source: {y0: number; y1: number; value: number};
+          target: {y0: number; y1: number};
+          value: number;
+        };
+        const linkStrokeWidth = (d: SankeyLinkDatum) =>
+          Math.max(
+            1,
+            Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2,
+          );
+        return {
+          Path: {
+            fill: "none",
+            hoverStyle: {"stroke-width": linkStrokeWidth},
+            label: false,
+            stroke: "#DBDBDB",
+            strokeOpacity: 0.5,
+            strokeWidth: linkStrokeWidth,
           },
-          label: false,
-          stroke: "#DBDBDB",
-          strokeOpacity: 0.5,
-          strokeWidth: (d: any) =>
-            Math.max(
-              1,
-              Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2,
-            ),
-        },
-        Rect: {},
-      }),
+          Rect: {},
+        };
+      },
     },
   ],
 };

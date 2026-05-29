@@ -7,7 +7,7 @@ import type Viz from "../Viz.js";
     @private
 */
 export default function (this: Viz, d: DataPoint, i: number): void {
-  if (this._shapeConfig.hoverOpacity !== 1) {
+  if (this.schema.shapeConfig.hoverOpacity !== 1) {
     let filterIds = this._id(d, i);
     if (!(filterIds instanceof Array)) filterIds = [filterIds];
 

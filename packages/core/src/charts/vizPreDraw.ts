@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
     `vizPreDraw(viz)` — the imperative shim wrapping `vizPreDrawPure`.
@@ -35,12 +34,12 @@ export function vizPreDraw(viz: Viz): void {
   if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
 
   // 2. computedTimeFilter — surfaced on the ctx for downstream consumers
-  // (rollupAndFilter etc.) but NOT back-assigned to `viz._timeFilter`.
+  // (rollupAndFilter etc.) but NOT back-assigned to `viz.schema.timeFilter`.
   // Back-assigning would pin the synthesized filter (which captures
   // `latestTime` at synthesis time) to the viz, so a subsequent render
   // with newer data would skip re-synthesis and silently filter
   // post-latestTime rows out. The pure function consumes its own
-  // computedTimeFilter for filteredData; legacy `viz._timeFilter`
+  // computedTimeFilter for filteredData; legacy `viz.schema.timeFilter`
   // consumers see the user's value (truthy) or undefined.
 
   // 3. filteredData — pre-threshold from pure, then run threshold (which
@@ -56,14 +55,14 @@ export function vizPreDraw(viz: Viz): void {
   const post = vizPostThresholdCtx(viz, filteredData, viz._id);
   if (post.hoverOverride?.stashOriginals) {
     if (viz._userHover === undefined)
-      viz._userHover = viz._shapeConfig.hoverOpacity || 0.5;
+      viz._userHover = viz.schema.shapeConfig.hoverOpacity || 0.5;
     if (viz._userDuration === undefined)
-      viz._userDuration = viz._shapeConfig.duration || 600;
-    viz._shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
-    viz._shapeConfig.duration = post.hoverOverride.duration;
+      viz._userDuration = viz.schema.shapeConfig.duration || 600;
+    viz.schema.shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
+    viz.schema.shapeConfig.duration = post.hoverOverride.duration;
   } else if (post.hoverOverride?.restoreOriginals) {
-    viz._shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
-    viz._shapeConfig.duration = post.hoverOverride.duration;
+    viz.schema.shapeConfig.hoverOpacity = post.hoverOverride.hoverOpacity;
+    viz.schema.shapeConfig.duration = post.hoverOverride.duration;
   }
 
   // 5. No-data-message DOM mount + opacity fade.
@@ -74,6 +73,6 @@ export function vizPreDraw(viz: Viz): void {
       mask: false,
       style: viz._messageStyle,
     });
-    viz._select.transition().duration(viz._duration).attr("opacity", 0);
+    viz._select.transition().duration(viz.schema.duration).attr("opacity", 0);
   }
 }

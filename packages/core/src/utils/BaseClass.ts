@@ -65,7 +65,10 @@ function getAllMethods(obj: object): string[] {
 */
 export default class BaseClass {
   /** User-set values from fluent accessors (`.sum(...)`, `.x(...)`, …). */
-  schema: Record<string, unknown>;
+  // installFluent stores config-accessor values (often `(d, i) => …`
+  // functions) here; `any` lets `this.schema.fill(d, i)` call sites type-check.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema: Record<string, any>;
   /** Chart-internal scratch (d3 layout instances, computed derived state). */
   ctx: Record<string, unknown>;
 

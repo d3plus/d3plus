@@ -13,50 +13,61 @@ import accessor from "../../es/src/utils/accessor.js";
 // object — no Plot instance, no DOM. Demonstrates the chart-as-data thesis
 // scaling from leaf charts (Treemap/Pack) to the Plot god-class.
 
-const makeViz = (overrides = {}) => ({
-  _filteredData: [
-    {id: "A", x: 0, y: 1},
-    {id: "A", x: 1, y: 2},
-    {id: "B", x: 0, y: 3},
-    {id: "B", x: 1, y: 4},
-  ],
-  _data: [],
-  _ids: (d) => [d.id],
-  _drawDepth: 0,
-  _discrete: "x",
-  _stacked: false,
-  _groupBy: [accessor("id")],
-  _axisPersist: false,
-  _aggs: {},
-  _confidence: false,
-  _time: false,
-  _shape: () => "Circle",
-  _x: accessor("x"),
-  _y: accessor("y"),
-  _x2: accessor("x2"),
-  _y2: accessor("y2"),
-  _xSort: false,
-  _x2Sort: false,
-  _ySort: false,
-  _y2Sort: false,
-  _xConfig: {},
-  _x2Config: {},
-  _yConfig: {},
-  _y2Config: {},
-  _xDomain: undefined,
-  _x2Domain: undefined,
-  _yDomain: undefined,
-  _y2Domain: undefined,
-  _baseline: undefined,
-  _size: false,
-  _sizeScale: "sqrt",
-  _sizeMax: 10,
-  _sizeMin: 5,
-  _height: 300,
-  _width: 400,
-  _margin: {top: 0, right: 0, bottom: 0, left: 0},
-  ...overrides,
-});
+const makeViz = (overrides = {}) => {
+  // The chart-def refactor migrated Plot's pipeline to read schema fields
+  // (stacked, sizeMax, etc.) directly via `viz.schema.<key>`. Hand-rolled
+  // viz stubs need `schema` populated alongside the legacy `_<key>` data
+  // slots (which the pipeline still uses for non-schema state like
+  // `_filteredData`, `_groupBy`).
+  const schemaOverrides = overrides.schema || {};
+  return {
+    _filteredData: [
+      {id: "A", x: 0, y: 1},
+      {id: "A", x: 1, y: 2},
+      {id: "B", x: 0, y: 3},
+      {id: "B", x: 1, y: 4},
+    ],
+    _data: [],
+    _ids: (d) => [d.id],
+    _drawDepth: 0,
+    _groupBy: [accessor("id")],
+    _axisPersist: false,
+    _aggs: {},
+    _confidence: false,
+    _time: false,
+    _x: accessor("x"),
+    _y: accessor("y"),
+    _x2: accessor("x2"),
+    _y2: accessor("y2"),
+    _xConfig: {},
+    _x2Config: {},
+    _yConfig: {},
+    _y2Config: {},
+    _baseline: undefined,
+    _size: false,
+    _margin: {top: 0, right: 0, bottom: 0, left: 0},
+    schema: {
+      discrete: "x",
+      stacked: false,
+      shape: () => "Circle",
+      xSort: false,
+      x2Sort: false,
+      ySort: false,
+      y2Sort: false,
+      xDomain: undefined,
+      x2Domain: undefined,
+      yDomain: undefined,
+      y2Domain: undefined,
+      sizeScale: "sqrt",
+      sizeMax: 10,
+      sizeMin: 5,
+      height: 300,
+      width: 400,
+      ...schemaOverrides,
+    },
+    ...overrides,
+  };
+};
 
 it("formatPlotData maps filteredData into PlotDatum + sets time/size flags", () => {
   const viz = makeViz();
