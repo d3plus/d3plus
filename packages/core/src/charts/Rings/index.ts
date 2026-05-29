@@ -9,6 +9,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {addToQueue} from "@d3plus/data";
+import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
@@ -35,7 +36,7 @@ export const ringsDef: ChartDefinition = {
       (viz as any).hover(false);
     };
     const defaultMouseMove = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
+    viz._on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
         (viz as any).hover(false);

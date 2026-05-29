@@ -44,7 +44,7 @@ export const networkDef: ChartDefinition = {
   // `chartTransform` (default margin-origin) is fine for the scene.
   setup: (viz: VizInstance) => {
     viz._zoom = true;
-    viz._on["click.shape"] = (d: any, i: any, x: any, event: any) => {
+    viz._on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       viz._tooltipClass.data([]).render();
 
       if (viz._hover && viz._drawDepth >= viz._groupBy.length - 1) {
@@ -88,7 +88,7 @@ export const networkDef: ChartDefinition = {
         }
       }
     };
-    viz._on["click.legend"] = (d: any, i: any, x: any, event: any) => {
+    viz._on["click.legend"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       let id = viz._ids(d);
       id = id[id.length - 1];
       const ids = viz._id(d);
@@ -140,7 +140,7 @@ export const networkDef: ChartDefinition = {
       (viz as any).hover(false);
     };
     const defaultMouseMove = viz._on["mousemove.shape"];
-    viz._on["mousemove.shape"] = (d: any, i: any, x: any, event: any) => {
+    viz._on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       defaultMouseMove(d, i, x, event);
       const id = getNodeId(viz, d, i);
       const links = viz.ctx.linkLookup[id] || [];
