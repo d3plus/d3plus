@@ -67,21 +67,24 @@ export type {
 // custom charts on the ChartDefinition contract. Not yet a stable public API.
 import {
   applyGeomapLayout,
-  applyMatrixLayout,
   applyNetworkLayout,
-  applyRadarLayout,
-  applyRadialMatrixLayout,
   applyRingsLayout,
   applySankeyLayout,
   applyTreeLayout,
 } from "./src/charts/ChartDefinition.js";
+import {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 import {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
 import {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
 import {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
+import {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
+import {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
 import {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
+import {matrixDef} from "./src/charts/Matrix/index.js";
 import {packDef} from "./src/charts/Pack/index.js";
 import {pieDef} from "./src/charts/Pie/index.js";
 import {priestleyDef} from "./src/charts/Priestley/index.js";
+import {radarDef} from "./src/charts/Radar/index.js";
+import {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
@@ -147,9 +150,12 @@ export {
   applyTreeLayout,
   applyTreemapLayout,
   // Core pipeline + factory infrastructure.
+  matrixDef,
   packDef,
   pieDef,
   priestleyDef,
+  radarDef,
+  radialMatrixDef,
   treemapDef,
   createFluent,
   installFluent,
