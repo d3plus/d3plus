@@ -299,6 +299,26 @@ const tauRadar = Math.PI * 2;
     Stages/emit are inherited from Plot (still legacy) — populated as the
     Plot `_draw` migration progresses.
 */
+/**
+    `plotShapesEmit` — for Plot-based charts. Plot._paint runs imperatively
+    (axis production rendering + per-discrete-group shape emission via
+    `absorbShapeIntoChartScene`) which populates `viz._chartScene` as a
+    side effect. So the def's emit just returns that already-populated
+    scene — the chart's "data" IS the chart-scene Plot produced.
+
+    Consumers calling `barChartDef.emit({viz})` directly (without going
+    through Plot.render) get an empty array (since `_chartScene` won't
+    be populated yet). That's the right answer — they need to drive
+    Plot's pipeline (or use `plotPaint(viz, pCtx)`) first.
+
+    Future evolution: as plotPaint is decomposed into pure stages, the
+    paint logic moves here and the side-effect-then-snapshot pattern
+    inverts to a pure data → SceneNode[] transformation.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const plotShapesEmit: ChartDefinition["emit"] = ({viz}: {viz: any}) =>
+  Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [];
+
 export const barChartDef: ChartDefinition = {
   name: "BarChart",
   defaults: {
@@ -310,7 +330,7 @@ export const barChartDef: ChartDefinition = {
   // Plot's pipeline still owns the chart-specific data prep + scale
   // computation; barChartDef contributes only the configuration delta.
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 /* ----------------------- other Plot subclass defs ----------------------- */
@@ -322,7 +342,7 @@ export const areaPlotDef: ChartDefinition = {
   defaults: {baseline: 0, discrete: "x", shape: constant("Area")},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 export const linePlotDef: ChartDefinition = {
@@ -330,7 +350,7 @@ export const linePlotDef: ChartDefinition = {
   defaults: {discrete: "x", shape: constant("Line")},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 export const stackedAreaDef: ChartDefinition = {
@@ -338,7 +358,7 @@ export const stackedAreaDef: ChartDefinition = {
   defaults: {stacked: true},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 export const boxWhiskerDef: ChartDefinition = {
@@ -346,7 +366,7 @@ export const boxWhiskerDef: ChartDefinition = {
   defaults: {discrete: "x", shape: constant("Box")},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 export const bumpChartDef: ChartDefinition = {
@@ -354,7 +374,7 @@ export const bumpChartDef: ChartDefinition = {
   defaults: {discrete: "x", shape: constant("Line")},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: plotShapesEmit,
 };
 
 /* ----------------------- Pie/Donut/Pack defs ----------------------- */
@@ -432,12 +452,13 @@ export const pieDef: ChartDefinition = {
 export const donutDef: ChartDefinition = {
   // Donut extends Pie. Its only purely-scalar override is `padPixel`. The
   // `innerRadius` closure depends on `this._width`/`_height`/`_margin` at
-  // call time, so it stays imperative in the constructor.
+  // call time, so it stays imperative in the constructor. Same emit as
+  // Pie (the slice data shape is identical).
   name: "Donut",
   defaults: {padPixel: 2},
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
   stages: vizPreDrawStages,
-  emit: () => [],
+  emit: pieEmit,
 };
 
 /**
@@ -3503,5 +3524,5 @@ export const plotDef: ChartDefinition = {
     // the canonical chain because it depends on test-axis state (xTest/yTest)
     // that's measured imperatively in _draw, not as a stage.
   ],
-  emit: () => [],
+  emit: plotShapesEmit,
 };

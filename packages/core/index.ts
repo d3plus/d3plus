@@ -107,6 +107,21 @@ export type {VizContext} from "./src/charts/vizContext.js";
 export type {PlotPaintContext} from "./src/charts/plotPaint.js";
 export type {VizPreDrawResult} from "./src/charts/vizPreDrawPure.js";
 export type {ShapeLike, VizLike} from "./src/charts/emitHelpers.js";
+export type {
+  AnyShapeConfig,
+  AreaConfig,
+  BarConfig,
+  BaseShapeConfig,
+  BoxConfig,
+  CircleConfig,
+  ConstOrAccessor,
+  ImageConfig,
+  LineConfig,
+  PathConfig,
+  RectConfig,
+  StringOrAccessor,
+  WhiskerConfig,
+} from "./src/shapes/shapeConfig.js";
 import {
   backFeature,
   colorScaleFeature,
