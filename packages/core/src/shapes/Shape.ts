@@ -14,6 +14,7 @@ import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 import {buildLabelData} from "./buildLabelData.js";
+import type {BaseShapeConfig} from "./shapeConfig.js";
 
 /** Coerces a value to a finite number, or undefined. @private */
 export function numOrUndef(v: unknown): number | undefined {
@@ -1050,5 +1051,18 @@ function(d) {
     return arguments.length
       ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._y;
+  }
+
+  /**
+      Narrowed `.config()` for Shape. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): BaseShapeConfig;
+  config(_: Partial<BaseShapeConfig>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Partial<BaseShapeConfig>): BaseShapeConfig | this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
 }

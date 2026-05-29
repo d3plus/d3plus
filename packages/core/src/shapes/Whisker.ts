@@ -10,6 +10,7 @@ import type {AccessorFn} from "../utils/index.js";
 import Circle from "./Circle.js";
 import Line from "./Line.js";
 import Rect from "./Rect.js";
+import type {WhiskerConfig} from "./shapeConfig.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
@@ -286,5 +287,18 @@ function(d) {
     return arguments.length
       ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._y;
+  }
+
+  /**
+      Narrowed `.config()` for Whisker. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): WhiskerConfig;
+  config(_: Partial<WhiskerConfig>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Partial<WhiskerConfig>): WhiskerConfig | this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
 }

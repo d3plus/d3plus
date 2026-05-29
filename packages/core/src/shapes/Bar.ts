@@ -3,6 +3,7 @@ import type {D3Selection} from "@d3plus/dom";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
+import type {BarConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
@@ -241,5 +242,18 @@ function(d) {
               : (constant(_) as unknown as AccessorFn)),
         this)
       : this._y1;
+  }
+
+  /**
+      Narrowed `.config()` for Bar. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): BarConfig;
+  config(_: Partial<BarConfig>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Partial<BarConfig>): BarConfig | this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
 }

@@ -2,6 +2,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+import type {RectConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
@@ -124,5 +125,18 @@ function(d) {
     return arguments.length
       ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
       : this._width;
+  }
+
+  /**
+      Narrowed `.config()` for Rect. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): RectConfig;
+  config(_: Partial<RectConfig>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Partial<RectConfig>): RectConfig | this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
 }

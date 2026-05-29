@@ -2377,8 +2377,99 @@ export const ringsDef: ChartDefinition = {
 };
 
 /**
+    `applySankeyLayout` — Sankey's chart-specific layout stage. Mirrors the
+    other apply*Layout stages: pure transformation of viz state into the
+    chart-data structures `sankeyDef.emit` consumes.
+
+    Resolves the nodes list (from `viz._nodes` or by walking `viz._links`),
+    builds the `_nodeLookup` index, normalizes link source/target through
+    the lookup, runs the d3-sankey layout against the resulting node+link
+    graph, then groups the laid-out nodes by their shape type. Stashes
+    `links`/`nodeGroups`/`pathFn` on `viz._sankeyCtx` for emit; also
+    publishes `_nodeLookup`/`_linkLookup` for legacy event handlers.
+*/
+export const applySankeyLayout: TransformStage = ({viz}) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const v = viz as any;
+  const height = v._height - v._margin.top - v._margin.bottom;
+  const width = v._width - v._margin.left - v._margin.right;
+
+  const _nodes = Array.isArray(v._nodes)
+    ? v._nodes
+    : v._links
+        .reduce((all: any, d: any) => {
+          if (!all.includes(d[v._linksSource]))
+            all.push(d[v._linksSource]);
+          if (!all.includes(d[v._linksTarget]))
+            all.push(d[v._linksTarget]);
+          return all;
+        }, [])
+        .map((id: any) => ({id}));
+
+  const nodes = _nodes.map((n: any, i: any) => ({
+    __d3plus__: true,
+    data: n,
+    i,
+    id: v._nodeId(n, i),
+    node: n,
+    shape: "Rect",
+  }));
+
+  const nodeLookup = (v._nodeLookup = nodes.reduce(
+    (obj: any, d: any, i: any) => {
+      obj[d.id] = i;
+      return obj;
+    },
+    {},
+  ));
+
+  const links = v._links.map((link: any, i: any) => {
+    const check = [v._linksSource, v._linksTarget];
+    const linkLookup = check.reduce((result: any, item: any) => {
+      result[item] = nodeLookup[link[item]];
+      return result;
+    }, {});
+    return {
+      source: linkLookup[v._linksSource],
+      target: linkLookup[v._linksTarget],
+      value: v._value(link, i),
+    };
+  });
+
+  v._linkLookup = links.reduce((obj: any, d: any) => {
+    if (!obj[d.source]) obj[d.source] = [];
+    obj[d.source].push(d.target);
+    if (!obj[d.target]) obj[d.target] = [];
+    obj[d.target].push(d.source);
+    return obj;
+  }, {});
+
+  v._sankey
+    .nodeAlign(v._nodeAlign)
+    .nodePadding(v._nodePadding)
+    .nodeWidth(v._nodeWidth)
+    .nodes(nodes)
+    .nodeSort(v._nodeSort)
+    .links(links)
+    .linkSort(v._linkSort)
+    .iterations(v._iterations)
+    .size([width, height])();
+
+  const nodeGroups = Array.from(
+    groups(
+      nodes as Record<string, unknown>[],
+      (d: Record<string, unknown>) => d.shape as string,
+    ),
+  );
+  v._sankeyCtx = {links, nodeGroups, pathFn: v._path};
+
+  return {shapeData: nodes};
+};
+
+/**
     `sankeyDef.emit` — link Paths + per-shape-type node groups (typically
-    Rect). `_draw` stashes `links`/`nodeGroups`/`pathFn` on `viz._sankeyCtx`.
+    Rect). The layout stage stashes `links`/`nodeGroups`/`pathFn` on
+    `viz._sankeyCtx`.
 */
 const sankeyEmit: ChartDefinition["emit"] = ({viz}) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2427,7 +2518,7 @@ export const sankeyDef: ChartDefinition = {
     nodeWidth: 30,
   },
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
+  stages: [...vizPreDrawStages, applySankeyLayout],
   emit: sankeyEmit,
 };
 

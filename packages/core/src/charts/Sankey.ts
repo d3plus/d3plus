@@ -1,4 +1,3 @@
-import {groups} from "d3-array";
 import {
   sankey,
   sankeyCenter,
@@ -19,7 +18,8 @@ import {addToQueue} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
-import {sankeyDef} from "./ChartDefinition.js";
+import {applySankeyLayout, sankeyDef} from "./ChartDefinition.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: Sankey's identity-coerce accessors. installFluent installs them; the
@@ -140,75 +140,11 @@ export default class Sankey extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const height = this._height - this._margin.top - this._margin.bottom,
-      width = this._width - this._margin.left - this._margin.right;
-
-    const _nodes = Array.isArray(this._nodes)
-      ? this._nodes
-      : this._links
-          .reduce((all: any, d: any) => {
-            if (!all.includes(d[this._linksSource]))
-              all.push(d[this._linksSource]);
-            if (!all.includes(d[this._linksTarget]))
-              all.push(d[this._linksTarget]);
-            return all;
-          }, [])
-          .map((id: any) => ({id}));
-
-    const nodes = _nodes.map((n: any, i: any) => ({
-      __d3plus__: true,
-      data: n,
-      i,
-      id: this._nodeId(n, i),
-      node: n,
-      shape: "Rect",
-    }));
-
-    const nodeLookup = (this._nodeLookup = nodes.reduce((obj: any, d: any, i: any) => {
-      obj[d.id] = i;
-      return obj;
-    }, {}));
-
-    const links = this._links.map((link: any, i: any) => {
-      const check = [this._linksSource, this._linksTarget];
-      const linkLookup = check.reduce((result: any, item: any) => {
-        result[item] = nodeLookup[link[item]];
-        return result;
-      }, {});
-      return {
-        source: linkLookup[this._linksSource],
-        target: linkLookup[this._linksTarget],
-        value: this._value(link, i),
-      };
-    });
-
-    this._linkLookup = links.reduce((obj: any, d: any) => {
-      if (!obj[d.source]) obj[d.source] = [];
-      obj[d.source].push(d.target);
-      if (!obj[d.target]) obj[d.target] = [];
-      obj[d.target].push(d.source);
-      return obj;
-    }, {});
-
-    this._sankey
-      .nodeAlign(this._nodeAlign)
-      .nodePadding(this._nodePadding)
-      .nodeWidth(this._nodeWidth)
-      .nodes(nodes)
-      .nodeSort(this._nodeSort)
-      .links(links)
-      .linkSort(this._linkSort)
-      .iterations(this._iterations)
-      .size([width, height])();
-
-    // Links + node groups emitted by sankeyDef.emit.
-    const nodeGroups = Array.from(groups(
-      nodes as Record<string, unknown>[],
-      (d: Record<string, unknown>) => d.shape as string,
-    ));
-    this._sankeyCtx = {links, nodeGroups, pathFn: this._path};
-    this._chartScene = sankeyDef.emit({viz: this});
-    this._chartTransform = {x: this._margin.left, y: this._margin.top};
+    // Sankey-specific layout (d3-sankey + lookup tables + node grouping)
+    // runs as `applySankeyLayout` on `sankeyDef.stages`. The stage writes
+    // `_sankeyCtx`/`_nodeLookup`/`_linkLookup` back onto the viz; emit
+    // consumes `_sankeyCtx`.
+    runChartDraw(this, sankeyDef, applySankeyLayout);
     return this;
   }
 

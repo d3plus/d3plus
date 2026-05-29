@@ -6,6 +6,7 @@ import {merge} from "@d3plus/data";
 import {constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 
+import type {LineConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
 /**
@@ -167,5 +168,18 @@ export default class Line extends Shape {
   defined(_: AccessorFn): this;
   defined(_?: AccessorFn): AccessorFn | this {
     return arguments.length ? ((this._defined = _!), this) : this._defined;
+  }
+
+  /**
+      Narrowed `.config()` for Line. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): LineConfig;
+  config(_: Partial<LineConfig>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Partial<LineConfig>): LineConfig | this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (arguments.length ? super.config(_ as any) : super.config()) as any;
   }
 }

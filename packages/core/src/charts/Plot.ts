@@ -904,7 +904,11 @@ export default class Plot extends Viz {
       scope beyond the explicit context).
   */
   _paint(pCtx: any) {
-    plotPaint(this, pCtx);
+    const nodes = plotPaint(this, pCtx);
+    // plotPaint is now a returning function (RFC §3.1 purification). Push
+    // the emitted scene nodes into _chartScene; Viz.toScene wraps the
+    // collection in viz-chart-cells + zoom transform.
+    this._chartScene = (this._chartScene || []).concat(nodes);
     return this;
   }
 

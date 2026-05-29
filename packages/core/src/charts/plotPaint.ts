@@ -23,8 +23,10 @@ import type {DataPoint} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
+import type {SceneNode} from "@d3plus/render";
+
 import * as shapes from "../shapes/index.js";
-import {absorbShapeIntoChartScene, shapeConfigFor} from "./emitHelpers.js";
+import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
 
 /**
     Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
@@ -129,12 +131,20 @@ export interface PlotPaintContext {
   stackGroup: unknown;
 }
 
-export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
+export function plotPaint(viz: any, pCtx: PlotPaintContext): SceneNode[] {
     // Paint phase. All cross-phase locals captured from _draw's pre-super
     // pipeline + measure work are received via `pCtx`. Body below is the
     // original imperative paint code (axis painting, shape buffer setup,
     // shape emission with event handlers), unchanged in semantics — just
     // moved to its own method so the data/paint boundary is explicit.
+    //
+    // RFC §3.1 purification: plotPaint now ACCUMULATES emitted scene nodes
+    // into a local `out: SceneNode[]` and returns it, instead of pushing
+    // into `viz._chartScene` via `absorbShapeIntoChartScene`. The caller
+    // (`Plot._paint`) is responsible for merging the returned nodes into
+    // `_chartScene`. This makes `plotDef.emit({viz})` build its scene from
+    // clean inputs — a prerequisite for the v4 scene-graph rewrite.
+    const out: SceneNode[] = [];
     //
     // The destructure is split into themed chunks as a table of contents:
     // readers can scan the categories instead of memorizing 40 names.
@@ -427,11 +437,11 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
         .height(yRange[1] - yRange[0])
         .config(viz._backgroundConfig);
       bgRect.render();
-      // Prepend so the background sits BEHIND chart shapes.
-      const before = (viz._chartScene || []).slice();
-      viz._chartScene = [];
-      absorbShapeIntoChartScene(viz, bgRect);
-      viz._chartScene.push(...before);
+      // Background goes FIRST in `out` so it sits BEHIND chart shapes
+      // (which push after). Earlier code prepended onto a pre-populated
+      // `_chartScene`; under the purified flow `out` is empty here so a
+      // straight push yields the same z-order.
+      out.push(...collectComputed(bgRect));
     }
 
     const labelConnectors = (labelWidths as any[]).filter((d: any) => d.newY !== undefined);
@@ -475,7 +485,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
         .config(viz._labelConnectorConfig)
         .renderMode("compute");
       connectorLine.render();
-      absorbShapeIntoChartScene(viz, connectorLine);
+      out.push(...collectComputed(connectorLine));
     }
 
     // Legacy `g.d3plus-plot-annotations` / `g.d3plus-plot-annotations-front`
@@ -522,7 +532,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
       annotationData.forEach((annotation: any) => {
         const inst = renderAnnotation(annotation);
         if (layer === "front") frontAnnotationShapes.push(inst);
-        else absorbShapeIntoChartScene(viz, inst);
+        else out.push(...collectComputed(inst));
       });
       // Exits: render with empty data in compute mode so their scenes go
       // empty; no DOM to clean up in v4.
@@ -699,7 +709,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
             )
             .render();
 
-          absorbShapeIntoChartScene(viz, area);
+          out.push(...collectComputed(area));
         }
 
         s.config({
@@ -752,7 +762,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
       if (viz._shapeConfig.duration === undefined) delete userConfig.duration;
       s.config(userConfig as any).render();
 
-      absorbShapeIntoChartScene(viz, s);
+      out.push(...collectComputed(s));
 
       if (d.key === "Line") {
         const markers = new shapes.Circle()
@@ -764,7 +774,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
 
         viz._wirePlotShapeEvents(markers, "Circle", events);
         markers.render();
-        absorbShapeIntoChartScene(viz, markers);
+        out.push(...collectComputed(markers));
       }
     });
 
@@ -785,7 +795,7 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
 
     // Absorb queued front annotations AFTER the shape loop so they render
     // above shapes (preserving the legacy "front" z-order).
-    frontAnnotationShapes.forEach(inst => absorbShapeIntoChartScene(viz, inst));
+    frontAnnotationShapes.forEach(inst => out.push(...collectComputed(inst)));
 
     // Absorb queued axis scenes AFTER shapes + annotations so axes render
     // ABOVE everything else (matching the legacy DOM order: shapes →
@@ -797,11 +807,13 @@ export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
       if (!axis || typeof axis.toScene !== "function") return;
       const scene = axis.toScene();
       if (!scene) return;
-      (viz._chartScene ||= []).push({
+      out.push({
         type: "group",
         key,
         transform,
         children: scene.children || [],
       });
     });
+
+    return out;
 }
