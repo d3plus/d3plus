@@ -26,7 +26,110 @@ import {formatAbbreviate} from "@d3plus/format";
 import * as shapes from "../shapes/index.js";
 import {absorbShapeIntoChartScene, shapeConfigFor} from "./emitHelpers.js";
 
-export function plotPaint(viz: any, pCtx: any): void {
+/**
+    Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
+    stages) into `plotPaint`. Fully `any`-typed internally for back-compat
+    with the legacy plot codepath, but documented as the contract any pure
+    consumer of `plotPaint` must supply.
+
+    Grouped by what populates them:
+      - **Data + domain** (formatPlotData / computePlotInitialDomains):
+        `data`, `shapeData`, `axisData`, `domains`, `discreteKeys`,
+        `stackData`, `stackKeys`, `xData/yData/x2Data/y2Data`,
+        `xDomain/yDomain/x2Domain/y2Domain`.
+      - **Accessors + scales** (computePlotScales):
+        `x`, `y`, `x2`, `y2`, `xScale`/`yScale`/`x2Scale`/`y2Scale`,
+        `xConfigScale`/`yConfigScale`/`x2ConfigScale`/`y2ConfigScale`.
+        `x` and `y` are reassigned during paint (`viz._xFunc = x = ...`).
+      - **Axis configs + visibility** (preparePlotAxisLayout):
+        `defaultConfig`, `defaultX2Config`, `defaultY2Config`,
+        `showX`, `showY`, `x2Exists`, `y2Exists`, `xC`, `yC`.
+      - **Axis measurements** (preparePlotAxisLayout + measurePlotLineLabels):
+        `xTicks`/`yTicks`/`x2Ticks`/`y2Ticks`, `labelWidths`, `largestLabel`,
+        `xRangeMax`, `xTest`/`yTest`/`x2Test`/`y2Test` (transient axis
+        instances), `xTestRange`/`x2TestRange`.
+      - **Layout offsets + viewport** (preparePlotAxisLayout):
+        `yBounds`/`yWidth`/`xOffsetLeft`/`y2Bounds`/`y2Width`/`xOffsetRight`
+        (REASSIGNED by paint from production axes), `xHeight`, `x2Height`,
+        `topOffset`, `height`, `width`, `horizontalMargin`, `verticalMargin`.
+      - **Paint plumbing** (Plot._draw): `opp`, `barLabels`,
+        `showLineLabels`, `stackGroup`. (`parent`/`transition` are removed
+        v4 carry-overs.)
+*/
+export interface PlotPaintContext {
+  // Data + domain
+  data: DataPoint[];
+  shapeData: DataPoint[];
+  axisData: DataPoint[];
+  domains: Record<string, unknown>;
+  discreteKeys: unknown;
+  stackData: unknown;
+  stackKeys: unknown[];
+  xData: unknown[];
+  yData: unknown[];
+  x2Data: unknown[];
+  y2Data: unknown[];
+  xDomain: unknown[];
+  yDomain: unknown[];
+  x2Domain: unknown[];
+  y2Domain: unknown[];
+  // Accessors + scales
+  x: (d: DataPoint, axis?: string) => number;
+  y: (d: DataPoint, axis?: string) => number;
+  x2: (d: DataPoint) => number;
+  y2: (d: DataPoint) => number;
+  xScale: string;
+  yScale: string;
+  xConfigScale: string;
+  yConfigScale: string;
+  x2ConfigScale: string;
+  y2ConfigScale: string;
+  // Axis configs + visibility
+  defaultConfig: Record<string, unknown>;
+  defaultX2Config: Record<string, unknown>;
+  defaultY2Config: Record<string, unknown>;
+  showX: boolean;
+  showY: boolean;
+  x2Exists: boolean;
+  y2Exists: boolean;
+  xC: Record<string, unknown>;
+  yC: Record<string, unknown>;
+  // Axis measurements
+  xTicks: unknown[];
+  yTicks: unknown[];
+  x2Ticks: unknown[];
+  y2Ticks: unknown[];
+  labelWidths: unknown[];
+  largestLabel: number;
+  xRangeMax: number;
+  xTest: unknown;
+  yTest: unknown;
+  x2Test: unknown;
+  y2Test: unknown;
+  xTestRange: number[];
+  x2TestRange: number[];
+  // Layout offsets + viewport
+  yBounds: {width: number; height: number; x: number; y: number};
+  y2Bounds: {width: number; height: number; x: number; y: number};
+  yWidth: number | undefined;
+  y2Width: number | undefined;
+  xOffsetLeft: number;
+  xOffsetRight: number;
+  xHeight: number;
+  x2Height: number;
+  topOffset: number;
+  height: number;
+  width: number;
+  horizontalMargin: number;
+  verticalMargin: number;
+  // Paint plumbing
+  opp: "x" | "y" | undefined;
+  barLabels: string[];
+  showLineLabels: boolean;
+  stackGroup: unknown;
+}
+
+export function plotPaint(viz: any, pCtx: PlotPaintContext): void {
     // Paint phase. All cross-phase locals captured from _draw's pre-super
     // pipeline + measure work are received via `pCtx`. Body below is the
     // original imperative paint code (axis painting, shape buffer setup,

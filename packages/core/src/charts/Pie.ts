@@ -2,7 +2,8 @@ import {assign} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import {installFluent} from "../fluent.js";
 import {applyPieLayout, pieDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {centerChartTransform} from "./chartGeometry.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: Pie's accessor schema. `padAngle`/`padPixel`/`sort` are identity-store;
@@ -73,19 +74,9 @@ export default class Pie extends Viz {
   */
   _draw(callback?: () => void): this {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Pie-specific layout (d3-shape pie + arc compute + dimensions) runs
-    // as `applyPieLayout` on `pieDef.stages`. Stage writes _pieData /
-    // _arcData / _pieWidth / _pieHeight back onto the viz; emit consumes
-    // _arcData + shapeData and produces SceneNodes.
-    const {shapeData} = runStages({viz: this} as any, [applyPieLayout]) as unknown as {
-      shapeData: DataPoint[];
-    };
-    this._chartScene = pieDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {
-      x: this._pieWidth / 2 + this._margin.left,
-      y: this._pieHeight / 2 + this._margin.top,
-    };
+    runChartDraw(this, pieDef, applyPieLayout, v =>
+      centerChartTransform(v, v._pieWidth, v._pieHeight),
+    );
     return this;
   }
 

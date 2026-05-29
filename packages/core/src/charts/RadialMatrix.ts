@@ -6,7 +6,8 @@ import {accessor, constant, getProp} from "../utils/index.js";
 
 import {installFluent} from "../fluent.js";
 import {applyRadialMatrixLayout, radialMatrixDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {centerChartTransform} from "./chartGeometry.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: RadialMatrix's identity-coerce accessors.
@@ -96,21 +97,9 @@ export default class RadialMatrix extends Viz {
   */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // RadialMatrix-specific layout (polar label geometry + arc generator
-    // + imperative column-label TextBox mount) runs as
-    // `applyRadialMatrixLayout` on `radialMatrixDef.stages`. The stage
-    // writes `_radialMatrixCtx`/`_radialMatrixWidth`/`_radialMatrixHeight`
-    // back onto the viz; emit consumes `_radialMatrixCtx` and produces
-    // the Path arc cells.
-    const {shapeData} = runStages({viz: this} as any, [applyRadialMatrixLayout]) as unknown as {
-      shapeData: any[];
-    };
-    this._chartScene = radialMatrixDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {
-      x: this._radialMatrixWidth / 2 + this._margin.left,
-      y: this._radialMatrixHeight / 2 + this._margin.top,
-    };
+    runChartDraw(this, radialMatrixDef, applyRadialMatrixLayout, v =>
+      centerChartTransform(v, v._radialMatrixWidth, v._radialMatrixHeight),
+    );
     return this;
   }
 

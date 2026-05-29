@@ -31,6 +31,10 @@ import type {SceneNode} from "@d3plus/render";
     omitted it defaults to `viz._shapeConfig` (the common case — 11 sites);
     callers that compose a transient config object (e.g. Plot's confidence
     bands) pass it explicitly.
+
+    `kind` is the second `configPrep` argument (the property to filter by).
+    Defaults to `"shape"` — the standard call shape. Network's link config
+    uses `"edge"` instead.
 */
 export function shapeConfigFor(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,9 +42,10 @@ export function shapeConfigFor(
   shapeKey: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config?: any,
+  kind: string = "shape",
 ): Record<string, unknown> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (configPrep as any).bind(viz)(config ?? viz._shapeConfig, "shape", shapeKey);
+  return (configPrep as any).bind(viz)(config ?? viz._shapeConfig, kind, shapeKey);
 }
 
 /**

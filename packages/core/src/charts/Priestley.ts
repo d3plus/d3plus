@@ -4,7 +4,7 @@ import {Axis} from "../components/index.js";
 import {assign} from "@d3plus/dom";
 import {accessor} from "../utils/index.js";
 import {applyPriestleyLayout, priestleyDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 /**
@@ -41,18 +41,9 @@ export default class Priestley extends Viz {
 */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Priestley-specific layout (greedy first-fit lane packer + Axis
-    // mount + band scale) runs as `applyPriestleyLayout` on
-    // `priestleyDef.stages`. The stage writes `_priestleyCtx` back onto
-    // the viz and returns the laid-out per-band data; emit consumes
-    // both. `_chartTransform` stays undefined — Priestley positions in
-    // absolute scale coordinates.
-    const {shapeData} = runStages({viz: this} as any, [applyPriestleyLayout]) as unknown as {
-      shapeData: any[];
-    };
-    this._chartScene = priestleyDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = undefined;
+    // Priestley positions in absolute scale coordinates — no chart
+    // transform applied.
+    runChartDraw(this, priestleyDef, applyPriestleyLayout, () => undefined);
     return this;
   }
 

@@ -5,7 +5,7 @@ import {accessor, getProp} from "../utils/index.js";
 
 import {installFluent} from "../fluent.js";
 import {applyMatrixLayout, matrixDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: Matrix's identity-coerce accessors.
@@ -98,16 +98,10 @@ export default class Matrix extends Viz {
   */
   _draw(callback?: () => void): this {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Matrix-specific layout (two-pass row/column Axis render + padding
-    // mutation + cell-dim derivation) runs as `applyMatrixLayout` on
-    // `matrixDef.stages`. The stage writes `_padding`/`_matrixCtx` back
-    // onto the viz; emit consumes `_matrixCtx` and produces Rect cells.
-    const {shapeData} = runStages({viz: this} as any, [applyMatrixLayout]) as unknown as {
-      shapeData: DataPoint[];
-    };
-    this._chartScene = matrixDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {x: 0, y: this._margin.top};
+    runChartDraw(this, matrixDef, applyMatrixLayout, v => ({
+      x: 0,
+      y: v._margin.top,
+    }));
     return this;
   }
 

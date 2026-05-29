@@ -7,8 +7,9 @@ import {addToQueue} from "@d3plus/data";
 import {constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyNetworkLayout, networkDef} from "./ChartDefinition.js";
+import {chartBounds} from "./chartGeometry.js";
 import {ensureZoomDom} from "./ensureZoomDom.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: simple identity accessors generated via installFluent. `linkSize` uses
@@ -229,27 +230,15 @@ export default class Network extends Viz {
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    // Network-specific layout (force simulation + radius scaling + link/node
-    // lookups + linkConfig/linkD/nodeGroups) runs as `applyNetworkLayout` on
-    // `networkDef.stages`. The stage writes `_nodeLookup`/`_linkLookup`/
-    // `_networkCtx` back onto the viz; emit consumes `_networkCtx` and
-    // produces the SceneNodes.
-    const {shapeData} = runStages({viz: this} as any, [applyNetworkLayout]);
-
-    const duration = this._duration,
-      height = this._height - this._margin.top - this._margin.bottom,
-      width = this._width - this._margin.left - this._margin.right;
-
     // DOM container + zoom group + hitArea: extracted to ensureZoomDom
     // because d3-zoom needs a real DOM element to bind to and Network's
     // hitArea click handler closes over class state. The chart-data
-    // SCENE rides the scene graph (below) — only the zoom-event-binding
-    // surface stays imperative.
-    ensureZoomDom(this, {kind: "network", width, height, duration});
+    // SCENE rides the scene graph (via runChartDraw) — only the
+    // zoom-event-binding surface stays imperative.
+    const {width, height} = chartBounds(this);
+    ensureZoomDom(this, {kind: "network", width, height, duration: this._duration});
 
-    this._chartScene = networkDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {x: this._margin.left, y: this._margin.top};
-
+    runChartDraw(this, networkDef, applyNetworkLayout);
     return this;
   }
 

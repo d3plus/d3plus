@@ -3,7 +3,7 @@ import {addToQueue} from "@d3plus/data";
 import {accessor, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyRingsLayout, ringsDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: Rings' identity-coerce accessors (center/sizeMax/sizeMin/sizeScale).
@@ -120,16 +120,7 @@ export default class Rings extends Viz {
 */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-    // Rings-specific layout (node placement, ring sizing, link `d` paths,
-    // label bounds, edge stroke scale) runs as `applyRingsLayout` on
-    // `ringsDef.stages`. The stage writes `_nodeLookup`/`_linkLookup`/
-    // `_ringsCtx` back onto the viz; emit consumes `_ringsCtx`.
-    const {shapeData} = runStages({viz: this} as any, [applyRingsLayout]) as unknown as {
-      shapeData: any[];
-    };
-    this._chartScene = ringsDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {x: this._margin.left, y: this._margin.top};
-
+    runChartDraw(this, ringsDef, applyRingsLayout);
     return this;
   }
 

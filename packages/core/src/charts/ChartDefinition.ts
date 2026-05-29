@@ -41,7 +41,6 @@ import discreteBufferFn from "./plotBuffers/discreteBuffer.js";
 
 import {Circle, Path, Rect} from "../shapes/index.js";
 import * as allShapes from "../shapes/index.js";
-import {configPrep} from "../utils/index.js";
 import accessor from "../utils/accessor.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "./features.js";
 import type {FeatureModule} from "./features.js";
@@ -756,11 +755,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     r: radius * ((d + 1) / v._levels),
   }));
 
-  const circleConfig = (configPrep as any).bind(v)(
-    v._axisConfig.shapeConfig,
-    "shape",
-    "Circle",
-  );
+  const circleConfig = shapeConfigFor(v, "Circle", v._axisConfig.shapeConfig);
   delete circleConfig.label;
 
   // Axis decoration: concentric background circles. v4: absorb into
@@ -845,9 +840,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     .renderMode("compute")
     .data(polarAxis as unknown as DataPoint[])
     .d((d: any) => `M${0},${0} ${-d.x},${-d.y}`)
-    .config(
-      (configPrep as any).bind(v)(v._axisConfig.shapeConfig, "shape", "Path"),
-    );
+    .config(shapeConfigFor(v, "Path", v._axisConfig.shapeConfig));
   absorbShapeIntoChartScene(v, radarSpokes, {key: "radar-axis-spokes"});
 
   const groupData = nestedGroupData.map(([hKey, innerEntries]) => {
@@ -882,11 +875,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     };
   });
 
-  const pathConfig = (configPrep as any).bind(v)(
-    v._shapeConfig,
-    "shape",
-    "Path",
-  );
+  const pathConfig = shapeConfigFor(v, "Path");
   // Event-handler wrappers: translate the cursor coordinate (in chart-group
   // space) to the nearest polygon vertex so the click/mousemove resolves to
   // a single datum out of the polygon's flattened `arr`. Stays in the
@@ -1786,11 +1775,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     });
   }
 
-  const linkConfig = (configPrep as any).bind(v)(
-    v._shapeConfig,
-    "edge",
-    "Path",
-  );
+  const linkConfig = shapeConfigFor(v, "Path", v._shapeConfig, "edge");
   delete linkConfig.on;
 
   const nodeShapeConfig = {
@@ -2272,7 +2257,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     });
   }
 
-  const linkConfig = configPrep.bind(v)(v._shapeConfig, "edge", "Path");
+  const linkConfig = shapeConfigFor(v, "Path", v._shapeConfig, "edge");
   delete linkConfig.on;
 
   const linkD = (d: any) =>
@@ -2291,8 +2276,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     labelConfig: {
       fontColor: (d: any) =>
         d.id === v._center
-          ? (configPrep.bind(v)(v._shapeConfig, "shape", d.key) as any)
-              .labelConfig.fontColor(d)
+          ? (shapeConfigFor(v, d.key) as any).labelConfig.fontColor(d)
           : colorContrast(
               v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
             ),
@@ -2300,8 +2284,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
       padding: 0,
       textAnchor: (d: any) =>
         nodeLookup[d.id].textAnchor ||
-        (configPrep.bind(v)(v._shapeConfig, "shape", d.key) as any).labelConfig
-          .textAnchor,
+        (shapeConfigFor(v, d.key) as any).labelConfig.textAnchor,
       verticalAlign: (d: any) => (d.id === v._center ? "middle" : "top"),
     },
     rotate: (d: any) => nodeLookup[d.id].rotate || 0,
@@ -3026,7 +3009,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   }
 
   // Bar labels — used to suppress redundant axis ticks.
-  const barConfig = (configPrep as any).bind(viz)(viz._shapeConfig, "shape", "Bar");
+  const barConfig = shapeConfigFor(viz, "Bar");
   const barLabelFunction =
     barConfig.label !== undefined
       ? typeof barConfig.label === "function"
@@ -3098,7 +3081,7 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   const yConfigScale = plotConfigScales.yConfigScale;
   const width = viz._width - viz._margin.left - viz._margin.right;
 
-  const userConfig = (configPrep as any).bind(viz)(viz._shapeConfig, "shape", "Line");
+  const userConfig = shapeConfigFor(viz, "Line");
   testLineShape.config(userConfig);
   const lineLabelConfig = testLineShape.labelConfig();
   const fontColorAccessor = lineLabelConfig.fontColor !== undefined ? lineLabelConfig.fontColor : testTextBox.fontColor();

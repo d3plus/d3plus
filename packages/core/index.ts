@@ -104,6 +104,8 @@ import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/vizPreDrawPure.j
 import {resolveSpec} from "./src/charts/resolveSpec.js";
 export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
 export type {VizContext} from "./src/charts/vizContext.js";
+export type {PlotPaintContext} from "./src/charts/plotPaint.js";
+export type {VizPreDrawResult} from "./src/charts/vizPreDrawPure.js";
 import {
   backFeature,
   colorScaleFeature,

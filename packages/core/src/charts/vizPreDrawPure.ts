@@ -35,6 +35,35 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizContext} from "./vizContext.js";
 
+/**
+    The shape `vizPreDrawPure` returns: a `Partial<VizContext>` plus the
+    two pure-function carve-outs.
+
+      - `_thresholdTree` is the d3-array `rollup` result that
+        `viz._thresholdFunction(filteredData, tree)` needs to walk. The
+        threshold function is a subclass instance method (Treemap.ts has
+        the override) that reads from `this`; calling it pure would require
+        moving subclass logic out of the class, which is out of scope.
+        Returning the tree lets the shim apply threshold after writing
+        `drawDepth` back.
+      - `computedTimeFilter` is the time-filter function the pure version
+        synthesized (when `_time` is set but `_timeFilter` isn't). The
+        shim back-assigns it to `viz._timeFilter` for back-compat
+        consumers reading the legacy slot.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ThresholdTree = any;
+type TimeFilterFn =
+  | ((d: DataPoint, i: number) => boolean)
+  | (() => boolean);
+
+export interface VizPreDrawResult extends Partial<VizContext> {
+  /** Internal: d3-array rollup tree, consumed by the shim's threshold step. */
+  _thresholdTree?: ThresholdTree;
+  /** Internal: synthesized time-filter for the shim to back-assign. */
+  computedTimeFilter?: TimeFilterFn;
+}
+
 function listify(n: DataPoint[keyof DataPoint][]): string {
   return n.reduce<string>(
     (str: string, item: DataPoint[keyof DataPoint], i: number) => {
@@ -64,8 +93,8 @@ export function vizPreDrawPure(
   viz: any,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevCtx: Partial<VizContext> = {},
-): Partial<VizContext> {
-  const out: Partial<VizContext> = {};
+): VizPreDrawResult {
+  const out: VizPreDrawResult = {};
 
   // 1. drawDepth.
   const drawDepth =
@@ -74,9 +103,17 @@ export function vizPreDrawPure(
       : viz._groupBy.length - 1;
   out.drawDepth = drawDepth;
 
-  // 2. id / ids / drawLabel closures. These reference the live viz state
-  // (groupBy, label, etc.) at CALL time, matching the legacy `_id` closure
-  // that read `this._groupBy[this._drawDepth]` each call.
+  // 2. id / ids / drawLabel closures.
+  //
+  // LIVE-STATE CLOSURES: each of these reads `viz._groupBy[viz._drawDepth]`
+  // / `viz._label` / `viz._thresholdName` etc. at INVOCATION time, not at
+  // definition time. This matches the legacy `_id = (d, i) => ...this._groupBy[this._drawDepth]...`
+  // semantics — if `viz._drawDepth` changes between definition and call,
+  // subsequent calls reflect the new depth. Subclasses (notably Treemap
+  // when crossing depth boundaries via .depth() + .render()) rely on this.
+  //
+  // The closures DO snapshot the initial `drawDepth` so first-render
+  // ordering is correct even before the shim writes back to viz._drawDepth.
   const id = (d: DataPoint, i: number) => {
     const groupByDrawDepth = accessorFetch(
       viz._groupBy[viz._drawDepth ?? drawDepth],
@@ -150,7 +187,7 @@ export function vizPreDrawPure(
         +date(viz._time(dd, ii))! === latestTime;
     }
   }
-  (out as any).computedTimeFilter = computedTimeFilter;
+  out.computedTimeFilter = computedTimeFilter;
 
   // 4. filteredData + legendData. Pure transformation of viz._data using
   // the user's filters + grouping. The legacy code accumulated via the
@@ -202,7 +239,7 @@ export function vizPreDrawPure(
     // Return the un-thresholded data + the rollup tree as `_thresholdTree`
     // and let the shim apply the threshold once it's written drawDepth back.
     out.filteredData = filteredData;
-    (out as any)._thresholdTree = tree;
+    out._thresholdTree = tree;
   } else {
     out.filteredData = filteredData;
   }

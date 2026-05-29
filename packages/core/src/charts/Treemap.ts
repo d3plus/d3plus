@@ -23,7 +23,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import {accessor} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyTreemapLayout, treemapDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // Treemap's accessor schema lives next to its definition. `installFluent`
@@ -115,25 +115,7 @@ export default class Treemap extends Viz {
 */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Delegates Treemap-specific layout (d3-hierarchy + recursive extract +
-    // share computation) to the chart's stage on `treemapDef`. The stage reads
-    // viz state, writes `_rankData` back for legacy consumers, and returns
-    // `shapeData` — the single source the Rect emit consumes below.
-    const ctx = runStages({viz: this} as any, [applyTreemapLayout]) as unknown as {
-      shapeData: Array<Record<string, unknown> & {x0: number; y0: number; x1: number; y1: number; share: number; data: DataPoint; i?: number}>;
-    };
-    const shapeData = ctx.shapeData || [];
-
-    // Scene cells come from `treemapDef.emit(ctx)` directly.
-    // No more `new Rect().renderMode("compute").data(...).render()` glue —
-    // emit's output (rect cells + label TextNodes) is pushed straight onto
-    // `_chartScene`, which Viz.toScene composes into the root group with the
-    // chart's margin transform. The legacy DOM `g.d3plus-Treemap` group is
-    // gone; the transform travels as scene data instead.
-    this._chartScene = treemapDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {x: this._margin.left, y: this._margin.top};
-
+    runChartDraw(this, treemapDef, applyTreemapLayout);
     return this;
   }
 

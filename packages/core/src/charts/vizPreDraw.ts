@@ -34,17 +34,15 @@ export function vizPreDraw(viz: any): void {
   if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
 
   // 2. computedTimeFilter — set only when pure function synthesized one.
-  const computedTimeFilter = (ctx as any).computedTimeFilter;
-  if (computedTimeFilter && !viz._timeFilter) {
-    viz._timeFilter = computedTimeFilter;
+  if (ctx.computedTimeFilter && !viz._timeFilter) {
+    viz._timeFilter = ctx.computedTimeFilter;
   }
 
   // 3. filteredData — pre-threshold from pure, then run threshold (which
   // reads this._aggs/_drawDepth/_groupBy via the instance method).
   let filteredData = ctx.filteredData || [];
-  const thresholdTree = (ctx as any)._thresholdTree;
-  if (viz._data.length && thresholdTree) {
-    filteredData = viz._thresholdFunction(filteredData, thresholdTree);
+  if (viz._data.length && ctx._thresholdTree) {
+    filteredData = viz._thresholdFunction(filteredData, ctx._thresholdTree);
   }
   viz._filteredData = filteredData;
 

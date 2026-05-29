@@ -5,7 +5,7 @@ import {legendLabel} from "./legendLabel.js";
 
 import {installFluent} from "../fluent.js";
 import {applyTreeLayout, treeDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // E4: Tree's identity-coerce accessors.
@@ -79,14 +79,10 @@ export default class Tree extends Viz {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
     // Tree-specific layout (d3-hierarchy tree + label measure + link
-    // descriptors + per-shape grouping) runs as `applyTreeLayout` on
-    // `treeDef.stages`. The stage writes `_treeData`/`_labelHeight`/
-    // `_labelWidths`/`_treeCtx`/`_previousShapes` back onto the viz; emit
-    // consumes `_treeCtx` and produces the SceneNodes.
-    runStages({viz: this} as any, [applyTreeLayout]);
-    this._chartScene = treeDef.emit({viz: this} as any);
-    this._chartTransform = {x: this._margin.left, y: this._margin.top};
-
+    // descriptors + per-shape grouping) runs as `applyTreeLayout`. The
+    // stage writes `_treeData`/`_labelHeight`/`_labelWidths`/`_treeCtx`/
+    // `_previousShapes` back onto the viz; emit consumes `_treeCtx`.
+    runChartDraw(this, treeDef, applyTreeLayout);
     return this;
   }
 

@@ -19,8 +19,9 @@ import {assign} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 
 import {applyGeomapLayout, geomapDef} from "./ChartDefinition.js";
+import {chartBounds} from "./chartGeometry.js";
 import {ensureZoomDom} from "./ensureZoomDom.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 import attributions from "./helpers/tileAttributions.js";
 
@@ -229,13 +230,12 @@ export default class Geomap extends Viz {
   _draw(callback?: () => void): this {
     (super._draw as (...args: unknown[]) => unknown)(callback);
 
-    const height = this._height - this._margin.top - this._margin.bottom,
-      width = this._width - this._margin.left - this._margin.right;
+    const {width, height} = chartBounds(this);
 
     // DOM container + ocean + tile group + zoom group: extracted to
     // ensureZoomDom. d3-zoom needs a real DOM target and _renderTiles
     // mutates the tileGroup directly with map imagery; the chart-data
-    // SCENE rides the scene graph below.
+    // SCENE rides the scene graph (via runChartDraw).
     ensureZoomDom(this, {
       kind: "geomap",
       width,
@@ -245,9 +245,9 @@ export default class Geomap extends Viz {
     });
 
     const zoomNeedsWiring = !this._zoomSet;
-    const {shapeData} = runStages({viz: this} as any, [applyGeomapLayout]) as unknown as {
-      shapeData: Record<string, unknown>[];
-    };
+    // Geomap positions in absolute projection coordinates — no chart
+    // transform applied.
+    runChartDraw(this, geomapDef, applyGeomapLayout, () => undefined);
 
     if (zoomNeedsWiring) {
       this._zoomBehavior
@@ -262,8 +262,6 @@ export default class Geomap extends Viz {
         ]);
       this._zoomSet = true;
     }
-
-    this._chartScene = geomapDef.emit({viz: this, shapeData} as any);
 
     return this;
   }

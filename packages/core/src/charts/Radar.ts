@@ -2,7 +2,8 @@ import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor} from "@d3plus/dom";
 import {constant} from "../utils/index.js";
 import {applyRadarLayout, radarDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {chartBounds, centerChartTransform} from "./chartGeometry.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 /**
@@ -53,24 +54,10 @@ export default class Radar extends Viz {
 */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Radar-specific layout (polar geometry + per-polygon pathConfig +
-    // imperative axis-decoration mounting) runs as `applyRadarLayout` on
-    // `radarDef.stages`. The stage writes `_radarCtx` back onto the viz
-    // and returns `shapeData = groupData`; emit consumes `_radarCtx` to
-    // produce the Path polygons.
-    const {shapeData} = runStages({viz: this} as any, [applyRadarLayout]);
-    this._chartScene = radarDef.emit({viz: this, shapeData} as any);
-
-    // Center transform: same `translate(width/2, height/2)` the legacy
-    // axis-decoration .select() wrappers used.
-    const height = this._height - this._margin.top - this._margin.bottom;
-    const width = this._width - this._margin.left - this._margin.right;
-    this._chartTransform = {
-      x: this._margin.left + width / 2,
-      y: this._margin.top + height / 2,
-    };
-
+    runChartDraw(this, radarDef, applyRadarLayout, v => {
+      const {width, height} = chartBounds(v);
+      return centerChartTransform(v, width, height);
+    });
     return this;
   }
 

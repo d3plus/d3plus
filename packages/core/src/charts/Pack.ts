@@ -2,7 +2,7 @@ import {assign} from "@d3plus/dom";
 import {accessor, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import {applyPackLayout, packDef} from "./ChartDefinition.js";
-import {runStages} from "./stages.js";
+import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 
 // Pack's identity-coerce accessor schema. `layoutPadding` is shared with
@@ -107,20 +107,10 @@ export default class Pack extends Viz {
 */
   _draw(callback?: () => void) {
     (super._draw as (...args: unknown[]) => unknown)(callback);
-
-    // Pack's chart-specific layout (d3-hierarchy pack + descendant filter +
-    // opacity assignment) runs as the `applyPackLayout` stage on
-    // `packDef.stages`. The result feeds into `packDef.emit(ctx)` for the
-    // Circle SceneNodes. No more `_shapes.push(new Circle()...)` glue.
-    const ctx = runStages({viz: this} as any, [applyPackLayout]) as unknown as {
-      shapeData: any[];
-    };
-    const shapeData = ctx.shapeData || [];
-    this._chartScene = packDef.emit({viz: this, shapeData} as any);
-    this._chartTransform = {
-      x: this._margin.left + (this._packOffsetX || 0),
-      y: this._margin.top + (this._packOffsetY || 0),
-    };
+    runChartDraw(this, packDef, applyPackLayout, v => ({
+      x: v._margin.left + (v._packOffsetX || 0),
+      y: v._margin.top + (v._packOffsetY || 0),
+    }));
     return this;
   }
 
