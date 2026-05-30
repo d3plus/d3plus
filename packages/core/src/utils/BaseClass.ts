@@ -208,9 +208,9 @@ new Plot
   /**
       Parent config used by the wrapper.
 */
-  parent(): Record<string, unknown>;
-  parent(_: Record<string, unknown>): this;
-  parent(_?: Record<string, unknown>): Record<string, unknown> | this {
+  parent(): unknown;
+  parent(_: unknown): this;
+  parent(_?: unknown): unknown {
     return arguments.length
       ? ((this.schema.parent = _!), this)
       : this.schema.parent;

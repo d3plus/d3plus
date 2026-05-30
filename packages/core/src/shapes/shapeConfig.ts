@@ -63,7 +63,7 @@ export interface BaseShapeConfig {
   backgroundImage?: ConstOrAccessor<string>;
 
   /** Discrete-axis key ("x" | "y") for charts that flip layout per axis. */
-  discrete?: string;
+  discrete?: "x" | "y";
   /** Animation duration in ms. */
   duration?: number;
 
@@ -152,6 +152,8 @@ export interface BaseShapeConfig {
 
   /** Event handlers (Object.<event, handler>). */
   on?: Record<string, (...args: unknown[]) => unknown>;
+
+  [key: string]: unknown;
 }
 
 /** Rect-specific config (width + height on top of base). */
@@ -227,6 +229,8 @@ export interface BoxConfig {
   whiskerMode?: (string | number)[] | string | number;
   x?: ConstOrAccessor<number>;
   y?: ConstOrAccessor<number>;
+
+  [key: string]: unknown;
 }
 
 /** Whisker-specific config. */
@@ -242,6 +246,8 @@ export interface WhiskerConfig {
   select?: string | HTMLElement | SVGElement | null;
   x?: ConstOrAccessor<number>;
   y?: ConstOrAccessor<number>;
+
+  [key: string]: unknown;
 }
 
 /**

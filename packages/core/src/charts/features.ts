@@ -452,7 +452,7 @@ export const legendFeature: FeatureModule = {
     const legendBounds = viz._legendClass.outerBounds();
     const config = viz.config();
     const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
-    const wide = ["top", "bottom"].includes(position);
+    const wide = ["top", "bottom"].includes(position as string);
     const padding = viz.schema.legendPadding()
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
@@ -526,9 +526,9 @@ export const legendFeature: FeatureModule = {
     const margin: Record<string, number> = {};
     if (!viz.schema.legendConfig.select && legendBounds.height) {
       if (wide)
-        margin[position] = legendBounds.height + viz._legendClass.padding() * 2;
+        margin[position as string] = legendBounds.height + viz._legendClass.padding() * 2;
       else
-        margin[position] = legendBounds.width + viz._legendClass.padding() * 2;
+        margin[position as string] = legendBounds.width + viz._legendClass.padding() * 2;
     }
     // The `layoutMargin` argument is the cumulative claim from earlier features;
     // the runLayout engine will accumulate this feature's claim into it. We
@@ -674,7 +674,7 @@ export const colorScaleFeature: FeatureModule = {
     );
 
     const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(viz.config()));
-    const wide = ["top", "bottom"].includes(position);
+    const wide = ["top", "bottom"].includes(position as string);
     const showColorScale = viz.schema.colorScale && position;
     const padding = viz.schema.colorScalePadding()
       ? viz._padding
@@ -723,7 +723,7 @@ export const colorScaleFeature: FeatureModule = {
     viz._colorScaleClass
       .align(
         ({bottom: "end", left: "start", right: "end", top: "start"} as Record<string, string>)[
-          position
+          position as string
         ] || "bottom",
       )
       .duration(viz.schema.duration)

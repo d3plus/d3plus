@@ -26,7 +26,7 @@ import {applyNetworkLayout} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
-  return `${viz._id(d, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
+  return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
 }
 
 export const networkDef: ChartDefinition = {
@@ -66,7 +66,7 @@ export const networkDef: ChartDefinition = {
           v.active(false);
           viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
           viz._focus = undefined;
-          viz._zoomToBounds(null);
+          viz._zoomToBounds!(null);
         } else {
           v.hover(false);
           const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
@@ -90,10 +90,10 @@ export const networkDef: ChartDefinition = {
           });
 
           viz._focus = id;
-          const t = zoomTransform(viz._container.node());
+          const t = zoomTransform(viz._container!.node());
           xDomain = xDomain.map(d => d * t.k + t.x);
           yDomain = yDomain.map(d => d * t.k + t.y);
-          viz._zoomToBounds([
+          viz._zoomToBounds!([
             [xDomain[0], yDomain[0]],
             [xDomain[1], yDomain[1]],
           ]);
@@ -101,15 +101,15 @@ export const networkDef: ChartDefinition = {
       }
     };
     viz.schema.on["click.legend"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
-      let id = viz._ids(d);
-      id = id[id.length - 1];
-      const ids = viz._id(d) as string | number | (string | number)[];
+      const idList = viz._ids(d, i);
+      const id = idList[idList.length - 1];
+      const ids = viz._id(d, i) as string | number | (string | number)[];
 
       if (viz._hover && viz._drawDepth >= viz.schema.groupBy.length - 1) {
         if (viz._focus && viz._focus === ids) {
           v.active(false);
           viz._focus = undefined;
-          viz._zoomToBounds(null);
+          viz._zoomToBounds!(null);
         } else {
           v.hover(false);
           const idArr = Array.isArray(ids) ? ids : [ids];
@@ -135,10 +135,10 @@ export const networkDef: ChartDefinition = {
           });
 
           viz._focus = ids as unknown as string;
-          const t = zoomTransform(viz._container.node());
+          const t = zoomTransform(viz._container!.node());
           xDomain = xDomain.map(d => d * t.k + t.x);
           yDomain = yDomain.map(d => d * t.k + t.y);
-          viz._zoomToBounds([
+          viz._zoomToBounds!([
             [xDomain[0], yDomain[0]],
             [xDomain[1], yDomain[1]],
           ]);
@@ -256,8 +256,8 @@ export const networkDef: ChartDefinition = {
     };
 
     // Default x/y accessors for nodes (Network reads node coords directly).
-    viz._x = accessor("x");
-    viz._y = accessor("y");
+    viz._x = accessor("x") as VizInstance["_x"];
+    viz._y = accessor("y") as VizInstance["_y"];
 
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);

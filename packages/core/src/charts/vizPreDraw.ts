@@ -46,7 +46,7 @@ export function vizPreDraw(viz: Viz): void {
   // reads this.schema.aggs/_drawDepth/_groupBy via the instance method).
   let filteredData = ctx.filteredData || [];
   if (viz._data.length && ctx._thresholdTree) {
-    filteredData = viz._thresholdFunction(filteredData, ctx._thresholdTree);
+    filteredData = viz._thresholdFunction!(filteredData, ctx._thresholdTree);
   }
   viz._filteredData = filteredData;
 
@@ -68,11 +68,11 @@ export function vizPreDraw(viz: Viz): void {
   // 5. No-data-message DOM mount + opacity fade.
   if (post.noDataMessage) {
     viz._messageClass.render({
-      container: viz._select.node().parentNode,
+      container: viz._select!.node().parentNode,
       html: viz.schema.noDataHTML(viz),
       mask: false,
       style: viz.schema.messageStyle,
     });
-    viz._select.transition().duration(viz.schema.duration).attr("opacity", 0);
+    viz._select!.transition().duration(viz.schema.duration).attr("opacity", 0);
   }
 }

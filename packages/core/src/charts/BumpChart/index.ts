@@ -3,6 +3,8 @@
     y2-mirroring configuration that draws labeled rank lines.
 */
 
+import type {DataPoint} from "@d3plus/data";
+
 import constant from "../../utils/constant.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
@@ -21,14 +23,14 @@ export const bumpChartDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     type Comparator = (a: Record<string, unknown>, b: Record<string, unknown>) => number;
     type BumpFluent = {
-      y2: (accessor: (d: Record<string, unknown>) => unknown) => unknown;
+      y2: (accessor: (d: Record<string, unknown>, i: number) => unknown) => unknown;
       yConfig: (config: Record<string, unknown>) => unknown;
       y2Config: (config: Record<string, unknown>) => unknown;
       ySort: (comparator: Comparator) => unknown;
       y2Sort: (comparator: Comparator) => unknown;
     };
     const v = viz as VizInstance & BumpFluent;
-    v.y2((d: Record<string, unknown>) => viz._y(d));
+    v.y2((d: Record<string, unknown>, i: number) => viz._y!(d as DataPoint, i));
     v.yConfig({
       tickFormat: (val: number) => {
         const data = viz._formattedData ?? [];

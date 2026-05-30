@@ -83,7 +83,7 @@ export const geomapDef: ChartDefinition = {
     // `_renderTiles` is a per-instance method that mutates the tile group.
     viz._renderTiles = function(
       this: VizInstance,
-      transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container.node()),
+      transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container!.node()),
       duration: number = 0,
     ): void {
       let tileData: number[][] & {scale?: number; translate?: number[]} =
@@ -93,9 +93,9 @@ export const geomapDef: ChartDefinition = {
           .extent(this._zoomBehavior.translateExtent())
           .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
           .translate(transform.apply(this.schema.projection.translate()))();
-        this._tileGroup.transition().duration(duration).attr("transform", transform);
+        this._tileGroup!.transition().duration(duration).attr("transform", transform);
       }
-      const images = this._tileGroup
+      const images = this._tileGroup!
         .selectAll("image.d3plus-geomap-tile")
         .data(tileData, ([x, y, z]: [number, number, number]) => `${x}-${y}-${z}`);
       images.exit().transition().duration(duration).attr("opacity", 0).remove();

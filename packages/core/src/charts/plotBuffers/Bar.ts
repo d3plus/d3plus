@@ -1,5 +1,5 @@
 import {groups, max, min, sum} from "d3-array";
-import type Plot from "../Plot.js";
+import type Plot from "../Plot/index.js";
 
 /**
     @module barBuffer

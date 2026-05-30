@@ -18,7 +18,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../stages.js";
 
-interface TreeNode extends DataPoint {
+type TreeNode = DataPoint & {
   __d3plus__?: true;
   depth?: number;
   i?: number;
@@ -26,7 +26,7 @@ interface TreeNode extends DataPoint {
   y?: number;
   parent?: TreeNode;
   children?: TreeNode[];
-}
+};
 
 export const applyTreeLayout: TransformStage = ({viz}) => {
   const orient = viz.schema.orient as string;

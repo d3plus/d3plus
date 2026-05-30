@@ -32,11 +32,11 @@ export const barChartDef: ChartDefinition = {
         const base = viz.schema.legend as (config: any, arr: DataPoint[]) => unknown;
         return (config: any, arr: DataPoint[]) => {
           const legendIds = arr
-            .map(viz.schema.groupBy[viz._legendDepth].bind(viz))
+            .map(viz.schema.groupBy[viz._legendDepth!].bind(viz))
             .sort()
             .join();
           const barIds = viz._filteredData
-            .map(viz.schema.groupBy[viz._legendDepth].bind(viz))
+            .map(viz.schema.groupBy[viz._legendDepth!].bind(viz))
             .sort()
             .join();
           if (legendIds === barIds) return false;

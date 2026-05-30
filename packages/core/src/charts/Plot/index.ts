@@ -55,6 +55,7 @@ import Viz from "../Viz.js";
 
 import type {Scene, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
+import type {VizInstance} from "../vizTypes.js";
 
 /** Accessor function or string key for a plotted value. */
 type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
@@ -91,13 +92,14 @@ export default class Plot extends Viz {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     installFluent(this as any, plotSchema);
     // E3: scalar defaults sourced from plotDef.
-    this._axisPersist = plotDef.defaults.axisPersist as boolean;
-    this._annotations = plotDef.defaults.annotations as unknown[];
+    const defaults = plotDef.defaults!;
+    this._axisPersist = defaults.axisPersist as boolean;
+    this._annotations = defaults.annotations as unknown[];
     this._backgroundConfig = {
       duration: 0,
       fill: "transparent",
     };
-    this.schema.barPadding = plotDef.defaults.barPadding as number;
+    this.schema.barPadding = defaults.barPadding as number;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
     this._confidenceConfig = {
       fill: (d: DataPoint, i: number) => {
@@ -109,8 +111,8 @@ export default class Plot extends Viz {
       },
       fillOpacity: constant(0.5),
     };
-    this._discreteCutoff = plotDef.defaults.discreteCutoff as number;
-    this._groupPadding = plotDef.defaults.groupPadding as number;
+    this._discreteCutoff = defaults.discreteCutoff as number;
+    this._groupPadding = defaults.groupPadding as number;
     this._labelConnectorConfig = {
       strokeDasharray: "1 1",
     };
@@ -119,10 +121,10 @@ export default class Plot extends Viz {
       fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i)),
       r: constant(3),
     };
-    this._lineMarkers = plotDef.defaults.lineMarkers as boolean;
+    this._lineMarkers = defaults.lineMarkers as boolean;
     this._previousAnnotations = {back: [], front: []};
     this._previousShapes = [];
-    this.schema.shape = plotDef.defaults.shape;
+    this.schema.shape = defaults.shape;
     this.schema.shapeConfig = assign(this.schema.shapeConfig, plotShapeDefaults.call(this));
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
     this.schema.shapeSort = (a: string, b: string) =>
@@ -319,7 +321,7 @@ export default class Plot extends Viz {
       scope beyond the explicit context).
   */
   _paint(pCtx: PlotPaintContext) {
-    const nodes = plotPaint(this, pCtx);
+    const nodes = plotPaint(this as unknown as VizInstance, pCtx);
     // plotPaint is now a returning function (RFC §3.1 purification). Push
     // the emitted scene nodes into _chartScene in place; allocating a
     // fresh array via `.concat(nodes)` per draw churns GC on wide

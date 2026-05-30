@@ -97,3 +97,55 @@ are also migrated.
 methods (`getAllMethods`) and invokes each as a getter; the
 prototype-installed fluent accessor reads from `this.schema[key]`, so
 `config()` returns the correct values without traversing `_<key>`.
+
+## 4. tsc-error sweep — DONE (everything except `plotPaint.ts`)
+
+`npx tsc` (from `packages/core`) started at ~197 errors. **These do not
+block the build** — `build:esm` uses esbuild, which strips types without
+checking, so the package ships regardless. tsc is advisory type-debt
+here, not a gate.
+
+**Result:** every error outside `plotPaint.ts` is cleared. `npx tsc`
+now reports 54 errors, all inside `plotPaint.ts` — the deliberately
+`any`-typed file that this sweep skips (see below). Re-run to confirm:
+`npx tsc 2>&1 | grep "error TS" | sed 's/(.*//' | sort | uniq -c`.
+
+**Skip `plotPaint.ts` (54).** It is *deliberately* `any`-typed
+internally (see its header: "Fully `any`-typed internally for back-compat
+with the legacy plot codepath"). Its errors should fall out of the Plot
+pipeline refactor, not a piecemeal tsc sweep — don't fight them here.
+
+**What the sweep touched (no behavior changes — type-level only):**
+
+- Possibly-undefined (`TS18048`/`TS2532`) and invoke-undefined
+  (`TS2722`): `!` at sites the code already establishes are defined
+  (`viz._select`, `viz._zoomToBounds`, `viz.config`, `viz.active`,
+  `viz._thresholdFunction`, …).
+- Unknown reads + assignability/overload (`TS18046`/`TS2345`/`TS2322`/
+  `TS2769`): typed locals + targeted casts. `axisLayout.ts` resolved by
+  typing `axis._data`/`domain` as `number[]` (the d3-array `min`/`max`
+  overload was resolving to the `string` signature).
+- Base/override mismatches (`TS2416`, 12): shape-config interfaces
+  (`BaseShapeConfig`/`BoxConfig`/`WhiskerConfig`) gained a
+  `[key: string]: unknown` index signature so they're assignable to
+  `D3plusConfig`; `BaseShapeConfig.discrete` narrowed to `"x" | "y"` and
+  `D3plusConfig.label` widened to `string | string[] | false |
+  AccessorFn` to reconcile the two shared keys. `BaseClass.parent`
+  getter return + setter param widened to `unknown` so `Tooltip.parent`
+  (a DOM-element accessor, not the config-record one) overrides cleanly.
+- Hierarchy interface conflicts (`TS2430`): `PackLeaf`/`TreemapShapeNode`/
+  `AggregatedLeaf` switched from `interface … extends Hierarchy*Node` to
+  `type … = Omit<Hierarchy*Node, "id"|"children"> & {…}` so the
+  redeclared `id`/`children` no longer clash with the d3 base.
+- `TreeNode` switched from `interface extends DataPoint` to
+  `type = DataPoint & {…}` so its optional props stop violating
+  DataPoint's string index signature (`TS2411`).
+- Self-referential generator casts (`TS7022`) in Pack/Treemap layouts
+  extracted to named local `interface PackGenerator`/`TreemapGenerator`.
+
+**Guardrail (held):** baseline 197; each batch verified with
+`npx tsc 2>&1 | grep -c "error TS"` to confirm the count only dropped
+(197 → 169 → 147 → … → 54). Gate (from `packages/core`):
+`npm run build:esm` ✓ → `npx eslint index.ts 'src/**/*.ts'` (0 errors,
+81 pre-existing `any`/`prefer-const` warnings — 78 in `plotPaint.ts`) ✓
+→ `npx mocha 'test/**/*-test.js'` (104 passing) ✓.

@@ -42,7 +42,11 @@ export const applyPieLayout: TransformStage = ({viz}) => {
     | ((d: DataPoint, i: number) => number);
 
   viz.ctx.arcData = d3Shape.arc<PieArcDatum<DataPoint>>()
-    .innerRadius(typeof innerRadius === "function" ? innerRadius : () => innerRadius)
+    .innerRadius(
+      (typeof innerRadius === "function"
+        ? innerRadius
+        : () => innerRadius) as unknown as (d: PieArcDatum<DataPoint>, i: number) => number,
+    )
     .outerRadius(outerRadius);
 
   viz.ctx.pieData = pieData;

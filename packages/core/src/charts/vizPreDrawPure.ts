@@ -177,7 +177,9 @@ export function vizPreDrawPure(
     const n =
       l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||
       l[l.length - 1];
-    return n instanceof Array ? listify(n) : `${n}`;
+    return (n as unknown) instanceof Array
+      ? listify(n as unknown as DataPoint[keyof DataPoint][])
+      : `${n}`;
   };
   out.drawLabel = drawLabel;
 
@@ -192,7 +194,9 @@ export function vizPreDrawPure(
     | (() => boolean)
     | undefined;
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
-    const dates = viz._data.map(viz.schema.time).map(date);
+    const dates = viz._data
+      .map(viz.schema.time)
+      .map((d) => date(d as Parameters<typeof date>[0]));
     const d = viz._data[0],
       i = 0;
     if (
@@ -204,7 +208,7 @@ export function vizPreDrawPure(
     ) {
       computedTimeFilter = () => true;
     } else {
-      const latestTime = +max(dates)!;
+      const latestTime = +max(dates as Date[])!;
       // Snapshot `viz.schema.time` into the closure. Without this, a user
       // changing `.time(...)` after the filter is constructed would
       // make the closure read the NEW accessor against the OLD
@@ -249,9 +253,9 @@ export function vizPreDrawPure(
       (leaves: DataPoint[]) => {
         const index = viz._data.indexOf(leaves[0]);
         const shape = viz.schema.shape(leaves[0], index);
-        const localId = id(leaves[0], index);
+        const localId = id(leaves[0], index) as string | number;
 
-        const d = merge(leaves, viz.schema.aggs);
+        const d = merge(leaves, viz.schema.aggs) as DataPoint;
 
         if (
           !viz._hidden.includes(localId) &&
@@ -312,7 +316,7 @@ export function vizPostThresholdCtx(
   } else if (viz._userHover !== undefined) {
     result.hoverOverride = {
       hoverOpacity: viz._userHover,
-      duration: viz._userDuration,
+      duration: viz._userDuration!,
       restoreOriginals: true,
     };
   }

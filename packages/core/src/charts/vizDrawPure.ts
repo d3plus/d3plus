@@ -79,10 +79,10 @@ export function vizDrawPure(
   // function legendFeature / colorScaleFeature use) so the three sites
   // can't drift.
   const legendPosition = sanitizePosition(
-    viz.schema.legendPosition.bind(viz)(viz.config()),
+    viz.schema.legendPosition.bind(viz)(viz.config!()),
   );
   const colorScalePosition = sanitizePosition(
-    viz.schema.colorScalePosition.bind(viz)(viz.config()),
+    viz.schema.colorScalePosition.bind(viz)(viz.config!()),
   );
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;

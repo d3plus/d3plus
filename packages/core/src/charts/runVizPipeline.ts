@@ -33,6 +33,7 @@
 import {attributionFeature, runLayout} from "./features.js";
 import zoomControls from "./drawSteps/zoomControls.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
+import type VizClass from "./Viz.js";
 
 export function runVizPipeline(viz: Viz): void {
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
@@ -42,7 +43,7 @@ export function runVizPipeline(viz: Viz): void {
   // calls hit the shim which delegates to the free functions.
   viz._preDraw();
   viz._draw();
-  zoomControls.bind(viz)();
+  zoomControls.bind(viz as unknown as VizClass)();
   runLayout({viz}, [attributionFeature]);
   viz._drawSceneToTarget();
 }

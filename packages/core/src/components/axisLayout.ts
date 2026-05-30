@@ -323,9 +323,10 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
     axis._d3ScaleNegative = null;
     if (axis.schema.scale === "log") {
-      const domain = axis._d3Scale.domain();
+      const domain = axis._d3Scale.domain() as number[];
+      const data = axis._data as number[];
       if (domain[0] === 0) {
-        const smallestNumber = min([min(axis._data), Math.abs(domain[1])]);
+        const smallestNumber = min([min(data)!, Math.abs(domain[1])]);
         domain[0] =
           smallestNumber === 0 || smallestNumber === 1
             ? 1e-6
@@ -334,7 +335,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
               : 1;
         if (isNegative(domain[1])) domain[0] *= -1;
       } else if (domain[domain.length - 1] === 0) {
-        const smallestNumber = min([min(axis._data), Math.abs(domain[0])]);
+        const smallestNumber = min([min(data)!, Math.abs(domain[0])]);
         domain[domain.length - 1] =
           smallestNumber === 0 || smallestNumber === 1
             ? 1e-6
@@ -361,12 +362,12 @@ export function measureAxis(axis: any): AxisLayoutResult {
         const zero = leftPercentage * (scaleRange[1] - scaleRange[0]);
 
         let minPositive = min([
-          min(axis._data.filter((d: unknown) => (d as number) >= 0)),
+          min(data.filter((d: number) => d >= 0))!,
           Math.abs(domain[1]),
         ]);
         if (minPositive === 1) minPositive = 1e-6;
         let minNegative = min([
-          min(axis._data.filter(isNegative)),
+          min(data.filter(isNegative))!,
           Math.abs(domain[0]),
         ]);
         if (minNegative === 1) minNegative = 1e-6;

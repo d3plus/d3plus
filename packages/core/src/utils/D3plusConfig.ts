@@ -1,5 +1,7 @@
 import type {DataPoint} from "@d3plus/data";
 
+import type {AccessorFn} from "./AccessorFn.js";
+
 type Position = "top" | "right" | "bottom" | "left";
 
 type DataPointAccessor<T> = string | ((d: DataPoint) => T);
@@ -116,7 +118,7 @@ export interface D3plusConfig {
   /** Padding between groups of bars in pixels. */
   groupPadding?: number;
   /** Label accessor for shapes. */
-  label?: string | ((...args: unknown[]) => string);
+  label?: string | string[] | false | AccessorFn;
   /** Whether to show the legend. */
   legend?: boolean;
   /** Configuration for the legend component. */

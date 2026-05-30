@@ -6,18 +6,18 @@
 */
 
 import {hierarchy} from "d3-hierarchy";
-import type {HierarchyCircularNode} from "d3-hierarchy";
+import type {HierarchyCircularNode, HierarchyNode} from "d3-hierarchy";
 
 import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../stages.js";
 
-interface PackLeaf extends HierarchyCircularNode<DataPoint> {
+type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
   __d3plus__: true;
   i: number;
   id: string | number;
-}
+};
 
 export const applyPackLayout: TransformStage = ({viz}) => {
   const data = viz._filteredData as DataPoint[] | undefined;
@@ -36,21 +36,22 @@ export const applyPackLayout: TransformStage = ({viz}) => {
 
   const packOpacityFn = viz.schema.packOpacity as (d: DataPoint, i: number) => number;
 
-  const built = (viz.ctx.pack as {
-    padding: (n: number) => typeof built;
-    size: (s: [number, number]) => typeof built;
+  interface PackGenerator {
+    padding: (n: number) => PackGenerator;
+    size: (s: [number, number]) => PackGenerator;
     (root: ReturnType<typeof hierarchy<Branch>>): HierarchyCircularNode<Branch>;
-  })
+  }
+  const built = (viz.ctx.pack as PackGenerator)
     .padding(viz.schema.layoutPadding as number)
     .size([diameter, diameter]);
 
   const packed = built(
     hierarchy<Branch>(
-      {key: nestedData.key, values: nestedData} as Branch,
+      {key: nestedData.key, values: nestedData} as unknown as Branch,
       d => d.values as Branch[] | undefined,
     )
       .sum(viz.schema.sum as (d: DataPoint) => number)
-      .sort(viz.schema.sort as (a: HierarchyCircularNode<Branch>, b: HierarchyCircularNode<Branch>) => number),
+      .sort(viz.schema.sort as (a: HierarchyNode<Branch>, b: HierarchyNode<Branch>) => number),
   )
     .descendants()
     .filter((d, i) => {

@@ -20,7 +20,7 @@ import {
   Tooltip,
 } from "../components/index.js";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
-import type {Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
+import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 // import {Rect} from "../shape/index.js";
@@ -57,6 +57,7 @@ import {legendLabel} from "./legendLabel.js";
 import {runVizPipeline} from "./runVizPipeline.js";
 import {vizDraw} from "./vizDraw.js";
 import {vizPreDraw} from "./vizPreDraw.js";
+import type {VizInstance} from "./vizTypes.js";
 
 import clickShape from "./events/click.shape.js";
 import clickLegend from "./events/click.legend.js";
@@ -433,7 +434,7 @@ export default class Viz extends (BaseClass as any) {
    @private
    */
   _preDraw(): void {
-    vizPreDraw(this);
+    vizPreDraw(this as unknown as VizInstance);
   }
 
   /**
@@ -539,7 +540,7 @@ export default class Viz extends (BaseClass as any) {
       @private
   */
   _draw(): void {
-    vizDraw(this);
+    vizDraw(this as unknown as VizInstance);
   }
 
   /**
@@ -804,7 +805,7 @@ export default class Viz extends (BaseClass as any) {
         // Viz instance (RFC §3.1 architectural seam). Lifecycle (DOM setup,
         // viewport detection, data loading, callback timing) stays on the
         // class because it's inherently instance-bound.
-        runVizPipeline(this);
+        runVizPipeline(this as unknown as VizInstance);
 
         if (
           this._messageClass._isVisible &&

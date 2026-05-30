@@ -63,7 +63,7 @@ export default class Line extends Shape {
     const lines: DataPoint[] & {
       key?: (d: DataPoint) => DataPoint[keyof DataPoint];
     } = groups(data, this.schema.id).map(
-      ([key, values]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
+      ([key, values]: [unknown, DataPoint[]]) => {
         const d: DataPoint = {key, values} as unknown as DataPoint;
         (d as Record<string, unknown>).data = merge(
           d.values as unknown as DataPoint[],

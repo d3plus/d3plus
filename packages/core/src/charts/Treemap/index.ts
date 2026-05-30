@@ -45,10 +45,10 @@ const tileMethods: Record<string, unknown> = {
   treemapSquarify,
 };
 
-interface AggregatedLeaf extends HierarchyNode<DataPoint> {
+type AggregatedLeaf = Omit<HierarchyNode<DataPoint>, "children"> & {
   children?: AggregatedLeaf[];
   data: DataPoint & {_isAggregation?: boolean};
-}
+};
 
 const isAggregated = (leaf: AggregatedLeaf): boolean =>
   !!leaf.children &&

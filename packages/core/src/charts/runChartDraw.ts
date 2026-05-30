@@ -36,8 +36,9 @@ import {runStages} from "./stages.js";
 import {marginOriginTransform} from "./chartGeometry.js";
 
 import type {Transform} from "@d3plus/render";
-import type {ChartDefinition, TransformStage} from "./ChartDefinition.js";
+import type {ChartDefinition} from "./ChartDefinition.js";
 import {isPaintDriven} from "./ChartDefinition.js";
+import type {TransformStage} from "./stages.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
 export function runChartDraw(

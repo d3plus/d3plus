@@ -1,5 +1,5 @@
 import {max} from "d3-array";
-import type Plot from "../Plot.js";
+import type Plot from "../Plot/index.js";
 
 /**
     @module lineBuffer

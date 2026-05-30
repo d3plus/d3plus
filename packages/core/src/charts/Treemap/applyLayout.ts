@@ -12,14 +12,14 @@ import type {TransformStage} from "../stages.js";
 import {chartBounds} from "../chartGeometry.js";
 
 /** A laid-out treemap leaf node (carries `share` + `rank` populated below). */
-export interface TreemapShapeNode extends HierarchyRectangularNode<DataPoint> {
+export type TreemapShapeNode = Omit<HierarchyRectangularNode<DataPoint>, "id"> & {
   __d3plus__: true;
   id: string | number;
   i: number | undefined;
   x: number;
   y: number;
   share: number;
-}
+};
 
 export const applyTreemapLayout: TransformStage = ({viz}) => {
   const data = viz._filteredData as DataPoint[] | undefined;
@@ -38,16 +38,17 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
     {values: nestedData} as Branch,
     d => (d.values as Branch[] | undefined),
   )
-    .sum(viz.schema.sum as (d: DataPoint) => number)
-    .sort(viz.schema.sort as (a: HierarchyNode<DataPoint>, b: HierarchyNode<DataPoint>) => number);
+    .sum(viz.schema.sum as (d: Branch) => number)
+    .sort(viz.schema.sort as (a: HierarchyNode<Branch>, b: HierarchyNode<Branch>) => number);
 
   // d3-hierarchy treemap is a fluent builder; configure then invoke on root.
-  const built = (viz.ctx.treemap as {
-    padding: (n: number) => typeof built;
-    size: (s: [number, number]) => typeof built;
-    tile: (t: unknown) => typeof built;
+  interface TreemapGenerator {
+    padding: (n: number) => TreemapGenerator;
+    size: (s: [number, number]) => TreemapGenerator;
+    tile: (t: unknown) => TreemapGenerator;
     (n: HierarchyNode<Branch>): HierarchyRectangularNode<Branch>;
-  })
+  }
+  const built = (viz.ctx.treemap as TreemapGenerator)
     .padding(viz.schema.layoutPadding as number)
     .size([width, height])
     .tile(viz.schema.tile);
@@ -64,7 +65,7 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
       const branchData = node.data as Branch;
       const values = (branchData.values ?? []) as DataPoint[];
       const index =
-        values.length === 1 ? data.indexOf(values[0]) : undefined;
+        values.length === 1 ? data!.indexOf(values[0]) : undefined;
       const enriched = node as unknown as TreemapShapeNode;
       enriched.__d3plus__ = true;
       enriched.id = branchData.key as string | number;
@@ -86,8 +87,8 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   // Per-record rank — attached to the source datum so `ariaLabel` reads
   // `d.rank` directly instead of indexOf'ing a viz-level array.
   const sortFn = viz.schema.sort as (
-    a: HierarchyNode<DataPoint>,
-    b: HierarchyNode<DataPoint>,
+    a: TreemapShapeNode,
+    b: TreemapShapeNode,
   ) => number;
   shapeData
     .slice()

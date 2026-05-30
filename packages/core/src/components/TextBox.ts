@@ -283,7 +283,7 @@ export default class TextBox extends BaseClass {
 
       if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
         if (resize) {
-          sizes = textWidth(words, style) as number[];
+          sizes = textWidth(words, style) as unknown as number[];
 
           const areaMod = 1.165 + (w / h) * 0.1,
             boxArea = w * h,
@@ -397,7 +397,7 @@ export default class TextBox extends BaseClass {
         return runs ? {text, x: lineX, y, width, runs} : {text, x: lineX, y, width};
       });
       const rotateAnchor = this.schema.rotateAnchor(d, d.i);
-      const ariaHidden = d.aH === "true" || d.aH === true;
+      const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
       const interactive = d.pE !== "none";
       return {
         type: "text",

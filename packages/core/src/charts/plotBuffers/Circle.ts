@@ -1,4 +1,4 @@
-import type Plot from "../Plot.js";
+import type Plot from "../Plot/index.js";
 import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
 

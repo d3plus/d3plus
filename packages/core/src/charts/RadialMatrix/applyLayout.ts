@@ -142,16 +142,16 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   columnValues.forEach((c, i) => colIndex.set(c, i));
 
   const cellPadding = viz.schema.cellPadding as number;
-  const arcData = (d3Shape.arc as unknown as () => {
-    padAngle: (n: number) => unknown;
-  })()
-    .padAngle(cellPadding / radius) as {
-      padAngle: (n: number) => unknown;
-      innerRadius: (fn: (d: {row: unknown}) => number) => unknown;
-      outerRadius: (fn: (d: {row: unknown}) => number) => unknown;
-      startAngle: (fn: (d: {column: unknown}) => number) => unknown;
-      endAngle: (fn: (d: {column: unknown}) => number) => unknown;
-    };
+  interface MatrixArc {
+    padAngle: (n: number) => MatrixArc;
+    innerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
+    outerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
+    startAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
+    endAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
+  }
+  const arcData = (d3Shape.arc as unknown as () => MatrixArc)().padAngle(
+    cellPadding / radius,
+  );
 
   const arc = arcData
     .innerRadius(d => innerRadius + (rowIndex.get(d.row) ?? 0) * rowHeight + cellPadding / 2)

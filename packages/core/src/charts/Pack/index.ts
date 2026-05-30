@@ -135,7 +135,7 @@ export const packDef: ChartDefinition = {
                 .filter(key => key !== "value")
                 .every(key => {
                   const v = d[key];
-                  return v != null && (v as unknown[]).includes(h[key]);
+                  return v != null && (v as unknown as unknown[]).includes(h[key]);
                 });
               if (matches) hoverData.push(h);
               else if (ids.includes(h.key as string)) {

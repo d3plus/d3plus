@@ -124,7 +124,7 @@ export const ringsDef: ChartDefinition = {
     };
     v.hover = function(this: VizInstance, _: any) {
       this._hover = _;
-      this._shapes.forEach((s: any) => s.hover(_));
+      this._shapes!.forEach((s: any) => s.hover(_));
       if (this.schema.legend) this._legendClass.hover(_);
       return this;
     };

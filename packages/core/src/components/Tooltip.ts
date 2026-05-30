@@ -195,7 +195,7 @@ export default class Tooltip extends BaseClass {
     // (so multiple charts on a page don't fight over the global portal).
     // Default behavior — append to body via the global #d3plus-portal —
     // preserved when parent() isn't set.
-    const portal = this._parentEl
+    const portal: D3Selection = this._parentEl
       ? (() => {
           // Per-instance portal: each Tooltip owns its own
           // `.d3plus-tooltip-portal` child of `_parentEl`. Two Tooltips

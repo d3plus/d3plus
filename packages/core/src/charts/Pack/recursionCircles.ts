@@ -11,7 +11,7 @@ export function recursionCircles(
   arr: DataPoint[] = [],
 ): DataPoint[] {
   if (d.values) {
-    (d.values as DataPoint[]).forEach(h => {
+    (d.values as unknown as DataPoint[]).forEach(h => {
       arr.push(h);
       recursionCircles(h, arr);
     });

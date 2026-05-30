@@ -44,8 +44,9 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
   const cls = kind === "network" ? "d3plus-network" : "d3plus-geomap";
   const bg = kind === "geomap" ? ocean || "transparent" : "transparent";
 
-  viz._container = viz._select.selectAll(`svg.${cls}`).data([0]);
-  viz._container = viz._container
+  const select = viz._select!;
+  let container = select.selectAll(`svg.${cls}`).data([0]);
+  container = container
     .enter()
     .append("svg")
     .attr("class", cls)
@@ -55,9 +56,10 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
     .attr("x", viz._margin.left)
     .attr("y", viz._margin.top)
     .style("background-color", bg)
-    .merge(viz._container);
+    .merge(container);
+  viz._container = container;
 
-  viz._container
+  container
     .transition()
     .duration(duration)
     .attr("opacity", 1)
@@ -68,9 +70,7 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
 
   if (kind === "network") {
     // Hit-area for "click outside any node" → reset focus + zoom.
-    const hitArea = viz._container
-      .selectAll(`rect.${cls}-hitArea`)
-      .data([0]);
+    const hitArea = container.selectAll(`rect.${cls}-hitArea`).data([0]);
     hitArea
       .enter()
       .append("rect")
@@ -81,26 +81,23 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
       .attr("fill", "transparent")
       .on("click", () => {
         if (viz._focus) {
-          viz.active(false);
+          viz.active!(false);
           viz._focus = undefined;
-          viz._zoomToBounds(null);
+          viz._zoomToBounds!(null);
         }
       });
 
-    viz._zoomGroup = viz._container
-      .selectAll(`g.${cls}-zoomGroup`)
-      .data([0]);
-    viz._zoomGroup = viz._zoomGroup
+    let zoomGroup = container.selectAll(`g.${cls}-zoomGroup`).data([0]);
+    zoomGroup = zoomGroup
       .enter()
       .append("g")
       .attr("class", `${cls}-zoomGroup`)
-      .merge(viz._zoomGroup);
+      .merge(zoomGroup);
+    viz._zoomGroup = zoomGroup;
   } else {
     // Geomap also needs an ocean rect (under tiles + paths) and the tile
     // group that `_renderTiles` mutates with map imagery.
-    const oceanRect = viz._container
-      .selectAll(`rect.${cls}-ocean`)
-      .data([0]);
+    const oceanRect = container.selectAll(`rect.${cls}-ocean`).data([0]);
     oceanRect
       .enter()
       .append("rect")
@@ -110,22 +107,20 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
       .attr("height", height)
       .attr("fill", ocean || "transparent");
 
-    viz._tileGroup = viz._container
-      .selectAll(`g.${cls}-tileGroup`)
-      .data([0]);
-    viz._tileGroup = viz._tileGroup
+    let tileGroup = container.selectAll(`g.${cls}-tileGroup`).data([0]);
+    tileGroup = tileGroup
       .enter()
       .append("g")
       .attr("class", `${cls}-tileGroup`)
-      .merge(viz._tileGroup);
+      .merge(tileGroup);
+    viz._tileGroup = tileGroup;
 
-    viz._zoomGroup = viz._container
-      .selectAll(`g.${cls}-zoomGroup`)
-      .data([0]);
-    viz._zoomGroup = viz._zoomGroup
+    let zoomGroup = container.selectAll(`g.${cls}-zoomGroup`).data([0]);
+    zoomGroup = zoomGroup
       .enter()
       .append("g")
       .attr("class", `${cls}-zoomGroup`)
-      .merge(viz._zoomGroup);
+      .merge(zoomGroup);
+    viz._zoomGroup = zoomGroup;
   }
 }

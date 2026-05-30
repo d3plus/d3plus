@@ -118,7 +118,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
 
   const totalAxis = nestedAxisData.length;
   const polarAxis: PolarAxisDatum[] = nestedAxisData
-    .map(([key, values], i) => {
+    .map(([key, values], i): PolarAxisDatum => {
       const fontSize = labelConfig?.fontSize?.(values, i) ?? 11;
       const lineHeight = fontSize * 1.4;
       const hh = lineHeight * 2;

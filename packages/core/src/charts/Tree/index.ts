@@ -19,6 +19,7 @@ import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
 import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
+import type Viz from "../Viz.js";
 
 import {applyTreeLayout} from "./applyLayout.js";
 import {treeEmit} from "./emit.js";
@@ -85,7 +86,7 @@ export const treeDef: ChartDefinition = {
     {
       key: "legendTooltip",
       merge: true,
-      factory: (viz: VizInstance) => ({title: legendLabel.bind(viz)}),
+      factory: (viz: VizInstance) => ({title: legendLabel.bind(viz as unknown as Viz)}),
     },
   ],
 };

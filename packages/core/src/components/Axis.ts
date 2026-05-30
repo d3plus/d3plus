@@ -724,7 +724,7 @@ export default class Axis extends BaseClass {
     const group = standaloneCompute
       ? null
       : elem(`g#d3plus-Axis-${this._uuid}`, {parent});
-    this._group = group;
+    this._group = group as D3Selection;
 
     const gridLineData: {id: unknown}[] = (
       this.schema.gridSize !== 0

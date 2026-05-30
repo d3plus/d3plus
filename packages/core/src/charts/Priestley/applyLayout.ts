@@ -40,10 +40,10 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     .map((datum, i): PriestleyDatum => ({
       __d3plus__: true,
       data: datum,
-      end: isTimeScale ? date(endFn(datum, i) as string) : (endFn(datum, i) as number),
+      end: isTimeScale ? (date(endFn(datum, i) as string) as Date) : (endFn(datum, i) as number),
       i,
       id: idFn(datum, i),
-      start: isTimeScale ? date(startFn(datum, i) as string) : (startFn(datum, i) as number),
+      start: isTimeScale ? (date(startFn(datum, i) as string) as Date) : (startFn(datum, i) as number),
     }))
     .filter(d => Number(d.end) - Number(d.start) > 0)
     .sort((a, b) => Number(a.start) - Number(b.start));
@@ -55,7 +55,7 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     for (let i = 0; i < viz._drawDepth; i++) {
       keyFns.push(d => viz.schema.groupBy[i](d.data, d.i));
     }
-    nested = nestGroups(data as unknown as DataPoint[], keyFns as ((d: DataPoint) => unknown)[]) as unknown as Branch[];
+    nested = nestGroups(data as unknown as DataPoint[], keyFns as ((d: DataPoint) => string | number | boolean)[]) as unknown as Branch[];
   } else {
     nested = [{values: data} as Branch];
   }
