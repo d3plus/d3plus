@@ -3,8 +3,8 @@ import it from "../jsdom.js";
 import {BarChart, vizDrawPure} from "../../es/index.js";
 
 /**
-    `vizDrawPure(viz, prevCtx) → Partial<VizDrawCtx>` is the v4 RFC §3.1
-    pure form of the chart-shell layout phase. Locks the export +
+    `vizDrawPure(viz, prevCtx) → Partial<VizDrawCtx>` is the pure form of
+    the chart-shell layout phase. Locks the export +
     return-shape contract.
 */
 

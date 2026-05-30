@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    `vizDrawPure(viz, prevCtx)` — RFC §3.1 returning-form of `vizDraw`.
+    `vizDrawPure(viz, prevCtx)` — the returning form of `vizDraw`.
 
     NAMING CAVEAT: the suffix `Pure` here means **"returns a Partial<
     VizContext> describing the layout intent"**, not "free of side effects
@@ -14,13 +14,13 @@
       - margin claims (`viz._margin.X += claim.margin.X`) so the next
         runLayout sees the updated margins
       - FeatureModule layouts that mount/measure their components
-    These writes are part of the v4 contract: subclasses and feature
+    These writes are part of the contract: subclasses and feature
     modules consume live viz state during the layout body, and the shim
     pattern (`vizDraw` calling `vizDrawPure`) is what bridges the
-    free-function v4 surface to the class instances that still hold the
+    free-function surface to the class instances that still hold the
     components.
 
-    The shim (`vizDraw`) wraps this and serves as the v4 public surface.
+    The shim (`vizDraw`) wraps this and serves as the public surface.
 
     Returns a context with:
       - `marginDelta` (top/bottom/left/right) — total added to viz._margin

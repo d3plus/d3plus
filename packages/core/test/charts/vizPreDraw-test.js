@@ -3,7 +3,7 @@ import it from "../jsdom.js";
 import {vizPreDraw} from "../../es/index.js";
 
 /**
-    `vizPreDraw(viz)` is the v4 RFC §3.1 architectural seam for the
+    `vizPreDraw(viz)` is the architectural seam for the
     Viz pre-draw phase (drawDepth resolution, id/ids/drawLabel accessor
     synthesis, timeFilter defaulting, filteredData + legendData rollup,
     dataCutoff hover/duration overrides, no-data messaging) — extracted

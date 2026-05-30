@@ -277,16 +277,15 @@ export default class Plot extends Viz {
       `this.schema.on[event](d.data, d.i, x, event)`. Extracted from
       Plot._paint so the chart-level event wiring is in one place.
 
-      MIGRATION NOTE (RFC §4.5 — interaction decoupled from DOM): each
-      shape's `.on(evt, handler)` call binds a d3-selection DOM listener
-      to its SVG nodes. That works under `SvgRenderer` but not under
-      `CanvasRenderer`, which has no per-shape DOM target — every pixel
-      lives on one <canvas>. The renderer interface already exposes
-      `Renderer.on(handler)` + `Renderer.pick(point)` for the proper
-      scene-driven path, but rewiring every Plot event through that
-      pipeline (registry-keyed-by-shape-id → pick() per pointer event →
-      dispatch by id → forward to `this.schema.on[...]`) is a multi-file
-      refactor scheduled as a v4 follow-on. Until then, charts using
+      Known limitation (Canvas events): each shape's `.on(evt, handler)`
+      call binds a d3-selection DOM listener to its SVG nodes. That works
+      under `SvgRenderer` but not under `CanvasRenderer`, which has no
+      per-shape DOM target — every pixel lives on one <canvas>. The
+      renderer interface exposes `Renderer.on(handler)` +
+      `Renderer.pick(point)` for the scene-driven path, but rewiring every
+      Plot event through that pipeline (registry-keyed-by-shape-id →
+      pick() per pointer event → dispatch by id → forward to
+      `this.schema.on[...]`) is not yet done. Until then, charts using
       `.renderer("canvas")` with custom shape events silently drop them.
   */
   _wirePlotShapeEvents(
@@ -322,8 +321,8 @@ export default class Plot extends Viz {
   */
   _paint(pCtx: PlotPaintContext) {
     const nodes = plotPaint(this as unknown as VizInstance, pCtx);
-    // plotPaint is now a returning function (RFC §3.1 purification). Push
-    // the emitted scene nodes into _chartScene in place; allocating a
+    // plotPaint returns the emitted scene nodes. Push them into
+    // _chartScene in place; allocating a
     // fresh array via `.concat(nodes)` per draw churns GC on wide
     // charts (1000s of bars/cells) under zoom/animation. Viz.toScene
     // wraps the collection in viz-chart-cells + zoom transform.

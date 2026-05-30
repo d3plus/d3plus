@@ -45,26 +45,24 @@ function applyStyleObj(
     @name zoomControls
     Sets up initial zoom events and controls.
 
-    Carve-out (RFC §3.4): this step is **intentionally not** ported to a
-    `FeatureModule` in `../features.ts`. v4 introduced the `HtmlOverlayNode`
-    scene type (so reason #1 below is gone) but the interaction-wiring half
-    still doesn't fit the FeatureModule contract:
+    This step is **intentionally not** a `FeatureModule` in
+    `../features.ts`. The `HtmlOverlayNode` scene type carries its HTML
+    output, but the interaction-wiring half still doesn't fit the
+    FeatureModule contract:
 
-      1. ~~It emits an HTML `<div class="d3plus-zoom-control">` ...~~
-         (RESOLVED in v4: HtmlOverlayNode supports HTML in the scene graph.)
-      2. It does not claim margin. It positions itself *inside* the existing
+      1. It does not claim margin. It positions itself *inside* the existing
          `this._margin.top` / `this._margin.left` and overlays the chart.
-      3. It installs stateful D3 zoom + brush behaviors (`this._zoomBehavior`,
+      2. It installs stateful D3 zoom + brush behaviors (`this._zoomBehavior`,
          `this._zoomBrush`) and wires `this._zoomToBounds` — d3-zoom binds to
          the SVG element directly via `this._container.call(zoomBehavior)`,
          not via a scene-graph event mechanism.
-      4. It runs *after* `_draw()` (after the chart body is rendered) rather
+      3. It runs *after* `_draw()` (after the chart body is rendered) rather
          than during the margin negotiation phase that runLayout drives.
 
-    The remaining migration step is a "post-draw interaction wiring" hook
-    that lets HtmlOverlay nodes attach DOM event handlers in a way the
-    serializable scene graph permits. Until that design lands, zoomControls
-    stays as a `drawSteps/` free function invoked directly from `Viz._draw`.
+    Fitting it into the layout engine would need a "post-draw interaction
+    wiring" hook that lets HtmlOverlay nodes attach DOM event handlers in a
+    way the serializable scene graph permits. Until that exists, zoomControls
+    stays a `drawSteps/` free function invoked directly from `Viz._draw`.
     @private
 */
 export default function (this: Viz): void {

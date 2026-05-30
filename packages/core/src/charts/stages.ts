@@ -1,14 +1,20 @@
 /**
-    E1 (RFC §3): `Viz._preDraw` as a pipeline of pure stages.
+    Named `TransformStage`s for the chart-shell data prep (draw-depth, id
+    accessors, time/user filtering, rollup, threshold, large-data
+    adjustment, empty-data detection), plus `runStages` to fold a stage
+    list into a context.
 
-    Status: **live.** `Viz._preDraw` runs these stages via `runStages` and the
-    progressive writeback below copies each stage's outputs onto `this` so any
-    downstream consumer (drawSteps, `_thresholdFunction`, chart subclass
-    `_draw` overrides, component instances) reads the values the prior stage
-    produced. Writeback happens progressively (not after all stages) because
-    `Treemap._thresholdFunction` reads `this._drawDepth` mid-pipeline.
+    `runStages` is the engine for the per-chart layout stages
+    (`applyTreemapLayout` etc.) that `runChartDraw` and the Plot pipeline
+    invoke. Its progressive writeback copies each stage's outputs onto
+    `this` so downstream consumers read the values the prior stage produced
+    (writeback is progressive, not after all stages, because
+    `Treemap._thresholdFunction` reads `this._drawDepth` mid-pipeline).
 
-    @see docs/V4_PHASE_E_PLAN.md for the broader pipeline/feature/fluent plan.
+    The chart-shell data prep itself runs through the imperative
+    `vizPreDrawPure` (see `vizPreDrawPure.ts`); the declarative
+    `vizPreDrawStages` list below mirrors that logic but is not on the
+    runtime path.
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {group, max, min, rollup} from "d3-array";
@@ -315,17 +321,13 @@ export const detectNoData: TransformStage = ({viz, filteredData}) => ({
 });
 
 /**
-    Legacy `Viz._preDraw` stage list. Wired as `def.stages` on every
-    ChartDefinition for documentation, but the production preDraw path
-    runs `vizPreDrawPure` (in `vizPreDrawPure.ts`) instead — `def.stages`
-    is not invoked by any runtime path. The two implementations should
-    be kept in sync if either is updated; future cleanup work will
-    collapse to a single source of truth (either delete this and the
-    `def.stages` field, or wire `vizPreDraw` to consume `def.stages`).
-
-    Each chart subclass that adds chart-specific stages composes them
-    onto this base (`[...vizPreDrawStages, applyTreemapLayout]`) — that
-    composition IS run via `runChartDraw` for non-paint-driven charts.
+    Declarative form of the chart-shell data prep — the same logic the
+    imperative `vizPreDrawPure` runs. Wired onto each
+    `ChartDefinition.stages` (charts compose their layout stage on:
+    `[...vizPreDrawStages, applyTreemapLayout]`), but the runtime preDraw
+    path runs `vizPreDrawPure`, so this list is not itself invoked. The two
+    forms are kept in sync by hand; consolidating to a single source of
+    truth (drive preDraw from `def.stages`, or drop this list) is open.
 */
 export const vizPreDrawStages: TransformStage[] = [
   resolveDrawDepth,

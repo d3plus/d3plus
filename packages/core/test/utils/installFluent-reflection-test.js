@@ -2,7 +2,7 @@ import assert from "assert";
 import it from "../jsdom.js";
 import {Pie, Treemap} from "../../es/index.js";
 
-// E4 follow-on safety check: BaseClass.config() reflects over prototype methods.
+// BaseClass.config() reflects over prototype methods.
 // installFluent installs methods on the INSTANCE (not the prototype). This
 // test verifies that the installed methods still surface in config() output —
 // otherwise the React wrapper's hash() (and any other config-based diffing)

@@ -1,11 +1,11 @@
 /**
-    `ResolvedSpec` + `resolveSpec(viz)` — the v4 RFC §3.1 boundary between
+    `ResolvedSpec` + `resolveSpec(viz)` — the boundary between
     "config the user supplied" and "context the pipeline transforms."
 
     Today the chart's class instance holds both: every `this._foo` slot is
     either a config the user can set (via accessors) or a derived value the
-    pipeline writes back during `_preDraw` / `_draw` / `_paint`. The RFC
-    calls for a clean split:
+    pipeline writes back during `_preDraw` / `_draw` / `_paint`. The clean
+    split is:
 
       ResolvedSpec     <- user config (frozen, immutable, serializable)
         ↓

@@ -3,7 +3,7 @@ import it from "../jsdom.js";
 import {vizDraw} from "../../es/index.js";
 
 /**
-    `vizDraw(viz)` is the v4 RFC §3.1 architectural seam for the Viz
+    `vizDraw(viz)` is the architectural seam for the Viz
     draw phase (feature panel reset, legend/colorScale margin claims,
     title/subtitle/total layout, timeline + top/bottom legend & colorScale
     claims) — extracted from `Viz._draw` so callers can drive the step

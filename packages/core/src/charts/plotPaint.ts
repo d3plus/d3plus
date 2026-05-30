@@ -1,7 +1,7 @@
 /**
     `plotPaint(viz, pCtx)` — the Plot paint phase as a free function.
 
-    RFC §3.1 architectural seam for Plot, sibling to `runVizPipeline(viz)`.
+    An architectural seam, sibling to `runVizPipeline(viz)`.
     The paint phase (production axis rendering, shape buffer setup, and
     shape emission with event handlers) runs here; `Plot._paint` is a
     thin shim that concats the returned nodes onto `viz._chartScene`.

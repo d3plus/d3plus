@@ -1,14 +1,12 @@
 /**
-    `runVizPipeline(viz)` — the v4 chart pipeline as a free function.
+    `runVizPipeline(viz)` — the chart pipeline as a free function.
 
-    RFC §3.1 calls for the pipeline to be a sequence of pure stages over an
-    explicit context (`UserConfig → ResolvedSpec → transform stages →
-    SceneGraph → renderer`). Today's class internals don't yet provide a
-    pure ResolvedSpec or context-passing stages — `_preDraw`/`_draw` still
-    mutate `this`. But the *boundary* between "lifecycle/DOM/data-loading"
-    (which lives on Viz.render(), inherently instance-bound) and
-    "transform-the-data-into-a-scene" (which is pure-ish and could be a
-    free function) is now drawn here.
+    Draws the boundary between "lifecycle/DOM/data-loading" (which lives on
+    `Viz.render()`, inherently instance-bound) and
+    "transform-the-data-into-a-scene" (callable without the lifecycle). The
+    transform side isn't fully pure yet — `_preDraw`/`_draw` still mutate
+    `this` rather than threading an explicit context
+    (`UserConfig → ResolvedSpec → transform stages → SceneGraph → renderer`).
 
     Calling this function on a Viz instance runs the same four steps
     `Viz.render()` previously inlined inside its `Promise.all().then()`
@@ -21,7 +19,7 @@
       5. `viz._drawSceneToTarget()` — paint scene via SvgRenderer/CanvasRenderer
 
     Future work:
-      - Extract a true `ResolvedSpec` so step 1 takes (config) not (this).
+      - Extract a `ResolvedSpec` so step 1 takes (config) not (this).
       - Decouple step 2 so it takes (ctx) not (this); stages already follow
         this pattern but `_draw` itself doesn't.
       - Replace step 5's `this._sceneRenderer` slot with a returned handle

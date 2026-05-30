@@ -627,11 +627,10 @@ it("subtitle and total features compose into the scene", async () => {
   assert.ok(res.text.includes("30"), "total value rendered");
 });
 
-it("treemapDef.emit produces rect nodes structurally identical to legacy Rect cells", async () => {
-  // Bridges E3 → E4: prove `treemapDef.emit(ctx)` is a valid replacement for
-  // the legacy `new Rect().renderMode("compute").data(shapeData).render()`
-  // glue, modulo labels. Each cell's geometry must round-trip from the stage
-  // to the emit'd SceneNode unchanged.
+it("treemapDef.emit produces rect nodes with correct cell geometry", async () => {
+  // `treemapDef.emit(ctx)` produces the cell geometry directly (modulo
+  // labels). Each cell's geometry must round-trip from the stage to the
+  // emit'd SceneNode unchanged.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -689,10 +688,10 @@ it("treemapDef.emit produces rect nodes structurally identical to legacy Rect ce
 });
 
 it("treemapDef.emit yields label-aware scene nodes (rect + text) in a browser", async () => {
-  // Phase E follow-on: in a browser context where TextBox can compute label
-  // layout (font measurement + textWrap), emit() returns rect SceneNodes AND
-  // text SceneNodes (one per label per cell) — the chart's scene contract is
-  // now expressible purely through treemapDef.emit.
+  // In a browser context where TextBox can compute label layout (font
+  // measurement + textWrap), emit() returns rect SceneNodes AND text
+  // SceneNodes (one per label per cell) — the chart's scene contract is
+  // expressible purely through treemapDef.emit.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -1199,7 +1198,7 @@ it("backFeature emits nothing when history is empty (default state)", async () =
   assert.ok(!res.hasBack, "no back node when history is empty");
 });
 
-it("titleFeature composes a title TextNode into the scene (E2)", async () => {
+it("titleFeature composes a title TextNode into the scene", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");

@@ -3,7 +3,7 @@
 /**
     `vizPreDrawPure(viz, prevCtx)` — the pure form of `vizPreDraw`.
 
-    RFC §3.1 contract: `(spec, prevCtx) → Partial<VizContext>`. This
+    Contract: `(spec, prevCtx) → Partial<VizContext>`. This
     function reads from the viz instance (treating it as a spec snapshot —
     only accessor-settable fields) and returns the computed context
     fields without mutating the viz. Callers (the imperative `vizPreDraw`

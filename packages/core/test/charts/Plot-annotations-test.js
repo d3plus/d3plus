@@ -6,11 +6,11 @@ after(async () => {
 });
 
 /**
-    Locks the v4 annotation migration: back/front annotations route through
-    scene (renderMode("compute") + absorbShapeIntoChartScene), front layer
-    absorbs AFTER the main shape loop so it appears above shapes (preserving
-    legacy z-order). The deferred-absorb queue in `Plot._paint` is what
-    keeps this working; this test fails loud if a future refactor breaks it.
+    Locks annotation z-order: back/front annotations route through the scene
+    (renderMode("compute") + absorbShapeIntoChartScene); the front layer
+    absorbs AFTER the main shape loop so it paints above shapes (back below).
+    The deferred-absorb queue in `Plot._paint` is what keeps this working;
+    this test fails loud if a future refactor breaks it.
 */
 
 it("Plot back annotations render below shapes; front annotations render above", async function () {

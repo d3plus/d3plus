@@ -262,18 +262,18 @@ function buildDataTable(viz: Viz): void {
 }
 
 /**
-    Runs the v4 pipeline once data has loaded, hides the loading message,
+    Runs the chart pipeline once data has loaded, hides the loading message,
     (re)attaches the resize observer, and fires the user callback.
     @private
 */
 function finishDraw(viz: Viz, callback?: () => void): void {
   buildDataTable(viz);
 
-  // Run the v4 chart pipeline. Extracted to a free function so the
+  // Run the chart pipeline. Extracted to a free function so the
   // "transform data → scene" boundary is callable without holding a
-  // Viz instance (RFC §3.1 architectural seam). Lifecycle (DOM setup,
-  // viewport detection, data loading, callback timing) stays on the
-  // class because it's inherently instance-bound.
+  // Viz instance. Lifecycle (DOM setup, viewport detection, data
+  // loading, callback timing) stays on the class because it's
+  // inherently instance-bound.
   runVizPipeline(viz as unknown as VizInstance);
 
   if (

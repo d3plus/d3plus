@@ -219,7 +219,7 @@ export interface GroupNode extends NodeBase {
     user-supplied text MUST sanitize before assigning.
 
     Serializability note: `onMount` is the documented escape from the
-    "scene is pure data" RFC principle. Pure scene types use no functions;
+    "scene is pure data" principle. Pure scene types use no functions;
     HtmlOverlay is the explicit interactive surface and accepts a callback
     for post-mount event wiring (e.g. zoom control buttons). Renderers call
     it once after the host div is first appended, and again on each update
@@ -248,7 +248,7 @@ export interface HtmlOverlayNode extends NodeBase {
       pair and dispatches by `event.target.closest(selector)` matching.
       Prefer this over `onMount` for click/hover/keyboard wiring: the
       declarative form is serializable, survives scene snapshots, and
-      keeps closures off the scene primitive (RFC §4.1).
+      keeps closures off the scene primitive.
 
       Example:
         events: {

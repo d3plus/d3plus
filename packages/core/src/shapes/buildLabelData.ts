@@ -7,12 +7,11 @@
     `this._id`/`this._data`, produces the array of label-record DataPoints
     that a TextBox can render. No Shape instance required.
 
-    This is the v4 RFC §3 "pure label compute" extraction: emit functions
-    that today instantiate `new Rect().renderMode("compute").render()` only
-    to read back the label compute via `_labelClass` can switch to calling
-    this directly + emitting their own text nodes — no Shape class needed
-    for labels-only data flows. The Shape classes themselves still use
-    `this._buildLabelData()` which is now a thin shim over this function.
+    Emit functions that would otherwise instantiate
+    `new Rect().renderMode("compute").render()` only to read back the label
+    compute via `_labelClass` can call this directly + emit their own text
+    nodes — no Shape class needed for labels-only data flows. The Shape
+    classes themselves reach it through `this._buildLabelData()`.
 */
 
 import type {DataPoint} from "@d3plus/data";

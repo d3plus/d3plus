@@ -1,16 +1,13 @@
 /**
-    E2 (RFC §3.4): FeatureModule + layout engine. The chart-level
-    drawSteps (title, subtitle, total, legend, timeline, colorScale,
-    back) ship as `FeatureModule` values composed by `runLayout`, which
-    performs **explicit margin negotiation** — each feature returns a
-    `MarginClaim` + optional `panel` scene node + optional declarative
-    `vizUpdate` writes, and the engine accumulates margins across
-    features in order.
+    FeatureModule + layout engine. The chart-level features (title,
+    subtitle, total, legend, timeline, colorScale, back) are
+    `FeatureModule` values composed by `runLayout`, which performs
+    **explicit margin negotiation** — each feature returns a `MarginClaim`
+    + optional `panel` scene node + optional declarative `vizUpdate`
+    writes, and the engine accumulates margins across features in order.
 
-    Status: **production v4 surface.** Every Plot-family + chart-shell
-    feature here is wired into `vizDrawPure` via `runLayout(ctx, [...
-    features])`. Legacy `drawSteps/*.bind(this)` free-functions have
-    been retired in favor of these modules.
+    Every Plot-family + chart-shell feature here is wired into
+    `vizDrawPure` via `runLayout(ctx, [...features])`.
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {extent, min, rollup, sum} from "d3-array";
@@ -561,11 +558,10 @@ export const colorScaleFeature: FeatureModule = {
     if (showColorScale) {
       const scaleBounds = viz._colorScaleClass.outerBounds();
       if (!viz.schema.colorScaleConfig.select && scaleBounds.height) {
-        // Use the colorScale's OWN padding for its margin claim. Legacy
-        // drawColorScale read `viz._legendClass.padding()` here — a
-        // faithful-port carry-over that meant a custom legendPadding
-        // would shift the colorScale's claim even with the legend
-        // hidden. The colorScale class is the source of truth.
+        // Use the colorScale's OWN padding for its margin claim — not the
+        // legend's, so a custom legendPadding doesn't shift the
+        // colorScale's claim when the legend is hidden. The colorScale
+        // class is the source of truth.
         const csPadding =
           typeof viz._colorScaleClass.padding === "function"
             ? viz._colorScaleClass.padding()

@@ -277,7 +277,7 @@ export default class Shape extends BaseClass {
       @private
 */
   _buildLabelData(): DataPoint[] {
-    // v4: thin shim over the pure `buildLabelData()` helper. The helper
+    // Delegates to the pure `buildLabelData()` helper. The helper
     // takes the same inputs `this` exposes but works without a Shape
     // instance — emit functions or other callers that need only the
     // label-record layout can call it directly without instantiating

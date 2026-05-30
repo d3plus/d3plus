@@ -186,10 +186,9 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Selects which @d3plus/render backend paints the visible output
-      (RFC §4.6). `"svg"` = SvgRenderer (default), `"canvas"` =
-      CanvasRenderer. Scene mode is the only path; this chooses the
-      backend. Boolean arguments both normalize to `"svg"`.
+      Selects which @d3plus/render backend paints the visible output.
+      `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
+      Boolean arguments both normalize to `"svg"`.
   */
   renderer(): "svg" | "canvas";
   renderer(_: "svg" | "canvas" | true | false): this;

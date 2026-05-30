@@ -7,18 +7,15 @@ import {
 } from "../../es/src/charts/Plot/pipeline.js";
 import accessor from "../../es/src/utils/accessor.js";
 
-// E3 follow-on: Plot's chart-specific layout was a 1500-line monolith inside
-// Plot._draw. Three stages have been carved out as pure TransformStages.
-// These tests exercise them in isolation against a hand-rolled "viz-like"
-// object — no Plot instance, no DOM. Demonstrates the chart-as-data thesis
-// scaling from leaf charts (Treemap/Pack) to the Plot god-class.
+// Plot's chart-specific layout runs as pure TransformStages. These tests
+// exercise three of them in isolation against a hand-rolled "viz-like"
+// object — no Plot instance, no DOM.
 
 const makeViz = (overrides = {}) => {
-  // The chart-def refactor migrated Plot's pipeline to read schema fields
-  // (stacked, sizeMax, etc.) directly via `viz.schema.<key>`. Hand-rolled
-  // viz stubs need `schema` populated alongside the legacy `_<key>` data
-  // slots (which the pipeline still uses for non-schema state like
-  // `_filteredData`, `_groupBy`).
+  // Plot's pipeline reads config fields (stacked, sizeMax, etc.) via
+  // `viz.schema.<key>`. Hand-rolled viz stubs populate `schema` alongside
+  // the `_<key>` data slots the pipeline uses for non-schema state
+  // (`_filteredData`, `_groupBy`).
   const schemaOverrides = overrides.schema || {};
   return {
     _filteredData: [

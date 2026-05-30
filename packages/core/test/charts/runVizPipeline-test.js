@@ -3,7 +3,7 @@ import it from "../jsdom.js";
 import {BarChart, runVizPipeline} from "../../es/index.js";
 
 /**
-    `runVizPipeline(viz)` is the v4 RFC §3.1 architectural seam: the chart
+    `runVizPipeline(viz)` is the architectural seam: the chart
     pipeline as a free function (`_preDraw → _draw → zoomControls →
     attributionFeature → _drawSceneToTarget`), callable WITHOUT going
     through `Viz.render()`'s lifecycle (DOM setup, viewport detection, data

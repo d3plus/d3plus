@@ -3,14 +3,14 @@ import it from "../jsdom.js";
 import {BarChart, resolveSpec} from "../../es/index.js";
 
 /**
-    `resolveSpec(viz)` is the v4 RFC §3.1 config/context boundary —
-    snapshots user-settable config into a frozen ResolvedSpec so the
-    pipeline can in time stop mutating `this` and instead transform
+    `resolveSpec(viz)` is the config/context boundary — snapshots
+    user-settable config into a frozen ResolvedSpec so the pipeline can in
+    time stop mutating `this` and instead transform
     `(spec, prevCtx) → Partial<VizContext>` purely.
 
-    Today it delegates to `viz.config()` reflection + Object.freeze.
-    These tests lock the surface so the v5 evolution can swap the
-    internals without breaking consumers.
+    It delegates to `viz.config()` reflection + Object.freeze. These tests
+    lock the surface so a future evolution can swap the internals without
+    breaking consumers.
 */
 
 it("resolveSpec is exported and is a function", () => {

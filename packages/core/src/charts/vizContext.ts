@@ -1,7 +1,7 @@
 /**
     `VizContext` — the pipeline-derived state companion to `ResolvedSpec`.
 
-    The v4 RFC §3.1 boundary splits a chart's runtime data into two halves:
+    This boundary splits a chart's runtime data into two halves:
 
       ResolvedSpec     <- user config (frozen, immutable; see resolveSpec.ts)
         ↓

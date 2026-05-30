@@ -10,7 +10,7 @@ import {
 } from "../../es/index.js";
 
 /**
-    Output-correctness tests for the v4 RFC §3.1 pure functions.
+    Output-correctness tests for the pure pipeline functions.
     The prior tests only verified the export signature; these lock the
     actual returned values for known inputs, so a future refactor that
     changes shape detectably fails here rather than silently shifting

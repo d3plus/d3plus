@@ -4,7 +4,7 @@ import {BarChart, vizPreDrawPure, vizPostThresholdCtx} from "../../es/index.js";
 
 /**
     `vizPreDrawPure(viz, prevCtx) → Partial<VizContext>` is the
-    v4 RFC §3.1 pure form of the data-prep phase. Locks the export +
+    pure form of the data-prep phase. Locks the export +
     return-shape contract so any future evolution (true ResolvedSpec
     purity, deeper pipeline composition) preserves byte-equivalence.
 */
