@@ -477,10 +477,10 @@ export default class Axis extends BaseClass {
       @private
 */
   _configToPaint(cfg: Record<string, unknown>): Paint {
-    // Resolve a config value that may be a function (the legacy
-    // d3-selection style accessor invocation pattern) or a literal.
-    // Functions are evaluated against the Axis instance with no args
-    // — config-level paints aren't per-datum.
+    // Resolve a config value that may be a function (d3-selection style
+    // accessor invocation pattern) or a literal. Functions are evaluated
+    // against the Axis instance with no args — config-level paints aren't
+    // per-datum.
     const resolve = (v: unknown): unknown => {
       if (typeof v === "function") {
         try {
@@ -675,9 +675,8 @@ export default class Axis extends BaseClass {
      * — Plot has four long-lived axes and was accumulating 4 detached
      * SVGs per chart instance.
      *
-     * In `renderMode("full")` and `_select` unset, we still create a
-     * body-attached svg for back-compat (legacy callers do
-     * `new Axis().render()` standalone).
+     * In `renderMode("full")` with `_select` unset, we create a
+     * body-attached svg so standalone `new Axis().render()` works.
 */
     if (this._select === void 0 && this.schema.renderMode !== "compute") {
       const svgNode = document.createElementNS(
@@ -733,8 +732,8 @@ export default class Axis extends BaseClass {
           : ticks
         : []
     ).map((d: unknown) => ({id: d}));
-    // v4 scene-only: grid lines are emitted natively by toScene() via
-    // _gridLinePoints() from this._gridLineData. No legacy <line> DOM.
+    // Scene-only: grid lines are emitted natively by toScene() via
+    // _gridLinePoints() from this._gridLineData. No <line> DOM.
     this._gridLineData = gridLineData;
 
     const labelOnly = labels.filter(
@@ -857,8 +856,8 @@ export default class Axis extends BaseClass {
       .labelConfig({padding: 0})
       .render();
 
-    // v4 scene-only: the domain bar is emitted natively by toScene() via
-    // _barLinePoints(). No legacy `line.bar` DOM.
+    // Scene-only: the domain bar is emitted natively by toScene() via
+    // _barLinePoints(). No `line.bar` DOM.
 
     // Title TextBox runs in compute mode regardless. When there's no
     // parent group (standaloneCompute path above), skip the title's
@@ -1096,9 +1095,9 @@ export interface AxisLayout {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function computeAxisLayout(axis: any): AxisLayout {
-  // Free function from axisLayout.ts. Mutates `axis` (legacy interop) and
-  // returns the layout artifacts; we re-shape its result + the mutated
-  // instance fields into the stable `AxisLayout` API.
+  // Free function from axisLayout.ts. Mutates `axis` (so instance-slot
+  // readers stay in sync) and returns the layout artifacts; we re-shape
+  // its result + the mutated instance fields into the stable `AxisLayout` API.
   measureAxis(axis);
   return {
     bounds: axis._outerBounds,

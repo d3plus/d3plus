@@ -56,7 +56,8 @@ const fixFloat = (d: number): number => {
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
     `Axis.render()` (and any caller that wants to construct a paint loop)
     needs to consume. Most layout state also mutates onto the input `axis`
-    (`_d3Scale`, `_outerBounds`, `_margin`, etc.) for legacy interop.
+    (`_d3Scale`, `_outerBounds`, `_margin`, etc.) so instance methods and
+    callers reading those slots stay in sync.
 */
 export interface AxisLayoutResult {
   ticks: any[];

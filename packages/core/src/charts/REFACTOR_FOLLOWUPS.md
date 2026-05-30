@@ -76,44 +76,41 @@ loose without explicit casts; the only narrowing casts are at typed
 boundaries (`accessor(_ as string)`, `d3Shape as Record<string, unknown>`
 for the `stackOffset`/`stackOrder` string lookups).
 
-## 3. Drop `viz._<key>` reads inside chart code — DONE (alias stays)
+## 3. Drop `viz._<key>` reads inside chart code — DONE (alias removed)
 
-`installFluent` still installs the per-instance `viz._<key>` getter/
-setter alias, so external code that reads `viz._sum` and tests that do
-`chart._foo = "x"` keep working. **In-tree chart code no longer relies
-on the alias.** The mechanical sweep (~820 read sites, 50+ files)
-rewrote `viz._<key>` and `this._<key>` to `viz.schema.<key>` and
-`this.schema.<key>` for every key declared in a chart's `def.fields` or
-in `Viz`'s `vizSchema` array.
-
-**Why keep the alias installed?** It costs one `Object.defineProperty`
-per schema key per instance — modest. Removing it would break (a) any
-out-of-tree consumer reading instance underscore slots and (b) tests
-that hand-roll viz stubs with `_<key>` properties. Dropping the alias
-installation itself is a follow-on if/when those external dependencies
-are also migrated.
+The mechanical sweep (~820 read sites, 50+ files) rewrote `viz._<key>`
+and `this._<key>` to `viz.schema.<key>` and `this.schema.<key>` for
+every key declared in a chart's `def.fields` or in `Viz`'s `vizSchema`
+array. The per-instance `viz._<key>` getter/setter alias that
+`installFluent` used to install was then **removed** (commit
+`af7ace88`) — config storage lives solely on `this.schema.<key>`.
 
 **Reflection still works.** `BaseClass.config()` walks prototype
 methods (`getAllMethods`) and invokes each as a getter; the
 prototype-installed fluent accessor reads from `this.schema[key]`, so
 `config()` returns the correct values without traversing `_<key>`.
 
-## 4. tsc-error sweep — DONE (everything except `plotPaint.ts`)
+## 4. tsc-error sweep — DONE (whole package, including `plotPaint.ts`)
 
 `npx tsc` (from `packages/core`) started at ~197 errors. **These do not
 block the build** — `build:esm` uses esbuild, which strips types without
 checking, so the package ships regardless. tsc is advisory type-debt
 here, not a gate.
 
-**Result:** every error outside `plotPaint.ts` is cleared. `npx tsc`
-now reports 54 errors, all inside `plotPaint.ts` — the deliberately
-`any`-typed file that this sweep skips (see below). Re-run to confirm:
+**Result:** `npx tsc` now reports **0 errors** across the package.
+Re-run to confirm:
 `npx tsc 2>&1 | grep "error TS" | sed 's/(.*//' | sort | uniq -c`.
 
-**Skip `plotPaint.ts` (54).** It is *deliberately* `any`-typed
-internally (see its header: "Fully `any`-typed internally for back-compat
-with the legacy plot codepath"). Its errors should fall out of the Plot
-pipeline refactor, not a piecemeal tsc sweep — don't fight them here.
+**`plotPaint.ts` is now fully typed.** The file-level
+`eslint-disable @typescript-eslint/no-explicit-any, no-unused-vars` and
+the (false) "Fully `any`-typed internally for back-compat" header are
+gone. De-anyfication leans on the real `Axis`/`Shape` types — both carry
+`[key: string]: any` index signatures, so their dynamically-installed
+fluent methods resolve and chain without any `any` token written. The
+cross-phase context types (`PlotPaintContext`/`PlotMeasureResult`) and
+the wrapped-datum/label-width records (`PlotDatum`/`LabelWidth`/
+`PlotAxisFn`) are concrete; the only casts are at typed boundaries.
+~78 eslint `any` warnings in the file dropped to 0.
 
 **What the sweep touched (no behavior changes — type-level only):**
 
@@ -145,7 +142,23 @@ pipeline refactor, not a piecemeal tsc sweep — don't fight them here.
 
 **Guardrail (held):** baseline 197; each batch verified with
 `npx tsc 2>&1 | grep -c "error TS"` to confirm the count only dropped
-(197 → 169 → 147 → … → 54). Gate (from `packages/core`):
+(197 → 169 → 147 → … → 54 → 0). Gate (from `packages/core`):
 `npm run build:esm` ✓ → `npx eslint index.ts 'src/**/*.ts'` (0 errors,
-81 pre-existing `any`/`prefer-const` warnings — 78 in `plotPaint.ts`) ✓
+3 pre-existing `any`/`prefer-const` warnings) ✓
 → `npx mocha 'test/**/*-test.js'` (104 passing) ✓.
+
+## 5. Removed back-compat shims — DONE
+
+- `viz._<key>` schema alias: removed in `af7ace88` (config storage is
+  solely `this.schema.<key>`). See §3.
+- `_thresholdFunction`→`viz.schema.timeFilter` back-assign: dropped; the
+  shim consumes its own `computedTimeFilter` and does not pin it (stale
+  `latestTime`). See `vizPreDraw.ts`.
+- `shapeConfigFor` re-export from `ChartDefinition.ts`: deleted (every
+  caller imports from `./emitHelpers.js`; not in the public index).
+- `useSceneRenderer()` alias on `Viz`: deleted (use `renderer()`).
+- `viz._xConfigScale`/`_x2`/`_y`/`_y2ConfigScale` side-assigns in
+  `computePlotScales`: dropped; the resolved scale-type strings flow only
+  through the returned `plotConfigScales` ctx.
+- "legacy"/back-compat comment framing across the chart + shape +
+  component sources: reworded to present-tense per house style.

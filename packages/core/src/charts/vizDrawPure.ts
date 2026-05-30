@@ -89,9 +89,8 @@ export function vizDrawPure(
 
   // Top blocks first (back / title / subtitle / total) so margin.top is
   // updated BEFORE the left/right legend lays out — legend reads
-  // viz._margin.top to position itself. The legacy drawSteps order was
-  // title-first; v4 must preserve that or the left legend overlaps the
-  // title at y=0.
+  // viz._margin.top to position itself. Title must lay out first or the
+  // left legend overlaps the title at y=0.
   const topBlocks = runLayout({viz} as any, [
     backFeature,
     titleFeature,

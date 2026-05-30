@@ -136,7 +136,7 @@ export function sanitizePosition(raw: unknown): PanelPosition {
     Runs each feature's `layout` in order, accumulating margin claims so that
     later features see the space already taken by earlier ones. The order of
     `features` is the layout order — this is how implicit `this._margin +=`
-    side effects from the legacy drawSteps become *explicit* data flow.
+    side effects become *explicit* data flow.
 
     Today's order in `Viz._draw` (`drawTitle`, `drawSubtitle`, `drawTotal`,
     `drawBack`, `drawAttribution`, `drawColorScale`, `drawLegend`,
@@ -273,10 +273,8 @@ function textBlockLayout(
 }
 
 /**
-    Converts `drawTitle.ts` to a FeatureModule. The legacy free function
-    mutated `this._margin.top` as a side effect after rendering via getBBox.
-    The feature uses `_titleClass._textData()` for height (pure compute, no
-    DOM) and returns the margin claim explicitly.
+    Title as a FeatureModule. Uses `_titleClass._textData()` for height
+    (pure compute, no DOM) and returns the margin claim explicitly.
 */
 export const titleFeature: FeatureModule = {
   name: "title",
@@ -445,10 +443,9 @@ export const legendFeature: FeatureModule = {
       );
     };
 
-    // Pre-render bounds capture is what drawLegend used to compute the margin
-    // *claim* — the previous render's outerBounds; on first render it's zero
-    // and Legend re-flows on the second render with the real space. This is
-    // the legacy behavior, preserved here so visual output is identical.
+    // The margin *claim* uses the previous render's outerBounds; on first
+    // render it's zero and the Legend re-flows on the second render with the
+    // real space.
     const legendBounds = viz._legendClass.outerBounds();
     const config = viz.config();
     const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
@@ -468,10 +465,10 @@ export const legendFeature: FeatureModule = {
     const visible =
       position === false ? false : viz.schema.legend.bind(viz)(config, legendData);
 
-    // The Legend instance still renders into a `g.d3plus-viz-legend` group as
-    // a child of the chart's svg. This group is created via the legacy `elem`
-    // helper so the Legend has a DOM `_select` (its `toScene()` walks from
-    // there). Once Legend is fully compute-only the elem wrapper can go.
+    // The Legend instance renders into a `g.d3plus-viz-legend` group as a
+    // child of the chart's svg. This group is created via the `elem` helper
+    // so the Legend has a DOM `_select` (its `toScene()` walks from there).
+    // Once Legend is fully compute-only the elem wrapper can go.
     const legendGroup = elem("g.d3plus-viz-legend", {
       condition: visible && !viz.schema.legendConfig.select,
       enter: transform,
@@ -518,11 +515,10 @@ export const legendFeature: FeatureModule = {
       .config(viz.schema.legendConfig)
       .render();
 
-    // Margin claim from the *previous* render's outerBounds. This is the
-    // legacy behavior — `outerBounds()` reads stored state, so on the first
-    // render the claim is zero and Legend overlaps the chart for one frame;
-    // the next render flows with full margin. Preserved verbatim to keep the
-    // post-conversion pixels identical.
+    // Margin claim from the *previous* render's outerBounds:
+    // `outerBounds()` reads stored state, so on the first render the claim
+    // is zero and Legend overlaps the chart for one frame; the next render
+    // flows with full margin.
     const margin: Record<string, number> = {};
     if (!viz.schema.legendConfig.select && legendBounds.height) {
       if (wide)
@@ -766,8 +762,8 @@ export const colorScaleFeature: FeatureModule = {
     Attribution is an HTML `<div>` overlay positioned absolutely outside the SVG
     plane — it doesn't fit naturally as a SceneNode in the chart scene graph.
     Rather than encode an HTML overlay into the scene graph, this feature runs
-    the legacy DOM-creating side effect imperatively from inside `layout()`, so
-    invocation is still funneled through `runLayout` for consistency with the
+    the DOM-creating side effect imperatively from inside `layout()`, so
+    invocation is funneled through `runLayout` for consistency with the
     other features. It claims zero margin and emits no panel.
 */
 export const attributionFeature: FeatureModule = {

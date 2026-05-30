@@ -121,7 +121,7 @@ it("computePlotScales constructs four d3 scale instances + configScales", () => 
     plotAxisData: fmt.plotAxisData,
   });
 
-  // Build a minimal initial domains for the stage's input (the legacy
+  // Build a minimal initial domains for the stage's input (the
   // stacked/non-stacked branch in Plot._draw computes this).
   const initialDomains = {
     x: av.xData,
@@ -143,9 +143,9 @@ it("computePlotScales constructs four d3 scale instances + configScales", () => 
   assert.strictEqual(typeof partial.plotScales.x2, "function");
   assert.strictEqual(typeof partial.plotScales.y2, "function");
 
-  // configScales written back to viz.
-  assert.strictEqual(viz._xConfigScale, "point", "x discrete → point scale");
-  assert.strictEqual(typeof viz._yConfigScale, "string");
+  // configScales returned in the stage's ctx patch.
+  assert.strictEqual(partial.plotConfigScales.xConfigScale, "point", "x discrete → point scale");
+  assert.strictEqual(typeof partial.plotConfigScales.yConfigScale, "string");
 
   // Plot opps captured.
   assert.strictEqual(partial.plotOpps.opp, "y", "opp computed");

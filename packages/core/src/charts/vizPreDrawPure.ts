@@ -11,12 +11,11 @@
 
       const next = {...prevCtx, ...vizPreDrawPure(viz, prevCtx)};
 
-    Side-effect carve-out: the "no-data message" path in legacy
-    `_preDraw` calls `viz._messageClass.render({container, html, mask,
-    style})` (mounts DOM) and `viz._select.transition()...attr("opacity", 0)`
-    (DOM transition). Those are deferred to the imperative shim — the
-    pure function only returns `noDataMessage: true/false` so the shim
-    can act on it.
+    Side-effect carve-out: the "no-data message" path mounts DOM via
+    `viz._messageClass.render({container, html, mask, style})` and runs a
+    `viz._select.transition()...attr("opacity", 0)` transition. Those are
+    deferred to the imperative shim — the pure function only returns
+    `noDataMessage: true/false` so the shim can act on it.
 
     Closure carve-out: `id`/`ids` snapshot `viz.schema.groupBy` / `viz.schema.label` /
     `viz.schema.thresholdName` / `viz.schema.locale` at construction time;
@@ -51,8 +50,10 @@ import type {VizInstance as Viz} from "./vizTypes.js";
         `drawDepth` back.
       - `computedTimeFilter` is the time-filter function the pure version
         synthesized (when `_time` is set but `_timeFilter` isn't). The
-        shim back-assigns it to `viz.schema.timeFilter` for back-compat
-        consumers reading the legacy slot.
+        shim feeds it to `filteredData` but does NOT write it onto
+        `viz.schema.timeFilter` — pinning the synthesized filter (which
+        captures `latestTime` at synthesis) would make a later render
+        with newer data skip re-synthesis.
 */
 type ThresholdTree = any;
 type TimeFilterFn =
@@ -125,12 +126,10 @@ export function vizPreDrawPure(
   //
   // EXCEPTION — `_drawDepth`: `drawLabel`'s effective depth is read LIVE
   // from `viz._drawDepth` at call time, falling back to the snapshotted
-  // `drawDepth`. This preserves the pre-v4 behavior where features /
-  // stages / subclass overrides that mutate `viz._drawDepth` after
-  // preDraw are reflected in label/aria output. Treemap's normal
-  // `.depth(n).render()` flow still works (render reruns preDraw); the
-  // live read just covers the intra-render mutation path the old code
-  // accommodated by default.
+  // `drawDepth`. So features / stages / subclass overrides that mutate
+  // `viz._drawDepth` after preDraw are reflected in label/aria output.
+  // Treemap's normal `.depth(n).render()` flow still works (render reruns
+  // preDraw); the live read covers the intra-render mutation path.
   const snapGroupBy = viz.schema.groupBy as ((
     d: DataPoint,
     i: number,
@@ -185,10 +184,9 @@ export function vizPreDrawPure(
 
   // 3. timeFilter default — computes a NEW timeFilter if not set, otherwise
   // leaves alone. The pure return surfaces it via a synthesized "computed
-  // timeFilter" we encode as part of the context. Since timeFilter is a
-  // *config-side* concern (it's a user accessor that the legacy code
-  // back-assigns to `viz.schema.timeFilter`), keep it as a returned suggestion;
-  // the shim writes it back.
+  // timeFilter" encoded on the context. It's a returned suggestion only:
+  // `filteredData` below consumes it, but it is never written onto
+  // `viz.schema.timeFilter` (see the shim's note on stale-filter pinning).
   let computedTimeFilter:
     | ((d: DataPoint, i: number) => boolean)
     | (() => boolean)
@@ -222,8 +220,7 @@ export function vizPreDrawPure(
   out.computedTimeFilter = computedTimeFilter;
 
   // 4. filteredData + legendData. Pure transformation of viz._data using
-  // the user's filters + grouping. The legacy code accumulated via the
-  // rollup leaves callback; we collect into local arrays here.
+  // the user's filters + grouping, collected into local arrays.
   const filteredData: DataPoint[] = [];
   const legendData: DataPoint[] = [];
   let flatData: DataPoint[] = [];

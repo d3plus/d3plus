@@ -15,9 +15,9 @@
 
     Because the pure function ALREADY writes margin claims through to
     `viz._margin` (so the next `runLayout` sees the updated margins),
-    this shim has very little left to do — it's preserved as the public
-    `_draw` shape for back-compat and to keep the v4 free-function
-    pattern uniform with `vizPreDraw`/`plotPaint`/`runVizPipeline`.
+    this shim has very little left to do — it's the public `_draw` shape
+    that subclasses override, kept uniform with the v4 free-function
+    pattern (`vizPreDraw`/`plotPaint`/`runVizPipeline`).
 
     Note: Plot (and other Viz subclasses) OVERRIDE `_draw` and call
     `super._draw(callback)` — that still works through this shim, which

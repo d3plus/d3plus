@@ -1,15 +1,10 @@
-/* eslint no-cond-assign: 0 */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
-
 /**
     `plotPaint(viz, pCtx)` — the Plot paint phase as a free function.
 
     RFC §3.1 architectural seam for Plot, sibling to `runVizPipeline(viz)`.
     The paint phase (production axis rendering, shape buffer setup, and
-    shape emission with event handlers) used to live as `Plot._paint`;
-    extracting it lets callers drive the paint step without going
-    through the class. `Plot._paint` is now a thin shim that calls into
-    here, so behavior is unchanged.
+    shape emission with event handlers) runs here; `Plot._paint` is a
+    thin shim that concats the returned nodes onto `viz._chartScene`.
 
     @param viz The Plot instance (or any subclass: BarChart, LinePlot, …).
     @param pCtx Cross-phase locals produced by `Plot._draw` — see the
@@ -25,15 +20,67 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import type {SceneNode} from "@d3plus/render";
 
+import type Axis from "../components/Axis.js";
 import * as shapes from "../shapes/index.js";
 import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
+/** An axis position function: maps a domain value to a pixel coordinate. */
+type PlotAxisFn = (d: unknown, axis?: string) => number;
+
+/**
+    A line-label measurement record produced upstream by
+    `measurePlotLineLabels` and consumed here to bump overlapping labels
+    apart and draw their connector lines.
+*/
+interface LabelWidth {
+  id: string | number;
+  xValue: unknown;
+  value: unknown;
+  fontSize: number;
+  padding: number;
+  fontColor?: string;
+  /** Bumped y position (set when this label collided with a neighbor). */
+  newY?: number;
+  /** Unbumped y position (the raw axis position of `value`). */
+  defaultY?: number;
+}
+
+/**
+    The wrapped datum a compute-mode shape passes to its config accessors:
+    the original `data` row plus the layout-assigned coordinate/group slots.
+    The index signature covers the dynamic `d[discrete]` / `d[opp]` reads.
+*/
+interface PlotDatum {
+  data: DataPoint;
+  i: number;
+  id: string | number;
+  discrete?: string | number;
+  group?: string | number;
+  x?: number;
+  y?: number;
+  x2?: number;
+  y2?: number;
+  lci?: number;
+  hci?: number;
+  [key: string]: unknown;
+}
+
+/** A user annotation: a shape key plus its config, optionally z-layered. */
+interface Annotation {
+  shape: string;
+  layer?: string;
+  [key: string]: unknown;
+}
+
+/** Construct a shape instance by its registry key (e.g. "Bar", "Line"). */
+const shapeCtors = shapes as unknown as Record<string, new () => shapes.Shape>;
+const makeShape = (key: string): shapes.Shape => new shapeCtors[key]();
+
 /**
     Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
-    stages) into `plotPaint`. Fully `any`-typed internally for back-compat
-    with the legacy plot codepath, but documented as the contract any pure
-    consumer of `plotPaint` must supply.
+    stages) into `plotPaint` — the contract any consumer of `plotPaint` must
+    supply.
 
     Grouped by what populates them:
       - **Data + domain** (formatPlotData / computePlotInitialDomains):
@@ -56,31 +103,30 @@ import type {VizInstance as Viz} from "./vizTypes.js";
         (REASSIGNED by paint from production axes), `xHeight`, `x2Height`,
         `topOffset`, `height`, `width`, `horizontalMargin`, `verticalMargin`.
       - **Paint plumbing** (Plot._draw): `opp`, `barLabels`,
-        `showLineLabels`, `stackGroup`. (`parent`/`transition` are removed
-        v4 carry-overs.)
+        `showLineLabels`, `stackGroup`.
 */
 export interface PlotPaintContext {
   // Data + domain
   data: DataPoint[];
-  shapeData: DataPoint[];
+  shapeData: [string, DataPoint[]][];
   axisData: DataPoint[];
-  domains: Record<string, unknown>;
-  discreteKeys: unknown;
-  stackData: unknown;
+  domains: Record<string, number[]>;
+  discreteKeys: unknown[];
+  stackData: number[][][];
   stackKeys: unknown[];
   xData: unknown[];
   yData: unknown[];
   x2Data: unknown[];
   y2Data: unknown[];
-  xDomain: unknown[];
-  yDomain: unknown[];
-  x2Domain: unknown[];
-  y2Domain: unknown[];
+  xDomain: number[];
+  yDomain: number[];
+  x2Domain: number[];
+  y2Domain: number[];
   // Accessors + scales
-  x: (d: DataPoint, axis?: string) => number;
-  y: (d: DataPoint, axis?: string) => number;
-  x2: (d: DataPoint) => number;
-  y2: (d: DataPoint) => number;
+  x: PlotAxisFn;
+  y: PlotAxisFn;
+  x2: PlotAxisFn;
+  y2: PlotAxisFn;
   xScale: string;
   yScale: string;
   xConfigScale: string;
@@ -102,13 +148,13 @@ export interface PlotPaintContext {
   yTicks: unknown[];
   x2Ticks: unknown[];
   y2Ticks: unknown[];
-  labelWidths: unknown[];
+  labelWidths: LabelWidth[];
   largestLabel: number;
   xRangeMax: number;
-  xTest: unknown;
-  yTest: unknown;
-  x2Test: unknown;
-  y2Test: unknown;
+  xTest: Axis;
+  yTest: Axis;
+  x2Test: Axis;
+  y2Test: Axis;
   xTestRange: number[];
   x2TestRange: number[];
   // Layout offsets + viewport
@@ -152,8 +198,8 @@ export interface PlotPaintContext {
         `labelBounds` config in emit.
 */
 export interface PlotMeasureResult {
-  x: (d: any, axis?: any) => number;
-  y: (d: any, axis?: any) => number;
+  x: PlotAxisFn;
+  y: PlotAxisFn;
   xRange: number[];
   yRange: number[];
   xOffsetLeft: number;
@@ -162,7 +208,7 @@ export interface PlotMeasureResult {
   y2Width: number | undefined;
   yBounds: {width: number; height: number; x: number; y: number};
   y2Bounds: {width: number; height: number; x: number; y: number};
-  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: any}[];
+  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis}[];
   yOffset: number;
   labelPositions: Record<string, number>;
 }
@@ -175,15 +221,14 @@ export interface PlotMeasureResult {
     Returns everything `plotEmit` needs to consume.
 */
 export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
-    const {domains, xDomain, yDomain, x2Domain, y2Domain} = pCtx;
+    const {xDomain, yDomain, x2Domain, y2Domain} = pCtx;
     let {x, y} = pCtx;
     const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
     const {defaultX2Config, defaultY2Config, showX, showY, x2Exists, y2Exists, xC, yC} = pCtx;
-    const {xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, yTest, x2TestRange, xTestRange} = pCtx;
+    const {xTicks, yTicks, x2Ticks, labelWidths, yTest, x2TestRange, xTestRange} = pCtx;
     let {yBounds, y2Bounds, yWidth, y2Width, xOffsetLeft, xOffsetRight} = pCtx;
     const {xHeight, x2Height, topOffset, height, width, horizontalMargin, verticalMargin} = pCtx;
     const {y2Test} = pCtx;
-    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
 
@@ -201,9 +246,9 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
         .measure();
     }
 
-    yBounds = yTest.outerBounds();
+    yBounds = yTest.outerBounds() as {width: number; height: number; x: number; y: number};
     yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-    xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]]);
+    xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
     if (y2Exists) {
       y2Test
@@ -212,7 +257,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
         .gridSize(0)
         .height(height)
         .range(yRange)
-        .width(width - max([0, xOffsetRight - y2Width])!)
+        .width(width - max([0, xOffsetRight - (y2Width as number)])!)
         .title(false)
         .config(viz._y2Config)
         .config(defaultY2Config)
@@ -220,7 +265,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
         .measure();
     }
 
-    y2Bounds = y2Test.outerBounds();
+    y2Bounds = y2Test.outerBounds() as {width: number; height: number; x: number; y: number};
     y2Width = y2Bounds.width
       ? y2Bounds.width + y2Test.padding()
       : undefined;
@@ -229,30 +274,25 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
       y2Width,
       width - xTestRange[1],
       width - x2TestRange[1],
-    ]);
+    ] as number[])!;
     const xRange = [xOffsetLeft, width - (xOffsetRight + horizontalMargin)];
 
-    // Legacy `g.d3plus-plot-background` removed in v4. The background Rect
-    // (when fill != "transparent") absorbs into `_chartScene` directly —
-    // since `_chartScene` is wrapped with `_chartTransform = (margin.left,
-    // margin.top + x2Height + topOffset)`, the rect's coords are passed
-    // RELATIVE to that origin. See the absorb call further down.
-
-    // Capture the shape-group offset so `_chartScene` nodes appear at the
-    // same position legacy `g.d3plus-plot-shapes` had.
-    viz._chartTransform = {
+    // The shape-group offset. `_chartScene` is wrapped with this transform,
+    // so nodes absorbed into it (the background Rect, axes) pass their coords
+    // RELATIVE to this origin.
+    const chartTransform = {
       x: viz._margin.left,
       y: viz._margin.top + x2Height + topOffset,
     };
+    viz._chartTransform = chartTransform;
 
-    // Per-axis absolute transforms (legacy values). Stored so we can derive
-    // each axis's transform RELATIVE to `_chartTransform` when absorbing
-    // axis scenes into `_chartScene` (the chart-cells group already applies
-    // _chartTransform). The 4 legacy `g.d3plus-plot-{x,x2,y,y2}-axis` elem()
-    // calls are gone — axes are scene-only in v4 (`renderMode("compute")`
-    // creates a detached svg behind the scenes; `axis.toScene()` produces
-    // the visible output).
-    const xTrans = xOffsetLeft > yWidth ? xOffsetLeft - yWidth : 0;
+    // Each axis's absolute transform. Stored so we can derive the axis's
+    // transform RELATIVE to `_chartTransform` when absorbing axis scenes into
+    // `_chartScene` (the chart-cells group already applies `_chartTransform`).
+    // Axes are scene-only: `renderMode("compute")` renders into a detached svg
+    // and `axis.toScene()` produces the visible output.
+    const yW = yWidth as number;
+    const xTrans = xOffsetLeft > yW ? xOffsetLeft - yW : 0;
     const axisAbsoluteTransforms = {
       x: {x: viz._margin.left, y: viz._margin.top + x2Height + topOffset},
       x2: {x: viz._margin.left, y: viz._margin.top + topOffset},
@@ -260,12 +300,12 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
       y2: {x: -viz._margin.right, y: viz._margin.top + topOffset},
     };
     const axisRelativeTransform = (which: "x" | "x2" | "y" | "y2") => ({
-      x: axisAbsoluteTransforms[which].x - viz._chartTransform!.x,
-      y: axisAbsoluteTransforms[which].y - viz._chartTransform!.y,
+      x: axisAbsoluteTransforms[which].x - chartTransform.x,
+      y: axisAbsoluteTransforms[which].y - chartTransform.y,
     });
-    // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop
-    // so axes render ABOVE shapes (preserving legacy DOM z-order).
-    const axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: any}[] = [];
+    // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop so
+    // axes render above shapes.
+    const axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis}[] = [];
 
     viz._xAxis
       .renderMode("compute")
@@ -309,7 +349,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
       });
     }
 
-    viz._xFunc = x = (d: any, x: any) => {
+    viz._xFunc = x = (d: unknown, x?: string): number => {
       if (x === "x2") {
         if (x2ConfigScale === "log" && d === 0)
           d =
@@ -362,7 +402,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
         .gridSize(0)
         .height(height)
         .range(yRange)
-        .width(width - max([0, xOffsetRight - y2Width])!)
+        .width(width - max([0, xOffsetRight - (y2Width as number)])!)
         .title(false)
         .config(viz._y2Config)
         .config(defaultY2Config)
@@ -375,24 +415,24 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
       });
     }
 
-    let labelPositions = {};
+    let labelPositions: Record<string, number> = {};
     if (labelWidths) {
-      groups(labelWidths as any[], (d: any) => d.xValue).forEach(([, values]) => {
-        const minFontSize = max(values.map((d: any) => d.fontSize));
+      groups(labelWidths, d => d.xValue).forEach(([, values]) => {
+        const minFontSize = max(values.map(d => d.fontSize))!;
         const yBuckets = range(yRange[0], yRange[1], minFontSize).reverse();
         const bumpLimit = (yRange[1] - yRange[0]) / 8;
 
         /***/
-        function bumpPrevious(this: any, d: any, i: any, arr: any) {
-          if (!d.defaultY) d.defaultY = this._yAxis._getPosition(d.value);
+        function bumpPrevious(d: LabelWidth, i: number, arr: LabelWidth[]) {
+          if (!d.defaultY) d.defaultY = viz._yAxis._getPosition(d.value);
           if (i) {
             const prev = arr[i - 1];
             const {fontSize, padding} = d;
-            const y = d.newY || d.defaultY;
-            const prevY = prev.newY || prev.defaultY;
+            const y = (d.newY || d.defaultY)!;
+            const prevY = (prev.newY || prev.defaultY)!;
             if (y - fontSize / 2 - padding < prevY) {
               const newY = yBuckets.find(n => n < prevY);
-              const change = d.defaultY - newY!;
+              const change = d.defaultY! - newY!;
               if (change < bumpLimit) {
                 prev.newY = newY;
                 if (i) bumpPrevious(prev, i - 1, arr);
@@ -401,16 +441,16 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
           }
         }
 
-        values.forEach(bumpPrevious.bind(viz));
+        values.forEach(bumpPrevious);
       });
 
-      labelPositions = (labelWidths as any[]).reduce((obj: any, d: any) => {
+      labelPositions = labelWidths.reduce<Record<string, number>>((obj, d) => {
         if (d.newY) obj[d.id] = d.newY;
         return obj;
       }, {});
     }
 
-    viz._yFunc = y = (d: any, y: any) => {
+    viz._yFunc = y = (d: unknown, y?: string): number => {
       if (y === "y2") {
         if (y2ConfigScale === "log" && d === 0)
           d =
@@ -464,33 +504,32 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     // yTest / x2Test / y2Test / xTestRange / x2TestRange / showX /
     // showY / xTicks / x2Ticks / y2Ticks / defaultConfig / defaultX2Config /
     // defaultY2Config) are intentionally omitted.
-    const {data, shapeData, domains, discreteKeys, stackData, stackKeys, xDomain, yDomain} = pCtx;
+    const {shapeData, domains, discreteKeys, stackData, stackKeys, xDomain, yDomain} = pCtx;
     const {xScale, yScale} = pCtx;
-    const {x2Exists, y2Exists} = pCtx;
-    const {labelWidths, largestLabel, yTicks} = pCtx;
-    const {xHeight, x2Height, topOffset, height, width, verticalMargin} = pCtx;
+    const {labelWidths, largestLabel} = pCtx;
+    const {width} = pCtx;
     const {opp, showLineLabels} = pCtx;
 
     const {x, y, xRange, yRange, yOffset, axisSceneQueue, labelPositions} = mCtx;
 
     // Background Rect: skip rendering when transparent (the default) — under
-    // the v4 scene path it would emit a 5th `rect.d3plus-render-rect` that
+    // the scene path it would emit a 5th `rect.d3plus-render-rect` that
     // confuses bar-counting tests. When a user customizes
     // `backgroundConfig.fill` to a real color, render it normally.
-    if (viz._backgroundConfig.fill && viz._backgroundConfig.fill !== "transparent") {
+    const bgConfig = viz._backgroundConfig;
+    if (bgConfig && bgConfig.fill && bgConfig.fill !== "transparent") {
       // Coords are relative to `_chartTransform` (margin.left, margin.top +
-      // x2Height + topOffset). Legacy used absolute coords; we subtract the
-      // chart-transform offset so the absorbed scene rect lands at the same
-      // visual position. yRange[0] = x2Height (see line ~940), so the y
-      // simplification is (yRange[1] - yRange[0]) / 2.
-      const bgRect = new shapes.Rect()
+      // x2Height + topOffset), so we subtract the chart-transform offset.
+      // yRange[0] = x2Height, so the y simplification is
+      // (yRange[1] - yRange[0]) / 2.
+      const bgRect = makeShape("Rect")
         .renderMode("compute")
         .data([{}])
         .x(xRange[0] - viz._margin.left + (xRange[1] - xRange[0]) / 2)
         .width(xRange[1] - xRange[0])
         .y((yRange[1] - yRange[0]) / 2)
         .height(yRange[1] - yRange[0])
-        .config(viz._backgroundConfig);
+        .config(bgConfig);
       bgRect.render();
       // Background must sit BEHIND chart shapes. Unshift onto `out` so
       // the z-order survives even if a future emit step pushes nodes
@@ -503,7 +542,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       out.unshift(...bgNodes);
     }
 
-    const labelConnectors = (labelWidths as any[]).filter((d: any) => d.newY !== undefined);
+    const labelConnectors = labelWidths.filter(d => d.newY !== undefined);
     if (labelConnectors.length) {
       const data = labelConnectors
         .map(d =>
@@ -512,7 +551,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
               x: viz._xAxis._getPosition.bind(viz._xAxis)(d.xValue),
               y: d.defaultY,
             },
-            d,
+            d as unknown as Record<string, unknown>,
           ),
         )
         .concat(
@@ -525,109 +564,102 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
                   1,
                 y: d.newY || d.defaultY,
               },
-              d,
+              d as unknown as Record<string, unknown>,
             ),
           ),
         );
 
-      // Connector lines: compute-mode emit → absorbed into _chartScene. The
-      // legacy `g.d3plus-plot-connectors` group is gone; the chart-wide
-      // `_chartTransform` provides the same positioning the legacy group's
-      // transform did.
-      const connectorLine = new shapes.Line()
+      // Connector lines: compute-mode emit → absorbed into _chartScene; the
+      // chart-wide `_chartTransform` provides the positioning.
+      const connectorLine = makeShape("Line")
         .config({
           data: data as DataPoint[],
-          stroke: (d: any) => d.fontColor,
-          x: (d: any) => d.x,
-          y: (d: any) => d.y,
-        })
-        .config(viz._labelConnectorConfig)
+          stroke: (d: DataPoint) => d.fontColor,
+          x: (d: DataPoint) => d.x,
+          y: (d: DataPoint) => d.y,
+        } as Record<string, unknown>)
+        .config(viz._labelConnectorConfig!)
         .renderMode("compute");
       connectorLine.render();
       out.push(...collectComputed(connectorLine));
     }
 
-    // Legacy `g.d3plus-plot-annotations` / `g.d3plus-plot-annotations-front`
-    // groups removed in v4. Annotations now run in `renderMode("compute")`
-    // and their scenes are absorbed into `_chartScene`. Layering: "back"
-    // annotations absorb here (before the main shape loop below); "front"
-    // annotations queue and absorb AFTER the shape loop (preserving the
-    // legacy z-order: back → shapes → front).
-    const frontAnnotationShapes: any[] = [];
-    const renderAnnotation = (annotation: any) => {
-      const inst = new (shapes as any)[annotation.shape]()
+    // Annotations run in `renderMode("compute")` and their scenes are
+    // absorbed into `_chartScene`. Layering: "back" annotations absorb here
+    // (before the main shape loop below); "front" annotations queue and
+    // absorb AFTER the shape loop, giving back → shapes → front.
+    const frontAnnotationShapes: shapes.Shape[] = [];
+    const renderAnnotation = (annotation: Annotation) => {
+      const inst = makeShape(annotation.shape)
         .renderMode("compute")
         .duration(viz.schema.duration)
         .config(annotation)
         .config({
-          x: (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+          x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
           x0:
             viz.schema.discrete === "x"
-              ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+              ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
               : x(domains.x[0]),
           x1:
             viz.schema.discrete === "x"
               ? null
-              : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-          y: (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+              : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+          y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
           y0:
             viz.schema.discrete === "y"
-              ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+              ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
               : y(domains.y[1]) - yOffset,
           y1:
             viz.schema.discrete === "y"
               ? null
-              : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+              : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
         });
       inst.render();
       return inst;
     };
 
-    Object.keys(viz._previousAnnotations).forEach(layer => {
-      const annotationData = viz._annotations.filter(
-        (d: any) => (layer === "back" && !d.layer) || d.layer === layer,
+    Object.keys(viz._previousAnnotations!).forEach(layer => {
+      const annotationData: Annotation[] = viz._annotations!.filter(
+        (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
       );
-      const annotationShapes = annotationData.map((d: any) => d.shape);
-      annotationData.forEach((annotation: any) => {
+      const annotationShapes = annotationData.map(d => d.shape);
+      annotationData.forEach(annotation => {
         const inst = renderAnnotation(annotation);
         if (layer === "front") frontAnnotationShapes.push(inst);
         else out.push(...collectComputed(inst));
       });
       // Exits: render with empty data in compute mode so their scenes go
-      // empty; no DOM to clean up in v4.
-      const exitAnnotations = viz._previousAnnotations[layer].filter(
-        (d: any) => !annotationShapes.includes(d),
+      // empty; no DOM to clean up.
+      const exitAnnotations = viz._previousAnnotations![layer].filter(
+        (d: string) => !annotationShapes.includes(d),
       );
-      exitAnnotations.forEach((shape: any) => {
-        new (shapes as any)[shape]()
-          .renderMode("compute")
-          .data([])
-          .render();
+      exitAnnotations.forEach(shape => {
+        makeShape(shape).renderMode("compute").data([]).render();
       });
 
-      viz._previousAnnotations[layer] = annotationShapes;
+      viz._previousAnnotations![layer] = annotationShapes;
     });
 
     const discrete = viz.schema.discrete || "x";
 
-    const shapeConfig = {
+    const shapeConfig: Record<string, unknown> = {
       discrete: viz.schema.discrete,
       duration: viz.schema.duration,
-      label: (d: any) => viz._drawLabel(d.data, d.i),
-      x: (d: any) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
+      label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
+      x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
       x0:
         discrete === "x"
-          ? (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+          ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
           : x(
               typeof viz.schema.baseline === "number"
                 ? viz.schema.baseline
                 : domains.x[0],
             ),
-      x1: discrete === "x" ? null : (d: any) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-      y: (d: any) => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
+      x1: discrete === "x" ? null : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      y: (d: PlotDatum) => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
       y0:
         discrete === "y"
-          ? (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+          ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
           : y(
               typeof viz.schema.baseline === "number"
                 ? viz.schema.baseline
@@ -636,7 +668,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       y1:
         discrete === "y"
           ? null
-          : (d: any) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+          : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
     };
 
     const events = Object.keys(viz.schema.on);
@@ -651,30 +683,30 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     const discreteKeyIndex = new Map<unknown, number>();
     for (let i = 0; i < discreteKeys.length; i++)
       discreteKeyIndex.set(discreteKeys[i], i);
-    shapeData.forEach(([key, values]: [string, any[]]) => {
+    shapeData.forEach(([key, values]) => {
       const d = {key, values};
-      const shapeConfigInner = Object.assign({}, shapeConfig);
+      const shapeConfigInner: Record<string, unknown> = Object.assign({}, shapeConfig);
       if (viz.schema.stacked && ["Area", "Bar"].includes(d.key)) {
         const scale = opp === "x" ? x : y;
-        (shapeConfigInner as any)[`${opp}`] = (shapeConfigInner as any)[`${opp}0`] = (d: any) => {
+        shapeConfigInner[`${opp}`] = shapeConfigInner[`${opp}0`] = (d: PlotDatum) => {
           const dataIndex = stackKeyIndex.get(d.id) ?? -1;
           const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
-          const scaleIndex = d[opp!] < 0 ? 1 : 0;
+          const scaleIndex = (d[opp!] as number) < 0 ? 1 : 0;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
             : scale(domains[opp!][opp === "x" ? 0 : 1]);
         };
-        (shapeConfigInner as any)[`${opp}1`] = (d: any) => {
+        shapeConfigInner[`${opp}1`] = (d: PlotDatum) => {
           const dataIndex = stackKeyIndex.get(d.id) ?? -1;
           const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
-          const scaleIndex = d[opp!] < 0 ? 0 : 1;
+          const scaleIndex = (d[opp!] as number) < 0 ? 0 : 1;
           return dataIndex >= 0
             ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
             : scale(domains[opp!][opp === "x" ? 0 : 1]);
         };
       }
 
-      const s = new (shapes as any)[d.key]()
+      const s = makeShape(d.key)
         .renderMode("compute")
         .config(shapeConfigInner)
         .data(d.values);
@@ -687,7 +719,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         const range = viz.schema.discrete === "x" ? xRange : yRange;
         if (scaleType !== "Point" && vals.length === 2) {
           const allPositions = Array.from(
-            new Set(d.values.map((d: any) => scale(d[viz.schema.discrete as string]))),
+            new Set(d.values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
           );
           allPositions.unshift(
             (range[0] as number) -
@@ -708,14 +740,14 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
           }, Infinity);
         } else if (vals.length > 1) space = scale(vals[1]) - scale(vals[0]);
         else space = range[range.length - 1] - range[0];
-        if (viz._groupPadding < space) space -= viz._groupPadding;
+        if (viz._groupPadding! < space) space -= viz._groupPadding!;
 
         let barSize = space || 1;
 
         const barGroups = groups(
-          d.values as Record<string, unknown>[],
-          (d: Record<string, unknown>) => d[viz.schema.discrete],
-          (d: Record<string, unknown>) => d.group,
+          d.values,
+          (d: DataPoint) => d[viz.schema.discrete as string],
+          (d: DataPoint) => d.group,
         );
 
         const ids = merge(
@@ -723,10 +755,12 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         );
         const uniqueIds = Array.from(new Set(ids));
 
+        const discreteKey = viz.schema.discrete as string;
+        const discreteFn = shapeConfig[discreteKey] as (d: PlotDatum, i: number) => number;
         if (
           max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1
         ) {
-          (s as any)[viz.schema.discrete]((d: any, i: any) => (shapeConfig as any)[viz.schema.discrete](d, i));
+          s[discreteKey]((d: PlotDatum, i: number) => discreteFn(d, i));
         } else {
           barSize =
             (barSize - viz.schema.barPadding * uniqueIds.length - 1) /
@@ -739,10 +773,9 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
             .domain([0, uniqueIds.length - 1])
             .range([-offset, offset]);
 
-          (s as any)[viz.schema.discrete](
-            (d: any, i: any) =>
-              (shapeConfig as any)[viz.schema.discrete](d, i) +
-              xMod(uniqueIds.indexOf(d.group)),
+          s[discreteKey](
+            (d: PlotDatum, i: number) =>
+              discreteFn(d, i) + xMod(uniqueIds.indexOf(d.group)),
           );
         }
 
@@ -752,19 +785,20 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         s.duration(width * 1.5);
 
         if (viz._confidence) {
-          const areaConfig = Object.assign({}, shapeConfig);
+          const confidence = viz._confidence;
+          const areaConfig: Record<string, unknown> = Object.assign({}, shapeConfig);
           const discrete = viz.schema.discrete || "x";
           const key = discrete === "x" ? "y" : "x";
           const scaleFunction = discrete === "x" ? y : x;
-          (areaConfig as any)[`${key}0`] = (d: any) =>
-            scaleFunction(viz._confidence[0] ? d.lci : d[key]);
-          (areaConfig as any)[`${key}1`] = (d: any) =>
-            scaleFunction(viz._confidence[1] ? d.hci : d[key]);
+          areaConfig[`${key}0`] = (d: PlotDatum) =>
+            scaleFunction(confidence[0] ? d.lci : d[key]);
+          areaConfig[`${key}1`] = (d: PlotDatum) =>
+            scaleFunction(confidence[1] ? d.hci : d[key]);
 
-          const area = new shapes.Area()
+          const area = makeShape("Area")
             .renderMode("compute")
             .config(areaConfig)
-            .data(d.values as DataPoint[]);
+            .data(d.values);
           const confidenceConfig = Object.assign(
             viz.schema.shapeConfig,
             viz._confidenceConfig,
@@ -775,7 +809,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
               assign(
                 shapeConfigFor(viz, "Line", confidenceConfig),
                 shapeConfigFor(viz, "Area", confidenceConfig),
-              ) as any,
+              ),
             )
             .render();
 
@@ -785,16 +819,16 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         s.config({
           discrete: shapeConfig.discrete || "x",
           label: showLineLabels
-            ? (d: any, i: any) => {
+            ? (d: PlotDatum, i: number) => {
                 const visible =
                   typeof viz.schema.lineLabels === "function"
                     ? viz.schema.lineLabels(d.data, d.i)
                     : true;
                 if (!visible) return false;
-                const labelData = labelWidths.find((l: any) => l.id === d.id);
+                const labelData = labelWidths.find(l => l.id === d.id);
                 if (labelData) {
                   const yPos = labelData.newY || labelData.defaultY;
-                  const allLabels = labelWidths.filter((l: any) => l.newY === yPos);
+                  const allLabels = labelWidths.filter(l => l.newY === yPos);
                   if (allLabels.length > 1)
                     return allLabels[0].id !== d.id
                       ? false
@@ -802,18 +836,18 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
                           allLabels.length,
                           viz.schema.locale,
                         )} ${viz.schema.translate("more")}`;
-                  return viz._drawLabel(d, i);
+                  return viz._drawLabel(d as unknown as DataPoint, i);
                 }
                 return false;
               }
             : false,
           labelBounds: showLineLabels
-            ? (d: any, i: any, s: any) => {
+            ? (d: PlotDatum, i: number, s: {points: number[][]}) => {
                 const [firstX, firstY] = s.points[0];
                 const [lastX, lastY] = s.points[s.points.length - 1];
                 const height = viz.schema.height / 4;
-                const mod = (labelPositions as any)[d.id]
-                  ? lastY - (labelPositions as any)[d.id]
+                const mod = labelPositions[d.id]
+                  ? lastY - labelPositions[d.id]
                   : 0;
                 return {
                   x: lastX - firstX,
@@ -826,43 +860,43 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
         });
       }
 
-      viz._wirePlotShapeEvents(s, d.key, events);
+      viz._wirePlotShapeEvents!(s, d.key, events);
 
       const userConfig = shapeConfigFor(viz, d.key);
       if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
-      s.config(userConfig as any).render();
+      s.config(userConfig).render();
 
       out.push(...collectComputed(s));
 
       if (d.key === "Line") {
-        const markers = new shapes.Circle()
+        const markers = makeShape("Circle")
           .renderMode("compute")
-          .data(viz._lineMarkers ? (d.values as DataPoint[]) : [])
+          .data(viz._lineMarkers ? d.values : [])
           .config(shapeConfig)
           .config(viz._lineMarkerConfig)
-          .id((d: any) => `${d.id}_${d.discrete}`);
+          .id((d: PlotDatum) => `${d.id}_${d.discrete}`);
 
-        viz._wirePlotShapeEvents(markers, "Circle", events);
+        viz._wirePlotShapeEvents!(markers, "Circle", events);
         markers.render();
         out.push(...collectComputed(markers));
       }
     });
 
-    const dataShapes = shapeData.map(([key]: [string, any]) => key);
+    const dataShapes = shapeData.map(([key]) => key);
     if (dataShapes.includes("Line")) {
       if (viz._confidence) dataShapes.push("Area");
       if (viz._lineMarkers) dataShapes.push("Circle");
     }
-    const exitShapes = viz._previousShapes.filter(
-      (d: any) => !dataShapes.includes(d),
+    const exitShapes = viz._previousShapes!.filter(
+      d => !dataShapes.includes(d),
     );
 
     // Run exits in compute mode so Box/Whisker/Shape don't fall through
     // to their body-svg / body-div fallback when `_select` is unset.
     // Without `.renderMode("compute")` here, every exited shape would
     // leak a detached <svg> (Box) or <div> (Shape) into <body>.
-    exitShapes.forEach((shape: any) => {
-      const inst = new (shapes as any)[shape]();
+    exitShapes.forEach(shape => {
+      const inst = makeShape(shape);
       if (typeof inst.renderMode === "function") inst.renderMode("compute");
       if (typeof inst.select === "function") inst.select(null);
       inst.config(shapeConfig).data([]).render();
@@ -871,15 +905,14 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     viz._previousShapes = dataShapes;
 
     // Absorb queued front annotations AFTER the shape loop so they render
-    // above shapes (preserving the legacy "front" z-order).
+    // above shapes.
     frontAnnotationShapes.forEach(inst => out.push(...collectComputed(inst)));
 
     // Absorb queued axis scenes AFTER shapes + annotations so axes render
-    // ABOVE everything else (matching the legacy DOM order: shapes →
-    // annotations → axis groups appended last). Each axis is wrapped in a
-    // group with its axis-relative transform; the chart-cells group's
-    // `_chartTransform` composes with this to land at the legacy absolute
-    // position.
+    // above everything else (shapes → annotations → axes). Each axis is
+    // wrapped in a group with its axis-relative transform; the chart-cells
+    // group's `_chartTransform` composes with this to land at the right
+    // absolute position.
     axisSceneQueue.forEach(({key, transform, axis}) => {
       if (!axis || typeof axis.toScene !== "function") return;
       const scene = axis.toScene();

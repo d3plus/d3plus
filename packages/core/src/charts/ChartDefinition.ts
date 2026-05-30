@@ -9,14 +9,9 @@
 
 import type {SceneNode} from "@d3plus/render";
 
-import {shapeConfigFor as _shapeConfigFor} from "./emitHelpers.js";
 import type {FeatureModule} from "./features.js";
 import type {TransformStage, VizContext} from "./stages.js";
 import type {VizInstance} from "./vizTypes.js";
-
-// `shapeConfigFor` re-exported for legacy callers that imported it from
-// here; the canonical home is `./emitHelpers.js`.
-export const shapeConfigFor = _shapeConfigFor;
 
 interface ChartDefinitionBase {
   /** Stable name for tagging and class generation. */
@@ -24,9 +19,9 @@ interface ChartDefinitionBase {
   /** Chart-internal scratch seeded onto `viz.ctx.<key>` at construction. */
   ctx?: Record<string, unknown>;
   /**
-      Legacy scalar defaults seeded onto `viz._<key>` at construction.
-      Newer defs migrate user-facing values into `fields[].default` and
-      chart-internal scratch into `ctx`.
+      Scalar defaults seeded onto `viz._<key>` at construction. Defs that
+      need instance slots keep them here; user-facing values otherwise go
+      in `fields[].default` and chart-internal scratch in `ctx`.
   */
   defaults?: Record<string, unknown>;
   /** Fluent accessor declarations; `makeChart` installs each as `viz.<key>()`. */

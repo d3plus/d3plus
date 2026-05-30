@@ -184,8 +184,8 @@ export function drawPlot(viz: any, callback?: () => void) {
   const barLabels = prepCtx.plotBarLabels;
 
   // Test axes use `.measure()` instead of `.select(testGroup).render()` —
-  // pure layout pass, zero DOM creation. Eliminates the entire `g.d3plus-plot-test`
-  // DOM subtree the legacy code temporarily attached to `viz._select`.
+  // pure layout pass, zero DOM creation. No `g.d3plus-plot-test` DOM
+  // subtree attached to `viz._select`.
   if (showY) {
     yTest
       .domain(yDomain)

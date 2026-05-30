@@ -264,18 +264,18 @@ export default class Plot extends Viz {
         axisNodes.push({type: "group", key: `plot-${name}`, children: [axis.toScene()]});
       }
     }
-    // Axes are drawn behind the shapes in the legacy DOM order.
+    // Axes are drawn behind the shapes.
     scene.root.children.unshift(...axisNodes);
     return scene;
   }
 
   /**
       Wires user-registered `on()` event handlers onto a freshly-configured
-      shape instance. Splits the registered events into three buckets the
-      legacy code maintained: global (`"click"`), shape-scoped
-      (`"click.shape"`), and shape-class-scoped (`"click.Bar"` etc.). All
-      three forward into `this.schema.on[event](d.data, d.i, x, event)`. Extracted
-      from Plot._paint so the chart-level event wiring is in one place.
+      shape instance. Splits the registered events into three buckets:
+      global (`"click"`), shape-scoped (`"click.shape"`), and
+      shape-class-scoped (`"click.Bar"` etc.). All three forward into
+      `this.schema.on[event](d.data, d.i, x, event)`. Extracted from
+      Plot._paint so the chart-level event wiring is in one place.
 
       MIGRATION NOTE (RFC §4.5 — interaction decoupled from DOM): each
       shape's `.on(evt, handler)` call binds a d3-selection DOM listener

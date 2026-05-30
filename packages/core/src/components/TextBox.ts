@@ -73,7 +73,7 @@ function parseStyleString(
 }
 
 /**
-    Walks one wrapped line, applies the legacy regex cleanup (closing dangling
+    Walks one wrapped line, applies the regex cleanup (closing dangling
     open tags, opening trailing closing tags), then splits it into runs by the
     configured htmlLookup. Returns the new openTag state for the next line so a
     multi-line bold/italic continues to style subsequent lines.
@@ -83,8 +83,8 @@ function lineToRuns(
   htmlLookup: Record<string, string>,
   openTag: string | false,
 ): {runs: LineRun[]; openTag: string | false} {
-  // Match the legacy textContent escaping: keep entity escaping in sync with
-  // existing render() behavior so SVG output stays identical.
+  // textContent escaping: keep entity escaping in sync with render()
+  // so SVG output stays identical.
   let cleaned = raw
     .trimEnd()
     .replace(/&([^;&]*)/g, (str, a) => (a === "amp" ? str : `&amp;${a}`))
@@ -443,7 +443,7 @@ export default class TextBox extends BaseClass {
     }
 
     // Standalone use: route toScene() through SvgRenderer. Mirrors Shape.render
-    // so `new TextBox().render()` works without the legacy d3-selection body.
+    // so `new TextBox().render()` works without a d3-selection body.
     if (this._select === undefined && typeof document !== "undefined") {
       const svgNode = select("body")
         .append("svg")

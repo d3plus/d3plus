@@ -136,9 +136,8 @@ export default class Viz extends (BaseClass as any) {
     // BaseClass.config()'s `getAllMethods` reflection.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     installFluent(this as any, vizSchema);
-    // v4: `renderer()` selects the @d3plus/render backend. Default
+    // `renderer()` selects the @d3plus/render backend. Default
     // `"svg"` (SvgRenderer); `"canvas"` for large N via CanvasRenderer.
-    // The legacy DOM-only opt-out was removed — scene mode is THE path.
     this._renderer = "svg";
     this._renderMode = "full";
     this.schema.ariaHidden = true;
@@ -441,7 +440,7 @@ export default class Viz extends (BaseClass as any) {
       Composes a backend-agnostic scene graph from the shapes/features produced
       by the most recent render. Combines:
       - `_chartScene` (cells from `chartDef.emit`) wrapped in viz-chart-cells
-      - legacy `_shapes` (still used by some charts) — each shape's toScene
+      - `_shapes` (still used by some charts) — each shape's toScene
       - chart-level components (Legend/ColorScale/Timeline) via their toScene
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
@@ -472,11 +471,11 @@ export default class Viz extends (BaseClass as any) {
         children: zoomNode,
       });
     }
-    // Legacy `_shapes` collection (Treemap/Pack/etc. moved off this; Plot's
-    // `absorbShapeIntoChartScene` also routes through `_chartScene`). Any
-    // remaining caller pushing into `_shapes` gets its `toScene()` walked
-    // here; we read the shape's `_select` transform via d3's transform
-    // baseVal if present, otherwise emit without a transform.
+    // `_shapes` collection (Treemap/Pack/etc. route through `_chartScene`
+    // instead, as does Plot's `absorbShapeIntoChartScene`). Any caller
+    // pushing into `_shapes` gets its `toScene()` walked here; we read the
+    // shape's `_select` transform via d3's transform baseVal if present,
+    // otherwise emit without a transform.
     (this._shapes || []).forEach((shape: any, si: number) => {
       if (!shape || typeof shape.toScene !== "function") return;
       const group = shape.toScene();
@@ -485,7 +484,7 @@ export default class Viz extends (BaseClass as any) {
       if (sel && typeof sel.attr === "function") {
         // Parse `translate(x, y)` from the selection's transform attr.
         // Falls back to undefined for non-translate transforms — the
-        // legacy `_shapes` path only ever used translate.
+        // `_shapes` path only uses translate.
         const t = sel.attr("transform");
         if (typeof t === "string") {
           const m = t.match(/translate\(\s*(-?[\d.]+)[, ]\s*(-?[\d.]+)\s*\)/);
@@ -842,34 +841,19 @@ export default class Viz extends (BaseClass as any) {
   /**
       Selects which @d3plus/render backend paints the visible output
       (RFC §4.6). `"svg"` = SvgRenderer (default), `"canvas"` =
-      CanvasRenderer.
-
-      The legacy DOM-only opt-out (`false`) was removed in v4: scene mode
-      is THE path, the class API just chooses between backends. Existing
-      callers passing `false` get `"svg"` (the closest equivalent).
+      CanvasRenderer. Scene mode is the only path; this chooses the
+      backend. Boolean arguments both normalize to `"svg"`.
   */
   renderer(): "svg" | "canvas";
   renderer(_: "svg" | "canvas" | true | false): this;
   renderer(_?: "svg" | "canvas" | true | false): "svg" | "canvas" | this {
     if (!arguments.length) return this._renderer;
-    // Normalize: true → "svg", false → "svg" (legacy opt-out removed).
     this._renderer = _ === "canvas" ? "canvas" : "svg";
     return this;
   }
 
   /**
-      @deprecated Renamed to `renderer()` in v4 (RFC §4.6). Kept as a
-      permanent alias — forwards to `renderer()`. No removal scheduled.
-  */
-  useSceneRenderer(): "svg" | "canvas";
-  useSceneRenderer(_: "svg" | "canvas" | true | false): this;
-  useSceneRenderer(_?: "svg" | "canvas" | true | false): "svg" | "canvas" | this {
-    if (!arguments.length) return this.renderer();
-    return this.renderer(_!);
-  }
-
-  /**
-      "full" runs the legacy DOM enter/update/exit for every shape; "compute"
+      "full" runs the DOM enter/update/exit for every shape; "compute"
       skips DOM work and only populates the scene data (`_textData`,
       `_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
       `renderScene` callers; users can also opt-in.
@@ -884,7 +868,7 @@ export default class Viz extends (BaseClass as any) {
 
   /**
       Public entry point that renders this chart through the @d3plus/render
-      pluggable backends. The legacy compute happens via render() (in an svg
+      pluggable backends. The compute pass happens via render() (in an svg
       auto-created inside the target div); SvgRenderer/CanvasRenderer paints
       the scene to the target. Returns `{renderer, scene}` so callers can
       interact with the renderer (e.g. for picking) or read the scene data.
@@ -906,21 +890,20 @@ export default class Viz extends (BaseClass as any) {
 
   /**
       Renders this chart through the @d3plus/render pluggable backends. Called
-      automatically by `render()`. The legacy
-      compute path drew into `this._select` (an auto-created svg INSIDE the
-      user's target div) — that svg becomes the off-stage detached compute
-      svg. SvgRenderer mounts to the user's target div (the parent), as a
-      sibling to the detached compute svg. The compute svg's children get
-      cleared so only the scene output is visible.
+      automatically by `render()`. The compute pass draws into `this._select`
+      (an auto-created svg INSIDE the user's target div) — that svg is the
+      off-stage detached compute svg. SvgRenderer mounts to the user's target
+      div (the parent), as a sibling to the detached compute svg. The compute
+      svg's children get cleared so only the scene output is visible.
   */
   _drawSceneToTarget(durationOverride?: number): void {
     const kind = this._renderer === "canvas" ? "canvas" : "svg";
-    const legacySvg = this._select && this._select.node ? this._select.node() : null;
-    if (!legacySvg) return;
+    const computeSvg = this._select && this._select.node ? this._select.node() : null;
+    if (!computeSvg) return;
     // Mount renderer INSIDE the user's `_select` (svg or div). Tests like
     // `svgA.querySelector('[data-key="viz-legend"]')` need the scene output
     // to live inside the user's container, not as a sibling.
-    const userTarget = this._sceneTarget || legacySvg;
+    const userTarget = this._sceneTarget || computeSvg;
     if (!userTarget) return;
     const scene = this.toScene();
     const w = this.schema.width || 400;
@@ -968,8 +951,8 @@ export default class Viz extends (BaseClass as any) {
         const handlerKey = `${event.type}.${suffix}`;
         // Resolve the source datum + index. `pick.datum` is the raw
         // scene datum (which Shape._sceneXxx populated). For Plot
-        // shapes that's the wrapped record; the legacy handlers
-        // expect `(d.data, d.i, x, event)`.
+        // shapes that's the wrapped record; the handlers expect
+        // `(d.data, d.i, x, event)`.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rawDatum: any = pick.datum;
         const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;

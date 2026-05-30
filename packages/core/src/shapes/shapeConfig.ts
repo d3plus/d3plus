@@ -111,7 +111,7 @@ export interface BaseShapeConfig {
   /** Scale factor (1 = identity). */
   scale?: ConstOrAccessor<number>;
 
-  /** "full" runs the legacy DOM enter/update/exit; "compute" skips DOM. */
+  /** "full" runs the DOM enter/update/exit; "compute" skips DOM. */
   renderMode?: "full" | "compute";
   /** Where to mount the shape's DOM (CSS selector, element, or null). */
   select?: string | HTMLElement | SVGElement | null;

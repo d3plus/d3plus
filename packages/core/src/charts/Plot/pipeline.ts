@@ -140,9 +140,8 @@ export const formatPlotData: TransformStage = ({viz}) => {
     the per-axis values arrays (`xData`/`x2Data`/`yData`/`y2Data`) used by
     the domain/scale construction downstream.
 
-    The legacy `getAxisValues(axis)` closure inside Plot._draw is now this
-    standalone function — it takes the axis name + the two data sources +
-    the viz state and returns the sorted/unique values for that axis.
+    Takes the axis name + the two data sources + the viz state and returns
+    the sorted/unique values for that axis.
 */
 export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, plotAxisData}) => {
   const data = plotFormattedData || [];
@@ -684,18 +683,15 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
 
 /**
     `computePlotScales` — fourth stage of Plot's pipeline. Takes the per-axis
-    values + the chart's raw `domains` object (computed by the still-inline
+    values + the chart's raw `domains` object (computed by the inline
     stacking/non-stacking branch) and produces the four configured d3 scale
     instances (`x`/`x2`/`y`/`y2`), the resolved scale-type strings
-    (`xConfigScale` etc.), and the final `domains` after log/baseline
-    adjustments.
-
-    Side effects on viz: `_xConfigScale`/`_x2ConfigScale`/`_yConfigScale`/
-    `_y2ConfigScale` (legacy consumers read them directly).
+    (`xConfigScale` etc., returned in `plotConfigScales`), and the final
+    `domains` after log/baseline adjustments.
 
     The "initial domains" computation (stacked vs non-stacked branch that
-    fills `domains.x`, `domains.y`, etc. from data) is **still inline in
-    Plot._draw** — extracting that requires untangling array sorts that
+    fills `domains.x`, `domains.y`, etc. from data) is inline in
+    `Plot._draw` — extracting that requires untangling array sorts that
     mutate `axisData` in place, which is the natural next step.
 */
 export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotAxisData, plotInitialDomains}) => {
@@ -746,10 +742,10 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     return userScale || fallback;
   };
 
-  const yConfigScale = (viz._yConfigScale = autoScale("y", yScale).toLowerCase());
-  const y2ConfigScale = (viz._y2ConfigScale = autoScale("y2", y2Scale).toLowerCase());
-  const xConfigScale = (viz._xConfigScale = autoScale("x", xScale).toLowerCase());
-  const x2ConfigScale = (viz._x2ConfigScale = autoScale("x2", x2Scale).toLowerCase());
+  const yConfigScale = autoScale("y", yScale).toLowerCase();
+  const y2ConfigScale = autoScale("y2", y2Scale).toLowerCase();
+  const xConfigScale = autoScale("x", xScale).toLowerCase();
+  const x2ConfigScale = autoScale("x2", x2Scale).toLowerCase();
 
   // `.slice()` the fallback so domains.x2 isn't ALIASED to domains.x
   // (and same for y2 ↔ y). Without the slice, later in this function

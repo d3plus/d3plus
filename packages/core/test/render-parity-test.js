@@ -554,7 +554,7 @@ it("Scene renderer is the default — viz.render() routes through it with no fla
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
     await new Promise(resolve => {
-      // No .useSceneRenderer() call — the new default ("svg") drives render().
+      // No renderer flag — the default ("svg") drives render().
       new window.d3plusCore.Treemap()
         .data([
           {id: "A", value: 10},

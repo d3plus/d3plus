@@ -39,8 +39,8 @@ export function vizPreDraw(viz: Viz): void {
   // `latestTime` at synthesis time) to the viz, so a subsequent render
   // with newer data would skip re-synthesis and silently filter
   // post-latestTime rows out. The pure function consumes its own
-  // computedTimeFilter for filteredData; legacy `viz.schema.timeFilter`
-  // consumers see the user's value (truthy) or undefined.
+  // computedTimeFilter for filteredData; `viz.schema.timeFilter`
+  // reflects the user's value (truthy) or undefined.
 
   // 3. filteredData — pre-threshold from pure, then run threshold (which
   // reads this.schema.aggs/_drawDepth/_groupBy via the instance method).

@@ -241,11 +241,11 @@ function zoomed(
         .attr("transform", transform);
   }
 
-  // v4: thread the zoom transform into the scene graph so Network/Geomap
-  // pan/zoom actually shows up under the scene renderer. The legacy
-  // `_zoomGroup.attr("transform", …)` write above survives for tests and
-  // back-compat consumers reading the legacy SVG; the scene-side update
-  // below is what users see in v4.
+  // Thread the zoom transform into the scene graph so Network/Geomap
+  // pan/zoom shows up under the scene renderer. The
+  // `_zoomGroup.attr("transform", …)` write above remains for tests and
+  // consumers reading the SVG directly; the scene-side update below is
+  // what users see.
   const t = transform as {k?: number; x?: number; y?: number} | false | string;
   if (t && typeof t === "object" && "k" in t) {
     // Nullish-coalesce rather than `||` so a legitimate zero (a deliberate

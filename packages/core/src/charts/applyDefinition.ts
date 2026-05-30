@@ -1,9 +1,9 @@
 /**
     `applyDefinition(viz, def)` — wire a ChartDefinition into a Viz instance.
 
-    Seeds `viz.ctx` from `def.ctx`, seeds legacy `_<key>` slots from
-    `def.defaults` (for unmigrated charts), and installs fluent accessors
-    from `def.fields` (which write into `viz.schema`). All config defaults
+    Seeds `viz.ctx` from `def.ctx`, seeds `_<key>` slots from
+    `def.defaults` (charts that declare scalar defaults there), and installs
+    fluent accessors from `def.fields` (which write into `viz.schema`). All config defaults
     — `shapeConfig`, `tooltipConfig`, `legendSort`, `legend`, etc. — live
     in `fields` and use `factory` / `merge` for viz-bound and merge
     semantics.

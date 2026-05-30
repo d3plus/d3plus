@@ -3,11 +3,10 @@
 
     Status: **live.** `Viz._preDraw` runs these stages via `runStages` and the
     progressive writeback below copies each stage's outputs onto `this` so any
-    downstream legacy consumer (drawSteps, `_thresholdFunction`, chart subclass
+    downstream consumer (drawSteps, `_thresholdFunction`, chart subclass
     `_draw` overrides, component instances) reads the values the prior stage
-    produced. The pipeline ran into a Treemap hang on first attempt because
-    `Treemap._thresholdFunction` reads `this._drawDepth` and the writeback
-    used to happen only after all stages — fixed by writing back progressively.
+    produced. Writeback happens progressively (not after all stages) because
+    `Treemap._thresholdFunction` reads `this._drawDepth` mid-pipeline.
 
     @see docs/V4_PHASE_E_PLAN.md for the broader pipeline/feature/fluent plan.
 */
@@ -54,7 +53,7 @@ function listify(n: DataPoint[keyof DataPoint][]): string {
     @interface VizContext
     The value that flows through the chart pipeline. Each stage reads from it
     and returns the fields it derives. The runner (`Viz._preDraw`) folds the
-    stages together and writes the result back onto the Viz instance so legacy
+    stages together and writes the result back onto the Viz instance so
     consumers (`_draw`, drawSteps, components) see the same shape.
 */
 export interface VizContext {
@@ -325,7 +324,7 @@ export const vizPreDrawStages: TransformStage[] = [
     Run a stage pipeline and accumulate the partial outputs into one context.
 */
 /**
-    Maps context-field names to the `this.*` properties downstream legacy
+    Maps context-field names to the `this.*` properties downstream
     consumers (`_draw`, drawSteps, component instances, chart subclasses) read.
     Stages with side effects on `this` (the threshold function reading
     `this._drawDepth`, drawSteps reading `this._filteredData`, etc.) require
@@ -350,7 +349,7 @@ export function runStages(
   for (const stage of stages) {
     const partial = stage(ctx);
     ctx = Object.assign({}, ctx, partial);
-    // Progressive writeback: legacy code that one stage transitively invokes
+    // Progressive writeback: code that one stage transitively invokes
     // (e.g. Treemap._thresholdFunction reading this._drawDepth) sees the
     // values the prior stage produced. `Object.keys` (not `for...in`) so a
     // stage returning a class-instance partial doesn't leak prototype-bag

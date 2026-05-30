@@ -9,7 +9,7 @@
     interface enumerates ~140 fields the audit found across the runtime
     code paths, grouped by category. Each entry is the BEST-EFFORT type
     inferred from usage; fields that are deeply chart-specific or
-    legacy-shaped use `any` rather than half-accurate narrowing.
+    loosely-shaped use `any` rather than half-accurate narrowing.
 
     Compatibility:
       - The class hierarchy (Viz/Plot/BarChart/.../Pie/Tree) already has
