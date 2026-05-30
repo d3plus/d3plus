@@ -26,40 +26,22 @@ interface PriestleyDatum extends Record<string, unknown> {
   lane?: number;
 }
 
-export const applyPriestleyLayout: TransformStage = ({viz}) => {
-  const filtered = viz._filteredData as DataPoint[] | undefined;
-  if (!filtered) return {shapeData: []};
+type Branch = {values: PriestleyDatum[]} & Record<string, unknown>;
 
-  const startFn = viz.schema.start as (d: DataPoint, i: number) => unknown;
-  const endFn = viz.schema.end as (d: DataPoint, i: number) => unknown;
-  const idFn = viz._id as (d: DataPoint, i: number) => string | number;
-  const axisConfig = viz.schema.axisConfig as {scale?: string};
-  const isTimeScale = axisConfig?.scale === "time";
+type AxisLike = {
+  config: (c: unknown) => AxisLike;
+  measure: () => AxisLike;
+  renderMode: (m: string) => AxisLike;
+  select: (el: HTMLElement | undefined) => AxisLike;
+  render: () => AxisLike;
+  outerBounds: () => {height: number};
+  toScene: () => {children?: unknown[]} | undefined;
+  schema: {padding: number};
+  _d3Scale: (v: number | Date) => number;
+};
 
-  const data: PriestleyDatum[] = filtered
-    .map((datum, i): PriestleyDatum => ({
-      __d3plus__: true,
-      data: datum,
-      end: isTimeScale ? (date(endFn(datum, i) as string) as Date) : (endFn(datum, i) as number),
-      i,
-      id: idFn(datum, i),
-      start: isTimeScale ? (date(startFn(datum, i) as string) as Date) : (startFn(datum, i) as number),
-    }))
-    .filter(d => Number(d.end) - Number(d.start) > 0)
-    .sort((a, b) => Number(a.start) - Number(b.start));
-
-  type Branch = {values: PriestleyDatum[]} & Record<string, unknown>;
-  let nested: Branch[];
-  if (viz.schema.groupBy.length > 1 && viz._drawDepth > 0) {
-    const keyFns: ((d: PriestleyDatum) => unknown)[] = [];
-    for (let i = 0; i < viz._drawDepth; i++) {
-      keyFns.push(d => viz.schema.groupBy[i](d.data, d.i));
-    }
-    nested = nestGroups(data as unknown as DataPoint[], keyFns as ((d: DataPoint) => string | number | boolean)[]) as unknown as Branch[];
-  } else {
-    nested = [{values: data} as Branch];
-  }
-
+/** Greedy first-fit lane packer; mutates `d.lane` and returns total lane count. */
+const packLanes = (nested: Branch[]): number => {
   let maxLane = 0;
   nested.forEach(g => {
     let track: (number | Date | false)[] = [];
@@ -76,7 +58,15 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     });
     maxLane += track.length;
   });
+  return maxLane;
+};
 
+/** Runs both axes, pushes the axis scene, and stashes scales/bandWidth on `viz.ctx`. */
+const runAxesAndScales = (
+  viz: Parameters<TransformStage>[0]["viz"],
+  data: PriestleyDatum[],
+  maxLane: number,
+): void => {
   const cfg = {
     domain: [
       min(data, d => Number(d.start)) ?? 0,
@@ -86,17 +76,6 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
     width: viz.schema.width - viz._margin.left - viz._margin.right,
   };
 
-  type AxisLike = {
-    config: (c: unknown) => AxisLike;
-    measure: () => AxisLike;
-    renderMode: (m: string) => AxisLike;
-    select: (el: HTMLElement | undefined) => AxisLike;
-    render: () => AxisLike;
-    outerBounds: () => {height: number};
-    toScene: () => {children?: unknown[]} | undefined;
-    schema: {padding: number};
-    _d3Scale: (v: number | Date) => number;
-  };
   const axisTest = viz.ctx.axisTest as AxisLike;
   const axis = viz.ctx.axis as AxisLike;
 
@@ -138,6 +117,44 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
   viz.ctx.xScale = axis._d3Scale;
   viz.ctx.yScale = yScale;
   viz.ctx.bandWidth = yScale.bandwidth();
+};
+
+export const applyPriestleyLayout: TransformStage = ({viz}) => {
+  const filtered = viz._filteredData as DataPoint[] | undefined;
+  if (!filtered) return {shapeData: []};
+
+  const startFn = viz.schema.start as (d: DataPoint, i: number) => unknown;
+  const endFn = viz.schema.end as (d: DataPoint, i: number) => unknown;
+  const idFn = viz._id as (d: DataPoint, i: number) => string | number;
+  const axisConfig = viz.schema.axisConfig as {scale?: string};
+  const isTimeScale = axisConfig?.scale === "time";
+
+  const data: PriestleyDatum[] = filtered
+    .map((datum, i): PriestleyDatum => ({
+      __d3plus__: true,
+      data: datum,
+      end: isTimeScale ? (date(endFn(datum, i) as string) as Date) : (endFn(datum, i) as number),
+      i,
+      id: idFn(datum, i),
+      start: isTimeScale ? (date(startFn(datum, i) as string) as Date) : (startFn(datum, i) as number),
+    }))
+    .filter(d => Number(d.end) - Number(d.start) > 0)
+    .sort((a, b) => Number(a.start) - Number(b.start));
+
+  let nested: Branch[];
+  if (viz.schema.groupBy.length > 1 && viz._drawDepth > 0) {
+    const keyFns: ((d: PriestleyDatum) => unknown)[] = [];
+    for (let i = 0; i < viz._drawDepth; i++) {
+      keyFns.push(d => viz.schema.groupBy[i](d.data, d.i));
+    }
+    nested = nestGroups(data as unknown as DataPoint[], keyFns as ((d: DataPoint) => string | number | boolean)[]) as unknown as Branch[];
+  } else {
+    nested = [{values: data} as Branch];
+  }
+
+  const maxLane = packLanes(nested);
+
+  runAxesAndScales(viz, data, maxLane);
 
   return {shapeData: data};
 };

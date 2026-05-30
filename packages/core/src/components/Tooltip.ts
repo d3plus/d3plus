@@ -100,6 +100,214 @@ async function positionTooltip(
 }
 
 /**
+    Resolves the portal selection the tooltips mount into: a per-instance
+    `.d3plus-tooltip-portal` child of `_parentEl`, or the global portal div.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolvePortal(that: any): D3Selection {
+  // v4: parent() lets a chart scope the tooltip to its own container
+  // (so multiple charts on a page don't fight over the global portal).
+  // Default behavior — append to body via the global #d3plus-portal —
+  // preserved when parent() isn't set.
+  if (!that._parentEl) return elem("div#d3plus-portal");
+  // Per-instance portal: each Tooltip owns its own
+  // `.d3plus-tooltip-portal` child of `_parentEl`. Two Tooltips
+  // pointed at the same parent get two sibling portal divs, so
+  // a `parent()` switch on one can clean up only its own portal.
+  let host = that._portalEl ?? null;
+  if (!host || host.parentNode !== that._parentEl) {
+    host = document.createElement("div");
+    host.setAttribute("class", "d3plus-tooltip-portal");
+    host.style.position = "absolute";
+    host.style.top = "0";
+    host.style.left = "0";
+    host.style.width = "0";
+    host.style.height = "0";
+    host.style.pointerEvents = "none";
+    that._parentEl.appendChild(host);
+    that._portalEl = host;
+  }
+  return select(host);
+}
+
+/**
+    Creates DIV elements with a unique class and styles.
+    @private
+*/
+function divElement(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  that: any,
+  enter: D3Selection,
+  update: D3Selection,
+  cat: string,
+): void {
+  enter
+    .append("div")
+    .attr("class", `d3plus-tooltip-${cat}`)
+    .attr(
+      "id",
+      (d: DataPoint, i: number) =>
+        `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`,
+    );
+
+  const div = update
+    .select(`.d3plus-tooltip-${cat}`)
+    .html(
+      (d: DataPoint, i: number) =>
+        (
+          that.schema as Record<
+            string,
+            (d: DataPoint, i: number) => unknown
+          >
+        )[cat](d, i) as string,
+    )
+    .style("display", (d: DataPoint, i: number) => {
+      const val = (
+        that.schema as Record<
+          string,
+          (d: DataPoint, i: number) => unknown
+        >
+      )[cat](d, i);
+      const visible = val !== false && val !== undefined && val !== null;
+      return visible ? "block" : "none";
+    });
+
+  stylize(
+    div,
+    (that.schema as Record<string, Record<string, string>>)[
+      `${cat}Style`
+    ],
+  );
+}
+
+/**
+    Sets styles for both enter and update.
+    @private
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function boxStyles(that: any, box: D3Selection): void {
+  box
+    .style("background", that.schema.background as never)
+    .style("border-radius", that.schema.borderRadius as never)
+    .style("pointer-events", that.schema.pointerEvents as never)
+    .style("padding", that.schema.padding as never)
+    .style("max-width", that.schema.maxWidth as never)
+    .style("min-width", that.schema.minWidth as never)
+    .style("width", that.schema.width as never)
+    .style("height", that.schema.height as never)
+    .style("border", that.schema.border as never);
+}
+
+/**
+    Builds the tooltip table (thead + tbody) from the configured columns/rows.
+    @private
+*/
+function buildTable(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  that: any,
+  enter: D3Selection,
+  update: D3Selection,
+  cellContent: (this: HTMLElement, d: unknown) => string,
+): void {
+  const tableEnter = enter
+    .append("table")
+    .attr("class", "d3plus-tooltip-table");
+  const table = update.select(".d3plus-tooltip-table");
+  stylize(table, that.schema.tableStyle);
+
+  tableEnter.append("thead").attr("class", "d3plus-tooltip-thead");
+  const tableHead = update.select(".d3plus-tooltip-thead");
+  stylize(tableHead, that.schema.theadStyle);
+  const theadTr = tableHead.selectAll("tr").data([0]);
+  const theadTrEnter = theadTr.enter().append("tr");
+  theadTr.exit().remove();
+  const theadTrUpdate = theadTr.merge(theadTrEnter as never);
+  stylize(theadTrUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  const th = theadTrUpdate.selectAll("th").data(that.schema.thead);
+  th.enter()
+    .append("th")
+    .merge(th as never)
+    .html(cellContent as never);
+  th.exit().remove();
+
+  tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
+  const tableBody = update.select(".d3plus-tooltip-tbody");
+  stylize(tableBody, that.schema.tbodyStyle);
+  const tr = tableBody.selectAll("tr").data(that.schema.tbody);
+  const trEnter = tr.enter().append("tr");
+  tr.exit().remove();
+  const trUpdate = tr.merge(trEnter as never);
+  stylize(trUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
+  td.enter()
+    .append("td")
+    .merge(td as never)
+    .html(cellContent as never);
+  stylize(td, that.schema.tdStyle);
+}
+
+/**
+    Binds enter/update/exit: assigns ids, positions each tooltip via Floating
+    UI, refreshes positions on update, and cleans up refs on exit.
+    @private
+*/
+function bindTooltips(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  that: any,
+  enter: D3Selection,
+  update: D3Selection,
+  tooltips: D3Selection,
+): void {
+  enter
+    .attr(
+      "id",
+      (d: DataPoint, i: number) =>
+        `d3plus-tooltip-${d ? that.schema.id(d, i) : ""}`,
+    )
+    .style("visibility", "hidden")
+    .call(box => boxStyles(that, box as never))
+    .each(function (this: unknown, d: DataPoint, i: number) {
+      const id = that.schema.id(d, i);
+      const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
+      const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
+      const arrowHeight = arrowEl.offsetHeight;
+      const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
+      arrowEl.style.bottom = `-${arrowHeight / 2}px`;
+
+      const position = that.schema.position(d, i);
+      const reference: VirtualElement | HTMLElement = Array.isArray(position)
+        ? generateReference(position)
+        : position as HTMLElement;
+
+      that._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
+      positionTooltip(reference, tooltip, arrowEl, that.schema.offset(d, i), arrowDistance, arrowHeight);
+    });
+
+  update
+    .each(function (this: unknown, d: DataPoint, i: number) {
+      const id = that.schema.id(d, i);
+      const position = that.schema.position(d, i);
+      const ref = that._tooltipRefs[id];
+
+      if (ref) {
+        ref.reference = Array.isArray(position)
+          ? generateReference(position as number[])
+          : position as HTMLElement;
+        positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that.schema.offset(d, i), ref.arrowDistance, ref.arrowHeight);
+      }
+    })
+    .call(box => boxStyles(that, box as never));
+
+  tooltips
+    .exit()
+    .each(function (this: unknown, d: unknown, i: number) {
+      const id = that.schema.id(d as DataPoint, i);
+      delete that._tooltipRefs[id];
+    })
+    .remove();
+}
+
+/**
     Creates HTML tooltips in the body of a webpage.
 */
 export default class Tooltip extends BaseClass {
@@ -191,32 +399,7 @@ export default class Tooltip extends BaseClass {
   render(callback?: (...args: unknown[]) => unknown): this {
     const that = this;
 
-    // v4: parent() lets a chart scope the tooltip to its own container
-    // (so multiple charts on a page don't fight over the global portal).
-    // Default behavior — append to body via the global #d3plus-portal —
-    // preserved when parent() isn't set.
-    const portal: D3Selection = this._parentEl
-      ? (() => {
-          // Per-instance portal: each Tooltip owns its own
-          // `.d3plus-tooltip-portal` child of `_parentEl`. Two Tooltips
-          // pointed at the same parent get two sibling portal divs, so
-          // a `parent()` switch on one can clean up only its own portal.
-          let host = this._portalEl ?? null;
-          if (!host || host.parentNode !== this._parentEl) {
-            host = document.createElement("div");
-            host.setAttribute("class", "d3plus-tooltip-portal");
-            host.style.position = "absolute";
-            host.style.top = "0";
-            host.style.left = "0";
-            host.style.width = "0";
-            host.style.height = "0";
-            host.style.pointerEvents = "none";
-            this._parentEl!.appendChild(host);
-            this._portalEl = host;
-          }
-          return select(host);
-        })()
-      : elem("div#d3plus-portal");
+    const portal = resolvePortal(this);
     const tooltips = portal
       .selectAll(`.${this.schema.className}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -226,50 +409,6 @@ export default class Tooltip extends BaseClass {
 
     const update = tooltips.merge(enter as never);
     stylize(update, this.schema.tooltipStyle);
-
-    /**
-        Creates DIV elements with a unique class and styles.
-        @private
-*/
-    function divElement(cat: string): void {
-      enter
-        .append("div")
-        .attr("class", `d3plus-tooltip-${cat}`)
-        .attr(
-          "id",
-          (d: DataPoint, i: number) =>
-            `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`,
-        );
-
-      const div = update
-        .select(`.d3plus-tooltip-${cat}`)
-        .html(
-          (d: DataPoint, i: number) =>
-            (
-              that.schema as Record<
-                string,
-                (d: DataPoint, i: number) => unknown
-              >
-            )[cat](d, i) as string,
-        )
-        .style("display", (d: DataPoint, i: number) => {
-          const val = (
-            that.schema as Record<
-              string,
-              (d: DataPoint, i: number) => unknown
-            >
-          )[cat](d, i);
-          const visible = val !== false && val !== undefined && val !== null;
-          return visible ? "block" : "none";
-        });
-
-      stylize(
-        div,
-        (that.schema as Record<string, Record<string, string>>)[
-          `${cat}Style`
-        ],
-      );
-    }
 
     /**
         Fetches table contents given functions or values.
@@ -284,113 +423,16 @@ export default class Tooltip extends BaseClass {
       } else return d as string;
     }
 
-    /**
-        Sets styles for both enter and update.
-        @private
-*/
-    function boxStyles(box: D3Selection): void {
-      box
-        .style("background", that.schema.background as never)
-        .style("border-radius", that.schema.borderRadius as never)
-        .style("pointer-events", that.schema.pointerEvents as never)
-        .style("padding", that.schema.padding as never)
-        .style("max-width", that.schema.maxWidth as never)
-        .style("min-width", that.schema.minWidth as never)
-        .style("width", that.schema.width as never)
-        .style("height", that.schema.height as never)
-        .style("border", that.schema.border as never);
-    }
+    divElement(this, enter, update, "title");
+    divElement(this, enter, update, "body");
 
-    divElement("title");
-    divElement("body");
+    buildTable(this, enter, update, cellContent);
 
-    const tableEnter = enter
-      .append("table")
-      .attr("class", "d3plus-tooltip-table");
-    const table = update.select(".d3plus-tooltip-table");
-    stylize(table, this.schema.tableStyle);
+    divElement(this, enter, update, "footer");
 
-    tableEnter.append("thead").attr("class", "d3plus-tooltip-thead");
-    const tableHead = update.select(".d3plus-tooltip-thead");
-    stylize(tableHead, this.schema.theadStyle);
-    const theadTr = tableHead.selectAll("tr").data([0]);
-    const theadTrEnter = theadTr.enter().append("tr");
-    theadTr.exit().remove();
-    const theadTrUpdate = theadTr.merge(theadTrEnter as never);
-    stylize(theadTrUpdate as never, this.schema.trStyle as Record<string, string | number | boolean | null>);
-    const th = theadTrUpdate.selectAll("th").data(this.schema.thead);
-    th.enter()
-      .append("th")
-      .merge(th as never)
-      .html(cellContent as never);
-    th.exit().remove();
+    divElement(this, enter, update, "arrow");
 
-    tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
-    const tableBody = update.select(".d3plus-tooltip-tbody");
-    stylize(tableBody, this.schema.tbodyStyle);
-    const tr = tableBody.selectAll("tr").data(this.schema.tbody);
-    const trEnter = tr.enter().append("tr");
-    tr.exit().remove();
-    const trUpdate = tr.merge(trEnter as never);
-    stylize(trUpdate as never, this.schema.trStyle as Record<string, string | number | boolean | null>);
-    const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
-    td.enter()
-      .append("td")
-      .merge(td as never)
-      .html(cellContent as never);
-    stylize(td, this.schema.tdStyle);
-
-    divElement("footer");
-
-    divElement("arrow");
-
-    enter
-      .attr(
-        "id",
-        (d: DataPoint, i: number) =>
-          `d3plus-tooltip-${d ? this.schema.id(d, i) : ""}`,
-      )
-      .style("visibility", "hidden")
-      .call(boxStyles)
-      .each((d: DataPoint, i: number) => {
-        const id = that.schema.id(d, i);
-        const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
-        const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
-        const arrowHeight = arrowEl.offsetHeight;
-        const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
-        arrowEl.style.bottom = `-${arrowHeight / 2}px`;
-
-        const position = that.schema.position(d, i);
-        const reference: VirtualElement | HTMLElement = Array.isArray(position)
-          ? generateReference(position)
-          : position as HTMLElement;
-
-        this._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
-        positionTooltip(reference, tooltip, arrowEl, that.schema.offset(d, i), arrowDistance, arrowHeight);
-      });
-
-    update
-      .each((d: DataPoint, i: number) => {
-        const id = that.schema.id(d, i);
-        const position = that.schema.position(d, i);
-        const ref = this._tooltipRefs[id];
-
-        if (ref) {
-          ref.reference = Array.isArray(position)
-            ? generateReference(position as number[])
-            : position as HTMLElement;
-          positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that.schema.offset(d, i), ref.arrowDistance, ref.arrowHeight);
-        }
-      })
-      .call(boxStyles);
-
-    tooltips
-      .exit()
-      .each((d: unknown, i: number) => {
-        const id = that.schema.id(d as DataPoint, i);
-        delete this._tooltipRefs[id];
-      })
-      .remove();
+    bindTooltips(this, enter, update, tooltips);
 
     if (callback) setTimeout(callback, 100);
 

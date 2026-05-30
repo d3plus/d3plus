@@ -4,6 +4,7 @@
     each by extent, builds bezier link `d` accessor, and stashes
     `ringsCtx` + `nodeLookup`/`linkLookup` on `viz.ctx`.
 */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
@@ -71,28 +72,31 @@ interface RScale {
   rangeRound: (r: [number, number]) => RScale;
 }
 
-export const applyRingsLayout: TransformStage = ({viz}) => {
-  const v = viz;
+type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
 
-  if (!Array.isArray(v._filteredData)) v._filteredData = [];
-  if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
-  if (!Array.isArray(v.schema.links)) v.schema.links = [];
-  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) {
-    v.ctx.nodeLookup = {};
-    v.ctx.linkLookup = {};
-    v.ctx.ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
-    return {viz};
-  }
+/** Shared empty `ringsCtx` value for the early-return branches. */
+const emptyRingsCtx = () => ({
+  edges: [],
+  nodeGroups: [],
+  linkConfig: {},
+  linkD: () => "",
+  nodeShapeConfig: {},
+});
 
-  const data: Record<string, DataPoint> = (v._filteredData as DataPoint[]).reduce(
-    (obj: Record<string, DataPoint>, d, i) => {
-      obj[v._id(d, i) as string] = d;
-      return obj;
-    },
-    {},
-  );
-
-  type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
+/**
+    Build the Rings node set + link descriptors from filtered data and schema
+    nodes/links. Stashes `nodeLookup` on `viz.ctx` and returns the working
+    `nodes`, `nodeLookup`, `links`, and per-node `linkMap`.
+*/
+function buildRingsGraph(
+  v: any,
+  data: Record<string, DataPoint>,
+): {
+  nodes: RingsNode[];
+  nodeLookup: Record<string, RingsNode>;
+  links: RingsEdge[];
+  linkMap: Record<string, RingsEdge[]>;
+} {
   let rawNodes: DataPoint[] = v.schema.nodes as DataPoint[];
   if (!rawNodes.length && (v.schema.links as RawLink[]).length) {
     const nodeIds = Array.from(
@@ -119,7 +123,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     {},
   );
 
-  let nodes: RingsNode[] = Array.from(new Set(Object.keys(data).concat(Object.keys(nodesById))))
+  const nodes: RingsNode[] = Array.from(new Set(Object.keys(data).concat(Object.keys(nodesById))))
     .map((id, i) => {
       const d = data[id];
       const n = nodesById[id];
@@ -178,18 +182,32 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     {},
   );
 
-  const {width, height} = chartBounds(v);
-  const edges: RingsEdge[] = [];
-  const radius = (min([height, width]) || 0) / 2;
-  const ringWidth = radius / 3;
-  const primaryRing = ringWidth;
-  const secondaryRing = ringWidth * 2;
+  return {nodes, nodeLookup, links, linkMap};
+}
 
-  const center = nodeLookup[v.schema.center];
-  if (!center) {
-    v.ctx.ringsCtx = {edges: [], nodeGroups: [], linkConfig: {}, linkD: () => "", nodeShapeConfig: {}};
-    return {viz};
-  }
+/** Ring geometry derived from the chart bounds. */
+interface RingGeometry {
+  width: number;
+  height: number;
+  ringWidth: number;
+  primaryRing: number;
+  secondaryRing: number;
+}
+
+/**
+    Claim the center node + two rings, compute each node's angle/position, build
+    the radius scale, and size every node. Returns the rebuilt `nodes` array
+    plus the `primaries`/`secondaries` rings.
+*/
+function placeRingsNodes(
+  v: any,
+  nodeLookup: Record<string, RingsNode>,
+  linkMap: Record<string, RingsEdge[]>,
+  center: RingsNode,
+  geom: RingGeometry,
+  data: Record<string, DataPoint>,
+): {nodes: RingsNode[]; primaries: RingsNode[]; secondaries: RingsNode[]} {
+  const {width, height, primaryRing, secondaryRing} = geom;
 
   center.x = width / 2;
   center.y = height / 2;
@@ -255,6 +273,26 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     });
   });
 
+  sizeRingsNodes(v, center, geom, data, primaries, secondaries);
+
+  const nodes = [center].concat(primaries).concat(secondaries);
+
+  return {nodes, primaries, secondaries};
+}
+
+/**
+    Build the radius scale from the size extent (or ring defaults) and assign
+    each ring node its `ring` + `r`. Mutates `center.r` and every ring node.
+*/
+function sizeRingsNodes(
+  v: any,
+  center: RingsNode,
+  geom: RingGeometry,
+  data: Record<string, DataPoint>,
+  primaries: RingsNode[],
+  secondaries: RingsNode[],
+): void {
+  const {ringWidth} = geom;
   const primaryDistance = ringWidth / 2;
   const secondaryDistance = ringWidth / 4;
 
@@ -304,8 +342,23 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
         ? (min([v.schema.sizeMax, radiusFn(val)]) as number)
         : radiusFn(val);
   });
+}
 
-  nodes = [center].concat(primaries).concat(secondaries);
+/**
+    Resolve link endpoints to placed nodes, compute bezier control points for
+    spline edges, and push every edge onto `edges` (mutated in place).
+*/
+function buildRingsEdges(
+  v: any,
+  nodes: RingsNode[],
+  primaries: RingsNode[],
+  secondaries: RingsNode[],
+  linkMap: Record<string, RingsEdge[]>,
+  center: RingsNode,
+  geom: RingGeometry,
+  edges: RingsEdge[],
+): void {
+  const {width, height, ringWidth, primaryRing, secondaryRing} = geom;
 
   primaries.forEach(p => {
     type EndKey = "source" | "target";
@@ -357,7 +410,11 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
       edges.push(edge);
     });
   });
+}
 
+/** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
+function applyRingsLabelBounds(v: any, nodes: RingsNode[], geom: RingGeometry): void {
+  const {primaryRing, ringWidth} = geom;
   nodes.forEach(node => {
     if (node.id === v.schema.center) {
       node.labelBounds = {
@@ -391,7 +448,19 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     node.rotate = angle;
     node.textAnchor = textAnchor;
   });
+}
 
+/**
+    Build the link/node shape config + `linkD` accessor, scale link strokes, and
+    stash `linkLookup` + `ringsCtx` on `viz.ctx`.
+*/
+function publishRingsCtx(
+  v: any,
+  nodes: RingsNode[],
+  nodeLookup: Record<string, RingsNode>,
+  links: RingsEdge[],
+  edges: RingsEdge[],
+): void {
   v.ctx.linkLookup = links.reduce(
     (obj: Record<string, RingsNode[]>, d) => {
       if (!obj[d.source.id]) obj[d.source.id] = [];
@@ -462,6 +531,59 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
 
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
+}
+
+export const applyRingsLayout: TransformStage = ({viz}) => {
+  const v = viz;
+
+  if (!Array.isArray(v._filteredData)) v._filteredData = [];
+  if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
+  if (!Array.isArray(v.schema.links)) v.schema.links = [];
+  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) {
+    v.ctx.nodeLookup = {};
+    v.ctx.linkLookup = {};
+    v.ctx.ringsCtx = emptyRingsCtx();
+    return {viz};
+  }
+
+  const data: Record<string, DataPoint> = (v._filteredData as DataPoint[]).reduce(
+    (obj: Record<string, DataPoint>, d, i) => {
+      obj[v._id(d, i) as string] = d;
+      return obj;
+    },
+    {},
+  );
+
+  const {nodeLookup, links, linkMap} = buildRingsGraph(v, data);
+
+  const {width, height} = chartBounds(v);
+  const edges: RingsEdge[] = [];
+  const radius = (min([height, width]) || 0) / 2;
+  const ringWidth = radius / 3;
+  const primaryRing = ringWidth;
+  const secondaryRing = ringWidth * 2;
+  const geom: RingGeometry = {width, height, ringWidth, primaryRing, secondaryRing};
+
+  const center = nodeLookup[v.schema.center];
+  if (!center) {
+    v.ctx.ringsCtx = emptyRingsCtx();
+    return {viz};
+  }
+
+  const {nodes, primaries, secondaries} = placeRingsNodes(
+    v,
+    nodeLookup,
+    linkMap,
+    center,
+    geom,
+    data,
+  );
+
+  buildRingsEdges(v, nodes, primaries, secondaries, linkMap, center, geom, edges);
+
+  applyRingsLabelBounds(v, nodes, geom);
+
+  publishRingsCtx(v, nodes, nodeLookup, links, edges);
 
   return {shapeData: nodes as unknown as DataPoint[]};
 };

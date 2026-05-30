@@ -55,14 +55,16 @@ interface NetworkLink {
   size: number;
 }
 
-export const applyNetworkLayout: TransformStage = ({viz}) => {
-  const v = viz;
-  const {width, height} = chartBounds(v);
+interface RScale {
+  (v: number): number;
+  domain: (d: [number, number]) => RScale;
+  range: ((r: [number, number]) => RScale) & (() => [number, number]);
+}
 
-  if (!Array.isArray(v._filteredData)) v._filteredData = [];
-  if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
-  if (!Array.isArray(v.schema.links)) v.schema.links = [];
+type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
 
+/** Resolves filtered data + schema nodes into laid-out node records (pre-layout). */
+function buildNetworkNodes(v: Parameters<TransformStage>[0]["viz"]): NetworkNode[] {
   const nodeId = (d: Record<string, unknown>, i: number) =>
     `${v._id(d, i) || v.schema.nodeGroupBy[min([v._drawDepth, v.schema.nodeGroupBy.length - 1])](d, i)}`;
 
@@ -82,7 +84,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     {},
   );
 
-  let nodes: NetworkNode[] = Array.from(
+  const nodes: NetworkNode[] = Array.from(
     new Set(Object.keys(data).concat(Object.keys(rawNodes))),
   )
     .map((id, i) => {
@@ -111,6 +113,14 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   rawNodes = {};
   void rawNodes;
 
+  return nodes;
+}
+
+/** Resolves schema links against nodes, stashing nodeLookup + linkLookup on ctx. */
+function buildNetworkLinks(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: NetworkNode[],
+): NetworkLink[] {
   const nodeLookup: Record<string, NetworkNode> = nodes.reduce(
     (obj: Record<string, NetworkNode>, d) => {
       obj[d.id] = d;
@@ -122,7 +132,6 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
 
   const nodeByOriginal = new Map<DataPoint, NetworkNode>();
   for (const n of nodes) nodeByOriginal.set(n.node, n);
-  type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
   const links: NetworkLink[] = (v.schema.links as RawLink[]).map(l => {
     const referenceType = typeof l.source;
     return {
@@ -151,59 +160,66 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     {},
   );
 
-  const missingCoords = nodes.some(
-    n => n.fx === undefined || n.fy === undefined,
+  return links;
+}
+
+/** Runs the d3-force simulation, rotating results to the largest fitting rect. */
+function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
+  const linkStrength = scales
+    .scaleLinear()
+    .domain(extent(links, (d: {size: number}) => d.size) as [number, number])
+    .range([0.1, 0.5]);
+
+  const simulation = forceSimulation()
+    .force(
+      "link",
+      forceLink(links as unknown as NetworkLayoutLink[])
+        .id((d: SimulationNodeDatum) => (d as NetworkLayoutNode).id)
+        .distance(1)
+        .strength((d: NetworkLayoutLink) => linkStrength(d.size as number))
+        .iterations(4),
+    )
+    .force("charge", forceManyBody().strength(-1))
+    .stop();
+
+  const iterations = 100;
+  const alphaMin = 0.001;
+  const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
+  simulation.velocityDecay(0);
+  simulation.alphaMin(alphaMin);
+  simulation.alphaDecay(alphaDecay);
+  simulation.alphaDecay(0);
+  simulation.nodes(nodes);
+  simulation.tick(iterations).stop();
+
+  const nodePositions = nodes.map(
+    n => [n.vx ?? 0, n.vy ?? 0] as [number, number],
   );
-
-  if (missingCoords) {
-    const linkStrength = scales
-      .scaleLinear()
-      .domain(extent(links, (d: {size: number}) => d.size) as [number, number])
-      .range([0.1, 0.5]);
-
-    const simulation = forceSimulation()
-      .force(
-        "link",
-        forceLink(links as unknown as NetworkLayoutLink[])
-          .id((d: SimulationNodeDatum) => (d as NetworkLayoutNode).id)
-          .distance(1)
-          .strength((d: NetworkLayoutLink) => linkStrength(d.size as number))
-          .iterations(4),
-      )
-      .force("charge", forceManyBody().strength(-1))
-      .stop();
-
-    const iterations = 100;
-    const alphaMin = 0.001;
-    const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
-    simulation.velocityDecay(0);
-    simulation.alphaMin(alphaMin);
-    simulation.alphaDecay(alphaDecay);
-    simulation.alphaDecay(0);
-    simulation.nodes(nodes);
-    simulation.tick(iterations).stop();
-
-    const nodePositions = nodes.map(
-      n => [n.vx ?? 0, n.vy ?? 0] as [number, number],
-    );
-    let angle = 0, cx = 0, cy = 0;
-    if (nodePositions.length === 2) {
-      angle = 100;
-    } else if (nodePositions.length > 2) {
-      const hull = polygonHull(nodePositions) || [];
-      const rect = largestRect(hull, {verbose: true})!;
-      angle = rect.angle;
-      cx = rect.cx;
-      cy = rect.cy;
-    }
-
-    nodes.forEach(n => {
-      const p = pointRotate([n.vx ?? 0, n.vy ?? 0], -1 * ((Math.PI / 180) * angle), [cx, cy]);
-      n.fx = p[0];
-      n.fy = p[1];
-    });
+  let angle = 0, cx = 0, cy = 0;
+  if (nodePositions.length === 2) {
+    angle = 100;
+  } else if (nodePositions.length > 2) {
+    const hull = polygonHull(nodePositions) || [];
+    const rect = largestRect(hull, {verbose: true})!;
+    angle = rect.angle;
+    cx = rect.cx;
+    cy = rect.cy;
   }
 
+  nodes.forEach(n => {
+    const p = pointRotate([n.vx ?? 0, n.vy ?? 0], -1 * ((Math.PI / 180) * angle), [cx, cy]);
+    n.fx = p[0];
+    n.fy = p[1];
+  });
+}
+
+/** Positions nodes within bounds and assigns final r/width/height via a fitted radius scale. */
+function scaleNetworkNodes(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: NetworkNode[],
+  width: number,
+  height: number,
+): RScale {
   const xExtent = extent(nodes.map(n => n.fx)) as unknown as [number, number];
   const yExtent = extent(nodes.map(n => n.fy)) as unknown as [number, number];
 
@@ -242,11 +258,6 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
       ) as unknown as number) / 2,
     ]) as unknown as number);
 
-  interface RScale {
-    (v: number): number;
-    domain: (d: [number, number]) => RScale;
-    range: ((r: [number, number]) => RScale) & (() => [number, number]);
-  }
   const r: RScale = ((scales as unknown as Record<string, () => RScale>)[
       `scale${v.schema.sizeScale.charAt(0).toUpperCase()}${v.schema.sizeScale.slice(1)}`
     ]())
@@ -292,6 +303,15 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     n.height = n.r * 2;
   });
 
+  return r;
+}
+
+/** Normalizes link stroke sizes onto the linkSizeScale, mutating each link's size. */
+function normalizeLinkStrokes(
+  v: Parameters<TransformStage>[0]["viz"],
+  links: NetworkLink[],
+  r: RScale,
+): void {
   const strokeExtent = extent(links, (d: NetworkLink) => d.size);
   if (strokeExtent[0] !== strokeExtent[1]) {
     const strokeScale = (scales as unknown as Record<string, () => RScale>)[
@@ -303,6 +323,26 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
       link.size = strokeScale(link.size);
     });
   }
+}
+
+export const applyNetworkLayout: TransformStage = ({viz}) => {
+  const v = viz;
+  const {width, height} = chartBounds(v);
+
+  if (!Array.isArray(v._filteredData)) v._filteredData = [];
+  if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
+  if (!Array.isArray(v.schema.links)) v.schema.links = [];
+
+  const nodes = buildNetworkNodes(v);
+  const links = buildNetworkLinks(v, nodes);
+
+  const missingCoords = nodes.some(
+    n => n.fx === undefined || n.fy === undefined,
+  );
+  if (missingCoords) runForceLayout(nodes, links);
+
+  const r = scaleNetworkNodes(v, nodes, width, height);
+  normalizeLinkStrokes(v, links, r);
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;

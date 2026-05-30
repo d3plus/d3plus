@@ -1,5 +1,4 @@
-import {extent, min, range as d3Range} from "d3-array";
-import * as scales from "d3-scale";
+import {extent, min} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 // @ts-ignore
@@ -10,192 +9,21 @@ import {colorContrast, colorDefaults} from "@d3plus/color";
 import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
-import type {DataPoint} from "@d3plus/data";
-import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
+import type {GroupNode} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
 import {measureAxis} from "./axisLayout.js";
-import * as shapes from "../shapes/index.js";
-import {configPrep, BaseClass, constant} from "../utils/index.js";
+import {
+  axisToScene,
+  buildTickData,
+  calculateTicks,
+  configureTickShape,
+  isNegative,
+  renderAxisTitle,
+} from "./axisRender.js";
+import {BaseClass, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
-
-/* catches for -0 and less*/
-const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
-
-const floorPow = (d: number): number =>
-  Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const ceilPow = (d: number): number =>
-  Math.pow(10, Math.ceil(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const fixFloat = (d: number): number => {
-  const str = `${d}`;
-  if (str.includes("e-") || str === "0") return 0;
-  const nineMatch = str.match(/(-*[0-9]+\.[0]*)([0-8]+)9{3,}[0-9]+$/);
-  if (nineMatch) return +`${nineMatch[1]}${+nineMatch[2] + 1}`;
-  const zeroMatch = str.match(/(-*[0-9]+\.[0]*)([1-9]+)0*[0-9]*0{3,}[0-9]+$/);
-  if (zeroMatch) return +`${zeroMatch[1]}${+zeroMatch[2]}`;
-  return d;
-};
-
-const maxTimezoneOffset = 1000 * 60 * 60 * 26;
-
-/**
- * Calculates ticks from a given scale (negative and/or positive)
- * @param {scale} scale A d3-scale object
- * @private
-*/
-function calculateStep(
-  this: Axis,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scale: any,
-  minorTicks: boolean = false,
-): number {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const stepScale = (scales as any)
-    .scaleLinear()
-    .domain([200, 1200])
-    .range([8, 28]);
-  const scaleRange = scale.range();
-  const size = Math.abs(scaleRange[1] - scaleRange[0]);
-  let step = Math.floor(stepScale(size));
-
-  if (this.schema.scale === "time") {
-    if (this._data && this._data.length) {
-      const dataExtent = extent(this._data);
-      const distance = this._data.reduce(
-        (n: number, d: unknown, i: number, arr: unknown[]) => {
-          if (i) {
-            const dist = Math.abs((d as number) - (arr[i - 1] as number));
-            if (dist < n) n = dist;
-          }
-          return n;
-        },
-        Infinity,
-      );
-      const newStep = Math.round(
-        ((dataExtent[1] as number) - (dataExtent[0] as number)) / distance,
-      );
-      step = min([step * (minorTicks ? 2 : 0.5), newStep])!;
-    } else {
-      step = minorTicks ? step * 2 : step / 2;
-    }
-  }
-
-  return Math.floor(step);
-}
-
-/**
- * Calculates ticks from a given scale (negative and/or positive)
- * @param {scale} scale A d3-scale object
- * @private
-*/
-function calculateTicks(
-  this: Axis,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scale: any,
-  minorTicks: boolean = false,
-): unknown[] {
-  let ticks: unknown[] = [];
-
-  const scaleClone = scale.copy();
-  if (this.schema.scale === "time" && this._data.length) {
-    const newDomain = extent(this._data);
-    const range = (newDomain as unknown[]).map(scale);
-    scaleClone.domain(newDomain).range(range);
-  }
-
-  const domain = scaleClone.domain();
-  const inverted = domain[1] < domain[0];
-  const step = calculateStep.bind(this)(scaleClone, minorTicks);
-
-  if (!minorTicks && this.schema.scale === "log") {
-    const roundDomain = domain.map((d: number) =>
-      Math.log10(d) % 1 === 0 ? d : (inverted ? ceilPow : floorPow)(d),
-    );
-    const invertedRound = roundDomain[1] < roundDomain[0];
-    const powers = roundDomain.map(
-      (d: number) =>
-        (isNegative(d) ? -1 : 1) *
-        ([-1, 1].includes(d) || Math.abs(d) < 1 ? 1 : Math.log10(Math.abs(d))),
-    );
-    const powMod = Math.ceil(
-      (Math.abs(powers[1] - powers[0]) + 1) / (step * 0.65),
-    );
-
-    ticks =
-      (powMod <= 1 && powers[0] === powers[1]) || invertedRound !== inverted
-        ? scaleClone
-            .ticks(step)
-            .filter((d: number) => +`${d}`.replace("0.", "") % 2 === 0)
-        : d3Range(powers[0], powers[1], powers[1] < powers[0] ? -1 : 1)
-            .concat([powers[1]])
-            .filter((d: number) => Math.abs(d) % powMod === 0)
-            .map(
-              (d: number) =>
-                +`${
-                  (isNegative(d) ? -1 : 1) *
-                  (d
-                    ? Math.pow(10, Math.abs(d))
-                    : Math.sign(1 / d) > 0
-                      ? 1
-                      : -1)
-                }`.replace(/9+/g, "1"),
-            );
-  } else {
-    ticks = scaleClone.ticks(step);
-    if (
-      !minorTicks &&
-      !["log", "time"].includes(this.schema.scale) &&
-      ticks.length > 1
-    ) {
-      const majorDiff = Math.abs(fixFloat((ticks[1] as number) - (ticks[0] as number)) * 2);
-      ticks = ticks.filter((d: unknown) => {
-        const mod = Math.abs(d as number) % majorDiff;
-        const modFloat = fixFloat(mod);
-        if (modFloat !== mod) {
-          return !modFloat || modFloat === majorDiff;
-        }
-        return mod === 0;
-      });
-    }
-  }
-
-  // for time scale, if data array has been provided, filter out ticks that are not in the array
-  if (this.schema.scale === "time" && this._data.length) {
-    const dataNumbers = this._data.map(Number);
-    ticks = ticks.filter((t: unknown) => {
-      const tn = +(t as number);
-      return dataNumbers.find(
-        (n: number) =>
-          n >= tn - maxTimezoneOffset && n <= tn + maxTimezoneOffset,
-      );
-    });
-  }
-
-  // forces min/max into ticks, if not present
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 1 : 0]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[0])) {
-      ticks.unshift(domain[0]);
-    }
-  }
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 0 : 1]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[1])) {
-      ticks.push(domain[1]);
-    }
-  }
-
-  return ticks;
-}
 
 /** Axis's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const axisSchema: ConfigField[] = [
@@ -473,201 +301,12 @@ export default class Axis extends BaseClass {
 
 
   /**
-      Converts an attribute-style config (e.g. gridConfig, barConfig) into a Paint.
-      @private
-*/
-  _configToPaint(cfg: Record<string, unknown>, datum?: unknown, index = 0): Paint {
-    // Resolve a config value that may be a function (d3-selection style
-    // accessor invocation pattern) or a literal. Functions are evaluated
-    // against the Axis instance and receive the datum + index, so per-line
-    // accessors (e.g. Plot's gridConfig.stroke, which reads `d.id` to make
-    // the boundary line transparent) resolve correctly.
-    const resolve = (v: unknown): unknown => {
-      if (typeof v === "function") {
-        try {
-          return (v as (this: unknown, d: unknown, i: number) => unknown).call(
-            this,
-            datum,
-            index,
-          );
-        } catch {
-          return undefined;
-        }
-      }
-      return v;
-    };
-    const p: Paint = {};
-    const stroke = resolve(cfg.stroke);
-    if (stroke != null) p.stroke = String(stroke);
-    const strokeWidth = resolve(cfg["stroke-width"]);
-    if (strokeWidth != null) p.strokeWidth = Number(strokeWidth);
-    const strokeOpacity = resolve(cfg["stroke-opacity"]);
-    if (strokeOpacity != null) p.strokeOpacity = Number(strokeOpacity);
-    const strokeLinecap = resolve(cfg["stroke-linecap"]);
-    if (strokeLinecap != null)
-      p.strokeLinecap = strokeLinecap as Paint["strokeLinecap"];
-    const dasharray = resolve(cfg["stroke-dasharray"]);
-    if (dasharray != null) {
-      const parts = String(dasharray)
-        .split(/[\s,]+/)
-        .map(Number)
-        .filter(n => Number.isFinite(n));
-      if (parts.length) p.strokeDasharray = parts;
-    }
-    const opacity = resolve(cfg.opacity);
-    if (opacity != null) p.opacity = Number(opacity);
-    const fill = resolve(cfg.fill);
-    if (fill != null) p.fill = String(fill);
-    return p;
-  }
-
-  /**
-      Replicates _gridPosition's math to compute each gridline's endpoints in the
-      axis's internal coordinate space.
-      @private
-*/
-  _gridLinePoints(): {points: [number, number][]}[] {
-    if (!this._gridLineData || !this._gridLineData.length) return [];
-    const {height, x: xKey, y: yKey, opposite} = this._position;
-    const offset = this._margin[opposite];
-    const position = ["top", "left"].includes(this.schema.orient)
-      ? this._outerBounds[yKey] + this._outerBounds[height] - offset
-      : this._outerBounds[yKey] + offset;
-    const size = ["top", "left"].includes(this.schema.orient) ? offset : -offset;
-    const xDiff = this.schema.scale === "band" ? this._d3Scale.bandwidth() / 2 : 0;
-    const isHorizontalAxis = xKey === "x";
-    return this._gridLineData.map(d => {
-      const xPos = (this._getPosition(d.id) as number) + xDiff;
-      const a: [number, number] = isHorizontalAxis ? [xPos, position] : [position, xPos];
-      const b: [number, number] = isHorizontalAxis
-        ? [xPos, position + size]
-        : [position + size, xPos];
-      return {points: [a, b]};
-    });
-  }
-
-  /**
-      Replicates _barPosition's math to compute the domain-bar endpoints.
-      @private
-*/
-  _barLinePoints(): {points: [number, number][]} | null {
-    if (!this._d3Scale && !this._d3ScaleNegative) return null;
-    const {height, x: xKey, y: yKey, opposite} = this._position;
-    const offset = this._margin[opposite];
-    const position = ["top", "left"].includes(this.schema.orient)
-      ? this._outerBounds[yKey] + this._outerBounds[height] - offset
-      : this._outerBounds[yKey] + offset;
-    const x1mod =
-      this.schema.scale === "band"
-        ? this._d3Scale.step() - this._d3Scale.bandwidth()
-        : this.schema.scale === "point"
-          ? this._d3Scale.step() * this._d3Scale.padding()
-          : 0;
-    const x2mod =
-      this.schema.scale === "band"
-        ? this._d3Scale.step()
-        : this.schema.scale === "point"
-          ? this._d3Scale.step() * this._d3Scale.padding()
-          : 0;
-    const sortedDomain = (
-      this._d3ScaleNegative ? this._d3ScaleNegative.domain() : []
-    )
-      .concat(this._d3Scale ? this._d3Scale.domain() : [])
-      .sort((a: number, b: number) => a - b);
-    if (!sortedDomain.length) return null;
-    const x1 = (this._getPosition(sortedDomain[0]) as number) - x1mod;
-    const x2 =
-      (this._getPosition(sortedDomain[sortedDomain.length - 1]) as number) + x2mod;
-    const isHorizontalAxis = xKey === "x";
-    return {
-      points: isHorizontalAxis
-        ? [
-            [x1, position],
-            [x2, position],
-          ]
-        : [
-            [position, x1],
-            [position, x2],
-          ],
-    };
-  }
-
-  /**
       Produces a backend-agnostic scene graph for this axis with no DOM dependency:
       gridlines + domain bar emitted natively, tick marks/labels composed from the
       tick Shape's toScene(), and the title from the title TextBox's toScene().
 */
   toScene(): GroupNode {
-    const children: SceneNode[] = [];
-
-    const gridData = this._gridLineData ?? [];
-    this._gridLinePoints().forEach((g, i) => {
-      const gridPaint = this._configToPaint(
-        this.schema.gridConfig as Record<string, unknown>,
-        gridData[i],
-        i,
-      );
-      children.push({type: "line", key: `grid-${i}`, points: g.points, paint: gridPaint});
-    });
-
-    const tickGroup =
-      this._tickShape && typeof this._tickShape.toScene === "function"
-        ? (this._tickShape.toScene() as GroupNode)
-        : null;
-    if (tickGroup) children.push(tickGroup);
-    // Tick LABELS — appended here because Shape.toScene no longer
-    // includes _labelClass children (collectComputed is the canonical
-    // aggregator for the chart pipeline; Axis composes labels itself).
-    if (this._tickShape) {
-      const lbl = (this._tickShape as {_labelClass?: {toScene?: () => GroupNode; _data?: unknown[]}})._labelClass;
-      if (
-        lbl &&
-        typeof lbl.toScene === "function" &&
-        lbl._data &&
-        lbl._data.length
-      ) {
-        const lblScene = lbl.toScene();
-        if (lblScene && Array.isArray(lblScene.children))
-          children.push(...(lblScene.children as SceneNode[]));
-      }
-    }
-
-    const bar = this._barLinePoints();
-    if (bar) {
-      const barPaint = this._configToPaint(this.schema.barConfig as Record<string, unknown>);
-      children.push({type: "line", key: "bar", points: bar.points, paint: barPaint});
-    }
-
-    if (
-      this._titleClass &&
-      typeof (this._titleClass as {toScene?: unknown}).toScene === "function" &&
-      (this._titleClass as {_data?: unknown[]})._data &&
-      ((this._titleClass as {_data?: unknown[]})._data as unknown[]).length
-    ) {
-      children.push((this._titleClass as {toScene: () => GroupNode}).toScene());
-    }
-
-    // The axis was placed inside a container the caller positioned (e.g. Plot's
-    // xGroup); preserve that placement on the scene root.
-    let transform: Transform | undefined;
-    const node =
-      this._select && typeof this._select.node === "function"
-        ? (this._select.node() as Element | null)
-        : null;
-    if (node && typeof node.getAttribute === "function") {
-      const attr = node.getAttribute("transform");
-      if (attr) {
-        const m = /translate\(\s*([-\d.eE]+)[\s,]+([-\d.eE]+)/.exec(attr);
-        if (m) transform = {x: Number(m[1]), y: Number(m[2])};
-      }
-    }
-
-    return {
-      type: "group",
-      key: `Axis-${this._uuid.slice(0, 8)}`,
-      ...(transform ? {transform} : {}),
-      children,
-    };
+    return axisToScene(this);
   }
 
   /**
@@ -706,19 +345,10 @@ export default class Axis extends BaseClass {
     // artifacts the paint phase below consumes. The standalone `measureAxis`
     // lives in axisLayout.ts so Plot test-axes can drive it without a class
     // instance at all (any AxisLike object works).
-    const {ticks, labels, range, textData, tickFormat, hBuff, labelHeight} =
-      measureAxis(this);
+    const measure = measureAxis(this);
+    const {ticks, labels} = measure;
 
-    // Paint-local geometry helpers. `width` is intentionally not destructured
-    // here — measureAxis already used it; paint code references `height`/`x`/
-    // `y` plus the orient predicates.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {width: _width, height, x, y, horizontal, opposite} = this._position;
-    const flip = ["top", "left"].includes(this.schema.orient);
-    const p = this.schema.padding;
     const parent = this._select;
-    const margin: Record<string, number> = this._margin;
-    const bounds = this._outerBounds;
 
     // Skip the wrapper group only when in compute mode WITHOUT a real
     // `_select` (the standalone compute path used by Plot's axes — toScene
@@ -746,170 +376,12 @@ export default class Axis extends BaseClass {
     // _gridLinePoints() from this._gridLineData. No <line> DOM.
     this._gridLineData = gridLineData;
 
-    const labelOnly = labels.filter(
-      (d: unknown, i: number) => textData[i].lines.length && !ticks.includes(d),
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rotated = textData.some((d: any) => d.rotate);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let tickData: any[] = ticks.concat(labelOnly).map((d: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data = textData.find((td: any) => td.d === d);
-
-      const xPos = this._getPosition(d);
-      const space = data ? data.space : 0;
-      const lines = data ? data.lines.length : 1;
-      const lineHeight = data ? data.lineHeight : 1;
-      const fP = data ? data.fP : 0;
-
-      const labelOffset = data && this.schema.labelOffset ? data.offset : 0;
-
-      const labelWidth = horizontal
-        ? space
-        : bounds.width -
-          margin[this._position.opposite] -
-          hBuff -
-          margin[this.schema.orient] +
-          p;
-
-      const offset = margin[opposite],
-        size = (hBuff + labelOffset) * (flip ? -1 : 1),
-        yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tickConfig: any = {
-        id: d,
-        labelBounds:
-          rotated && data
-            ? {
-                x: -data.width / 2 + data.fS / 4,
-                y:
-                  this.schema.orient === "bottom"
-                    ? size + (data.width - lineHeight * lines) / 2 + fP
-                    : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
-                width: data.width,
-                height: data.height,
-              }
-            : {
-                x: horizontal
-                  ? -space / 2
-                  : this.schema.orient === "left"
-                    ? -labelWidth - p + size
-                    : size + p,
-                y: horizontal
-                  ? this.schema.orient === "bottom"
-                    ? size + fP
-                    : size - labelHeight - fP
-                  : -space / 2,
-                width: horizontal ? space : labelWidth,
-                height: horizontal ? labelHeight : space,
-              },
-        rotate: data ? data.rotate : false,
-        size:
-          labels.includes(d) ||
-          (this.schema.scale === "log" && Math.log10(Math.abs(d)) % 1 === 0)
-            ? size
-            : ticks.includes(d)
-              ? Math.ceil(size / 2)
-              : this._data.find((t: unknown) => +(t as number) === d)
-                ? Math.ceil(size / 4)
-                : 0,
-        text:
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          !(data || ({} as any)).truncated && labels.includes(d)
-            ? tickFormat(d)
-            : false,
-        tick: ticks.includes(d),
-        [x]:
-          xPos + (this.schema.scale === "band" ? this._d3Scale.bandwidth() / 2 : 0),
-        [y]: yPos,
-      };
-
-      return tickConfig;
-    });
-
-    if (this.schema.shape === "Line") {
-      tickData = tickData.concat(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tickData.map((d: any) => {
-          const dupe = Object.assign({}, d);
-          dupe[y] += d.size;
-          return dupe;
-        }),
-      );
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._tickShape = (new (shapes as any)[this.schema.shape]())
-      // v4: tick shape is always compute-only — the Axis composes ticks into
-      // its own toScene; the inner shape never auto-renders its own <svg>.
-      // `.select(null)` is the formal no-mount signal that pairs with
-      // compute mode; without it, a future Shape.render reorder that
-      // moves the body-div fallback above the compute-mode early-return
-      // would silently leak one <div> per tick render.
-      .renderMode("compute")
-      .select(null)
-      .data(tickData)
-      .duration(this.schema.duration)
-      .labelConfig({
-        ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        rotate: (d: any) => (d.rotate ? -90 : 0),
-      });
-    // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
-    // No `g.ticks` DOM wrapper needed in the detached compute.
-    this._tickShape
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this.schema.shapeConfig))
-      .labelConfig({padding: 0})
-      .render();
-
-    // Scene-only: the domain bar is emitted natively by toScene() via
-    // _barLinePoints(). No `line.bar` DOM.
-
-    // Title TextBox runs in compute mode regardless. When there's no
-    // parent group (standaloneCompute path above), skip the title's
-    // DOM mount — its scene comes via toScene() anyway.
-    this._titleClass
-      .renderMode("compute")
-      .data(this.schema.title ? [{text: this.schema.title}] : [])
-      .duration(this.schema.duration)
-      .height(margin[this.schema.orient])
-      .rotate(this.schema.orient === "left" ? -90 : this.schema.orient === "right" ? 90 : 0)
-      .select(
-        !group
-          ? (null as unknown as HTMLElement)
-          : elem("g.d3plus-Axis-title", {parent: group}).node(),
-      )
-      .text(((d: DataPoint) => d.text) as unknown as string)
-      .verticalAlign("middle")
-      .width(range[range.length - 1] - range[0])
-      .x(
-        horizontal
-          ? range[0]
-          : this.schema.orient === "left"
-            ? bounds.x +
-              margin.left / 2 -
-              (range[range.length - 1] - range[0]) / 2
-            : bounds.x +
-              bounds.width -
-              margin.right / 2 -
-              (range[range.length - 1] - range[0]) / 2,
-      )
-      .y(
-        horizontal
-          ? this.schema.orient === "bottom"
-            ? bounds.y + bounds.height - margin.bottom
-            : bounds.y
-          : range[0] +
-              (range[range.length - 1] - range[0]) / 2 -
-              margin[this.schema.orient] / 2,
-      )
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this.schema.titleConfig))
-      .render();
+    // Tick marks/labels and the title are composed in compute mode by
+    // axisRender helpers; toScene() reads the resulting _tickShape/_titleClass.
+    // The domain bar is emitted natively by toScene() via _barLinePoints().
+    const tickData = buildTickData(this, measure);
+    configureTickShape(this, tickData);
+    renderAxisTitle(this, measure, group);
 
     this._lastScale = this._getPosition.bind(this);
 

@@ -42,6 +42,44 @@ type TextBoxLike = {
   toScene: () => {children?: unknown[]} | undefined;
 };
 
+interface MatrixArc {
+  padAngle: (n: number) => MatrixArc;
+  innerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
+  outerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
+  startAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
+  endAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
+}
+
+/** Renders the column-label TextBox in compute mode and absorbs it into `_chartScene`. */
+const renderColumnLabels = (
+  viz: Parameters<TransformStage>[0]["viz"],
+  displayLabels: LabelDatum[],
+  labelWidth: number,
+  labelHeight: number,
+  labelConfig: unknown,
+): void => {
+  const columnLabels = viz.ctx.columnLabels as TextBoxLike;
+  columnLabels
+    .renderMode("compute")
+    .select(undefined as unknown as HTMLElement)
+    .data(displayLabels)
+    .x(d => d.x)
+    .y(d => d.y)
+    .text(d => d.key)
+    .width(labelWidth)
+    .height(labelHeight)
+    .config(labelConfig)
+    .render();
+  const labelsScene = columnLabels.toScene();
+  if (labelsScene) {
+    (viz._chartScene ||= []).push({
+      type: "group",
+      key: "radialmatrix-columns",
+      children: (labelsScene.children ?? []) as never[],
+    });
+  }
+};
+
 export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   const {rowValues, columnValues, shapeData} = matrixPrepData.bind(viz)(
     viz._filteredData,
@@ -105,26 +143,13 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
       ? labelData.filter(d => columnConfig.labels!.includes(d.key))
       : labelData;
 
-  const columnLabels = viz.ctx.columnLabels as TextBoxLike;
-  columnLabels
-    .renderMode("compute")
-    .select(undefined as unknown as HTMLElement)
-    .data(displayLabels)
-    .x(d => d.x)
-    .y(d => d.y)
-    .text(d => d.key)
-    .width(labelWidth)
-    .height(labelHeight)
-    .config(columnConfig.shapeConfig?.labelConfig)
-    .render();
-  const labelsScene = columnLabels.toScene();
-  if (labelsScene) {
-    (viz._chartScene ||= []).push({
-      type: "group",
-      key: "radialmatrix-columns",
-      children: (labelsScene.children ?? []) as never[],
-    });
-  }
+  renderColumnLabels(
+    viz,
+    displayLabels,
+    labelWidth,
+    labelHeight,
+    columnConfig.shapeConfig?.labelConfig,
+  );
 
   const innerRadiusFn = viz.schema.innerRadius as (r: number) => number;
   const innerRadius = innerRadiusFn(radius);
@@ -142,13 +167,6 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   columnValues.forEach((c, i) => colIndex.set(c, i));
 
   const cellPadding = viz.schema.cellPadding as number;
-  interface MatrixArc {
-    padAngle: (n: number) => MatrixArc;
-    innerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
-    outerRadius: (fn: (d: {row: unknown}) => number) => MatrixArc;
-    startAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
-    endAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
-  }
   const arcData = (d3Shape.arc as unknown as () => MatrixArc)().padAngle(
     cellPadding / radius,
   );

@@ -135,6 +135,237 @@ function lineToRuns(
   return {runs, openTag: nextOpenTag};
 }
 
+/** Builds the per-line LineRun arrays from wrapped lines, carrying open-tag state. */
+function buildLineRuns(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  box: any,
+  lineData: string[],
+): LineRun[][] | null {
+  let lineRuns: LineRun[][] | null = null;
+  if (box.schema.html) {
+    const lookup = box.schema.html as Record<string, string>;
+    let openTag: string | false = false;
+    const out: LineRun[][] = [];
+    let hasStyle = false;
+    for (const ln of lineData) {
+      const {runs, openTag: next} = lineToRuns(ln, lookup, openTag);
+      out.push(runs);
+      openTag = next;
+      if (runs.some(r => r.style)) hasStyle = true;
+    }
+    // Only emit runs when at least one line carries a style; otherwise
+    // leave runs unset so the renderer emits a single text node.
+    if (hasStyle) lineRuns = out;
+  }
+  return lineRuns;
+}
+
+/** Pre-scales the font size to fit the box area before wrapping (resize mode). */
+function resizeFontSize(
+  fS: number,
+  w: number,
+  h: number,
+  lH: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  words: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  style: Record<string, any>,
+): number {
+  const sizes = textWidth(words, style) as unknown as number[];
+
+  const areaMod = 1.165 + (w / h) * 0.1,
+    boxArea = w * h,
+    maxWidth = max(sizes) as number,
+    textArea = sum(sizes, (d: number) => d * lH) * areaMod;
+
+  if (maxWidth > w || textArea > boxArea) {
+    const areaRatio = Math.sqrt(boxArea / textArea),
+      widthRatio = w / maxWidth;
+    const sizeRatio = min([areaRatio, widthRatio])!;
+    fS = Math.floor(fS * sizeRatio);
+  }
+
+  const heightMax = Math.floor(h * 0.8);
+  if (fS > heightMax) fS = heightMax;
+  return fS;
+}
+
+/** Assembles the final TextBoxDatum from the resolved layout values. */
+function assembleTextBoxDatum(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  box: any,
+  d: DataPoint,
+  i: number,
+  layout: {
+    lineData: string[];
+    line: number;
+    fS: number;
+    lH: number;
+    w: number;
+    h: number;
+    vA: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    style: Record<string, any>;
+    widths: number[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    padding: any;
+  },
+): TextBoxDatum {
+  const {lineData, line, fS, lH, w, h, vA, style, widths, padding} = layout;
+  const tH = line * lH;
+  const r = box.schema.rotate(d, i);
+  let yP =
+    r === 0
+      ? vA === "top"
+        ? 0
+        : vA === "middle"
+          ? h / 2 - tH / 2
+          : h - tH
+      : 0;
+  yP -= lH * 0.1;
+
+  // Pre-compute per-line runs from HTML markup, carrying open-tag state
+  // across lines so a multi-line <b> continues to bold subsequent lines.
+  const lineRuns = buildLineRuns(box, lineData);
+
+  return {
+    aH: box.schema.ariaHidden(d, i),
+    data: d,
+    i,
+    lines: lineData,
+    lineRuns,
+    fC: box.schema.fontColor(d, i),
+    fStroke: box.schema.fontStroke(d, i),
+    fSW: box.schema.fontStrokeWidth(d, i),
+    fF: style["font-family"] as string,
+    fO: box.schema.fontOpacity(d, i),
+    fW: style["font-weight"],
+    id: box.schema.id(d, i),
+    pE: box.schema.pointerEvents(d, i),
+    tA: box.schema.textAnchor(d, i),
+    vA: box.schema.verticalAlign(d, i),
+    widths,
+    fS,
+    lH,
+    w,
+    h,
+    r,
+    x: box.schema.x(d, i) + padding.left,
+    y: box.schema.y(d, i) + yP + padding.top,
+  };
+}
+
+/**
+    Computes the laid-out text box for a single data point, or null when the
+    text is undefined or wraps to no visible lines.
+*/
+function computeTextBoxDatum(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  box: any,
+  d: DataPoint,
+  i: number,
+): TextBoxDatum | null {
+  const that = box;
+  let t = box.schema.text(d, i);
+  if (t === void 0) return null;
+  t = `${t}`.trim();
+
+  const resize = box.schema.fontResize(d, i);
+  const lHRatio = box.schema.lineHeight(d, i) / box.schema.fontSize(d, i);
+
+  let fS = resize ? box.schema.fontMax(d, i) : box.schema.fontSize(d, i),
+    lH = resize ? fS * lHRatio : box.schema.lineHeight(d, i),
+    line = 1,
+    lineData: string[] = [],
+    wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const style: Record<string, any> = {
+    "font-family": fontExists(box.schema.fontFamily(d, i)),
+    "font-size": fS,
+    "font-weight": box.schema.fontWeight(d, i),
+    "line-height": lH,
+  };
+
+  const padding = parseSides(box.schema.padding(d, i));
+
+  const h = box.schema.height(d, i) - (padding.top + padding.bottom),
+    w = box.schema.width(d, i) - (padding.left + padding.right);
+
+  const wrapper = textWrap()
+    .fontFamily(style["font-family"])
+    .fontSize(fS)
+    .fontWeight(style["font-weight"])
+    .lineHeight(lH)
+    .maxLines(box.schema.maxLines(d, i))
+    .height(h)
+    .overflow(box.schema.overflow(d, i))
+    .width(w)
+    .split(box.schema.split);
+
+  const fMax = box.schema.fontMax(d, i),
+    fMin = box.schema.fontMin(d, i),
+    vA = box.schema.verticalAlign(d, i),
+    words = box.schema.split(t, i);
+
+  /**
+    Figures out the lineData to be used for wrapping.
+    @private
+*/
+  function checkSize(): void {
+    const truncate = () => {
+      if (line < 1) lineData = [that.schema.ellipsis("", line)];
+      else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
+    };
+
+    // Constraint the font size
+    fS = max([fS, fMin])!;
+    fS = min([fS, fMax])!;
+
+    if (resize) {
+      lH = fS * lHRatio;
+      wrapper.fontSize(fS).lineHeight(lH);
+      style["font-size"] = fS;
+      style["line-height"] = lH;
+    }
+
+    wrapResults = wrapper(t!);
+    lineData = wrapResults.lines.filter((l: string) => l !== "");
+    line = lineData.length;
+
+    if (wrapResults.truncated) {
+      if (resize) {
+        fS--;
+        if (fS < fMin) {
+          fS = fMin;
+          truncate();
+          return;
+        } else checkSize();
+      } else truncate();
+    }
+  }
+
+  if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
+    if (resize) fS = resizeFontSize(fS, w, h, lH, words, style);
+    checkSize();
+  }
+
+  if (!lineData.length) return null;
+
+  return assembleTextBoxDatum(box, d, i, {
+    lineData,
+    line,
+    fS,
+    lH,
+    w,
+    h,
+    vA,
+    style,
+    widths: wrapResults.widths,
+    padding,
+  });
+}
+
 /** TextBox's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const textBoxSchema: ConfigField[] = [
   {key: "ariaHidden", coerce: "const", default: constant("false")},
@@ -199,170 +430,9 @@ export default class TextBox extends BaseClass {
       @private
 */
   _textData(): TextBoxDatum[] {
-    const that = this;
     return this._data.reduce((arr: TextBoxDatum[], d: DataPoint, i: number) => {
-      let t = this.schema.text(d, i);
-      if (t === void 0) return arr;
-      t = `${t}`.trim();
-
-      const resize = this.schema.fontResize(d, i);
-      const lHRatio = this.schema.lineHeight(d, i) / this.schema.fontSize(d, i);
-
-      let fS = resize ? this.schema.fontMax(d, i) : this.schema.fontSize(d, i),
-        lH = resize ? fS * lHRatio : this.schema.lineHeight(d, i),
-        line = 1,
-        lineData: string[] = [],
-        sizes: number[],
-        wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const style: Record<string, any> = {
-        "font-family": fontExists(this.schema.fontFamily(d, i)),
-        "font-size": fS,
-        "font-weight": this.schema.fontWeight(d, i),
-        "line-height": lH,
-      };
-
-      const padding = parseSides(this.schema.padding(d, i));
-
-      const h = this.schema.height(d, i) - (padding.top + padding.bottom),
-        w = this.schema.width(d, i) - (padding.left + padding.right);
-
-      const wrapper = textWrap()
-        .fontFamily(style["font-family"])
-        .fontSize(fS)
-        .fontWeight(style["font-weight"])
-        .lineHeight(lH)
-        .maxLines(this.schema.maxLines(d, i))
-        .height(h)
-        .overflow(this.schema.overflow(d, i))
-        .width(w)
-        .split(this.schema.split);
-
-      const fMax = this.schema.fontMax(d, i),
-        fMin = this.schema.fontMin(d, i),
-        vA = this.schema.verticalAlign(d, i),
-        words = this.schema.split(t, i);
-
-      /**
-        Figures out the lineData to be used for wrapping.
-        @private
-*/
-      function checkSize(): void {
-        const truncate = () => {
-          if (line < 1) lineData = [that.schema.ellipsis("", line)];
-          else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
-        };
-
-        // Constraint the font size
-        fS = max([fS, fMin])!;
-        fS = min([fS, fMax])!;
-
-        if (resize) {
-          lH = fS * lHRatio;
-          wrapper.fontSize(fS).lineHeight(lH);
-          style["font-size"] = fS;
-          style["line-height"] = lH;
-        }
-
-        wrapResults = wrapper(t!);
-        lineData = wrapResults.lines.filter((l: string) => l !== "");
-        line = lineData.length;
-
-        if (wrapResults.truncated) {
-          if (resize) {
-            fS--;
-            if (fS < fMin) {
-              fS = fMin;
-              truncate();
-              return;
-            } else checkSize();
-          } else truncate();
-        }
-      }
-
-      if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
-        if (resize) {
-          sizes = textWidth(words, style) as unknown as number[];
-
-          const areaMod = 1.165 + (w / h) * 0.1,
-            boxArea = w * h,
-            maxWidth = max(sizes) as number,
-            textArea = sum(sizes, (d: number) => d * lH) * areaMod;
-
-          if (maxWidth > w || textArea > boxArea) {
-            const areaRatio = Math.sqrt(boxArea / textArea),
-              widthRatio = w / maxWidth;
-            const sizeRatio = min([areaRatio, widthRatio])!;
-            fS = Math.floor(fS * sizeRatio);
-          }
-
-          const heightMax = Math.floor(h * 0.8);
-          if (fS > heightMax) fS = heightMax;
-        }
-
-        checkSize();
-      }
-
-      if (lineData.length) {
-        const tH = line * lH;
-        const r = this.schema.rotate(d, i);
-        let yP =
-          r === 0
-            ? vA === "top"
-              ? 0
-              : vA === "middle"
-                ? h / 2 - tH / 2
-                : h - tH
-            : 0;
-        yP -= lH * 0.1;
-
-        // Pre-compute per-line runs from HTML markup, carrying open-tag state
-        // across lines so a multi-line <b> continues to bold subsequent lines.
-        let lineRuns: LineRun[][] | null = null;
-        if (this.schema.html) {
-          const lookup = this.schema.html as Record<string, string>;
-          let openTag: string | false = false;
-          const out: LineRun[][] = [];
-          let hasStyle = false;
-          for (const ln of lineData) {
-            const {runs, openTag: next} = lineToRuns(ln, lookup, openTag);
-            out.push(runs);
-            openTag = next;
-            if (runs.some(r => r.style)) hasStyle = true;
-          }
-          // Only emit runs when at least one line carries a style; otherwise
-          // leave runs unset so the renderer emits a single text node.
-          if (hasStyle) lineRuns = out;
-        }
-
-        arr.push({
-          aH: this.schema.ariaHidden(d, i),
-          data: d,
-          i,
-          lines: lineData,
-          lineRuns,
-          fC: this.schema.fontColor(d, i),
-          fStroke: this.schema.fontStroke(d, i),
-          fSW: this.schema.fontStrokeWidth(d, i),
-          fF: style["font-family"] as string,
-          fO: this.schema.fontOpacity(d, i),
-          fW: style["font-weight"],
-          id: this.schema.id(d, i),
-          pE: this.schema.pointerEvents(d, i),
-          tA: this.schema.textAnchor(d, i),
-          vA: this.schema.verticalAlign(d, i),
-          widths: wrapResults.widths,
-          fS,
-          lH,
-          w,
-          h,
-          r,
-          x: this.schema.x(d, i) + padding.left,
-          y: this.schema.y(d, i) + yP + padding.top,
-        });
-      }
-
+      const datum = computeTextBoxDatum(this, d, i);
+      if (datum) arr.push(datum);
       return arr;
     }, []);
   }

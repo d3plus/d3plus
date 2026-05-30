@@ -208,6 +208,238 @@ export interface PlotMeasureResult {
 }
 
 /**
+    Emits the background Rect into `out` (prepended) when a non-transparent
+    `backgroundConfig.fill` is set; no-op otherwise.
+*/
+function emitBackgroundRect(viz: Viz, out: SceneNode[], xRange: number[], yRange: number[]): void {
+  // Background Rect: skip rendering when transparent (the default) — under
+  // the scene path it would emit a 5th `rect.d3plus-render-rect` that
+  // confuses bar-counting tests. When a user customizes
+  // `backgroundConfig.fill` to a real color, render it normally.
+  const bgConfig = viz._backgroundConfig;
+  if (bgConfig && bgConfig.fill && bgConfig.fill !== "transparent") {
+    // Coords are relative to `_chartTransform` (margin.left, margin.top +
+    // x2Height + topOffset), so we subtract the chart-transform offset.
+    // yRange[0] = x2Height, so the y simplification is
+    // (yRange[1] - yRange[0]) / 2.
+    const bgRect = makeShape("Rect")
+      .renderMode("compute")
+      .data([{}])
+      .x(xRange[0] - viz._margin.left + (xRange[1] - xRange[0]) / 2)
+      .width(xRange[1] - xRange[0])
+      .y((yRange[1] - yRange[0]) / 2)
+      .height(yRange[1] - yRange[0])
+      .config(bgConfig);
+    bgRect.render();
+    // Background must sit BEHIND chart shapes. Unshift onto `out` so
+    // the z-order survives even if a future emit step pushes nodes
+    // before this point (i.e. the invariant is enforced at the call
+    // site rather than relying on the upstream contract that `out` is
+    // empty here). `unshift(...nodes)` is O(out.length + nodes.length)
+    // which is fine — `out` carries axis-queue items, not the full
+    // shape scene, so the prepend is a few entries at most.
+    const bgNodes = collectComputed(bgRect);
+    out.unshift(...bgNodes);
+  }
+}
+
+/**
+    Renders back/front annotations, pushing back-layer scenes onto `out` and
+    returning the front-layer shape instances for later absorption.
+*/
+function emitAnnotations(
+  viz: Viz,
+  out: SceneNode[],
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+  domains: Record<string, number[]>,
+  yOffset: number,
+): shapes.Shape[] {
+  // Annotations run in `renderMode("compute")` and their scenes are
+  // absorbed into `_chartScene`. Layering: "back" annotations absorb here
+  // (before the main shape loop below); "front" annotations queue and
+  // absorb AFTER the shape loop, giving back → shapes → front.
+  const frontAnnotationShapes: shapes.Shape[] = [];
+  const renderAnnotation = (annotation: Annotation) => {
+    const inst = makeShape(annotation.shape)
+      .renderMode("compute")
+      .duration(viz.schema.duration)
+      .config(annotation)
+      .config({
+        x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+        x0:
+          viz.schema.discrete === "x"
+            ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+            : x(domains.x[0]),
+        x1:
+          viz.schema.discrete === "x"
+            ? null
+            : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+        y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+        y0:
+          viz.schema.discrete === "y"
+            ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+            : y(domains.y[1]) - yOffset,
+        y1:
+          viz.schema.discrete === "y"
+            ? null
+            : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+      });
+    inst.render();
+    return inst;
+  };
+
+  Object.keys(viz._previousAnnotations!).forEach(layer => {
+    const annotationData: Annotation[] = viz._annotations!.filter(
+      (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
+    );
+    const annotationShapes = annotationData.map(d => d.shape);
+    annotationData.forEach(annotation => {
+      const inst = renderAnnotation(annotation);
+      if (layer === "front") frontAnnotationShapes.push(inst);
+      else out.push(...collectComputed(inst));
+    });
+    // Exits: render with empty data in compute mode so their scenes go
+    // empty; no DOM to clean up.
+    const exitAnnotations = viz._previousAnnotations![layer].filter(
+      (d: string) => !annotationShapes.includes(d),
+    );
+    exitAnnotations.forEach(shape => {
+      makeShape(shape).renderMode("compute").data([]).render();
+    });
+
+    viz._previousAnnotations![layer] = annotationShapes;
+  });
+
+  return frontAnnotationShapes;
+}
+
+/** Builds the per-shape `shapeConfig` object shared across the shape loop. */
+function buildShapeConfig(
+  viz: Viz,
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+  domains: Record<string, number[]>,
+  yOffset: number,
+): Record<string, unknown> {
+  const discrete = viz.schema.discrete || "x";
+
+  return {
+    discrete: viz.schema.discrete,
+    duration: viz.schema.duration,
+    label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
+    x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
+    x0:
+      discrete === "x"
+        ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+        : x(
+            typeof viz.schema.baseline === "number"
+              ? viz.schema.baseline
+              : domains.x[0],
+          ),
+    x1: discrete === "x" ? null : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+    y: (d: PlotDatum) => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
+    y0:
+      discrete === "y"
+        ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+        : y(
+            typeof viz.schema.baseline === "number"
+              ? viz.schema.baseline
+              : domains.y[1],
+          ) - yOffset,
+    y1:
+      discrete === "y"
+        ? null
+        : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+  };
+}
+
+/** Runs the main shape loop, pushing each shape's scene nodes onto `out`. */
+function emitShapeLoop(
+  viz: Viz,
+  out: SceneNode[],
+  pCtx: PlotPaintContext,
+  mCtx: PlotMeasureResult,
+  shapeConfig: Record<string, unknown>,
+): void {
+  const {shapeData, domains, discreteKeys, stackData, stackKeys, xDomain, yDomain} = pCtx;
+  const {xScale, yScale} = pCtx;
+  const {labelWidths, largestLabel} = pCtx;
+  const {width} = pCtx;
+  const {opp, showLineLabels} = pCtx;
+  const {x, y, xRange, yRange, labelPositions} = mCtx;
+
+  const events = Object.keys(viz.schema.on);
+  // Precompute id→index and discrete→index Maps once per draw. Without
+  // them the per-datum closures below run two linear `Array.indexOf`
+  // scans for every shape coord access — O(stackKeys + discreteKeys)
+  // per datum, per coord, per draw. For dense stacked plots (~5k
+  // shapes × 4 coord reads × ~50 indexOf scans) that's millions of
+  // comparisons per draw before scale evaluation.
+  const stackKeyIndex = new Map<unknown, number>();
+  for (let i = 0; i < stackKeys.length; i++) stackKeyIndex.set(stackKeys[i], i);
+  const discreteKeyIndex = new Map<unknown, number>();
+  for (let i = 0; i < discreteKeys.length; i++)
+    discreteKeyIndex.set(discreteKeys[i], i);
+  const shapeCtx: ShapeEmitContext = {
+    viz, shapeConfig, events,
+    x, y, xScale, yScale, xDomain, yDomain, xRange, yRange,
+    opp, domains, stackData, stackKeyIndex, discreteKeyIndex,
+    showLineLabels, labelWidths, largestLabel, labelPositions,
+    width,
+    values: [],
+  };
+  shapeData.forEach(([key, values]) => {
+    out.push(...emitShape({...shapeCtx, values}, key));
+  });
+}
+
+/** Runs shape exits in compute mode and updates `viz._previousShapes`. */
+function emitShapeExits(viz: Viz, shapeData: [string, DataPoint[]][], shapeConfig: Record<string, unknown>): void {
+  const dataShapes = shapeData.map(([key]) => key);
+  if (dataShapes.includes("Line")) {
+    if (viz._confidence) dataShapes.push("Area");
+    if (viz._lineMarkers) dataShapes.push("Circle");
+  }
+  const exitShapes = viz._previousShapes!.filter(
+    d => !dataShapes.includes(d),
+  );
+
+  // Run exits in compute mode so Box/Whisker/Shape don't fall through
+  // to their body-svg / body-div fallback when `_select` is unset.
+  // Without `.renderMode("compute")` here, every exited shape would
+  // leak a detached <svg> (Box) or <div> (Shape) into <body>.
+  exitShapes.forEach(shape => {
+    const inst = makeShape(shape);
+    if (typeof inst.renderMode === "function") inst.renderMode("compute");
+    if (typeof inst.select === "function") inst.select(null);
+    inst.config(shapeConfig).data([]).render();
+  });
+
+  viz._previousShapes = dataShapes;
+}
+
+/** Drains the deferred axis-scene queue, pushing each axis group onto `out`. */
+function emitAxisScenes(out: SceneNode[], axisSceneQueue: PlotMeasureResult["axisSceneQueue"]): void {
+  // Absorb queued axis scenes AFTER shapes + annotations so axes render
+  // above everything else (shapes → annotations → axes). Each axis is
+  // wrapped in a group with its axis-relative transform; the chart-cells
+  // group's `_chartTransform` composes with this to land at the right
+  // absolute position.
+  axisSceneQueue.forEach(({key, transform, axis}) => {
+    if (!axis || typeof axis.toScene !== "function") return;
+    const scene = axis.toScene();
+    if (!scene) return;
+    out.push({
+      type: "group",
+      key,
+      transform,
+      children: scene.children || [],
+    });
+  });
+}
+
+/**
     EMIT phase of plotPaint. Takes the `PlotMeasureResult` from
     `renderAxes` and produces ALL the scene nodes: background rect,
     connector lines, back/front annotations, the main shape loop, line
@@ -218,204 +450,27 @@ export interface PlotMeasureResult {
 export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResult): SceneNode[] {
     const out: SceneNode[] = [];
 
-    // Re-destructure pCtx for emit-only reads. Names listed are exactly
-    // what the emit body below references; measure-only names (xTest /
-    // yTest / x2Test / y2Test / xTestRange / x2TestRange / showX /
-    // showY / xTicks / x2Ticks / y2Ticks / defaultConfig / defaultX2Config /
-    // defaultY2Config) are intentionally omitted.
-    const {shapeData, domains, discreteKeys, stackData, stackKeys, xDomain, yDomain} = pCtx;
-    const {xScale, yScale} = pCtx;
-    const {labelWidths, largestLabel} = pCtx;
-    const {width} = pCtx;
-    const {opp, showLineLabels} = pCtx;
+    const {shapeData, domains} = pCtx;
+    const {labelWidths} = pCtx;
+    const {x, y, xRange, yRange, yOffset, axisSceneQueue} = mCtx;
 
-    const {x, y, xRange, yRange, yOffset, axisSceneQueue, labelPositions} = mCtx;
-
-    // Background Rect: skip rendering when transparent (the default) — under
-    // the scene path it would emit a 5th `rect.d3plus-render-rect` that
-    // confuses bar-counting tests. When a user customizes
-    // `backgroundConfig.fill` to a real color, render it normally.
-    const bgConfig = viz._backgroundConfig;
-    if (bgConfig && bgConfig.fill && bgConfig.fill !== "transparent") {
-      // Coords are relative to `_chartTransform` (margin.left, margin.top +
-      // x2Height + topOffset), so we subtract the chart-transform offset.
-      // yRange[0] = x2Height, so the y simplification is
-      // (yRange[1] - yRange[0]) / 2.
-      const bgRect = makeShape("Rect")
-        .renderMode("compute")
-        .data([{}])
-        .x(xRange[0] - viz._margin.left + (xRange[1] - xRange[0]) / 2)
-        .width(xRange[1] - xRange[0])
-        .y((yRange[1] - yRange[0]) / 2)
-        .height(yRange[1] - yRange[0])
-        .config(bgConfig);
-      bgRect.render();
-      // Background must sit BEHIND chart shapes. Unshift onto `out` so
-      // the z-order survives even if a future emit step pushes nodes
-      // before this point (i.e. the invariant is enforced at the call
-      // site rather than relying on the upstream contract that `out` is
-      // empty here). `unshift(...nodes)` is O(out.length + nodes.length)
-      // which is fine — `out` carries axis-queue items, not the full
-      // shape scene, so the prepend is a few entries at most.
-      const bgNodes = collectComputed(bgRect);
-      out.unshift(...bgNodes);
-    }
+    emitBackgroundRect(viz, out, xRange, yRange);
 
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
-    // Annotations run in `renderMode("compute")` and their scenes are
-    // absorbed into `_chartScene`. Layering: "back" annotations absorb here
-    // (before the main shape loop below); "front" annotations queue and
-    // absorb AFTER the shape loop, giving back → shapes → front.
-    const frontAnnotationShapes: shapes.Shape[] = [];
-    const renderAnnotation = (annotation: Annotation) => {
-      const inst = makeShape(annotation.shape)
-        .renderMode("compute")
-        .duration(viz.schema.duration)
-        .config(annotation)
-        .config({
-          x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-          x0:
-            viz.schema.discrete === "x"
-              ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-              : x(domains.x[0]),
-          x1:
-            viz.schema.discrete === "x"
-              ? null
-              : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-          y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
-          y0:
-            viz.schema.discrete === "y"
-              ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-              : y(domains.y[1]) - yOffset,
-          y1:
-            viz.schema.discrete === "y"
-              ? null
-              : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-        });
-      inst.render();
-      return inst;
-    };
+    const frontAnnotationShapes = emitAnnotations(viz, out, x, y, domains, yOffset);
 
-    Object.keys(viz._previousAnnotations!).forEach(layer => {
-      const annotationData: Annotation[] = viz._annotations!.filter(
-        (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
-      );
-      const annotationShapes = annotationData.map(d => d.shape);
-      annotationData.forEach(annotation => {
-        const inst = renderAnnotation(annotation);
-        if (layer === "front") frontAnnotationShapes.push(inst);
-        else out.push(...collectComputed(inst));
-      });
-      // Exits: render with empty data in compute mode so their scenes go
-      // empty; no DOM to clean up.
-      const exitAnnotations = viz._previousAnnotations![layer].filter(
-        (d: string) => !annotationShapes.includes(d),
-      );
-      exitAnnotations.forEach(shape => {
-        makeShape(shape).renderMode("compute").data([]).render();
-      });
+    const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
-      viz._previousAnnotations![layer] = annotationShapes;
-    });
+    emitShapeLoop(viz, out, pCtx, mCtx, shapeConfig);
 
-    const discrete = viz.schema.discrete || "x";
-
-    const shapeConfig: Record<string, unknown> = {
-      discrete: viz.schema.discrete,
-      duration: viz.schema.duration,
-      label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
-      x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
-      x0:
-        discrete === "x"
-          ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-          : x(
-              typeof viz.schema.baseline === "number"
-                ? viz.schema.baseline
-                : domains.x[0],
-            ),
-      x1: discrete === "x" ? null : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-      y: (d: PlotDatum) => (d.y2 !== undefined ? y(d.y2, "y2") : y(d.y)),
-      y0:
-        discrete === "y"
-          ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-          : y(
-              typeof viz.schema.baseline === "number"
-                ? viz.schema.baseline
-                : domains.y[1],
-            ) - yOffset,
-      y1:
-        discrete === "y"
-          ? null
-          : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-    };
-
-    const events = Object.keys(viz.schema.on);
-    // Precompute id→index and discrete→index Maps once per draw. Without
-    // them the per-datum closures below run two linear `Array.indexOf`
-    // scans for every shape coord access — O(stackKeys + discreteKeys)
-    // per datum, per coord, per draw. For dense stacked plots (~5k
-    // shapes × 4 coord reads × ~50 indexOf scans) that's millions of
-    // comparisons per draw before scale evaluation.
-    const stackKeyIndex = new Map<unknown, number>();
-    for (let i = 0; i < stackKeys.length; i++) stackKeyIndex.set(stackKeys[i], i);
-    const discreteKeyIndex = new Map<unknown, number>();
-    for (let i = 0; i < discreteKeys.length; i++)
-      discreteKeyIndex.set(discreteKeys[i], i);
-    const shapeCtx: ShapeEmitContext = {
-      viz, shapeConfig, events,
-      x, y, xScale, yScale, xDomain, yDomain, xRange, yRange,
-      opp, domains, stackData, stackKeyIndex, discreteKeyIndex,
-      showLineLabels, labelWidths, largestLabel, labelPositions,
-      width,
-      values: [],
-    };
-    shapeData.forEach(([key, values]) => {
-      out.push(...emitShape({...shapeCtx, values}, key));
-    });
-
-    const dataShapes = shapeData.map(([key]) => key);
-    if (dataShapes.includes("Line")) {
-      if (viz._confidence) dataShapes.push("Area");
-      if (viz._lineMarkers) dataShapes.push("Circle");
-    }
-    const exitShapes = viz._previousShapes!.filter(
-      d => !dataShapes.includes(d),
-    );
-
-    // Run exits in compute mode so Box/Whisker/Shape don't fall through
-    // to their body-svg / body-div fallback when `_select` is unset.
-    // Without `.renderMode("compute")` here, every exited shape would
-    // leak a detached <svg> (Box) or <div> (Shape) into <body>.
-    exitShapes.forEach(shape => {
-      const inst = makeShape(shape);
-      if (typeof inst.renderMode === "function") inst.renderMode("compute");
-      if (typeof inst.select === "function") inst.select(null);
-      inst.config(shapeConfig).data([]).render();
-    });
-
-    viz._previousShapes = dataShapes;
+    emitShapeExits(viz, shapeData, shapeConfig);
 
     // Absorb queued front annotations AFTER the shape loop so they render
     // above shapes.
     frontAnnotationShapes.forEach(inst => out.push(...collectComputed(inst)));
 
-    // Absorb queued axis scenes AFTER shapes + annotations so axes render
-    // above everything else (shapes → annotations → axes). Each axis is
-    // wrapped in a group with its axis-relative transform; the chart-cells
-    // group's `_chartTransform` composes with this to land at the right
-    // absolute position.
-    axisSceneQueue.forEach(({key, transform, axis}) => {
-      if (!axis || typeof axis.toScene !== "function") return;
-      const scene = axis.toScene();
-      if (!scene) return;
-      out.push({
-        type: "group",
-        key,
-        transform,
-        children: scene.children || [],
-      });
-    });
+    emitAxisScenes(out, axisSceneQueue);
 
     return out;
 }

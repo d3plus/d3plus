@@ -41,6 +41,215 @@ const boxSchema: ConfigField[] = [
 ];
 
 /**
+    Resolves the lower/upper whisker limits on `d` from the configured
+    whiskerMode (tukey/extent/quantile) and the sorted group values.
+*/
+function applyWhiskerLimits(
+  d: DataPoint,
+  values: number[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mode: any,
+): void {
+  if (mode[0] === "tukey") {
+    (d as Record<string, unknown>).lowerLimit =
+      (d.first as number) -
+      ((d.third as number) - (d.first as number)) * 1.5;
+    if ((d.lowerLimit as number) < min(values)!)
+      (d as Record<string, unknown>).lowerLimit = min(values);
+  } else if (mode[0] === "extent")
+    (d as Record<string, unknown>).lowerLimit = min(values);
+  else if (typeof mode[0] === "number")
+    (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
+
+  if (mode[1] === "tukey") {
+    (d as Record<string, unknown>).upperLimit =
+      (d.third as number) +
+      ((d.third as number) - (d.first as number)) * 1.5;
+    if ((d.upperLimit as number) > max(values)!)
+      (d as Record<string, unknown>).upperLimit = max(values);
+  } else if (mode[1] === "extent")
+    (d as Record<string, unknown>).upperLimit = max(values);
+  else if (typeof mode[1] === "number")
+    (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
+}
+
+/** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
+function collectOutliers(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  box: any,
+  d: DataPoint,
+  outlierData: DataPoint[],
+): void {
+  (d.values as unknown as DataPoint[]).forEach(
+    (eachValue: DataPoint, index: number) => {
+      const value =
+        d.orient === "vertical"
+          ? (box.schema.y(eachValue, index) as number)
+          : (box.schema.x(eachValue, index) as number);
+
+      if (
+        value < (d.lowerLimit as number) ||
+        value > (d.upperLimit as number)
+      ) {
+        const dataObj: DataPoint = {} as DataPoint;
+        (dataObj as Record<string, unknown>).__d3plus__ = true;
+        (dataObj as Record<string, unknown>).data = eachValue;
+        (dataObj as Record<string, unknown>).i = index;
+        (dataObj as Record<string, unknown>).outlier = box.schema.outlier(
+          eachValue,
+          index,
+        );
+
+        if (d.orient === "vertical") {
+          (dataObj as Record<string, unknown>).x = d.x;
+          (dataObj as Record<string, unknown>).y = value;
+          outlierData.push(dataObj);
+        } else if (d.orient === "horizontal") {
+          (dataObj as Record<string, unknown>).y = d.y;
+          (dataObj as Record<string, unknown>).x = value;
+          outlierData.push(dataObj);
+        }
+      }
+    },
+  );
+}
+
+/**
+    Computes the box statistics (quartiles, limits, geometry) for a single
+    orientation group and appends any outliers to `outlierData`.
+*/
+function computeBoxGroup(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  box: any,
+  key: DataPoint[keyof DataPoint],
+  groupData: DataPoint[],
+  outlierData: DataPoint[],
+): DataPoint {
+  const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
+  (d as Record<string, unknown>).data = merge(
+    d.values as unknown as DataPoint[],
+  );
+  (d as Record<string, unknown>).i = box._data.indexOf(
+    (d.values as unknown as DataPoint[])[0],
+  );
+  (d as Record<string, unknown>).orient = box.schema.orient(
+    d.data as DataPoint,
+    d.i as number,
+  );
+  const values: number[] = (d.values as unknown as DataPoint[]).map(
+    (d as Record<string, unknown>).orient === "vertical"
+      ? box.schema.y
+      : box.schema.x,
+  ) as unknown as number[];
+  values.sort((a: number, b: number) => a - b);
+
+  (d as Record<string, unknown>).first = quantile(values, 0.25);
+  (d as Record<string, unknown>).median = quantile(values, 0.5);
+  (d as Record<string, unknown>).third = quantile(values, 0.75);
+
+  const mode = box.schema.whiskerMode;
+  applyWhiskerLimits(d, values, mode);
+
+  const rectLength = (d.third as number) - (d.first as number);
+
+  // Compute values for vertical orientation.
+  if (d.orient === "vertical") {
+    (d as Record<string, unknown>).height = rectLength;
+    (d as Record<string, unknown>).width = box.schema.rectWidth(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).x = box.schema.x(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
+  } else if (d.orient === "horizontal") {
+    // Compute values for horizontal orientation.
+    (d as Record<string, unknown>).height = box.schema.rectWidth(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).width = rectLength;
+    (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
+    (d as Record<string, unknown>).y = box.schema.y(
+      d.data as DataPoint,
+      d.i as number,
+    );
+  }
+
+  // Compute data for outliers.
+  collectOutliers(box, d, outlierData);
+
+  (d as Record<string, unknown>).__d3plus__ = true;
+
+  return d;
+}
+
+/**
+    Builds the whisker startpoint coordinates (two per box) from the computed
+    box geometry.
+*/
+function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
+  const whiskerData: DataPoint[] = [];
+  filteredData.forEach((d: DataPoint, i: number) => {
+    const x = d.x;
+    const y = d.y;
+    const topLength = (d.first as number) - (d.lowerLimit as number);
+    const bottomLength = (d.upperLimit as number) - (d.third as number);
+
+    if (d.orient === "vertical") {
+      const topY = (y as number) - (d.height as number) / 2;
+      const bottomY = (y as number) + (d.height as number) / 2;
+      whiskerData.push(
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x,
+          y: topY,
+          length: topLength,
+          orient: "top",
+        } as unknown as DataPoint,
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x,
+          y: bottomY,
+          length: bottomLength,
+          orient: "bottom",
+        } as unknown as DataPoint,
+      );
+    } else if (d.orient === "horizontal") {
+      const topX = (x as number) + (d.width as number) / 2;
+      const bottomX = (x as number) - (d.width as number) / 2;
+      whiskerData.push(
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x: topX,
+          y,
+          length: bottomLength,
+          orient: "right",
+        } as unknown as DataPoint,
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x: bottomX,
+          y,
+          length: topLength,
+          orient: "left",
+        } as unknown as DataPoint,
+      );
+    }
+  });
+  return whiskerData;
+}
+
+/**
     Creates SVG box based on an array of data.
 */
 export default class Box extends BaseClass {
@@ -112,119 +321,9 @@ export default class Box extends BaseClass {
       this.schema.orient(d, i) === "vertical"
         ? this.schema.x(d, i)
         : this.schema.y(d, i),
-    ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
-      const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
-      (d as Record<string, unknown>).data = merge(
-        d.values as unknown as DataPoint[],
-      );
-      (d as Record<string, unknown>).i = this._data.indexOf(
-        (d.values as unknown as DataPoint[])[0],
-      );
-      (d as Record<string, unknown>).orient = this.schema.orient(
-        d.data as DataPoint,
-        d.i as number,
-      );
-      const values: number[] = (d.values as unknown as DataPoint[]).map(
-        (d as Record<string, unknown>).orient === "vertical"
-          ? this.schema.y
-          : this.schema.x,
-      ) as unknown as number[];
-      values.sort((a: number, b: number) => a - b);
-
-      (d as Record<string, unknown>).first = quantile(values, 0.25);
-      (d as Record<string, unknown>).median = quantile(values, 0.5);
-      (d as Record<string, unknown>).third = quantile(values, 0.75);
-
-      const mode = this.schema.whiskerMode;
-
-      if (mode[0] === "tukey") {
-        (d as Record<string, unknown>).lowerLimit =
-          (d.first as number) -
-          ((d.third as number) - (d.first as number)) * 1.5;
-        if ((d.lowerLimit as number) < min(values)!)
-          (d as Record<string, unknown>).lowerLimit = min(values);
-      } else if (mode[0] === "extent")
-        (d as Record<string, unknown>).lowerLimit = min(values);
-      else if (typeof mode[0] === "number")
-        (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
-
-      if (mode[1] === "tukey") {
-        (d as Record<string, unknown>).upperLimit =
-          (d.third as number) +
-          ((d.third as number) - (d.first as number)) * 1.5;
-        if ((d.upperLimit as number) > max(values)!)
-          (d as Record<string, unknown>).upperLimit = max(values);
-      } else if (mode[1] === "extent")
-        (d as Record<string, unknown>).upperLimit = max(values);
-      else if (typeof mode[1] === "number")
-        (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
-
-      const rectLength = (d.third as number) - (d.first as number);
-
-      // Compute values for vertical orientation.
-      if (d.orient === "vertical") {
-        (d as Record<string, unknown>).height = rectLength;
-        (d as Record<string, unknown>).width = this.schema.rectWidth(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).x = this.schema.x(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
-      } else if (d.orient === "horizontal") {
-        // Compute values for horizontal orientation.
-        (d as Record<string, unknown>).height = this.schema.rectWidth(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).width = rectLength;
-        (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-        (d as Record<string, unknown>).y = this.schema.y(
-          d.data as DataPoint,
-          d.i as number,
-        );
-      }
-
-      // Compute data for outliers.
-      (d.values as unknown as DataPoint[]).forEach(
-        (eachValue: DataPoint, index: number) => {
-          const value =
-            d.orient === "vertical"
-              ? (this.schema.y(eachValue, index) as number)
-              : (this.schema.x(eachValue, index) as number);
-
-          if (
-            value < (d.lowerLimit as number) ||
-            value > (d.upperLimit as number)
-          ) {
-            const dataObj: DataPoint = {} as DataPoint;
-            (dataObj as Record<string, unknown>).__d3plus__ = true;
-            (dataObj as Record<string, unknown>).data = eachValue;
-            (dataObj as Record<string, unknown>).i = index;
-            (dataObj as Record<string, unknown>).outlier = this.schema.outlier(
-              eachValue,
-              index,
-            );
-
-            if (d.orient === "vertical") {
-              (dataObj as Record<string, unknown>).x = d.x;
-              (dataObj as Record<string, unknown>).y = value;
-              outlierData.push(dataObj);
-            } else if (d.orient === "horizontal") {
-              (dataObj as Record<string, unknown>).y = d.y;
-              (dataObj as Record<string, unknown>).x = value;
-              outlierData.push(dataObj);
-            }
-          }
-        },
-      );
-
-      (d as Record<string, unknown>).__d3plus__ = true;
-
-      return d;
-    });
+    ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) =>
+      computeBoxGroup(this, key, groupData, outlierData),
+    );
 
     // Draw box.
     this._box = new Rect()
@@ -252,61 +351,7 @@ export default class Box extends BaseClass {
 
     // Draw 2 lines using Whisker class.
     // Construct coordinates for whisker startpoints and push it to the whiskerData.
-    const whiskerData: DataPoint[] = [];
-    filteredData.forEach((d: DataPoint, i: number) => {
-      const x = d.x;
-      const y = d.y;
-      const topLength = (d.first as number) - (d.lowerLimit as number);
-      const bottomLength = (d.upperLimit as number) - (d.third as number);
-
-      if (d.orient === "vertical") {
-        const topY = (y as number) - (d.height as number) / 2;
-        const bottomY = (y as number) + (d.height as number) / 2;
-        whiskerData.push(
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x,
-            y: topY,
-            length: topLength,
-            orient: "top",
-          } as unknown as DataPoint,
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x,
-            y: bottomY,
-            length: bottomLength,
-            orient: "bottom",
-          } as unknown as DataPoint,
-        );
-      } else if (d.orient === "horizontal") {
-        const topX = (x as number) + (d.width as number) / 2;
-        const bottomX = (x as number) - (d.width as number) / 2;
-        whiskerData.push(
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x: topX,
-            y,
-            length: bottomLength,
-            orient: "right",
-          } as unknown as DataPoint,
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x: bottomX,
-            y,
-            length: topLength,
-            orient: "left",
-          } as unknown as DataPoint,
-        );
-      }
-    });
+    const whiskerData = buildWhiskerData(filteredData);
 
     // Draw whiskers.
     this._whisker = new Whisker()

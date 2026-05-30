@@ -7,6 +7,7 @@
     groupings. Stashes `linksData`/`linkD`/`shapeGroups`/`shapeConfig` and
     `labelHeight`/`labelWidths`/`previousShapes` on `viz.ctx`.
 */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {extent, max, min} from "d3-array";
 import {hierarchy} from "d3-hierarchy";
@@ -28,20 +29,20 @@ type TreeNode = DataPoint & {
   children?: TreeNode[];
 };
 
-export const applyTreeLayout: TransformStage = ({viz}) => {
-  const orient = viz.schema.orient as string;
-  const isVertical = orient === "vertical";
-  const isHorizontal = orient === "horizontal";
+type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<string, unknown>;
 
-  const height = isVertical
-    ? viz.schema.height - viz._margin.top - viz._margin.bottom
-    : viz.schema.width - viz._margin.left - viz._margin.right;
-  const width = isHorizontal
-    ? viz.schema.height - viz._margin.top - viz._margin.bottom
-    : viz.schema.width - viz._margin.left - viz._margin.right;
-  const left: "left" | "top" = isVertical ? "left" : "top";
+/** Merge a branch's leaf values (recursively) through the schema aggs. */
+function flattenBranchData(viz: any, branch: Branch): DataPoint {
+  return merge(
+    (branch.values as Branch[]).map(l =>
+      l.key && l.values ? flattenBranchData(viz, l) : (l as DataPoint),
+    ),
+    viz.schema.aggs as Parameters<typeof merge>[1],
+  ) as DataPoint;
+}
 
-  type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<string, unknown>;
+/** Run the d3-hierarchy tree layout, flatten branch aggregations, and tag nodes. */
+function buildTreeData(viz: any, width: number, height: number): TreeNode[] {
   const treeLayout = viz.ctx.tree as {
     separation: (fn: (a: unknown, b: unknown) => number) => typeof treeLayout;
     size: (s: [number, number]) => typeof treeLayout;
@@ -67,24 +68,31 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     .descendants()
     .filter(d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent) as TreeNode[];
 
-  function flattenBranchData(branch: Branch): DataPoint {
-    return merge(
-      (branch.values as Branch[]).map(l =>
-        l.key && l.values ? flattenBranchData(l) : (l as DataPoint),
-      ),
-      viz.schema.aggs as Parameters<typeof merge>[1],
-    ) as DataPoint;
-  }
-
   treeData.forEach((d, i) => {
     const dd = d.data as Branch;
     if (dd.key && dd.values) {
-      (d as TreeNode).data = flattenBranchData(dd);
+      (d as TreeNode).data = flattenBranchData(viz, dd);
     }
     d.__d3plus__ = true;
     d.i = i;
   });
 
+  return treeData;
+}
+
+/**
+    Measure label height + per-depth label widths, then rescale y coordinates.
+    Stashes `labelHeight`/`labelWidths` on `viz.ctx`.
+*/
+function measureTreeLabels(
+  viz: any,
+  treeData: TreeNode[],
+  isVertical: boolean,
+  isHorizontal: boolean,
+  width: number,
+  height: number,
+  left: "left" | "top",
+): {labelHeight: number; labelWidths: number[]} {
   const sc = viz.schema.shapeConfig as Record<string, unknown>;
   let r = sc.r as ((d: DataPoint, i: number) => number) | number;
   if (typeof r !== "function") {
@@ -131,25 +139,20 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     } else d.y = val;
   });
 
-  // Link descriptors. `linkD` is invoked at emit time.
-  const linksData = treeData
-    .filter(d => (d.depth ?? 0) > 1)
-    .map(d => assign({}, d) as TreeNode);
-  const linkD = (d: TreeNode): string => {
-    let rr = sc.r as ((d: DataPoint, i: number) => number) | number;
-    if (typeof rr === "function") rr = rr(d.data as DataPoint, d.i!);
-    const px = (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : (rr as number));
-    const py = (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? (rr as number) : 0);
-    const xx = isVertical ? 0 : -(rr as number);
-    const yy = isVertical ? -(rr as number) : 0;
-    return isVertical
-      ? `M${xx},${yy}C${xx},${(yy + py) / 2} ${px},${(yy + py) / 2} ${px},${py}`
-      : `M${xx},${yy}C${(xx + px) / 2},${yy} ${(xx + px) / 2},${py} ${px},${py}`;
-  };
+  return {labelHeight, labelWidths};
+}
 
+/** Build the per-shape config object consumed by the Tree's shape emit. */
+function buildTreeShapeConfig(
+  viz: any,
+  labelHeight: number,
+  labelWidths: number[],
+  isVertical: boolean,
+  isHorizontal: boolean,
+) {
   const labelFn = viz.schema.label as ((d: DataPoint, i: number) => unknown) | undefined;
 
-  const shapeConfig = {
+  return {
     id: (d: TreeNode, i: number) => (viz._ids(d.data as DataPoint, i) as string[])[(d.depth ?? 1) - 1],
     label: (d: TreeNode, i: number) => {
       if (labelFn) return labelFn(d.data as DataPoint, i);
@@ -208,6 +211,39 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
       };
     },
   };
+}
+
+/**
+    Build link descriptors + per-shape groupings and stash
+    `linksData`/`linkD`/`shapeGroups`/`shapeConfig`/`previousShapes` on `viz.ctx`.
+*/
+function publishTreeCtx(
+  viz: any,
+  treeData: TreeNode[],
+  labelHeight: number,
+  labelWidths: number[],
+  isVertical: boolean,
+  isHorizontal: boolean,
+): void {
+  const sc = viz.schema.shapeConfig as Record<string, unknown>;
+
+  // Link descriptors. `linkD` is invoked at emit time.
+  const linksData = treeData
+    .filter(d => (d.depth ?? 0) > 1)
+    .map(d => assign({}, d) as TreeNode);
+  const linkD = (d: TreeNode): string => {
+    let rr = sc.r as ((d: DataPoint, i: number) => number) | number;
+    if (typeof rr === "function") rr = rr(d.data as DataPoint, d.i!);
+    const px = (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : (rr as number));
+    const py = (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? (rr as number) : 0);
+    const xx = isVertical ? 0 : -(rr as number);
+    const yy = isVertical ? -(rr as number) : 0;
+    return isVertical
+      ? `M${xx},${yy}C${xx},${(yy + py) / 2} ${px},${(yy + py) / 2} ${px},${py}`
+      : `M${xx},${yy}C${(xx + px) / 2},${yy} ${(xx + px) / 2},${py} ${px},${py}`;
+  };
+
+  const shapeConfig = buildTreeShapeConfig(viz, labelHeight, labelWidths, isVertical, isHorizontal);
 
   const shapeAccessor = viz.schema.shape as (d: DataPoint) => string;
   const shapeData = nest(treeData as DataPoint[], (d: DataPoint) =>
@@ -226,6 +262,34 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   viz.ctx.shapeGroups = shapeGroups;
   viz.ctx.shapeConfig = shapeConfig;
   viz.ctx.previousShapes = dataShapes;
+}
+
+export const applyTreeLayout: TransformStage = ({viz}) => {
+  const orient = viz.schema.orient as string;
+  const isVertical = orient === "vertical";
+  const isHorizontal = orient === "horizontal";
+
+  const height = isVertical
+    ? viz.schema.height - viz._margin.top - viz._margin.bottom
+    : viz.schema.width - viz._margin.left - viz._margin.right;
+  const width = isHorizontal
+    ? viz.schema.height - viz._margin.top - viz._margin.bottom
+    : viz.schema.width - viz._margin.left - viz._margin.right;
+  const left: "left" | "top" = isVertical ? "left" : "top";
+
+  const treeData = buildTreeData(viz, width, height);
+
+  const {labelHeight, labelWidths} = measureTreeLabels(
+    viz,
+    treeData,
+    isVertical,
+    isHorizontal,
+    width,
+    height,
+    left,
+  );
+
+  publishTreeCtx(viz, treeData, labelHeight, labelWidths, isVertical, isHorizontal);
 
   return {shapeData: treeData as DataPoint[]};
 };

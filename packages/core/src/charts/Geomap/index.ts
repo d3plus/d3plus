@@ -38,11 +38,249 @@ import type {VizInstance} from "../vizTypes.js";
 import {applyGeomapLayout} from "./applyLayout.js";
 import {geomapEmit} from "./emit.js";
 
+type GeomapFluent = {
+  fitFilter: (_?: unknown) => unknown;
+  fitKey: (_?: unknown) => unknown;
+  fitObject: (_?: unknown, f?: unknown) => unknown;
+  point: (_?: unknown) => unknown;
+  pointSize: (_?: unknown) => unknown;
+  projection: (_?: unknown) => unknown;
+  projectionPadding: (_?: unknown) => unknown;
+  projectionRotate: (_?: unknown) => unknown;
+  tiles: (_?: unknown) => unknown;
+  tileUrl: (_?: unknown) => unknown;
+  topojson: (_?: unknown, f?: unknown) => unknown;
+  topojsonFill: (_?: unknown) => unknown;
+  topojsonFilter: (_?: unknown) => unknown;
+  topojsonKey: (_?: unknown) => unknown;
+  topojsonId: (_?: unknown) => unknown;
+};
+
 function findAttribution(url: string): string | false {
   const a = attributions.find((d: {matches: string[]; text: string}) =>
     d.matches.some((m: string) => url.includes(m)),
   );
   return a ? a.text : false;
+}
+
+/** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
+function setupGeomapRenderTiles(viz: VizInstance): void {
+  // `_renderTiles` is a per-instance method that mutates the tile group.
+  viz._renderTiles = function(
+    this: VizInstance,
+    transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container!.node()),
+    duration: number = 0,
+  ): void {
+    let tileData: number[][] & {scale?: number; translate?: number[]} =
+      [] as unknown as number[][] & {scale?: number; translate?: number[]};
+    if (this.schema.tiles) {
+      tileData = this._tileGen
+        .extent(this._zoomBehavior.translateExtent())
+        .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
+        .translate(transform.apply(this.schema.projection.translate()))();
+      this._tileGroup!.transition().duration(duration).attr("transform", transform);
+    }
+    const images = this._tileGroup!
+      .selectAll("image.d3plus-geomap-tile")
+      .data(tileData, ([x, y, z]: [number, number, number]) => `${x}-${y}-${z}`);
+    images.exit().transition().duration(duration).attr("opacity", 0).remove();
+    const scale = tileData.scale! / transform.k;
+    const tileEnter = images.enter().append("image").attr("class", "d3plus-geomap-tile");
+    tileEnter.attr("opacity", 0).transition().duration(duration).attr("opacity", 1);
+    images.merge(tileEnter)
+      .attr("width", scale)
+      .attr("height", scale)
+      .attr("xlink:href", ([x, y, z]: [number, number, number]) =>
+        this.schema.tileUrl
+          .replace("{s}", ["a", "b", "c"][(Math.random() * 3) | 0])
+          .replace("{z}", `${z}`)
+          .replace("{x}", `${x}`)
+          .replace("{y}", `${y}`),
+      )
+      .attr("x", ([x]: [number]) =>
+        x * scale + tileData.translate![0] * scale - transform.x / transform.k)
+      .attr("y", ([, y]: [number, number]) =>
+        y * scale + tileData.translate![1] * scale - transform.y / transform.k);
+  };
+}
+
+/** Wraps `_draw` to ensure the DOM zoom group + zoom wiring exist before drawing. */
+function setupGeomapDraw(viz: VizInstance): void {
+  // Wrap _draw to ensure DOM zoom group + zoom wiring.
+  const supDraw = viz._draw.bind(viz);
+  viz._draw = function(callback?: () => void) {
+    const result = supDraw(callback);
+    const {width, height} = chartBounds(viz);
+    ensureZoomDom(viz, {
+      kind: "geomap",
+      width,
+      height,
+      duration: viz.schema.duration,
+      ocean: viz.schema.ocean,
+    });
+    if (!viz._zoomSet) {
+      viz._zoomBehavior
+        .extent([[0, 0], [width, height]])
+        .scaleExtent([1, viz.schema.zoomMax])
+        .translateExtent([[0, 0], [width, height]]);
+      viz._zoomSet = true;
+    }
+    return result;
+  };
+}
+
+/** Installs the imperative fluent accessors on the Geomap instance. */
+function setupGeomapFluent(viz: VizInstance): void {
+  // Imperative fluent accessors. Parameter type is `unknown` since each
+  // method accepts a function or a value (or for fitFilter/topojsonFilter,
+  // also an array of ids). Each branch narrows with typeof / instanceof.
+  setupGeomapFitFluent(viz);
+  setupGeomapProjectionFluent(viz);
+  setupGeomapTileFluent(viz);
+  setupGeomapTopojsonFluent(viz);
+}
+
+/** Installs the fit/point fluent accessors. */
+function setupGeomapFitFluent(viz: VizInstance): void {
+  const v = viz as VizInstance & GeomapFluent;
+  v.fitFilter = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this._zoomSet = false;
+      if (typeof _ === "function") {
+        this.schema.fitFilter = _ as (d: Record<string, unknown>) => boolean;
+        return this;
+      }
+      const ids = (_ instanceof Array ? _ : [_]) as string[];
+      this.schema.fitFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
+      return this;
+    }
+    return this.schema.fitFilter;
+  };
+  v.fitKey = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this.schema.fitKey = _ as string | undefined;
+      this._zoomSet = false;
+      return this;
+    }
+    return this.schema.fitKey;
+  };
+  v.fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
+    if (arguments.length) {
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "fitObject");
+      this._zoomSet = false;
+      return this;
+    }
+    return this.schema.fitObject;
+  };
+  v.point = function(this: VizInstance, _?: unknown) {
+    return arguments.length
+      ? ((this.schema.point = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      : this.schema.point;
+  };
+  v.pointSize = function(this: VizInstance, _?: unknown) {
+    return arguments.length
+      ? ((this.schema.pointSize = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      : this.schema.pointSize;
+  };
+}
+
+/** Installs the projection fluent accessors. */
+function setupGeomapProjectionFluent(viz: VizInstance): void {
+  const v = viz as VizInstance & GeomapFluent;
+  v.projection = function(this: VizInstance, _?: unknown) {
+    if (arguments.length && _ !== "geoMercator") v.tiles(false);
+    return arguments.length
+      ? ((this.schema.projection =
+          typeof _ === "string"
+            ? d3Geo[_]
+              ? d3Geo[_]()
+              : d3Geo.geoMercator()
+            : _),
+        this)
+      : this.schema.projection;
+  };
+  v.projectionPadding = function(this: VizInstance, _?: unknown) {
+    return arguments.length
+      ? ((this.schema.projectionPadding = parseSides(_ as Parameters<typeof parseSides>[0])), this)
+      : this.schema.projectionPadding;
+  };
+  v.projectionRotate = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this.schema.projection.rotate(_);
+      v.tiles(false);
+      this._zoomSet = false;
+      return this;
+    }
+    return this.schema.projectionRotate;
+  };
+}
+
+/** Installs the tile fluent accessors. */
+function setupGeomapTileFluent(viz: VizInstance): void {
+  const v = viz as VizInstance & GeomapFluent;
+  v.tiles = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this.schema.tiles = _ as boolean;
+      const attribution = findAttribution(this.schema.tileUrl);
+      if (_ && this.schema.attribution === "") this.schema.attribution = attribution as string;
+      else if (!_ && this.schema.attribution === attribution) this.schema.attribution = "";
+      return this;
+    }
+    return this.schema.tiles;
+  };
+  v.tileUrl = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this.schema.tileUrl = _ as string;
+      if (this.schema.tiles) this.schema.attribution = findAttribution(_ as string) as string;
+      if (this._tileGroup) this._renderTiles!.bind(this)();
+      return this;
+    }
+    return this.schema.tileUrl;
+  };
+}
+
+/** Installs the topojson fluent accessors. */
+function setupGeomapTopojsonFluent(viz: VizInstance): void {
+  const v = viz as VizInstance & GeomapFluent;
+  v.topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
+    if (arguments.length) {
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "topojson");
+      this._zoomSet = false;
+      return this;
+    }
+    return this.schema.topojson;
+  };
+  v.topojsonFill = function(this: VizInstance, _?: unknown) {
+    return arguments.length
+      ? ((this.schema.topojsonFill = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      : this.schema.topojsonFill;
+  };
+  v.topojsonFilter = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this._zoomSet = false;
+      if (typeof _ === "function") {
+        this.schema.topojsonFilter = _ as (d: Record<string, unknown>) => boolean;
+        return this;
+      }
+      const ids = (_ instanceof Array ? _ : [_]) as string[];
+      this.schema.topojsonFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
+      return this;
+    }
+    return this.schema.topojsonFilter;
+  };
+  v.topojsonKey = function(this: VizInstance, _?: unknown) {
+    if (arguments.length) {
+      this.schema.topojsonKey = _ as string | undefined;
+      this._zoomSet = false;
+      return this;
+    }
+    return this.schema.topojsonKey;
+  };
+  v.topojsonId = function(this: VizInstance, _?: unknown) {
+    return arguments.length
+      ? ((this.schema.topojsonId = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : accessor(_ as string)), this)
+      : this.schema.topojsonId;
+  };
 }
 
 export const geomapDef: ChartDefinition = {
@@ -57,215 +295,15 @@ export const geomapDef: ChartDefinition = {
   chartTransform: () => undefined,
 
   setup: (viz: VizInstance) => {
-    type GeomapFluent = {
-      fitFilter: (_?: unknown) => unknown;
-      fitKey: (_?: unknown) => unknown;
-      fitObject: (_?: unknown, f?: unknown) => unknown;
-      point: (_?: unknown) => unknown;
-      pointSize: (_?: unknown) => unknown;
-      projection: (_?: unknown) => unknown;
-      projectionPadding: (_?: unknown) => unknown;
-      projectionRotate: (_?: unknown) => unknown;
-      tiles: (_?: unknown) => unknown;
-      tileUrl: (_?: unknown) => unknown;
-      topojson: (_?: unknown, f?: unknown) => unknown;
-      topojsonFill: (_?: unknown) => unknown;
-      topojsonFilter: (_?: unknown) => unknown;
-      topojsonKey: (_?: unknown) => unknown;
-      topojsonId: (_?: unknown) => unknown;
-    };
     const v = viz as VizInstance & GeomapFluent;
     viz.schema.zoom = true;
     viz._zoomSet = false;
     viz.schema.tiles = true;
     viz._tileGen = tile();
 
-    // `_renderTiles` is a per-instance method that mutates the tile group.
-    viz._renderTiles = function(
-      this: VizInstance,
-      transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container!.node()),
-      duration: number = 0,
-    ): void {
-      let tileData: number[][] & {scale?: number; translate?: number[]} =
-        [] as unknown as number[][] & {scale?: number; translate?: number[]};
-      if (this.schema.tiles) {
-        tileData = this._tileGen
-          .extent(this._zoomBehavior.translateExtent())
-          .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
-          .translate(transform.apply(this.schema.projection.translate()))();
-        this._tileGroup!.transition().duration(duration).attr("transform", transform);
-      }
-      const images = this._tileGroup!
-        .selectAll("image.d3plus-geomap-tile")
-        .data(tileData, ([x, y, z]: [number, number, number]) => `${x}-${y}-${z}`);
-      images.exit().transition().duration(duration).attr("opacity", 0).remove();
-      const scale = tileData.scale! / transform.k;
-      const tileEnter = images.enter().append("image").attr("class", "d3plus-geomap-tile");
-      tileEnter.attr("opacity", 0).transition().duration(duration).attr("opacity", 1);
-      images.merge(tileEnter)
-        .attr("width", scale)
-        .attr("height", scale)
-        .attr("xlink:href", ([x, y, z]: [number, number, number]) =>
-          this.schema.tileUrl
-            .replace("{s}", ["a", "b", "c"][(Math.random() * 3) | 0])
-            .replace("{z}", `${z}`)
-            .replace("{x}", `${x}`)
-            .replace("{y}", `${y}`),
-        )
-        .attr("x", ([x]: [number]) =>
-          x * scale + tileData.translate![0] * scale - transform.x / transform.k)
-        .attr("y", ([, y]: [number, number]) =>
-          y * scale + tileData.translate![1] * scale - transform.y / transform.k);
-    };
-
-    // Wrap _draw to ensure DOM zoom group + zoom wiring.
-    const supDraw = viz._draw.bind(viz);
-    viz._draw = function(callback?: () => void) {
-      const result = supDraw(callback);
-      const {width, height} = chartBounds(viz);
-      ensureZoomDom(viz, {
-        kind: "geomap",
-        width,
-        height,
-        duration: viz.schema.duration,
-        ocean: viz.schema.ocean,
-      });
-      if (!viz._zoomSet) {
-        viz._zoomBehavior
-          .extent([[0, 0], [width, height]])
-          .scaleExtent([1, viz.schema.zoomMax])
-          .translateExtent([[0, 0], [width, height]]);
-        viz._zoomSet = true;
-      }
-      return result;
-    };
-
-    // Imperative fluent accessors. Parameter type is `unknown` since each
-    // method accepts a function or a value (or for fitFilter/topojsonFilter,
-    // also an array of ids). Each branch narrows with typeof / instanceof.
-    v.fitFilter = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this._zoomSet = false;
-        if (typeof _ === "function") {
-          this.schema.fitFilter = _ as (d: Record<string, unknown>) => boolean;
-          return this;
-        }
-        const ids = (_ instanceof Array ? _ : [_]) as string[];
-        this.schema.fitFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
-        return this;
-      }
-      return this.schema.fitFilter;
-    };
-    v.fitKey = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this.schema.fitKey = _ as string | undefined;
-        this._zoomSet = false;
-        return this;
-      }
-      return this.schema.fitKey;
-    };
-    v.fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
-      if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "fitObject");
-        this._zoomSet = false;
-        return this;
-      }
-      return this.schema.fitObject;
-    };
-    v.point = function(this: VizInstance, _?: unknown) {
-      return arguments.length
-        ? ((this.schema.point = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
-        : this.schema.point;
-    };
-    v.pointSize = function(this: VizInstance, _?: unknown) {
-      return arguments.length
-        ? ((this.schema.pointSize = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
-        : this.schema.pointSize;
-    };
-    v.projection = function(this: VizInstance, _?: unknown) {
-      if (arguments.length && _ !== "geoMercator") v.tiles(false);
-      return arguments.length
-        ? ((this.schema.projection =
-            typeof _ === "string"
-              ? d3Geo[_]
-                ? d3Geo[_]()
-                : d3Geo.geoMercator()
-              : _),
-          this)
-        : this.schema.projection;
-    };
-    v.projectionPadding = function(this: VizInstance, _?: unknown) {
-      return arguments.length
-        ? ((this.schema.projectionPadding = parseSides(_ as Parameters<typeof parseSides>[0])), this)
-        : this.schema.projectionPadding;
-    };
-    v.projectionRotate = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this.schema.projection.rotate(_);
-        v.tiles(false);
-        this._zoomSet = false;
-        return this;
-      }
-      return this.schema.projectionRotate;
-    };
-    v.tiles = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this.schema.tiles = _ as boolean;
-        const attribution = findAttribution(this.schema.tileUrl);
-        if (_ && this.schema.attribution === "") this.schema.attribution = attribution as string;
-        else if (!_ && this.schema.attribution === attribution) this.schema.attribution = "";
-        return this;
-      }
-      return this.schema.tiles;
-    };
-    v.tileUrl = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this.schema.tileUrl = _ as string;
-        if (this.schema.tiles) this.schema.attribution = findAttribution(_ as string) as string;
-        if (this._tileGroup) this._renderTiles!.bind(this)();
-        return this;
-      }
-      return this.schema.tileUrl;
-    };
-    v.topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
-      if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "topojson");
-        this._zoomSet = false;
-        return this;
-      }
-      return this.schema.topojson;
-    };
-    v.topojsonFill = function(this: VizInstance, _?: unknown) {
-      return arguments.length
-        ? ((this.schema.topojsonFill = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
-        : this.schema.topojsonFill;
-    };
-    v.topojsonFilter = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this._zoomSet = false;
-        if (typeof _ === "function") {
-          this.schema.topojsonFilter = _ as (d: Record<string, unknown>) => boolean;
-          return this;
-        }
-        const ids = (_ instanceof Array ? _ : [_]) as string[];
-        this.schema.topojsonFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
-        return this;
-      }
-      return this.schema.topojsonFilter;
-    };
-    v.topojsonKey = function(this: VizInstance, _?: unknown) {
-      if (arguments.length) {
-        this.schema.topojsonKey = _ as string | undefined;
-        this._zoomSet = false;
-        return this;
-      }
-      return this.schema.topojsonKey;
-    };
-    v.topojsonId = function(this: VizInstance, _?: unknown) {
-      return arguments.length
-        ? ((this.schema.topojsonId = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : accessor(_ as string)), this)
-        : this.schema.topojsonId;
-    };
+    setupGeomapRenderTiles(viz);
+    setupGeomapDraw(viz);
+    setupGeomapFluent(viz);
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
     v.tileUrl(

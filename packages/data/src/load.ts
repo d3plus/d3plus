@@ -39,6 +39,86 @@ function storeLoaded(
   else if (ctx.schema) ctx.schema[key] = value;
 }
 
+type LoadedData = DataPoint[] | DataPoint[][];
+
+/** Fetches a single resource, parsing by file extension. */
+function fetchData(
+  path: string,
+  init: RequestInit = {},
+): Promise<DataPoint[] | Record<string, unknown>> {
+  const ext = path.slice(path.length - 4);
+  switch (ext) {
+    case ".csv":
+      return csv(path, init) as Promise<DataPoint[]>;
+    case ".tsv":
+      return tsv(path, init) as Promise<DataPoint[]>;
+    case ".txt":
+      return text(path, init) as unknown as Promise<DataPoint[]>;
+    default:
+      return json(path, init) as Promise<Record<string, unknown>>;
+  }
+}
+
+/** Coerces stringified numbers/booleans in loaded rows into real values. */
+function validateData(
+  data: DataPoint[] | Record<string, unknown>,
+): DataPoint[] | Record<string, unknown> {
+  if (data && data instanceof Array) {
+    data.forEach((d: DataPoint) => {
+      for (const k in d) {
+        const v = d[k];
+        if (typeof v === "string") {
+          if (!isNaN(v as unknown as number)) d[k] = parseFloat(v);
+          else if (v.toLowerCase() === "false") d[k] = false;
+          else if (v.toLowerCase() === "true") d[k] = true;
+        }
+      }
+    });
+  }
+  return data;
+}
+
+/** Counts how many slots of the loaded array are populated. */
+function loadedLength(loadedArray: (DataPoint[] | undefined)[]): number {
+  return loadedArray.reduce(
+    (prev: number, current) => (current ? prev + 1 : prev),
+    0,
+  );
+}
+
+/** A single loaded array unwraps to itself; multiple stay nested. */
+function pickInitial(loaded: (DataPoint[] | undefined)[]): LoadedData {
+  return loadedLength(loaded) === 1
+    ? loaded[0]!
+    : (loaded.filter(Boolean) as DataPoint[][]);
+}
+
+/**
+  Applies the optional user formatter (or the default `concat` for the "data"
+  key) to the loaded set, mutating ctx config when the formatter returns an
+  object for the "data" key.
+*/
+function applyFormatter(
+  ctx: VizContext,
+  loaded: (DataPoint[] | undefined)[],
+  formatter: DataFormatter | undefined,
+  key: string | undefined,
+  result: LoadedData,
+): LoadedData {
+  if (formatter) {
+    const formatterResponse = formatter(pickInitial(loaded));
+    if (key === "data" && isObject(formatterResponse)) {
+      result = ((formatterResponse as Record<string, unknown>).data ||
+        []) as DataPoint[];
+      delete (formatterResponse as Record<string, unknown>).data;
+      ctx.config(formatterResponse as Record<string, unknown>);
+    } else result = (formatterResponse || []) as DataPoint[];
+  } else if (key === "data") {
+    result = concat(loaded.filter(Boolean) as DataPoint[][], "data");
+  }
+  return result;
+}
+
 /**
   Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
@@ -56,51 +136,6 @@ export default function (
     data: DataPoint[] | DataPoint[][] | undefined,
   ) => void,
 ): void {
-  const fetchData = (
-    path: string,
-    init: RequestInit = {},
-  ): Promise<DataPoint[] | Record<string, unknown>> => {
-    const ext = path.slice(path.length - 4);
-    switch (ext) {
-      case ".csv":
-        return csv(path, init as RequestInit) as Promise<DataPoint[]>;
-      case ".tsv":
-        return tsv(path, init as RequestInit) as Promise<DataPoint[]>;
-      case ".txt":
-        return text(path, init as RequestInit) as unknown as Promise<
-          DataPoint[]
-        >;
-      default:
-        return json(path, init as RequestInit) as Promise<
-          Record<string, unknown>
-        >;
-    }
-  };
-
-  const validateData = (
-    data: DataPoint[] | Record<string, unknown>,
-  ): DataPoint[] | Record<string, unknown> => {
-    if (data && data instanceof Array) {
-      data.forEach((d: DataPoint) => {
-        for (const k in d) {
-          const v = d[k];
-          if (typeof v === "string") {
-            if (!isNaN(v as unknown as number)) d[k] = parseFloat(v);
-            else if (v.toLowerCase() === "false") d[k] = false;
-            else if (v.toLowerCase() === "true") d[k] = true;
-          }
-        }
-      });
-    }
-    return data;
-  };
-
-  const loadedLength = (loadedArray: (DataPoint[] | undefined)[]): number =>
-    loadedArray.reduce(
-      (prev: number, current) => (current ? prev + 1 : prev),
-      0,
-    );
-
   // If path param is a not an Array then convert path to a 1 element Array to re-use logic
   if (!(path instanceof Array))
     path = [path] as (string | LoadRequestConfig | DataPoint[])[];
@@ -147,29 +182,9 @@ export default function (
         ] = data as DataPoint[];
         // All urls loaded
         if (loadedLength(loaded) - alreadyLoaded === toLoad.length) {
-          // Format data
-          let result: DataPoint[] | DataPoint[][] =
-            loadedLength(loaded) === 1
-              ? loaded[0]!
-              : (loaded.filter(Boolean) as DataPoint[][]);
+          let result = pickInitial(loaded);
           if (this._cache) this._lrucache.set(`${key}_${url}`, result);
-
-          if (formatter) {
-            const formatterResponse = formatter(
-              loadedLength(loaded) === 1
-                ? loaded[0]!
-                : (loaded.filter(Boolean) as DataPoint[][]),
-            );
-            if (key === "data" && isObject(formatterResponse)) {
-              result = ((formatterResponse as Record<string, unknown>).data ||
-                []) as DataPoint[];
-              delete (formatterResponse as Record<string, unknown>).data;
-              this.config(formatterResponse as Record<string, unknown>);
-            } else result = (formatterResponse || []) as DataPoint[];
-          } else if (key === "data") {
-            result = concat(loaded.filter(Boolean) as DataPoint[][], "data");
-          }
-
+          result = applyFormatter(this, loaded, formatter, key, result);
           if (key) storeLoaded(this, key, result);
           if (callback) callback(undefined, result);
         }
@@ -193,27 +208,8 @@ export default function (
       return data;
     });
 
-    // Format data
-    let result: DataPoint[] | DataPoint[][] =
-      loadedLength(loaded) === 1
-        ? loaded[0]!
-        : (loaded.filter(Boolean) as DataPoint[][]);
-    if (formatter) {
-      const formatterResponse = formatter(
-        loadedLength(loaded) === 1
-          ? loaded[0]!
-          : (loaded.filter(Boolean) as DataPoint[][]),
-      );
-      if (key === "data" && isObject(formatterResponse)) {
-        result = ((formatterResponse as Record<string, unknown>).data ||
-          []) as DataPoint[];
-        delete (formatterResponse as Record<string, unknown>).data;
-        this.config(formatterResponse as Record<string, unknown>);
-      } else result = (formatterResponse || []) as DataPoint[];
-    } else if (key === "data") {
-      result = concat(loaded.filter(Boolean) as DataPoint[][], "data");
-    }
-
+    let result = pickInitial(loaded);
+    result = applyFormatter(this, loaded, formatter, key, result);
     if (key && `_${key}` in this) this[`_${key}`] = result;
     if (callback) callback(null, result);
   }

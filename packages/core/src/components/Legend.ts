@@ -1,20 +1,25 @@
 import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 
-import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, backgroundColor, elem, rtl as detectRTL, textWidth} from "@d3plus/dom";
+import {assign, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {textWrap} from "@d3plus/text";
 import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
-import * as shapes from "../shapes/index.js";
-import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
+import {accessor, BaseClass, constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
-const padding = 5;
+import {buildLegendShapeConfig} from "./legendConfig.js";
+import {
+  computeLegendBounds,
+  computeLegendLineData,
+  measureLegendTitle,
+  renderLegendShapes,
+  renderLegendTitle,
+  wrapLegendRows,
+} from "./legendRender.js";
 
 /** Legend's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const legendSchema: ConfigField[] = [
@@ -69,99 +74,7 @@ export default class Legend extends BaseClass {
     this._lineData = [];
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
     this._shapes = [];
-    this.schema.shapeConfig = {
-      fill: accessor("color"),
-      height: constant(12),
-      hitArea: (dd: DataPoint, i: number) => {
-        const d = this._lineData[i],
-          h = max([d.height as number, d.shapeHeight as number]);
-        return {
-          width: (d.width as number) + (d.shapeWidth as number),
-          height: h,
-          x: -(d.shapeWidth as number) / 2,
-          y: -h! / 2,
-        };
-      },
-      labelBounds: (dd: DataPoint, i: number) => {
-        const d = this._lineData[i];
-        let x = (d.shapeWidth as number) / 2;
-        if (d.shape === "Circle") x -= (d.shapeR as number) / 2;
-        const height = max([d.shapeHeight as number, d.height as number]);
-        const rtlMod = this._rtl
-          ? (d.shapeWidth as number) + (d.width as number) + this.schema.padding * 2
-          : 0;
-        return {
-          width: d.width as number,
-          height,
-          x: x + padding - rtlMod,
-          y: -height! / 2,
-        };
-      },
-      labelConfig: {
-        fontColor: () => {
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-          return colorContrast(bg);
-        },
-        fontFamily: this._titleClass.fontFamily(),
-        fontResize: false,
-        fontSize: constant(10),
-        verticalAlign: "middle",
-      },
-      opacity: 1,
-      r: constant(6),
-      width: constant(12),
-      x: (d: DataPoint, i: number) => {
-        const datum = this._lineData[i];
-        const y = datum.y;
-        const pad =
-          this.schema.align === "left" ||
-          (this.schema.align === "right" && this.schema.direction === "column")
-            ? 0
-            : this.schema.align === "center"
-              ? (this._outerBounds.width -
-                  this._rowWidth(
-                    this._lineData.filter(
-                      (l: Record<string, unknown>) => y === l.y,
-                    ),
-                  )) /
-                2
-              : this._outerBounds.width -
-                this._rowWidth(
-                  this._lineData.filter((l: Record<string, unknown>) => y === l.y),
-                );
-        const prevWords = this._lineData
-          .slice(0, i)
-          .filter((l: Record<string, unknown>) => y === l.y);
-        const rtlMod = this._rtl ? (datum.width as number) + this.schema.padding : 0;
-        return (
-          this._rowWidth(prevWords) +
-          this.schema.padding * (prevWords.length ? (datum.sentence ? 2 : 1) : 0) +
-          this._outerBounds.x +
-          (datum.shapeWidth as number) / 2 +
-          pad +
-          rtlMod
-        );
-      },
-      y: (d: DataPoint, i: number) => {
-        const ld = this._lineData[i];
-        return (
-          (ld.y as number) +
-          this._titleHeight +
-          this._outerBounds.y +
-          max(
-            this._lineData
-              .filter((l: Record<string, unknown>) => ld.y === l.y)
-              .map((l: Record<string, unknown>) => l.height as number)
-              .concat(
-                this._data.map((l: DataPoint, x: number) =>
-                  this._fetchConfig("height", l, x) as number,
-                ),
-              ),
-          )! /
-            2
-        );
-      },
-    };
+    this.schema.shapeConfig = buildLegendShapeConfig(this);
     this.schema.titleConfig = {
       fontSize: 12,
     };
@@ -297,313 +210,19 @@ export default class Legend extends BaseClass {
     this._titleGroup = elem("g.d3plus-Legend-title", {parent: this._group});
     this._shapeGroup = elem("g.d3plus-Legend-shape", {parent: this._group});
 
-    let availableHeight = this.schema.height;
-    this._titleHeight = 0;
-    this._titleWidth = 0;
-    if (this.schema.title) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const f = (this.schema.titleConfig.fontFamily || (this._titleClass.fontFamily() as any)()) as string,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        s = (this.schema.titleConfig.fontSize || (this._titleClass.fontSize() as any)()) as number;
-      let lH = (this.schema.titleConfig.lineHeight || this._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
-      lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
+    measureLegendTitle(this);
+    const availableHeight = this.schema.height - this._titleHeight;
 
-      const res = textWrap()
-        .fontFamily(f)
-        .fontSize(s)
-        .lineHeight(lH)
-        .width(this.schema.width)
-        .height(this.schema.height)(this.schema.title);
-      this._titleHeight = lH + res.lines.length + this.schema.padding;
-      this._titleWidth = max(res.widths)!;
-      availableHeight -= this._titleHeight;
-    }
+    this._lineData = computeLegendLineData(this, availableHeight);
 
-    // Calculate Text Sizes
-    this._lineData = this._data.map((d: DataPoint, i: number) => {
-      const label = this.schema.label(d, i);
-      const shape = this.schema.shape(d, i);
-      const r = this._fetchConfig("r", d, i) as number;
-
-      let res: Record<string, unknown> = {
-        data: d,
-        i,
-        id: this.schema.id(d, i),
-        shape,
-        shapeR: r,
-        shapeWidth:
-          shape === "Circle" ? r * 2 : this._fetchConfig("width", d, i),
-        shapeHeight:
-          shape === "Circle" ? r * 2 : this._fetchConfig("height", d, i),
-        y: 0,
-      };
-
-      if (!label) {
-        res.sentence = false;
-        res.words = [];
-        res.height = 0;
-        res.width = 0;
-        return res;
-      }
-
-      const f = this._fetchConfig("fontFamily", d, i) as string,
-        lh = this._fetchConfig("lineHeight", d, i) as number,
-        s = this._fetchConfig("fontSize", d, i) as number;
-
-      const h = availableHeight - (this._data.length + 1) * this.schema.padding,
-        w = this.schema.width;
-
-      const newRes = textWrap()
-        .fontFamily(f)
-        .fontSize(s)
-        .lineHeight(lh)
-        .width(w)
-        .height(h)(label as string);
-
-      res = Object.assign(res, newRes);
-
-      res.width =
-        Math.ceil(
-          max(
-            (res.lines as string[]).map((t: string) =>
-              textWidth(t, {"font-family": f, "font-size": s}),
-            ),
-          ) as unknown as number,
-        ) +
-        padding * 2;
-      res.height = Math.ceil((res.lines as string[]).length * (lh + 1));
-      res.og = {height: res.height, width: res.width};
-      res.f = f;
-      res.s = s;
-      res.lh = lh;
-
-      return res;
-    });
-
-    let spaceNeeded: number;
+    let spaceNeeded = this._rowWidth(this._lineData);
     const availableWidth = this.schema.width - this.schema.padding * 2;
-    spaceNeeded = this._rowWidth(this._lineData);
+    if (this.schema.direction === "column" || spaceNeeded > availableWidth)
+      spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight, spaceNeeded);
 
-    if (this.schema.direction === "column" || spaceNeeded > availableWidth) {
-      let lines = 1,
-        newRows: Record<string, unknown>[][] = [];
-
-      const maxLines = max(
-        this._lineData.map((d: Record<string, unknown>) => (d.words as unknown[]).length),
-      );
-      this._wrapLines = function (this: Legend) {
-        lines++;
-
-        if (lines > maxLines!) return;
-
-        const wrappable =
-          lines === 1
-            ? this._lineData.slice()
-            :
-              this._lineData
-                .filter(
-                  (d: Record<string, unknown>) =>
-                    (d.width as number) + (d.shapeWidth as number) + this.schema.padding * (d.width ? 2 : 1) >
-                      availableWidth && (d.words as unknown[]).length >= lines,
-                )
-                .sort(
-                  (a: Record<string, unknown>, b: Record<string, unknown>) =>
-                    (b.sentence as string).length - (a.sentence as string).length,
-                );
-
-        if (wrappable.length && availableHeight > (wrappable[0].height as number) * lines) {
-          let truncated = false;
-          for (let x = 0; x < wrappable.length; x++) {
-            const label = wrappable[x];
-            const og = label.og as Record<string, number>;
-            const h = og.height * lines,
-              w = og.width * (1.5 * (1 / lines));
-            const res = textWrap()
-              .fontFamily(label.f as string)
-              .fontSize(label.s as number)
-              .lineHeight(label.lh as number)
-              .width(w)
-              .height(h)(label.sentence as string);
-            if (!res.truncated) {
-              label.width =
-                Math.ceil(
-                  max(
-                    res.lines.map((t: string) =>
-                      textWidth(t, {
-                        "font-family": label.f as string,
-                        "font-size": label.s as number,
-                      }),
-                    ),
-                  )!,
-                ) + (label.s as number);
-              label.height = res.lines.length * ((label.lh as number) + 1);
-            } else {
-              truncated = true;
-              break;
-            }
-          }
-          if (!truncated) this._wrapRows!();
-        } else {
-          newRows = [];
-          return;
-        }
-      };
-
-      this._wrapRows = function (this: Legend) {
-        newRows = [];
-        let row = 1,
-          rowWidth = 0;
-        for (let i = 0; i < this._lineData.length; i++) {
-          const d = this._lineData[i],
-            w = (d.width as number) + this.schema.padding * (d.width ? 2 : 1) + (d.shapeWidth as number);
-          if (
-            sum(
-              newRows.map((row: Record<string, unknown>[]) =>
-                max(row, (d: Record<string, unknown>) =>
-                  max([d.height as number, d.shapeHeight as number]),
-                ),
-              ),
-            ) > availableHeight
-          ) {
-            newRows = [];
-            break;
-          }
-          if (w > availableWidth) {
-            newRows = [];
-            this._wrapLines!();
-            break;
-          } else if (rowWidth + w < availableWidth) {
-            rowWidth += w;
-          } else if (this.schema.direction !== "column") {
-            rowWidth = w;
-            row++;
-          }
-          if (!newRows[row - 1]) newRows[row - 1] = [];
-          newRows[row - 1].push(d);
-          if (this.schema.direction === "column") {
-            rowWidth = 0;
-            row++;
-          }
-        }
-      };
-
-      this._wrapRows();
-
-      if (
-        !newRows.length ||
-        sum(newRows, this._rowHeight.bind(this)) + this.schema.padding >
-          availableHeight
-      ) {
-        spaceNeeded =
-          sum(
-            this._lineData.map(
-              (d: Record<string, unknown>) => (d.shapeWidth as number) + this.schema.padding,
-            ),
-          ) - this.schema.padding;
-        for (let i = 0; i < this._lineData.length; i++) {
-          this._lineData[i].width = 0;
-          this._lineData[i].height = 0;
-        }
-        this._wrapRows();
-      }
-
-      if (
-        newRows.length &&
-        sum(newRows, this._rowHeight.bind(this)) + this.schema.padding <
-          availableHeight
-      ) {
-        newRows.forEach((row: Record<string, unknown>[], i: number) => {
-          row.forEach((d: Record<string, unknown>) => {
-            if (i) {
-              d.y = sum(newRows.slice(0, i), this._rowHeight.bind(this));
-            }
-          });
-        });
-        spaceNeeded = max(
-          newRows,
-          this._rowWidth.bind(this),
-        ) as unknown as number;
-      }
-    }
-
-    const innerHeight =
-        max(
-          this._lineData,
-          (d: Record<string, unknown>, i: number) =>
-            max([d.height as number, this._fetchConfig("height", d.data as DataPoint, i) as number])! + (d.y as number),
-        )! + this._titleHeight,
-      innerWidth = max([spaceNeeded, this._titleWidth])!;
-
-    this._outerBounds.width = innerWidth;
-    this._outerBounds.height = innerHeight;
-
-    let xOffset = this.schema.padding,
-      yOffset = this.schema.padding;
-    if (this.schema.align === "center") xOffset = (this.schema.width - innerWidth) / 2;
-    else if (this.schema.align === "right")
-      xOffset = this.schema.width - this.schema.padding - innerWidth;
-    if (this.schema.verticalAlign === "middle")
-      yOffset = (this.schema.height - innerHeight) / 2;
-    else if (this.schema.verticalAlign === "bottom")
-      yOffset = this.schema.height - this.schema.padding - innerHeight;
-    this._outerBounds.x = xOffset;
-    this._outerBounds.y = yOffset;
-
-    this._titleClass
-      .renderMode("compute")
-      .data(this.schema.title ? [{text: this.schema.title}] : [])
-      .duration(this.schema.duration)
-      .select(this._titleGroup.node())
-      .textAnchor(({left: "start", center: "middle", right: "end"} as Record<string, string>)[this.schema.align])
-      .width(this.schema.width - this.schema.padding * 2)
-      .x(this.schema.padding)
-      .y(this._outerBounds.y)
-      .config(this.schema.titleConfig)
-      .render();
-
-    this._shapes = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const baseConfig = configPrep.bind(this as any)(this.schema.shapeConfig, "legend"),
-      config = {
-        id: (d: Record<string, unknown>) => d.id,
-        label: (d: Record<string, unknown>) => d.label,
-        lineHeight: (d: Record<string, unknown>) => d.lH,
-      };
-
-    const data = this._data.map((d: DataPoint, i: number) => {
-      const obj: Record<string, unknown> = {
-        __d3plus__: true,
-        data: d,
-        i,
-        id: this.schema.id(d, i),
-        label: this._lineData[i].width ? this.schema.label(d, i) : false,
-        lH: this._fetchConfig("lineHeight", d, i),
-        shape: this.schema.shape(d, i),
-      };
-
-      return obj;
-    });
-
-    // Legend Shapes
-    this._shapes = [];
-    (["Circle", "Rect"] as const).forEach((Shape: string) => {
-      this._shapes.push(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        new (shapes as Record<string, new () => any>)[Shape]()
-          // v4: child shapes are always compute-only — Legend composes the
-          // swatches into its own toScene; sub-shapes never auto-render their
-          // own <svg>.
-          .renderMode("compute")
-          .parent(this)
-          .data(data.filter((d: Record<string, unknown>) => d.shape === Shape))
-          .duration(this.schema.duration)
-          .labelConfig({padding: 0})
-          .select(this._shapeGroup.node())
-          .verticalAlign("top")
-          .config(assign({}, baseConfig, config))
-          .render(),
-      );
-    });
+    computeLegendBounds(this, spaceNeeded);
+    renderLegendTitle(this);
+    renderLegendShapes(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
 

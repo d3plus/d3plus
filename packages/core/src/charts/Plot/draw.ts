@@ -31,6 +31,140 @@ const testTextBox = new TextBox();
 const superDraw = (viz: any, callback?: () => void) =>
   (Viz.prototype._draw as (...args: unknown[]) => unknown).call(viz, callback);
 
+/** Runs format + per-axis-value stages; returns formatted data and axis-value bundles. */
+function runPlotDataStages(viz: any) {
+  const plotCtx = runStages({viz}, [
+    formatPlotData,
+    computePlotAxisValues,
+  ]) as {
+    plotFormattedData: any[];
+    plotAxisData: any[];
+    x2Exists: boolean;
+    y2Exists: boolean;
+    xData: any[];
+    x2Data: any[];
+    yData: any[];
+    y2Data: any[];
+  };
+  const data = plotCtx.plotFormattedData;
+  const axisData = plotCtx.plotAxisData;
+  const {x2Exists, y2Exists, xData, x2Data, yData, y2Data} = plotCtx;
+  const stackGroup = (plotCtx as any).plotStackGroup as (d: any, i: number) => string;
+  // Time flags (xTime/x2Time/yTime/y2Time) are written onto `viz` by
+  // `formatPlotData` and read directly via `viz._xTime` etc. in the
+  // remainder of this function.
+  return {data, axisData, x2Exists, y2Exists, xData, x2Data, yData, y2Data, stackGroup};
+}
+
+/** Runs domain + scale stages; returns domains, stack data, and scale bundles. */
+function runPlotLayoutStages(viz: any, data: any[], axisData: any[], stackGroup: any, axisValues: {xData: any[]; x2Data: any[]; yData: any[]; y2Data: any[]}) {
+  const {xData, x2Data, yData, y2Data} = axisValues;
+  // Stacked/non-stacked domain construction + domain/scale setup are stages
+  // on `plotDef`. Run them together and read all the outputs the paint phase
+  // below needs.
+  const layoutCtx = runStages({
+    viz,
+    plotFormattedData: data,
+    plotAxisData: axisData,
+    xData,
+    x2Data,
+    yData,
+    y2Data,
+    plotStackGroup: stackGroup,
+  } as any, [computePlotInitialDomains, computePlotScales]) as {
+    plotInitialDomains: Record<string, any[]>;
+    plotDiscreteKeys: any[];
+    plotStackData: any[];
+    plotStackKeys: any[];
+    plotDomains: Record<string, any[]>;
+    plotScales: any;
+    plotConfigScales: any;
+    plotOpps: any;
+  };
+  return layoutCtx;
+}
+
+/** Extends opposite-axis scales via buffers; returns the reassigned x/y/x2/y2. */
+function runPlotExtendScales(viz: any, data: any[], axisData: any[], layoutCtx: any, scales: {x: any; y: any; x2: any; y2: any}) {
+  // Opposite-axis scale extension via buffers lives in the
+  // `extendPlotOppScales` stage. Reassigns x/y/x2/y2 from the stage's
+  // returned scales bundle.
+  const extCtx = runStages({
+    viz,
+    plotFormattedData: data,
+    plotAxisData: axisData,
+    plotScales: {...layoutCtx.plotScales, ...scales},
+    plotConfigScales: layoutCtx.plotConfigScales,
+  } as any, [extendPlotOppScales]) as {plotScales: any};
+  return {
+    x: extCtx.plotScales.x,
+    y: extCtx.plotScales.y,
+    x2: extCtx.plotScales.x2,
+    y2: extCtx.plotScales.y2,
+  };
+}
+
+/** Runs axis-layout prep; returns domains, default configs, show flags, ticks, and bar labels. */
+function runPlotAxisPrep(viz: any, axisData: any[], layoutCtx: any, scales: {x: any; y: any; x2: any; y2: any}, exists: {x2Exists: boolean; y2Exists: boolean}, axisValues: {x2Data: any[]; y2Data: any[]; yData: any[]}) {
+  const {x2Exists, y2Exists} = exists;
+  const {x2Data, y2Data, yData} = axisValues;
+  // Axis-layout-prep lives in `preparePlotAxisLayout`.
+  // Produces xDomain/yDomain/etc., defaultConfig/showX/showY, yC, barLabels,
+  // and the four ticks arrays (null when ticks show, [] when redundant).
+  const prepCtx = runStages({
+    viz,
+    plotAxisData: axisData,
+    plotScales: {...layoutCtx.plotScales, ...scales},
+    x2Exists,
+    y2Exists,
+    x2Data,
+    y2Data,
+    yData,
+  } as any, [preparePlotAxisLayout]) as {
+    plotDefaultConfig: any;
+    plotDefaultX2Config: any;
+    plotDefaultY2Config: any;
+    plotShowX: boolean;
+    plotShowY: boolean;
+    plotYC: any;
+    plotBarLabels: string[];
+    plotXTicks: any[] | null;
+    plotX2Ticks: any[] | null;
+    plotYTicks: any[] | null;
+    plotY2Ticks: any[] | null;
+    plotXDomain: any[];
+    plotX2Domain: any[];
+    plotYDomain: any[];
+    plotY2Domain: any[];
+  };
+  return prepCtx;
+}
+
+/** Builds the line-label width measure callback for the four-axis margin solve. */
+function makePlotLineLabelMeasure(viz: any, data: any[], layoutCtx: any, y2Exists: boolean, testAxes: {xTest: any; yTest: any}) {
+  const {xTest, yTest} = testAxes;
+  return () => {
+    const lineLabelCtx = runStages({
+      viz,
+      plotFormattedData: data,
+      plotScales: layoutCtx.plotScales,
+      plotConfigScales: layoutCtx.plotConfigScales,
+      plotTestAxes: {xTest, yTest},
+      plotLineLabelTest: {testLineShape, testTextBox},
+      y2Exists,
+    } as any, [measurePlotLineLabels]) as {
+      plotLabelWidths: any[];
+      plotLargestLabel: number | undefined;
+      plotXRangeMax: number | undefined;
+    };
+    return {
+      labelWidths: lineLabelCtx.plotLabelWidths,
+      largestLabel: lineLabelCtx.plotLargestLabel,
+      xRangeMax: lineLabelCtx.plotXRangeMax,
+    };
+  };
+}
+
 export function drawPlot(viz: any, callback?: () => void) {
   if (!viz._filteredData.length && !viz._annotations.length) {
     // Empty data: still run super._draw so the chart shell (title /
@@ -57,26 +191,7 @@ export function drawPlot(viz: any, callback?: () => void) {
   // `formatPlotData` TransformStage, and per-axis values extracted to
   // `computePlotAxisValues`. Both run here; downstream paint code reads
   // their outputs from the returned context.
-  const plotCtx = runStages({viz}, [
-    formatPlotData,
-    computePlotAxisValues,
-  ]) as {
-    plotFormattedData: any[];
-    plotAxisData: any[];
-    x2Exists: boolean;
-    y2Exists: boolean;
-    xData: any[];
-    x2Data: any[];
-    yData: any[];
-    y2Data: any[];
-  };
-  const data = plotCtx.plotFormattedData;
-  const axisData = plotCtx.plotAxisData;
-  const {x2Exists, y2Exists, xData, x2Data, yData, y2Data} = plotCtx;
-  const stackGroup = (plotCtx as any).plotStackGroup as (d: any, i: number) => string;
-  // Time flags (xTime/x2Time/yTime/y2Time) are written onto `viz` by
-  // `formatPlotData` and read directly via `viz._xTime` etc. in the
-  // remainder of this function.
+  const {data, axisData, x2Exists, y2Exists, xData, x2Data, yData, y2Data, stackGroup} = runPlotDataStages(viz);
 
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom,
     opp = viz.schema.discrete ? (viz.schema.discrete === "x" ? "y" : "x") : undefined,
@@ -89,28 +204,7 @@ export function drawPlot(viz: any, callback?: () => void) {
 
   // xData/x2Data/yData/y2Data computed by `computePlotAxisValues` stage.
 
-  // Stacked/non-stacked domain construction + domain/scale setup are stages
-  // on `plotDef`. Run them together and read all the outputs the paint phase
-  // below needs.
-  const layoutCtx = runStages({
-    viz,
-    plotFormattedData: data,
-    plotAxisData: axisData,
-    xData,
-    x2Data,
-    yData,
-    y2Data,
-    plotStackGroup: stackGroup,
-  } as any, [computePlotInitialDomains, computePlotScales]) as {
-    plotInitialDomains: Record<string, any[]>;
-    plotDiscreteKeys: any[];
-    plotStackData: any[];
-    plotStackKeys: any[];
-    plotDomains: Record<string, any[]>;
-    plotScales: any;
-    plotConfigScales: any;
-    plotOpps: any;
-  };
+  const layoutCtx = runPlotLayoutStages(viz, data, axisData, stackGroup, {xData, x2Data, yData, y2Data});
   const domains = layoutCtx.plotDomains;
   const discreteKeys = layoutCtx.plotDiscreteKeys;
   const stackData = layoutCtx.plotStackData;
@@ -124,50 +218,9 @@ export function drawPlot(viz: any, callback?: () => void) {
     (d: Record<string, unknown>) => d.shape as string,
   ).sort(([a], [b]) => viz.schema.shapeSort(a, b));
 
-  // Opposite-axis scale extension via buffers lives in the
-  // `extendPlotOppScales` stage. Reassigns x/y/x2/y2 from the stage's
-  // returned scales bundle.
-  const extCtx = runStages({
-    viz,
-    plotFormattedData: data,
-    plotAxisData: axisData,
-    plotScales: {...layoutCtx.plotScales, x, y, x2, y2},
-    plotConfigScales: layoutCtx.plotConfigScales,
-  } as any, [extendPlotOppScales]) as {plotScales: any};
-  x = extCtx.plotScales.x;
-  y = extCtx.plotScales.y;
-  x2 = extCtx.plotScales.x2;
-  y2 = extCtx.plotScales.y2;
+  ({x, y, x2, y2} = runPlotExtendScales(viz, data, axisData, layoutCtx, {x, y, x2, y2}));
 
-  // Axis-layout-prep lives in `preparePlotAxisLayout`.
-  // Produces xDomain/yDomain/etc., defaultConfig/showX/showY, yC, barLabels,
-  // and the four ticks arrays (null when ticks show, [] when redundant).
-  const prepCtx = runStages({
-    viz,
-    plotAxisData: axisData,
-    plotScales: {...layoutCtx.plotScales, x, y, x2, y2},
-    x2Exists,
-    y2Exists,
-    x2Data,
-    y2Data,
-    yData,
-  } as any, [preparePlotAxisLayout]) as {
-    plotDefaultConfig: any;
-    plotDefaultX2Config: any;
-    plotDefaultY2Config: any;
-    plotShowX: boolean;
-    plotShowY: boolean;
-    plotYC: any;
-    plotBarLabels: string[];
-    plotXTicks: any[] | null;
-    plotX2Ticks: any[] | null;
-    plotYTicks: any[] | null;
-    plotY2Ticks: any[] | null;
-    plotXDomain: any[];
-    plotX2Domain: any[];
-    plotYDomain: any[];
-    plotY2Domain: any[];
-  };
+  const prepCtx = runPlotAxisPrep(viz, axisData, layoutCtx, {x, y, x2, y2}, {x2Exists, y2Exists}, {x2Data, y2Data, yData});
   const xDomain = prepCtx.plotXDomain;
   const x2Domain = prepCtx.plotX2Domain;
   const yDomain = prepCtx.plotYDomain;
@@ -191,26 +244,7 @@ export function drawPlot(viz: any, callback?: () => void) {
   // injected callback. `showLineLabels` is read by the shape-emission
   // block downstream.
   const showLineLabels = viz.schema.lineLabels && !y2Exists;
-  const measureLineLabels = () => {
-    const lineLabelCtx = runStages({
-      viz,
-      plotFormattedData: data,
-      plotScales: layoutCtx.plotScales,
-      plotConfigScales: layoutCtx.plotConfigScales,
-      plotTestAxes: {xTest, yTest},
-      plotLineLabelTest: {testLineShape, testTextBox},
-      y2Exists,
-    } as any, [measurePlotLineLabels]) as {
-      plotLabelWidths: any[];
-      plotLargestLabel: number | undefined;
-      plotXRangeMax: number | undefined;
-    };
-    return {
-      labelWidths: lineLabelCtx.plotLabelWidths,
-      largestLabel: lineLabelCtx.plotLargestLabel,
-      xRangeMax: lineLabelCtx.plotXRangeMax,
-    };
-  };
+  const measureLineLabels = makePlotLineLabelMeasure(viz, data, layoutCtx, y2Exists, {xTest, yTest});
 
   const {
     yBounds,
@@ -231,32 +265,12 @@ export function drawPlot(viz: any, callback?: () => void) {
   } = measureAxes(
     viz,
     {
-      xTest,
-      yTest,
-      x2Test,
-      y2Test,
-      xDomain,
-      x2Domain,
-      yDomain,
-      y2Domain,
-      xTicks,
-      x2Ticks,
-      yTicks,
-      y2Ticks,
-      xConfigScale,
-      x2ConfigScale,
-      yConfigScale,
-      y2ConfigScale,
-      defaultX2Config,
-      defaultY2Config,
-      yC,
-      showX,
-      showY,
-      x2Exists,
-      y2Exists,
-      height,
-      width,
-      xData,
+      xTest, yTest, x2Test, y2Test,
+      xDomain, x2Domain, yDomain, y2Domain,
+      xTicks, x2Ticks, yTicks, y2Ticks,
+      xConfigScale, x2ConfigScale, yConfigScale, y2ConfigScale,
+      defaultX2Config, defaultY2Config, yC, showX, showY,
+      x2Exists, y2Exists, height, width, xData,
       xScalePadding: x.padding ? x.padding() : 0,
     },
     measureLineLabels,

@@ -93,31 +93,17 @@ function accessorFetch(
   return acc(d, i);
 }
 
-export function vizPreDrawPure(
-  viz: Viz,
-  _prevCtx: Partial<VizContext> = {},
-): VizPreDrawResult {
-  // The pure function reads the live `viz` instance directly. The
-  // `resolveSpec(viz)` API exists for callers that want a frozen
-  // snapshot, but this body does NOT call it — `BaseClass.config()`
-  // reflects over every accessor method and memoizes `_configDefault`
-  // on first call, which would (a) burn ~30+ reflective accessor calls
-  // per preDraw and (b) freeze the defaults baseline to whatever
-  // partially-configured state the chart happens to be in at the first
-  // preDraw. The viz-instance read is the production contract; the
-  // exported `resolveSpec` is available to callers that need it
-  // independently.
-  const out: VizPreDrawResult = {};
+/** The id / ids / drawLabel closures produced for a given preDraw. */
+interface LabelClosures {
+  id: (d: DataPoint, i: number) => DataPoint[keyof DataPoint];
+  ids: (d: DataPoint, i: number) => string[];
+  drawLabel: (d: DataPoint, i: number, depth?: number) => string;
+}
 
-  // 1. drawDepth.
-  const drawDepth =
-    viz.schema.depth !== void 0
-      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1]) as number)
-      : viz.schema.groupBy.length - 1;
-  out.drawDepth = drawDepth;
-
-  // 2. id / ids / drawLabel closures.
-  //
+/**
+    Builds the id / ids / drawLabel snapshot closures from the viz instance.
+*/
+function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
   // SNAPSHOT CLOSURES (v4 hardening): each closure captures `groupBy`,
   // `label`, `thresholdName`, and `locale` AT CONSTRUCTION instead of
   // reading viz.* at invocation. This makes `ctx.id(d, i)` referentially
@@ -145,13 +131,11 @@ export function vizPreDrawPure(
       ? `${groupByDrawDepth}`
       : groupByDrawDepth;
   };
-  out.id = id;
 
   const ids = (d: DataPoint, i: number) =>
     snapGroupBy
       .map(g => `${accessorFetch(g, d, i)}`)
       .filter(Boolean);
-  out.ids = ids;
 
   const drawLabel = (d: DataPoint, i: number, depth?: number) => {
     // Resolve the effective depth at call time. Prefer the live
@@ -181,17 +165,16 @@ export function vizPreDrawPure(
       ? listify(n as unknown as DataPoint[keyof DataPoint][])
       : `${n}`;
   };
-  out.drawLabel = drawLabel;
 
-  // 3. timeFilter default — computes a NEW timeFilter if not set, otherwise
-  // leaves alone. The pure return surfaces it via a synthesized "computed
-  // timeFilter" encoded on the context. It's a returned suggestion only:
-  // `filteredData` below consumes it, but it is never written onto
-  // `viz.schema.timeFilter` (see the shim's note on stale-filter pinning).
-  let computedTimeFilter:
-    | ((d: DataPoint, i: number) => boolean)
-    | (() => boolean)
-    | undefined;
+  return {id, ids, drawLabel};
+}
+
+/**
+    Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
+    data exists; returns undefined otherwise.
+*/
+function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
+  let computedTimeFilter: TimeFilterFn | undefined;
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
       .map(viz.schema.time)
@@ -218,10 +201,20 @@ export function vizPreDrawPure(
         +date(snapTime(dd, ii))! === latestTime;
     }
   }
-  out.computedTimeFilter = computedTimeFilter;
+  return computedTimeFilter;
+}
 
-  // 4. filteredData + legendData. Pure transformation of viz._data using
-  // the user's filters + grouping, collected into local arrays.
+/**
+    Filters + groups `viz._data` into the result's `filteredData`,
+    `legendData`, and (when data exists) `_thresholdTree`.
+*/
+function computeFilteredData(
+  viz: Viz,
+  out: VizPreDrawResult,
+  drawDepth: number,
+  id: (d: DataPoint, i: number) => DataPoint[keyof DataPoint],
+  computedTimeFilter: TimeFilterFn | undefined,
+): void {
   const filteredData: DataPoint[] = [];
   const legendData: DataPoint[] = [];
   let flatData: DataPoint[] = [];
@@ -271,6 +264,48 @@ export function vizPreDrawPure(
     out.filteredData = filteredData;
   }
   out.legendData = legendData;
+}
+
+export function vizPreDrawPure(
+  viz: Viz,
+  _prevCtx: Partial<VizContext> = {},
+): VizPreDrawResult {
+  // The pure function reads the live `viz` instance directly. The
+  // `resolveSpec(viz)` API exists for callers that want a frozen
+  // snapshot, but this body does NOT call it — `BaseClass.config()`
+  // reflects over every accessor method and memoizes `_configDefault`
+  // on first call, which would (a) burn ~30+ reflective accessor calls
+  // per preDraw and (b) freeze the defaults baseline to whatever
+  // partially-configured state the chart happens to be in at the first
+  // preDraw. The viz-instance read is the production contract; the
+  // exported `resolveSpec` is available to callers that need it
+  // independently.
+  const out: VizPreDrawResult = {};
+
+  // 1. drawDepth.
+  const drawDepth =
+    viz.schema.depth !== void 0
+      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1]) as number)
+      : viz.schema.groupBy.length - 1;
+  out.drawDepth = drawDepth;
+
+  // 2. id / ids / drawLabel closures.
+  const {id, ids, drawLabel} = buildLabelClosures(viz, drawDepth);
+  out.id = id;
+  out.ids = ids;
+  out.drawLabel = drawLabel;
+
+  // 3. timeFilter default — computes a NEW timeFilter if not set, otherwise
+  // leaves alone. The pure return surfaces it via a synthesized "computed
+  // timeFilter" encoded on the context. It's a returned suggestion only:
+  // `filteredData` below consumes it, but it is never written onto
+  // `viz.schema.timeFilter` (see the shim's note on stale-filter pinning).
+  const computedTimeFilter = computeTimeFilter(viz);
+  out.computedTimeFilter = computedTimeFilter;
+
+  // 4. filteredData + legendData. Pure transformation of viz._data using
+  // the user's filters + grouping, collected into local arrays.
+  computeFilteredData(viz, out, drawDepth, id, computedTimeFilter);
 
   // 5+6. hover/duration overrides + noDataMessage moved to the shim
   // (after the shim applies _thresholdFunction). The pure function CAN'T
