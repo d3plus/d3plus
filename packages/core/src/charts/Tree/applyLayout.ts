@@ -157,14 +157,18 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
       return ids[ids.length - 1];
     },
     labelConfig: {
-      textAnchor: (_d: unknown, _i: number, x: TreeNode) =>
-        isVertical
+      textAnchor: (d: {data?: TreeNode}) => {
+        const x = (d.data ?? d) as TreeNode;
+        return isVertical
           ? "middle"
           : x.children && x.depth !== viz._drawDepth + 1
             ? "end"
-            : "start",
-      verticalAlign: (_d: unknown, _i: number, x: TreeNode) =>
-        isVertical ? (x.depth === 1 ? "bottom" : "top") : "middle",
+            : "start";
+      },
+      verticalAlign: (d: {data?: TreeNode}) => {
+        const x = (d.data ?? d) as TreeNode;
+        return isVertical ? (x.depth === 1 ? "bottom" : "top") : "middle";
+      },
     },
     hitArea: (d: TreeNode, _i: number, s: {r?: number; height: number; width: number}) => {
       const h = labelHeight;

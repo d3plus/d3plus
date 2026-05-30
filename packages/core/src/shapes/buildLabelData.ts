@@ -26,7 +26,7 @@ type BoundsFn = (
   i: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   aesValue: any,
-) => Record<string, unknown> | Record<string, unknown>[];
+) => Record<string, unknown> | Record<string, unknown>[] | false | null | undefined;
 
 export interface BuildLabelDataOpts {
   /** Source data array. */

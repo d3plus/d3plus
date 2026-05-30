@@ -476,15 +476,20 @@ export default class Axis extends BaseClass {
       Converts an attribute-style config (e.g. gridConfig, barConfig) into a Paint.
       @private
 */
-  _configToPaint(cfg: Record<string, unknown>): Paint {
+  _configToPaint(cfg: Record<string, unknown>, datum?: unknown, index = 0): Paint {
     // Resolve a config value that may be a function (d3-selection style
     // accessor invocation pattern) or a literal. Functions are evaluated
-    // against the Axis instance with no args — config-level paints aren't
-    // per-datum.
+    // against the Axis instance and receive the datum + index, so per-line
+    // accessors (e.g. Plot's gridConfig.stroke, which reads `d.id` to make
+    // the boundary line transparent) resolve correctly.
     const resolve = (v: unknown): unknown => {
       if (typeof v === "function") {
         try {
-          return (v as (this: unknown) => unknown).call(this);
+          return (v as (this: unknown, d: unknown, i: number) => unknown).call(
+            this,
+            datum,
+            index,
+          );
         } catch {
           return undefined;
         }
@@ -595,8 +600,13 @@ export default class Axis extends BaseClass {
   toScene(): GroupNode {
     const children: SceneNode[] = [];
 
-    const gridPaint = this._configToPaint(this.schema.gridConfig as Record<string, unknown>);
+    const gridData = this._gridLineData ?? [];
     this._gridLinePoints().forEach((g, i) => {
+      const gridPaint = this._configToPaint(
+        this.schema.gridConfig as Record<string, unknown>,
+        gridData[i],
+        i,
+      );
       children.push({type: "line", key: `grid-${i}`, points: g.points, paint: gridPaint});
     });
 

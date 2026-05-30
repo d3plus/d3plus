@@ -23,6 +23,20 @@ const shapeLabelDefaults = {
   padding: 5,
   textAnchor: "start",
   verticalAlign: "top",
+  // Honor the rotation/anchor `buildLabelData` precomputes onto each record
+  // (`.r` / `.rotateAnchor`). TextBox's `rotate` accessor receives the raw
+  // label record; `rotateAnchor` receives the laid-out datum whose `.data`
+  // is that record — so both shapes are checked.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rotate(d: any) {
+    const r = d?.r ?? d?.data?.r;
+    return typeof r === "number" ? r : 0;
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rotateAnchor(d: any) {
+    const ra = d?.rotateAnchor ?? d?.data?.rotateAnchor;
+    return Array.isArray(ra) ? ra : [(d?.w ?? 0) / 2, (d?.h ?? 0) / 2];
+  },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fontColor(this: any, d: any, i: number) {
     const fill = typeof this._fill === "function" ? this._fill(d, i) : this._fill;

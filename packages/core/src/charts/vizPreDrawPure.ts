@@ -34,6 +34,7 @@ import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
+import {discreteNestKeys} from "./stages.js";
 import type {VizContext} from "./vizContext.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
@@ -236,14 +237,7 @@ export function vizPreDrawPure(
       i: number,
     ) => DataPoint[keyof DataPoint])[] = [];
     for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz.schema.groupBy[i]);
-    const discreteAccessors = viz as unknown as Record<
-      string,
-      (d: DataPoint, i: number) => DataPoint[keyof DataPoint]
-    >;
-    if (viz.schema.discrete && `_${viz.schema.discrete}` in viz)
-      nestKeys.push(discreteAccessors[`_${viz.schema.discrete}`]);
-    if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz)
-      nestKeys.push(discreteAccessors[`_${viz.schema.discrete}2`]);
+    nestKeys.push(...discreteNestKeys(viz));
 
     const tree = rollup(
       flatData,

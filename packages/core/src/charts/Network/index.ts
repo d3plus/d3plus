@@ -222,9 +222,8 @@ export const networkDef: ChartDefinition = {
         : accessor(_ as string)) as ((d: DataPoint, i: number) => number) | undefined;
       return this;
     };
-    const supX = v.x.bind(viz);
     v.x = function(this: VizInstance, _?: unknown) {
-      if (!arguments.length) return supX();
+      if (!arguments.length) return this._x;
       if (typeof _ === "function") {
         this._x = _ as unknown as (d: DataPoint, i: number) => string | number | Date;
       } else {
@@ -234,9 +233,8 @@ export const networkDef: ChartDefinition = {
       }
       return this;
     };
-    const supY = v.y.bind(viz);
     v.y = function(this: VizInstance, _?: unknown) {
-      if (!arguments.length) return supY();
+      if (!arguments.length) return this._y;
       if (typeof _ === "function") {
         this._y = _ as unknown as (d: DataPoint, i: number) => string | number | Date;
       } else {

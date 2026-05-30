@@ -3,6 +3,8 @@
 */
 
 import type {PieArcDatum} from "d3-shape";
+import {colorContrast} from "@d3plus/color";
+import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -50,28 +52,39 @@ export const pieEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const labelNodes = emitLabels({
     data: slices as unknown as DataPoint[],
     label: (_d, i) => viz._drawLabel((slices[i].data as DataPoint), slices[i].i ?? i),
-    // Place the label at the slice's centroid via labelBounds; emitLabels
-    // expects x/y to be the anchor and labelBounds returns relative box.
+    // The largest inscribed rectangle is in chart-centered path coordinates,
+    // so the anchor is the origin and labelBounds carries the absolute box.
     x: () => 0,
     y: () => 0,
     aes: () => ({}),
     rotate: constant(0),
     id: (_d, i) => `pie-label-${i}`,
     labelBounds: (_d, i) => {
-      const slice = slices[i];
-      const [cx, cy] = arcMakerCentroid(arcMaker, slice);
-      const w = 80;
-      const h = 20;
-      return {x: cx - w / 2, y: cy - h / 2, width: w, height: h};
+      const r = largestRect(path2polygon(arcMaker(slices[i])), {angle: 0});
+      if (!r) return false;
+      return {
+        angle: r.angle,
+        width: r.width,
+        height: r.height,
+        x: r.cx - r.width / 2,
+        y: r.cy - r.height / 2,
+      };
     },
-    labelConfig: {fontResize: true},
+    labelConfig: {
+      fontColor: (d: {data?: Slice}) => {
+        const slice = (d.data ?? d) as Slice;
+        const fill = resolveAccessor<string>(
+          sc.fill,
+          slice.data as DataPoint,
+          slice.i ?? 0,
+        );
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+      },
+      fontResize: true,
+      textAnchor: "middle",
+      verticalAlign: "middle",
+    },
   });
 
   return [...pathNodes, ...labelNodes];
 };
-
-// d3-shape's arc generator exposes `.centroid(d)`. The compute mode of
-// emitLabels needs the per-slice centroid for positioning each label.
-function arcMakerCentroid(arc: unknown, d: Slice): [number, number] {
-  return (arc as {centroid(d: Slice): [number, number]}).centroid(d);
-}

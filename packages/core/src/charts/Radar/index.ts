@@ -65,8 +65,8 @@ export const radarDef: ChartDefinition = {
               return colorContrast(bg);
             },
             padding: 0,
-            textAnchor: (_d: unknown, _i: number, x: {textAnchor: string}) =>
-              x.textAnchor,
+            textAnchor: (d: {data?: {textAnchor?: string}}) =>
+              d.data?.textAnchor ?? "middle",
             verticalAlign: "middle",
           },
           stroke: () => {

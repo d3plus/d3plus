@@ -3,6 +3,7 @@
     the band center).
 */
 
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -73,7 +74,16 @@ export const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
       const {width, height} = aes as {width: number; height: number};
       return {x: -width / 2, y: -height / 2, width, height};
     },
-    labelConfig: {fontResize: true},
+    labelConfig: {
+      fontColor: (d: {data?: PriestleyDatum}) => {
+        const pd = (d.data ?? d) as PriestleyDatum;
+        const fill = resolveAccessor<string>(sc.fill, pd.data, pd.i);
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+      },
+      fontResize: false,
+      textAnchor: "start",
+      verticalAlign: "top",
+    },
   });
 
   return [...rectNodes, ...labelNodes];

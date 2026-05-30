@@ -13,7 +13,7 @@ import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../chartGeometry.js";
-import {shapeConfigFor} from "../emitHelpers.js";
+import {resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
 import type {TransformStage} from "../stages.js";
 
 /**
@@ -433,18 +433,29 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
         : false,
     labelBounds: (d: RingsNode) => d.labelBounds,
     labelConfig: {
-      fontColor: (d: RingsNode & {key?: string}) =>
-        d.id === v.schema.center
-          ? (shapeConfigFor(v, (d.key ?? d.shape)) as {labelConfig: {fontColor: (d: RingsNode) => string}}).labelConfig.fontColor(d)
-          : colorContrast(
-              v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
-            ),
-      fontResize: (d: RingsNode) => d.id === v.schema.center,
+      fontColor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
+        const node = (d.data ?? d) as RingsNode & {key?: string};
+        if (node.id === v.schema.center) {
+          const fill = resolveAccessor<string>(
+            (shapeConfigFor(v, node.key ?? node.shape) as {fill?: unknown}).fill,
+            (node.data ?? node) as DataPoint,
+            node.i,
+          );
+          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+        }
+        return colorContrast(
+          v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
+        );
+      },
+      fontResize: (d: RingsNode & {data?: RingsNode}) => ((d.data ?? d) as RingsNode).id === v.schema.center,
       padding: 0,
-      textAnchor: (d: RingsNode & {key?: string}) =>
-        nodeLookup[d.id].textAnchor ||
-        (shapeConfigFor(v, (d.key ?? d.shape)) as {labelConfig: {textAnchor: string}}).labelConfig.textAnchor,
-      verticalAlign: (d: RingsNode) => (d.id === v.schema.center ? "middle" : "top"),
+      textAnchor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
+        const node = (d.data ?? d) as RingsNode & {key?: string};
+        return nodeLookup[node.id]?.textAnchor ||
+          (shapeConfigFor(v, (node.key ?? node.shape)) as {labelConfig: {textAnchor: string}}).labelConfig.textAnchor;
+      },
+      verticalAlign: (d: RingsNode & {data?: RingsNode}) =>
+        ((d.data ?? d) as RingsNode).id === v.schema.center ? "middle" : "top",
     },
     rotate: (d: RingsNode) => nodeLookup[d.id].rotate || 0,
   };

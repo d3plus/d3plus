@@ -209,6 +209,26 @@ export const applyTimeFilter: TransformStage = ({viz}) => {
 };
 
 /**
+    Discrete-axis nest keys for the rollup. Plot stores its discrete accessor
+    on `viz._x`/`viz._y`; fluent-schema charts (Radar/RadialMatrix `metric`)
+    store it on `viz.schema.<discrete>`. Resolve from either so the rollup
+    nests by the discrete dimension regardless of where the accessor lives —
+    without it, per-metric rows collapse into one aggregated row per group.
+*/
+export function discreteNestKeys(
+  viz: any,
+): ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] {
+  const disc = viz.schema.discrete;
+  if (!disc) return [];
+  const keys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
+  for (const k of [disc, `${disc}2`]) {
+    if (`_${k}` in viz) keys.push(viz[`_${k}`]);
+    else if (typeof viz.schema[k] === "function") keys.push(viz.schema[k]);
+  }
+  return keys;
+}
+
+/**
     Filter the data + rollup by groupBy + discrete axes, merging leaves through
     `viz.schema.aggs`. Applies hidden/solo. Produces `filteredData` and `legendData`.
 */
@@ -222,8 +242,7 @@ export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}
 
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
   for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
-  if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
-  if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
+  nestKeys.push(...discreteNestKeys(viz));
 
   let collected: DataPoint[] = filteredOut;
 
@@ -258,8 +277,7 @@ export const applyThreshold: TransformStage = ({viz, filteredData, id: _id, draw
   if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
   for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
-  if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
-  if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
+  nestKeys.push(...discreteNestKeys(viz));
   const tree = rollup(flatData, () => null, ...nestKeys);
   return {filteredData: viz._thresholdFunction(filteredData, tree)};
 };

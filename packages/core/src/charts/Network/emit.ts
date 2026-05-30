@@ -3,6 +3,7 @@
     SceneNodes directly (no transient Shape compute pass).
 */
 
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -115,13 +116,24 @@ export const networkEmit: ChartDefinition["emit"] = ({viz}) => {
             const a = aes as {r?: number; width?: number; height?: number};
             if (shapeKind === "Circle") {
               const r = a.r ?? 0;
-              return {width: r * 1.6, height: r * 0.8, x: -r * 0.8, y: -r * 0.4};
+              return {width: r * 1.5, height: r * 1.5, x: -r * 0.75, y: -r * 0.75};
             }
             const w = a.width ?? 0;
             const h = a.height ?? 0;
             return {width: w, height: h, x: -w / 2, y: -h / 2};
           },
-          labelConfig: (merged.labelConfig as Record<string, unknown>) ?? {fontResize: true},
+          labelConfig: {
+            ...((merged.labelConfig as Record<string, unknown>) ?? {fontResize: true}),
+            fontColor: (d: {data?: NetworkNode}) => {
+              const node = (d.data ?? d) as NetworkNode;
+              const fill = resolveAccessor<string>(
+                merged.fill,
+                (node.data ?? node) as DataPoint,
+                node.i ?? 0,
+              );
+              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+            },
+          },
         });
         out.push(...labelNodes);
       }
