@@ -50,10 +50,16 @@ import {plotDef} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {stackOffsetDiverging, stackOrderAscending, stackOrderDescending} from "./stackHelpers.js";
-import {plotPaint} from "../plotPaint.js";
+import {plotPaint, type PlotPaintContext} from "../plotPaint.js";
 import Viz from "../Viz.js";
 
 import type {Scene, SceneNode} from "@d3plus/render";
+import type {DataPoint} from "@d3plus/data";
+
+/** Accessor function or string key for a plotted value. */
+type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
+/** Function-or-string-key value accepted by accessor setters. */
+type PlotAccessorArg = string | PlotAccessor;
 
 import {default as BarBuffer} from "../plotBuffers/Bar.js";
 import {default as BoxBuffer} from "../plotBuffers/Box.js";
@@ -86,7 +92,7 @@ export default class Plot extends Viz {
     installFluent(this as any, plotSchema);
     // E3: scalar defaults sourced from plotDef.
     this._axisPersist = plotDef.defaults.axisPersist as boolean;
-    this._annotations = plotDef.defaults.annotations as any[];
+    this._annotations = plotDef.defaults.annotations as unknown[];
     this._backgroundConfig = {
       duration: 0,
       fill: "transparent",
@@ -94,7 +100,7 @@ export default class Plot extends Viz {
     this.schema.barPadding = plotDef.defaults.barPadding as number;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
     this._confidenceConfig = {
-      fill: (d: any, i: any) => {
+      fill: (d: DataPoint, i: number) => {
         const c =
           typeof this.schema.shapeConfig.Line.stroke === "function"
             ? this.schema.shapeConfig.Line.stroke(d, i)
@@ -110,7 +116,7 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d: any, i: any) => colorAssign(this._id(d, i)),
+      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i)),
       r: constant(3),
     };
     this._lineMarkers = plotDef.defaults.lineMarkers as boolean;
@@ -119,7 +125,7 @@ export default class Plot extends Viz {
     this.schema.shape = plotDef.defaults.shape;
     this.schema.shapeConfig = assign(this.schema.shapeConfig, plotShapeDefaults.call(this));
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
-    this.schema.shapeSort = (a: any, b: any) =>
+    this.schema.shapeSort = (a: string, b: string) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);
     this.schema.sizeMax = 20;
     this.schema.sizeMin = 5;
@@ -141,7 +147,7 @@ export default class Plot extends Viz {
     // in axisLayout.ts for the standalone shape.
     this._xConfig = {
       gridConfig: {
-        stroke: (d: any) => {
+        stroke: (d: {id: string}) => {
           if (this.schema.discrete && this.schema.discrete.charAt(0) === "x")
             return "transparent";
           const range = this._xAxis.range();
@@ -166,7 +172,7 @@ export default class Plot extends Viz {
     this._yKey = "y";
     this._yConfig = {
       gridConfig: {
-        stroke: (d: any) => {
+        stroke: (d: {id: string}) => {
           if (this.schema.discrete && this.schema.discrete.charAt(0) === "y")
             return "transparent";
           const range = this._yAxis.range();
@@ -199,7 +205,7 @@ export default class Plot extends Viz {
 
         // if axis is discrete and numerical, do not sum values
         if (!this.schema.aggs[str] && this.schema.discrete === k) {
-          this.schema.aggs[str] = (a: any, c: any) => {
+          this.schema.aggs[str] = (a: DataPoint[], c: (d: DataPoint) => unknown) => {
             const v = Array.from(new Set(a.map(c)));
             return v.length === 1 ? v[0] : v;
           };
@@ -281,23 +287,21 @@ export default class Plot extends Viz {
       refactor scheduled as a v4 follow-on. Until then, charts using
       `.renderer("canvas")` with custom shape events silently drop them.
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _wirePlotShapeEvents(shape: any, shapeKey: string, events: string[]) {
+  _wirePlotShapeEvents(
+    shape: {on(event: string, handler: unknown): unknown},
+    shapeKey: string,
+    events: string[],
+  ) {
     const classEvents = events.filter(e => e.includes(`.${shapeKey}`));
     const globalEvents = events.filter(e => !e.includes("."));
     const shapeEvents = events.filter(e => e.includes(".shape"));
-    for (const evt of globalEvents) {
-      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
-        this.schema.on[evt](d.data, d.i, x, event)) as any);
-    }
-    for (const evt of shapeEvents) {
-      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
-        this.schema.on[evt](d.data, d.i, x, event)) as any);
-    }
-    for (const evt of classEvents) {
-      shape.on(evt, ((d: any, i: any, x: any, event: any) =>
-        this.schema.on[evt](d.data, d.i, x, event)) as any);
-    }
+    const forward =
+      (evt: string) =>
+      (d: {data: DataPoint; i: number}, i: number, x: unknown, event: unknown) =>
+        this.schema.on[evt](d.data, d.i, x, event);
+    for (const evt of globalEvents) shape.on(evt, forward(evt));
+    for (const evt of shapeEvents) shape.on(evt, forward(evt));
+    for (const evt of classEvents) shape.on(evt, forward(evt));
   }
 
   /**
@@ -314,7 +318,7 @@ export default class Plot extends Viz {
       _draw via `pCtx` (so this method has zero coupling to _draw's local
       scope beyond the explicit context).
   */
-  _paint(pCtx: any) {
+  _paint(pCtx: PlotPaintContext) {
     const nodes = plotPaint(this, pCtx);
     // plotPaint is now a returning function (RFC §3.1 purification). Push
     // the emitted scene nodes into _chartScene in place; allocating a
@@ -331,7 +335,7 @@ export default class Plot extends Viz {
 
 Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present.
 */
-  annotations(_: any) {
+  annotations(_?: unknown): this | unknown[] {
     return arguments.length
       ? ((this._annotations = _ instanceof Array ? _ : [_]), this)
       : this._annotations;
@@ -340,7 +344,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 */
-  axisPersist(_: any) {
+  axisPersist(_?: boolean): this | boolean {
     return arguments.length
       ? ((this._axisPersist = _), this)
       : this._axisPersist;
@@ -349,9 +353,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 */
-  backgroundConfig(_: any) {
+  backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backgroundConfig = assign(this._backgroundConfig, _)), this)
+      ? ((this._backgroundConfig = assign(this._backgroundConfig, _!)), this)
       : this._backgroundConfig;
   }
 
@@ -361,15 +365,15 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 */
-  buffer(_: any) {
+  buffer(_?: boolean | Record<string, boolean>): this | Record<string, unknown> {
     if (arguments.length) {
       if (!_) this._buffer = {};
       else if (_ === true) this._buffer = defaultBuffers;
       else {
         this._buffer = assign({}, this._buffer, _);
         for (const key in this._buffer) {
-          if ((this._buffer as any)[key] === true)
-            (this._buffer as any)[key] = (defaultBuffers as any)[key];
+          const buf = this._buffer as Record<string, unknown>;
+          if (buf[key] === true) buf[key] = (defaultBuffers as Record<string, unknown>)[key];
         }
       }
       return this;
@@ -389,7 +393,7 @@ Additionally, each config object can also contain an optional "layer" key, which
        // Or static keys
        .confidence(["lci", "hci"])
 */
-  confidence(_: any) {
+  confidence(_?: unknown): this | [number, number] | false {
     if (arguments.length && _ instanceof Array) {
       this._confidence = [];
       const lower = _[0];
@@ -406,16 +410,16 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Configuration object for shapes rendered as confidence intervals.
 */
-  confidenceConfig(_: any) {
+  confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._confidenceConfig = assign(this._confidenceConfig, _)), this)
+      ? ((this._confidenceConfig = assign(this._confidenceConfig, _!)), this)
       : this._confidenceConfig;
   }
 
   /**
       When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 */
-  discreteCutoff(_: any) {
+  discreteCutoff(_?: number): this | number {
     return arguments.length
       ? ((this._discreteCutoff = _), this)
       : this._discreteCutoff;
@@ -424,7 +428,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The pixel space between groups of bars.
 */
-  groupPadding(_: any) {
+  groupPadding(_?: number): this | number {
     return arguments.length
       ? ((this._groupPadding = _), this)
       : this._groupPadding;
@@ -433,9 +437,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 */
-  labelConnectorConfig(_: any) {
+  labelConnectorConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _)),
+      ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _!)),
         this)
       : this._labelConnectorConfig;
   }
@@ -443,7 +447,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 */
-  labelPosition(_: any) {
+  labelPosition(
+    _?: string | ((d: DataPoint, i: number) => string),
+  ): this | ((d: DataPoint, i: number) => string) {
     return arguments.length
       ? ((this._labelPosition = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -455,16 +461,16 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
 */
-  lineMarkerConfig(_: any) {
+  lineMarkerConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _)), this)
+      ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _!)), this)
       : this._lineMarkerConfig;
   }
 
   /**
       Draws circle markers on each vertex of a Line.
 */
-  lineMarkers(_: any) {
+  lineMarkers(_?: boolean): this | boolean {
     return arguments.length
       ? ((this._lineMarkers = _), this)
       : this._lineMarkers;
@@ -475,9 +481,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Sets the size of bubbles to the given Number, data key, or function.
 */
-  size(_: any) {
+  size(_?: PlotAccessorArg | false): this | PlotAccessor {
     return arguments.length
-      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
+      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string)), this)
       : this._size;
   }
 
@@ -489,12 +495,16 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Sets the stack offset. If *value* is not specified, returns the current stack offset function.
 */
-  stackOffset(_: any) {
+  stackOffset(
+    _?: string | ((series: number[][], order: number[]) => void),
+  ): this | ((series: number[][], order: number[]) => void) {
     return arguments.length
       ? ((this._stackOffset =
           typeof _ === "function"
             ? _
-            : (d3Shape as any)[`stackOffset${_.charAt(0).toUpperCase() + _.slice(1)}`]),
+            : (d3Shape as Record<string, unknown>)[
+                `stackOffset${_!.charAt(0).toUpperCase() + _!.slice(1)}`
+              ]),
         this)
       : this._stackOffset;
   }
@@ -502,7 +512,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Sets the stack order. If *value* is not specified, returns the current stack order function.
 */
-  stackOrder(_: any) {
+  stackOrder(
+    _?: string | ((series: number[][]) => number[]),
+  ): this | ((series: number[][]) => number[]) {
     if (arguments.length) {
       if (typeof _ === "string")
         this._stackOrder =
@@ -510,7 +522,9 @@ Additionally, each config object can also contain an optional "layer" key, which
             ? stackOrderAscending
             : _ === "descending"
               ? stackOrderDescending
-              : (d3Shape as any)[`stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`];
+              : (d3Shape as Record<string, unknown>)[
+                  `stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`
+                ];
       else this._stackOrder = _;
       return this;
     } else return this._stackOrder;
@@ -519,11 +533,11 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Accessor function or string key for the x-axis value of each data point.
 */
-  x(_: any) {
+  x(_?: PlotAccessorArg): this | PlotAccessor {
     if (arguments.length) {
       if (typeof _ === "function") this._x = _;
       else {
-        this._x = accessor(_);
+        this._x = accessor(_ as string);
         this._xKey = _;
       }
       return this;
@@ -533,11 +547,11 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Accessor function or string key for the secondary x-axis value of each data point.
 */
-  x2(_: any) {
+  x2(_?: PlotAccessorArg): this | PlotAccessor {
     if (arguments.length) {
       if (typeof _ === "function") this._x2 = _;
       else {
-        this._x2 = accessor(_);
+        this._x2 = accessor(_ as string);
         this._x2Key = _;
       }
       return this;
@@ -547,9 +561,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  xConfig(_: any) {
+  xConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._xConfig = assign(this._xConfig, _)), this)
+      ? ((this._xConfig = assign(this._xConfig, _!)), this)
       : this._xConfig;
   }
 
@@ -558,9 +572,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  x2Config(_: any) {
+  x2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._x2Config = assign(this._x2Config, _)), this)
+      ? ((this._x2Config = assign(this._x2Config, _!)), this)
       : this._x2Config;
   }
 
@@ -572,11 +586,11 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       Accessor function or string key for the y-axis value of each data point.
 */
-  y(_: any) {
+  y(_?: PlotAccessorArg): this | PlotAccessor {
     if (arguments.length) {
       if (typeof _ === "function") this._y = _;
       else {
-        this._y = accessor(_);
+        this._y = accessor(_ as string);
         this._yKey = _;
       }
       return this;
@@ -586,11 +600,11 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        Accessor function or string key for the secondary y-axis value of each data point.
 */
-  y2(_: any) {
+  y2(_?: PlotAccessorArg): this | PlotAccessor {
     if (arguments.length) {
       if (typeof _ === "function") this._y2 = _;
       else {
-        this._y2 = accessor(_);
+        this._y2 = accessor(_ as string);
         this._y2Key = _;
       }
       return this;
@@ -602,10 +616,11 @@ Additionally, each config object can also contain an optional "layer" key, which
 
 *Note:* If a "domain" array is passed to the y-axis config, it will be reversed.
 */
-  yConfig(_: any) {
+  yConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     if (arguments.length) {
-      if (_.domain) _.domain = _.domain.slice().reverse();
-      this._yConfig = assign(this._yConfig, _);
+      const cfg = _ as {domain?: unknown[]};
+      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
+      this._yConfig = assign(this._yConfig, _!);
       return this;
     }
     return this._yConfig;
@@ -616,10 +631,11 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
-  y2Config(_: any) {
+  y2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     if (arguments.length) {
-      if (_.domain) _.domain = _.domain.slice().reverse();
-      this._y2Config = assign(this._y2Config, _);
+      const cfg = _ as {domain?: unknown[]};
+      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
+      this._y2Config = assign(this._y2Config, _!);
       return this;
     }
     return this._y2Config;

@@ -66,10 +66,15 @@ any`. Schema reads resolve to `any` through `VizInstance`'s intentional
 and accessor-signature mismatches use targeted casts (e.g. Geomap's
 `GeomapCtx` view of `viz.ctx`, Sankey's `SankeyGenerator` interface).
 
-**Remaining (deferred):**
-
-- `Plot/index.ts` has 126 `any`s carried over verbatim from the old
-  Plot.ts. The Plot refactor is its own workstream.
+`Plot/index.ts` is now `any`-free. Its fluent surface follows the
+`Viz.ts` house style — `(_?: T): this | T` signatures (config setters take
+`Record<string, unknown>`, accessor setters take `string | PlotAccessor`),
+and the constructor's inline shape-config callbacks, `_wirePlotShapeEvents`
+handlers, and `_paint(pCtx: PlotPaintContext)` are concretely typed. The
+class extends `(BaseClass as any)`, so `this._<field>` assignments stay
+loose without explicit casts; the only narrowing casts are at typed
+boundaries (`accessor(_ as string)`, `d3Shape as Record<string, unknown>`
+for the `stackOffset`/`stackOrder` string lookups).
 
 ## 3. Drop `viz._<key>` reads inside chart code — DONE (alias stays)
 
