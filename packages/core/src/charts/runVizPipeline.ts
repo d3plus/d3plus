@@ -45,6 +45,13 @@ export function runVizPipeline(viz: Viz): void {
   // `_container`/`_zoomGroup`), claim zero margin, and wire DOM the
   // serializable scene graph can't carry. `zoomFeature` runs before
   // `attributionFeature` to preserve the prior step order.
-  runLayout({viz}, [zoomFeature, attributionFeature]);
+  // `zoomFeature` returns its control-button overlay as a panel rather
+  // than mutating `viz._featurePanels` from inside `layout()` (the
+  // FeatureModule contract). The engine appends the returned panels to
+  // the instance buffer that `toScene()` reads — including on later zoom
+  // repaints, which re-walk `toScene()` outside this pipeline pass.
+  const post = runLayout({viz}, [zoomFeature, attributionFeature]);
+  if (post.panels.length)
+    viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
   viz._drawSceneToTarget();
 }

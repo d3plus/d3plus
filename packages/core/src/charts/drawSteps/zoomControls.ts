@@ -2,7 +2,7 @@ import {zoomTransform} from "d3-zoom";
 
 import {attrize} from "@d3plus/dom";
 import {chartBounds} from "../chartGeometry.js";
-import type {FeatureModule} from "../features.js";
+import type {FeatureLayout, FeatureModule} from "../features.js";
 import type Viz from "../Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
@@ -56,8 +56,9 @@ function applyStyleObj(
       1. Installs stateful D3 zoom + brush behaviors (`viz._zoomBehavior`,
          `viz._zoomBrush`) and wires `viz._zoomToBounds`. d3-zoom binds to
          the SVG element directly via `viz._container.call(zoomBehavior)`.
-      2. Pushes the four control buttons (in/out/reset/brush) onto
-         `viz._featurePanels` as an `htmlOverlay` scene node. `onMount` is
+      2. Returns the four control buttons (in/out/reset/brush) as an
+         `htmlOverlay` scene-node panel; `runVizPipeline` appends it to
+         `viz._featurePanels`. `onMount` is
          the scene's interactive-HTML escape hook: it wires the click/hover
          handlers + applies the user's zoomControl style configs. `onMount`
          fires ONCE per host element (after innerHTML is written, so the
@@ -92,9 +93,9 @@ export const zoomFeature: FeatureModule = {
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
 
+    let panel: FeatureLayout["panel"] = null;
     if (viz.schema.zoom) {
-      viz._featurePanels = viz._featurePanels || [];
-      viz._featurePanels.push({
+      panel = {
         type: "htmlOverlay" as const,
         key: "viz-zoom-controls",
         x: viz._margin.left,
@@ -157,7 +158,7 @@ export const zoomFeature: FeatureModule = {
             });
           });
         },
-      });
+      };
     }
 
     viz._zoomBrush
@@ -183,7 +184,7 @@ export const zoomFeature: FeatureModule = {
     if (viz._renderTiles)
       viz._renderTiles(zoomTransform(viz._container.node()), 0);
 
-    return {panel: null, margin: {}};
+    return {panel, margin: {}};
   },
 };
 
