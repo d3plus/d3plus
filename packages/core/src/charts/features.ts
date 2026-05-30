@@ -219,7 +219,7 @@ function textBlockLayout(
     : {top: 0, right: 0, bottom: 0, left: 0};
   const width =
     viz.schema.width -
-    (viz._margin.left + viz._margin.right + padding.left + padding.right);
+    (layoutMargin.left + layoutMargin.right + padding.left + padding.right);
 
   const textClass = viz[opts.textClassKey];
   textClass
@@ -398,7 +398,7 @@ function setTimeFilter(viz: any, s: Date | Date[] | number[]): void {
 export const timelineFeature: FeatureModule = {
   name: "timeline",
   configFields: ["timeline", "timelineConfig", "timelinePadding"],
-  layout: ({viz}) => {
+  layout: ({viz, layoutMargin}) => {
     let timelinePossible = viz.schema.time && viz.schema.timeline;
     const ticks = (
       timelinePossible
@@ -413,7 +413,7 @@ export const timelineFeature: FeatureModule = {
       : {top: 0, right: 0, bottom: 0, left: 0};
 
     const transform = {
-      transform: `translate(${viz._margin.left + padding.left}, 0)`,
+      transform: `translate(${layoutMargin.left + padding.left}, 0)`,
     };
 
     const timelineGroup = elem("g.d3plus-viz-timeline", {
@@ -431,13 +431,13 @@ export const timelineFeature: FeatureModule = {
       .renderMode("compute")
       .domain(extent(ticks) as [Date, Date])
       .duration(viz.schema.duration)
-      .height(viz.schema.height - viz._margin.bottom)
+      .height(viz.schema.height - layoutMargin.bottom)
       .locale(viz.schema.locale)
       .select(timelineGroup)
       .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
       .width(
         viz.schema.width -
-          (viz._margin.left + viz._margin.right + padding.left + padding.right),
+          (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
       );
 
     const dataExtent = extent(
@@ -493,7 +493,7 @@ export const colorScaleFeature: FeatureModule = {
     "colorScalePadding",
     "colorScalePosition",
   ],
-  layout: ({viz}) => {
+  layout: ({viz, layoutMargin}) => {
     const data = Array.from(
       rollup(
         viz._data,
@@ -511,27 +511,27 @@ export const colorScaleFeature: FeatureModule = {
       : {top: 0, right: 0, bottom: 0, left: 0};
 
     const availableWidth =
-      viz.schema.width - (viz._margin.left + viz._margin.right + padding.left + padding.right);
+      viz.schema.width - (layoutMargin.left + layoutMargin.right + padding.left + padding.right);
     const width = wide
       ? min([viz.schema.colorScaleMaxSize, availableWidth])!
-      : viz.schema.width - (viz._margin.left + viz._margin.right);
+      : viz.schema.width - (layoutMargin.left + layoutMargin.right);
 
     const availableHeight =
-      viz.schema.height - (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top);
+      viz.schema.height - (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top);
     const height = !wide
       ? min([viz.schema.colorScaleMaxSize, availableHeight])!
-      : viz.schema.height - (viz._margin.bottom + viz._margin.top);
+      : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);
 
     const transform = {
       opacity: position ? 1 : 0,
       transform: `translate(${
         wide
-          ? viz._margin.left + padding.left + (availableWidth - width) / 2
-          : viz._margin.left
+          ? layoutMargin.left + padding.left + (availableWidth - width) / 2
+          : layoutMargin.left
       }, ${
         wide
-          ? viz._margin.top
-          : viz._margin.top + padding.top + (availableHeight - height) / 2
+          ? layoutMargin.top
+          : layoutMargin.top + padding.top + (availableHeight - height) / 2
       })`,
     };
 

@@ -93,22 +93,35 @@ export function vizDrawPure(
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 
-  // Top blocks first (back / title / subtitle / total) so margin.top is
-  // updated BEFORE the left/right legend lays out — legend reads
-  // viz._margin.top to position itself. Title must lay out first or the
-  // left legend overlaps the title at y=0.
+  // `running` is the cross-call margin accumulator, threaded into each
+  // runLayout as its baseMargin so features read the live running total via
+  // ctx.layoutMargin (not viz._margin). Seeded from viz._margin so the math
+  // matches whatever base the instance carried in.
+  const running = {
+    top: viz._margin.top,
+    right: viz._margin.right,
+    bottom: viz._margin.bottom,
+    left: viz._margin.left,
+  };
+
+  // Top blocks first (back / title / subtitle / total) so the running
+  // margin.top grows BEFORE the left/right legend lays out — the legend
+  // positions against it. Title must lay out first or the left legend
+  // overlaps the title at y=0.
   const topBlocks = runLayout({viz} as any, [
     backFeature,
     titleFeature,
     subtitleFeature,
     totalFeature,
-  ]);
+  ], running);
   viz._featurePanels.push(...topBlocks.panels);
   out.marginDelta!.top += topBlocks.margin.top;
+  running.top += topBlocks.margin.top;
   viz._margin.top += topBlocks.margin.top;
 
-  const timelineClaim = runLayout({viz} as any, [timelineFeature]);
+  const timelineClaim = runLayout({viz} as any, [timelineFeature], running);
   out.marginDelta!.bottom += timelineClaim.margin.bottom;
+  running.bottom += timelineClaim.margin.bottom;
   viz._margin.bottom += timelineClaim.margin.bottom;
 
   // Left/right legend + colorScale claims. Includes `=== false` (mirrors
@@ -119,9 +132,11 @@ export function vizDrawPure(
     legendPosition === "right" ||
     legendPosition === false
   ) {
-    const claim = runLayout({viz} as any, [legendFeature]);
+    const claim = runLayout({viz} as any, [legendFeature], running);
     out.marginDelta!.left += claim.margin.left;
     out.marginDelta!.right += claim.margin.right;
+    running.left += claim.margin.left;
+    running.right += claim.margin.right;
     viz._margin.left += claim.margin.left;
     viz._margin.right += claim.margin.right;
   }
@@ -130,25 +145,31 @@ export function vizDrawPure(
     colorScalePosition === "right" ||
     colorScalePosition === false
   ) {
-    const claim = runLayout({viz} as any, [colorScaleFeature]);
+    const claim = runLayout({viz} as any, [colorScaleFeature], running);
     out.marginDelta!.left += claim.margin.left;
     out.marginDelta!.right += claim.margin.right;
+    running.left += claim.margin.left;
+    running.right += claim.margin.right;
     viz._margin.left += claim.margin.left;
     viz._margin.right += claim.margin.right;
   }
 
   // Top/bottom legend + colorScale.
   if (legendPosition === "top" || legendPosition === "bottom") {
-    const claim = runLayout({viz} as any, [legendFeature]);
+    const claim = runLayout({viz} as any, [legendFeature], running);
     out.marginDelta!.top += claim.margin.top;
     out.marginDelta!.bottom += claim.margin.bottom;
+    running.top += claim.margin.top;
+    running.bottom += claim.margin.bottom;
     viz._margin.top += claim.margin.top;
     viz._margin.bottom += claim.margin.bottom;
   }
   if (colorScalePosition === "top" || colorScalePosition === "bottom") {
-    const claim = runLayout({viz} as any, [colorScaleFeature]);
+    const claim = runLayout({viz} as any, [colorScaleFeature], running);
     out.marginDelta!.top += claim.margin.top;
     out.marginDelta!.bottom += claim.margin.bottom;
+    running.top += claim.margin.top;
+    running.bottom += claim.margin.bottom;
     viz._margin.top += claim.margin.top;
     viz._margin.bottom += claim.margin.bottom;
   }

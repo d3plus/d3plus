@@ -101,7 +101,11 @@ function buildLegendData(viz: any): LegendData {
     `toScene()` collected on Viz.toScene), then returns the margin claim
     derived from the previous render's outerBounds.
 */
-function renderLegendFeature(viz: any, built: LegendData): FeatureLayout {
+function renderLegendFeature(
+  viz: any,
+  built: LegendData,
+  layoutMargin: Required<MarginClaim>,
+): FeatureLayout {
   const {legendData, fill, getAttr} = built;
 
   const hidden = (d: DataPoint, i: number): boolean => {
@@ -125,8 +129,8 @@ function renderLegendFeature(viz: any, built: LegendData): FeatureLayout {
     : {top: 0, right: 0, bottom: 0, left: 0};
   const transform = {
     transform: `translate(${
-      wide ? viz._margin.left + padding.left : viz._margin.left
-    }, ${wide ? viz._margin.top : viz._margin.top + padding.top})`,
+      wide ? layoutMargin.left + padding.left : layoutMargin.left
+    }, ${wide ? layoutMargin.top : layoutMargin.top + padding.top})`,
   };
   // `visible` gates the legend group's DOM presence + data binding.
   // `position === false` forces it off so `.legendPosition(false)` is
@@ -156,9 +160,9 @@ function renderLegendFeature(viz: any, built: LegendData): FeatureLayout {
     .data(visible ? legendData : [])
     .height(
       wide
-        ? viz.schema.height - (viz._margin.bottom + viz._margin.top)
+        ? viz.schema.height - (layoutMargin.bottom + layoutMargin.top)
         : viz.schema.height -
-            (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top),
+            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top),
     )
     .locale(viz.schema.locale)
     .parent(viz)
@@ -170,8 +174,8 @@ function renderLegendFeature(viz: any, built: LegendData): FeatureLayout {
     .width(
       wide
         ? viz.schema.width -
-            (viz._margin.left + viz._margin.right + padding.left + padding.right)
-        : viz.schema.width - (viz._margin.left + viz._margin.right),
+            (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
+        : viz.schema.width - (layoutMargin.left + layoutMargin.right),
     )
     .shapeConfig((configPrep as any).bind(viz)(viz.schema.shapeConfig, "legend"))
     .shapeConfig({
@@ -216,11 +220,6 @@ export const legendFeature: FeatureModule = {
   configFields: ["legend", "legendConfig", "legendPadding", "legendPosition", "legendSort"],
   layout: ({viz, layoutMargin}: VizContext & {layoutMargin: Required<MarginClaim>}) => {
     const built = buildLegendData(viz);
-    // The `layoutMargin` argument is the cumulative claim from earlier features;
-    // the runLayout engine will accumulate this feature's claim into it. We
-    // don't read it here directly — drawLegend used `viz._margin.left` etc.,
-    // which the engine already wrote through.
-    void layoutMargin;
-    return renderLegendFeature(viz, built);
+    return renderLegendFeature(viz, built, layoutMargin);
   },
 };
