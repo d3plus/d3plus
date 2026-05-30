@@ -15,7 +15,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyPieLayout} from "./applyLayout.js";
@@ -25,7 +24,6 @@ export const pieDef: ChartDefinition = {
   name: "Pie",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyPieLayout],
   layoutStage: applyPieLayout,
   emit: pieEmit,
 

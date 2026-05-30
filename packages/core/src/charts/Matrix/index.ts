@@ -14,7 +14,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyMatrixLayout} from "./applyLayout.js";
@@ -40,7 +39,6 @@ export const matrixDef: ChartDefinition = {
   name: "Matrix",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyMatrixLayout],
   layoutStage: applyMatrixLayout,
   emit: matrixEmit,
 

@@ -32,7 +32,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {ensureZoomDom} from "../ensureZoomDom.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyGeomapLayout} from "./applyLayout.js";
@@ -287,7 +286,6 @@ export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyGeomapLayout],
   layoutStage: applyGeomapLayout,
   emit: geomapEmit,
 

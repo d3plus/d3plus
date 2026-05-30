@@ -10,14 +10,12 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
 import Plot from "../Plot/index.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 export const barChartDef: ChartDefinition = {
   name: "BarChart",
   paintDriven: true,
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: vizPreDrawStages,
   emit: ({viz}) => Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
 
   ctx: {},

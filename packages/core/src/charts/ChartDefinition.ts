@@ -28,11 +28,9 @@ interface ChartDefinitionBase {
   fields?: import("../fluent.js").ConfigField[];
   /** Chart-level features composed in; order is layout order. */
   features: FeatureModule[];
-  /** Documentary manifest of every stage the chart conceptually runs. */
-  stages: TransformStage[];
   /**
-      Chart-specific layout stage run in `_draw` after the shared
-      `vizPreDrawStages`. If absent, `makeChart` doesn't invoke
+      Chart-specific layout stage run in `_draw` after the shared chart-shell
+      prep (`vizPreDrawPure`). If absent, `makeChart` doesn't invoke
       `runChartDraw` — the chart relies on its parent's `_draw` only.
   */
   layoutStage?: TransformStage;

@@ -16,11 +16,10 @@ import type {VizInstance} from "../vizTypes.js";
 export const donutDef: ChartDefinition = {
   name: "Donut",
 
-  // Inherits Pie's full pipeline (features, stages, emit). Donut adds
-  // no chart-specific stage of its own — `super._draw` (Pie's) handles
-  // the layout.
+  // Inherits Pie's full pipeline (features + emit). Donut adds no
+  // chart-specific layout stage of its own — `super._draw` (Pie's)
+  // handles the layout.
   features: pieDef.features,
-  stages: pieDef.stages,
   emit: pieDef.emit,
 
   ctx: {},

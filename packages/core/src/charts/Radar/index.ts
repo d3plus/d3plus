@@ -15,7 +15,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import {centerChartTransform, chartBounds} from "../chartGeometry.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyRadarLayout} from "./applyLayout.js";
@@ -25,7 +24,6 @@ export const radarDef: ChartDefinition = {
   name: "Radar",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyRadarLayout],
   layoutStage: applyRadarLayout,
   emit: radarEmit,
 

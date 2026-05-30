@@ -17,7 +17,6 @@ import {legendLabel} from "../legendLabel.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 import type Viz from "../Viz.js";
 
@@ -28,7 +27,6 @@ export const treeDef: ChartDefinition = {
   name: "Tree",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyTreeLayout],
   layoutStage: applyTreeLayout,
   emit: treeEmit,
 

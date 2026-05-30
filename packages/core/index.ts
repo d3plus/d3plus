@@ -90,7 +90,7 @@ import {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 import {treeDef} from "./src/charts/Tree/index.js";
 import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
-import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
+import {runStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
 import {plotEmit, plotPaint} from "./src/charts/plotPaint.js";
 import {renderAxes} from "./src/charts/axes.js";
@@ -189,7 +189,6 @@ export {
 export {
   runStages,
   runLayout,
-  vizPreDrawStages,
   backFeature,
   colorScaleFeature,
   legendFeature,

@@ -1,8 +1,7 @@
 /**
-    Named `TransformStage`s for the chart-shell data prep (draw-depth, id
-    accessors, time/user filtering, rollup, threshold, large-data
-    adjustment, empty-data detection), plus `runStages` to fold a stage
-    list into a context.
+    `runStages` folds a list of `TransformStage`s into a context, plus the
+    `VizContext` / `TransformStage` types they share and `discreteNestKeys`,
+    the rollup nest-key helper.
 
     `runStages` is the engine for the per-chart layout stages
     (`applyTreemapLayout` etc.) that `runChartDraw` and the Plot pipeline
@@ -11,49 +10,13 @@
     (writeback is progressive, not after all stages, because
     `Treemap._thresholdFunction` reads `this._drawDepth` mid-pipeline).
 
-    The chart-shell data prep itself runs through the imperative
-    `vizPreDrawPure` (see `vizPreDrawPure.ts`); the declarative
-    `vizPreDrawStages` list below mirrors that logic but is not on the
-    runtime path.
+    The chart-shell data prep (draw-depth, id accessors, time/user
+    filtering, rollup, threshold, large-data adjustment, empty-data
+    detection) runs through the imperative `vizPreDrawPure` (see
+    `vizPreDrawPure.ts`), which is the single source of truth for it.
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {group, max, min, rollup} from "d3-array";
-
 import type {DataPoint} from "@d3plus/data";
-import {merge} from "@d3plus/data";
-import {date} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
-
-/**
-    A function that introspects the `d` Data Object for internally nested
-    d3plus data and indices, runs the accessor function on that user data.
-    @private
-*/
-function accessorFetch(
-  acc: (d: DataPoint, i: number) => unknown,
-  d: DataPoint,
-  i: number,
-): unknown {
-  while (d.__d3plus__ && d.data) {
-    if (typeof d.i === "number") i = d.i;
-    d = d.data as DataPoint;
-  }
-  return acc(d, i);
-}
-
-/** Turns an array of values into a comma+and joined string. @private */
-function listify(n: DataPoint[keyof DataPoint][]): string {
-  return n.reduce<string>(
-    (str: string, item: DataPoint[keyof DataPoint], i: number) => {
-      if (!i) str += item;
-      else if (i === n.length - 1 && i === 1) str += ` and ${item}`;
-      else if (i === n.length - 1) str += `, and ${item}`;
-      else str += `, ${item}`;
-      return str;
-    },
-    "",
-  );
-}
 
 /**
     @interface VizContext
@@ -142,78 +105,6 @@ export interface VizContext {
 */
 export type TransformStage = (ctx: VizContext) => Partial<VizContext>;
 
-/* ------------------------------ stages ------------------------------ */
-
-/** Resolve which depth of the groupBy hierarchy is being drawn. */
-export const resolveDrawDepth: TransformStage = ({viz}) => ({
-  drawDepth:
-    viz.schema.depth !== void 0
-      ? min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1])!
-      : viz.schema.groupBy.length - 1,
-});
-
-/** Build the id / ids closures used to key shapes for the current draw depth. */
-export const buildIdAccessors: TransformStage = ({viz, drawDepth}) => {
-  const id = (d: DataPoint, i: number) => {
-    const groupByDrawDepth = accessorFetch(viz.schema.groupBy[drawDepth!], d, i);
-    return typeof groupByDrawDepth === "number"
-      ? `${groupByDrawDepth}`
-      : groupByDrawDepth;
-  };
-  const ids = (d: DataPoint, i: number) =>
-    (viz.schema.groupBy as ((d: DataPoint, i: number) => unknown)[])
-      .map(g => `${accessorFetch(g, d, i)}`)
-      .filter(Boolean);
-  return {id, ids};
-};
-
-/** Build the draw-label closure (drill-down captions, threshold aggregation labels). */
-export const buildDrawLabel: TransformStage = ({viz, drawDepth, ids}) => ({
-  drawLabel: (d: DataPoint, i: number, depth: number = drawDepth!): string => {
-    if (!d) return "";
-    while (d.__d3plus__ && d.data) {
-      d = d.data as DataPoint;
-      i = d.i as number;
-    }
-    if (d._isAggregation) {
-      return `${viz.schema.thresholdName(d, i)} < ${formatAbbreviate(
-        (d._threshold as number) * 100,
-        viz.schema.locale,
-      )}%`;
-    }
-    if (viz.schema.label && depth === drawDepth) return `${viz.schema.label(d, i)}`;
-    const l = ids!(d, i).slice(0, depth + 1);
-    const n =
-      l.reverse().find((ll: unknown) => !Array.isArray(ll)) || l[l.length - 1];
-    return Array.isArray(n) ? listify(n) : `${n}`;
-  },
-});
-
-/**
-    Initialize the time filter when one wasn't set. The discrete-axis case
-    keeps the data unfiltered; otherwise the filter pins to the latest time.
-*/
-export const applyTimeFilter: TransformStage = ({viz}) => {
-  if (!viz.schema.time || viz.schema.timeFilter || !viz._data.length) {
-    return {timeFilter: viz.schema.timeFilter};
-  }
-  const dates = viz._data.map(viz.schema.time).map(date);
-  const d = viz._data[0];
-  const i = 0;
-  if (
-    viz.schema.discrete &&
-    `_${viz.schema.discrete}` in viz &&
-    viz[`_${viz.schema.discrete}`](d, i) === viz.schema.time(d, i)
-  ) {
-    return {timeFilter: () => true};
-  }
-  const latestTime = +max(dates as Date[])!;
-  return {
-    timeFilter: (d: DataPoint, i?: number) =>
-      +date(viz.schema.time(d, i ?? 0))! === latestTime,
-  };
-};
-
 /**
     Discrete-axis nest keys for the rollup. Plot stores its discrete accessor
     on `viz._x`/`viz._y`; fluent-schema charts (Radar/RadialMatrix `metric`)
@@ -235,115 +126,6 @@ export function discreteNestKeys(
 }
 
 /**
-    Filter the data + rollup by groupBy + discrete axes, merging leaves through
-    `viz.schema.aggs`. Applies hidden/solo. Produces `filteredData` and `legendData`.
-*/
-export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}) => {
-  const filteredOut: DataPoint[] = [];
-  const legendData: DataPoint[] = [];
-  if (!viz._data.length) return {filteredData: filteredOut, legendData};
-
-  let flatData: DataPoint[] = timeFilter ? viz._data.filter(timeFilter) : viz._data;
-  if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
-
-  const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
-  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
-  nestKeys.push(...discreteNestKeys(viz));
-
-  let collected: DataPoint[] = filteredOut;
-
-  rollup(
-    flatData,
-    (leaves: DataPoint[]) => {
-      const index = viz._data.indexOf(leaves[0]);
-      const shape = viz.schema.shape(leaves[0], index);
-      const idValue = id!(leaves[0], index);
-      const d = merge(leaves, viz.schema.aggs) as unknown as DataPoint;
-      if (
-        !viz._hidden.includes(idValue) &&
-        (!viz._solo.length || viz._solo.includes(idValue))
-      ) {
-        if (!viz.schema.discrete && shape === "Line") collected = collected.concat(leaves);
-        else collected.push(d);
-      }
-      legendData.push(d);
-      return null;
-    },
-    ...nestKeys,
-  );
-
-  return {filteredData: collected, legendData};
-};
-
-/** Apply the optional threshold function to merge small leaves into aggregates. */
-export const applyThreshold: TransformStage = ({viz, filteredData, id: _id, drawDepth, timeFilter}) => {
-  // Rebuild the rollup tree for the threshold function to consume.
-  if (!viz._data.length) return {filteredData};
-  let flatData: DataPoint[] = timeFilter ? viz._data.filter(timeFilter) : viz._data;
-  if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
-  const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
-  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
-  nestKeys.push(...discreteNestKeys(viz));
-  const tree = rollup(flatData, () => null, ...nestKeys);
-  return {filteredData: viz._thresholdFunction(filteredData, tree)};
-};
-
-/**
-    Auto-disable hover-opacity and animation when the data set is large. Also
-    caches the user-provided hover/duration so they can be restored when the
-    dataset shrinks below the cutoff again. The cache write is a deliberate
-    side effect on `viz` — it's state preservation across renders, not a
-    pipeline output.
-*/
-export const adjustForLargeData: TransformStage = ({viz, filteredData, id}) => {
-  const uniqueIds = group(filteredData!, id! as any).size;
-  if (uniqueIds > viz.schema.dataCutoff) {
-    if (viz._userHover === undefined)
-      viz._userHover = viz.schema.shapeConfig.hoverOpacity || 0.5;
-    if (viz._userDuration === undefined)
-      viz._userDuration = viz.schema.shapeConfig.duration || 600;
-    return {shapeConfigOverrides: {hoverOpacity: 1, duration: 0}};
-  }
-  if (viz._userHover !== undefined) {
-    return {
-      shapeConfigOverrides: {
-        hoverOpacity: viz._userHover,
-        duration: viz._userDuration,
-      },
-    };
-  }
-  return {};
-};
-
-/** Flag empty-data state so the runner can mount the no-data message. */
-export const detectNoData: TransformStage = ({viz, filteredData}) => ({
-  displayNoData: viz.schema.noDataMessage && !filteredData!.length,
-});
-
-/**
-    Declarative form of the chart-shell data prep — the same logic the
-    imperative `vizPreDrawPure` runs. Wired onto each
-    `ChartDefinition.stages` (charts compose their layout stage on:
-    `[...vizPreDrawStages, applyTreemapLayout]`), but the runtime preDraw
-    path runs `vizPreDrawPure`, so this list is not itself invoked. The two
-    forms are kept in sync by hand; consolidating to a single source of
-    truth (drive preDraw from `def.stages`, or drop this list) is open.
-*/
-export const vizPreDrawStages: TransformStage[] = [
-  resolveDrawDepth,
-  buildIdAccessors,
-  buildDrawLabel,
-  applyTimeFilter,
-  rollupAndFilter,
-  applyThreshold,
-  adjustForLargeData,
-  detectNoData,
-];
-
-/**
-    Run a stage pipeline and accumulate the partial outputs into one context.
-*/
-/**
     Maps context-field names to the `this.*` properties downstream
     consumers (`_draw`, drawSteps, component instances, chart subclasses) read.
     Stages with side effects on `this` (the threshold function reading
@@ -360,6 +142,9 @@ const writebackMap: Record<string, string> = {
   legendData: "_legendData",
 };
 
+/**
+    Run a stage pipeline and accumulate the partial outputs into one context.
+*/
 export function runStages(
   initial: VizContext,
   stages: TransformStage[],

@@ -22,7 +22,6 @@ import constant from "../../utils/constant.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applySankeyLayout} from "./applyLayout.js";
@@ -39,7 +38,6 @@ export const sankeyDef: ChartDefinition = {
   name: "Sankey",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applySankeyLayout],
   layoutStage: applySankeyLayout,
   emit: sankeyEmit,
 

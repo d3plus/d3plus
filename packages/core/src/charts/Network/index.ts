@@ -19,7 +19,6 @@ import {chartBounds} from "../chartGeometry.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {ensureZoomDom} from "../ensureZoomDom.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyNetworkLayout} from "./applyLayout.js";
@@ -263,7 +262,6 @@ export const networkDef: ChartDefinition = {
   name: "Network",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyNetworkLayout],
   layoutStage: applyNetworkLayout,
   emit: networkEmit,
 

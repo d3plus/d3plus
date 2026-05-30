@@ -21,7 +21,6 @@ import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {shapeConfigFor} from "../emitHelpers.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {TransformStage} from "../stages.js";
 
 import {computePlotInitialDomains} from "./pipelineDomains.js";
@@ -528,22 +527,6 @@ export const plotDef: ChartDefinition = {
     shape: constant("Circle"),
   },
   features: defaultChartFeatures,
-  // Plot's pipeline tail: shared viz prep + Plot-specific data format +
-  // per-axis values + stacked/non-stacked initial domains + scale construction.
-  // Plot._draw runs these via `runStages` and continues with the paint phase
-  // (axis rendering, buffer setup, shape emission).
-  stages: [
-    ...vizPreDrawStages,
-    formatPlotData,
-    computePlotAxisValues,
-    computePlotInitialDomains,
-    computePlotScales,
-    extendPlotOppScales,
-    preparePlotAxisLayout,
-    // `measurePlotLineLabels` is invoked from Plot._draw rather than as part of
-    // the canonical chain because it depends on test-axis state (xTest/yTest)
-    // that's measured imperatively in _draw, not as a stage.
-  ],
   // Plot._paint populates `viz._chartScene` imperatively; emit just snapshots it.
   emit: ({viz}: {viz: any}) =>
     Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],

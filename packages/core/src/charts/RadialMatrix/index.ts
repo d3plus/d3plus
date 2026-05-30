@@ -18,7 +18,6 @@ import {centerChartTransform} from "../chartGeometry.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyRadialMatrixLayout} from "./applyLayout.js";
@@ -38,7 +37,6 @@ export const radialMatrixDef: ChartDefinition = {
   name: "RadialMatrix",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyRadialMatrixLayout],
   layoutStage: applyRadialMatrixLayout,
   emit: radialMatrixEmit,
 

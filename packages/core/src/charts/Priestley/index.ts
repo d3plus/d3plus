@@ -14,7 +14,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import type {DataPoint} from "@d3plus/data";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyPriestleyLayout} from "./applyLayout.js";
@@ -24,7 +23,6 @@ export const priestleyDef: ChartDefinition = {
   name: "Priestley",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyPriestleyLayout],
   layoutStage: applyPriestleyLayout,
   emit: priestleyEmit,
 

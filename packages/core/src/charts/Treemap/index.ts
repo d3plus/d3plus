@@ -29,7 +29,6 @@ import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../featu
 import type {ChartDefinition} from "../ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyTreemapLayout} from "./applyLayout.js";
@@ -61,7 +60,6 @@ export const treemapDef: ChartDefinition = {
   name: "Treemap",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyTreemapLayout],
   layoutStage: applyTreemapLayout,
   emit: treemapEmit,
 

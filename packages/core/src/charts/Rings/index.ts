@@ -16,7 +16,6 @@ import constant from "../../utils/constant.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
 import type {ChartDefinition} from "../ChartDefinition.js";
 import {makeChart} from "../makeChart.js";
-import {vizPreDrawStages} from "../stages.js";
 import type {VizInstance} from "../vizTypes.js";
 
 import {applyRingsLayout} from "./applyLayout.js";
@@ -26,7 +25,6 @@ export const ringsDef: ChartDefinition = {
   name: "Rings",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  stages: [...vizPreDrawStages, applyRingsLayout],
   layoutStage: applyRingsLayout,
   emit: ringsEmit,
 
