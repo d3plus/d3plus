@@ -10,7 +10,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 function resolveAccessor<T>(
   val: unknown,
@@ -25,7 +25,7 @@ function resolveAccessor<T>(
 
 type Slice = PieArcDatum<DataPoint> & {__d3plus__?: true; i?: number};
 
-export const pieEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
+export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
   if (!slices.length) return [];
 

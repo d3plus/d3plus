@@ -16,7 +16,6 @@ export const barChartDef: ChartDefinition = {
   name: "BarChart",
   paintDriven: true,
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  emit: ({viz}) => Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
 
   ctx: {},
 

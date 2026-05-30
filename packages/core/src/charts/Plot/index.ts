@@ -317,14 +317,12 @@ export default class Plot extends Viz {
       scope beyond the explicit context).
   */
   _paint(pCtx: PlotPaintContext) {
-    const nodes = plotPaint(this as unknown as VizInstance, pCtx);
-    // plotPaint returns the emitted scene nodes. Push them into
-    // _chartScene in place; allocating a
-    // fresh array via `.concat(nodes)` per draw churns GC on wide
-    // charts (1000s of bars/cells) under zoom/animation. Viz.toScene
+    // plotPaint builds the chart scene as a fresh array from the paint
+    // context (data, scales, axis measurements) — emission is a pure
+    // function of its inputs. `super._draw` resets `_chartScene` to []
+    // before the paint phase, so the emit output IS the scene. Viz.toScene
     // wraps the collection in viz-chart-cells + zoom transform.
-    const scene = (this._chartScene ||= []);
-    for (let i = 0; i < nodes.length; i++) scene.push(nodes[i]);
+    this._chartScene = plotPaint(this as unknown as VizInstance, pCtx);
     return this;
   }
 

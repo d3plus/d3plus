@@ -49,14 +49,12 @@ export function runChartDraw(
 ): void {
   // Invariant: this helper OWNS `_chartScene` for the current draw — it
   // overwrites with `def.emit(ctx)`. The Plot family takes a different
-  // flow (Plot._paint pushes into `_chartScene` imperatively, and its
-  // def.emit returns a SNAPSHOT of the current `_chartScene`). Calling
-  // `runChartDraw` on a paint-driven chart would create a feedback loop
-  // (emit returns _chartScene → we overwrite _chartScene with that same
-  // snapshot, discarding any nodes Plot._paint appended after). The
-  // ChartDefinition.paintDriven discriminant is the structural signal —
-  // failing loud so future contributors who try to "unify" Plot with
-  // runChartDraw can't silently clobber the chart scene.
+  // flow: `Plot._paint` populates `_chartScene` directly from `plotPaint`
+  // (which builds the scene from its paint context), and paint-driven defs
+  // carry no `emit`. Calling `runChartDraw` on a paint-driven chart would
+  // clobber that scene. The ChartDefinition.paintDriven discriminant is the
+  // structural signal — failing loud so future contributors who try to
+  // "unify" Plot with runChartDraw can't silently clobber the chart scene.
   if (isPaintDriven(def)) {
     throw new Error(
       `runChartDraw cannot drive ${def.name} — it's a paint-driven chart ` +

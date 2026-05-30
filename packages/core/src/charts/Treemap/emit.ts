@@ -11,7 +11,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 
 function resolveAccessor<T>(
@@ -25,7 +25,7 @@ function resolveAccessor<T>(
   return val as T | undefined;
 }
 
-export const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
+export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as TreemapShapeNode[];
   if (!nodes.length) return [];
 

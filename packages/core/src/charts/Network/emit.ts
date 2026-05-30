@@ -10,7 +10,7 @@ import type {SceneNode} from "@d3plus/render";
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface NetworkLink {
   source: DataPoint & {x: number; y: number};
@@ -37,7 +37,7 @@ interface NetworkCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
-export const networkEmit: ChartDefinition["emit"] = ({viz}) => {
+export const networkEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];

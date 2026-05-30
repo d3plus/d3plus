@@ -9,7 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface RingsEdge {
   source: DataPoint & {id: string; x: number; y: number};
@@ -46,7 +46,7 @@ interface RingsCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
-export const ringsEmit: ChartDefinition["emit"] = ({viz}) => {
+export const ringsEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.ringsCtx as RingsCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];

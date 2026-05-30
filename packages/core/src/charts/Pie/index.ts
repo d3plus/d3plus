@@ -12,7 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../chartGeometry.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {DataDrivenChartDefinition} from "../ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../makeChart.js";
 import type {VizInstance} from "../vizTypes.js";
@@ -20,7 +20,7 @@ import type {VizInstance} from "../vizTypes.js";
 import {applyPieLayout} from "./applyLayout.js";
 import {pieEmit} from "./emit.js";
 
-export const pieDef: ChartDefinition = {
+export const pieDef: DataDrivenChartDefinition = {
   name: "Pie",
 
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],

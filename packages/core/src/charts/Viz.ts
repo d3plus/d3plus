@@ -37,14 +37,16 @@ export default class Viz extends VizBase {
   /**
       Composes a backend-agnostic scene graph from the shapes/features produced
       by the most recent render. Combines:
-      - `_chartScene` (cells from `chartDef.emit`) wrapped in viz-chart-cells
+      - `_chartScene` (cells from `chartDef.emit`, or `Plot._paint` for the
+        paint-driven Plot family) wrapped in viz-chart-cells
       - `_shapes` (still used by some charts) — each shape's toScene
       - chart-level components (Legend/ColorScale/Timeline) via their toScene
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
   toScene(): Scene {
     const children: SceneNode[] = [];
-    // Chart cells emitted via `chartDef.emit(ctx)` and stashed on _chartScene.
+    // Chart cells stashed on _chartScene — via `chartDef.emit(ctx)` for
+    // data-driven charts, or `Plot._paint` for the paint-driven Plot family.
     // Wraps in two groups when a zoom transform is active:
     //   viz-chart-cells (chart-positioning transform)
     //     viz-zoom (zoom transform — pan/scale from d3-zoom)

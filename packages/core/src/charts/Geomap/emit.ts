@@ -8,7 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {paintFromShapeConfig, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface GeomapCtx {
   topoData: Array<{__d3plus__?: true; data?: DataPoint; feature: unknown; id: string | number}>;
@@ -20,7 +20,7 @@ interface GeomapCtx {
   pointSort?: (a: DataPoint, b: DataPoint) => number;
 }
 
-export const geomapEmit: ChartDefinition["emit"] = ({viz}) => {
+export const geomapEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];

@@ -6,7 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface MatrixCell extends Record<string, unknown> {
   row: unknown;
@@ -18,7 +18,7 @@ function resolveAccessor<T>(val: unknown, d: DataPoint, i: number): T | undefine
   return val as T | undefined;
 }
 
-export const matrixEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
+export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
   const cells = (shapeData ?? []) as MatrixCell[];
   if (!cells.length) return [];
   const columnScale = viz.ctx.columnScale as (v: unknown) => number;

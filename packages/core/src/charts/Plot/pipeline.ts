@@ -525,8 +525,6 @@ export const plotDef: ChartDefinition = {
     shape: constant("Circle"),
   },
   features: defaultChartFeatures,
-  // Plot._paint populates `viz._chartScene` imperatively; emit just snapshots it.
-  emit: ({viz}: {viz: any}) =>
-    Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
+  // Plot._paint populates `viz._chartScene` from `plotPaint`; no emit step.
   paintDriven: true,
 };

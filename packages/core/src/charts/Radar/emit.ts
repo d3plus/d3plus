@@ -8,7 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {paintFromShapeConfig} from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface RadarGroupDatum {
   __d3plus__?: true;
@@ -17,7 +17,7 @@ interface RadarGroupDatum {
   d: string;
 }
 
-export const radarEmit: ChartDefinition["emit"] = ({viz}) => {
+export const radarEmit: ChartEmit = ({viz}) => {
   const groupData = viz.ctx.groupData as RadarGroupDatum[] | undefined;
   const pathConfig = viz.ctx.pathConfig as Record<string, unknown> | undefined;
   if (!groupData || !pathConfig || !groupData.length) return [];

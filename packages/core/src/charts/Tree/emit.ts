@@ -14,7 +14,7 @@ import {
   resolveAccessor,
   shapeConfigFor,
 } from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface ShapeGroup {
   key: string;
@@ -75,7 +75,7 @@ function geometryFor(
   }
 }
 
-export const treeEmit: ChartDefinition["emit"] = ({viz}) => {
+export const treeEmit: ChartEmit = ({viz}) => {
   const linksData = viz.ctx.linksData as
     | (DataPoint & {depth?: number; i?: number})[]
     | undefined;

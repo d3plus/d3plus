@@ -11,7 +11,7 @@ import {
   resolveAccessor,
   shapeConfigFor,
 } from "../emitHelpers.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 
 interface SankeyLink {
   source: SankeyNode;
@@ -35,7 +35,7 @@ interface SankeyCtx {
   pathFn: (d: SankeyLink) => string;
 }
 
-export const sankeyEmit: ChartDefinition["emit"] = ({viz}) => {
+export const sankeyEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.sankeyCtx as SankeyCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];

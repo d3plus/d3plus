@@ -8,7 +8,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 import type {PackLeaf} from "./applyLayout.js";
 
 function resolveAccessor<T>(
@@ -22,7 +22,7 @@ function resolveAccessor<T>(
   return val as T | undefined;
 }
 
-export const packEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
+export const packEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as PackLeaf[];
   if (!nodes.length) return [];
 

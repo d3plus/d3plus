@@ -9,7 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import type {ChartEmit} from "../ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
 
 function resolveAccessor<T>(
@@ -23,7 +23,7 @@ function resolveAccessor<T>(
   return val as T | undefined;
 }
 
-export const priestleyEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
+export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
   const data = (shapeData ?? []) as PriestleyDatum[];
   if (!data.length) return [];
   const xScale = viz.ctx.xScale as (v: number | Date) => number;

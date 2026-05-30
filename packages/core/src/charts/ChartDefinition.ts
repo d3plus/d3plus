@@ -50,22 +50,28 @@ interface ChartDefinitionBase {
   setup?: (viz: VizInstance) => void;
 }
 
+/**
+    A data-driven chart's emit: a pure function from a chart context (with
+    optional laid-out `shapeData`) to the scene nodes for one frame.
+*/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ChartEmit = (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
+
 /** Data-driven chart: `emit(ctx)` produces the scene nodes. */
 export interface DataDrivenChartDefinition extends ChartDefinitionBase {
   paintDriven?: false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  emit: (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
+  emit: ChartEmit;
 }
 
 /**
-    Paint-driven chart: `Plot._paint` populates `viz._chartScene`
-    imperatively, and `emit` returns a snapshot of that array.
-    `runChartDraw` refuses to drive paint-driven defs (see runChartDraw.ts).
+    Paint-driven chart: `Plot._paint` populates `viz._chartScene` by calling
+    `plotPaint`, which builds the scene from the paint context assembled in
+    `drawPlot`. There is no `emit` step — `runChartDraw` refuses to drive
+    paint-driven defs (see runChartDraw.ts), so the scene is produced entirely
+    inside the Plot draw flow.
 */
 export interface PaintDrivenChartDefinition extends ChartDefinitionBase {
   paintDriven: true;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  emit: (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
 }
 
 /** Discriminated union; use `isPaintDriven` to narrow. */

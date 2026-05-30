@@ -16,7 +16,6 @@ export const bumpChartDef: ChartDefinition = {
   name: "BumpChart",
   paintDriven: true,
   features: [backFeature, titleFeature, subtitleFeature, totalFeature],
-  emit: ({viz}) => Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
 
   setup: (viz: VizInstance) => {
     type Comparator = (a: Record<string, unknown>, b: Record<string, unknown>) => number;
