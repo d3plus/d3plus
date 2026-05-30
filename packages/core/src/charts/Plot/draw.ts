@@ -7,11 +7,12 @@
 */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {groups, max} from "d3-array";
+import {groups} from "d3-array";
 
 import {AxisBottom, AxisLeft, AxisTop, TextBox} from "../../components/index.js";
 import * as shapes from "../../shapes/index.js";
 
+import {measureAxes} from "../axes.js";
 import Viz from "../Viz.js";
 import {runStages} from "../stages.js";
 import {
@@ -184,166 +185,82 @@ export function drawPlot(viz: any, callback?: () => void) {
   const barLabels = prepCtx.plotBarLabels;
 
   // Test axes use `.measure()` instead of `.select(testGroup).render()` —
-  // pure layout pass, zero DOM creation. No `g.d3plus-plot-test` DOM
-  // subtree attached to `viz._select`.
-  if (showY) {
-    yTest
-      .domain(yDomain)
-      .height(height)
-      .maxSize(width / 2)
-      .range([undefined, undefined])
-      .ticks(yTicks)
-      .width(width)
-      .config(yC)
-      .config(viz._yConfig)
-      .scale(yConfigScale)
-      .measure();
-  }
-
-  const yBounds = yTest.outerBounds();
-  const yWidth = yBounds.width
-    ? yBounds.width + yTest.padding()
-    : undefined;
-
-  if (y2Exists) {
-    y2Test
-      .domain(y2Domain)
-      .height(height)
-      .range([undefined, undefined])
-      .ticks(y2Ticks)
-      .width(width)
-      .config(yC)
-      .config(defaultY2Config)
-      .config(viz._y2Config)
-      .scale(y2ConfigScale)
-      .measure();
-  }
-
-  const y2Bounds = y2Test.outerBounds();
-  const y2Width = y2Bounds.width
-    ? y2Bounds.width + y2Test.padding()
-    : undefined;
-  const xC: Record<string, unknown> = {
-    data: xData,
-    locale: viz.schema.locale,
-    rounding: viz.schema.xDomain ? "none" : "outside",
-    scalePadding: x.padding ? x.padding() : 0,
-  };
-  if (!showY && showX) {
-    xC.barConfig = {stroke: "transparent"};
-    xC.tickSize = 0;
-    xC.shapeConfig = {
-      labelBounds: (d: any, i: any) => {
-        const {height, y} = d.labelBounds;
-        const width = viz.schema.width / 2;
-        const x = i ? -width : 0;
-        return {x, y, width, height};
-      },
-      labelConfig: {
-        padding: 0,
-        rotate: 0,
-        textAnchor: (d: any) => (xTicks && d.id === xTicks[0] ? "start" : "end"),
-      },
-      labelRotation: false,
-    };
-  }
-
-  let xRangeMax = undefined;
-
-  if (showX) {
-    xTest
-      .domain(xDomain)
-      .height(height)
-      .maxSize(height / 2)
-      .range([undefined, xRangeMax])
-      .ticks(xTicks)
-      .width(width)
-      .config(xC)
-      .config(viz._xConfig)
-      .scale(xConfigScale)
-      .measure();
-  }
-
-  // Line-label width measurement lives in the `measurePlotLineLabels`
-  // stage. Pre-measured test axes + label test shapes are passed via
-  // context. `showLineLabels` is still read by the shape-emission block
-  // downstream.
+  // pure layout pass, zero DOM creation. The coupled four-axis margin
+  // solve lives in `measureAxes` (charts/axes.ts); the line-label width
+  // measure (Plot-pipeline-specific) interleaves mid-solve via the
+  // injected callback. `showLineLabels` is read by the shape-emission
+  // block downstream.
   const showLineLabels = viz.schema.lineLabels && !y2Exists;
-  const lineLabelCtx = runStages({
-    viz,
-    plotFormattedData: data,
-    plotScales: layoutCtx.plotScales,
-    plotConfigScales: layoutCtx.plotConfigScales,
-    plotTestAxes: {xTest, yTest},
-    plotLineLabelTest: {testLineShape, testTextBox},
-    y2Exists,
-  } as any, [measurePlotLineLabels]) as {
-    plotLabelWidths: any[];
-    plotLargestLabel: number | undefined;
-    plotXRangeMax: number | undefined;
+  const measureLineLabels = () => {
+    const lineLabelCtx = runStages({
+      viz,
+      plotFormattedData: data,
+      plotScales: layoutCtx.plotScales,
+      plotConfigScales: layoutCtx.plotConfigScales,
+      plotTestAxes: {xTest, yTest},
+      plotLineLabelTest: {testLineShape, testTextBox},
+      y2Exists,
+    } as any, [measurePlotLineLabels]) as {
+      plotLabelWidths: any[];
+      plotLargestLabel: number | undefined;
+      plotXRangeMax: number | undefined;
+    };
+    return {
+      labelWidths: lineLabelCtx.plotLabelWidths,
+      largestLabel: lineLabelCtx.plotLargestLabel,
+      xRangeMax: lineLabelCtx.plotXRangeMax,
+    };
   };
-  const labelWidths = lineLabelCtx.plotLabelWidths;
-  const largestLabel = lineLabelCtx.plotLargestLabel;
-  if (lineLabelCtx.plotXRangeMax !== undefined)
-    xRangeMax = lineLabelCtx.plotXRangeMax;
 
-  if (showX && xRangeMax) {
-    xTest
-      .domain(xDomain)
-      .height(height)
-      .maxSize(height / 2)
-      .range([undefined, xRangeMax])
-      .ticks(xTicks)
-      .width(width)
-      .config(xC)
-      .config(viz._xConfig)
-      .scale(xConfigScale)
-      .measure();
-  }
-
-  if (x2Exists) {
-    x2Test
-      .domain(x2Domain)
-      .height(height)
-      .range([undefined, xRangeMax])
-      .ticks(x2Ticks)
-      .width(width)
-      .config(xC)
-      .tickSize(0)
-      .config(defaultX2Config)
-      .config(viz._x2Config)
-      .scale(x2ConfigScale)
-      .measure();
-  }
-
-  const xTestRange = xTest._getRange();
-  const x2TestRange = x2Test._getRange();
-
-  const x2Bounds = x2Test.outerBounds();
-  const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
-
-  const xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]]);
-
-  if (showX) {
-    xTest.range([xOffsetLeft, undefined]).measure();
-  }
-
-  const topOffset = showY
-    ? yTest.shapeConfig().labelConfig.fontSize() / 2
-    : 0;
-
-  const xOffsetRight = max([
+  const {
+    yBounds,
+    y2Bounds,
+    yWidth,
     y2Width,
-    width - xTestRange[1],
-    width - x2TestRange[1],
-  ]);
-  const xBounds = xTest.outerBounds();
-  const xHeight = xBounds.height + (showY ? xTest.padding() : 0);
-
-  viz._padding.left += xOffsetLeft;
-  viz._padding.right += xOffsetRight;
-  viz._padding.bottom += xHeight;
-  viz._padding.top += x2Height + topOffset;
+    xC,
+    xRangeMax,
+    labelWidths,
+    largestLabel,
+    xTestRange,
+    x2TestRange,
+    x2Height,
+    xOffsetLeft,
+    xOffsetRight,
+    topOffset,
+    xHeight,
+  } = measureAxes(
+    viz,
+    {
+      xTest,
+      yTest,
+      x2Test,
+      y2Test,
+      xDomain,
+      x2Domain,
+      yDomain,
+      y2Domain,
+      xTicks,
+      x2Ticks,
+      yTicks,
+      y2Ticks,
+      xConfigScale,
+      x2ConfigScale,
+      yConfigScale,
+      y2ConfigScale,
+      defaultX2Config,
+      defaultY2Config,
+      yC,
+      showX,
+      showY,
+      x2Exists,
+      y2Exists,
+      height,
+      width,
+      xData,
+      xScalePadding: x.padding ? x.padding() : 0,
+    },
+    measureLineLabels,
+  );
 
   superDraw(viz, callback);
   const horizontalMargin = viz._margin.left + viz._margin.right;

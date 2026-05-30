@@ -11,16 +11,15 @@
                 destructure block below for the full schema.
 */
 
-import {max} from "d3-array";
-
 import type {DataPoint} from "@d3plus/data";
 
 import type {SceneNode} from "@d3plus/render";
 
 import type Axis from "../components/Axis.js";
 import * as shapes from "../shapes/index.js";
+import {renderAxes} from "./axes.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
-import {bumpLineLabels, emitLineLabelConnectors} from "./lineLabels.js";
+import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
@@ -209,250 +208,8 @@ export interface PlotMeasureResult {
 }
 
 /**
-    MEASURE phase of plotPaint. Reads `pCtx`, runs the production-mode
-    axes through `renderMode("compute").select(null).render()`,
-    computes the final `xRange`/`yRange` + offsets, sets `viz._xFunc` /
-    `viz._yFunc` accessors, and queues axis scenes for the emit phase.
-    Returns everything `plotEmit` needs to consume.
-*/
-export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
-    const {xDomain, yDomain, x2Domain, y2Domain} = pCtx;
-    let {x, y} = pCtx;
-    const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = pCtx;
-    const {defaultX2Config, defaultY2Config, showX, showY, x2Exists, y2Exists, xC, yC} = pCtx;
-    const {xTicks, yTicks, x2Ticks, labelWidths, yTest, x2TestRange, xTestRange} = pCtx;
-    let {yBounds, y2Bounds, yWidth, y2Width, xOffsetLeft, xOffsetRight} = pCtx;
-    const {xHeight, x2Height, topOffset, height, width, horizontalMargin, verticalMargin} = pCtx;
-    const {y2Test} = pCtx;
-
-    let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
-
-    if (showY) {
-      yTest
-        .domain(yDomain)
-        .height(height)
-        .maxSize(width / 2)
-        .range(yRange)
-        .ticks(yTicks)
-        .width(width)
-        .config(yC)
-        .config(viz._yConfig)
-        .scale(yConfigScale)
-        .measure();
-    }
-
-    yBounds = yTest.outerBounds() as {width: number; height: number; x: number; y: number};
-    yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-    xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
-
-    if (y2Exists) {
-      y2Test
-        .config(yC)
-        .domain(y2Domain)
-        .gridSize(0)
-        .height(height)
-        .range(yRange)
-        .width(width - max([0, xOffsetRight - (y2Width as number)])!)
-        .title(false)
-        .config(viz._y2Config)
-        .config(defaultY2Config)
-        .scale(y2ConfigScale)
-        .measure();
-    }
-
-    y2Bounds = y2Test.outerBounds() as {width: number; height: number; x: number; y: number};
-    y2Width = y2Bounds.width
-      ? y2Bounds.width + y2Test.padding()
-      : undefined;
-    xOffsetRight = max([
-      0,
-      y2Width,
-      width - xTestRange[1],
-      width - x2TestRange[1],
-    ] as number[])!;
-    const xRange = [xOffsetLeft, width - (xOffsetRight + horizontalMargin)];
-
-    // The shape-group offset. `_chartScene` is wrapped with this transform,
-    // so nodes absorbed into it (the background Rect, axes) pass their coords
-    // RELATIVE to this origin.
-    const chartTransform = {
-      x: viz._margin.left,
-      y: viz._margin.top + x2Height + topOffset,
-    };
-    viz._chartTransform = chartTransform;
-
-    // Each axis's absolute transform. Stored so we can derive the axis's
-    // transform RELATIVE to `_chartTransform` when absorbing axis scenes into
-    // `_chartScene` (the chart-cells group already applies `_chartTransform`).
-    // Axes are scene-only: `renderMode("compute")` renders into a detached svg
-    // and `axis.toScene()` produces the visible output.
-    const yW = yWidth as number;
-    const xTrans = xOffsetLeft > yW ? xOffsetLeft - yW : 0;
-    const axisAbsoluteTransforms = {
-      x: {x: viz._margin.left, y: viz._margin.top + x2Height + topOffset},
-      x2: {x: viz._margin.left, y: viz._margin.top + topOffset},
-      y: {x: viz._margin.left + xTrans, y: viz._margin.top + topOffset},
-      y2: {x: -viz._margin.right, y: viz._margin.top + topOffset},
-    };
-    const axisRelativeTransform = (which: "x" | "x2" | "y" | "y2") => ({
-      x: axisAbsoluteTransforms[which].x - chartTransform.x,
-      y: axisAbsoluteTransforms[which].y - chartTransform.y,
-    });
-    // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop so
-    // axes render above shapes.
-    const axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis}[] = [];
-
-    viz._xAxis
-      .renderMode("compute")
-      .select(null)
-      .domain(xDomain)
-      .height(height - (x2Height + topOffset + verticalMargin))
-      .maxSize(height / 2)
-      .range(xRange)
-      .ticks(xTicks)
-      .width(width)
-      .config(xC)
-      .config(viz._xConfig)
-      .scale(xConfigScale)
-      .render();
-    if (showX) {
-      axisSceneQueue.push({
-        key: "plot-x-axis",
-        transform: axisRelativeTransform("x"),
-        axis: viz._xAxis,
-      });
-    }
-
-    if (x2Exists) {
-      viz._x2Axis
-        .renderMode("compute")
-        .select(null)
-        .domain(x2Domain)
-        .height(height - (xHeight + topOffset + verticalMargin))
-        .range(xRange)
-        .ticks(x2Ticks)
-        .width(width)
-        .config(xC)
-        .config(defaultX2Config)
-        .config(viz._x2Config)
-        .scale(x2ConfigScale)
-        .render();
-      axisSceneQueue.push({
-        key: "plot-x2-axis",
-        transform: axisRelativeTransform("x2"),
-        axis: viz._x2Axis,
-      });
-    }
-
-    viz._xFunc = x = (d: unknown, x?: string): number => {
-      if (x === "x2") {
-        if (x2ConfigScale === "log" && d === 0)
-          d =
-            x2Domain[0] < 0
-              ? viz._x2Axis._d3Scale.domain()[1]
-              : viz._x2Axis._d3Scale.domain()[0];
-        return viz._x2Axis._getPosition.bind(viz._x2Axis)(d);
-      } else {
-        if (xConfigScale === "log" && d === 0)
-          d =
-            xDomain[0] < 0
-              ? viz._xAxis._d3Scale.domain()[1]
-              : viz._xAxis._d3Scale.domain()[0];
-        return viz._xAxis._getPosition.bind(viz._xAxis)(d);
-      }
-    };
-
-    yRange = [
-      viz._xAxis.outerBounds().y + x2Height,
-      height - (xHeight + topOffset + verticalMargin),
-    ];
-
-    viz._yAxis
-      .renderMode("compute")
-      .select(null)
-      .domain(yDomain)
-      .height(height)
-      .maxSize(width / 2)
-      .range(yRange)
-      .ticks(yTicks)
-      .width(xRange[xRange.length - 1])
-      .config(yC)
-      .config(viz._yConfig)
-      .scale(yConfigScale)
-      .render();
-    if (showY) {
-      axisSceneQueue.push({
-        key: "plot-y-axis",
-        transform: axisRelativeTransform("y"),
-        axis: viz._yAxis,
-      });
-    }
-
-    if (y2Exists) {
-      viz._y2Axis
-        .renderMode("compute")
-        .select(null)
-        .config(yC)
-        .domain(y2Exists ? y2Domain : yDomain)
-        .gridSize(0)
-        .height(height)
-        .range(yRange)
-        .width(width - max([0, xOffsetRight - (y2Width as number)])!)
-        .title(false)
-        .config(viz._y2Config)
-        .config(defaultY2Config)
-        .scale(y2ConfigScale)
-        .render();
-      axisSceneQueue.push({
-        key: "plot-y2-axis",
-        transform: axisRelativeTransform("y2"),
-        axis: viz._y2Axis,
-      });
-    }
-
-    const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
-
-    viz._yFunc = y = (d: unknown, y?: string): number => {
-      if (y === "y2") {
-        if (y2ConfigScale === "log" && d === 0)
-          d =
-            y2Domain[1] < 0
-              ? viz._y2Axis._d3ScaleNegative.domain()[0]
-              : viz._y2Axis._d3Scale.domain()[1];
-        return viz._y2Axis._getPosition.bind(viz._y2Axis)(d) - x2Height;
-      } else {
-        if (yConfigScale === "log" && d === 0)
-          d =
-            yDomain[1] < 0
-              ? viz._yAxis._d3ScaleNegative.domain()[0]
-              : viz._yAxis._d3Scale.domain()[1];
-        return viz._yAxis._getPosition.bind(viz._yAxis)(d) - x2Height;
-      }
-    };
-
-    let yOffset = viz._xAxis.barConfig()["stroke-width"];
-    if (yOffset) yOffset /= 2;
-
-    return {
-      x,
-      y,
-      xRange,
-      yRange,
-      xOffsetLeft: xOffsetLeft as number,
-      xOffsetRight: xOffsetRight as number,
-      yWidth,
-      y2Width,
-      yBounds,
-      y2Bounds,
-      axisSceneQueue,
-      yOffset: yOffset || 0,
-      labelPositions: labelPositions as Record<string, number>,
-    };
-}
-
-/**
     EMIT phase of plotPaint. Takes the `PlotMeasureResult` from
-    `plotMeasure` and produces ALL the scene nodes: background rect,
+    `renderAxes` and produces ALL the scene nodes: background rect,
     connector lines, back/front annotations, the main shape loop, line
     markers, and the deferred axis scenes (drained from the queue).
     Returns the flat `SceneNode[]` array that the caller (`Plot._paint`)
@@ -664,19 +421,20 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 }
 
 /**
-    Plot paint phase as a free function — orchestrates MEASURE + EMIT.
+    Plot paint phase as a free function — orchestrates the axis render +
+    EMIT.
 
-    Splits into `plotMeasure` (production-axis renders + offset
-    reassignments + `viz._xFunc`/`viz._yFunc` accessor setup) and
-    `plotEmit` (background rect → connectors → back annotations →
-    shape loop → line markers → front annotations → axis scenes).
-    `Plot._paint` is a thin shim that concats the returned nodes onto
-    `viz._chartScene`.
+    `renderAxes` (in `./axes.js`) renders the production axes, solves the
+    final ranges/offsets, and sets `viz._xFunc`/`viz._yFunc`; `plotEmit`
+    then produces the scene nodes (background rect → connectors → back
+    annotations → shape loop → line markers → front annotations → axis
+    scenes). `Plot._paint` is a thin shim that concats the returned nodes
+    onto `viz._chartScene`.
 
     @param viz  The Plot instance (or any subclass: BarChart, LinePlot, …).
     @param pCtx Cross-phase locals produced by `Plot._draw`.
 */
 export function plotPaint(viz: Viz, pCtx: PlotPaintContext): SceneNode[] {
-  const mCtx = plotMeasure(viz, pCtx);
+  const mCtx = renderAxes(viz, pCtx);
   return plotEmit(viz, pCtx, mCtx);
 }

@@ -92,7 +92,8 @@ import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
 import {runStages, vizPreDrawStages} from "./src/charts/stages.js";
 import {runVizPipeline} from "./src/charts/runVizPipeline.js";
-import {plotEmit, plotMeasure, plotPaint} from "./src/charts/plotPaint.js";
+import {plotEmit, plotPaint} from "./src/charts/plotPaint.js";
+import {renderAxes} from "./src/charts/axes.js";
 import {vizDraw} from "./src/charts/vizDraw.js";
 import {vizDrawPure} from "./src/charts/vizDrawPure.js";
 import {vizPreDraw} from "./src/charts/vizPreDraw.js";
@@ -170,8 +171,8 @@ export {
   computeAxisLayout,
   measureAxis,
   plotEmit,
-  plotMeasure,
   plotPaint,
+  renderAxes,
   resolveSpec,
   runVizPipeline,
   vizDraw,
