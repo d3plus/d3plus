@@ -4,18 +4,20 @@ import {default as configPrep} from "../../es/src/utils/configPrep.js";
 it("configPrep", () => {
   // minimal context that configPrep expects as `this`
   const ctx = {
-    _shapeConfig: {
-      fill: "red",
-      opacity: d => d.value,
-      on: {"click.shape": () => "clicked"},
-      label: {fontColor: "black"},
-      points: [[0, 0], [1, 1]],
-    },
-    _duration: 200,
-    _on: {
-      "click": () => "global click",
-      "mouseleave.shape": () => "leave",
-      "click.legend": () => "legend click",
+    schema: {
+      shapeConfig: {
+        fill: "red",
+        opacity: d => d.value,
+        on: {"click.shape": () => "clicked"},
+        label: {fontColor: "black"},
+        points: [[0, 0], [1, 1]],
+      },
+      duration: 200,
+      on: {
+        "click": () => "global click",
+        "mouseleave.shape": () => "leave",
+        "click.legend": () => "legend click",
+      },
     },
   };
 
@@ -33,21 +35,25 @@ it("configPrep", () => {
 
   // test with nest parameter
   const ctxWithNest = {
-    _shapeConfig: {
-      fill: "blue",
-      Rect: {fill: "green", on: {"click.shape": () => "rect click"}},
+    schema: {
+      shapeConfig: {
+        fill: "blue",
+        Rect: {fill: "green", on: {"click.shape": () => "rect click"}},
+      },
+      duration: 100,
+      on: {},
     },
-    _duration: 100,
-    _on: {},
   };
-  const nested = configPrep.call(ctxWithNest, ctxWithNest._shapeConfig, "shape", "Rect");
+  const nested = configPrep.call(ctxWithNest, ctxWithNest.schema.shapeConfig, "shape", "Rect");
   assert.strictEqual(nested.fill, "green", "nested config overrides parent");
 
   // test wrapFunction unwraps __d3plus__ wrapper objects
   const ctxWrap = {
-    _shapeConfig: {accessor: d => d.name},
-    _duration: 0,
-    _on: {},
+    schema: {
+      shapeConfig: {accessor: d => d.name},
+      duration: 0,
+      on: {},
+    },
   };
   const wrapped = configPrep.call(ctxWrap);
   const d3plusObj = {__d3plus__: true, data: {name: "test"}, i: 0};

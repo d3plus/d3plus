@@ -18,8 +18,9 @@ export function applyDefinition(viz: VizInstance, def: ChartDefinition): void {
     for (const [key, value] of Object.entries(def.ctx)) viz.ctx[key] = value;
   }
   if (def.defaults) {
+    const scratch = viz as unknown as Record<string, unknown>;
     for (const [key, value] of Object.entries(def.defaults)) {
-      viz[`_${key}`] = value;
+      scratch[`_${key}`] = value;
     }
   }
   if (def.fields) installFluent(viz, def.fields);

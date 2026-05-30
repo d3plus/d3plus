@@ -800,8 +800,8 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
                       ? false
                       : `+${formatAbbreviate(
                           allLabels.length,
-                          viz._locale,
-                        )} ${viz._translate("more")}`;
+                          viz.schema.locale,
+                        )} ${viz.schema.translate("more")}`;
                   return viz._drawLabel(d, i);
                 }
                 return false;

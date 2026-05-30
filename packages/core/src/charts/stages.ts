@@ -143,20 +143,20 @@ export type TransformStage = (ctx: VizContext) => Partial<VizContext>;
 export const resolveDrawDepth: TransformStage = ({viz}) => ({
   drawDepth:
     viz.schema.depth !== void 0
-      ? min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz._groupBy.length - 1])!
-      : viz._groupBy.length - 1,
+      ? min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1])!
+      : viz.schema.groupBy.length - 1,
 });
 
 /** Build the id / ids closures used to key shapes for the current draw depth. */
 export const buildIdAccessors: TransformStage = ({viz, drawDepth}) => {
   const id = (d: DataPoint, i: number) => {
-    const groupByDrawDepth = accessorFetch(viz._groupBy[drawDepth!], d, i);
+    const groupByDrawDepth = accessorFetch(viz.schema.groupBy[drawDepth!], d, i);
     return typeof groupByDrawDepth === "number"
       ? `${groupByDrawDepth}`
       : groupByDrawDepth;
   };
   const ids = (d: DataPoint, i: number) =>
-    (viz._groupBy as ((d: DataPoint, i: number) => unknown)[])
+    (viz.schema.groupBy as ((d: DataPoint, i: number) => unknown)[])
       .map(g => `${accessorFetch(g, d, i)}`)
       .filter(Boolean);
   return {id, ids};
@@ -171,9 +171,9 @@ export const buildDrawLabel: TransformStage = ({viz, drawDepth, ids}) => ({
       i = d.i as number;
     }
     if (d._isAggregation) {
-      return `${viz._thresholdName(d, i)} < ${formatAbbreviate(
+      return `${viz.schema.thresholdName(d, i)} < ${formatAbbreviate(
         (d._threshold as number) * 100,
-        viz._locale,
+        viz.schema.locale,
       )}%`;
     }
     if (viz.schema.label && depth === drawDepth) return `${viz.schema.label(d, i)}`;
@@ -189,29 +189,29 @@ export const buildDrawLabel: TransformStage = ({viz, drawDepth, ids}) => ({
     keeps the data unfiltered; otherwise the filter pins to the latest time.
 */
 export const applyTimeFilter: TransformStage = ({viz}) => {
-  if (!viz._time || viz.schema.timeFilter || !viz._data.length) {
+  if (!viz.schema.time || viz.schema.timeFilter || !viz._data.length) {
     return {timeFilter: viz.schema.timeFilter};
   }
-  const dates = viz._data.map(viz._time).map(date);
+  const dates = viz._data.map(viz.schema.time).map(date);
   const d = viz._data[0];
   const i = 0;
   if (
     viz.schema.discrete &&
     `_${viz.schema.discrete}` in viz &&
-    viz[`_${viz.schema.discrete}`](d, i) === viz._time(d, i)
+    viz[`_${viz.schema.discrete}`](d, i) === viz.schema.time(d, i)
   ) {
     return {timeFilter: () => true};
   }
   const latestTime = +max(dates as Date[])!;
   return {
     timeFilter: (d: DataPoint, i?: number) =>
-      +date(viz._time(d, i ?? 0))! === latestTime,
+      +date(viz.schema.time(d, i ?? 0))! === latestTime,
   };
 };
 
 /**
     Filter the data + rollup by groupBy + discrete axes, merging leaves through
-    `viz._aggs`. Applies hidden/solo. Produces `filteredData` and `legendData`.
+    `viz.schema.aggs`. Applies hidden/solo. Produces `filteredData` and `legendData`.
 */
 export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}) => {
   const filteredOut: DataPoint[] = [];
@@ -222,7 +222,7 @@ export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}
   if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
 
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
-  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz._groupBy[i]);
+  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
   if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
   if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
 
@@ -234,7 +234,7 @@ export const rollupAndFilter: TransformStage = ({viz, id, drawDepth, timeFilter}
       const index = viz._data.indexOf(leaves[0]);
       const shape = viz.schema.shape(leaves[0], index);
       const idValue = id!(leaves[0], index);
-      const d = merge(leaves, viz._aggs) as unknown as DataPoint;
+      const d = merge(leaves, viz.schema.aggs) as unknown as DataPoint;
       if (
         !viz._hidden.includes(idValue) &&
         (!viz._solo.length || viz._solo.includes(idValue))
@@ -258,7 +258,7 @@ export const applyThreshold: TransformStage = ({viz, filteredData, id: _id, draw
   let flatData: DataPoint[] = timeFilter ? viz._data.filter(timeFilter) : viz._data;
   if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
   const nestKeys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
-  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz._groupBy[i]);
+  for (let i = 0; i <= drawDepth!; i++) nestKeys.push(viz.schema.groupBy[i]);
   if (viz.schema.discrete && `_${viz.schema.discrete}` in viz) nestKeys.push(viz[`_${viz.schema.discrete}`]);
   if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz) nestKeys.push(viz[`_${viz.schema.discrete}2`]);
   const tree = rollup(flatData, () => null, ...nestKeys);
@@ -357,8 +357,9 @@ export function runStages(
     // entries onto viz — parity with runLayout's vizUpdate fix.
     for (const key of Object.keys(partial)) {
       const field = writebackMap[key];
-      if (field && (partial as any)[key] !== undefined)
-        (viz as any)[field] = (partial as any)[key];
+      const value = (partial as Record<string, unknown>)[key];
+      if (field && value !== undefined)
+        (viz as unknown as Record<string, unknown>)[field] = value;
     }
   }
   return ctx;

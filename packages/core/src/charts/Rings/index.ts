@@ -31,15 +31,25 @@ export const ringsDef: ChartDefinition = {
   emit: ringsEmit,
 
   setup: (viz: VizInstance) => {
+    type Accessor = number | ((d: DataPoint, i: number) => unknown);
+    type RingsFluent = {
+      links: (data?: DataPoint[], formatter?: unknown) => unknown;
+      nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
+      linkSize: (value?: Accessor) => unknown;
+      nodeGroupBy: (keys?: string | string[] | ((d: DataPoint, i: number) => unknown)) => unknown;
+      size: (value?: Accessor) => unknown;
+      hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
+    };
+    const v = viz as VizInstance & RingsFluent;
     viz.schema.on.mouseenter = () => undefined;
     viz.schema.on["mouseleave.shape"] = () => {
-      (viz as any).hover(false);
+      v.hover(false);
     };
     const defaultMouseMove = viz.schema.on["mousemove.shape"];
     viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
-        (viz as any).hover(false);
+        v.hover(false);
         viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
         viz._focus = undefined;
         return;
@@ -48,8 +58,9 @@ export const ringsDef: ChartDefinition = {
           viz.schema.nodeGroupBy && viz.schema.nodeGroupBy[viz._drawDepth](d, i)
             ? viz.schema.nodeGroupBy[viz._drawDepth](d, i)
             : viz._id(d, i);
-      const links = viz.ctx.linkLookup[id];
-      const node = viz.ctx.nodeLookup[id];
+      type NodeRecord = {id: string; x: number; y: number; r: number};
+      const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
+      const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
       const filterIds = [node.id];
       const xDomain = [node.x - node.r, node.x + node.r];
       const yDomain = [node.y - node.r, node.y + node.r];
@@ -60,7 +71,7 @@ export const ringsDef: ChartDefinition = {
         if (l.y - l.r < yDomain[0]) yDomain[0] = l.y - l.r;
         if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
       });
-      (viz as any).hover((h: any, x: any) => {
+      v.hover((h: any, x: any) => {
         if (h.source && h.target) return h.source.id === node.id || h.target.id === node.id;
         return filterIds.includes(viz._ids(h, x)[viz._drawDepth]);
       });
@@ -69,35 +80,35 @@ export const ringsDef: ChartDefinition = {
       viz.schema.center = d.id;
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
-      (viz as any)._draw();
+      viz._draw();
     };
 
-    (viz as any).links = function(this: VizInstance, _: any, f?: any) {
+    v.links = function(this: VizInstance, _: any, f?: any) {
       if (arguments.length) {
         (addToQueue as any).bind(this)(_, f, "links");
         return this;
       }
       return this.schema.links;
     };
-    (viz as any).nodes = function(this: VizInstance, _: any, f?: any) {
+    v.nodes = function(this: VizInstance, _: any, f?: any) {
       if (arguments.length) {
         (addToQueue as any).bind(this)(_, f, "nodes");
         return this;
       }
       return this.schema.nodes;
     };
-    (viz as any).linkSize = function(this: VizInstance, _: any) {
+    v.linkSize = function(this: VizInstance, _: any) {
       return arguments.length
         ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_)), this)
         : this.schema.linkSize;
     };
-    (viz as any).nodeGroupBy = function(this: VizInstance, _: any) {
+    v.nodeGroupBy = function(this: VizInstance, _: any) {
       if (!arguments.length) return this.schema.nodeGroupBy;
       if (!(_ instanceof Array)) _ = [_];
       this.schema.nodeGroupBy = _.map((k: any) => {
         if (typeof k === "function") return k;
-        if (!this._aggs[k]) {
-          this._aggs[k] = (a: any, c: any) => {
+        if (!this.schema.aggs[k]) {
+          this.schema.aggs[k] = (a: any, c: any) => {
             const vv = Array.from(new Set(a.map(c)));
             return vv.length === 1 ? vv[0] : vv;
           };
@@ -106,12 +117,12 @@ export const ringsDef: ChartDefinition = {
       });
       return this;
     };
-    (viz as any).size = function(this: VizInstance, _: any) {
+    v.size = function(this: VizInstance, _: any) {
       return arguments.length
         ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_)), this)
         : this._size;
     };
-    (viz as any).hover = function(this: VizInstance, _: any) {
+    v.hover = function(this: VizInstance, _: any) {
       this._hover = _;
       this._shapes.forEach((s: any) => s.hover(_));
       if (this.schema.legend) this._legendClass.hover(_);

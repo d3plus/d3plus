@@ -51,7 +51,7 @@ export const priestleyDef: ChartDefinition = {
       onSet: (viz, v) => {
         // String accessor → also seed a default aggregation (max) for that key.
         const key = typeof v === "function" ? null : (v as string);
-        if (key && !viz._aggs[key]) viz._aggs[key] = max;
+        if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = max;
       },
     },
     {
@@ -60,7 +60,7 @@ export const priestleyDef: ChartDefinition = {
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
       onSet: (viz, v) => {
         const key = typeof v === "function" ? null : (v as string);
-        if (key && !viz._aggs[key]) viz._aggs[key] = min;
+        if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = min;
       },
     },
     {

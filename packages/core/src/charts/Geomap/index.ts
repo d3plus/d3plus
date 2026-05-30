@@ -5,7 +5,6 @@
       - `applyLayout.ts` — topojson + projection + path/point compute.
       - `emit.ts` — country Paths + point Circles.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {color} from "d3-color";
 import {zoomTransform} from "d3-zoom";
@@ -58,20 +57,38 @@ export const geomapDef: ChartDefinition = {
   chartTransform: () => undefined,
 
   setup: (viz: VizInstance) => {
+    type GeomapFluent = {
+      fitFilter: (_?: unknown) => unknown;
+      fitKey: (_?: unknown) => unknown;
+      fitObject: (_?: unknown, f?: unknown) => unknown;
+      point: (_?: unknown) => unknown;
+      pointSize: (_?: unknown) => unknown;
+      projection: (_?: unknown) => unknown;
+      projectionPadding: (_?: unknown) => unknown;
+      projectionRotate: (_?: unknown) => unknown;
+      tiles: (_?: unknown) => unknown;
+      tileUrl: (_?: unknown) => unknown;
+      topojson: (_?: unknown, f?: unknown) => unknown;
+      topojsonFill: (_?: unknown) => unknown;
+      topojsonFilter: (_?: unknown) => unknown;
+      topojsonKey: (_?: unknown) => unknown;
+      topojsonId: (_?: unknown) => unknown;
+    };
+    const v = viz as VizInstance & GeomapFluent;
     viz.schema.zoom = true;
     viz._zoomSet = false;
-    viz._tiles = true;
+    viz.schema.tiles = true;
     viz._tileGen = tile();
 
     // `_renderTiles` is a per-instance method that mutates the tile group.
-    (viz as any)._renderTiles = function(
+    viz._renderTiles = function(
       this: VizInstance,
       transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container.node()),
       duration: number = 0,
     ): void {
       let tileData: number[][] & {scale?: number; translate?: number[]} =
         [] as unknown as number[][] & {scale?: number; translate?: number[]};
-      if (this._tiles) {
+      if (this.schema.tiles) {
         tileData = this._tileGen
           .extent(this._zoomBehavior.translateExtent())
           .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
@@ -89,7 +106,7 @@ export const geomapDef: ChartDefinition = {
         .attr("width", scale)
         .attr("height", scale)
         .attr("xlink:href", ([x, y, z]: [number, number, number]) =>
-          this._tileUrl
+          this.schema.tileUrl
             .replace("{s}", ["a", "b", "c"][(Math.random() * 3) | 0])
             .replace("{z}", `${z}`)
             .replace("{x}", `${x}`)
@@ -102,8 +119,8 @@ export const geomapDef: ChartDefinition = {
     };
 
     // Wrap _draw to ensure DOM zoom group + zoom wiring.
-    const supDraw = (viz as any)._draw.bind(viz);
-    (viz as any)._draw = function(callback?: () => void) {
+    const supDraw = viz._draw.bind(viz);
+    viz._draw = function(callback?: () => void) {
       const result = supDraw(callback);
       const {width, height} = chartBounds(viz);
       ensureZoomDom(viz, {
@@ -126,28 +143,28 @@ export const geomapDef: ChartDefinition = {
     // Imperative fluent accessors. Parameter type is `unknown` since each
     // method accepts a function or a value (or for fitFilter/topojsonFilter,
     // also an array of ids). Each branch narrows with typeof / instanceof.
-    (viz as any).fitFilter = function(this: VizInstance, _?: unknown) {
+    v.fitFilter = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
         this._zoomSet = false;
         if (typeof _ === "function") {
-          this._fitFilter = _ as (d: Record<string, unknown>) => boolean;
+          this.schema.fitFilter = _ as (d: Record<string, unknown>) => boolean;
           return this;
         }
         const ids = (_ instanceof Array ? _ : [_]) as string[];
-        this._fitFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
+        this.schema.fitFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
         return this;
       }
-      return this._fitFilter;
+      return this.schema.fitFilter;
     };
-    (viz as any).fitKey = function(this: VizInstance, _?: unknown) {
+    v.fitKey = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
-        this._fitKey = _ as string | undefined;
+        this.schema.fitKey = _ as string | undefined;
         this._zoomSet = false;
         return this;
       }
-      return this._fitKey;
+      return this.schema.fitKey;
     };
-    (viz as any).fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
+    v.fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
       if (arguments.length) {
         (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "fitObject");
         this._zoomSet = false;
@@ -155,18 +172,18 @@ export const geomapDef: ChartDefinition = {
       }
       return this.schema.fitObject;
     };
-    (viz as any).point = function(this: VizInstance, _?: unknown) {
+    v.point = function(this: VizInstance, _?: unknown) {
       return arguments.length
         ? ((this.schema.point = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
         : this.schema.point;
     };
-    (viz as any).pointSize = function(this: VizInstance, _?: unknown) {
+    v.pointSize = function(this: VizInstance, _?: unknown) {
       return arguments.length
         ? ((this.schema.pointSize = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
         : this.schema.pointSize;
     };
-    (viz as any).projection = function(this: VizInstance, _?: unknown) {
-      if (arguments.length && _ !== "geoMercator") (this as any).tiles(false);
+    v.projection = function(this: VizInstance, _?: unknown) {
+      if (arguments.length && _ !== "geoMercator") v.tiles(false);
       return arguments.length
         ? ((this.schema.projection =
             typeof _ === "string"
@@ -177,40 +194,40 @@ export const geomapDef: ChartDefinition = {
           this)
         : this.schema.projection;
     };
-    (viz as any).projectionPadding = function(this: VizInstance, _?: unknown) {
+    v.projectionPadding = function(this: VizInstance, _?: unknown) {
       return arguments.length
         ? ((this.schema.projectionPadding = parseSides(_ as Parameters<typeof parseSides>[0])), this)
         : this.schema.projectionPadding;
     };
-    (viz as any).projectionRotate = function(this: VizInstance, _?: unknown) {
+    v.projectionRotate = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
         this.schema.projection.rotate(_);
-        (this as any).tiles(false);
+        v.tiles(false);
         this._zoomSet = false;
         return this;
       }
-      return this._projectionRotate;
+      return this.schema.projectionRotate;
     };
-    (viz as any).tiles = function(this: VizInstance, _?: unknown) {
+    v.tiles = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
-        this._tiles = _ as boolean;
-        const attribution = findAttribution(this._tileUrl);
-        if (_ && this._attribution === "") this._attribution = attribution as string;
-        else if (!_ && this._attribution === attribution) this._attribution = "";
+        this.schema.tiles = _ as boolean;
+        const attribution = findAttribution(this.schema.tileUrl);
+        if (_ && this.schema.attribution === "") this.schema.attribution = attribution as string;
+        else if (!_ && this.schema.attribution === attribution) this.schema.attribution = "";
         return this;
       }
-      return this._tiles;
+      return this.schema.tiles;
     };
-    (viz as any).tileUrl = function(this: VizInstance, _?: unknown) {
+    v.tileUrl = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
-        this._tileUrl = _ as string;
-        if (this._tiles) this._attribution = findAttribution(_ as string) as string;
-        if (this._tileGroup) (this as any)._renderTiles.bind(this)();
+        this.schema.tileUrl = _ as string;
+        if (this.schema.tiles) this.schema.attribution = findAttribution(_ as string) as string;
+        if (this._tileGroup) this._renderTiles!.bind(this)();
         return this;
       }
-      return this._tileUrl;
+      return this.schema.tileUrl;
     };
-    (viz as any).topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
+    v.topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
       if (arguments.length) {
         (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "topojson");
         this._zoomSet = false;
@@ -218,12 +235,12 @@ export const geomapDef: ChartDefinition = {
       }
       return this.schema.topojson;
     };
-    (viz as any).topojsonFill = function(this: VizInstance, _?: unknown) {
+    v.topojsonFill = function(this: VizInstance, _?: unknown) {
       return arguments.length
         ? ((this.schema.topojsonFill = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
         : this.schema.topojsonFill;
     };
-    (viz as any).topojsonFilter = function(this: VizInstance, _?: unknown) {
+    v.topojsonFilter = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
         this._zoomSet = false;
         if (typeof _ === "function") {
@@ -236,22 +253,22 @@ export const geomapDef: ChartDefinition = {
       }
       return this.schema.topojsonFilter;
     };
-    (viz as any).topojsonKey = function(this: VizInstance, _?: unknown) {
+    v.topojsonKey = function(this: VizInstance, _?: unknown) {
       if (arguments.length) {
-        this._topojsonKey = _ as string | undefined;
+        this.schema.topojsonKey = _ as string | undefined;
         this._zoomSet = false;
         return this;
       }
-      return this._topojsonKey;
+      return this.schema.topojsonKey;
     };
-    (viz as any).topojsonId = function(this: VizInstance, _?: unknown) {
+    v.topojsonId = function(this: VizInstance, _?: unknown) {
       return arguments.length
         ? ((this.schema.topojsonId = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : accessor(_ as string)), this)
         : this.schema.topojsonId;
     };
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
-    (viz as any).tileUrl(
+    v.tileUrl(
       "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png",
     );
   },
@@ -286,13 +303,13 @@ export const geomapDef: ChartDefinition = {
         hoverOpacity: 1,
         Path: {
           ariaLabel: (d: DataPoint, i: number) => {
-            const cs = viz._colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
+            const cs = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
             const validColorScale = cs ? `, ${cs(d, i)}` : "";
             return `${viz._drawLabel(d, i)}${validColorScale}.`;
           },
           fill: (d: DataPoint, i: number) => {
             const coordFeatures = (viz.ctx.coordData as {features: DataPoint[]} | undefined)?.features ?? [];
-            const cs = viz._colorScale as ((d: DataPoint) => unknown) | undefined;
+            const cs = viz.schema.colorScale as ((d: DataPoint) => unknown) | undefined;
             if (cs && !coordFeatures.includes(d)) {
               const c = cs(d);
               if (c !== undefined && c !== null) {

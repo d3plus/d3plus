@@ -14,6 +14,7 @@ import {applyDefinition} from "./applyDefinition.js";
 import {runChartDraw} from "./runChartDraw.js";
 import Viz from "./Viz.js";
 import type {ChartDefinition} from "./ChartDefinition.js";
+import type {VizInstance} from "./vizTypes.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyViz = any;
@@ -27,25 +28,22 @@ type VizCtor = new () => AnyViz;
 */
 export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
   class Chart extends (Base as VizCtor) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any;
-
     constructor() {
       super();
-      applyDefinition(this, def);
+      applyDefinition(this as unknown as VizInstance, def);
     }
 
     _draw(callback?: () => void) {
       (super._draw as (...args: unknown[]) => unknown)(callback);
       if (def.layoutStage) {
-        runChartDraw(this, def, def.layoutStage, def.chartTransform);
+        runChartDraw(this as unknown as VizInstance, def, def.layoutStage, def.chartTransform);
       }
       return this;
     }
 
     _thresholdFunction(data: unknown[]) {
       return def.thresholdFunction
-        ? def.thresholdFunction(this, data)
+        ? def.thresholdFunction(this as unknown as VizInstance, data)
         : data;
     }
   }

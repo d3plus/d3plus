@@ -59,7 +59,7 @@ export const matrixDef: ChartDefinition = {
         (h: DataPoint, ii: number) =>
           (getProp.bind(viz)("row", h, ii) === row ||
             getProp.bind(viz)("column", h, ii) === column) &&
-          typeof (viz._colorScale as (d: DataPoint, i: number) => unknown)(h, ii) === "number",
+          typeof (viz.schema.colorScale as (d: DataPoint, i: number) => unknown)(h, ii) === "number",
       );
     };
   },

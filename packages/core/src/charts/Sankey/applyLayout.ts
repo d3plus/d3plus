@@ -88,7 +88,7 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     ? (v.schema.links as SankeyRawLink[]).map((link, i) => ({
         source: nodeLookup[String(link[v.schema.linksSource as string])],
         target: nodeLookup[String(link[v.schema.linksTarget as string])],
-        value: v._value(link, i) as number,
+        value: v.schema.value(link, i) as number,
       }))
     : [];
 

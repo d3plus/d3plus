@@ -43,7 +43,7 @@ export function vizPreDraw(viz: Viz): void {
   // consumers see the user's value (truthy) or undefined.
 
   // 3. filteredData — pre-threshold from pure, then run threshold (which
-  // reads this._aggs/_drawDepth/_groupBy via the instance method).
+  // reads this.schema.aggs/_drawDepth/_groupBy via the instance method).
   let filteredData = ctx.filteredData || [];
   if (viz._data.length && ctx._thresholdTree) {
     filteredData = viz._thresholdFunction(filteredData, ctx._thresholdTree);
@@ -69,9 +69,9 @@ export function vizPreDraw(viz: Viz): void {
   if (post.noDataMessage) {
     viz._messageClass.render({
       container: viz._select.node().parentNode,
-      html: viz._noDataHTML(viz),
+      html: viz.schema.noDataHTML(viz),
       mask: false,
-      style: viz._messageStyle,
+      style: viz.schema.messageStyle,
     });
     viz._select.transition().duration(viz.schema.duration).attr("opacity", 0);
   }

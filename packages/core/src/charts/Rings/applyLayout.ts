@@ -131,9 +131,9 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
         i,
         id,
         node: n,
-        shape: (d !== undefined && v._shape(d) !== undefined
-          ? v._shape(d)
-          : v._shape(n)) as string,
+        shape: (d !== undefined && v.schema.shape(d) !== undefined
+          ? v.schema.shape(d)
+          : v.schema.shape(n)) as string,
       } satisfies RingsNode;
     })
     .filter((n): n is RingsNode => !!n);
@@ -369,7 +369,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
       };
       return;
     }
-    const labelConfigRef = (v._shapeConfig as Record<string, unknown>).labelConfig as
+    const labelConfigRef = (v.schema.shapeConfig as Record<string, unknown>).labelConfig as
       | {fontSize?: (d: RingsNode) => number}
       | undefined;
     const fontSize =
@@ -417,7 +417,7 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     });
   }
 
-  const linkConfig = shapeConfigFor(v, "Path", v._shapeConfig, "edge");
+  const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
 
   const linkD = (d: RingsEdge) =>

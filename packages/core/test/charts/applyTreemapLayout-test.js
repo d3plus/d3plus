@@ -8,27 +8,31 @@ function fieldDefault(key) {
 }
 
 function mockViz(extra = {}) {
-  // The chart-def refactor routes Viz schema fields (width, height, …) through
-  // `viz.schema.<key>`. `_width`/`_height` overrides on this mock get
-  // re-homed onto `schema` so the internal accessors find them.
+  // The chart-def + config refactor routes Viz config fields through
+  // `viz.schema.<key>`. `_`-prefixed overrides on this mock get re-homed
+  // onto `schema` so the internal accessors find them.
   const schemaOverride = {};
-  if ("_width" in extra) {
-    schemaOverride.width = extra._width;
-    delete extra._width;
-  }
-  if ("_height" in extra) {
-    schemaOverride.height = extra._height;
-    delete extra._height;
+  for (const [under, key] of [
+    ["_width", "width"],
+    ["_height", "height"],
+    ["_locale", "locale"],
+    ["_shapeConfig", "shapeConfig"],
+    ["_sum", "sum"],
+  ]) {
+    if (under in extra) {
+      schemaOverride[key] = extra[under];
+      delete extra[under];
+    }
   }
   return {
     _filteredData: [],
-    _groupBy: [d => d.id],
     _drawDepth: 0,
-    _aggs: {},
     _margin: {top: 0, right: 0, bottom: 0, left: 0},
     schema: {
       width: 100,
       height: 100,
+      groupBy: [d => d.id],
+      aggs: {},
       tile: fieldDefault("tile"),
       layoutPadding: 0,
       sum: fieldDefault("sum"),

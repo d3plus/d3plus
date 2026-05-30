@@ -53,12 +53,17 @@ state accreted across passes (e.g. `NetworkNode`, `RingsEdge`,
 accessors, event handlers, and reducer/map callbacks were replaced with
 either concrete types or `unknown` + narrowing.
 
+Each chart's `index.ts` `setup()` types its fluent surface with a local
+per-chart interface (e.g. `NetworkFluent`, `GeomapFluent`) and casts once
+via `const v = viz as VizInstance & XFluent`, so the per-instance method
+installs no longer use `(viz as any)`. The VizInstance index signature and
+the Viz/Plot/makeChart class index signatures are removed.
+
 **Remaining (deferred):**
 
-- Each chart's `index.ts` still has ~20 `(viz as any).<method> = …`
-  per-instance method installs. Untyping these wants a generic
-  `VizExtensions<TKeys>` mixin layered on `VizInstance` — separate from
-  the layout-internal cleanup.
+- The four `applyLayout.ts` files (Sankey, Network, Rings, Geomap) still
+  open with `const v = viz as any` for layout-internal access — separate
+  from the `setup()` fluent-surface cleanup.
 - `Plot/index.ts` has 126 `any`s carried over verbatim from the old
   Plot.ts. The Plot refactor is its own workstream.
 

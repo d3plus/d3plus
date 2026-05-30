@@ -18,8 +18,8 @@
     pure function only returns `noDataMessage: true/false` so the shim
     can act on it.
 
-    Closure carve-out: `id`/`ids` snapshot `viz._groupBy` / `viz.schema.label` /
-    `viz._thresholdName` / `viz._locale` at construction time;
+    Closure carve-out: `id`/`ids` snapshot `viz.schema.groupBy` / `viz.schema.label` /
+    `viz.schema.thresholdName` / `viz.schema.locale` at construction time;
     `drawLabel` snapshots the same set but live-reads `viz._drawDepth` so
     intra-render depth mutations (legend drill-down, subclass overrides)
     are reflected. Callers needing referential transparency on depth
@@ -110,8 +110,8 @@ export function vizPreDrawPure(
   // 1. drawDepth.
   const drawDepth =
     viz.schema.depth !== void 0
-      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz._groupBy.length - 1]) as number)
-      : viz._groupBy.length - 1;
+      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1]) as number)
+      : viz.schema.groupBy.length - 1;
   out.drawDepth = drawDepth;
 
   // 2. id / ids / drawLabel closures.
@@ -131,13 +131,13 @@ export function vizPreDrawPure(
   // `.depth(n).render()` flow still works (render reruns preDraw); the
   // live read just covers the intra-render mutation path the old code
   // accommodated by default.
-  const snapGroupBy = viz._groupBy as ((
+  const snapGroupBy = viz.schema.groupBy as ((
     d: DataPoint,
     i: number,
   ) => DataPoint[keyof DataPoint])[];
   const snapLabel = viz.schema.label;
-  const snapThresholdName = viz._thresholdName;
-  const snapLocale = viz._locale;
+  const snapThresholdName = viz.schema.thresholdName;
+  const snapLocale = viz.schema.locale;
 
   const id = (d: DataPoint, i: number) => {
     const groupByDrawDepth = accessorFetch(snapGroupBy[drawDepth], d, i);
@@ -191,24 +191,26 @@ export function vizPreDrawPure(
     | ((d: DataPoint, i: number) => boolean)
     | (() => boolean)
     | undefined;
-  if (viz._time && !viz.schema.timeFilter && viz._data.length) {
-    const dates = viz._data.map(viz._time).map(date);
+  if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
+    const dates = viz._data.map(viz.schema.time).map(date);
     const d = viz._data[0],
       i = 0;
     if (
       viz.schema.discrete &&
       `_${viz.schema.discrete}` in viz &&
-      viz[`_${viz.schema.discrete}`](d, i) === viz._time(d, i)
+      (viz as unknown as Record<string, (d: DataPoint, i: number) => unknown>)[
+        `_${viz.schema.discrete}`
+      ](d, i) === viz.schema.time(d, i)
     ) {
       computedTimeFilter = () => true;
     } else {
       const latestTime = +max(dates)!;
-      // Snapshot `viz._time` into the closure. Without this, a user
+      // Snapshot `viz.schema.time` into the closure. Without this, a user
       // changing `.time(...)` after the filter is constructed would
       // make the closure read the NEW accessor against the OLD
       // latestTime — nonsense results. Matches the snapGroupBy /
       // snapLabel pattern earlier in this file.
-      const snapTime = viz._time;
+      const snapTime = viz.schema.time;
       computedTimeFilter = (dd: DataPoint, ii: number) =>
         +date(snapTime(dd, ii))! === latestTime;
     }
@@ -232,11 +234,15 @@ export function vizPreDrawPure(
       d: DataPoint,
       i: number,
     ) => DataPoint[keyof DataPoint])[] = [];
-    for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz._groupBy[i]);
+    for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz.schema.groupBy[i]);
+    const discreteAccessors = viz as unknown as Record<
+      string,
+      (d: DataPoint, i: number) => DataPoint[keyof DataPoint]
+    >;
     if (viz.schema.discrete && `_${viz.schema.discrete}` in viz)
-      nestKeys.push(viz[`_${viz.schema.discrete}`]);
+      nestKeys.push(discreteAccessors[`_${viz.schema.discrete}`]);
     if (viz.schema.discrete && `_${viz.schema.discrete}2` in viz)
-      nestKeys.push(viz[`_${viz.schema.discrete}2`]);
+      nestKeys.push(discreteAccessors[`_${viz.schema.discrete}2`]);
 
     const tree = rollup(
       flatData,
@@ -245,7 +251,7 @@ export function vizPreDrawPure(
         const shape = viz.schema.shape(leaves[0], index);
         const localId = id(leaves[0], index);
 
-        const d = merge(leaves, viz._aggs);
+        const d = merge(leaves, viz.schema.aggs);
 
         if (
           !viz._hidden.includes(localId) &&
@@ -260,7 +266,7 @@ export function vizPreDrawPure(
       ...nestKeys,
     );
 
-    // `viz._thresholdFunction` reads `this._aggs`/`_drawDepth`/`_groupBy`/etc.
+    // `viz._thresholdFunction` reads `this.schema.aggs`/`_drawDepth`/`_groupBy`/etc.
     // It's an instance method (Treemap/Pack override it) that needs `this`.
     // Return the un-thresholded data + the rollup tree as `_thresholdTree`
     // and let the shim apply the threshold once it's written drawDepth back.

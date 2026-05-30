@@ -67,11 +67,11 @@ export const treemapDef: ChartDefinition = {
 
   thresholdFunction: (viz: VizInstance, data: unknown[]) =>
     thresholdFunction(data as DataPoint[], {
-      aggs: viz._aggs,
+      aggs: viz.schema.aggs,
       drawDepth: viz._drawDepth,
-      groupBy: viz._groupBy as ((d: DataPoint) => unknown)[],
-      threshold: viz._threshold as (branchData: DataPoint[]) => number,
-      thresholdKey: viz._thresholdKey as (d: DataPoint) => number,
+      groupBy: viz.schema.groupBy as ((d: DataPoint) => unknown)[],
+      threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
+      thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
     }),
 
   ctx: {
@@ -96,7 +96,7 @@ export const treemapDef: ChartDefinition = {
       key: "sum",
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
-      onSet: (viz, v) => { viz._thresholdKey = v; },
+      onSet: (viz, v) => { viz.schema.thresholdKey = v; },
     },
     {
       key: "tile",
@@ -125,9 +125,9 @@ export const treemapDef: ChartDefinition = {
       factory: (viz: VizInstance) => ({
         tbody: [
           [
-            () => viz._translate("Share"),
+            () => viz.schema.translate("Share"),
             (_d: DataPoint, _i: number, x: Record<string, unknown>) =>
-              `${formatAbbreviate((x.share as number) * 100, viz._locale)}%`,
+              `${formatAbbreviate((x.share as number) * 100, viz.schema.locale)}%`,
           ],
         ],
       }),

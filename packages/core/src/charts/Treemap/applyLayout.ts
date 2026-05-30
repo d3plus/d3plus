@@ -31,7 +31,7 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
 
   const nestedData = nestGroups(
     data,
-    viz._groupBy.slice(0, viz._drawDepth + 1),
+    viz.schema.groupBy.slice(0, viz._drawDepth + 1),
   ) as unknown as Branch[];
 
   const root = hierarchy<Branch>(
@@ -72,7 +72,7 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
       // Replace the wrapper branch with the merged source datum.
       (enriched as unknown as {data: DataPoint}).data = merge(
         values,
-        viz._aggs as Parameters<typeof merge>[1],
+        viz.schema.aggs as Parameters<typeof merge>[1],
       ) as DataPoint;
       enriched.x = node.x0 + (node.x1 - node.x0) / 2;
       enriched.y = node.y0 + (node.y1 - node.y0) / 2;

@@ -16,7 +16,7 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       this.hover(false);
     }
     const tooltipData = this._tooltipClass.data();
-    if (tooltipData.length && this._tooltip(d, i)) {
+    if (tooltipData.length && this.schema.tooltip(d, i)) {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;

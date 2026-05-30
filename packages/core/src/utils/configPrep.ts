@@ -28,10 +28,12 @@ interface ConfigObject extends D3plusConfig {
 }
 
 export interface VizContext {
-  _shapeConfig: ConfigObject;
-  _duration: number;
-  _on: Record<string, DataAccessor>;
-  schema?: {duration?: number; [key: string]: unknown};
+  schema: {
+    shapeConfig: ConfigObject;
+    duration?: number;
+    on?: Record<string, DataAccessor>;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -43,12 +45,12 @@ export interface VizContext {
 */
 export default function configPrep(
   this: VizContext,
-  config: ConfigObject = this._shapeConfig,
+  config: ConfigObject = this.schema.shapeConfig,
   type: string = "shape",
   nest: string | false = false,
 ): ConfigObject {
   const newConfig: ConfigObject = {
-    duration: this.schema?.duration ?? this._duration,
+    duration: this.schema.duration,
     on: {},
   };
 
@@ -115,7 +117,7 @@ export default function configPrep(
   };
 
   keyEval(newConfig, config);
-  if (this._on) parseEvents(newConfig, this._on as unknown as Record<string, DataAccessor>);
+  if (this.schema.on) parseEvents(newConfig, this.schema.on as unknown as Record<string, DataAccessor>);
   if (nest && config[nest]) {
     keyEval(newConfig, config[nest] as ConfigObject);
     if ((config[nest] as ConfigObject).on)

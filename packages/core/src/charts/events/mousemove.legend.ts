@@ -30,11 +30,11 @@ export default function (
     }),
   ).length;
 
-  if (d && this._tooltip(d, i)) {
+  if (d && this.schema.tooltip(d, i)) {
     let id = this._id(d, i);
     if (id instanceof Array) id = id[0];
 
-    const t = this._translate;
+    const t = this.schema.translate;
     const defaultClick = clickLegend.bind(this).toString();
 
     // does the legend have any user-defined click events?
@@ -55,7 +55,7 @@ export default function (
       this.schema.on["click.legend"].toString() === defaultClick;
 
     // can the viz show deeper data?
-    const hasDeeperLevel = this._drawDepth < this._groupBy.length - 1;
+    const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
 
     // only show the hand cursor when the shape has a click event
     this._select.style(
@@ -63,7 +63,7 @@ export default function (
       hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
     );
 
-    const invertedBehavior = this._legendFilterInvert.bind(this)();
+    const invertedBehavior = this.schema.legendFilterInvert.bind(this)();
 
     const solo = this._solo.includes(id);
     const hidden = this._hidden.includes(id);
@@ -88,7 +88,7 @@ export default function (
           : false,
       )
       .title(
-        this._legendConfig.label
+        this.schema.legendConfig.label
           ? this._legendClass.label()
           : legendLabel.bind(this),
       )

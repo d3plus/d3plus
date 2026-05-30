@@ -120,8 +120,6 @@ class LRU {
 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default class Viz extends (BaseClass as any) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -130,7 +128,7 @@ export default class Viz extends (BaseClass as any) {
   constructor() {
     super();
 
-    this._aggs = {};
+    this.schema.aggs = {};
     // E4: install identity-coerce accessors on the prototype. The imperative
     // `this._x = …` assignments below seed defaults; installFluent's "skip
     // if slot already set" guard respects them. Methods are visible to
@@ -143,9 +141,9 @@ export default class Viz extends (BaseClass as any) {
     this._renderer = "svg";
     this._renderMode = "full";
     this.schema.ariaHidden = true;
-    this._attribution = false;
+    this.schema.attribution = false;
     const attributionBg = "rgba(255, 255, 255, 0.75)";
-    this._attributionStyle = {
+    this.schema.attributionStyle = {
       background: attributionBg,
       border: "1px solid rgba(0, 0, 0, 0.25)",
       color: colorContrast(attributionBg),
@@ -164,56 +162,56 @@ export default class Viz extends (BaseClass as any) {
       .on("mousemove", () =>
         this._backClass.select().style("cursor", "pointer"),
       );
-    this._backConfig = {
+    this.schema.backConfig = {
       fontSize: 10,
       padding: 5,
       resize: false,
     };
     this.schema.cache = true;
 
-    this._color = (d: DataPoint, i: number) => this._groupBy[0](d, i);
+    this.schema.color = (d: DataPoint, i: number) => this.schema.groupBy[0](d, i);
     this._colorDefaults = {
       ...colorDefaults,
       scale: scaleOrdinal().range(colorDefaults.scale.range()),
     };
     this._colorScaleClass = new ColorScale();
-    this._colorScaleConfig = {
+    this.schema.colorScaleConfig = {
       axisConfig: {
         rounding: "inside",
       },
       scale: "jenks",
     };
-    this._colorScalePadding = defaultPadding;
-    this._colorScalePosition = () =>
+    this.schema.colorScalePadding = defaultPadding;
+    this.schema.colorScalePosition = () =>
       this.schema.width > this.schema.height * 1.5 ? "right" : "bottom";
-    this._colorScaleMaxSize = 600;
+    this.schema.colorScaleMaxSize = 600;
 
     this._data = [];
     this.schema.dataCutoff = 100;
-    this._detectResize = true;
-    this._detectResizeDelay = 400;
-    this._detectVisible = true;
-    this._detectVisibleInterval = 1000;
-    this._downloadButton = false;
-    this._downloadConfig = {type: "png"};
-    this._downloadPosition = "top";
+    this.schema.detectResize = true;
+    this.schema.detectResizeDelay = 400;
+    this.schema.detectVisible = true;
+    this.schema.detectVisibleInterval = 1000;
+    this.schema.downloadButton = false;
+    this.schema.downloadConfig = {type: "png"};
+    this.schema.downloadPosition = "top";
     this.schema.duration = 600;
-    this._fontFamily = fontFamily;
+    this.schema.fontFamily = fontFamily;
     this._hidden = [];
-    this._hiddenColor = constant("#aaa");
-    this._hiddenOpacity = constant(0.5);
+    this.schema.hiddenColor = constant("#aaa");
+    this.schema.hiddenOpacity = constant(0.5);
     this._history = [];
-    this._groupBy = [accessor("id")];
+    this.schema.groupBy = [accessor("id")];
 
     this.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
       const maxGrouped = max(arr, (d: DataPoint, i: number) => {
-        const id = this._groupBy[this._legendDepth].bind(this)(d, i);
+        const id = this.schema.groupBy[this._legendDepth].bind(this)(d, i);
         return id instanceof Array ? id.length : 1;
       });
       return arr.length > 1 && (maxGrouped ?? 0) <= 2;
     };
     this._legendClass = new Legend();
-    this._legendConfig = {
+    this.schema.legendConfig = {
       label: legendLabel.bind(this),
       shapeConfig: {
         ariaLabel: legendLabel.bind(this),
@@ -224,27 +222,27 @@ export default class Viz extends (BaseClass as any) {
         },
       },
     };
-    this._legendFilterInvert = constant(false);
-    this._legendPadding = defaultPadding;
-    this._legendPosition = () =>
+    this.schema.legendFilterInvert = constant(false);
+    this.schema.legendPadding = defaultPadding;
+    this.schema.legendPosition = () =>
       this.schema.width > this.schema.height * 1.5 ? "right" : "bottom";
     this.schema.legendSort = (a: DataPoint, b: DataPoint) =>
       this._drawLabel(a).localeCompare(this._drawLabel(b));
     this.schema.legendTooltip = {};
 
-    this._loadingHTML = () => `
+    this.schema.loadingHTML = () => `
     <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
-      <strong>${this._translate("Loading Visualization")}</strong>
-      <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this._translate(
+      <strong>${this.schema.translate("Loading Visualization")}</strong>
+      <sub style="bottom: 0; display: block; line-height: 1; margin-top: 5px;"><a href="https://d3plus.org" target="_blank">${this.schema.translate(
         "Powered by D3plus",
       )}</a></sub>
     </div>`;
 
-    this._loadingMessage = true;
+    this.schema.loadingMessage = true;
     this._lrucache = new LRU(10);
     this._messageClass = new Message();
-    this._messageMask = "rgba(0, 0, 0, 0.05)";
-    this._messageStyle = {
+    this.schema.messageMask = "rgba(0, 0, 0, 0.05)";
+    this.schema.messageStyle = {
       bottom: "0",
       left: "0",
       position: "absolute",
@@ -253,9 +251,9 @@ export default class Viz extends (BaseClass as any) {
       top: "0",
     };
 
-    this._noDataHTML = () => `
+    this.schema.noDataHTML = () => `
     <div style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%);">
-      <strong>${this._translate("No Data Available")}</strong>
+      <strong>${this.schema.translate("No Data Available")}</strong>
     </div>`;
 
     this.schema.noDataMessage = true;
@@ -279,9 +277,9 @@ export default class Viz extends (BaseClass as any) {
           this._setSVGSize(width, height);
           if (!this._callback) this.render();
         }
-      }, this._detectResizeDelay),
+      }, this.schema.detectResizeDelay),
     );
-    this._scrollContainer = typeof window === "undefined" ? "" : window;
+    this.schema.scrollContainer = typeof window === "undefined" ? "" : window;
     this.schema.shape = constant("Rect");
     this._shapes = [];
     this.schema.shapeConfig = {
@@ -291,8 +289,8 @@ export default class Viz extends (BaseClass as any) {
           d = d.data as DataPoint;
           i = d.i as number;
         }
-        if (this._colorScale) {
-          const c = this._colorScale(d, i);
+        if (this.schema.colorScale) {
+          const c = this.schema.colorScale(d, i);
           if (c !== undefined && c !== null) {
             const scale = this._colorScaleClass._colorScale;
             const colors = this._colorScaleClass.color();
@@ -305,7 +303,7 @@ export default class Viz extends (BaseClass as any) {
             return scale(c);
           }
         }
-        const c = this._color(d, i);
+        const c = this.schema.color(d, i);
         if (color(c)) return c;
         return colorAssign(
           typeof c === "string" ? c : JSON.stringify(c),
@@ -335,40 +333,40 @@ export default class Viz extends (BaseClass as any) {
     this._solo = [];
 
     this._subtitleClass = new TextBox();
-    this._subtitleConfig = {
+    this.schema.subtitleConfig = {
       ariaHidden: true,
       fontSize: 12,
       padding: 5,
       resize: false,
       textAnchor: "middle",
     };
-    this._subtitlePadding = defaultPadding;
+    this.schema.subtitlePadding = defaultPadding;
 
     this.schema.svgDesc = "";
     this.schema.svgTitle = "";
 
     this.schema.timeline = true;
     this._timelineClass = new Timeline().align("end");
-    this._timelineConfig = {
+    this.schema.timelineConfig = {
       padding: 5,
     };
-    this._timelinePadding = defaultPadding;
+    this.schema.timelinePadding = defaultPadding;
 
-    this._threshold = constant(0.0001);
-    this._thresholdKey = undefined;
-    this._thresholdName = () => this._translate("Values");
+    this.schema.threshold = constant(0.0001);
+    this.schema.thresholdKey = undefined;
+    this.schema.thresholdName = () => this.schema.translate("Values");
 
     this._titleClass = new TextBox();
-    this._titleConfig = {
+    this.schema.titleConfig = {
       ariaHidden: true,
       fontSize: 16,
       padding: 5,
       resize: false,
       textAnchor: "middle",
     };
-    this._titlePadding = defaultPadding;
+    this.schema.titlePadding = defaultPadding;
 
-    this._tooltip = constant(true);
+    this.schema.tooltip = constant(true);
     this._tooltipClass = new Tooltip();
     this.schema.tooltipConfig = {
       pointerEvents: "none",
@@ -378,29 +376,29 @@ export default class Viz extends (BaseClass as any) {
     };
 
     this._totalClass = new TextBox();
-    this._totalConfig = {
+    this.schema.totalConfig = {
       fontSize: 10,
       padding: 5,
       resize: false,
       textAnchor: "middle",
     };
-    this._totalFormat = (d: number) =>
-      `${this._translate("Total")}: ${formatAbbreviate(d, this._locale)}`;
-    this._totalPadding = defaultPadding;
+    this.schema.totalFormat = (d: number) =>
+      `${this.schema.translate("Total")}: ${formatAbbreviate(d, this.schema.locale)}`;
+    this.schema.totalPadding = defaultPadding;
 
     this.schema.zoom = false;
     this._zoomBehavior = zoom();
     this._zoomBrush = brush();
-    this._zoomBrushHandleSize = 1;
-    this._zoomBrushHandleStyle = {
+    this.schema.zoomBrushHandleSize = 1;
+    this.schema.zoomBrushHandleStyle = {
       fill: "#444",
     };
-    this._zoomBrushSelectionStyle = {
+    this.schema.zoomBrushSelectionStyle = {
       fill: "#777",
       "stroke-width": 0,
     };
     const zoomBg = "rgba(255, 255, 255, 0.75)";
-    this._zoomControlStyle = {
+    this.schema.zoomControlStyle = {
       background: zoomBg,
       border: "1px solid rgba(0, 0, 0, 0.75)",
       color: colorContrast(zoomBg),
@@ -414,18 +412,18 @@ export default class Viz extends (BaseClass as any) {
       width: "20px",
     };
     const zoomActiveBg = "rgba(0, 0, 0, 0.75)";
-    this._zoomControlStyleActive = {
+    this.schema.zoomControlStyleActive = {
       background: zoomActiveBg,
       color: colorContrast(zoomActiveBg),
       opacity: 1,
     };
-    this._zoomControlStyleHover = {
+    this.schema.zoomControlStyleHover = {
       cursor: "pointer",
       opacity: 1,
     };
     this.schema.zoomFactor = 2;
     this.schema.zoomMax = 16;
-    this._zoomPadding = 20;
+    this.schema.zoomPadding = 20;
     this.schema.zoomPan = true;
     this.schema.zoomScroll = true;
   }
@@ -622,7 +620,7 @@ export default class Viz extends (BaseClass as any) {
     // Calculates the width and/or height of the Viz based on the this._select, if either has not been defined.
     if (
       (!this.schema.width || !this.schema.height) &&
-      (!this._detectVisible || inViewport(this._select.node()))
+      (!this.schema.detectVisible || inViewport(this._select.node()))
     ) {
       this._autoWidth = this.schema.width === undefined;
       this._autoHeight = this.schema.height === undefined;
@@ -660,7 +658,7 @@ export default class Viz extends (BaseClass as any) {
     // sets "position: relative" on the SVG parent if currently undefined
     const position = parent.style("position");
     if (position === "static") parent.style("position", "relative");
-    parent.style("font-family", fontFamilyStringify(this._fontFamily));
+    parent.style("font-family", fontFamilyStringify(this.schema.fontFamily));
 
     // sets initial opacity to 1, if it has not already been set
     if (this._select.attr("opacity") === null) this._select.attr("opacity", 1);
@@ -684,16 +682,16 @@ export default class Viz extends (BaseClass as any) {
     this._visiblePoll = clearInterval(this._visiblePoll);
     this._resizePoll = clearTimeout(this._resizePoll);
     this._scrollPoll = clearTimeout(this._scrollPoll);
-    select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
-    if (this._detectVisible && this._select.style("visibility") === "hidden") {
+    select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
+    if (this.schema.detectVisible && this._select.style("visibility") === "hidden") {
       this._visiblePoll = setInterval(() => {
         if (this._select.style("visibility") !== "hidden") {
           this._visiblePoll = clearInterval(this._visiblePoll);
           this.render(callback);
         }
-      }, this._detectVisibleInterval);
+      }, this.schema.detectVisibleInterval);
     } else if (
-      this._detectVisible &&
+      this.schema.detectVisible &&
       this._select.style("display") === "none"
     ) {
       this._visiblePoll = setInterval(() => {
@@ -701,17 +699,17 @@ export default class Viz extends (BaseClass as any) {
           this._visiblePoll = clearInterval(this._visiblePoll);
           this.render(callback);
         }
-      }, this._detectVisibleInterval);
-    } else if (this._detectVisible && !inViewport(this._select.node())) {
-      select(this._scrollContainer).on(`scroll.${this._uuid}`, () => {
+      }, this.schema.detectVisibleInterval);
+    } else if (this.schema.detectVisible && !inViewport(this._select.node())) {
+      select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, () => {
         if (!this._scrollPoll) {
           this._scrollPoll = setTimeout(() => {
             if (inViewport(this._select.node())) {
-              select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
+              select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
               this.render(callback);
             }
             this._scrollPoll = clearTimeout(this._scrollPoll);
-          }, this._detectVisibleInterval);
+          }, this.schema.detectVisibleInterval);
         }
       });
     } else {
@@ -747,12 +745,12 @@ export default class Viz extends (BaseClass as any) {
       );
       this._queue = [];
 
-      if (this._loadingMessage && promises.length) {
+      if (this.schema.loadingMessage && promises.length) {
         this._messageClass.render({
           container: this._select.node().parentNode,
-          html: this._loadingHTML(this),
-          mask: this._filteredData ? this._messageMask : false,
-          style: this._messageStyle,
+          html: this.schema.loadingHTML(this),
+          mask: this._filteredData ? this.schema.messageMask : false,
+          style: this.schema.messageStyle,
         });
       }
 
@@ -820,7 +818,7 @@ export default class Viz extends (BaseClass as any) {
               .attr("opacity", 1);
         }
 
-        if (this._detectResize && (this._autoWidth || this._autoHeight)) {
+        if (this.schema.detectResize && (this._autoWidth || this._autoHeight)) {
           this._resizeObserver.observe(this._select.node().parentNode);
         } else {
           this._resizeObserver.unobserve(this._select.node().parentNode);
@@ -1027,7 +1025,7 @@ export default class Viz extends (BaseClass as any) {
     if (this._scrollPoll) {
       this._scrollPoll = clearTimeout(this._scrollPoll) as never;
     }
-    select(this._scrollContainer).on(`scroll.${this._uuid}`, null);
+    select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
     // Destroy the active scene renderer (clears its own pointer-rect
     // listeners, overlay host, canvas/svg DOM, timers).
     if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function") {
@@ -1058,8 +1056,8 @@ export default class Viz extends (BaseClass as any) {
 */
   aggs(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._aggs = assign(this._aggs, _!)), this)
-      : this._aggs;
+      ? ((this.schema.aggs = assign(this.schema.aggs, _!)), this)
+      : this.schema.aggs;
   }
 
   // ariaHidden(_?: boolean): installed by installFluent(this, vizSchema).
@@ -1069,8 +1067,8 @@ export default class Viz extends (BaseClass as any) {
 */
   attribution(_?: string | boolean): this | string | boolean {
     return arguments.length
-      ? ((this._attribution = _), this)
-      : this._attribution;
+      ? ((this.schema.attribution = _), this)
+      : this.schema.attribution;
   }
 
   /**
@@ -1080,8 +1078,8 @@ export default class Viz extends (BaseClass as any) {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._attributionStyle = assign(this._attributionStyle, _!)), this)
-      : this._attributionStyle;
+      ? ((this.schema.attributionStyle = assign(this.schema.attributionStyle, _!)), this)
+      : this.schema.attributionStyle;
   }
 
   /**
@@ -1089,8 +1087,8 @@ export default class Viz extends (BaseClass as any) {
 */
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backConfig = assign(this._backConfig, _!)), this)
-      : this._backConfig;
+      ? ((this.schema.backConfig = assign(this.schema.backConfig, _!)), this)
+      : this.schema.backConfig;
   }
 
   // cache(_?: boolean): installed by installFluent(this, vizSchema).
@@ -1109,8 +1107,8 @@ export default class Viz extends (BaseClass as any) {
     | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])
     | false {
     return arguments.length
-      ? ((this._color = !_ || typeof _ === "function" ? _ : accessor(_)), this)
-      : this._color;
+      ? ((this.schema.color = !_ || typeof _ === "function" ? _ : accessor(_)), this)
+      : this.schema.color;
   }
 
   /**
@@ -1127,9 +1125,9 @@ export default class Viz extends (BaseClass as any) {
     | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])
     | false {
     return arguments.length
-      ? ((this._colorScale = !_ || typeof _ === "function" ? _ : accessor(_)),
+      ? ((this.schema.colorScale = !_ || typeof _ === "function" ? _ : accessor(_)),
         this)
-      : this._colorScale;
+      : this.schema.colorScale;
   }
 
   /**
@@ -1139,8 +1137,8 @@ export default class Viz extends (BaseClass as any) {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._colorScaleConfig = assign(this._colorScaleConfig, _!)), this)
-      : this._colorScaleConfig;
+      ? ((this.schema.colorScaleConfig = assign(this.schema.colorScaleConfig, _!)), this)
+      : this.schema.colorScaleConfig;
   }
 
   /**
@@ -1150,9 +1148,9 @@ export default class Viz extends (BaseClass as any) {
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._colorScalePadding = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.colorScalePadding = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._colorScalePadding;
+      : this.schema.colorScalePadding;
   }
 
   /**
@@ -1162,9 +1160,9 @@ export default class Viz extends (BaseClass as any) {
     _?: string | boolean | (() => string | boolean),
   ): this | string | boolean | (() => string | boolean) {
     return arguments.length
-      ? ((this._colorScalePosition = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.colorScalePosition = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._colorScalePosition;
+      : this.schema.colorScalePosition;
   }
 
   /**
@@ -1172,8 +1170,8 @@ export default class Viz extends (BaseClass as any) {
 */
   colorScaleMaxSize(_?: number): this | number {
     return arguments.length
-      ? ((this._colorScaleMaxSize = _), this)
-      : this._colorScaleMaxSize;
+      ? ((this.schema.colorScaleMaxSize = _), this)
+      : this.schema.colorScaleMaxSize;
   }
 
   /**
@@ -1218,8 +1216,8 @@ Defaults to an empty array (`[]`).
 */
   detectResize(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this._detectResize = _), this)
-      : this._detectResize;
+      ? ((this.schema.detectResize = _), this)
+      : this.schema.detectResize;
   }
 
   /**
@@ -1227,8 +1225,8 @@ Defaults to an empty array (`[]`).
 */
   detectResizeDelay(_?: number): this | number {
     return arguments.length
-      ? ((this._detectResizeDelay = _), this)
-      : this._detectResizeDelay;
+      ? ((this.schema.detectResizeDelay = _), this)
+      : this.schema.detectResizeDelay;
   }
 
   /**
@@ -1236,8 +1234,8 @@ Defaults to an empty array (`[]`).
 */
   detectVisible(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this._detectVisible = _), this)
-      : this._detectVisible;
+      ? ((this.schema.detectVisible = _), this)
+      : this.schema.detectVisible;
   }
 
   /**
@@ -1245,8 +1243,8 @@ Defaults to an empty array (`[]`).
 */
   detectVisibleInterval(_?: number): this | number {
     return arguments.length
-      ? ((this._detectVisibleInterval = _), this)
-      : this._detectVisibleInterval;
+      ? ((this.schema.detectVisibleInterval = _), this)
+      : this.schema.detectVisibleInterval;
   }
 
   // discrete(_?: string): installed by installFluent(this, vizSchema).
@@ -1256,8 +1254,8 @@ Defaults to an empty array (`[]`).
 */
   downloadButton(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this._downloadButton = _), this)
-      : this._downloadButton;
+      ? ((this.schema.downloadButton = _), this)
+      : this.schema.downloadButton;
   }
 
   /**
@@ -1265,8 +1263,8 @@ Defaults to an empty array (`[]`).
 */
   downloadConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._downloadConfig = assign(this._downloadConfig, _!)), this)
-      : this._downloadConfig;
+      ? ((this.schema.downloadConfig = assign(this.schema.downloadConfig, _!)), this)
+      : this.schema.downloadConfig;
   }
 
   /**
@@ -1274,8 +1272,8 @@ Defaults to an empty array (`[]`).
 */
   downloadPosition(_?: string): this | string {
     return arguments.length
-      ? ((this._downloadPosition = _), this)
-      : this._downloadPosition;
+      ? ((this.schema.downloadPosition = _), this)
+      : this.schema.downloadPosition;
   }
 
   // duration(_?: number): installed by installFluent(this, vizSchema).
@@ -1308,10 +1306,10 @@ Defaults to an empty array (`[]`).
         tooltipStyle: {"font-family": fontFamilyStringify(_!)},
       });
 
-      this._fontFamily = _;
+      this.schema.fontFamily = _;
       return this;
     }
-    return this._fontFamily;
+    return this.schema.fontFamily;
   }
 
   /**
@@ -1323,19 +1321,19 @@ Defaults to an empty array (`[]`).
       | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])
       | (string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]))[],
   ): this | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] {
-    if (!arguments.length) return this._groupBy;
+    if (!arguments.length) return this.schema.groupBy;
     this._groupByRaw = _;
     const arr: (string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]))[] =
       _ instanceof Array ? _ : [_!];
     return (
-      (this._groupBy = arr.map(
+      (this.schema.groupBy = arr.map(
         (
           k: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
         ) => {
           if (typeof k === "function") return k;
           else {
-            if (!this._aggs[k]) {
-              this._aggs[k] = (
+            if (!this.schema.aggs[k]) {
+              this.schema.aggs[k] = (
                 a: DataPoint[],
                 c: (d: DataPoint) => DataPoint[keyof DataPoint],
               ) => {
@@ -1360,8 +1358,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
     return arguments.length
-      ? ((this._hiddenColor = typeof _ === "function" ? _ : constant(_)), this)
-      : this._hiddenColor;
+      ? ((this.schema.hiddenColor = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.hiddenColor;
   }
 
   /**
@@ -1371,9 +1369,9 @@ Defaults to an empty array (`[]`).
     _?: number | ((d: DataPoint, i: number) => number),
   ): this | number | ((d: DataPoint, i: number) => number) {
     return arguments.length
-      ? ((this._hiddenOpacity = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.hiddenOpacity = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._hiddenOpacity;
+      : this.schema.hiddenOpacity;
   }
 
   /**
@@ -1446,8 +1444,8 @@ Defaults to an empty array (`[]`).
 */
   legendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._legendConfig = assign(this._legendConfig, _!)), this)
-      : this._legendConfig;
+      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      : this.schema.legendConfig;
   }
 
   /**
@@ -1457,9 +1455,9 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._legendFilterInvert;
+      : this.schema.legendFilterInvert;
   }
 
   /**
@@ -1469,9 +1467,9 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._legendPadding = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.legendPadding = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._legendPadding;
+      : this.schema.legendPadding;
   }
 
   /**
@@ -1479,9 +1477,9 @@ Defaults to an empty array (`[]`).
 */
   legendPosition(_?: string | (() => string)): this | string | (() => string) {
     return arguments.length
-      ? ((this._legendPosition = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.legendPosition = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._legendPosition;
+      : this.schema.legendPosition;
   }
 
   // legendSort(_?: (a, b) => number): installed by installFluent(this, vizSchema).
@@ -1502,8 +1500,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((viz: Viz) => string),
   ): this | string | ((viz: Viz) => string) {
     return arguments.length
-      ? ((this._loadingHTML = typeof _ === "function" ? _ : constant(_)), this)
-      : this._loadingHTML;
+      ? ((this.schema.loadingHTML = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.loadingHTML;
   }
 
   /**
@@ -1511,8 +1509,8 @@ Defaults to an empty array (`[]`).
 */
   loadingMessage(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this._loadingMessage = _), this)
-      : this._loadingMessage;
+      ? ((this.schema.loadingMessage = _), this)
+      : this.schema.loadingMessage;
   }
 
   /**
@@ -1520,8 +1518,8 @@ Defaults to an empty array (`[]`).
 */
   messageMask(_?: string | boolean): this | string | boolean {
     return arguments.length
-      ? ((this._messageMask = _), this)
-      : this._messageMask;
+      ? ((this.schema.messageMask = _), this)
+      : this.schema.messageMask;
   }
 
   /**
@@ -1529,8 +1527,8 @@ Defaults to an empty array (`[]`).
 */
   messageStyle(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._messageStyle = assign(this._messageStyle, _!)), this)
-      : this._messageStyle;
+      ? ((this.schema.messageStyle = assign(this.schema.messageStyle, _!)), this)
+      : this.schema.messageStyle;
   }
 
   /**
@@ -1540,8 +1538,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((viz: Viz) => string),
   ): this | string | ((viz: Viz) => string) {
     return arguments.length
-      ? ((this._noDataHTML = typeof _ === "function" ? _ : constant(_)), this)
-      : this._noDataHTML;
+      ? ((this.schema.noDataHTML = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.noDataHTML;
   }
 
   /**
@@ -1560,8 +1558,8 @@ Defaults to an empty array (`[]`).
     _?: string | HTMLElement | Window,
   ): this | string | HTMLElement | Window {
     return arguments.length
-      ? ((this._scrollContainer = _), this)
-      : this._scrollContainer;
+      ? ((this.schema.scrollContainer = _), this)
+      : this.schema.scrollContainer;
   }
 
   /**
@@ -1600,8 +1598,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((data: DataPoint[]) => string),
   ): this | string | ((data: DataPoint[]) => string) {
     return arguments.length
-      ? ((this._subtitle = typeof _ === "function" ? _ : constant(_)), this)
-      : this._subtitle;
+      ? ((this.schema.subtitle = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.subtitle;
   }
 
   /**
@@ -1609,8 +1607,8 @@ Defaults to an empty array (`[]`).
 */
   subtitleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._subtitleConfig = assign(this._subtitleConfig, _!)), this)
-      : this._subtitleConfig;
+      ? ((this.schema.subtitleConfig = assign(this.schema.subtitleConfig, _!)), this)
+      : this.schema.subtitleConfig;
   }
 
   /**
@@ -1620,9 +1618,9 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._subtitlePadding = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.subtitlePadding = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._subtitlePadding;
+      : this.schema.subtitlePadding;
   }
 
   // svgDesc(_?: string): installed by installFluent(this, vizSchema).
@@ -1636,12 +1634,12 @@ Defaults to an empty array (`[]`).
   ): this | number | ((data: DataPoint[]) => number) {
     if (arguments.length) {
       if (typeof _ === "function") {
-        this._threshold = _;
+        this.schema.threshold = _;
       } else if (isFinite(_!) && !isNaN(_!)) {
-        this._threshold = constant(_! * 1);
+        this.schema.threshold = constant(_! * 1);
       }
       return this;
-    } else return this._threshold;
+    } else return this.schema.threshold;
   }
 
   /**
@@ -1653,12 +1651,12 @@ Defaults to an empty array (`[]`).
   ): this | string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) {
     if (arguments.length) {
       if (typeof key === "function") {
-        this._thresholdKey = key;
+        this.schema.thresholdKey = key;
       } else {
-        this._thresholdKey = accessor(key!);
+        this.schema.thresholdKey = accessor(key!);
       }
       return this;
-    } else return this._thresholdKey;
+    } else return this.schema.thresholdKey;
   }
 
   /**
@@ -1668,9 +1666,9 @@ Defaults to an empty array (`[]`).
     _?: string | ((d: DataPoint, i: number) => string),
   ): this | string | ((d: DataPoint, i: number) => string) {
     return arguments.length
-      ? ((this._thresholdName = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.thresholdName = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._thresholdName;
+      : this.schema.thresholdName;
   }
 
   /**
@@ -1688,11 +1686,11 @@ Defaults to an empty array (`[]`).
     | false {
     if (arguments.length) {
       if (typeof _ === "function") {
-        this._time = _;
+        this.schema.time = _;
       } else if (_) {
-        this._time = accessor(_);
-        if (!this._aggs[_]) {
-          this._aggs[_] = (
+        this.schema.time = accessor(_);
+        if (!this.schema.aggs[_]) {
+          this.schema.aggs[_] = (
             a: DataPoint[],
             c: (d: DataPoint) => DataPoint[keyof DataPoint],
           ) => {
@@ -1709,13 +1707,13 @@ Defaults to an empty array (`[]`).
         }
         this._userTime = _;
       } else {
-        this._time = undefined;
+        this.schema.time = undefined;
         this._userTime = undefined;
         this.schema.timeFilter = false;
         this._timelineSelection = false;
       }
       return this;
-    } else return this._time;
+    } else return this.schema.time;
   }
 
   // timeFilter(_?: ((d, i) => boolean) | false): installed by installFluent(this, vizSchema).
@@ -1726,8 +1724,8 @@ Defaults to an empty array (`[]`).
 */
   timelineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._timelineConfig = assign(this._timelineConfig, _!)), this)
-      : this._timelineConfig;
+      ? ((this.schema.timelineConfig = assign(this.schema.timelineConfig, _!)), this)
+      : this.schema.timelineConfig;
   }
 
   /**
@@ -1736,11 +1734,11 @@ Defaults to an empty array (`[]`).
   timelineDefault(_?: Date | string | (Date | string)[]): this | Date[] {
     if (arguments.length) {
       if (!(_ instanceof Array)) _ = [_!, _!];
-      this._timelineDefault = (_ as (Date | string)[])
+      this.schema.timelineDefault = (_ as (Date | string)[])
         .map(d => date(d as string | number | false))
         .filter((d): d is Date => d !== false);
       return this;
-    } else return this._timelineDefault;
+    } else return this.schema.timelineDefault;
   }
 
   /**
@@ -1750,9 +1748,9 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._timelinePadding = typeof _ === "function" ? _ : constant(_)),
+      ? ((this.schema.timelinePadding = typeof _ === "function" ? _ : constant(_)),
         this)
-      : this._timelinePadding;
+      : this.schema.timelinePadding;
   }
 
   /**
@@ -1762,8 +1760,8 @@ Defaults to an empty array (`[]`).
     _?: string | ((data: DataPoint[]) => string),
   ): this | string | ((data: DataPoint[]) => string) {
     return arguments.length
-      ? ((this._title = typeof _ === "function" ? _ : constant(_)), this)
-      : this._title;
+      ? ((this.schema.title = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.title;
   }
 
   /**
@@ -1771,8 +1769,8 @@ Defaults to an empty array (`[]`).
 */
   titleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._titleConfig = assign(this._titleConfig, _!)), this)
-      : this._titleConfig;
+      ? ((this.schema.titleConfig = assign(this.schema.titleConfig, _!)), this)
+      : this.schema.titleConfig;
   }
 
   /**
@@ -1782,8 +1780,8 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._titlePadding = typeof _ === "function" ? _ : constant(_)), this)
-      : this._titlePadding;
+      ? ((this.schema.titlePadding = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.titlePadding;
   }
 
   /**
@@ -1793,8 +1791,8 @@ Defaults to an empty array (`[]`).
     _?: boolean | ((d: DataPoint, i: number) => boolean),
   ): this | boolean | ((d: DataPoint, i: number) => boolean) {
     return arguments.length
-      ? ((this._tooltip = typeof _ === "function" ? _ : constant(_)), this)
-      : this._tooltip;
+      ? ((this.schema.tooltip = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.tooltip;
   }
 
   /**
@@ -1813,11 +1811,11 @@ Defaults to an empty array (`[]`).
     _?: boolean | string | ((d: DataPoint, i: number) => number),
   ): this | boolean | string | ((d: DataPoint, i: number) => number) {
     if (arguments.length) {
-      if (typeof _ === "function") this._total = _;
-      else if (_) this._total = accessor(_ as string);
-      else this._total = false;
+      if (typeof _ === "function") this.schema.total = _;
+      else if (_) this.schema.total = accessor(_ as string);
+      else this.schema.total = false;
       return this;
-    } else return this._total;
+    } else return this.schema.total;
   }
 
   /**
@@ -1825,8 +1823,8 @@ Defaults to an empty array (`[]`).
 */
   totalConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._totalConfig = assign(this._totalConfig, _!)), this)
-      : this._totalConfig;
+      ? ((this.schema.totalConfig = assign(this.schema.totalConfig, _!)), this)
+      : this.schema.totalConfig;
   }
 
   /**
@@ -1834,8 +1832,8 @@ Defaults to an empty array (`[]`).
 */
   totalFormat(_?: (d: number) => string): this | ((d: number) => string) {
     return arguments.length
-      ? ((this._totalFormat = _), this)
-      : this._totalFormat;
+      ? ((this.schema.totalFormat = _), this)
+      : this.schema.totalFormat;
   }
 
   /**
@@ -1845,8 +1843,8 @@ Defaults to an empty array (`[]`).
     _?: boolean | (() => boolean),
   ): this | boolean | (() => boolean) {
     return arguments.length
-      ? ((this._totalPadding = typeof _ === "function" ? _ : constant(_)), this)
-      : this._totalPadding;
+      ? ((this.schema.totalPadding = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.totalPadding;
   }
 
   // width(_?: number): installed by installFluent(this, vizSchema).
@@ -1857,8 +1855,8 @@ Defaults to an empty array (`[]`).
 */
   zoomBrushHandleSize(_?: number): this | number {
     return arguments.length
-      ? ((this._zoomBrushHandleSize = _), this)
-      : this._zoomBrushHandleSize;
+      ? ((this.schema.zoomBrushHandleSize = _), this)
+      : this.schema.zoomBrushHandleSize;
   }
 
   /**
@@ -1868,8 +1866,8 @@ Defaults to an empty array (`[]`).
     _?: Record<string, unknown> | false,
   ): this | Record<string, unknown> | false {
     return arguments.length
-      ? ((this._zoomBrushHandleStyle = _), this)
-      : this._zoomBrushHandleStyle;
+      ? ((this.schema.zoomBrushHandleStyle = _), this)
+      : this.schema.zoomBrushHandleStyle;
   }
 
   /**
@@ -1879,8 +1877,8 @@ Defaults to an empty array (`[]`).
     _?: Record<string, unknown> | false,
   ): this | Record<string, unknown> | false {
     return arguments.length
-      ? ((this._zoomBrushSelectionStyle = _), this)
-      : this._zoomBrushSelectionStyle;
+      ? ((this.schema.zoomBrushSelectionStyle = _), this)
+      : this.schema.zoomBrushSelectionStyle;
   }
 
   /**
@@ -1890,8 +1888,8 @@ Defaults to an empty array (`[]`).
     _?: Record<string, unknown> | false,
   ): this | Record<string, unknown> | false {
     return arguments.length
-      ? ((this._zoomControlStyle = _), this)
-      : this._zoomControlStyle;
+      ? ((this.schema.zoomControlStyle = _), this)
+      : this.schema.zoomControlStyle;
   }
 
   /**
@@ -1901,8 +1899,8 @@ Defaults to an empty array (`[]`).
     _?: Record<string, unknown> | false,
   ): this | Record<string, unknown> | false {
     return arguments.length
-      ? ((this._zoomControlStyleActive = _), this)
-      : this._zoomControlStyleActive;
+      ? ((this.schema.zoomControlStyleActive = _), this)
+      : this.schema.zoomControlStyleActive;
   }
 
   /**
@@ -1912,8 +1910,8 @@ Defaults to an empty array (`[]`).
     _?: Record<string, unknown> | false,
   ): this | Record<string, unknown> | false {
     return arguments.length
-      ? ((this._zoomControlStyleHover = _), this)
-      : this._zoomControlStyleHover;
+      ? ((this.schema.zoomControlStyleHover = _), this)
+      : this.schema.zoomControlStyleHover;
   }
 
   // zoomFactor(_?: number): installed by installFluent(this, vizSchema).
@@ -1925,8 +1923,8 @@ Defaults to an empty array (`[]`).
 */
   zoomPadding(_?: number): this | number {
     return arguments.length
-      ? ((this._zoomPadding = _), this)
-      : this._zoomPadding;
+      ? ((this.schema.zoomPadding = _), this)
+      : this.schema.zoomPadding;
   }
 
   // zoomScroll(_?: boolean): installed by installFluent(this, vizSchema).

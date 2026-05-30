@@ -50,7 +50,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return {plotFormattedData: [], plotAxisData: [], x2Exists: false, y2Exists: false};
   }
 
-  const firstElemTime = viz._time ? viz._time(viz._filteredData[0], 0) : false;
+  const firstElemTime = viz.schema.time ? viz.schema.time(viz._filteredData[0], 0) : false;
   const x2Time = (viz._x2Time =
     firstElemTime && viz._x2(viz._filteredData[0], 0) === firstElemTime);
   const xTime = (viz._xTime =
@@ -63,10 +63,10 @@ export const formatPlotData: TransformStage = ({viz}) => {
   const timeAxis = xTime || x2Time || yTime || y2Time;
 
   const stackGroup = (d: any, i: number) =>
-    `${!timeAxis && viz._time ? viz._time(d, i) : "time"}_${
+    `${!timeAxis && viz.schema.time ? viz.schema.time(d, i) : "time"}_${
       viz.schema.stacked
         ? `${
-            viz._groupBy.length > 1
+            viz.schema.groupBy.length > 1
               ? viz._ids(d, i).slice(0, -1).join("_")
               : "group"
           }`
@@ -168,7 +168,7 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
                 ? leaves[0].data
                 : d3plusMerge(
                     leaves.map((d: any) => d.data),
-                    viz._aggs,
+                    viz.schema.aggs,
                   ),
             (d: Record<string, unknown>) => d[axis],
           )
@@ -323,7 +323,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 
   const yC: Record<string, unknown> = {
     data: yData,
-    locale: viz._locale,
+    locale: viz.schema.locale,
     rounding: viz.schema.yDomain ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
   };

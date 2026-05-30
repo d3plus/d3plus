@@ -50,10 +50,10 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
 
   type Branch = {values: PriestleyDatum[]} & Record<string, unknown>;
   let nested: Branch[];
-  if (viz._groupBy.length > 1 && viz._drawDepth > 0) {
+  if (viz.schema.groupBy.length > 1 && viz._drawDepth > 0) {
     const keyFns: ((d: PriestleyDatum) => unknown)[] = [];
     for (let i = 0; i < viz._drawDepth; i++) {
-      keyFns.push(d => viz._groupBy[i](d.data, d.i));
+      keyFns.push(d => viz.schema.groupBy[i](d.data, d.i));
     }
     nested = nestGroups(data as unknown as DataPoint[], keyFns as ((d: DataPoint) => unknown)[]) as unknown as Branch[];
   } else {

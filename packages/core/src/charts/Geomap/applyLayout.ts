@@ -40,7 +40,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(v);
 
   const coordData: {type: string; features: Record<string, unknown>[]} = v.schema.topojson
-    ? topo2feature(v.schema.topojson, v._topojsonKey)
+    ? topo2feature(v.schema.topojson, v.schema.topojsonKey)
     : {type: "FeatureCollection", features: []};
   v.ctx.coordData = coordData;
 
@@ -58,11 +58,11 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   v.ctx.path = path;
 
   const pointData = v._filteredData.filter(
-    (d: DataPoint, i: number) => v._point(d, i) instanceof Array,
+    (d: DataPoint, i: number) => v.schema.point(d, i) instanceof Array,
   );
 
   const pathData = v._filteredData
-    .filter((d: DataPoint, i: number) => !(v._point(d, i) instanceof Array))
+    .filter((d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array))
     .reduce((obj: Record<string, DataPoint>, d: DataPoint) => {
       obj[v._id(d)] = d;
       return obj;
@@ -85,12 +85,12 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
 
   if (!v._zoomSet || !v.ctx.extentBounds) {
-    const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v._fitKey) : coordData;
+    const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v.schema.fitKey) : coordData;
 
     v.ctx.extentBounds = {
       type: "FeatureCollection",
-      features: v._fitFilter
-        ? fitData.features.filter(v._fitFilter)
+      features: v.schema.fitFilter
+        ? fitData.features.filter(v.schema.fitFilter)
         : fitData.features.slice(),
     };
     v.ctx.extentBounds.features = v.ctx.extentBounds.features.reduce(
@@ -149,7 +149,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     if (!v.ctx.extentBounds.features.length && pointData.length) {
       const bounds: (number | undefined)[][] = [[undefined, undefined], [undefined, undefined]];
       pointData.forEach((d: DataPoint, i: number) => {
-        const point = v.schema.projection(v._point(d, i));
+        const point = v.schema.projection(v.schema.point(d, i));
         if (bounds[0][0] === void 0 || point[0] < bounds[0][0]) bounds[0][0] = point[0];
         if (bounds[1][0] === void 0 || point[0] > bounds[1][0]) bounds[1][0] = point[0];
         if (bounds[0][1] === void 0 || point[1] < bounds[0][1]) bounds[0][1] = point[1];
@@ -200,8 +200,8 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     pointData,
     pointR: (d: DataPoint, i: number) => r(v.schema.pointSize(d, i)),
     pointSort: (a: DataPoint, b: DataPoint) => v.schema.pointSize(b) - v.schema.pointSize(a),
-    pointX: (d: DataPoint, i: number) => v.schema.projection(v._point(d, i))[0],
-    pointY: (d: DataPoint, i: number) => v.schema.projection(v._point(d, i))[1],
+    pointX: (d: DataPoint, i: number) => v.schema.projection(v.schema.point(d, i))[0],
+    pointY: (d: DataPoint, i: number) => v.schema.projection(v.schema.point(d, i))[1],
   };
 
   return {shapeData: topoData};

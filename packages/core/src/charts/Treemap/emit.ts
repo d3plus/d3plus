@@ -29,7 +29,7 @@ export const treemapEmit: ChartDefinition["emit"] = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as TreemapShapeNode[];
   if (!nodes.length) return [];
 
-  const locale = viz._locale;
+  const locale = viz.schema.locale;
   const drawLabel = viz._drawLabel;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 

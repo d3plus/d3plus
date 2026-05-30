@@ -31,7 +31,7 @@ export const applyPackLayout: TransformStage = ({viz}) => {
 
   const nestedData = nestGroups(
     data,
-    viz._groupBy.slice(0, viz._drawDepth + 1),
+    viz.schema.groupBy.slice(0, viz._drawDepth + 1),
   ) as unknown as Branch;
 
   const packOpacityFn = viz.schema.packOpacity as (d: DataPoint, i: number) => number;

@@ -225,7 +225,7 @@ export function drawPlot(viz: any, callback?: () => void) {
     : undefined;
   const xC: Record<string, unknown> = {
     data: xData,
-    locale: viz._locale,
+    locale: viz.schema.locale,
     rounding: viz.schema.xDomain ? "none" : "outside",
     scalePadding: x.padding ? x.padding() : 0,
   };

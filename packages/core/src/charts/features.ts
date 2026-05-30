@@ -197,15 +197,15 @@ function textBlockLayout(
     panelKey: string;
     getText: (viz: any) => string | false;
     textClassKey: string; // e.g. "_titleClass"
-    configKey: string; // e.g. "_titleConfig"
-    paddingMethod: string; // e.g. "_titlePadding"
+    configKey: string; // schema key, e.g. "titleConfig"
+    paddingMethod: string; // schema key, e.g. "titlePadding"
   },
 ): FeatureLayout {
   const {viz, layoutMargin} = ctx;
   const text = opts.getText(viz);
   if (!text) return {panel: null, margin: {}};
 
-  const usesPadding = (viz[opts.paddingMethod] as () => boolean)();
+  const usesPadding = (viz.schema[opts.paddingMethod] as () => boolean)();
   const padding = usesPadding
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
@@ -216,9 +216,9 @@ function textBlockLayout(
   const textClass = viz[opts.textClassKey];
   textClass
     .data([{text}])
-    .locale(viz._locale)
+    .locale(viz.schema.locale)
     .width(width)
-    .config(viz[opts.configKey]);
+    .config(viz.schema[opts.configKey]);
   const boxes = textClass._textData() as Array<{
     lines: string[];
     lH: number;
@@ -235,7 +235,7 @@ function textBlockLayout(
   const x = layoutMargin.left + padding.left;
   const y = layoutMargin.top;
   const lineHeight = box.lH;
-  const blockPadding = (viz[opts.configKey]?.padding as number) ?? 0;
+  const blockPadding = (viz.schema[opts.configKey]?.padding as number) ?? 0;
   const height = box.lines.length * lineHeight + blockPadding * 2;
 
   const lines = box.lines.map((str: string, i: number) => ({
@@ -284,10 +284,10 @@ export const titleFeature: FeatureModule = {
   layout: ctx =>
     textBlockLayout(ctx, {
       panelKey: "viz-title",
-      getText: viz => (viz._title ? viz._title(viz._filteredData || []) : false),
+      getText: viz => (viz.schema.title ? viz.schema.title(viz._filteredData || []) : false),
       textClassKey: "_titleClass",
-      configKey: "_titleConfig",
-      paddingMethod: "_titlePadding",
+      configKey: "titleConfig",
+      paddingMethod: "titlePadding",
     }),
 };
 
@@ -298,10 +298,10 @@ export const subtitleFeature: FeatureModule = {
   layout: ctx =>
     textBlockLayout(ctx, {
       panelKey: "viz-subtitle",
-      getText: viz => (viz._subtitle ? viz._subtitle(viz._filteredData || []) : false),
+      getText: viz => (viz.schema.subtitle ? viz.schema.subtitle(viz._filteredData || []) : false),
       textClassKey: "_subtitleClass",
-      configKey: "_subtitleConfig",
-      paddingMethod: "_subtitlePadding",
+      configKey: "subtitleConfig",
+      paddingMethod: "subtitlePadding",
     }),
 };
 
@@ -316,8 +316,8 @@ export const backFeature: FeatureModule = {
   layout: ({viz, layoutMargin}) => {
     if (!viz._history || !viz._history.length) return {panel: null, margin: {}};
 
-    const text = `← ${viz._translate("Back")}`;
-    viz._backClass.data([{text, x: 0, y: 0}]).config(viz._backConfig);
+    const text = `← ${viz.schema.translate("Back")}`;
+    viz._backClass.data([{text, x: 0, y: 0}]).config(viz.schema.backConfig);
     const boxes = viz._backClass._textData() as Array<{
       lines: string[];
       lH: number;
@@ -395,15 +395,15 @@ export const legendFeature: FeatureModule = {
     const fill = (d: DataPoint, i: number): string =>
       legendAttrs.map(a => getAttr(d, i, a)).join("_");
 
-    const rollupData = viz._colorScale
+    const rollupData = viz.schema.colorScale
       ? data.filter(
-          (d: DataPoint, i: number) => viz._colorScale(d, i) === undefined,
+          (d: DataPoint, i: number) => viz.schema.colorScale(d, i) === undefined,
         )
       : data;
     rollup(
       rollupData,
       (leaves: DataPoint[]) =>
-        legendData.push(merge(leaves, viz._aggs) as unknown as DataPoint),
+        legendData.push(merge(leaves, viz.schema.aggs) as unknown as DataPoint),
       fill,
     );
 
@@ -451,9 +451,9 @@ export const legendFeature: FeatureModule = {
     // the legacy behavior, preserved here so visual output is identical.
     const legendBounds = viz._legendClass.outerBounds();
     const config = viz.config();
-    const position = sanitizePosition(viz._legendPosition.bind(viz)(config));
+    const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
     const wide = ["top", "bottom"].includes(position);
-    const padding = viz._legendPadding()
+    const padding = viz.schema.legendPadding()
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
     const transform = {
@@ -473,7 +473,7 @@ export const legendFeature: FeatureModule = {
     // helper so the Legend has a DOM `_select` (its `toScene()` walks from
     // there). Once Legend is fully compute-only the elem wrapper can go.
     const legendGroup = elem("g.d3plus-viz-legend", {
-      condition: visible && !viz._legendConfig.select,
+      condition: visible && !viz.schema.legendConfig.select,
       enter: transform,
       parent: viz._select,
       duration: viz.schema.duration,
@@ -493,7 +493,7 @@ export const legendFeature: FeatureModule = {
           : viz.schema.height -
               (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top),
       )
-      .locale(viz._locale)
+      .locale(viz.schema.locale)
       .parent(viz)
       .select(legendGroup)
       .shape((d: DataPoint, i: number) =>
@@ -509,13 +509,13 @@ export const legendFeature: FeatureModule = {
       .shapeConfig((configPrep as any).bind(viz)(viz.schema.shapeConfig, "legend"))
       .shapeConfig({
         fill: (d: DataPoint, i: number) =>
-          hidden(d, i) ? viz._hiddenColor(d, i) : getAttr(d, i, "fill"),
+          hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
         labelConfig: {
           fontOpacity: (d: DataPoint, i: number) =>
-            hidden(d, i) ? viz._hiddenOpacity(d, i) : 1,
+            hidden(d, i) ? viz.schema.hiddenOpacity(d, i) : 1,
         },
       })
-      .config(viz._legendConfig)
+      .config(viz.schema.legendConfig)
       .render();
 
     // Margin claim from the *previous* render's outerBounds. This is the
@@ -524,7 +524,7 @@ export const legendFeature: FeatureModule = {
     // the next render flows with full margin. Preserved verbatim to keep the
     // post-conversion pixels identical.
     const margin: Record<string, number> = {};
-    if (!viz._legendConfig.select && legendBounds.height) {
+    if (!viz.schema.legendConfig.select && legendBounds.height) {
       if (wide)
         margin[position] = legendBounds.height + viz._legendClass.padding() * 2;
       else
@@ -551,7 +551,7 @@ function setTimeFilter(viz: any, s: Date | Date[] | number[]): void {
     viz._timelineSelection = s;
     const nums = (s as Array<Date | number>).map(Number) as number[];
     (viz.timeFilter((d: DataPoint) => {
-      const ms = (date(viz._time(d)) as Date).getTime();
+      const ms = (date(viz.schema.time(d)) as Date).getTime();
       return ms >= nums[0] && ms <= nums[1];
     }) as any).render();
   }
@@ -569,16 +569,16 @@ export const timelineFeature: FeatureModule = {
   name: "timeline",
   configFields: ["timeline", "timelineConfig", "timelinePadding"],
   layout: ({viz}) => {
-    let timelinePossible = viz._time && viz.schema.timeline;
+    let timelinePossible = viz.schema.time && viz.schema.timeline;
     const ticks = (
       timelinePossible
-        ? unique(viz._data.map(viz._time)).map(
+        ? unique(viz._data.map(viz.schema.time)).map(
             (d: unknown) => date(d as string | number),
           )
         : []
     ) as Date[];
     timelinePossible = timelinePossible && ticks.length > 1;
-    const padding = viz._timelinePadding()
+    const padding = viz.schema.timelinePadding()
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 
@@ -602,7 +602,7 @@ export const timelineFeature: FeatureModule = {
       .domain(extent(ticks) as [Date, Date])
       .duration(viz.schema.duration)
       .height(viz.schema.height - viz._margin.bottom)
-      .locale(viz._locale)
+      .locale(viz.schema.locale)
       .select(timelineGroup)
       .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
       .width(
@@ -612,11 +612,11 @@ export const timelineFeature: FeatureModule = {
 
     const dataExtent = extent(
       data
-        .map(viz._time)
+        .map(viz.schema.time)
         .map((d: unknown) => date(d as string | number)) as Date[],
     ) as [Date, Date];
     if (!viz._timelineSelection) {
-      viz._timelineSelection = viz._timelineDefault || dataExtent;
+      viz._timelineSelection = viz.schema.timelineDefault || dataExtent;
     } else {
       if (viz._timelineSelection[0] < dataExtent[0])
         viz._timelineSelection[0] = dataExtent[0];
@@ -625,7 +625,7 @@ export const timelineFeature: FeatureModule = {
     }
     timeline.selection(viz._timelineSelection);
 
-    const config = viz._timelineConfig;
+    const config = viz.schema.timelineConfig;
     timeline
       .config(config)
       .on("brush", (s: Date[]) => {
@@ -667,29 +667,29 @@ export const colorScaleFeature: FeatureModule = {
     const data = Array.from(
       rollup(
         viz._data,
-        (leaves: DataPoint[]) => merge(leaves, viz._aggs),
+        (leaves: DataPoint[]) => merge(leaves, viz.schema.aggs),
         (d: DataPoint, i: number) =>
-          `${viz._time ? viz._time(d, i) : "all"}-${viz._ids(d, i).join("_")}`,
+          `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${viz._ids(d, i).join("_")}`,
       ).values(),
     );
 
-    const position = sanitizePosition(viz._colorScalePosition.bind(viz)(viz.config()));
+    const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(viz.config()));
     const wide = ["top", "bottom"].includes(position);
-    const showColorScale = viz._colorScale && position;
-    const padding = viz._colorScalePadding()
+    const showColorScale = viz.schema.colorScale && position;
+    const padding = viz.schema.colorScalePadding()
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 
     const availableWidth =
       viz.schema.width - (viz._margin.left + viz._margin.right + padding.left + padding.right);
     const width = wide
-      ? min([viz._colorScaleMaxSize, availableWidth])!
+      ? min([viz.schema.colorScaleMaxSize, availableWidth])!
       : viz.schema.width - (viz._margin.left + viz._margin.right);
 
     const availableHeight =
       viz.schema.height - (viz._margin.bottom + viz._margin.top + padding.bottom + padding.top);
     const height = !wide
-      ? min([viz._colorScaleMaxSize, availableHeight])!
+      ? min([viz.schema.colorScaleMaxSize, availableHeight])!
       : viz.schema.height - (viz._margin.bottom + viz._margin.top);
 
     const transform = {
@@ -706,17 +706,17 @@ export const colorScaleFeature: FeatureModule = {
     };
 
     const scaleGroup = elem("g.d3plus-viz-colorScale", {
-      condition: showColorScale && !viz._colorScaleConfig.select,
+      condition: showColorScale && !viz.schema.colorScaleConfig.select,
       enter: transform,
       parent: viz._select,
       duration: viz.schema.duration,
       update: transform,
     }).node();
 
-    if (!viz._colorScale) return {panel: null, margin: {}};
+    if (!viz.schema.colorScale) return {panel: null, margin: {}};
 
     const scaleData = data.filter((d: MergedDataPoint, i: number) => {
-      const c = viz._colorScale(d as unknown as DataPoint, i);
+      const c = viz.schema.colorScale(d as unknown as DataPoint, i);
       return c !== undefined && c !== null;
     });
 
@@ -729,18 +729,18 @@ export const colorScaleFeature: FeatureModule = {
       .duration(viz.schema.duration)
       .data(scaleData)
       .height(height)
-      .locale(viz._locale)
+      .locale(viz.schema.locale)
       .orient(position)
       .select(scaleGroup)
-      .value(viz._colorScale)
+      .value(viz.schema.colorScale)
       .width(width)
-      .config(viz._colorScaleConfig)
+      .config(viz.schema.colorScaleConfig)
       .render();
 
     const margin: Record<string, number> = {};
     if (showColorScale) {
       const scaleBounds = viz._colorScaleClass.outerBounds();
-      if (!viz._colorScaleConfig.select && scaleBounds.height) {
+      if (!viz.schema.colorScaleConfig.select && scaleBounds.height) {
         // Use the colorScale's OWN padding for its margin claim. Legacy
         // drawColorScale read `viz._legendClass.padding()` here — a
         // faithful-port carry-over that meant a custom legendPadding
@@ -776,7 +776,7 @@ export const attributionFeature: FeatureModule = {
   layout: ({viz}) => {
     let attr: any = select(viz._select.node().parentNode)
       .selectAll("div.d3plus-attribution")
-      .data(viz._attribution ? [0] : []);
+      .data(viz.schema.attribution ? [0] : []);
 
     const attrEnter = attr
       .enter()
@@ -788,10 +788,10 @@ export const attributionFeature: FeatureModule = {
     attr = attr
       .merge(attrEnter)
       .style("position", "absolute")
-      .html(viz._attribution)
+      .html(viz.schema.attribution)
       .style("right", `${viz._margin.right}px`)
       .style("bottom", `${viz._margin.bottom}px`)
-      .call(stylize as never, viz._attributionStyle);
+      .call(stylize as never, viz.schema.attributionStyle);
 
     return {panel: null, margin: {}};
   },
@@ -811,15 +811,15 @@ export const totalFeature: FeatureModule = {
       getText: viz => {
         const data = viz._filteredData || [];
         const total =
-          typeof viz._total === "function"
-            ? sum(data.map(viz._total))
-            : viz._total === true && viz._size
+          typeof viz.schema.total === "function"
+            ? sum(data.map(viz.schema.total))
+            : viz.schema.total === true && viz._size
               ? sum(data.map(viz._size))
               : false;
-        return total ? viz._totalFormat(total) : false;
+        return total ? viz.schema.totalFormat(total) : false;
       },
       textClassKey: "_totalClass",
-      configKey: "_totalConfig",
-      paddingMethod: "_totalPadding",
+      configKey: "totalConfig",
+      paddingMethod: "totalPadding",
     }),
 };

@@ -2,7 +2,6 @@
     BumpChart — Plot with `discrete: "x"`, `shape: "Line"`, and a
     y2-mirroring configuration that draws labeled rank lines.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import constant from "../../utils/constant.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
@@ -20,11 +19,20 @@ export const bumpChartDef: ChartDefinition = {
   emit: ({viz}) => Array.isArray(viz._chartScene) ? viz._chartScene.slice() : [],
 
   setup: (viz: VizInstance) => {
-    (viz as any).y2((d: Record<string, unknown>) => viz._y(d));
-    (viz as any).yConfig({
+    type Comparator = (a: Record<string, unknown>, b: Record<string, unknown>) => number;
+    type BumpFluent = {
+      y2: (accessor: (d: Record<string, unknown>) => unknown) => unknown;
+      yConfig: (config: Record<string, unknown>) => unknown;
+      y2Config: (config: Record<string, unknown>) => unknown;
+      ySort: (comparator: Comparator) => unknown;
+      y2Sort: (comparator: Comparator) => unknown;
+    };
+    const v = viz as VizInstance & BumpFluent;
+    v.y2((d: Record<string, unknown>) => viz._y(d));
+    v.yConfig({
       tickFormat: (val: number) => {
-        const data = viz._formattedData;
-        const xMin = data[0].x instanceof Date ? data[0].x.getTime() : data[0].x;
+        const data = viz._formattedData ?? [];
+        const xMin = data[0].x instanceof Date ? (data[0].x as unknown as Date).getTime() : data[0].x;
         const startData = data.filter(
           (d: Record<string, unknown>) =>
             (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMin,
@@ -33,12 +41,12 @@ export const bumpChartDef: ChartDefinition = {
         return d ? viz._drawLabel(d, d.i as number) : "";
       },
     });
-    (viz as any).y2Config({
+    v.y2Config({
       tickFormat: (val: number) => {
-        const data = viz._formattedData;
+        const data = viz._formattedData ?? [];
         const xMax =
           data[data.length - 1].x instanceof Date
-            ? data[data.length - 1].x.getTime()
+            ? (data[data.length - 1].x as unknown as Date).getTime()
             : data[data.length - 1].x;
         const endData = data.filter(
           (d: Record<string, unknown>) =>
@@ -48,9 +56,9 @@ export const bumpChartDef: ChartDefinition = {
         return d ? viz._drawLabel(d, d.i as number) : "";
       },
     });
-    (viz as any).ySort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+    v.ySort((a: Record<string, unknown>, b: Record<string, unknown>) =>
       (viz._y as (d: unknown) => number)(b) - (viz._y as (d: unknown) => number)(a));
-    (viz as any).y2Sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+    v.y2Sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
       (viz._y as (d: unknown) => number)(b) - (viz._y as (d: unknown) => number)(a));
   },
 

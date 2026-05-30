@@ -40,7 +40,6 @@ const timelineSchema: ConfigField[] = [
 export default class Timeline extends Axis {
   _buttonBehaviorCurrent: string;
   _hiddenHandles: boolean;
-  declare _on: Record<string, (...args: unknown[]) => unknown>;
   _playButtonClass: TextBox;
   _playTimer!: ReturnType<typeof setInterval> | false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,7 +72,7 @@ export default class Timeline extends Axis {
     };
     this.schema.height = 100;
     this.schema.labelOffset = false;
-    this._on = {};
+    this.schema.on = {};
     this.orient("bottom");
     this._playButtonClass = new TextBox()
       .on("click", () => {
@@ -230,7 +229,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.brush) (this._on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
+    if (this.schema.on.brush) (this.schema.on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
   }
 
   /**
@@ -250,7 +249,7 @@ export default class Timeline extends Axis {
         .transition(this._transition)
         .call(this._brush.move, this._updateBrushLimit(domain));
 
-    if (this._on.end) (this._on.end as (...args: unknown[]) => unknown)(this.schema.selection);
+    if (this.schema.on.end) (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
   }
 
   /**
@@ -269,7 +268,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.start) (this._on.start as (...args: unknown[]) => unknown)(event);
+    if (this.schema.on.start) (this.schema.on.start as (...args: unknown[]) => unknown)(event);
   }
 
   /**
@@ -587,7 +586,7 @@ export default class Timeline extends Axis {
     }
 
     const timeLocale =
-      this.schema.timeLocale || locale[this._locale] || locale["en-US"];
+      this.schema.timeLocale || locale[this.schema.locale] || locale["en-US"];
     if (this._userFormat === undefined)
       this._userFormat = this.schema.tickFormat || false;
     const tickFormat = (this.schema.tickFormat = this._userFormat
@@ -810,12 +809,12 @@ export default class Timeline extends Axis {
     f?: (...args: unknown[]) => unknown,
   ): Record<string, (...args: unknown[]) => unknown> | ((...args: unknown[]) => unknown) | undefined | this {
     return arguments.length === 2
-      ? ((this._on[_ as string] = f!), this)
+      ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
-          ? this._on[_]
-          : ((this._on = assign({} as Record<string, unknown>, this._on, _ as Record<string, unknown>) as Record<string, (...args: unknown[]) => unknown>), this)
-        : this._on;
+          ? this.schema.on[_]
+          : ((this.schema.on = assign({} as Record<string, unknown>, this.schema.on, _ as Record<string, unknown>) as Record<string, (...args: unknown[]) => unknown>), this)
+        : this.schema.on;
   }
 
   /**

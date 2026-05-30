@@ -174,7 +174,7 @@ export default function (this: Viz): void {
       [width, height],
     ])
     .filter((event: MouseEvent) => !event.button && event.detail < 2)
-    .handleSize(this._zoomBrushHandleSize)
+    .handleSize(this.schema.zoomBrushHandleSize)
     .on("start", brushStart.bind(this))
     .on("brush", brushBrush.bind(this))
     .on("end", brushEnd.bind(this));
@@ -332,13 +332,13 @@ function zoomToBounds(
 
     let xMod: number, yMod: number;
     if (dx / dy < width / height) {
-      k *= (height - this._zoomPadding * 2) / height;
+      k *= (height - this.schema.zoomPadding * 2) / height;
       xMod = (width - dx * k) / 2 / k;
-      yMod = this._zoomPadding / k;
+      yMod = this.schema.zoomPadding / k;
     } else {
-      k *= (width - this._zoomPadding * 2) / width;
+      k *= (width - this.schema.zoomPadding * 2) / width;
       yMod = (height - dy * k) / 2 / k;
-      xMod = this._zoomPadding / k;
+      xMod = this.schema.zoomPadding / k;
     }
 
     t.x = (t.x - bounds[0][0] + xMod) * ((t.k * k) / t.k);
@@ -392,9 +392,9 @@ function brushStart(this: Viz): void {
 function brushStyle(this: Viz): void {
   this._brushGroup
     .selectAll(".selection")
-    .call(attrize, this._zoomBrushSelectionStyle || {});
+    .call(attrize, this.schema.zoomBrushSelectionStyle || {});
 
   this._brushGroup
     .selectAll(".handle")
-    .call(attrize, this._zoomBrushHandleStyle || {});
+    .call(attrize, this.schema.zoomBrushHandleStyle || {});
 }

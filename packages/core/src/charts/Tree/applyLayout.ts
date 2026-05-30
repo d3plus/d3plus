@@ -56,7 +56,7 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
         key: "root",
         values: nest(
           viz._filteredData as DataPoint[],
-          viz._groupBy.slice(0, viz._drawDepth + 1),
+          viz.schema.groupBy.slice(0, viz._drawDepth + 1),
         ) as unknown as Branch[],
       } as Branch,
       d => (d.key && d.values ? (d.values as Branch[]) : null),
@@ -65,14 +65,14 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
 
   const treeData = (root as unknown as {descendants: () => TreeNode[]})
     .descendants()
-    .filter(d => (d.depth ?? 0) <= viz._groupBy.length && !!d.parent) as TreeNode[];
+    .filter(d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent) as TreeNode[];
 
   function flattenBranchData(branch: Branch): DataPoint {
     return merge(
       (branch.values as Branch[]).map(l =>
         l.key && l.values ? flattenBranchData(l) : (l as DataPoint),
       ),
-      viz._aggs as Parameters<typeof merge>[1],
+      viz.schema.aggs as Parameters<typeof merge>[1],
     ) as DataPoint;
   }
 
@@ -101,7 +101,7 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   const yExtent = extent(treeData, d => d.y) as [number, number];
   const labelHeight = min([
     isVertical ? 50 : 100,
-    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz._groupBy.length + 1),
+    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz.schema.groupBy.length + 1),
   ]) as number;
   viz.ctx.labelHeight = labelHeight;
 
@@ -175,12 +175,12 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
         height: isHorizontal ? h : offset * 2 + h,
         x: isVertical
           ? -w / 2
-          : d.children && d.depth !== viz._groupBy.length
+          : d.children && d.depth !== viz.schema.groupBy.length
             ? -(offset + w)
             : -offset,
         y: isHorizontal
           ? -h / 2
-          : d.children && d.depth !== viz._groupBy.length
+          : d.children && d.depth !== viz.schema.groupBy.length
             ? -(offset + labelHeight)
             : -offset,
       };
@@ -198,7 +198,7 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
         [heightKey]: h,
         [xKey]: -w / 2,
         [yKey]:
-          d.children && d.depth !== viz._groupBy.length
+          d.children && d.depth !== viz.schema.groupBy.length
             ? -(offset + h)
             : offset,
       };

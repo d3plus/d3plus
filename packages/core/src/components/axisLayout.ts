@@ -80,7 +80,7 @@ export interface AxisLayoutResult {
 */
 export function measureAxis(axis: any): AxisLayoutResult {
   const timeLocaleObj =
-    axis.schema.timeLocale || locale[axis._locale] || locale["en-US"];
+    axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"];
   timeFormatDefaultLocale(
     timeLocaleObj as Parameters<typeof timeFormatDefaultLocale>[0],
   );
@@ -121,9 +121,9 @@ export function measureAxis(axis: any): AxisLayoutResult {
           axis.schema.tickSuffix === "smallest"
         ) {
           const loc =
-            typeof axis._locale === "object"
-              ? axis._locale
-              : formatLocale[axis._locale];
+            typeof axis.schema.locale === "object"
+              ? axis.schema.locale
+              : formatLocale[axis.schema.locale];
           const {separator, suffixes} = loc;
           const suff = d >= 1000 ? suffixes[axis._tickUnit + 8] : "";
           const tick = d / Math.pow(10, 3 * axis._tickUnit);
@@ -153,7 +153,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
                   ? axis.schema.roundingInsideMaxSuffix
                   : ""
               : "";
-          return `${prefix}${formatAbbreviate(d, axis._locale)}${suffix}`;
+          return `${prefix}${formatAbbreviate(d, axis.schema.locale)}${suffix}`;
         }
       };
 

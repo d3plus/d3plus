@@ -17,7 +17,7 @@ export default function (
   x: DataPoint,
   event: MouseEvent & TouchEvent,
 ): void {
-  if (d && this._tooltip(d, i)) {
+  if (d && this.schema.tooltip(d, i)) {
     const defaultClick = clickShape.bind(this).toString();
 
     // does the shape have any user-defined click events?
@@ -38,7 +38,7 @@ export default function (
       this.schema.on["click.shape"].toString() === defaultClick;
 
     // can the viz show deeper data?
-    const hasDeeperLevel = this._drawDepth < this._groupBy.length - 1;
+    const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
 
     // only show the hand cursor when the shape has a click event
     this._select.style(
@@ -54,7 +54,7 @@ export default function (
       .data([x || d])
       .footer(
         hasDefaultClick && hasDeeperLevel
-          ? this._translate("Click to Expand")
+          ? this.schema.translate("Click to Expand")
           : false,
       )
       .title(this._drawLabel)

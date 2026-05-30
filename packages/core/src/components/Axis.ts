@@ -244,8 +244,6 @@ export default class Axis extends BaseClass {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _data: any[];
   _labelRotation: boolean | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  declare _locale: any;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
   _position!: {

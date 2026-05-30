@@ -74,10 +74,10 @@ export interface VizRenderer {
 */
 export interface VizInstance {
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  // Allow chart-specific fields to be referenced as `viz._anything` without
-  // exhaustive enumeration. Most are typed below; the escape exists for
-  // per-chart stash slots (_treeCtx, _pieData, _matrixCtx, etc.).
-  [key: string]: any;
+  /** User-set config from fluent accessors (`.sum(...)`, `.x(...)`, …). */
+  schema: Record<string, any>;
+  /** Chart-internal scratch (d3 layout instances, computed derived state). */
+  ctx: Record<string, unknown>;
 
   /* 1. Dimensions & layout */
   _width: number;
@@ -88,6 +88,7 @@ export interface VizInstance {
   /* 2. Data & filtering */
   _data: DataPoint[];
   _filteredData: DataPoint[];
+  _formattedData?: DataPoint[];
   _legendData: DataPoint[];
   _hidden: (string | number)[];
   _solo: (string | number)[];
@@ -120,7 +121,6 @@ export interface VizInstance {
   _sum?: (d: DataPoint, i: number) => number;
 
   /* 5. Config slots */
-  _shapeConfig: Record<string, any>;
   _xConfig?: Record<string, any>;
   _yConfig?: Record<string, any>;
   _x2Config?: Record<string, any>;
@@ -150,9 +150,9 @@ export interface VizInstance {
   _duration: number;
   _renderer?: "svg" | "canvas";
   _renderMode?: "full" | "compute";
-  _locale: string;
-  _translate?: (key: string) => string;
   _focus?: string | number | undefined;
+  _active?: ((d: DataPoint, i?: number) => boolean) | false;
+  _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   _userHover?: number;
   _userDuration?: number;
   _dataCutoff: number;
@@ -193,6 +193,7 @@ export interface VizInstance {
   _subtitleClass?: any;
   _backClass?: any;
   _messageClass?: any;
+  _tooltipClass?: any;
   _legendSort?: (a: DataPoint, b: DataPoint) => number;
   _legendPosition?: (config: any) => string | false;
   _legend?: ((config: any, data: DataPoint[]) => boolean) | boolean;
@@ -210,11 +211,12 @@ export interface VizInstance {
   _container?: D3Selection;
   _zoomGroup?: D3Selection;
   _tileGroup?: D3Selection;
+  _tileGen?: any;
   _zoomBehavior?: any;
   _zoomBrush?: any;
+  _zoomSet?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: any, duration?: number) => void;
-  _on: Record<string, (d: DataPoint, i: number, x?: any, event?: any) => void>;
   _wirePlotShapeEvents?: (shape: any, shapeKey: string, events: string[]) => void;
 
   /* 11. Identity */

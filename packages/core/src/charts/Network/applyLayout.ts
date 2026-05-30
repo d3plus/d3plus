@@ -104,7 +104,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
         fy: pickFrom(v._y, (val: number) => !isNaN(val)),
         node: n,
         r: v._size ? pickFrom(v._size) : (v.schema.sizeMin as number),
-        shape: pickFrom(v._shape) as string,
+        shape: pickFrom(v.schema.shape) as string,
       } as NetworkNode;
     })
     .filter((n): n is NetworkNode => !!n);
@@ -305,7 +305,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     });
   }
 
-  const linkConfig = shapeConfigFor(v, "Path", v._shapeConfig, "edge");
+  const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
 
   const nodeShapeConfig = {

@@ -72,8 +72,6 @@ const defaultBuffers = {
     Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -128,7 +126,7 @@ export default class Plot extends Viz {
     this.schema.sizeScale = "sqrt";
     this._stackOffset = stackOffsetDiverging;
     this._stackOrder = stackOrderDescending;
-    this._timelineConfig = assign(this._timelineConfig, {
+    this.schema.timelineConfig = assign(this.schema.timelineConfig, {
       brushMin: () =>
         this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1,
     });
@@ -200,8 +198,8 @@ export default class Plot extends Viz {
         const str = this[`_${k}Key`];
 
         // if axis is discrete and numerical, do not sum values
-        if (!this._aggs[str] && this.schema.discrete === k) {
-          this._aggs[str] = (a: any, c: any) => {
+        if (!this.schema.aggs[str] && this.schema.discrete === k) {
+          this.schema.aggs[str] = (a: any, c: any) => {
             const v = Array.from(new Set(a.map(c)));
             return v.length === 1 ? v[0] : v;
           };

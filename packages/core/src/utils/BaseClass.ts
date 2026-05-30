@@ -72,13 +72,8 @@ export default class BaseClass {
   /** Chart-internal scratch (d3 layout instances, computed derived state). */
   ctx: Record<string, unknown>;
 
-  _locale: string;
-  _on: Record<string, (...args: unknown[]) => unknown>;
-  _parent: Record<string, unknown>;
-  _translate: (d: string, locale?: string) => string;
   _uuid: string;
   _configDefault?: D3plusConfig;
-  _shapeConfig?: D3plusConfig;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -87,10 +82,13 @@ export default class BaseClass {
   constructor() {
     this.schema = {};
     this.ctx = {};
-    this._locale = "en-US";
-    this._on = {};
-    this._parent = {};
-    this._translate = (d: string, locale: string = this._locale): string => {
+    this.schema.locale = "en-US";
+    this.schema.on = {};
+    this.schema.parent = {};
+    this.schema.translate = (
+      d: string,
+      locale: string = this.schema.locale,
+    ): string => {
       const dictionary: TranslationStrings | undefined = dictionaries[locale];
       const key = d as keyof TranslationStrings;
       return dictionary && dictionary[key] ? dictionary[key] : d;
@@ -120,7 +118,7 @@ export default class BaseClass {
             const v = _![k];
             if (v === RESET) {
               if (k === "on")
-                this._on = this._configDefault![k] as typeof this._on;
+                this.schema.on = this._configDefault![k];
               else
                 (this as unknown as Record<string, (v: unknown) => unknown>)[k](
                   this._configDefault![k],
@@ -170,8 +168,8 @@ export default class BaseClass {
   locale(_: string | object): this;
   locale(_?: string | object): string | this {
     return arguments.length
-      ? ((this._locale = findLocale(_ as string)), this)
-      : this._locale;
+      ? ((this.schema.locale = findLocale(_ as string)), this)
+      : this.schema.locale;
   }
 
   /**
@@ -199,12 +197,12 @@ new Plot
     | undefined
     | this {
     return arguments.length === 2
-      ? ((this._on[_ as string] = f!), this)
+      ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
-          ? this._on[_]
-          : ((this._on = Object.assign({}, this._on, _)), this)
-        : this._on;
+          ? this.schema.on[_]
+          : ((this.schema.on = Object.assign({}, this.schema.on, _)), this)
+        : this.schema.on;
   }
 
   /**
@@ -213,7 +211,9 @@ new Plot
   parent(): Record<string, unknown>;
   parent(_: Record<string, unknown>): this;
   parent(_?: Record<string, unknown>): Record<string, unknown> | this {
-    return arguments.length ? ((this._parent = _!), this) : this._parent;
+    return arguments.length
+      ? ((this.schema.parent = _!), this)
+      : this.schema.parent;
   }
 
   /**
@@ -229,7 +229,9 @@ new Plot
   translate(
     _?: (d: string, locale?: string) => string,
   ): ((d: string, locale?: string) => string) | this {
-    return arguments.length ? ((this._translate = _!), this) : this._translate;
+    return arguments.length
+      ? ((this.schema.translate = _!), this)
+      : this.schema.translate;
   }
 
   /**
@@ -239,7 +241,11 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig ?? {}, _!) as D3plusConfig), this)
-      : this._shapeConfig!;
+      ? ((this.schema.shapeConfig = assign(
+          this.schema.shapeConfig ?? {},
+          _!,
+        ) as D3plusConfig),
+        this)
+      : (this.schema.shapeConfig as D3plusConfig);
   }
 }

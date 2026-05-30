@@ -43,13 +43,23 @@ export const networkDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     type NodeRecord = {id: string; x: number; y: number; r: number};
     type LinkDatum = {source?: DataPoint; target?: DataPoint};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const v = viz as any;
+    type Predicate = boolean | ((d: DataPoint, i: number) => boolean);
+    type NetworkFluent = {
+      active: (predicate?: Predicate) => unknown;
+      hover: (predicate?: Predicate) => unknown;
+      links: (data?: DataPoint[], formatter?: unknown) => unknown;
+      nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
+      nodeGroupBy: (keys?: unknown) => unknown;
+      size: (value?: unknown) => unknown;
+      x: (accessor?: unknown) => unknown;
+      y: (accessor?: unknown) => unknown;
+    };
+    const v = viz as VizInstance & NetworkFluent;
     viz.schema.zoom = true;
     viz.schema.on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
       viz._tooltipClass.data([]).render();
 
-      if (viz._hover && viz._drawDepth >= viz._groupBy.length - 1) {
+      if (viz._hover && viz._drawDepth >= viz.schema.groupBy.length - 1) {
         const id = getNodeId(viz, d, i);
 
         if (viz._focus && viz._focus === id) {
@@ -95,7 +105,7 @@ export const networkDef: ChartDefinition = {
       id = id[id.length - 1];
       const ids = viz._id(d) as string | number | (string | number)[];
 
-      if (viz._hover && viz._drawDepth >= viz._groupBy.length - 1) {
+      if (viz._hover && viz._drawDepth >= viz.schema.groupBy.length - 1) {
         if (viz._focus && viz._focus === ids) {
           v.active(false);
           viz._focus = undefined;
@@ -195,8 +205,8 @@ export const networkDef: ChartDefinition = {
       this.schema.nodeGroupBy = keys.map(k => {
         if (typeof k === "function") return k as unknown as (d: DataPoint, i: number) => string | number | Date;
         const key = k as string;
-        if (!this._aggs[key]) {
-          this._aggs[key] = (((a: DataPoint[], c: (d: DataPoint) => unknown) => {
+        if (!this.schema.aggs[key]) {
+          this.schema.aggs[key] = (((a: DataPoint[], c: (d: DataPoint) => unknown) => {
             const vv = Array.from(new Set(a.map(c)));
             return vv.length === 1 ? vv[0] : vv;
           }) as unknown) as Aggregator;
@@ -220,7 +230,7 @@ export const networkDef: ChartDefinition = {
       } else {
         const key = _ as string;
         this._x = accessor(key) as unknown as (d: DataPoint, i: number) => string | number | Date;
-        if (!this._aggs[key]) this._aggs[key] = mean as unknown as Aggregator;
+        if (!this.schema.aggs[key]) this.schema.aggs[key] = mean as unknown as Aggregator;
       }
       return this;
     };
@@ -232,7 +242,7 @@ export const networkDef: ChartDefinition = {
       } else {
         const key = _ as string;
         this._y = accessor(key) as unknown as (d: DataPoint, i: number) => string | number | Date;
-        if (!this._aggs[key]) this._aggs[key] = mean as unknown as Aggregator;
+        if (!this.schema.aggs[key]) this.schema.aggs[key] = mean as unknown as Aggregator;
       }
       return this;
     };

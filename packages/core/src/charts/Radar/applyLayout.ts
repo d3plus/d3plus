@@ -139,7 +139,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
 
       return {
         __d3plus__: true,
-        data: merge(values as DataPoint[], viz._aggs as Parameters<typeof merge>[1]) as DataPoint,
+        data: merge(values as DataPoint[], viz.schema.aggs as Parameters<typeof merge>[1]) as DataPoint,
         i,
         id: key as string | number,
         key: key as string | number,
@@ -207,7 +207,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       .map(l => `L ${l.x} ${l.y}`)
       .join(" ")} L ${q[0].x} ${q[0].y}`;
 
-    const aggs = viz._aggs as Parameters<typeof merge>[1];
+    const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
     return {
       __d3plus__: true,
       arr: innerEntries.map(([, vals]) => merge(vals as DataPoint[], aggs)) as DataPoint[],
