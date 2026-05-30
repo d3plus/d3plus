@@ -416,6 +416,7 @@ export default class Shape extends BaseClass {
         key: this._nestWrapper(this.schema.id)(d, i) as string | number,
         datum: (d.__d3plusShape__ ? d.data : d) as DataPoint,
         index: i,
+        shapeType: this._name,
         paint: this._scenePaint(d, i),
         transform: this._sceneTransform(d, i),
         aria: {

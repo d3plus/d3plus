@@ -23,8 +23,6 @@ import {shapeConfigFor} from "../emitHelpers.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
 import type {TransformStage} from "../stages.js";
 
-import {computePlotInitialDomains} from "./pipelineDomains.js";
-
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
 

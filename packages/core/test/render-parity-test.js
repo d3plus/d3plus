@@ -549,6 +549,60 @@ it("Viz.renderScene drives a chart through the scene path (Canvas)", async () =>
   );
 });
 
+it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click", async () => {
+  const page = await newPage();
+  const res = await page.evaluate(async () => {
+    const target = document.getElementById("B");
+    const fired = [];
+    const viz = new window.d3plusCore.BarChart()
+      .data([
+        {id: "Alpha", x: "Alpha", y: 10},
+        {id: "Beta", x: "Beta", y: 25},
+        {id: "Gamma", x: "Gamma", y: 15},
+        {id: "Delta", x: "Delta", y: 30},
+      ])
+      .groupBy("id")
+      .x("x").y("y")
+      .width(400).height(300)
+      .duration(0)
+      .on("click", () => fired.push("global"))
+      .on("click.shape", () => fired.push("shape"))
+      .on("click.Bar", () => fired.push("Bar"))
+      .on("click.Circle", () => fired.push("Circle"));
+
+    const {renderer} = await viz.renderScene(target, {kind: "canvas"});
+    const canvas = target.querySelector("canvas.d3plus-render-canvas");
+    const rect = canvas.getBoundingClientRect();
+
+    // Scan a grid to find a point that hit-tests to a Bar leaf, then fire a
+    // real click there — the CanvasRenderer's listener picks + the Viz bridge
+    // routes to viz.schema.on.
+    let hit = null;
+    for (let py = 290; py >= 10 && !hit; py -= 5) {
+      for (let px = 10; px <= 390 && !hit; px += 5) {
+        const p = renderer.pick([px, py]);
+        if (p && p.node && p.node.shapeType === "Bar") hit = [px, py];
+      }
+    }
+    if (hit) {
+      canvas.dispatchEvent(new window.MouseEvent("click", {
+        bubbles: true,
+        clientX: rect.left + hit[0],
+        clientY: rect.top + hit[1],
+      }));
+    }
+    return {hit, fired};
+  });
+  if (page._errors.length) throw new Error(page._errors.join("; "));
+  await page.close();
+
+  assert.ok(res.hit, "found a pickable Bar on the canvas");
+  assert.ok(res.fired.includes("Bar"), "shape-class handler click.Bar fired on canvas");
+  assert.ok(res.fired.includes("shape"), "click.shape fired on canvas");
+  assert.ok(res.fired.includes("global"), "global click fired on canvas");
+  assert.ok(!res.fired.includes("Circle"), "click.Circle did NOT fire for a Bar");
+});
+
 it("Scene renderer is the default — viz.render() routes through it with no flag", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {

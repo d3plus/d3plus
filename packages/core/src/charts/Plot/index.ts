@@ -277,16 +277,13 @@ export default class Plot extends Viz {
       `this.schema.on[event](d.data, d.i, x, event)`. Extracted from
       Plot._paint so the chart-level event wiring is in one place.
 
-      Known limitation (Canvas events): each shape's `.on(evt, handler)`
-      call binds a d3-selection DOM listener to its SVG nodes. That works
-      under `SvgRenderer` but not under `CanvasRenderer`, which has no
-      per-shape DOM target — every pixel lives on one <canvas>. The
-      renderer interface exposes `Renderer.on(handler)` +
-      `Renderer.pick(point)` for the scene-driven path, but rewiring every
-      Plot event through that pipeline (registry-keyed-by-shape-id →
-      pick() per pointer event → dispatch by id → forward to
-      `this.schema.on[...]`) is not yet done. Until then, charts using
-      `.renderer("canvas")` with custom shape events silently drop them.
+      On the scene path (SvgRenderer/CanvasRenderer) these d3-selection
+      bindings don't fire — compute-mode shapes mount no per-shape DOM.
+      Pointer events are instead routed by `Viz._drawSceneToTarget`'s
+      renderer bridge: it hit-tests via `Renderer.pick`, reads the picked
+      node's stamped `shapeType`, and dispatches the matching global,
+      `.shape`, and shape-class-scoped (`.Bar`) handlers — the same three
+      buckets this method wires, so SVG and Canvas behave identically.
   */
   _wirePlotShapeEvents(
     shape: {on(event: string, handler: unknown): unknown},

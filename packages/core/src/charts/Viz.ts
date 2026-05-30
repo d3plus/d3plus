@@ -317,6 +317,14 @@ export default class Viz extends VizBase {
           }
         };
         dispatch(handlerKey);
+        // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`).
+        // The emitting shape stamps its type onto the node; on the scene
+        // path this is the only place these fire (compute-mode shapes wire
+        // no DOM listeners). Legend nodes are excluded so a legend swatch's
+        // shape type can't masquerade as a chart-shape handler.
+        if (!isLegendNode && typeof nodeAny.shapeType === "string") {
+          dispatch(`${event.type}.${nodeAny.shapeType}`);
+        }
         // Also fire the un-suffixed handler (e.g. "mousemove") so
         // user-registered global handlers see the event too.
         dispatch(event.type);

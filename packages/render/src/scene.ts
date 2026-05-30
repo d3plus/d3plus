@@ -126,6 +126,13 @@ export interface NodeBase {
   /** The original (unwrapped) datum, carried for interaction callbacks — not for drawing. */
   datum?: DataPoint;
   index?: number;
+  /**
+      The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …),
+      carried so pointer handlers can route shape-class-scoped events
+      (`"click.Bar"`) without reconstructing the source shape. Interaction
+      metadata only — backends never read it for drawing.
+  */
+  shapeType?: string;
   paint?: Paint;
   transform?: Transform;
   /** When false, the node is ignored by hit-testing (= SVG pointer-events: none). */
