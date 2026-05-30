@@ -29,9 +29,8 @@
 */
 
 import {attributionFeature, runLayout} from "./features.js";
-import zoomControls from "./drawSteps/zoomControls.js";
+import {zoomFeature} from "./drawSteps/zoomControls.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
-import type VizClass from "./Viz.js";
 
 export function runVizPipeline(viz: Viz): void {
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
@@ -41,7 +40,11 @@ export function runVizPipeline(viz: Viz): void {
   // calls hit the shim which delegates to the free functions.
   viz._preDraw();
   viz._draw();
-  zoomControls.bind(viz as unknown as VizClass)();
-  runLayout({viz}, [attributionFeature]);
+  // Post-draw features: zoom + brush event wiring and the attribution
+  // overlay. Both run after `_draw()` (they need the rendered chart body +
+  // `_container`/`_zoomGroup`), claim zero margin, and wire DOM the
+  // serializable scene graph can't carry. `zoomFeature` runs before
+  // `attributionFeature` to preserve the prior step order.
+  runLayout({viz}, [zoomFeature, attributionFeature]);
   viz._drawSceneToTarget();
 }

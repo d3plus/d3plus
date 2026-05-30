@@ -2,6 +2,7 @@ import {zoomTransform} from "d3-zoom";
 
 import {attrize} from "@d3plus/dom";
 import {chartBounds} from "../chartGeometry.js";
+import type {FeatureModule} from "../features.js";
 import type Viz from "../Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
@@ -42,153 +43,149 @@ function applyStyleObj(
 }
 
 /**
-    @name zoomControls
-    Sets up initial zoom events and controls.
+    @name zoomFeature
+    Sets up zoom + brush event behaviors and the zoom-control buttons.
 
-    This step is **intentionally not** a `FeatureModule` in
-    `../features.ts`. The `HtmlOverlayNode` scene type carries its HTML
-    output, but the interaction-wiring half still doesn't fit the
-    FeatureModule contract:
+    Runs as a post-draw `FeatureModule`: `runVizPipeline` invokes it via
+    `runLayout` *after* `_draw()` has rendered the chart body and
+    `ensureZoomDom` has mounted `viz._container` / `viz._zoomGroup`. It
+    claims zero margin (positioning itself inside the existing
+    `viz._margin`) and emits no layout panel — instead it does two things
+    the margin-negotiation features don't:
 
-      1. It does not claim margin. It positions itself *inside* the existing
-         `this._margin.top` / `this._margin.left` and overlays the chart.
-      2. It installs stateful D3 zoom + brush behaviors (`this._zoomBehavior`,
-         `this._zoomBrush`) and wires `this._zoomToBounds` — d3-zoom binds to
-         the SVG element directly via `this._container.call(zoomBehavior)`,
-         not via a scene-graph event mechanism.
-      3. It runs *after* `_draw()` (after the chart body is rendered) rather
-         than during the margin negotiation phase that runLayout drives.
-
-    Fitting it into the layout engine would need a "post-draw interaction
-    wiring" hook that lets HtmlOverlay nodes attach DOM event handlers in a
-    way the serializable scene graph permits. Until that exists, zoomControls
-    stays a `drawSteps/` free function invoked directly from `Viz._draw`.
-    @private
+      1. Installs stateful D3 zoom + brush behaviors (`viz._zoomBehavior`,
+         `viz._zoomBrush`) and wires `viz._zoomToBounds`. d3-zoom binds to
+         the SVG element directly via `viz._container.call(zoomBehavior)`.
+      2. Pushes the four control buttons (in/out/reset/brush) onto
+         `viz._featurePanels` as an `htmlOverlay` scene node. `onMount` is
+         the scene's interactive-HTML escape hook: it wires the click/hover
+         handlers + applies the user's zoomControl style configs. `onMount`
+         fires ONCE per host element (after innerHTML is written, so the
+         `.zoom-in` / `.zoom-out` querySelectors below resolve), not per
+         draw — the html string is constant, so listeners attached here
+         survive every subsequent draw (renderers only rewrite innerHTML
+         when it differs from the current value).
 */
-export default function (this: Viz): void {
-  if (!this._container || !this._zoomGroup) return;
+export const zoomFeature: FeatureModule = {
+  name: "zoom",
+  layout: ({viz}) => {
+    if (!viz._container || !viz._zoomGroup) return {panel: null, margin: {}};
 
-  const bounds = chartBounds(this as never);
-  const height = this._zoomHeight || bounds.height,
-    that = this,
-    width = this._zoomWidth || bounds.width;
+    const bounds = chartBounds(viz as never);
+    const height = viz._zoomHeight || bounds.height,
+      that = viz,
+      width = viz._zoomWidth || bounds.width;
 
-  this._zoomBehavior
-    .extent([
-      [0, 0],
-      [width, height],
-    ])
-    .scaleExtent([1, this.schema.zoomMax])
-    .translateExtent([
-      [0, 0],
-      [width, height],
-    ])
-    .on("zoom", (event: {transform: unknown}) =>
-      zoomed.bind(this)(event.transform),
-    );
+    viz._zoomBehavior
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .scaleExtent([1, viz.schema.zoomMax])
+      .translateExtent([
+        [0, 0],
+        [width, height],
+      ])
+      .on("zoom", (event: {transform: unknown}) =>
+        zoomed.bind(viz)(event.transform),
+      );
 
-  this._zoomToBounds = zoomToBounds.bind(this);
+    viz._zoomToBounds = zoomToBounds.bind(viz);
 
-  // v4: zoom controls ride the scene graph as an HtmlOverlay node. The
-  // four buttons (in/out/reset/brush) live in pushed-into _featurePanels;
-  // `onMount` is the scene's documented interactive-HTML escape hook and
-  // here wires the click/hover handlers + applies the user's zoomControl
-  // style configs. `onMount` fires ONCE per host element (after innerHTML
-  // is written, so the .zoom-in/.zoom-out querySelectors below resolve),
-  // not per draw — the html string is constant, so listeners attached
-  // here survive every subsequent draw (renderers only rewrite
-  // innerHTML when it differs from the current value).
-  if (this.schema.zoom) {
-    this._featurePanels = this._featurePanels || [];
-    this._featurePanels.push({
-      type: "htmlOverlay" as const,
-      key: "viz-zoom-controls",
-      x: this._margin.left,
-      y: this._margin.top,
-      className: "d3plus-zoom-control",
-      html:
-        '<div class="zoom-control zoom-in">&#65291;</div>' +
-        '<div class="zoom-control zoom-out">&#65293;</div>' +
-        '<div class="zoom-control zoom-reset">&#8634;</div>' +
-        '<div class="zoom-control zoom-brush">&#164;</div>',
-      // Declarative click wiring — clicks bubble, so the renderer's
-      // delegated dispatcher can route them by selector. The four
-      // handlers below are the single source of truth for what each
-      // zoom button does. Hover styles can't be delegated (mouseenter
-      // / mouseleave don't bubble), so they live in onMount below as
-      // a per-button binding.
-      events: {
-        ".zoom-in": {
-          click: () => zoomMath.bind(that)(that.schema.zoomFactor),
-        },
-        ".zoom-out": {
-          click: () => zoomMath.bind(that)(1 / that.schema.zoomFactor),
-        },
-        ".zoom-reset": {
-          click: () => zoomMath.bind(that)(0),
-        },
-        ".zoom-brush": {
-          click: (e: Event) => {
-            const btn = e.currentTarget as HTMLElement;
-            const willBrush = !isBrushing(that);
-            const isActive = btn.classList.toggle("active", willBrush);
-            applyStyleObj(
-              btn,
-              isActive
-                ? that._zoomControlStyleActive || {}
-                : that._zoomControlStyle || {},
-            );
-            zoomEvents.bind(that)(willBrush);
+    if (viz.schema.zoom) {
+      viz._featurePanels = viz._featurePanels || [];
+      viz._featurePanels.push({
+        type: "htmlOverlay" as const,
+        key: "viz-zoom-controls",
+        x: viz._margin.left,
+        y: viz._margin.top,
+        className: "d3plus-zoom-control",
+        html:
+          '<div class="zoom-control zoom-in">&#65291;</div>' +
+          '<div class="zoom-control zoom-out">&#65293;</div>' +
+          '<div class="zoom-control zoom-reset">&#8634;</div>' +
+          '<div class="zoom-control zoom-brush">&#164;</div>',
+        // Declarative click wiring — clicks bubble, so the renderer's
+        // delegated dispatcher can route them by selector. The four
+        // handlers below are the single source of truth for what each
+        // zoom button does. Hover styles can't be delegated (mouseenter
+        // / mouseleave don't bubble), so they live in onMount below as
+        // a per-button binding.
+        events: {
+          ".zoom-in": {
+            click: () => zoomMath.bind(that)(that.schema.zoomFactor),
+          },
+          ".zoom-out": {
+            click: () => zoomMath.bind(that)(1 / that.schema.zoomFactor),
+          },
+          ".zoom-reset": {
+            click: () => zoomMath.bind(that)(0),
+          },
+          ".zoom-brush": {
+            click: (e: Event) => {
+              const btn = e.currentTarget as HTMLElement;
+              const willBrush = !isBrushing(that);
+              const isActive = btn.classList.toggle("active", willBrush);
+              applyStyleObj(
+                btn,
+                isActive
+                  ? that._zoomControlStyleActive || {}
+                  : that._zoomControlStyle || {},
+              );
+              zoomEvents.bind(that)(willBrush);
+            },
           },
         },
-      },
-      // onMount fires AFTER innerHTML is written so the querySelectorAll
-      // matches. Applies base styles + binds non-delegable hover events
-      // per button (mouseenter/mouseleave don't bubble through
-      // delegated event listeners).
-      onMount: (host: HTMLElement) => {
-        const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
-        buttons.forEach(btn => {
-          applyStyleObj(btn, that._zoomControlStyle || {});
-          btn.addEventListener("mouseenter", () => {
-            applyStyleObj(btn, that._zoomControlStyleHover || {});
+        // onMount fires AFTER innerHTML is written so the querySelectorAll
+        // matches. Applies base styles + binds non-delegable hover events
+        // per button (mouseenter/mouseleave don't bubble through
+        // delegated event listeners).
+        onMount: (host: HTMLElement) => {
+          const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
+          buttons.forEach(btn => {
+            applyStyleObj(btn, that._zoomControlStyle || {});
+            btn.addEventListener("mouseenter", () => {
+              applyStyleObj(btn, that._zoomControlStyleHover || {});
+            });
+            btn.addEventListener("mouseleave", () => {
+              applyStyleObj(
+                btn,
+                btn.classList.contains("active")
+                  ? that._zoomControlStyleActive || {}
+                  : that._zoomControlStyle || {},
+              );
+            });
           });
-          btn.addEventListener("mouseleave", () => {
-            applyStyleObj(
-              btn,
-              btn.classList.contains("active")
-                ? that._zoomControlStyleActive || {}
-                : that._zoomControlStyle || {},
-            );
-          });
-        });
-      },
-    });
-  }
+        },
+      });
+    }
 
-  this._zoomBrush
-    .extent([
-      [0, 0],
-      [width, height],
-    ])
-    .filter((event: MouseEvent) => !event.button && event.detail < 2)
-    .handleSize(this.schema.zoomBrushHandleSize)
-    .on("start", brushStart.bind(this))
-    .on("brush", brushBrush.bind(this))
-    .on("end", brushEnd.bind(this));
+    viz._zoomBrush
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .filter((event: MouseEvent) => !event.button && event.detail < 2)
+      .handleSize(viz.schema.zoomBrushHandleSize)
+      .on("start", brushStart.bind(viz))
+      .on("brush", brushBrush.bind(viz))
+      .on("end", brushEnd.bind(viz));
 
-  const brushGroup = this._container.selectAll("g.brush").data([0]);
-  this._brushGroup = brushGroup
-    .enter()
-    .append("g")
-    .attr("class", "brush")
-    .merge(brushGroup)
-    .call(this._zoomBrush);
+    const brushGroup = viz._container.selectAll("g.brush").data([0]);
+    viz._brushGroup = brushGroup
+      .enter()
+      .append("g")
+      .attr("class", "brush")
+      .merge(brushGroup)
+      .call(viz._zoomBrush);
 
-  zoomEvents.bind(this)();
-  if (this._renderTiles)
-    this._renderTiles(zoomTransform(this._container.node()), 0);
-}
+    zoomEvents.bind(viz)();
+    if (viz._renderTiles)
+      viz._renderTiles(zoomTransform(viz._container.node()), 0);
+
+    return {panel: null, margin: {}};
+  },
+};
 
 /**
     @name zoomEvents

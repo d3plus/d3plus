@@ -4,7 +4,7 @@ import {BarChart, runVizPipeline} from "../../es/index.js";
 
 /**
     `runVizPipeline(viz)` is the architectural seam: the chart
-    pipeline as a free function (`_preDraw → _draw → zoomControls →
+    pipeline as a free function (`_preDraw → _draw → zoomFeature +
     attributionFeature → _drawSceneToTarget`), callable WITHOUT going
     through `Viz.render()`'s lifecycle (DOM setup, viewport detection, data
     loading). This locks the seam — any future runtime that bypasses

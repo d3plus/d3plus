@@ -188,9 +188,9 @@ it("runVizPipeline calls _preDraw then _draw then _drawSceneToTarget in order", 
   chart._preDraw = () => log.push("pre");
   chart._draw = () => log.push("draw");
   chart._drawSceneToTarget = () => log.push("scene");
-  // zoomControls + attributionFeature would also fire; stub them via the
+  // zoomFeature + attributionFeature would also fire; stub them via the
   // viz fields they read.
-  chart._zoomGroup = null; // zoomControls early-exits
+  chart._zoomGroup = null; // zoomFeature early-exits
   chart._container = null;
   // attributionFeature reads chart fields; tolerate any error from it.
   try {
