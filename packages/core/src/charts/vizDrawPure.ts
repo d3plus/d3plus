@@ -41,6 +41,8 @@ import {
   totalFeature,
 } from "./features.js";
 
+import {resolveSpec} from "./resolveSpec.js";
+
 import type {VizContext} from "./vizContext.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
@@ -77,12 +79,15 @@ export function vizDrawPure(
 
   // Sanitize positions via the shared `sanitizePosition` helper (same
   // function legendFeature / colorScaleFeature use) so the three sites
-  // can't drift.
+  // can't drift. One frozen `resolveSpec` snapshot feeds both accessors:
+  // the position accessors take the resolved config as their argument, so
+  // a single snapshot reflects config once instead of twice.
+  const spec = resolveSpec(viz);
   const legendPosition = sanitizePosition(
-    viz.schema.legendPosition.bind(viz)(viz.config!()),
+    viz.schema.legendPosition.bind(viz)(spec),
   );
   const colorScalePosition = sanitizePosition(
-    viz.schema.colorScalePosition.bind(viz)(viz.config!()),
+    viz.schema.colorScalePosition.bind(viz)(spec),
   );
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
