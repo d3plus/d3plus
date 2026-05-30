@@ -117,12 +117,10 @@ export function vizDrawPure(
   viz._featurePanels.push(...topBlocks.panels);
   out.marginDelta!.top += topBlocks.margin.top;
   running.top += topBlocks.margin.top;
-  viz._margin.top += topBlocks.margin.top;
 
   const timelineClaim = runLayout({viz} as any, [timelineFeature], running);
   out.marginDelta!.bottom += timelineClaim.margin.bottom;
   running.bottom += timelineClaim.margin.bottom;
-  viz._margin.bottom += timelineClaim.margin.bottom;
 
   // Left/right legend + colorScale claims. Includes `=== false` (mirrors
   // colorScale below) so a previously-rendered left/right legend tears
@@ -137,8 +135,6 @@ export function vizDrawPure(
     out.marginDelta!.right += claim.margin.right;
     running.left += claim.margin.left;
     running.right += claim.margin.right;
-    viz._margin.left += claim.margin.left;
-    viz._margin.right += claim.margin.right;
   }
   if (
     colorScalePosition === "left" ||
@@ -150,8 +146,6 @@ export function vizDrawPure(
     out.marginDelta!.right += claim.margin.right;
     running.left += claim.margin.left;
     running.right += claim.margin.right;
-    viz._margin.left += claim.margin.left;
-    viz._margin.right += claim.margin.right;
   }
 
   // Top/bottom legend + colorScale.
@@ -161,8 +155,6 @@ export function vizDrawPure(
     out.marginDelta!.bottom += claim.margin.bottom;
     running.top += claim.margin.top;
     running.bottom += claim.margin.bottom;
-    viz._margin.top += claim.margin.top;
-    viz._margin.bottom += claim.margin.bottom;
   }
   if (colorScalePosition === "top" || colorScalePosition === "bottom") {
     const claim = runLayout({viz} as any, [colorScaleFeature], running);
@@ -170,8 +162,6 @@ export function vizDrawPure(
     out.marginDelta!.bottom += claim.margin.bottom;
     running.top += claim.margin.top;
     running.bottom += claim.margin.bottom;
-    viz._margin.top += claim.margin.top;
-    viz._margin.bottom += claim.margin.bottom;
   }
 
   // Snapshot final featurePanels onto the returned ctx.

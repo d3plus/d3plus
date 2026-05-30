@@ -3,21 +3,20 @@
     `vizDraw(viz)` — the imperative shim wrapping `vizDrawPure`.
 
     The pure function (`vizDrawPure(viz, prevCtx) → Partial<VizDrawCtx>`)
-    computes the chart-shell layout — margin claims + reset signals +
+    computes the chart-shell layout — margin deltas + reset signals +
     feature panels — at the outer level. Inner FeatureModule.layout()
-    calls also write through to `viz` directly (panel pushes, component
-    mounts, intra-feature accessor writes); they're not pure in the FP
-    sense and that's intentional — `vizUpdate` is the cross-feature
-    publishing channel, but a feature's OWN intra-body state lives on
-    viz directly because the feature's component instance (`Legend`,
-    `Timeline`) is a stateful object whose configuration calls happen
-    inline.
+    calls still write through to `viz` directly (component mounts,
+    intra-feature accessor writes); that's intentional — `vizUpdate` is
+    the cross-feature publishing channel, but a feature's OWN intra-body
+    state lives on viz directly because the feature's component instance
+    (`Legend`, `Timeline`) is a stateful object whose configuration calls
+    happen inline.
 
-    Because the pure function ALREADY writes margin claims through to
-    `viz._margin` (so the next `runLayout` sees the updated margins),
-    this shim has very little left to do — it's the public `_draw` shape
-    that subclasses override, kept uniform with the v4 free-function
-    pattern (`vizPreDraw`/`plotPaint`/`runVizPipeline`).
+    `vizDrawPure` threads its margin accumulator locally and returns the
+    per-side deltas in `marginDelta`; it no longer writes `viz._margin`.
+    This shim applies those deltas to the instance once, so the
+    post-layout consumers (axes, chartGeometry, plotPaint, ensureZoomDom,
+    attribution) read the final margin off `viz._margin`.
 
     Note: Plot (and other Viz subclasses) OVERRIDE `_draw` and call
     `super._draw(callback)` — that still works through this shim, which
@@ -28,9 +27,14 @@ import {vizDrawPure} from "./vizDrawPure.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
 export function vizDraw(viz: Viz): void {
-  // The pure function does the work + has already written margin claims
-  // back to viz (necessary for FeatureModule.layout() side effects to
-  // see correct intermediate margins). The shim exists as the public
-  // surface; direct callers of vizDrawPure get the ctx.
-  vizDrawPure(viz);
+  const ctx = vizDrawPure(viz);
+  const d = ctx.marginDelta;
+  if (d) {
+    viz._margin = {
+      top: viz._margin.top + d.top,
+      right: viz._margin.right + d.right,
+      bottom: viz._margin.bottom + d.bottom,
+      left: viz._margin.left + d.left,
+    };
+  }
 }
