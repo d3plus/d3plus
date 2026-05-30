@@ -11,16 +11,16 @@
                 destructure block below for the full schema.
 */
 
-import {groups, max, range} from "d3-array";
+import {max} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
 import type Axis from "../components/Axis.js";
 import * as shapes from "../shapes/index.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
+import {bumpLineLabels, emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
@@ -410,40 +410,7 @@ export function plotMeasure(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult
       });
     }
 
-    let labelPositions: Record<string, number> = {};
-    if (labelWidths) {
-      groups(labelWidths, d => d.xValue).forEach(([, values]) => {
-        const minFontSize = max(values.map(d => d.fontSize))!;
-        const yBuckets = range(yRange[0], yRange[1], minFontSize).reverse();
-        const bumpLimit = (yRange[1] - yRange[0]) / 8;
-
-        /***/
-        function bumpPrevious(d: LabelWidth, i: number, arr: LabelWidth[]) {
-          if (!d.defaultY) d.defaultY = viz._yAxis._getPosition(d.value);
-          if (i) {
-            const prev = arr[i - 1];
-            const {fontSize, padding} = d;
-            const y = (d.newY || d.defaultY)!;
-            const prevY = (prev.newY || prev.defaultY)!;
-            if (y - fontSize / 2 - padding < prevY) {
-              const newY = yBuckets.find(n => n < prevY);
-              const change = d.defaultY! - newY!;
-              if (change < bumpLimit) {
-                prev.newY = newY;
-                if (i) bumpPrevious(prev, i - 1, arr);
-              }
-            }
-          }
-        }
-
-        values.forEach(bumpPrevious);
-      });
-
-      labelPositions = labelWidths.reduce<Record<string, number>>((obj, d) => {
-        if (d.newY) obj[d.id] = d.newY;
-        return obj;
-      }, {});
-    }
+    const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
 
     viz._yFunc = y = (d: unknown, y?: string): number => {
       if (y === "y2") {
@@ -537,47 +504,7 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       out.unshift(...bgNodes);
     }
 
-    const labelConnectors = labelWidths.filter(d => d.newY !== undefined);
-    if (labelConnectors.length) {
-      const data = labelConnectors
-        .map(d =>
-          assign(
-            {
-              x: viz._xAxis._getPosition.bind(viz._xAxis)(d.xValue),
-              y: d.defaultY,
-            },
-            d as unknown as Record<string, unknown>,
-          ),
-        )
-        .concat(
-          labelConnectors.map(d =>
-            assign(
-              {
-                x:
-                  viz._xAxis._getPosition.bind(viz._xAxis)(d.xValue) +
-                  d.padding -
-                  1,
-                y: d.newY || d.defaultY,
-              },
-              d as unknown as Record<string, unknown>,
-            ),
-          ),
-        );
-
-      // Connector lines: compute-mode emit → absorbed into _chartScene; the
-      // chart-wide `_chartTransform` provides the positioning.
-      const connectorLine = makeShape("Line")
-        .config({
-          data: data as DataPoint[],
-          stroke: (d: DataPoint) => d.fontColor,
-          x: (d: DataPoint) => d.x,
-          y: (d: DataPoint) => d.y,
-        } as Record<string, unknown>)
-        .config(viz._labelConnectorConfig!)
-        .renderMode("compute");
-      connectorLine.render();
-      out.push(...collectComputed(connectorLine));
-    }
+    out.push(...emitLineLabelConnectors(viz, labelWidths));
 
     // Annotations run in `renderMode("compute")` and their scenes are
     // absorbed into `_chartScene`. Layering: "back" annotations absorb here
