@@ -20,6 +20,24 @@ type ScaleFactory = () => {
   range: (r: [number, number]) => unknown;
 };
 
+interface GeomapFeatureCollection {
+  type: string;
+  features: Record<string, unknown>[];
+}
+/** The structured slots `applyGeomapLayout` reads back off `viz.ctx`. */
+interface GeomapCtx {
+  coordData: GeomapFeatureCollection;
+  path: ((d: unknown) => string) & {
+    area: (d: unknown) => number;
+    centroid: (d: unknown) => [number, number];
+  };
+  extentBounds: GeomapFeatureCollection;
+  effectivePadding?: {top: number; right: number; bottom: number; left: number};
+  geomapWidth: number;
+  geomapHeight: number;
+  geomapCtx: unknown;
+}
+
 function topo2feature(
   topo: Record<string, unknown>,
   key?: string,
@@ -35,14 +53,14 @@ function topo2feature(
 }
 
 export const applyGeomapLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
+  const v = viz;
+  const ctx = viz.ctx as unknown as GeomapCtx;
   const {width, height} = chartBounds(v);
 
   const coordData: {type: string; features: Record<string, unknown>[]} = v.schema.topojson
     ? topo2feature(v.schema.topojson, v.schema.topojsonKey)
     : {type: "FeatureCollection", features: []};
-  v.ctx.coordData = coordData;
+  ctx.coordData = coordData;
 
   if (v.schema.topojsonFilter) coordData.features = coordData.features.filter(v.schema.topojsonFilter);
 
@@ -55,7 +73,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     area: (d: unknown) => number;
     centroid: (d: unknown) => [number, number];
   };
-  v.ctx.path = path;
+  ctx.path = path;
 
   const pointData = v._filteredData.filter(
     (d: DataPoint, i: number) => v.schema.point(d, i) instanceof Array,
@@ -63,8 +81,8 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   const pathData = v._filteredData
     .filter((d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array))
-    .reduce((obj: Record<string, DataPoint>, d: DataPoint) => {
-      obj[v._id(d)] = d;
+    .reduce((obj: Record<string, DataPoint>, d: DataPoint, i: number) => {
+      obj[v._id(d, i)] = d;
       return obj;
     }, {});
 
@@ -84,20 +102,22 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     .domain(extent(pointData, (d: DataPoint, i: number) => v.schema.pointSize(d, i)) as unknown as [number, number])
     .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
 
-  if (!v._zoomSet || !v.ctx.extentBounds) {
+  if (!v._zoomSet || !ctx.extentBounds) {
     const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v.schema.fitKey) : coordData;
 
-    v.ctx.extentBounds = {
+    ctx.extentBounds = {
       type: "FeatureCollection",
       features: v.schema.fitFilter
         ? fitData.features.filter(v.schema.fitFilter)
         : fitData.features.slice(),
     };
-    v.ctx.extentBounds.features = v.ctx.extentBounds.features.reduce(
-      (
-        arr: Record<string, unknown>[],
-        d: {type: string; id: string; geometry: {type: string; coordinates: number[][][][]}},
-      ) => {
+    ctx.extentBounds.features = ctx.extentBounds.features.reduce<Record<string, unknown>[]>(
+      (arr, raw) => {
+        const d = raw as {
+          type: string;
+          id: string;
+          geometry: {type: string; coordinates: number[][][][]};
+        };
         if (!d.geometry) return arr;
         const reduced: {type: string; id: string; geometry: {type: string; coordinates: number[][][][]}} = {
           type: d.type,
@@ -146,7 +166,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       [],
     );
 
-    if (!v.ctx.extentBounds.features.length && pointData.length) {
+    if (!ctx.extentBounds.features.length && pointData.length) {
       const bounds: (number | undefined)[][] = [[undefined, undefined], [undefined, undefined]];
       pointData.forEach((d: DataPoint, i: number) => {
         const point = v.schema.projection(v.schema.point(d, i));
@@ -156,7 +176,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
         if (bounds[1][1] === void 0 || point[1] > bounds[1][1]) bounds[1][1] = point[1];
       });
 
-      v.ctx.extentBounds = {
+      ctx.extentBounds = {
         type: "FeatureCollection",
         features: [
           {
@@ -169,7 +189,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
         ],
       };
       const maxSize = max(pointData, (d: DataPoint, i: number) => r(v.schema.pointSize(d, i)));
-      v.ctx.effectivePadding = {
+      ctx.effectivePadding = {
         top: v.schema.projectionPadding.top + maxSize,
         right: v.schema.projectionPadding.right + maxSize,
         bottom: v.schema.projectionPadding.bottom + maxSize,
@@ -178,23 +198,23 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     }
   }
 
-  const effectivePadding = v.ctx.effectivePadding || v.schema.projectionPadding;
-  v.ctx.effectivePadding = undefined;
+  const effectivePadding = ctx.effectivePadding || v.schema.projectionPadding;
+  ctx.effectivePadding = undefined;
 
   v.schema.projection = v.schema.projection.fitExtent(
-    v.ctx.extentBounds.features.length
+    ctx.extentBounds.features.length
       ? [
           [effectivePadding.left, effectivePadding.top],
           [width - effectivePadding.right, height - effectivePadding.bottom],
         ]
       : [[0, 0], [width, height]],
-    v.ctx.extentBounds.features.length ? v.ctx.extentBounds : {type: "Sphere"},
+    ctx.extentBounds.features.length ? ctx.extentBounds : {type: "Sphere"},
   );
 
-  v.ctx.geomapWidth = width;
-  v.ctx.geomapHeight = height;
+  ctx.geomapWidth = width;
+  ctx.geomapHeight = height;
 
-  v.ctx.geomapCtx = {
+  ctx.geomapCtx = {
     topoData,
     pathFn: (d: Record<string, unknown>) => path(d.feature),
     pointData,

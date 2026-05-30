@@ -59,11 +59,15 @@ via `const v = viz as VizInstance & XFluent`, so the per-instance method
 installs no longer use `(viz as any)`. The VizInstance index signature and
 the Viz/Plot/makeChart class index signatures are removed.
 
+The four `applyLayout.ts` files (Sankey, Network, Rings, Geomap) now open
+with `const v = viz;` (typed `VizInstance`) instead of `const v = viz as
+any`. Schema reads resolve to `any` through `VizInstance`'s intentional
+`schema: Record<string, any>`; the remaining structured `viz.ctx` reads
+and accessor-signature mismatches use targeted casts (e.g. Geomap's
+`GeomapCtx` view of `viz.ctx`, Sankey's `SankeyGenerator` interface).
+
 **Remaining (deferred):**
 
-- The four `applyLayout.ts` files (Sankey, Network, Rings, Geomap) still
-  open with `const v = viz as any` for layout-internal access — separate
-  from the `setup()` fluent-surface cleanup.
 - `Plot/index.ts` has 126 `any`s carried over verbatim from the old
   Plot.ts. The Plot refactor is its own workstream.
 

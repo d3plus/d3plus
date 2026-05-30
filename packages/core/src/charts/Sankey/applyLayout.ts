@@ -31,10 +31,22 @@ interface SankeyResolvedLink {
   target: number;
   value: number;
 }
+/** The fluent d3-sankey instance stashed on `ctx.sankey`. */
+interface SankeyGenerator {
+  nodeAlign(a: unknown): SankeyGenerator;
+  nodePadding(p: number): SankeyGenerator;
+  nodeWidth(w: number): SankeyGenerator;
+  nodes(n: unknown[]): SankeyGenerator;
+  nodeSort(s: unknown): SankeyGenerator;
+  links(l: unknown[]): SankeyGenerator;
+  linkSort(s: unknown): SankeyGenerator;
+  iterations(n: number): SankeyGenerator;
+  size(s: [number, number]): SankeyGenerator;
+  (): void;
+}
 
 export const applySankeyLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
+  const v = viz;
   const {width, height} = chartBounds(v);
 
   const hasNodes = Array.isArray(v.schema.nodes) && v.schema.nodes.length > 0;
@@ -100,7 +112,7 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     return obj;
   }, {});
 
-  v.ctx.sankey
+  (v.ctx.sankey as SankeyGenerator)
     .nodeAlign(v.schema.nodeAlign)
     .nodePadding(v.schema.nodePadding)
     .nodeWidth(v.schema.nodeWidth)

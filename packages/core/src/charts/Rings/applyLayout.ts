@@ -72,8 +72,7 @@ interface RScale {
 }
 
 export const applyRingsLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
+  const v = viz;
 
   if (!Array.isArray(v._filteredData)) v._filteredData = [];
   if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];

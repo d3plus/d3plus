@@ -56,8 +56,7 @@ interface NetworkLink {
 }
 
 export const applyNetworkLayout: TransformStage = ({viz}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = viz as any;
+  const v = viz;
   const {width, height} = chartBounds(v);
 
   if (!Array.isArray(v._filteredData)) v._filteredData = [];
@@ -100,10 +99,10 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
         data: (d || n) as DataPoint,
         i,
         id,
-        fx: pickFrom(v._x, (val: number) => !isNaN(val)),
-        fy: pickFrom(v._y, (val: number) => !isNaN(val)),
+        fx: pickFrom(v._x as (x: DataPoint) => number, (val: number) => !isNaN(val)),
+        fy: pickFrom(v._y as (x: DataPoint) => number, (val: number) => !isNaN(val)),
         node: n,
-        r: v._size ? pickFrom(v._size) : (v.schema.sizeMin as number),
+        r: v._size ? pickFrom(v._size as (x: DataPoint) => number) : (v.schema.sizeMin as number),
         shape: pickFrom(v.schema.shape) as string,
       } as NetworkNode;
     })
