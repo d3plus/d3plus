@@ -19,6 +19,7 @@ import {date, elem, stylize} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
+import {resolveSpec} from "./resolveSpec.js";
 import type {VizContext} from "./stages.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
@@ -490,7 +491,7 @@ export const colorScaleFeature: FeatureModule = {
       ).values(),
     );
 
-    const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(viz.config()));
+    const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)));
     const wide = ["top", "bottom"].includes(position as string);
     const showColorScale = viz.schema.colorScale && position;
     const padding = viz.schema.colorScalePadding()

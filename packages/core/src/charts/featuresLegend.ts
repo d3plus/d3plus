@@ -15,6 +15,7 @@ import {configPrep} from "../utils/index.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {sanitizePosition} from "./features.js";
+import {resolveSpec} from "./resolveSpec.js";
 import type {VizContext} from "./stages.js";
 
 const legendAttrs = ["fill", "opacity", "texture"];
@@ -116,7 +117,7 @@ function renderLegendFeature(viz: any, built: LegendData): FeatureLayout {
   // render it's zero and the Legend re-flows on the second render with the
   // real space.
   const legendBounds = viz._legendClass.outerBounds();
-  const config = viz.config();
+  const config = resolveSpec(viz);
   const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
   const wide = ["top", "bottom"].includes(position as string);
   const padding = viz.schema.legendPadding()

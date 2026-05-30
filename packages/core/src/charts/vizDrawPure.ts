@@ -68,10 +68,11 @@ export function vizDrawPure(
     featurePanels: [],
   };
 
-  // Reset side effects before features run (features push into
-  // viz._featurePanels, so we have to actually mutate here for the
-  // existing FeatureModule.layout impls). The shim then RE-reads
-  // viz._featurePanels into out.featurePanels for callers.
+  // Reset side effects before features run. `viz._featurePanels` is a
+  // cross-stage accumulator: seeded here, appended to later by the
+  // zoomControls feature, and read by Viz.toScene — so it has to live on
+  // the instance, not in a local. The shim RE-reads viz._featurePanels
+  // into out.featurePanels for callers.
   viz._featurePanels = [];
   viz._chartScene = [];
   viz._chartTransform = undefined;
