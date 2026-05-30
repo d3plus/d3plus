@@ -25,6 +25,14 @@ import configPrep from "../utils/configPrep.js";
 import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
+import * as shapes from "../shapes/index.js";
+
+/** The shape registry indexed by key, typed as constructable classes. */
+const shapeCtors = shapes as unknown as Record<string, new () => shapes.Shape>;
+
+/** Construct a shape instance by its registry key (e.g. "Bar", "Line"). */
+export const makeShape = (key: string): shapes.Shape => new shapeCtors[key]();
+
 /**
     Structural minimum a Shape (or shape-like component: TextBox, Axis)
     must satisfy for the helpers below to work with it. Captures only the

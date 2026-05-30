@@ -11,29 +11,28 @@
                 destructure block below for the full schema.
 */
 
-import {groups, max, merge, range} from "d3-array";
-import * as scales from "d3-scale";
+import {groups, max, range} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
 
 import type {SceneNode} from "@d3plus/render";
 
 import type Axis from "../components/Axis.js";
 import * as shapes from "../shapes/index.js";
-import {collectComputed, shapeConfigFor} from "./emitHelpers.js";
+import {collectComputed, makeShape} from "./emitHelpers.js";
+import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import type {VizInstance as Viz} from "./vizTypes.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
-type PlotAxisFn = (d: unknown, axis?: string) => number;
+export type PlotAxisFn = (d: unknown, axis?: string) => number;
 
 /**
     A line-label measurement record produced upstream by
     `measurePlotLineLabels` and consumed here to bump overlapping labels
     apart and draw their connector lines.
 */
-interface LabelWidth {
+export interface LabelWidth {
   id: string | number;
   xValue: unknown;
   value: unknown;
@@ -51,7 +50,7 @@ interface LabelWidth {
     the original `data` row plus the layout-assigned coordinate/group slots.
     The index signature covers the dynamic `d[discrete]` / `d[opp]` reads.
 */
-interface PlotDatum {
+export interface PlotDatum {
   data: DataPoint;
   i: number;
   id: string | number;
@@ -72,10 +71,6 @@ interface Annotation {
   layer?: string;
   [key: string]: unknown;
 }
-
-/** Construct a shape instance by its registry key (e.g. "Bar", "Line"). */
-const shapeCtors = shapes as unknown as Record<string, new () => shapes.Shape>;
-const makeShape = (key: string): shapes.Shape => new shapeCtors[key]();
 
 /**
     Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
@@ -683,203 +678,16 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     const discreteKeyIndex = new Map<unknown, number>();
     for (let i = 0; i < discreteKeys.length; i++)
       discreteKeyIndex.set(discreteKeys[i], i);
+    const shapeCtx: ShapeEmitContext = {
+      viz, shapeConfig, events,
+      x, y, xScale, yScale, xDomain, yDomain, xRange, yRange,
+      opp, domains, stackData, stackKeyIndex, discreteKeyIndex,
+      showLineLabels, labelWidths, largestLabel, labelPositions,
+      width,
+      values: [],
+    };
     shapeData.forEach(([key, values]) => {
-      const d = {key, values};
-      const shapeConfigInner: Record<string, unknown> = Object.assign({}, shapeConfig);
-      if (viz.schema.stacked && ["Area", "Bar"].includes(d.key)) {
-        const scale = opp === "x" ? x : y;
-        shapeConfigInner[`${opp}`] = shapeConfigInner[`${opp}0`] = (d: PlotDatum) => {
-          const dataIndex = stackKeyIndex.get(d.id) ?? -1;
-          const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
-          const scaleIndex = (d[opp!] as number) < 0 ? 1 : 0;
-          return dataIndex >= 0
-            ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
-            : scale(domains[opp!][opp === "x" ? 0 : 1]);
-        };
-        shapeConfigInner[`${opp}1`] = (d: PlotDatum) => {
-          const dataIndex = stackKeyIndex.get(d.id) ?? -1;
-          const discreteIndex = discreteKeyIndex.get(d.discrete) ?? -1;
-          const scaleIndex = (d[opp!] as number) < 0 ? 0 : 1;
-          return dataIndex >= 0
-            ? scale(stackData[dataIndex][discreteIndex][scaleIndex])
-            : scale(domains[opp!][opp === "x" ? 0 : 1]);
-        };
-      }
-
-      const s = makeShape(d.key)
-        .renderMode("compute")
-        .config(shapeConfigInner)
-        .data(d.values);
-
-      if (d.key === "Bar") {
-        let space;
-        const scale = viz.schema.discrete === "x" ? x : y;
-        const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
-        const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
-        const range = viz.schema.discrete === "x" ? xRange : yRange;
-        if (scaleType !== "Point" && vals.length === 2) {
-          const allPositions = Array.from(
-            new Set(d.values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
-          );
-          allPositions.unshift(
-            (range[0] as number) -
-              (allPositions[0] as number) -
-              (range[0] as number),
-          );
-          allPositions.push(
-            (range[1] as number) +
-              (range[1] as number) -
-              (allPositions[allPositions.length - 1] as number),
-          );
-          space = allPositions.reduce((n: number, d, i, arr) => {
-            if (i) {
-              const dist = Math.abs((d as number) - (arr[i - 1] as number));
-              if (dist < n) n = dist;
-            }
-            return n;
-          }, Infinity);
-        } else if (vals.length > 1) space = scale(vals[1]) - scale(vals[0]);
-        else space = range[range.length - 1] - range[0];
-        if (viz._groupPadding! < space) space -= viz._groupPadding!;
-
-        let barSize = space || 1;
-
-        const barGroups = groups(
-          d.values,
-          (d: DataPoint) => d[viz.schema.discrete as string],
-          (d: DataPoint) => d.group,
-        );
-
-        const ids = merge(
-          barGroups.map(([, innerEntries]) => innerEntries.map(([k]) => k)),
-        );
-        const uniqueIds = Array.from(new Set(ids));
-
-        const discreteKey = viz.schema.discrete as string;
-        const discreteFn = shapeConfig[discreteKey] as (d: PlotDatum, i: number) => number;
-        if (
-          max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1
-        ) {
-          s[discreteKey]((d: PlotDatum, i: number) => discreteFn(d, i));
-        } else {
-          barSize =
-            (barSize - viz.schema.barPadding * uniqueIds.length - 1) /
-            uniqueIds.length;
-
-          const offset = space / 2 - barSize / 2;
-
-          const xMod = scales
-            .scaleLinear()
-            .domain([0, uniqueIds.length - 1])
-            .range([-offset, offset]);
-
-          s[discreteKey](
-            (d: PlotDatum, i: number) =>
-              discreteFn(d, i) + xMod(uniqueIds.indexOf(d.group)),
-          );
-        }
-
-        s.width(barSize);
-        s.height(barSize);
-      } else if (d.key === "Line") {
-        s.duration(width * 1.5);
-
-        if (viz._confidence) {
-          const confidence = viz._confidence;
-          const areaConfig: Record<string, unknown> = Object.assign({}, shapeConfig);
-          const discrete = viz.schema.discrete || "x";
-          const key = discrete === "x" ? "y" : "x";
-          const scaleFunction = discrete === "x" ? y : x;
-          areaConfig[`${key}0`] = (d: PlotDatum) =>
-            scaleFunction(confidence[0] ? d.lci : d[key]);
-          areaConfig[`${key}1`] = (d: PlotDatum) =>
-            scaleFunction(confidence[1] ? d.hci : d[key]);
-
-          const area = makeShape("Area")
-            .renderMode("compute")
-            .config(areaConfig)
-            .data(d.values);
-          const confidenceConfig = Object.assign(
-            viz.schema.shapeConfig,
-            viz._confidenceConfig,
-          );
-
-          area
-            .config(
-              assign(
-                shapeConfigFor(viz, "Line", confidenceConfig),
-                shapeConfigFor(viz, "Area", confidenceConfig),
-              ),
-            )
-            .render();
-
-          out.push(...collectComputed(area));
-        }
-
-        s.config({
-          discrete: shapeConfig.discrete || "x",
-          label: showLineLabels
-            ? (d: PlotDatum, i: number) => {
-                const visible =
-                  typeof viz.schema.lineLabels === "function"
-                    ? viz.schema.lineLabels(d.data, d.i)
-                    : true;
-                if (!visible) return false;
-                const labelData = labelWidths.find(l => l.id === d.id);
-                if (labelData) {
-                  const yPos = labelData.newY || labelData.defaultY;
-                  const allLabels = labelWidths.filter(l => l.newY === yPos);
-                  if (allLabels.length > 1)
-                    return allLabels[0].id !== d.id
-                      ? false
-                      : `+${formatAbbreviate(
-                          allLabels.length,
-                          viz.schema.locale,
-                        )} ${viz.schema.translate("more")}`;
-                  return viz._drawLabel(d as unknown as DataPoint, i);
-                }
-                return false;
-              }
-            : false,
-          labelBounds: showLineLabels
-            ? (d: PlotDatum, i: number, s: {points: number[][]}) => {
-                const [firstX, firstY] = s.points[0];
-                const [lastX, lastY] = s.points[s.points.length - 1];
-                const height = viz.schema.height / 4;
-                const mod = labelPositions[d.id]
-                  ? lastY - labelPositions[d.id]
-                  : 0;
-                return {
-                  x: lastX - firstX,
-                  y: lastY - firstY - height / 2 - mod,
-                  width: largestLabel,
-                  height,
-                };
-              }
-            : false,
-        });
-      }
-
-      viz._wirePlotShapeEvents!(s, d.key, events);
-
-      const userConfig = shapeConfigFor(viz, d.key);
-      if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
-      s.config(userConfig).render();
-
-      out.push(...collectComputed(s));
-
-      if (d.key === "Line") {
-        const markers = makeShape("Circle")
-          .renderMode("compute")
-          .data(viz._lineMarkers ? d.values : [])
-          .config(shapeConfig)
-          .config(viz._lineMarkerConfig)
-          .id((d: PlotDatum) => `${d.id}_${d.discrete}`);
-
-        viz._wirePlotShapeEvents!(markers, "Circle", events);
-        markers.render();
-        out.push(...collectComputed(markers));
-      }
+      out.push(...emitShape({...shapeCtx, values}, key));
     });
 
     const dataShapes = shapeData.map(([key]) => key);
