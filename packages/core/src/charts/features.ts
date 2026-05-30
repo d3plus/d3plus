@@ -142,18 +142,30 @@ export function sanitizePosition(raw: unknown): PanelPosition {
 export function runLayout(
   ctx: VizContext,
   features: FeatureModule[],
+  baseMargin: Required<MarginClaim> = {top: 0, right: 0, bottom: 0, left: 0},
 ): LayoutResult {
-  const margin: Required<MarginClaim> = {top: 0, right: 0, bottom: 0, left: 0};
+  // `claims` is this call's accumulated margin (the returned delta).
+  // `layoutMargin` handed to each feature is the running TOTAL —
+  // `baseMargin` (margin already taken by prior runLayout calls in the same
+  // draw) plus the claims taken so far in this call — so a feature reads
+  // the true current margin without touching viz._margin.
+  const claims: Required<MarginClaim> = {top: 0, right: 0, bottom: 0, left: 0};
   const panels: SceneNode[] = [];
   for (const f of features) {
     if (!f.layout) continue;
-    const result = f.layout({...ctx, layoutMargin: {...margin}});
+    const layoutMargin: Required<MarginClaim> = {
+      top: baseMargin.top + claims.top,
+      right: baseMargin.right + claims.right,
+      bottom: baseMargin.bottom + claims.bottom,
+      left: baseMargin.left + claims.left,
+    };
+    const result = f.layout({...ctx, layoutMargin});
     const {panel, margin: claim, vizUpdate} = result;
     if (panel) panels.push(panel);
-    margin.top += claim.top ?? 0;
-    margin.right += claim.right ?? 0;
-    margin.bottom += claim.bottom ?? 0;
-    margin.left += claim.left ?? 0;
+    claims.top += claim.top ?? 0;
+    claims.right += claim.right ?? 0;
+    claims.bottom += claim.bottom ?? 0;
+    claims.left += claim.left ?? 0;
     // v4 purity: features publish cross-feature viz writes declaratively
     // via `vizUpdate`. The engine applies them — features don't mutate
     // viz directly from layout(). Skips own component-instance config
@@ -176,7 +188,7 @@ export function runLayout(
       }
     }
   }
-  return {panels, margin};
+  return {panels, margin: claims};
 }
 
 /* --------------------------- text-block features --------------------------- */
