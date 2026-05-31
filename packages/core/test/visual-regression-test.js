@@ -100,6 +100,87 @@ const charts = [
       {row: "R3", column: "C1", value: 18}, {row: "R3", column: "C2", value: 12},
       {row: "R3", column: "C3", value: 28},
     ])`],
+  ["tree", `lib => new lib.Tree()
+    .groupBy(["parent", "id"])
+    .data([
+      {parent: "Group 1", id: "alpha"},
+      {parent: "Group 1", id: "beta"},
+      {parent: "Group 1", id: "gamma"},
+      {parent: "Group 2", id: "delta"},
+      {parent: "Group 2", id: "eta"},
+    ])`],
+  ["radar", `lib => new lib.Radar()
+    .groupBy("id")
+    .metric("axis")
+    .value("number")
+    .data([
+      {id: "alpha", axis: "Central",    number: 170.992},
+      {id: "alpha", axis: "Kirkdale",   number: 40},
+      {id: "alpha", axis: "Kensington", number: 240},
+      {id: "alpha", axis: "Everton",    number: 90},
+      {id: "alpha", axis: "Picton",     number: 160},
+      {id: "alpha", axis: "Riverside",  number: 30},
+      {id: "beta",  axis: "Central",    number: 320},
+      {id: "beta",  axis: "Kirkdale",   number: 97.5},
+      {id: "beta",  axis: "Kensington", number: 40},
+      {id: "beta",  axis: "Everton",    number: 110},
+      {id: "beta",  axis: "Picton",     number: 40},
+      {id: "beta",  axis: "Riverside",  number: 110},
+    ])`],
+  ["bump-chart", `lib => new lib.BumpChart()
+    .groupBy("fruit")
+    .discrete("x")
+    .x("year")
+    .y("rank")
+    .data([
+      {fruit: "apple",  year: 1, rank: 1}, {fruit: "apple",  year: 2, rank: 2}, {fruit: "apple",  year: 3, rank: 1},
+      {fruit: "banana", year: 1, rank: 2}, {fruit: "banana", year: 2, rank: 4}, {fruit: "banana", year: 3, rank: 3},
+      {fruit: "cherry", year: 1, rank: 4}, {fruit: "cherry", year: 2, rank: 3}, {fruit: "cherry", year: 3, rank: 2},
+      {fruit: "orange", year: 1, rank: 3}, {fruit: "orange", year: 2, rank: 1}, {fruit: "orange", year: 3, rank: 4},
+    ])`],
+  ["sankey", `lib => new lib.Sankey()
+    .links([
+      {source: "alpha", target: "beta"},
+      {source: "alpha", target: "gamma"},
+      {source: "beta",  target: "delta"},
+      {source: "beta",  target: "epsilon"},
+      {source: "zeta",  target: "gamma"},
+      {source: "theta", target: "gamma"},
+      {source: "eta",   target: "gamma"},
+    ])`],
+  ["rings", `lib => new lib.Rings()
+    .center("alpha")
+    .links([
+      {source: "alpha", target: "beta"},
+      {source: "alpha", target: "gamma"},
+      {source: "beta",  target: "delta"},
+      {source: "beta",  target: "epsilon"},
+      {source: "zeta",  target: "gamma"},
+      {source: "theta", target: "gamma"},
+      {source: "eta",   target: "gamma"},
+    ])`],
+  // Inline topojson (two squares) keeps the map fully offline — no remote
+  // topojson/tile fetches — so the fingerprint stays deterministic in CI.
+  ["geomap", `lib => new lib.Geomap()
+    .groupBy("geo")
+    .colorScale("value")
+    .tiles(false)
+    .ocean("transparent")
+    .topojson({
+      type: "Topology",
+      objects: {geo: {type: "GeometryCollection", geometries: [
+        {type: "Polygon", id: "a", arcs: [[0]]},
+        {type: "Polygon", id: "b", arcs: [[1]]},
+      ]}},
+      arcs: [
+        [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+        [[20, 0], [20, 10], [30, 10], [30, 0], [20, 0]],
+      ],
+    })
+    .data([
+      {geo: "a", value: 10},
+      {geo: "b", value: 20},
+    ])`],
 ];
 
 // Runs in-page: build + render the chart, then walk the rendered SVG and
