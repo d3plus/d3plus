@@ -7,8 +7,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {paintFromShapeConfig} from "../emitHelpers.js";
-import type {ChartEmit} from "../ChartDefinition.js";
+import {paintFromShapeConfig} from "../features/emitHelpers.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface RadarGroupDatum {
   __d3plus__?: true;

@@ -13,8 +13,8 @@ import {
   paintFromShapeConfig,
   resolveAccessor,
   shapeConfigFor,
-} from "../emitHelpers.js";
-import type {ChartEmit} from "../ChartDefinition.js";
+} from "../features/emitHelpers.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface ShapeGroup {
   key: string;

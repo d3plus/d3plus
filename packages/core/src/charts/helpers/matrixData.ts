@@ -1,6 +1,6 @@
 import {unique} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 const cartesian = (
   a: DataPoint[keyof DataPoint][],

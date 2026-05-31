@@ -10,8 +10,8 @@ import type {PieArcDatum, Pie} from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
 
-import type {TransformStage} from "../stages.js";
-import {chartBounds} from "../chartGeometry.js";
+import type {TransformStage} from "../pipeline/stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
 
 export const applyPieLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);

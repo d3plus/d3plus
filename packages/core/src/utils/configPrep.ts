@@ -1,5 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
-import { D3plusConfig } from "./D3plusConfig";
+import { D3plusConfig } from "./D3plusConfig.js";
 
 interface D3PlusWrapped {
   __d3plus__?: boolean;

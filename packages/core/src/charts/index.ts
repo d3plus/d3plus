@@ -18,4 +18,4 @@ export {default as Sankey} from "./Sankey/index.js";
 export {default as StackedArea} from "./StackedArea/index.js";
 export {default as Tree} from "./Tree/index.js";
 export {default as Treemap} from "./Treemap/index.js";
-export {default as Viz} from "./Viz.js";
+export {default as Viz} from "./viz/Viz.js";

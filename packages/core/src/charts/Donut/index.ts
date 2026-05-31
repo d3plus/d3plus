@@ -7,11 +7,11 @@
 
 import {min} from "d3-array";
 
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {chartBounds} from "../chartGeometry.js";
-import {makeChart} from "../makeChart.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import {makeChart} from "../definition/makeChart.js";
 import Pie, {pieDef} from "../Pie/index.js";
-import type {VizInstance} from "../vizTypes.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 export const donutDef: ChartDefinition = {
   name: "Donut",

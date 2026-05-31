@@ -25,11 +25,11 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyTreemapLayout} from "./applyLayout.js";
 import {treemapEmit} from "./emit.js";

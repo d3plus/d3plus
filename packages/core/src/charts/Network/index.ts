@@ -14,12 +14,12 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import {chartBounds} from "../chartGeometry.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {ensureZoomDom} from "../ensureZoomDom.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyNetworkLayout} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";

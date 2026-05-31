@@ -3,9 +3,9 @@
 */
 
 import AreaPlot from "../AreaPlot/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {makeChart} from "../makeChart.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {makeChart} from "../definition/makeChart.js";
 
 export const stackedAreaDef: ChartDefinition = {
   name: "StackedArea",

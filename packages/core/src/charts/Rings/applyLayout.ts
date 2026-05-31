@@ -13,9 +13,9 @@ import {colorContrast} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
-import {chartBounds} from "../chartGeometry.js";
-import {resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
-import type {TransformStage} from "../stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import {resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 /**
     Single laid-out node — accreted across the layout's passes. Each

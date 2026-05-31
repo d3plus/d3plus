@@ -11,7 +11,7 @@ import type {HierarchyCircularNode, HierarchyNode} from "d3-hierarchy";
 import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import type {TransformStage} from "../stages.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
   __d3plus__: true;

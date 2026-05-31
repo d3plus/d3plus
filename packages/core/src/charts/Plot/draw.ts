@@ -12,9 +12,9 @@ import {groups} from "d3-array";
 import {AxisBottom, AxisLeft, AxisTop, TextBox} from "../../components/index.js";
 import * as shapes from "../../shapes/index.js";
 
-import {measureAxes} from "../axes.js";
-import Viz from "../Viz.js";
-import {runStages} from "../stages.js";
+import {measureAxes} from "../features/axes.js";
+import Viz from "../viz/Viz.js";
+import {runStages} from "../pipeline/stages.js";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,

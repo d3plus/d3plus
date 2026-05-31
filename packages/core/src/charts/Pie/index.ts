@@ -10,12 +10,12 @@ import {pie as d3Pie} from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {centerChartTransform} from "../chartGeometry.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {DataDrivenChartDefinition} from "../ChartDefinition.js";
+import {centerChartTransform} from "../features/chartGeometry.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyPieLayout} from "./applyLayout.js";
 import {pieEmit} from "./emit.js";

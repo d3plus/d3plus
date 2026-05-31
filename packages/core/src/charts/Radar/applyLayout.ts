@@ -15,9 +15,9 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, shapeConfigFor} from "../emitHelpers.js";
-import type {TransformStage} from "../stages.js";
-import {chartBounds} from "../chartGeometry.js";
+import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import type {TransformStage} from "../pipeline/stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
 
 const TAU = Math.PI * 2;
 

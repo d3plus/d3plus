@@ -7,8 +7,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {paintFromShapeConfig, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartEmit} from "../ChartDefinition.js";
+import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface GeomapCtx {
   topoData: Array<{__d3plus__?: true; data?: DataPoint; feature: unknown; id: string | number}>;

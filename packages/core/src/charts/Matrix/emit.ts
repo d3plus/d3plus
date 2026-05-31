@@ -6,7 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import type {ChartEmit} from "../ChartDefinition.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface MatrixCell extends Record<string, unknown> {
   row: unknown;

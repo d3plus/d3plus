@@ -2,7 +2,7 @@ import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module mouseMoveShape

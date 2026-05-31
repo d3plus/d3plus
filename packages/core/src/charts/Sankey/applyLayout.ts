@@ -8,8 +8,8 @@ import {groups} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
 
-import {chartBounds} from "../chartGeometry.js";
-import type {TransformStage} from "../stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 interface SankeyRawLink {
   [key: string]: unknown;

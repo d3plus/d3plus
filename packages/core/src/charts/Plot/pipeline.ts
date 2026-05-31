@@ -18,10 +18,10 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import constant from "../../utils/constant.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {shapeConfigFor} from "../emitHelpers.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {TransformStage} from "../stages.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {shapeConfigFor} from "../features/emitHelpers.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";

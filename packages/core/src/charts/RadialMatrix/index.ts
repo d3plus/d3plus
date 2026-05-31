@@ -13,12 +13,12 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {TextBox} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import {centerChartTransform} from "../chartGeometry.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {centerChartTransform} from "../features/chartGeometry.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadialMatrixLayout} from "./applyLayout.js";
 import {radialMatrixEmit} from "./emit.js";

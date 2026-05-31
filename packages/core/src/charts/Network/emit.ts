@@ -9,8 +9,8 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartEmit} from "../ChartDefinition.js";
+import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface NetworkLink {
   source: DataPoint & {x: number; y: number};

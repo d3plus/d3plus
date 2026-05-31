@@ -27,12 +27,12 @@ import {parseSides} from "@d3plus/dom";
 import accessor from "../../utils/accessor.js";
 import attributions from "../helpers/tileAttributions.js";
 import constant from "../../utils/constant.js";
-import {chartBounds} from "../chartGeometry.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {ensureZoomDom} from "../ensureZoomDom.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyGeomapLayout} from "./applyLayout.js";
 import {geomapEmit} from "./emit.js";

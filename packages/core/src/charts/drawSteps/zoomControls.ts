@@ -1,9 +1,9 @@
 import {zoomTransform} from "d3-zoom";
 
 import {attrize} from "@d3plus/dom";
-import {chartBounds} from "../chartGeometry.js";
-import type {FeatureLayout, FeatureModule} from "../features.js";
-import type Viz from "../Viz.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import type {FeatureLayout, FeatureModule} from "../features/features.js";
+import type Viz from "../viz/Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
 interface MutableTransform {

@@ -17,7 +17,7 @@ import {assign} from "@d3plus/dom";
 import {merge, nest} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import type {TransformStage} from "../stages.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 type TreeNode = DataPoint & {
   __d3plus__?: true;

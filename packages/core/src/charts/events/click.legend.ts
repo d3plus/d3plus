@@ -1,6 +1,6 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module clickLegend

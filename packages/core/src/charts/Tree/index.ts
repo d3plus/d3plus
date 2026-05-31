@@ -13,12 +13,12 @@ import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
-import {legendLabel} from "../legendLabel.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
-import type Viz from "../Viz.js";
+import {legendLabel} from "../features/legendLabel.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
+import type Viz from "../viz/Viz.js";
 
 import {applyTreeLayout} from "./applyLayout.js";
 import {treeEmit} from "./emit.js";

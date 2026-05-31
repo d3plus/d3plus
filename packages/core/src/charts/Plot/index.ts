@@ -50,12 +50,12 @@ import {plotDef} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {stackOffsetDiverging, stackOrderAscending, stackOrderDescending} from "./stackHelpers.js";
-import {plotPaint, type PlotPaintContext} from "../plotPaint.js";
-import Viz from "../Viz.js";
+import {plotPaint, type PlotPaintContext} from "../features/plotPaint.js";
+import Viz from "../viz/Viz.js";
 
 import type {Scene, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
-import type {VizInstance} from "../vizTypes.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Accessor function or string key for a plotted value. */
 type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;

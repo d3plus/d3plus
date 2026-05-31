@@ -12,8 +12,8 @@ import {feature as topojsonFeature} from "topojson-client";
 import {pointDistance} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 
-import {chartBounds} from "../chartGeometry.js";
-import type {TransformStage, VizContext} from "../stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import type {TransformStage, VizContext} from "../pipeline/stages.js";
 
 type GeomapViz = VizContext["viz"];
 

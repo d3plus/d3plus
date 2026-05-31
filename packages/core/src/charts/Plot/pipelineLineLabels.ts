@@ -14,8 +14,8 @@ import {groups, max, min} from "d3-array";
 
 import {textWidth as d3plusTextWidth} from "@d3plus/dom";
 
-import {shapeConfigFor} from "../emitHelpers.js";
-import type {TransformStage} from "../stages.js";
+import {shapeConfigFor} from "../features/emitHelpers.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 interface LineLabelCtx {
   labelFunction: any;

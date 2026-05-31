@@ -11,11 +11,11 @@ import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import {centerChartTransform, chartBounds} from "../chartGeometry.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadarLayout} from "./applyLayout.js";
 import {radarEmit} from "./emit.js";

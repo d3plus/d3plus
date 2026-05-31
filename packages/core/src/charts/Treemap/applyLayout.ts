@@ -8,8 +8,8 @@ import type {HierarchyNode, HierarchyRectangularNode} from "d3-hierarchy";
 import {merge, nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import type {TransformStage} from "../stages.js";
-import {chartBounds} from "../chartGeometry.js";
+import type {TransformStage} from "../pipeline/stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
 
 /** A laid-out treemap leaf node (carries `share` + `rank` populated below). */
 export type TreemapShapeNode = Omit<HierarchyRectangularNode<DataPoint>, "id"> & {

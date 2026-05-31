@@ -1,4 +1,4 @@
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module touchStartBody

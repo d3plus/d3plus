@@ -14,7 +14,7 @@ import {date} from "@d3plus/dom";
 import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import type {TransformStage} from "../stages.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 interface PriestleyDatum extends Record<string, unknown> {
   __d3plus__: true;

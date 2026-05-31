@@ -8,8 +8,8 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../emitHelpers.js";
-import type {ChartEmit} from "../ChartDefinition.js";
+import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface RingsEdge {
   source: DataPoint & {id: string; x: number; y: number};

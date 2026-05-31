@@ -90,27 +90,27 @@ import {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 import {treeDef} from "./src/charts/Tree/index.js";
 import {treemapDef} from "./src/charts/Treemap/index.js";
 import {createFluent, installFluent} from "./src/fluent.js";
-import {runStages} from "./src/charts/stages.js";
-import {runVizPipeline} from "./src/charts/runVizPipeline.js";
-import {plotEmit, plotPaint} from "./src/charts/plotPaint.js";
-import {renderAxes} from "./src/charts/axes.js";
-import {vizDraw} from "./src/charts/vizDraw.js";
-import {vizDrawPure} from "./src/charts/vizDrawPure.js";
-import {vizPreDraw} from "./src/charts/vizPreDraw.js";
-import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/vizPreDrawPure.js";
-import {resolveSpec} from "./src/charts/resolveSpec.js";
-export type {ResolvedSpec} from "./src/charts/resolveSpec.js";
-export type {VizContext} from "./src/charts/vizContext.js";
-export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/plotPaint.js";
-export type {VizPreDrawResult} from "./src/charts/vizPreDrawPure.js";
-export type {ShapeLike, VizLike} from "./src/charts/emitHelpers.js";
+import {runStages} from "./src/charts/pipeline/stages.js";
+import {runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
+import {plotEmit, plotPaint} from "./src/charts/features/plotPaint.js";
+import {renderAxes} from "./src/charts/features/axes.js";
+import {vizDraw} from "./src/charts/pipeline/vizDraw.js";
+import {vizDrawPure} from "./src/charts/pipeline/vizDrawPure.js";
+import {vizPreDraw} from "./src/charts/pipeline/vizPreDraw.js";
+import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/pipeline/vizPreDrawPure.js";
+import {resolveSpec} from "./src/charts/pipeline/resolveSpec.js";
+export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
+export type {VizContext} from "./src/charts/pipeline/vizContext.js";
+export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
+export type {VizPreDrawResult} from "./src/charts/pipeline/vizPreDrawPure.js";
+export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {
   D3Selection,
   Margin,
   Padding,
   VizInstance,
   VizRenderer,
-} from "./src/charts/vizTypes.js";
+} from "./src/charts/viz/vizTypes.js";
 export type {
   AnyShapeConfig,
   AreaConfig,
@@ -135,9 +135,9 @@ import {
   timelineFeature,
   titleFeature,
   totalFeature,
-} from "./src/charts/features.js";
-import {computeAxisLayout, measureAxis} from "./src/components/Axis.js";
-export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis.js";
+} from "./src/charts/features/features.js";
+import {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
+export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";
 
 export {
   // Chart-specific layout stages (all 12 chart subclasses).

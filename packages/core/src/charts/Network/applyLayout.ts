@@ -16,9 +16,9 @@ import * as scales from "d3-scale";
 import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 
-import {chartBounds} from "../chartGeometry.js";
-import {shapeConfigFor} from "../emitHelpers.js";
-import type {TransformStage} from "../stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
+import {shapeConfigFor} from "../features/emitHelpers.js";
+import type {TransformStage} from "../pipeline/stages.js";
 
 interface NetworkLayoutNode extends SimulationNodeDatum {
   id: string;

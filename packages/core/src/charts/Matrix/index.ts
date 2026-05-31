@@ -10,11 +10,11 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {Axis} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features.js";
-import type {ChartDefinition} from "../ChartDefinition.js";
+import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
-import {makeChart} from "../makeChart.js";
-import type {VizInstance} from "../vizTypes.js";
+import {makeChart} from "../definition/makeChart.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyMatrixLayout} from "./applyLayout.js";
 import {matrixEmit} from "./emit.js";

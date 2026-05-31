@@ -21,7 +21,7 @@
 import {extent, groups, max, min, sum} from "d3-array";
 import * as d3Shape from "d3-shape";
 
-import type {TransformStage, VizContext} from "../stages.js";
+import type {TransformStage, VizContext} from "../pipeline/stages.js";
 
 interface StackedCtx {
   data: any[];

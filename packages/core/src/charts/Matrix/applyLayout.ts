@@ -6,8 +6,8 @@
     `columnScale`/`rowScale`/`cellWidth`/`cellHeight` on `viz.ctx`.
 */
 
-import type {TransformStage} from "../stages.js";
-import {chartBounds} from "../chartGeometry.js";
+import type {TransformStage} from "../pipeline/stages.js";
+import {chartBounds} from "../features/chartGeometry.js";
 import matrixPrepData from "../helpers/matrixData.js";
 
 type AxisLike = {
