@@ -62,6 +62,7 @@ export const radarDef: ChartDefinition = {
                 : "rgb(255, 255, 255)";
               return colorContrast(bg);
             },
+            fontResize: false,
             padding: 0,
             textAnchor: (d: {data?: {textAnchor?: string}}) =>
               d.data?.textAnchor ?? "middle",

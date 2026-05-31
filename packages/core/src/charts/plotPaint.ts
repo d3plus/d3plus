@@ -419,24 +419,37 @@ function emitShapeExits(viz: Viz, shapeData: [string, DataPoint[]][], shapeConfi
   viz._previousShapes = dataShapes;
 }
 
-/** Drains the deferred axis-scene queue, pushing each axis group onto `out`. */
-function emitAxisScenes(out: SceneNode[], axisSceneQueue: PlotMeasureResult["axisSceneQueue"]): void {
-  // Absorb queued axis scenes AFTER shapes + annotations so axes render
-  // above everything else (shapes → annotations → axes). Each axis is
-  // wrapped in a group with its axis-relative transform; the chart-cells
-  // group's `_chartTransform` composes with this to land at the right
-  // absolute position.
+const isGridNode = (node: SceneNode): boolean =>
+  typeof node.key === "string" && node.key.startsWith("grid-");
+
+/**
+    Drains the deferred axis-scene queue, splitting each axis into its
+    gridline children (rendered behind the data shapes) and everything else
+    — ticks, tick labels, domain bar, title — which stays on top. Each axis
+    is wrapped in a group with its axis-relative transform; the chart-cells
+    group's `_chartTransform` composes with this to land at the right
+    absolute position.
+*/
+function collectAxisScenes(
+  axisSceneQueue: PlotMeasureResult["axisSceneQueue"],
+): {grid: SceneNode[]; rest: SceneNode[]} {
+  const grid: SceneNode[] = [];
+  const rest: SceneNode[] = [];
   axisSceneQueue.forEach(({key, transform, axis}) => {
     if (!axis || typeof axis.toScene !== "function") return;
     const scene = axis.toScene();
     if (!scene) return;
-    out.push({
-      type: "group",
-      key,
-      transform,
-      children: scene.children || [],
-    });
+    const children = scene.children || [];
+    const gridChildren = children.filter(isGridNode);
+    const restChildren = children.filter(c => !isGridNode(c));
+    if (gridChildren.length) {
+      grid.push({type: "group", key: `${key}-grid`, transform, children: gridChildren});
+    }
+    if (restChildren.length) {
+      rest.push({type: "group", key, transform, children: restChildren});
+    }
   });
+  return {grid, rest};
 }
 
 /**
@@ -454,7 +467,12 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     const {labelWidths} = pCtx;
     const {x, y, xRange, yRange, yOffset, axisSceneQueue} = mCtx;
 
+    const axisScenes = collectAxisScenes(axisSceneQueue);
+
     emitBackgroundRect(viz, out, xRange, yRange);
+
+    // Gridlines sit just above the background, behind the data shapes.
+    out.push(...axisScenes.grid);
 
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
@@ -470,7 +488,8 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     // above shapes.
     frontAnnotationShapes.forEach(inst => out.push(...collectComputed(inst)));
 
-    emitAxisScenes(out, axisSceneQueue);
+    // Ticks, tick labels, domain bar, and title render on top of the shapes.
+    out.push(...axisScenes.rest);
 
     return out;
 }

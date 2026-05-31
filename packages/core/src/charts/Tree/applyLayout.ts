@@ -160,6 +160,7 @@ function buildTreeShapeConfig(
       return ids[ids.length - 1];
     },
     labelConfig: {
+      fontResize: false,
       textAnchor: (d: {data?: TreeNode}) => {
         const x = (d.data ?? d) as TreeNode;
         return isVertical
