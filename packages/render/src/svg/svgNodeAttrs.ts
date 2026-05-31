@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {interpolatePath} from "d3-interpolate-path";
+import {select} from "d3-selection";
 
 import {areaPath, linePath} from "../paths.js";
-import type {SceneNode, TextNode} from "../scene.js";
+import type {SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 export const XLINK_NS = "http://www.w3.org/1999/xlink";
@@ -62,7 +63,31 @@ export function applyStatic(sel: any, node: SceneNode): void {
   if (node.type === "text") applyText(sel, node);
 }
 
-/** Rebuilds the tspans and font attributes of a text node (content is not animated). */
+/** Direct-child <tspan> elements of an element (not nested run tspans). */
+function childTspans(parent: Element): Element[] {
+  const out: Element[] = [];
+  for (let c = parent.firstElementChild; c; c = c.nextElementSibling)
+    if (c.tagName.toLowerCase() === "tspan") out.push(c);
+  return out;
+}
+
+/** Builds the inline style string for a styled run, or null when unstyled. */
+function runStyle(run: TextRun): string | null {
+  const s = run.style;
+  if (!s || (s.weight === undefined && s.style === undefined)) return null;
+  const parts: string[] = [];
+  if (s.weight !== undefined) parts.push(`font-weight: ${s.weight}`);
+  if (s.style !== undefined) parts.push(`font-style: ${s.style}`);
+  return parts.join("; ");
+}
+
+/**
+    Applies font attributes and reconciles the line/run <tspan>s of a text node.
+
+    Lines and runs are index-keyed d3 joins, so an identical re-render updates
+    the existing tspans in place rather than tearing them down and rebuilding
+    (text content is set directly, not animated).
+*/
 export function applyText(sel: any, node: TextNode): void {
   const f = node.font || {};
   sel
@@ -73,31 +98,45 @@ export function applyText(sel: any, node: TextNode): void {
     .attr("text-anchor", f.anchor ?? null)
     .attr("dominant-baseline", f.baseline ?? null)
     .attr("dir", f.dir ?? null);
-  sel.selectAll("tspan").remove();
-  sel.text(null);
 
-  for (const ln of node.lines) {
-    const lineSpan = sel.append("tspan").attr("x", ln.x).attr("y", ln.y);
-    if (!ln.runs || !ln.runs.length) {
-      lineSpan.text(ln.text);
-      continue;
-    }
-    for (const run of ln.runs) {
-      if (run.style && (run.style.weight !== undefined || run.style.style !== undefined)) {
-        const styleParts: string[] = [];
-        if (run.style.weight !== undefined)
-          styleParts.push(`font-weight: ${run.style.weight}`);
-        if (run.style.style !== undefined)
-          styleParts.push(`font-style: ${run.style.style}`);
-        lineSpan
-          .append("tspan")
-          .attr("style", styleParts.join("; "))
-          .text(run.text);
-      } else {
-        lineSpan.append("tspan").text(run.text);
+  const lines = sel
+    .selectAll(function (this: Element) {
+      return childTspans(this);
+    })
+    .data(node.lines);
+  lines.exit().remove();
+  lines
+    .enter()
+    .append("tspan")
+    .merge(lines)
+    .attr("x", (d: TextLine) => d.x)
+    .attr("y", (d: TextLine) => d.y)
+    .each(function (this: Element, ln: TextLine) {
+      const lineSel = select(this);
+      if (!ln.runs || !ln.runs.length) {
+        if (this.firstElementChild) lineSel.selectAll("tspan").remove();
+        if (this.textContent !== ln.text) this.textContent = ln.text;
+        return;
       }
-    }
-  }
+      // Styled line: drop any stray direct text, then index-key the run tspans.
+      for (let n = this.firstChild; n; ) {
+        const next = n.nextSibling;
+        if (n.nodeType === 3) this.removeChild(n);
+        n = next;
+      }
+      const runs = lineSel
+        .selectAll(function (this: Element) {
+          return childTspans(this);
+        })
+        .data(ln.runs);
+      runs.exit().remove();
+      runs
+        .enter()
+        .append("tspan")
+        .merge(runs)
+        .attr("style", (r: TextRun) => runStyle(r))
+        .text((r: TextRun) => r.text);
+    });
 }
 
 /** Applies paint attributes to a selection or transition. */

@@ -53,10 +53,11 @@ function getAllMethods(obj: object): string[] {
   return props.filter(
     e =>
       e.indexOf("_") !== 0 &&
-      // `measure` is excluded: it's an axis-layout side-effect method (runs the
-      // full layout pass, no DOM); BaseClass.config()'s reflection would invoke
-      // it as a getter and trigger spurious renders/errors.
-      !["config", "constructor", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
+      // Side-effect/lifecycle methods excluded from config reflection: invoking
+      // them as no-arg getters would run real work. `measure` runs the full
+      // axis-layout pass; `destroy` tears down the scene renderer (which defeats
+      // keyed reconcile and forces a full remount on the next draw).
+      !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
   );
 }
 
