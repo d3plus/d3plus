@@ -20,7 +20,10 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;
-      if (this._id(tooltipDatum) === this._id(d))
+      let leaveDatum = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+      while (leaveDatum && leaveDatum.__d3plus__ && leaveDatum.data)
+        leaveDatum = leaveDatum.data as typeof leaveDatum;
+      if (this._id(tooltipDatum) === this._id(leaveDatum))
         this._tooltipClass.data([]).render();
     }
   }, 50);

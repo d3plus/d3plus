@@ -419,7 +419,7 @@ export default class Tooltip extends BaseClass {
         const datum = select(
           this.parentNode!.parentNode! as Element,
         ).datum() as DataPoint;
-        return d(datum, that._data.indexOf(datum)) as string;
+        return d(datum, that._data.indexOf(datum), datum) as string;
       } else return d as string;
     }
 

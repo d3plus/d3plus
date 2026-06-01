@@ -50,8 +50,16 @@ export default function (
       ? [event.touches[0].clientX, event.touches[0].clientY]
       : [event.clientX, event.clientY];
 
+    // Unwrap to the underlying source row so tooltip cell accessors (e.g.
+    // the Treemap "share" column) resolve regardless of whether the hovered
+    // scene node was the shape (datum = row) or its text label (datum = a
+    // wrapper whose `.data` chain leads back to the row).
+    let tooltipDatum = (x || d) as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+    while (tooltipDatum && tooltipDatum.__d3plus__ && tooltipDatum.data)
+      tooltipDatum = tooltipDatum.data as typeof tooltipDatum;
+
     this._tooltipClass
-      .data([x || d])
+      .data([tooltipDatum])
       .footer(
         hasDefaultClick && hasDeeperLevel
           ? this.schema.translate("Click to Expand")

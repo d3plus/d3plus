@@ -282,19 +282,67 @@ export default class Viz extends VizBase {
       // Renderer events carry the picked scene node; we look up the
       // appropriate viz.schema.on key based on whether the pick belongs to
       // a chart shape, the legend, or neither.
+      // Remembers the most recently hovered node so `mouseleave` — which the
+      // renderer fires with a null pick — can still tell the matching
+      // handlers which shape/legend item was left (so the tooltip clears).
+      let lastPick: {
+        d: unknown;
+        i: number;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        x: any;
+        isLegend: boolean;
+        shapeType: string | null;
+      } | null = null;
       this._sceneRenderer.on((event: SceneEvent) => {
         const pick = event.pick;
+        // Dispatch helper shared by the live-pick path and the leave path.
+        const fire = (
+          key: string,
+          d: unknown,
+          i: number,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          x: any,
+        ): void => {
+          const fn = this.schema.on && this.schema.on[key];
+          if (typeof fn === "function") {
+            try {
+              fn.call(this, d, i, x, event.nativeEvent);
+            } catch {
+              // swallow per-event errors so one bad handler doesn't
+              // break subsequent events.
+            }
+          }
+        };
+        if (event.type === "mouseleave") {
+          if (lastPick) {
+            fire(
+              `mouseleave.${lastPick.isLegend ? "legend" : "shape"}`,
+              lastPick.d,
+              lastPick.i,
+              lastPick.x,
+            );
+            if (!lastPick.isLegend && lastPick.shapeType)
+              fire(`mouseleave.${lastPick.shapeType}`, lastPick.d, lastPick.i, lastPick.x);
+            fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
+          }
+          lastPick = null;
+          return;
+        }
         if (!pick || !pick.node) return;
-        // Walk up from the pick to find a parent group keyed with
-        // "viz-legend" — if found, dispatch to legend handlers; else
-        // dispatch to shape handlers.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const nodeAny = pick.node as any;
-        // Try to detect legend membership by inspecting key prefixes
-        // emitted by features.ts / legendFeature.
+        // Walk up from the picked DOM element to find the group the scene
+        // composes the Legend under (`key: "viz-legend"`, Viz.toScene). Leaf
+        // swatch nodes are keyed by fill color (e.g. "#c92a2a_1_"), so the
+        // node key alone can't tell a legend swatch from a chart shape —
+        // only its ancestry can. If found, dispatch to legend handlers; else
+        // dispatch to shape handlers.
+        const target =
+          event.nativeEvent && (event.nativeEvent as Event).target;
         const isLegendNode =
-          typeof nodeAny.key === "string" &&
-          nodeAny.key.toLowerCase().includes("legend");
+          target && typeof (target as Element).closest === "function"
+            ? !!(target as Element).closest('[data-key="viz-legend"]')
+            : false;
         const suffix = isLegendNode ? "legend" : "shape";
         const handlerKey = `${event.type}.${suffix}`;
         // Resolve the source datum + index. `pick.datum` is the raw
@@ -306,30 +354,21 @@ export default class Viz extends VizBase {
         const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
         const sourceIndex =
           rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
-        // Dispatch to the matching viz.schema.on handler if present.
-        const dispatch = (key: string): void => {
-          const fn = this.schema.on && this.schema.on[key];
-          if (typeof fn === "function") {
-            try {
-              fn.call(this, sourceDatum, sourceIndex, rawDatum, event.nativeEvent);
-            } catch {
-              // swallow per-event errors so one bad handler doesn't
-              // break subsequent events.
-            }
-          }
-        };
-        dispatch(handlerKey);
+        const shapeType =
+          typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
+        lastPick = {d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType};
+        fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
         // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`).
         // The emitting shape stamps its type onto the node; on the scene
         // path this is the only place these fire (compute-mode shapes wire
         // no DOM listeners). Legend nodes are excluded so a legend swatch's
         // shape type can't masquerade as a chart-shape handler.
-        if (!isLegendNode && typeof nodeAny.shapeType === "string") {
-          dispatch(`${event.type}.${nodeAny.shapeType}`);
+        if (!isLegendNode && shapeType) {
+          fire(`${event.type}.${shapeType}`, sourceDatum, sourceIndex, rawDatum);
         }
         // Also fire the un-suffixed handler (e.g. "mousemove") so
         // user-registered global handlers see the event too.
-        dispatch(event.type);
+        fire(event.type, sourceDatum, sourceIndex, rawDatum);
       });
     } else {
       this._sceneRenderer.resize(w, h);

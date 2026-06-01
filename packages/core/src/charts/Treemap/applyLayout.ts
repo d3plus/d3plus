@@ -100,7 +100,9 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   const total = tmapData.value as number;
   const sumFn = viz.schema.sum as (d: DataPoint) => number;
   shapeData.forEach(d => {
-    d.share = sumFn(d.data as DataPoint) / total;
+    const share = sumFn(d.data as DataPoint) / total;
+    d.share = share;
+    (d.data as DataPoint & {share?: number}).share = share;
   });
 
   return {shapeData};
