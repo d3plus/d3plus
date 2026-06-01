@@ -4,7 +4,6 @@
     "declarationDir": "./types",
     "outDir": "./types",
     "rootDir": ".",
-    "baseUrl": ".",
     "jsx": "react-jsx"
   },
   "include": ["index.ts", "../../externals.d.ts"]
