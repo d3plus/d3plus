@@ -75,6 +75,10 @@ function buildTreeData(viz: any, width: number, height: number): TreeNode[] {
     }
     d.__d3plus__ = true;
     d.i = i;
+    // The tooltip binds the unwrapped row, so the per-node hierarchy depth
+    // (needed to label the node at its own level) must live on the row.
+    // Mirrors Treemap stamping `share`/`rank` onto `d.data`.
+    (d.data as TreeNode).depth = d.depth;
   });
 
   return treeData;

@@ -28,6 +28,9 @@ export default class VizBaseConfig extends (BaseClass as any) {
     if (this.schema.shapeConfig.activeOpacity !== 1) {
       this._shapes.forEach((s: {active: (...args: unknown[]) => unknown}) => s.active(_));
       if (this.schema.legend) this._legendClass.active(_);
+      // See hover(): scene-rendered charts dim via the scene's
+      // interaction-opacity pass, so repaint to apply/clear active state.
+      if (this._sceneRenderer) this._drawSceneToTarget(0);
     }
 
     return this;
@@ -389,6 +392,11 @@ Defaults to an empty array (`[]`).
 
       this._shapes.forEach((s: {hover: (...args: unknown[]) => unknown}) => s.hover(hoverFunction));
       if (this.schema.legend) this._legendClass.hover(hoverFunction);
+      // Scene-rendered charts emit into `_chartScene` (not `_shapes`), so the
+      // forEach above is a no-op for them. Repaint with duration 0 so the
+      // scene's interaction-opacity pass re-reads `_hover` and dims the
+      // non-matching nodes (or restores them when `_` is `false`).
+      if (this._sceneRenderer) this._drawSceneToTarget(0);
     }
 
     return this;

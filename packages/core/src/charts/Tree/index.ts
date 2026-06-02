@@ -77,8 +77,11 @@ export const treeDef: ChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        title: (d: DataPoint, i: number, x: {depth: number}) =>
-          viz._drawLabel(d, i, x.depth - 1),
+        // The Tooltip calls `title(d, i)` with the bound row; the node's
+        // hierarchy depth is stamped onto that row in applyTreeLayout, so the
+        // label resolves at the node's own level rather than the leaf level.
+        title: (d: DataPoint & {depth?: number}, i: number) =>
+          viz._drawLabel(d, i, (d.depth ?? 1) - 1),
       }),
     },
     {

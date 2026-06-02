@@ -6,6 +6,7 @@ import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
 import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
+import {applyInteractionOpacity} from "./interactionOpacity.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
@@ -55,7 +56,10 @@ export default class Viz extends VizBase {
     // title/total/etc. (which live in sibling viz-* groups, not under
     // viz-chart-cells).
     if (this._chartScene && this._chartScene.length) {
-      const sliced = this._chartScene.slice();
+      const sliced = applyInteractionOpacity(
+        this._chartScene,
+        this as unknown as VizInstance,
+      );
       const zoomNode = this._zoomTransform
         ? [{
             type: "group" as const,
