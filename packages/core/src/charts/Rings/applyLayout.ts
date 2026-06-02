@@ -153,23 +153,37 @@ function buildRingsGraph(
   const links: RingsEdge[] = (v.schema.links as RawLink[]).map(link => {
     const resolve = (refIdx: 0 | 1): RingsNode => {
       const ref = refIdx === 0 ? link.source : link.target;
+      if (typeof ref === "object") return nodeLookup[(ref as DataPoint).id as string];
+      // Match the ref against node ids first. Data loading coerces leading-zero
+      // ids like "010101" into numbers — but only on nodes' own flat id field; a
+      // link endpoint can keep its string form, so try both the raw and coerced
+      // key. Only when no node carries that id do we treat a number as an index
+      // into the nodes array.
+      const byId = nodeLookup[ref as unknown as string];
+      if (byId) return byId;
+      if (!isNaN(ref as unknown as number)) {
+        const coerced = nodeLookup[parseFloat(ref as unknown as string)];
+        if (coerced) return coerced;
+      }
       if (typeof ref === "number") {
         const original = v.schema.nodes && (v.schema.nodes as DataPoint[])[ref];
         if (original == null) return undefined as unknown as RingsNode;
-        if (typeof original === "object")
-          return (nodeLookup[(original as DataPoint).id as string] ||
-            nodeLookup[original as unknown as string]) as RingsNode;
-        return nodeLookup[original as unknown as string];
+        return (typeof original === "object"
+          ? nodeLookup[(original as DataPoint).id as string] ||
+            nodeLookup[original as unknown as string]
+          : nodeLookup[original as unknown as string]) as RingsNode;
       }
-      const key = typeof ref === "object" ? ((ref as DataPoint).id as string) : (ref as string);
-      return nodeLookup[key];
+      return undefined as unknown as RingsNode;
     };
     return {
       source: resolve(0),
       target: resolve(1),
       size: v.schema.linkSize(link) as number,
     };
-  });
+  })
+    // A link can name a node id that isn't in the nodes set; that endpoint
+    // resolves to undefined and can't be placed, so drop the whole link.
+    .filter(link => link.source && link.target);
 
   const linkMap: Record<string, RingsEdge[]> = links.reduce(
     (map: Record<string, RingsEdge[]>, link) => {
@@ -564,11 +578,18 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   const secondaryRing = ringWidth * 2;
   const geom: RingGeometry = {width, height, ringWidth, primaryRing, secondaryRing};
 
-  const center = nodeLookup[v.schema.center];
+  // Data loading coerces leading-zero ids (e.g. "010101") into numbers, so a
+  // string `center` config may not key the (coerced) node lookup directly. Try
+  // the raw value, then its coerced form.
+  let center = nodeLookup[v.schema.center];
+  if (!center && v.schema.center != null && !isNaN(v.schema.center as unknown as number))
+    center = nodeLookup[parseFloat(v.schema.center as unknown as string)];
   if (!center) {
     v.ctx.ringsCtx = emptyRingsCtx();
     return {viz};
   }
+  // Normalize so downstream comparisons against node ids use the matched id.
+  v.schema.center = center.id;
 
   const {nodes, primaries, secondaries} = placeRingsNodes(
     v,

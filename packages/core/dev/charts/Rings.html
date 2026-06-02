@@ -67,8 +67,9 @@
       // }
     })
     // .loadingMessage(false)
-    .nodes("./network_hs4_nodes.json")
-    .links("./network_hs4_edges.json", resp => resp.map(e => ({source: e.source.id, target: e.target.id})))
+    .nodes("./Network/network_hs4_nodes.json")
+    .links("./Network/network_hs4_edges.json", resp => resp.map(e => ({source: e.source.id, target: e.target.id})))
+    // .links("./Network/network_hs4_edges.json", resp => resp.map(e => ({source: e.source.id, target: e.target.id})))
     .render();
 
 </script>
