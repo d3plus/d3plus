@@ -20,6 +20,22 @@ it("collapse zeroes geometry and opacity", () => {
   assert.strictEqual(circle.r, 0, "circle radius collapses");
 });
 
+it("collapse grows bars from their baseline, not their center", () => {
+  // Vertical bar: rect spans [-H, 0] with its baseline edge at y=0.
+  const up = collapse({type: "rect", shapeType: "Bar", key: "a", x: -20, y: -60, width: 40, height: 60});
+  assert.strictEqual(up.y, 0, "vertical bar pins its baseline edge at y=0");
+  assert.strictEqual(up.height, 0, "vertical bar collapses its height");
+  assert.strictEqual(up.x, -20, "vertical bar keeps its full breadth (x)");
+  assert.strictEqual(up.width, 40, "vertical bar keeps its full breadth (width)");
+
+  // Horizontal bar: rect spans [0, W] with its baseline edge at x=0.
+  const right = collapse({type: "rect", shapeType: "Bar", key: "b", x: 0, y: -20, width: 80, height: 40});
+  assert.strictEqual(right.x, 0, "horizontal bar pins its baseline edge at x=0");
+  assert.strictEqual(right.width, 0, "horizontal bar collapses its width");
+  assert.strictEqual(right.y, -20, "horizontal bar keeps its full breadth (y)");
+  assert.strictEqual(right.height, 40, "horizontal bar keeps its full breadth (height)");
+});
+
 it("interpolateNode interpolates numeric geometry and color", () => {
   const interp = interpolateNode(
     {type: "rect", key: "a", x: 0, y: 0, width: 0, height: 0, paint: {fill: "#000000"}},

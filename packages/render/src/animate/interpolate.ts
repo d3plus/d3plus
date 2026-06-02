@@ -150,7 +150,18 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
 export function collapse(node: SceneNode): SceneNode {
   const paint: Paint = {...node.paint, opacity: 0};
   switch (node.type) {
-    case "rect":
+    case "rect": {
+      // A bar's measure-axis edge is anchored at local 0 (its baseline), so it
+      // grows in from that edge rather than from its center: a vertical bar has
+      // a horizontal edge at y=0, a horizontal bar a vertical edge at x=0.
+      // Collapse only the measure dimension and keep the bar's full breadth.
+      // Plain rects (Treemap cells, etc.) collapse toward their center.
+      if (node.shapeType === "Bar") {
+        if (node.y === 0 || node.y + node.height === 0)
+          return {...node, paint, y: 0, height: 0};
+        if (node.x === 0 || node.x + node.width === 0)
+          return {...node, paint, x: 0, width: 0};
+      }
       return {
         ...node,
         paint,
@@ -159,6 +170,7 @@ export function collapse(node: SceneNode): SceneNode {
         width: 0,
         height: 0,
       };
+    }
     case "circle":
       return {...node, paint, r: 0};
     case "group":
