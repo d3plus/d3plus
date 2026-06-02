@@ -394,6 +394,28 @@ export default class Viz extends VizBase {
   }
 
   /**
+      Coalesces interaction-driven scene repaints (hover/active dimming) into a
+      single paint per animation frame. A fast pointer sweep across a dense
+      chart fires a hover transition per shape crossed; painting each one
+      synchronously rebuilt the whole scene back-to-back, saturating the main
+      thread (~200ms stalls) so the tooltip couldn't reposition and appeared
+      stuck at its last spot. Only the latest hover state is visible, so the
+      intermediate paints are wasted — collapse them to one rAF-scheduled draw.
+  */
+  _scheduleSceneRepaint(): void {
+    if (!this._sceneRenderer) return;
+    if (typeof requestAnimationFrame !== "function") {
+      this._drawSceneToTarget(0);
+      return;
+    }
+    if (this._sceneRepaintRAF != null) return;
+    this._sceneRepaintRAF = requestAnimationFrame(() => {
+      this._sceneRepaintRAF = undefined;
+      this._drawSceneToTarget(0);
+    });
+  }
+
+  /**
       Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
@@ -413,6 +435,11 @@ export default class Viz extends VizBase {
     }
     if (this._scrollPoll) {
       this._scrollPoll = clearTimeout(this._scrollPoll) as never;
+    }
+    if (this._sceneRepaintRAF != null) {
+      if (typeof cancelAnimationFrame === "function")
+        cancelAnimationFrame(this._sceneRepaintRAF);
+      this._sceneRepaintRAF = undefined;
     }
     select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
     // Destroy the active scene renderer (clears its own pointer-rect

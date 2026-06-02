@@ -227,6 +227,8 @@ export interface VizInstance {
   _preDraw(): void;
   _draw(callback?: () => void): void;
   _drawSceneToTarget(durationOverride?: number): void;
+  _scheduleSceneRepaint(): void;
+  _sceneRepaintRAF?: number;
   _thresholdFunction?(data: DataPoint[], tree?: any): DataPoint[];
   toScene?(): any;
   config?(_?: any): any;

@@ -40,7 +40,12 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       if (this._id(tooltipDatum) === this._id(leaveDatum))
         this._tooltipClass.data([]).render();
     }
-  }, 50);
+    // Deferred by a single macrotask (not a fixed delay): the shape→label
+    // hand-off fires this leave, then the renderer synchronously fires the
+    // enter that sets `_hoverDatum`. Waiting one macrotask lets the guard
+    // above observe that updated datum, while still hiding promptly — a
+    // larger delay made the tooltip lag behind the cursor on dense charts.
+  }, 0);
 
   this._select.style("cursor", "auto");
 }
