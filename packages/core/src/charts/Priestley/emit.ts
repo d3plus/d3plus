@@ -37,13 +37,19 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data, i);
     const w = Math.abs(xScale(d.end) - xScale(d.start));
     const width = w > 2 ? w - 2 : w;
-    const x = xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2 - width / 2;
-    const y = yScale(String(d.lane));
+    // Translate each band to its left edge + lane center and keep the rect's
+    // left edge at local x=0 (centered vertically) — a horizontal Bar's
+    // geometry. The shared collapse() then grows the band in from its start
+    // edge (left→right) instead of from its center.
+    const left = xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2 - width / 2;
+    const top = (yScale(String(d.lane)) ?? 0) + bandWidth / 2;
     return {
       type: "rect",
+      shapeType: "Bar",
       key: `priestley-${d.id}-${i}`,
-      x,
-      y,
+      transform: {x: left, y: top},
+      x: 0,
+      y: -bandWidth / 2,
       width,
       height: bandWidth,
       datum: d.data,
