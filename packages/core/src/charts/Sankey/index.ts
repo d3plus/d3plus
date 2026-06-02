@@ -64,6 +64,20 @@ export const sankeyDef: ChartDefinition = {
         viz._focus = undefined;
         return;
       }
+      // An edge datum is a `{source, target}` link, not a node — highlight the
+      // hovered link plus its two endpoint nodes.
+      const edge = d as DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
+      if (edge.source && edge.target) {
+        const sourceId = edge.source.id;
+        const targetId = edge.target.id;
+        v.hover((h: DataPoint & {source?: {id: string | number}; target?: {id: string | number}}, hi: number) => {
+          if (h.source && h.target)
+            return h.source.id === sourceId && h.target.id === targetId;
+          const hid = viz.schema.nodeId(h, hi) as string | number;
+          return hid === sourceId || hid === targetId;
+        });
+        return;
+      }
       const id = viz.schema.nodeId(d, i) as string | number;
       const node = (viz.ctx.nodeLookup as Record<string, number>)[String(id)];
       const lookup = viz.ctx.nodeLookup as Record<string, number>;
@@ -122,6 +136,11 @@ export const sankeyDef: ChartDefinition = {
       this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
       (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
       if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
+      // Scene-rendered Sankey emits into `_chartScene`, not `_shapes`, so the
+      // forEach above can't dim anything. Repaint so the scene's
+      // interaction-opacity pass re-reads `_hover` and dims non-matching nodes.
+      // Coalesced to one paint per frame (see Viz._scheduleSceneRepaint).
+      if (this._sceneRenderer) this._scheduleSceneRepaint();
       return this;
     };
   },
@@ -172,6 +191,22 @@ export const sankeyDef: ChartDefinition = {
           Rect: {},
         };
       },
+    },
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        title: (
+          d: DataPoint & {
+            source?: {id: string | number};
+            target?: {id: string | number};
+            i?: number;
+          },
+        ) =>
+          d && d.source && d.target
+            ? `${d.source.id} → ${d.target.id}`
+            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0),
+      }),
     },
   ],
 };

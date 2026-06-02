@@ -50,6 +50,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
       const paint = paintFromShapeConfig(linkConfig, link as unknown as DataPoint, i);
       out.push({
         type: "path",
+        shapeType: "Link",
         key: `sankey-link-${(link.source.id ?? "")}-${(link.target.id ?? "")}`,
         d: c.pathFn(link),
         datum: link as unknown as DataPoint,
