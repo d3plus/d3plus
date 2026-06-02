@@ -326,6 +326,11 @@ export default class Viz extends VizBase {
             fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
           }
           lastPick = null;
+          // Cleared here, then re-set by the enter/move the renderer fires
+          // synchronously when the pointer crosses to an adjacent node — so a
+          // shape→label hand-off leaves `_hoverDatum` pointing at the new node
+          // (same datum), which `mouseleave` reads to suppress a flicker.
+          this._hoverDatum = null;
           return;
         }
         if (!pick || !pick.node) return;
@@ -357,6 +362,7 @@ export default class Viz extends VizBase {
         const shapeType =
           typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
         lastPick = {d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType};
+        this._hoverDatum = rawDatum;
         fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
         // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`).
         // The emitting shape stamps its type onto the node; on the scene

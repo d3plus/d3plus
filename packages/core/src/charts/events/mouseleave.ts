@@ -8,6 +8,23 @@ import type Viz from "../viz/Viz.js";
 */
 export default function (this: Viz, d: DataPoint, i: number): void {
   setTimeout(() => {
+    let leaveDatum = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+    while (leaveDatum && leaveDatum.__d3plus__ && leaveDatum.data)
+      leaveDatum = leaveDatum.data as typeof leaveDatum;
+
+    // A shape and its text label are separate scene nodes over the same datum,
+    // so crossing between them fires a leave for one then an enter for the
+    // other. `_hoverDatum` is what the pointer rests on once that hand-off
+    // settles; if it's the same datum we left, this isn't a real exit — bail
+    // before resetting hover or hiding the tooltip so neither flickers.
+    let hoverDatum = this._hoverDatum as
+      | (DataPoint & {__d3plus__?: boolean; data?: DataPoint})
+      | null
+      | undefined;
+    while (hoverDatum && hoverDatum.__d3plus__ && hoverDatum.data)
+      hoverDatum = hoverDatum.data as typeof hoverDatum;
+    if (hoverDatum && this._id(hoverDatum) === this._id(leaveDatum)) return;
+
     if (
       this.schema.shapeConfig.hoverOpacity !== 1 && this._hover
         ? this._hover(d, i)
@@ -20,9 +37,6 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;
-      let leaveDatum = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
-      while (leaveDatum && leaveDatum.__d3plus__ && leaveDatum.data)
-        leaveDatum = leaveDatum.data as typeof leaveDatum;
       if (this._id(tooltipDatum) === this._id(leaveDatum))
         this._tooltipClass.data([]).render();
     }

@@ -153,6 +153,7 @@ export interface VizInstance {
   _focus?: string | number | undefined;
   _active?: ((d: DataPoint, i?: number) => boolean) | false;
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
+  _hoverDatum?: DataPoint | null;
   _userHover?: number;
   _userDuration?: number;
   _dataCutoff: number;
