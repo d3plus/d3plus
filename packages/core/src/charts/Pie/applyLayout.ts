@@ -32,9 +32,16 @@ export const applyPieLayout: TransformStage = ({viz}) => {
       i?: number;
     })[];
 
+  const total = pieData.reduce((sum, d) => sum + d.value, 0);
   pieData.forEach((d, i) => {
     d.__d3plus__ = true;
     d.i = i;
+    // The tooltip binds the unwrapped row, so the slice's share of the total
+    // must live on the row for the tooltip accessor to read it. Mirrors
+    // Treemap stamping `share` onto `d.data`.
+    const share = total ? d.value / total : 0;
+    (d as {share?: number}).share = share;
+    (d.data as DataPoint & {share?: number}).share = share;
   });
 
   const innerRadius = viz.schema.innerRadius as

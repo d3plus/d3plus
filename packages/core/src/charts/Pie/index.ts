@@ -7,6 +7,7 @@
 */
 
 import {pie as d3Pie} from "d3-shape";
+import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
@@ -71,6 +72,19 @@ export const pieDef: DataDrivenChartDefinition = {
           return `${++pieData[i].index}. ${viz._drawLabel(d, i)}, ${(viz.schema.value as (d: DataPoint, i: number) => number)(d, i)}.`;
         },
         Path: {labelConfig: {fontResize: true}},
+      }),
+    },
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        tbody: [
+          [
+            () => viz.schema.translate("Share"),
+            (_d: DataPoint, _i: number, x: Record<string, unknown>) =>
+              `${formatAbbreviate((x.share as number) * 100, viz.schema.locale)}%`,
+          ],
+        ],
       }),
     },
     {
