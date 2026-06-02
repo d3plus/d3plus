@@ -333,8 +333,11 @@ export function configureTickShape(axis: Axis, tickData: any[]): void {
     .duration(axis.schema.duration)
     .labelConfig({
       ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
+      // The label TextBox invokes this with the laid-out label record, whose
+      // tick datum (carrying `rotate`) sits on `.data`; fall back to the raw
+      // datum for any path that passes it directly.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      rotate: (d: any) => (d.rotate ? -90 : 0),
+      rotate: (d: any) => ((d.rotate ?? (d.data && d.data.rotate)) ? -90 : 0),
     });
   // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
   // No `g.ticks` DOM wrapper needed in the detached compute.

@@ -16,7 +16,7 @@ type AxisLike = {
   height: (h: number) => AxisLike;
   width: (w: number) => AxisLike;
   maxSize: (n: number) => AxisLike;
-  labelRotation: (b: boolean) => AxisLike;
+  labelRotation: (b: boolean | undefined) => AxisLike;
   config: (c: unknown) => AxisLike;
   measure: () => AxisLike;
   renderMode: (m: string) => AxisLike;
@@ -39,7 +39,10 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
   if (!rowValues.length || !columnValues.length) return {shapeData: []};
 
   const {width, height} = chartBounds(viz);
-  const columnRotation = width / columnValues.length < 120;
+  // Force rotation when columns are too narrow for horizontal labels; otherwise
+  // pass `undefined` so the axis auto-rotates whenever its labels would overlap
+  // or truncate (forcing `false` here suppressed that and dropped long labels).
+  const columnRotation = width / columnValues.length < 120 || undefined;
 
   viz._padding = {top: 0, right: 0, bottom: 0, left: 0};
 
@@ -58,11 +61,15 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
   const rowPadding = rowAxis.outerBounds().width;
   viz._padding.left += rowPadding;
 
+  // `width` from chartBounds already excludes both margins, so the right edge
+  // in absolute svg coords is `_margin.left + width` — re-subtracting
+  // `_margin.right` here would squeeze the column band scale (and the cells
+  // that share it) by the legend's reserved width.
   columnAxis
     .domain(columnValues)
     .range([
       viz._margin.left + viz._padding.left,
-      width - viz._margin.right + viz._padding.right,
+      viz._margin.left + width - viz._padding.right,
     ])
     .height(height)
     .maxSize(height / 4)
@@ -96,7 +103,7 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .select(undefined as unknown as HTMLElement)
     .range([
       viz._margin.left + viz._padding.left + rowAxis.padding(),
-      width - viz._margin.right + viz._padding.right,
+      viz._margin.left + width - viz._padding.right,
     ])
     .maxSize(columnPadding)
     .render();
