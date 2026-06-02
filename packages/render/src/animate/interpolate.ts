@@ -173,6 +173,13 @@ export function collapse(node: SceneNode): SceneNode {
     }
     case "circle":
       return {...node, paint, r: 0};
+    case "path":
+      // A Sankey link encodes its flow magnitude as stroke-width, so it grows
+      // that thickness in on enter (and drains it on exit) from 0, keeping its
+      // own opacity — rather than the default opacity fade other paths use.
+      if (node.shapeType === "Link")
+        return {...node, paint: {...node.paint, strokeWidth: 0}};
+      return {...node, paint} as SceneNode;
     case "group":
       return {...(node as GroupNode), paint};
     default:

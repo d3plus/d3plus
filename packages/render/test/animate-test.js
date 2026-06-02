@@ -36,6 +36,24 @@ it("collapse grows bars from their baseline, not their center", () => {
   assert.strictEqual(right.height, 40, "horizontal bar keeps its full breadth (height)");
 });
 
+it("collapse grows a Sankey link's stroke-width from 0, keeping opacity", () => {
+  const link = collapse({
+    type: "path",
+    shapeType: "Link",
+    key: "l",
+    d: "M0,0L10,10",
+    paint: {stroke: "#000", strokeOpacity: 0.5, strokeWidth: 12},
+  });
+  assert.strictEqual(link.paint.strokeWidth, 0, "link stroke-width collapses to 0");
+  assert.strictEqual(link.paint.strokeOpacity, 0.5, "link keeps its stroke-opacity");
+  assert.strictEqual(link.paint.opacity, undefined, "link does not force an opacity fade");
+
+  // A plain (non-link) path still fades via opacity only.
+  const plain = collapse({type: "path", key: "p", d: "M0,0L10,10", paint: {strokeWidth: 4}});
+  assert.strictEqual(plain.paint.opacity, 0, "plain path fades opacity to 0");
+  assert.strictEqual(plain.paint.strokeWidth, 4, "plain path keeps its stroke-width");
+});
+
 it("interpolateNode interpolates numeric geometry and color", () => {
   const interp = interpolateNode(
     {type: "rect", key: "a", x: 0, y: 0, width: 0, height: 0, paint: {fill: "#000000"}},
