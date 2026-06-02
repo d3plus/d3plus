@@ -7,6 +7,7 @@
       "endAngle": 1.984,
       "padAngle": 0,
       "value": 30,
+      "share": 0.316,
       "index": 0
     },
     {
@@ -15,6 +16,7 @@
       "endAngle": 3.439,
       "padAngle": 0,
       "value": 22,
+      "share": 0.232,
       "index": 1
     },
     {
@@ -23,6 +25,7 @@
       "endAngle": 4.63,
       "padAngle": 0,
       "value": 18,
+      "share": 0.189,
       "index": 2
     },
     {
@@ -31,6 +34,7 @@
       "endAngle": 5.622,
       "padAngle": 0,
       "value": 15,
+      "share": 0.158,
       "index": 3
     },
     {
@@ -39,6 +43,7 @@
       "endAngle": 6.283,
       "padAngle": 0,
       "value": 10,
+      "share": 0.105,
       "index": 4
     }
   ]
