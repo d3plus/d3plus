@@ -5,6 +5,7 @@ import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
 import type {GroupNode, HtmlOverlayNode, Scene, SceneNode} from "../scene.js";
+import {parseGradient} from "../scene.js";
 import {
   applyOverlayToElement,
   createOverlayHost,
@@ -47,6 +48,9 @@ export default class SvgRenderer implements Renderer {
   private _scene?: Scene;
   private _index = new Map<string, SceneNode>();
   private _textureDefs = new Map<string, {url: () => string}>();
+  /** Cache of `gradient:<json>` token → `url(#id)`, materialized in <defs>. */
+  private _gradientDefs = new Map<string, string>();
+  private _gradientSeq = 0;
   private _handlers = new Set<(event: SceneEvent) => void>();
   private _domListeners: Record<string, (e: Event) => void> = {};
   private _listening = false;
@@ -152,12 +156,54 @@ export default class SvgRenderer implements Renderer {
     return {finished, cancel};
   }
 
+  /** Lazily creates (once) and returns the shared <defs> element. */
+  private _ensureDefs(): SVGDefsElement | undefined {
+    if (this._defs || !this._svg) return this._defs;
+    const defs = document.createElementNS(SVG_NS, "defs") as SVGDefsElement;
+    this._svg.insertBefore(defs, this._svg.firstChild);
+    this._defs = defs;
+    return defs;
+  }
+
+  /**
+      Materializes a `gradient:<json>` token into a <linearGradient> under
+      <defs>, cached by token string, and returns its `url(#id)`. Coordinates
+      are objectBoundingBox units, so the gradient scales to whatever node
+      references it (no per-node geometry needed).
+  */
+  private _resolveGradient(fill: string): string {
+    const cached = this._gradientDefs.get(fill);
+    if (cached) return cached;
+    const g = parseGradient(fill);
+    const defs = this._ensureDefs();
+    if (!g || !defs) return "none";
+    const id = `d3plus-gradient-${++this._gradientSeq}`;
+    const lg = document.createElementNS(SVG_NS, "linearGradient");
+    lg.setAttribute("id", id);
+    lg.setAttribute("x1", String(g.from[0]));
+    lg.setAttribute("y1", String(g.from[1]));
+    lg.setAttribute("x2", String(g.to[0]));
+    lg.setAttribute("y2", String(g.to[1]));
+    for (const {offset, color} of g.stops) {
+      const stop = document.createElementNS(SVG_NS, "stop");
+      stop.setAttribute("offset", String(offset));
+      stop.setAttribute("stop-color", color);
+      lg.appendChild(stop);
+    }
+    defs.appendChild(lg);
+    const url = `url(#${id})`;
+    this._gradientDefs.set(fill, url);
+    return url;
+  }
+
   /**
       Resolves a scene fill to an SVG paint value. A "pattern:<json>" token is
-      materialized into a textures.js <pattern> in the svg, cached by its key.
+      materialized into a textures.js <pattern> in the svg, cached by its key;
+      a "gradient:<json>" token into a <linearGradient> in <defs>.
   */
   private _resolveFill(fill?: string): string | null {
     if (fill == null) return null;
+    if (fill.startsWith("gradient:")) return this._resolveGradient(fill);
     if (!fill.startsWith("pattern:") || !this._svg) return fill;
     const key = fill.slice("pattern:".length);
     let def = this._textureDefs.get(key);
@@ -495,6 +541,8 @@ export default class SvgRenderer implements Renderer {
     this._scene = undefined;
     this._index = new Map();
     this._textureDefs = new Map();
+    this._gradientDefs.clear();
+    this._gradientSeq = 0;
     this._target = undefined;
   }
 }

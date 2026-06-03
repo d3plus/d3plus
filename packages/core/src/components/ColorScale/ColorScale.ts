@@ -74,6 +74,8 @@ export default class ColorScale extends BaseClass {
   _legendClass: Legend;
   _outerBounds: Record<string, number>;
   _rectClass: Rect;
+  /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
+  _gradientFill?: string;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -234,10 +236,10 @@ export default class ColorScale extends BaseClass {
       colorScale feature on `g.d3plus-viz-colorScale`) is read off `_select` so
       the content lands at its on-screen position.
 
-      A smooth (non-bucketed) gradient paints its Rect with a `url(#gradient-…)`
-      fill backed by a <defs> on the off-stage compute svg; that def is not part
-      of the scene, so smooth gradients don't paint through the scene renderer.
-      Bucketed gradients and the discrete variant use concrete fills.
+      A smooth (non-bucketed) gradient paints its Rect with a `gradient:<json>`
+      fill token (see renderGradientStops); the backend materializes it into a
+      `<linearGradient>` (SVG) or a CanvasGradient (Canvas). Bucketed gradients
+      and the discrete variant use concrete per-bucket fills.
   */
   toScene(): GroupNode {
     const children: SceneNode[] = [];

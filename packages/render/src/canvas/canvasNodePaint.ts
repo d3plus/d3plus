@@ -1,6 +1,7 @@
 import {area as d3area, line as d3line} from "d3-shape";
 
 import {curveFor} from "../paths.js";
+import {parseGradient} from "../scene.js";
 import type {AreaNode, LineNode, SceneNode} from "../scene.js";
 
 type Ctx = CanvasRenderingContext2D;
@@ -45,16 +46,28 @@ export function pathFor(ctx: Ctx, node: SceneNode): void {
 /**
     Degrades a fill to a solid color the Canvas backend can paint. Texture fills
     ("pattern:<json>") fall back to the texture's background/fill color, since
-    textures.js generates SVG patterns the canvas cannot consume.
+    textures.js generates SVG patterns the canvas cannot consume; gradient fills
+    ("gradient:<json>") fall back to the first stop color for contexts that have
+    no bounding box to scale a CanvasGradient against (stroke, text). The fill of
+    a bbox-bearing node is painted as a real gradient by {@link paint}.
 */
-// Pattern-token resolution cache. Without it, `solidFill` runs
-// JSON.parse on every fill/stroke/text-fill call for every textured
-// node every paint — a texture-heavy chart pays the parse cost every
+// Token-resolution cache. Without it, `solidFill` runs JSON.parse on
+// every fill/stroke/text-fill call for every tokenized node every
+// paint — a texture/gradient-heavy chart pays the parse cost every
 // frame. SvgRenderer caches via `_textureDefs`; this is the canvas
 // equivalent.
 const _solidFillCache = new Map<string, string>();
 export function solidFill(fill?: string): string | undefined {
-  if (!fill || !fill.startsWith("pattern:")) return fill;
+  if (!fill) return fill;
+  if (fill.startsWith("gradient:")) {
+    const cached = _solidFillCache.get(fill);
+    if (cached !== undefined) return cached;
+    const g = parseGradient(fill);
+    const resolved = g?.stops[0]?.color ?? "#ccc";
+    _solidFillCache.set(fill, resolved);
+    return resolved;
+  }
+  if (!fill.startsWith("pattern:")) return fill;
   const cached = _solidFillCache.get(fill);
   if (cached !== undefined) return cached;
   let resolved = "#ccc";
@@ -68,13 +81,51 @@ export function solidFill(fill?: string): string | undefined {
   return resolved;
 }
 
+/** The 0–1 objectBoundingBox anchor box for nodes a CanvasGradient can scale to. */
+function gradientBox(
+  node: SceneNode,
+): {x: number; y: number; w: number; h: number} | null {
+  if (node.type === "rect")
+    return {x: node.x, y: node.y, w: node.width, h: node.height};
+  if (node.type === "circle")
+    return {x: node.cx - node.r, y: node.cy - node.r, w: node.r * 2, h: node.r * 2};
+  return null;
+}
+
+/**
+    Resolves a node's fill to a Canvas-paintable style. A `gradient:<json>` token
+    on a node with a bounding box becomes a CanvasGradient scaled to that box;
+    everything else degrades to a solid color via {@link solidFill}.
+*/
+function canvasFillStyle(
+  ctx: Ctx,
+  node: SceneNode,
+  fill: string,
+): string | CanvasGradient {
+  if (fill.startsWith("gradient:")) {
+    const g = parseGradient(fill);
+    const box = g && gradientBox(node);
+    if (g && box) {
+      const grad = ctx.createLinearGradient(
+        box.x + g.from[0] * box.w,
+        box.y + g.from[1] * box.h,
+        box.x + g.to[0] * box.w,
+        box.y + g.to[1] * box.h,
+      );
+      for (const {offset, color} of g.stops)
+        grad.addColorStop(Math.max(0, Math.min(1, offset)), color);
+      return grad;
+    }
+  }
+  return solidFill(fill) ?? "none";
+}
+
 /** Fills and/or strokes the context's current path (or a Path2D) per the node's paint. */
 export function paint(ctx: Ctx, node: SceneNode, alpha: number, path?: Path2D): void {
   const p = node.paint || {};
-  const fill = solidFill(p.fill);
-  if (fill && fill !== "none") {
+  if (p.fill && p.fill !== "none") {
     ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
-    ctx.fillStyle = fill;
+    ctx.fillStyle = canvasFillStyle(ctx, node, p.fill);
     if (path) ctx.fill(path);
     else ctx.fill();
   }

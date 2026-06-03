@@ -3,6 +3,9 @@ import {scaleLinear} from "d3-scale";
 import {assign, elem, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
+import {gradientToken} from "@d3plus/render";
+import type {SceneGradient} from "@d3plus/render";
+
 import type {DataPoint} from "@d3plus/data";
 
 import type ColorScale from "./ColorScale.js";
@@ -194,7 +197,13 @@ function renderGradientAxes(
   return {axisBounds, axisScale, scaleRange};
 }
 
-/** Builds the linearGradient <defs> and stops for the smooth-gradient variant. */
+/**
+    Computes the smooth-gradient spec and stashes its serializable fill token on
+    `cs._gradientFill`. Encodes the gradient vector in objectBoundingBox units
+    (0–1) so a backend scales it to the painted Rect: horizontal runs left→right
+    `[0,0]→[1,0]`, vertical runs bottom→top `[0,1]→[0,0]` — matching the
+    direction the SVG `<linearGradient>` attrs used previously.
+*/
 function renderGradientStops(
   cs: ColorScale,
   compute: ColorScaleCompute,
@@ -202,38 +211,31 @@ function renderGradientStops(
   axisScale: any,
   scaleRange: unknown[],
 ): void {
-  const {horizontal, x, y, colors} = compute;
+  const {horizontal, colors} = compute;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let defs: any = cs._group.selectAll("defs").data([0]);
-  const defsEnter = defs.enter().append("defs");
-  defsEnter.append("linearGradient").attr("id", `gradient-${cs._uuid}`);
-  defs = defsEnter.merge(defs);
-  defs
-    .select("linearGradient")
-    .attr(`${x}1`, horizontal ? "0%" : "100%")
-    .attr(`${x}2`, horizontal ? "100%" : "0%")
-    .attr(`${y}1`, "0%")
-    .attr(`${y}2`, "0%");
-  const stops = defs
-    .select("linearGradient")
-    .selectAll("stop")
-    .data(colors);
   const scaleDomain = cs._colorScale.domain();
   const offsetScale = scaleLinear()
     .domain(scaleRange as number[])
     .range(horizontal ? [0, 100] : [100, 0]);
 
-  stops
-    .enter()
-    .append("stop")
-    .merge(stops as never)
-    .attr(
-      "offset",
-      (_d: unknown, i: number) =>
-        `${i <= scaleDomain.length - 1 ? offsetScale(axisScale(scaleDomain[i])) : 100}%`,
-    )
-    .attr("stop-color", String);
+  const stops = (colors as string[])
+    .map((color, i) => ({
+      offset:
+        (i <= scaleDomain.length - 1
+          ? (offsetScale(axisScale(scaleDomain[i])) as number)
+          : 100) / 100,
+      color: String(color),
+    }))
+    .sort((a, b) => a.offset - b.offset);
+
+  const spec: SceneGradient = {
+    type: "linear",
+    from: horizontal ? [0, 0] : [0, 1],
+    to: horizontal ? [1, 0] : [0, 0],
+    stops,
+  };
+
+  cs._gradientFill = gradientToken(spec);
 }
 
 /** Renders the color rect(s) and returns the resolved rect config. */
@@ -259,7 +261,7 @@ function renderGradientRect(
       duration: cs.schema.duration,
       fill: ticks
         ? (d: number) => cs._colorScale(d)
-        : `url(#gradient-${cs._uuid})`,
+        : cs._gradientFill,
       [x]: ticks
         ? (d: number, i: number) =>
             axisScale(d) +

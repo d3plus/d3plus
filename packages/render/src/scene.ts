@@ -15,7 +15,12 @@ export type CurveName = string;
     which is what lets a backend paint without re-running data accessors.
 */
 export interface Paint {
-  /** Resolved color, or "url(#…)" / "pattern:<key>" for textures. */
+  /**
+      Resolved color, or a serializable special-fill token a backend
+      materializes: `pattern:<json>` for a textures.js texture, or
+      `gradient:<json>` for a {@link SceneGradient}. Tokens keep the scene
+      free of `url(#…)` references that only resolve against one SVG document.
+  */
   fill?: string;
   fillOpacity?: number;
   stroke?: string;
@@ -42,6 +47,41 @@ export interface Transform {
   /** Rotation in degrees. */
   rotate?: number;
   rotateAnchor?: [number, number];
+}
+
+/**
+    @interface SceneGradient
+    A resolved, serializable gradient fill, encoded into `Paint.fill` as the
+    token `gradient:<json>` (the same scheme as the `pattern:<json>` texture
+    token). Coordinates are in objectBoundingBox units (0–1), so a backend
+    scales the gradient to the painted node's bounds: the SVG backend maps
+    them straight onto a `<linearGradient>` (whose default `gradientUnits` is
+    already objectBoundingBox); the Canvas backend multiplies them by the
+    node's bounding box to build a `CanvasGradient`.
+*/
+export interface SceneGradient {
+  type: "linear";
+  /** Start point in objectBoundingBox units (0–1). */
+  from: [number, number];
+  /** End point in objectBoundingBox units (0–1). */
+  to: [number, number];
+  /** Color stops; `offset` in 0–1, sorted ascending. */
+  stops: {offset: number; color: string}[];
+}
+
+/** Encodes a {@link SceneGradient} as a `gradient:<json>` `Paint.fill` token. */
+export function gradientToken(g: SceneGradient): string {
+  return `gradient:${JSON.stringify(g)}`;
+}
+
+/** Decodes a `gradient:<json>` token, or returns null if `fill` is not one. */
+export function parseGradient(fill?: string): SceneGradient | null {
+  if (!fill || !fill.startsWith("gradient:")) return null;
+  try {
+    return JSON.parse(fill.slice("gradient:".length)) as SceneGradient;
+  } catch {
+    return null;
+  }
 }
 
 /**

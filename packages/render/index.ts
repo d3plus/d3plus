@@ -20,8 +20,11 @@ export type {
   GroupNode,
   HtmlOverlayNode,
   SceneNode,
+  SceneGradient,
   Scene,
 } from "./src/scene.js";
+
+export {gradientToken, parseGradient} from "./src/scene.js";
 
 export type {
   RenderTarget,
