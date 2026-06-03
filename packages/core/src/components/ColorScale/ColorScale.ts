@@ -8,6 +8,7 @@ import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {DataPoint} from "@d3plus/data";
+import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 
 import {Axis, TextBox} from "../index.js";
 import {Rect} from "../../shapes/index.js";
@@ -223,6 +224,65 @@ export default class ColorScale extends BaseClass {
     if (callback) setTimeout(callback, this.schema.duration + 100);
 
     return this;
+  }
+
+  /**
+      Produces a backend-agnostic scene graph for this ColorScale with no DOM
+      dependency. The discrete variant (jenks/buckets/quantile) delegates to the
+      internal Legend's toScene(); the gradient variant composes the Rect, Axis,
+      and label TextBox scenes. The scaleGroup's translate (set by the chart's
+      colorScale feature on `g.d3plus-viz-colorScale`) is read off `_select` so
+      the content lands at its on-screen position.
+
+      A smooth (non-bucketed) gradient paints its Rect with a `url(#gradient-…)`
+      fill backed by a <defs> on the off-stage compute svg; that def is not part
+      of the scene, so smooth gradients don't paint through the scene renderer.
+      Bucketed gradients and the discrete variant use concrete fills.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+    const gradient =
+      this.schema.bucketAxis ||
+      !["buckets", "jenks", "quantile"].includes(this.schema.scale);
+
+    const pushScene = (
+      cls: {toScene?: () => GroupNode} | undefined,
+    ): void => {
+      if (cls && typeof cls.toScene === "function") {
+        const s = cls.toScene();
+        if (s) children.push(s);
+      }
+    };
+
+    if (gradient) {
+      pushScene(this._rectClass as unknown as {toScene?: () => GroupNode});
+      pushScene(this._axisClass as unknown as {toScene?: () => GroupNode});
+      pushScene(this._labelClass as unknown as {toScene?: () => GroupNode});
+    } else {
+      pushScene(this._legendClass as unknown as {toScene?: () => GroupNode});
+    }
+
+    // Preserve the placement of the scaleGroup the chart's colorScale feature
+    // positioned (translate on `g.d3plus-viz-colorScale`).
+    let transform: Transform | undefined;
+    const node =
+      this._select && typeof this._select.node === "function"
+        ? (this._select.node() as Element | null)
+        : null;
+    if (node && typeof node.getAttribute === "function") {
+      const attr = node.getAttribute("transform");
+      if (attr) {
+        const m = /translate\(\s*([-\d.eE]+)[\s,]+([-\d.eE]+)/.exec(attr);
+        if (m) transform = {x: Number(m[1]), y: Number(m[2])};
+      }
+    }
+
+    return {
+      type: "group",
+      key: `ColorScale-${this._uuid.slice(0, 8)}`,
+      ...(transform ? {transform} : {}),
+      children,
+    };
   }
 
   /**
