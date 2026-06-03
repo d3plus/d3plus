@@ -133,6 +133,13 @@ export interface NodeBase {
       metadata only — backends never read it for drawing.
   */
   shapeType?: string;
+  /**
+      The chart-level interactive component this node belongs to ("legend"),
+      stamped by Viz.toScene so the pointer bridge can route component-scoped
+      handlers on every backend — including Canvas, where there is no per-shape
+      DOM to walk. Interaction metadata only — backends never read it for drawing.
+  */
+  interactionGroup?: string;
   paint?: Paint;
   transform?: Transform;
   /** When false, the node is ignored by hit-testing (= SVG pointer-events: none). */

@@ -102,9 +102,11 @@ it("bridge does NOT fire shape-class handlers for legend nodes", () => {
   chart.on("click.Rect", () => fired.push("Rect"));
 
   const handler = bridgeHandler(chart);
-  // Legend swatches are Rect shapes; their stamped type must not masquerade
-  // as a chart-shape handler.
-  const legendNode = {key: "viz-legend-swatch-A", shapeType: "Rect", datum: {id: "A"}, index: 0};
+  // Legend swatches are Rect shapes keyed by fill color (not "legend"), so the
+  // bridge can't classify them by key. Viz.toScene stamps `interactionGroup`
+  // on the legend subtree; the bridge reads that so the swatch routes to legend
+  // handlers (on Canvas too) instead of masquerading as a chart-shape handler.
+  const legendNode = {key: "#c92a2a_1_", shapeType: "Rect", interactionGroup: "legend", datum: {id: "A"}, index: 0};
   handler(syntheticEvent("click", legendNode));
 
   assert.ok(fired.includes("legend"), "legend handler fires");

@@ -14,6 +14,17 @@ import {vizPreDraw} from "../pipeline/vizPreDraw.js";
 import type {VizInstance} from "./vizTypes.js";
 
 /**
+    Stamps `interactionGroup` onto a component's scene subtree so the pointer
+    bridge can route its nodes to component-scoped handlers (e.g. legend) on
+    every backend — including Canvas, where there is no per-shape DOM to walk.
+*/
+function tagInteractionGroup(node: SceneNode, group: string): void {
+  (node as {interactionGroup?: string}).interactionGroup = group;
+  const kids = (node as {children?: SceneNode[]}).children;
+  if (kids) for (const child of kids) tagInteractionGroup(child, group);
+}
+
+/**
     Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
 */
 export default class Viz extends VizBase {
@@ -116,10 +127,14 @@ export default class Viz extends VizBase {
         typeof comp._select.node === "function" &&
         comp._select.node()
       ) {
+        const compScene = comp.toScene();
+        // Tag the legend subtree so its swatches route to legend handlers via
+        // the node stamp (renderer-independent), not just SVG DOM ancestry.
+        if (name === "legend") tagInteractionGroup(compScene, "legend");
         children.push({
           type: "group",
           key: `viz-${name}`,
-          children: [comp.toScene()],
+          children: [compScene],
         });
       }
     }
@@ -348,10 +363,15 @@ export default class Viz extends VizBase {
         // dispatch to shape handlers.
         const target =
           event.nativeEvent && (event.nativeEvent as Event).target;
+        // Prefer the node's stamped interaction group (set by Viz.toScene), so
+        // legend swatches route to legend handlers on Canvas too — where the
+        // single canvas element has no per-shape DOM to walk. Fall back to SVG
+        // DOM ancestry for nodes the stamp didn't reach.
         const isLegendNode =
-          target && typeof (target as Element).closest === "function"
+          nodeAny.interactionGroup === "legend" ||
+          (target && typeof (target as Element).closest === "function"
             ? !!(target as Element).closest('[data-key="viz-legend"]')
-            : false;
+            : false);
         const suffix = isLegendNode ? "legend" : "shape";
         const handlerKey = `${event.type}.${suffix}`;
         // Resolve the source datum + index. `pick.datum` is the raw
