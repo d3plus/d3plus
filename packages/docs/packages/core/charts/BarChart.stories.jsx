@@ -337,3 +337,97 @@ PopulationPyramid.args = {
   yConfig: {barConfig: {stroke: "transparent"}, ticks: []}
 };
 PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}};
+const featureData = [
+  {region: "North", quarter: "Q1", revenue: 35},
+  {region: "North", quarter: "Q2", revenue: 50},
+  {region: "North", quarter: "Q3", revenue: 42},
+  {region: "North", quarter: "Q4", revenue: 47},
+  {region: "South", quarter: "Q1", revenue: 20},
+  {region: "South", quarter: "Q2", revenue: 30},
+  {region: "South", quarter: "Q3", revenue: 38},
+  {region: "South", quarter: "Q4", revenue: 33}
+];
+
+// Custom render: `renderer` is not a control, so merge it into config directly.
+export const RenderingToCanvas = (args) =>
+  <BarChart config={{...configify(args, argTypes), renderer: "canvas"}} />;
+RenderingToCanvas.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue"
+};
+RenderingToCanvas.parameters = {
+  controls: {include: ["renderer"]},
+  docs: {description: {story: "Set `renderer: \"canvas\"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default."}}
+};
+
+// Custom render: `on` is not a control, so merge the handlers into config directly.
+export const ClickAndHoverEvents = (args) =>
+  <BarChart config={{
+    ...configify(args, argTypes),
+    on: {
+      "click.shape": funcify(
+        d => console.log("clicked bar:", d),
+        'd => console.log("clicked bar:", d)'
+      ),
+      "mouseenter.shape": funcify(
+        d => console.log("hovered bar:", d),
+        'd => console.log("hovered bar:", d)'
+      )
+    }
+  }} />;
+ClickAndHoverEvents.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue"
+};
+ClickAndHoverEvents.parameters = {
+  controls: {include: ["on"]},
+  docs: {description: {story: "Register pointer handlers via `on`. Open the browser console, then click or hover a bar. Event names mirror d3-selection; the `.shape` namespace scopes the handler to data marks (use `.legend` for legend entries, or a shape class like `.Bar`). The handler receives the datum."}}
+};
+
+export const CustomTooltip = Template.bind({});
+CustomTooltip.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  tooltipConfig: {
+    title: funcify(d => `${d.region} — ${d.quarter}`, "d => `${d.region} — ${d.quarter}`"),
+    tbody: [
+      ["Region", funcify(d => d.region, "d => d.region")],
+      ["Revenue", funcify(d => `$${d.revenue}M`, "d => `$${d.revenue}M`")]
+    ]
+  }
+};
+CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}};
+
+export const DownloadButton = Template.bind({});
+DownloadButton.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  downloadButton: true,
+  downloadConfig: {type: "png"}
+};
+DownloadButton.parameters = {
+  controls: {include: ["downloadButton", "downloadConfig", "downloadPosition"]},
+  docs: {description: {story: "Enable a built-in download button with `downloadButton: true`. `downloadConfig.type` accepts `\"png\"`, `\"jpg\"`, or `\"svg\"`."}}
+};
+
+// Custom render: `locale` is not a control, so merge it into config directly.
+export const Localized = (args) =>
+  <BarChart config={{...configify(args, argTypes), locale: "ar-SA"}} />;
+Localized.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue"
+};
+Localized.parameters = {
+  controls: {include: ["locale"]},
+  docs: {description: {story: "Pass a `locale` (here `\"ar-SA\"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`."}}
+};

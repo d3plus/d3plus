@@ -6,4 +6,87 @@ import React from "react";
 import {BaseClass as D3plusBaseClass} from "@d3plus/react";
 export const BaseClass = ({ config }) => <D3plusBaseClass config={config} />;
 
-export const argTypes = {};
+export const argTypes = {
+  config: {
+    control: {},
+    description: "Methods that correspond to the key/value pairs and returns this class.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "d3plusconfig"
+    }
+  },
+  locale: {
+    control: {
+      type: "object"
+    },
+    description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "string | object"
+    }
+  },
+  on: {
+    control: {
+      type: "text"
+    },
+    description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "string"
+    }
+  },
+  parent: {
+    control: {},
+    description: "Parent config used by the wrapper.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "unknown"
+    }
+  },
+  shapeConfig: {
+    control: {},
+    description: "Configuration object with key/value pairs applied as method calls on each shape.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "d3plusconfig"
+    }
+  },
+  translate: {
+    control: {},
+    description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "function"
+    }
+  }
+};

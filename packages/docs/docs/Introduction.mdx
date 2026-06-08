@@ -53,6 +53,23 @@ D3plus ships with a wide variety of chart types, all accessible through a simple
 Explore each chart type in the **Core > Charts** section of the sidebar.
 
 
+## New in v4
+
+D3plus v4 compiles each visualization to a serializable scene graph painted by a
+pluggable backend. **SVG** is the default; an opt-in **Canvas** backend
+(`renderer: "canvas"`) handles dense, high-shape-count charts. The public API is
+unchanged for typical usage.
+
+See the **Guides** in the sidebar to get oriented:
+
+- **Migration (v3 → v4)** — what changed and what (rarely) needs updating
+- **Configuration** — the config object, accessors, `RESET`, shared defaults
+- **Rendering** — SVG vs. Canvas backends and lifecycle
+- **Data** — accessors, loading from a URL, and `@d3plus/data` transforms
+- **Interactivity** — tooltips, events, legend, timeline, zoom
+- **Theming** — colors, color scales, textures, fonts, localization
+
+
 ## Getting Started (React)
 
 Install the React wrapper package:

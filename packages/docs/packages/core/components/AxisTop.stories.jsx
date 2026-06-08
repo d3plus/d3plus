@@ -25,3 +25,12 @@ const Template = (args) => <AxisTop config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  domain: [0, 100],
+  width: 600,
+  height: 120,
+  title: "Top Axis"
+};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}};

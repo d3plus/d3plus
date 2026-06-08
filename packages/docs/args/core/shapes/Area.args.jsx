@@ -22,17 +22,295 @@ export const argTypes = assign(
    */
   
   {
-    render: {
+    active: {
       control: {},
-      description: "Draws the area polygons.",
+      description: "The active callback function for highlighting shapes.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: false,
+        required: true,
+        summary: "function | null"
+      }
+    },
+    activeStyle: {
+      control: {},
+      description: "The style to apply to active shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    config: {
+      control: {},
+      description: "Methods that correspond to the key/value pairs and returns this class.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    data: {
+      control: {},
+      description: "The data array used to create shapes. A shape will be drawn for each object in the array.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    hover: {
+      control: {},
+      description: "The hover callback function for highlighting shapes on mouseover.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function | null"
+      }
+    },
+    hoverStyle: {
+      control: {},
+      description: "The style to apply to hovered shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    labelConfig: {
+      control: {},
+      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
+    select: {
+      control: {
+        type: "text"
+      },
+      description: "The SVG container element as a d3 selector or DOM element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | htmlelement | svgelement | null"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    sort: {
+      control: {},
+      description: "A comparator function used to sort shapes for layering order.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function | null"
+      }
+    },
+    textureDefault: {
+      control: {},
+      description: "A series of global texture methods to be used for all textures (ie. `{stroke: \"darkorange\", strokeWidth: 2}`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
         summary: "function"
+      }
+    },
+    x: {
+      control: {
+        type: "number"
+      },
+      description: "The x position accessor. Also sets x0 to the same value.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn"
+      }
+    },
+    x0: {
+      control: {
+        type: "number"
+      },
+      description: "The x0 (left edge) position accessor for the area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn"
+      }
+    },
+    x1: {
+      control: {
+        type: "number"
+      },
+      description: "The x1 (right edge) position accessor for the area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn | null"
+      }
+    },
+    y: {
+      control: {
+        type: "number"
+      },
+      description: "The y position accessor. Also sets y0 to the same value.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn"
+      }
+    },
+    y0: {
+      control: {
+        type: "number"
+      },
+      description: "The y0 (top edge) position accessor for the area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn"
+      }
+    },
+    y1: {
+      control: {
+        type: "number"
+      },
+      description: "The y1 (bottom edge) position accessor for the area.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "number | accessorfn | null"
       }
     }
   }

@@ -1,0 +1,103 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Configuration" />
+
+# Configuration
+
+Every D3plus visualization is configured the same way: each setting is a method
+on the chart, and that same name is also a key in the `config` object. You can
+mix and match the two styles.
+
+## The config object vs. method chaining
+
+In **vanilla JS**, chain setters and finish with `.render()`:
+
+```js
+new d3plus.Treemap()
+  .data([{id: "alpha", value: 29}, {id: "beta", value: 10}])
+  .groupBy("id")
+  .size("value")
+  .render();
+```
+
+…or pass everything at once with `.config()`:
+
+```js
+new d3plus.Treemap()
+  .config({
+    data: [{id: "alpha", value: 29}, {id: "beta", value: 10}],
+    groupBy: "id",
+    size: "value"
+  })
+  .render();
+```
+
+In **React**, you always pass the `config` object:
+
+```jsx
+<Treemap config={{
+  data: [{id: "alpha", value: 29}, {id: "beta", value: 10}],
+  groupBy: "id",
+  size: "value"
+}} />
+```
+
+Each control in the Storybook sidebar for a chart corresponds one-to-one with a
+config key, so the **Controls** panel is the fastest way to discover what a
+chart accepts.
+
+## Accessors: values vs. functions
+
+Most config keys accept either a **constant**, a **property name** (string), or
+an **accessor function** that receives the datum and its index:
+
+```js
+.x("year")                          // read the "year" property
+.x(d => new Date(d.year, 0, 1))     // derive a value per datum
+.shapeConfig({fill: "#cc0000"})     // a constant for every shape
+.shapeConfig({fill: d => d.color})  // per-datum
+```
+
+## The `RESET` token
+
+Pass the exported `RESET` token to restore any property to its built-in default
+(useful for clearing a value you set earlier):
+
+```js
+import {RESET} from "@d3plus/core";
+
+chart.color(RESET).render();
+```
+
+## Shared defaults with `D3plusContext` (React)
+
+Wrap your app in `D3plusContext.Provider` to set defaults for **every**
+visualization. Per-component `config` props override globals key-by-key via a
+deep merge:
+
+```jsx
+import {D3plusContext} from "@d3plus/react";
+
+const globalConfig = {
+  fontFamily: "Inter",
+  timeline: false
+};
+
+<D3plusContext.Provider value={globalConfig}>
+  <App />
+</D3plusContext.Provider>
+```
+
+## Re-rendering in React
+
+The wrapper re-renders when the `config` prop changes (functions are compared by
+source). To force a redraw on every render cycle — e.g. when an external value
+the chart reads can't be expressed in `config` — use the top-level `forceUpdate`
+prop:
+
+```jsx
+<Treemap forceUpdate config={config} />
+```
+
+> **Migrating from v3?** `forceUpdate` moved out of `config` and is now a
+> top-level prop. See **Guides → Migration**.

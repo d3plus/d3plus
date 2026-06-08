@@ -25,3 +25,14 @@ const Template = (args) => <Bar config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {id: "a", x: 130, y: 250, width: 80, height: 100, fill: "#5d6d7e"},
+    {id: "b", x: 250, y: 250, width: 80, height: 160, fill: "#cc4b4b"},
+    {id: "c", x: 370, y: 250, width: 80, height: 70,  fill: "#3a7ca5"}
+  ],
+  x: "x", y: "y", width: "width", height: "height", fill: "fill"
+};
+BasicExample.parameters = {controls: {include: ["width", "height"]}};

@@ -25,3 +25,12 @@ const Template = (args) => <Path config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {id: "wave", d: "M40,200 C140,80 240,320 340,200 S540,80 640,200", fill: "none", stroke: "#cc4b4b", strokeWidth: 4}
+  ],
+  d: "d", fill: "fill", stroke: "stroke", strokeWidth: "strokeWidth"
+};
+BasicExample.parameters = {controls: {include: ["d"]}};

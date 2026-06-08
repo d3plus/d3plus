@@ -21,5 +21,247 @@ export const argTypes = assign(
    * Tooltip-specific methods
    */
   
-  {}
+  {
+    arrowStyle: {
+      control: {},
+      description: "CSS styles applied to the arrow element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    bodyStyle: {
+      control: {},
+      description: "CSS styles applied to the body element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    config: {
+      control: {},
+      description: "Methods that correspond to the key/value pairs and returns this class.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    data: {
+      control: {},
+      defaultValue: "[  ]",
+      description: "The data array used to create tooltips.",
+      table: {
+        defaultValue: {
+          summary: "[  ]"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    footerStyle: {
+      control: {},
+      description: "CSS styles applied to the footer element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent element that scopes the tooltip's portal. Default (unset) uses\nthe global `<div id=\"d3plus-portal\">` appended to `<body>`. When set,\ntooltips mount inside a `.d3plus-tooltip-portal` child of the given\nelement instead — so multiple charts on a page don't fight over the\nglobal portal, and tooltips destroy cleanly when the chart goes away.\n\nViz auto-sets this when rendering: chart.tooltipClass.parent(chart._select.node().parentNode).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "htmlelement | null | undefined"
+      }
+    },
+    position: {
+      control: {
+        type: "text"
+      },
+      description: "The position of each tooltip. Can be an HTMLElement to anchor to, a selection string, or coordinate points in reference to the client viewport (not the overall page).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | array.&lt;number&gt; | htmlelement | function"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    tableStyle: {
+      control: {},
+      description: "CSS styles applied to the table element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    tbodyStyle: {
+      control: {},
+      description: "CSS styles applied to the table body element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    tdStyle: {
+      control: {},
+      description: "An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    theadStyle: {
+      control: {},
+      description: "CSS styles applied to the table head element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    titleStyle: {
+      control: {},
+      description: "CSS styles applied to the title element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    tooltipStyle: {
+      control: {},
+      description: "Overall CSS styles applied to the tooltip container.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    trStyle: {
+      control: {},
+      description: "An object with CSS keys and values to be applied to all <tr> elements inside of each <tbody>.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function"
+      }
+    }
+  }
 );

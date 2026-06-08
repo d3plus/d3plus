@@ -74,7 +74,15 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
     options: {
       storySort: {
         method: "alphabetical",
-        order: ["Introduction", "Installation", "*", "Core", "Advanced"],
+        order: [
+          "Introduction",
+          "Installation",
+          "Guides",
+          ["Migration (v3 → v4)", "Configuration", "Rendering", "Data", "Interactivity", "Theming"],
+          "*",
+          "Core",
+          "Advanced",
+        ],
       },
     },
   },

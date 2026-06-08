@@ -7,6 +7,21 @@ import {Viz as D3plusViz} from "@d3plus/react";
 export const Viz = ({ config }) => <D3plusViz config={config} />;
 
 export const argTypes = {
+  _drawSceneToTarget: {
+    control: {
+      type: "number"
+    },
+    description: "Renders this chart through the @d3plus/render pluggable backends. Called\nautomatically by `render()`. The compute pass draws into `this._select`\n(an auto-created svg INSIDE the user's target div) — that svg is the\noff-stage detached compute svg. SvgRenderer mounts to the user's target\ndiv (the parent), as a sibling to the detached compute svg. The compute\nsvg's children get cleared so only the scene output is visible.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
   active: {
     control: {},
     description: "The active callback function for highlighting shapes.",
@@ -31,21 +46,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "record"
-    }
-  },
-  ariaHidden: {
-    control: {
-      type: "boolean"
-    },
-    description: "The \"aria-hidden\" attribute of the containing SVG element. The default value is \"false\", but if you need to hide the SVG from screen readers set this property to \"true\".",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
     }
   },
   attribution: {
@@ -87,21 +87,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "record"
-    }
-  },
-  cache: {
-    control: {
-      type: "boolean"
-    },
-    description: "Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
     }
   },
   color: {
@@ -192,6 +177,19 @@ export const argTypes = {
       summary: "string | boolean | function"
     }
   },
+  config: {
+    control: {},
+    description: "Methods that correspond to the key/value pairs and returns this class.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "d3plusconfig"
+    }
+  },
   data: {
     control: {
       type: "object"
@@ -205,36 +203,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | array.&lt;datapoint&gt; | object"
-    }
-  },
-  dataCutoff: {
-    control: {
-      type: "number"
-    },
-    description: "If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
-    }
-  },
-  depth: {
-    control: {
-      type: "number"
-    },
-    description: "The current depth of the visualization. The value should correspond with an index in the [groupBy](#groupBy) array.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
     }
   },
   detectResize: {
@@ -297,21 +265,6 @@ export const argTypes = {
       summary: "number"
     }
   },
-  discrete: {
-    control: {
-      type: "text"
-    },
-    description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "string"
-    }
-  },
   downloadButton: {
     control: {
       type: "boolean"
@@ -355,34 +308,6 @@ export const argTypes = {
       summary: "string"
     }
   },
-  duration: {
-    control: {
-      type: "number"
-    },
-    description: "The animation duration in milliseconds.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
-    }
-  },
-  filter: {
-    control: {},
-    description: "A filter function applied to the data before drawing.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "false | function"
-    }
-  },
   fontFamily: {
     control: {
       type: "text"
@@ -411,21 +336,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | function | array.&lt;string | function&gt;"
-    }
-  },
-  height: {
-    control: {
-      type: "number"
-    },
-    description: "The overall height of the visualization in pixels.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
     }
   },
   hiddenColor: {
@@ -559,19 +469,6 @@ export const argTypes = {
       summary: "string | function"
     }
   },
-  legendSort: {
-    control: {},
-    description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "function"
-    }
-  },
   legendTooltip: {
     control: {},
     description: "Configuration object for the legend tooltip.",
@@ -613,6 +510,21 @@ export const argTypes = {
     type: {
       required: false,
       summary: "boolean"
+    }
+  },
+  locale: {
+    control: {
+      type: "object"
+    },
+    description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "string | object"
     }
   },
   messageMask: {
@@ -673,6 +585,34 @@ export const argTypes = {
       summary: "boolean"
     }
   },
+  on: {
+    control: {
+      type: "text"
+    },
+    description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "string"
+    }
+  },
+  parent: {
+    control: {},
+    description: "Parent config used by the wrapper.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "unknown"
+    }
+  },
   render: {
     control: {},
     description: "Draws the visualization given the specified configuration.",
@@ -684,6 +624,57 @@ export const argTypes = {
     type: {
       required: false,
       summary: "function"
+    }
+  },
+  renderMode: {
+    control: {
+      type: "radio"
+    },
+    description: "\"full\" runs the DOM enter/update/exit for every shape; \"compute\"\nskips DOM work and only populates the scene data (`_textData`,\n`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by\n`renderScene` callers; users can also opt-in.",
+    options: [
+      "full",
+      "compute"
+    ],
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "\"full\" | \"compute\""
+    }
+  },
+  renderScene: {
+    control: {},
+    description: "Public entry point that renders this chart through the @d3plus/render\npluggable backends. The compute pass happens via render() (in an svg\nauto-created inside the target div); SvgRenderer/CanvasRenderer paints\nthe scene to the target. Returns `{renderer, scene}` so callers can\ninteract with the renderer (e.g. for picking) or read the scene data.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "element"
+    }
+  },
+  renderer: {
+    control: {
+      type: "radio"
+    },
+    description: "Selects which @d3plus/render backend paints the visible output.\n`\"svg\"` = SvgRenderer (default), `\"canvas\"` = CanvasRenderer.\nBoolean arguments both normalize to `\"svg\"`.",
+    options: [
+      "svg",
+      "canvas"
+    ],
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "boolean | \"svg\" | \"canvas\""
     }
   },
   scrollContainer: {
@@ -787,36 +778,6 @@ export const argTypes = {
       summary: "boolean | function"
     }
   },
-  svgDesc: {
-    control: {
-      type: "text"
-    },
-    description: "The description text for the SVG `<desc>` element, used for accessibility.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "string"
-    }
-  },
-  svgTitle: {
-    control: {
-      type: "text"
-    },
-    description: "The title text for the SVG `<title>` element, used for accessibility.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "string"
-    }
-  },
   threshold: {
     control: {
       type: "number"
@@ -875,34 +836,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | false | function"
-    }
-  },
-  timeFilter: {
-    control: {},
-    description: "A filter function that limits which time periods are shown.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "false | function"
-    }
-  },
-  timeline: {
-    control: {
-      type: "boolean"
-    },
-    description: "Whether to display the timeline.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
     }
   },
   timelineConfig: {
@@ -1075,34 +1008,17 @@ export const argTypes = {
       summary: "boolean | function"
     }
   },
-  width: {
-    control: {
-      type: "number"
-    },
-    description: "The overall width of the visualization in pixels.",
+  translate: {
+    control: {},
+    description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
     table: {
       defaultValue: {
         summary: "undefined"
       }
     },
     type: {
-      required: false,
-      summary: "number"
-    }
-  },
-  zoom: {
-    control: {
-      type: "boolean"
-    },
-    description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
+      required: true,
+      summary: "function"
     }
   },
   zoomBrushHandleSize: {
@@ -1185,36 +1101,6 @@ export const argTypes = {
       summary: "false | record"
     }
   },
-  zoomFactor: {
-    control: {
-      type: "number"
-    },
-    description: "The multiplier that is used in with the control buttons when zooming in and out.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
-    }
-  },
-  zoomMax: {
-    control: {
-      type: "number"
-    },
-    description: "The max zoom scale.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
-    }
-  },
   zoomPadding: {
     control: {
       type: "number"
@@ -1228,36 +1114,6 @@ export const argTypes = {
     type: {
       required: false,
       summary: "number"
-    }
-  },
-  zoomPan: {
-    control: {
-      type: "boolean"
-    },
-    description: "Toggles panning.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
-    }
-  },
-  zoomScroll: {
-    control: {
-      type: "boolean"
-    },
-    description: "Toggles scroll zooming.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "boolean"
     }
   }
 };

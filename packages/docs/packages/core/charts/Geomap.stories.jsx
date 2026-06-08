@@ -186,3 +186,28 @@ RemovingOceanAndTiles.args = {
   topojson: "https://datausa.io/topojson/State.json"
 };
 RemovingOceanAndTiles.parameters = {controls: {include: ["ocean", "tiles"]}};
+
+// Custom render: `renderer` is not a control, so merge it into config directly.
+export const RenderingToCanvas = (args) =>
+  <Geomap config={{...configify(args, argTypes), renderer: "canvas"}} />;
+RenderingToCanvas.args = {
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
+  colorScale: "Diabetes Prevalence",
+  colorScaleConfig: {
+    axisConfig: {
+      tickFormat: funcify(
+        d => `${(d * 100).toFixed(1)}%`,
+        "d => `${(d * 100).toFixed(1)}%`"
+      )
+    }
+  },
+  ocean: "transparent",
+  projection: "geoAlbersUsa",
+  tiles: false,
+  topojson: "https://datausa.io/topojson/State.json"
+};
+RenderingToCanvas.parameters = {
+  controls: {include: ["renderer"]},
+  docs: {description: {story: "The same choropleth painted with the Canvas backend (`renderer: \"canvas\"`). Geography, color scale, tooltips, and zoom all work; SVG remains the default."}}
+};

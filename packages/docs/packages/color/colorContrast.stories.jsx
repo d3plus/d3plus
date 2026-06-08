@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "A set of default color values used when assigning colors based on data.",
+        component: "Based on the color provided, this function will return a \"white\" or \"black\" color that is suitable for text placed on top of that provided color.",
       },
     },
   }

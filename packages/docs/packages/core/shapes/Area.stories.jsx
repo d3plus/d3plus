@@ -25,3 +25,13 @@ const Template = (args) => <Area config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {id: "a", x: 40, y: 80}, {id: "a", x: 160, y: 180}, {id: "a", x: 280, y: 110},
+    {id: "a", x: 400, y: 200}, {id: "a", x: 520, y: 90}, {id: "a", x: 640, y: 160}
+  ],
+  id: "id", x: "x", y: "y", fill: "#3a7ca5", fillOpacity: 0.5
+};
+BasicExample.parameters = {controls: {include: ["curve"]}};
