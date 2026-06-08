@@ -70,6 +70,19 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 </script>
 ```
 
+## Rendering
+
+D3plus v4 compiles each visualization to a serializable scene graph that is
+painted by a pluggable backend. **SVG is the default**; an opt-in **Canvas**
+backend paints dense, high-shape-count charts more efficiently:
+
+```js
+new d3plus.BarChart().data(data).renderer("canvas").render();
+```
+
+Upgrading from v3? The public API is unchanged for typical usage — see
+[MIGRATION.md](MIGRATION.md) and [CHANGELOG.md](CHANGELOG.md).
+
 ## Packages
 
 D3plus is a modular monorepo — install only what you need:
