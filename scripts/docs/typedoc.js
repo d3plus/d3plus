@@ -126,7 +126,12 @@ export function reflectionToJsdoc(reflection, folder) {
   const desc = getCommentText(comment);
   const isChainable = getTag(comment, "chainable") !== undefined;
 
-  const sig = reflection.signatures?.[0];
+  // Getter/setter accessors are declared as overloads with the no-arg getter
+  // first, so signatures[0] often has no parameters. Pull params from the first
+  // signature that actually declares them (the setter) so configurable methods
+  // like renderer()/locale()/on() aren't dropped for appearing param-less.
+  const sigs = reflection.signatures || [];
+  const sig = sigs.find(s => s.parameters?.length) || sigs[0];
   const params = (sig?.parameters || []).map(p => ({
     name: p.name,
     type: {names: typeToNames(p.type)},

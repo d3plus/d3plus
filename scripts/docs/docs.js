@@ -207,10 +207,27 @@ async function generateMarkdown() {
 
     stories.forEach(story => {
       const {meta, name} = story;
+      // Storybook stories are for the public chart/component/shape CLASSES and
+      // small utility FUNCTIONS — not the internal helpers (pipeline stages,
+      // feature modules, fluent installers, axis math, renderer internals) that
+      // @d3plus/core also exports for advanced use. Document those in the README
+      // only. The render package is an internal layer with no stories.
+      const src = meta.path || "";
+      if (/[/\\]packages[/\\]render[/\\]/.test(src)) return;
+      const isCore = /[/\\]packages[/\\]core[/\\]/.test(src);
+      const isUtil = /[/\\]utils([/\\]|$)/.test(src);
+      if (isCore && story.kind !== "class" && !isUtil) return;
+
       const regex = new RegExp(/packages\/([a-z][^/]+)\/src(\/.*)?/g);
       const match = regex.exec(meta.path);
       if (!match) return;
-      const [, packageName, filePath] = match;
+      const [, packageName, rawFilePath] = match;
+      // Charts/components live in per-export subfolders (charts/viz/Viz.ts),
+      // but the Storybook args/stories are flat by category. Collapse to the
+      // first path segment so output paths match the story import paths.
+      const filePath = rawFilePath
+        ? `/${rawFilePath.split("/").filter(Boolean)[0]}`
+        : "";
 
       const argsPath = path.join(
         folder,

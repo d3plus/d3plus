@@ -37,10 +37,18 @@ function removeStartEndQuotes(str) {
 const hasParent = ({augments}) =>
   augments && augments.length ? augments[0] : false;
 
+// Charts/components live in per-export subfolders (e.g. charts/viz/Viz.ts,
+// components/Axis/Axis.ts), but the Storybook args/stories are organized flat by
+// category. Collapse a source path to its first segment (the category) so the
+// generated paths match the flat layout the stories import.
+const collapseCategory = p =>
+  p ? `/${p.split("/").filter(Boolean)[0]}` : "";
+
 export default function (story, allMethods, stories) {
   const {kind, name, meta} = story;
   const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
-  const [, moduleName, filePath] = regex.exec(meta.path);
+  const [, moduleName, rawFilePath] = regex.exec(meta.path);
+  const filePath = collapseCategory(rawFilePath);
   const parentClass = hasParent(story);
   let overrides = {},
     parentRelativePath;
@@ -48,7 +56,8 @@ export default function (story, allMethods, stories) {
   if (parentClass) {
     const parent = stories.find(d => d.name === parentClass);
     const regex2 = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
-    const [, parentModule, parentPath] = regex2.exec(parent.meta.path);
+    const [, parentModule, rawParentPath] = regex2.exec(parent.meta.path);
+    const parentPath = collapseCategory(rawParentPath);
     parentRelativePath =
       moduleName === parentModule && filePath === parentPath
         ? `.`
@@ -89,19 +98,29 @@ export default function (story, allMethods, stories) {
     statements.forEach(statement => {
       depth = 0;
       let method, value;
-      if (statement.type === "AssignmentExpression") {
-        const {left, right} = statement;
-        method = formatAst(left.property);
-        if (left.object.type !== "ThisExpression")
-          method = `${formatAst(left.object.property)}.${method}`;
-        method = method.replace(/^_/, "");
-        value = right;
-      } else if (statement.type === "CallExpression") {
-        const {callee} = statement;
-        if (callee.type !== "Super") {
-          method = callee.property.value;
-          value = statement;
+      try {
+        if (statement.type === "AssignmentExpression") {
+          const {left, right} = statement;
+          if (left.type !== "MemberExpression") return;
+          method = formatAst(left.property);
+          if (left.object.type !== "ThisExpression" && left.object.property)
+            method = `${formatAst(left.object.property)}.${method}`;
+          method = method.replace(/^_/, "");
+          value = right;
+        } else if (statement.type === "CallExpression") {
+          const {callee} = statement;
+          // Only `this.method(default)`-style calls set arg defaults. Skip
+          // `super(...)` and bare helper calls like `installFluent(...)`,
+          // whose callee is not a member expression (and has no `.property`).
+          if (callee.type === "MemberExpression" && callee.property) {
+            method = callee.property.value;
+            value = statement;
+          }
         }
+      } catch {
+        // Not a recognizable arg-default statement — skip rather than crash
+        // the whole docs build on an unexpected constructor shape.
+        return;
       }
       if (method && parentMethods.includes(method.split(".")[0])) {
         if (method.includes(".")) {
@@ -128,7 +147,11 @@ export default function (story, allMethods, stories) {
               d.params.length &&
               ((overrides.hasOwnProperty(d.name) &&
                 ancestorClasses.includes(d.memberof)) ||
-                d.memberof === name),
+                d.memberof === name ||
+                // BaseClass is the universal root every viz/shape/component
+                // extends; TypeDoc doesn't always flatten its methods (on,
+                // locale, …) into subclasses, so include them explicitly.
+                d.memberof === "BaseClass"),
           )
           .map(d => ({
             ...d.params[0],
