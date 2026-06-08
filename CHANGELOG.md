@@ -52,6 +52,9 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 - Canvas backend mounts into the user's container (a `<canvas>` cannot paint
   inside the off-stage compute `<svg>`), so `.renderer("canvas")` paints instead
   of silently producing blank output.
+- Geomap renders on the Canvas backend: the ocean now paints into the scene
+  (onto the canvas) rather than into the overlaying compute `<svg>`, which had
+  hidden the geography.
 
 ### Breaking changes
 
@@ -64,6 +67,5 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 
 ### Known limitations
 
-- The **SVG backend is the most complete**; the Canvas backend is optimized for
-  dense shape-based charts. (Geomap geography does not yet paint on the Canvas
-  backend — use the default SVG backend for maps.)
+- The **SVG backend is the most complete** and remains the default; the Canvas
+  backend is optimized for dense shape-based charts.
