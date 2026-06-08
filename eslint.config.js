@@ -65,6 +65,7 @@ export default [
         document: "readonly",
         navigator: "readonly",
         process: "readonly",
+        MouseEvent: "readonly",
       },
     },
     rules: {
