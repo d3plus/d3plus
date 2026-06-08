@@ -1,12 +1,13 @@
 /**
-    Renders each chart example twice — once with the freshly-built local v4 UMD
-    bundle (this branch) and once with the published v3 bundle
-    (@d3plus/core@3.1.6 from jsDelivr) — then composites each pair side-by-side
-    and assembles overview contact sheets.
+    Renders each chart example three ways — the published v3 bundle
+    (@d3plus/core@3.1.6 from jsDelivr), the freshly-built local v4 UMD bundle
+    with its default SVG backend, and the same v4 bundle with the Canvas backend
+    (`.renderer("canvas")`) — then composites each trio side-by-side and assembles
+    overview contact sheets.
 
     Outputs to /tmp/d3plus-compare/:
-      v3/<name>.png, v4/<name>.png   raw 900x600 renders
-      pairs/<name>.png               side-by-side composite (v3 | v4)
+      v3/<name>.png, v4/<name>.png, v4-canvas/<name>.png   raw 900x600 renders
+      pairs/<name>.png               side-by-side composite (v3 | v4 svg | v4 canvas)
       overview-N.png                 scaled contact sheets
 
     Run from packages/core:  node scripts/chart-compare.mjs
@@ -25,8 +26,13 @@ const outDir = "/tmp/d3plus-compare";
 
 const W = 900, H = 600;
 
-for (const d of ["v3", "v4", "pairs"]) {
+for (const d of ["v3", "v4", "v4-canvas", "pairs"]) {
   fs.mkdirSync(path.join(outDir, d), {recursive: true});
+}
+
+/** Rewrites a builder body to opt the v4 chart into the Canvas backend. */
+function canvasBody(body) {
+  return body.replace(/\.render\(done\)/, '.renderer("canvas").render(done)');
 }
 
 function buildUmd() {
@@ -387,9 +393,10 @@ function dataUri(file) {
   return "data:image/png;base64," + fs.readFileSync(file).toString("base64");
 }
 
-async function compositePair(browser, name, label, v3Res, v4Res) {
+async function compositePair(browser, name, label, v3Res, v4Res, v4cRes) {
   const v3Img = dataUri(path.join(outDir, "v3", `${name}.png`));
   const v4Img = dataUri(path.join(outDir, "v4", `${name}.png`));
+  const v4cImg = dataUri(path.join(outDir, "v4-canvas", `${name}.png`));
   const badge = res =>
     res.ok ? "" : `<span class="bad">render failed: ${(res.error || "").replace(/</g, "&lt;")}</span>`;
   const panel = (title, sub, img, res) => `
@@ -413,10 +420,11 @@ async function compositePair(browser, name, label, v3Res, v4Res) {
     <div class="title">${label}</div>
     <div class="row">
       ${panel("v3", "@d3plus/core@3.1.6", v3Img, v3Res)}
-      ${panel("v4", "this branch", v4Img, v4Res)}
+      ${panel("v4 · SVG", "this branch", v4Img, v4Res)}
+      ${panel("v4 · Canvas", 'renderer("canvas")', v4cImg, v4cRes)}
     </div>
   </body></html>`;
-  const page = await browser.newPage({viewport: {width: W * 2 + 4, height: H + 100}});
+  const page = await browser.newPage({viewport: {width: W * 3 + 6, height: H + 100}});
   await page.setContent(html);
   await page.screenshot({path: path.join(outDir, "pairs", `${name}.png`), fullPage: true});
   await page.close();
@@ -427,11 +435,12 @@ async function buildOverview(browser, items, perSheet) {
   for (let i = 0; i < items.length; i += perSheet) {
     sheets.push(items.slice(i, i + perSheet));
   }
-  const sw = 460, sh = Math.round(sw * H / W);
+  const sw = 380, sh = Math.round(sw * H / W);
   for (let s = 0; s < sheets.length; s++) {
-    const rows = sheets[s].map(({name, label, v3Res, v4Res}) => {
+    const rows = sheets[s].map(({name, label, v3Res, v4Res, v4cRes}) => {
       const v3Img = dataUri(path.join(outDir, "v3", `${name}.png`));
       const v4Img = dataUri(path.join(outDir, "v4", `${name}.png`));
+      const v4cImg = dataUri(path.join(outDir, "v4-canvas", `${name}.png`));
       const cell = (img, ok) =>
         img && ok
           ? `<img src="${img}" width="${sw}" height="${sh}">`
@@ -441,6 +450,7 @@ async function buildOverview(browser, items, perSheet) {
         <div class="cells">
           <div class="cell">${cell(v3Img, v3Res.ok)}</div>
           <div class="cell">${cell(v4Img, v4Res.ok)}</div>
+          <div class="cell">${cell(v4cImg, v4cRes.ok)}</div>
         </div>
       </div>`;
     }).join("");
@@ -455,10 +465,10 @@ async function buildOverview(browser, items, perSheet) {
         .cell img { display: block; border: 1px solid #eee; }
         .x { display: flex; align-items: center; justify-content: center; color: #c0392b; border: 1px solid #eee; }
       </style>
-      <div class="head"><div>v3 &nbsp;<span style="font-weight:400;color:#888">(3.1.6)</span></div><div>v4 &nbsp;<span style="font-weight:400;color:#888">(branch)</span></div></div>
+      <div class="head"><div>v3 &nbsp;<span style="font-weight:400;color:#888">(3.1.6)</span></div><div>v4 SVG &nbsp;<span style="font-weight:400;color:#888">(branch)</span></div><div>v4 Canvas &nbsp;<span style="font-weight:400;color:#888">(branch)</span></div></div>
       ${rows}
     </body></html>`;
-    const page = await browser.newPage({viewport: {width: 150 + sw * 2 + 60, height: 800}});
+    const page = await browser.newPage({viewport: {width: 150 + sw * 3 + 80, height: 800}});
     await page.setContent(html);
     const file = path.join(outDir, `overview-${s + 1}.png`);
     await page.screenshot({path: file, fullPage: true});
@@ -483,12 +493,15 @@ async function main() {
     process.stdout.write(`  ${label.padEnd(14)} v3…`);
     const v3Res = await renderChart(browser, {content: v3Umd}, body, path.join(outDir, "v3", `${name}.png`));
     process.stdout.write(v3Res.ok ? " ✓" : " ✗");
-    process.stdout.write("  v4…");
+    process.stdout.write("  v4-svg…");
     const v4Res = await renderChart(browser, {content: v4Umd}, body, path.join(outDir, "v4", `${name}.png`));
     process.stdout.write(v4Res.ok ? " ✓" : " ✗");
-    await compositePair(browser, name, label, v3Res, v4Res);
+    process.stdout.write("  v4-canvas…");
+    const v4cRes = await renderChart(browser, {content: v4Umd}, canvasBody(body), path.join(outDir, "v4-canvas", `${name}.png`));
+    process.stdout.write(v4cRes.ok ? " ✓" : " ✗");
+    await compositePair(browser, name, label, v3Res, v4Res, v4cRes);
     console.log("  composited");
-    items.push({name, label, v3Res, v4Res});
+    items.push({name, label, v3Res, v4Res, v4cRes});
   }
 
   console.log("\nBuilding overview sheets…");
@@ -497,10 +510,10 @@ async function main() {
   await browser.close();
 
   console.log("\nSummary:");
-  for (const {name, label, v3Res, v4Res} of items) {
+  for (const {name, label, v3Res, v4Res, v4cRes} of items) {
     const f = r => (r.ok ? "✓" : `✗ ${r.error}`);
-    console.log(`  ${label.padEnd(14)} v3:${f(v3Res).padEnd(20)} v4:${f(v4Res)}`);
-    for (const e of [...v3Res.errors, ...v4Res.errors]) console.log(`       page-error: ${e}`);
+    console.log(`  ${label.padEnd(14)} v3:${f(v3Res).padEnd(20)} v4-svg:${f(v4Res).padEnd(20)} v4-canvas:${f(v4cRes)}`);
+    for (const e of [...v3Res.errors, ...v4Res.errors, ...v4cRes.errors]) console.log(`       page-error: ${e}`);
   }
   console.log(`\nDone. Composites in ${path.join(outDir, "pairs")}/, overviews in ${outDir}/`);
 }
