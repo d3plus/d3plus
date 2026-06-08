@@ -115,7 +115,11 @@ function setupGeomapDraw(viz: VizInstance): void {
       width,
       height,
       duration: viz.schema.duration,
-      ocean: viz.schema.ocean,
+      // On the canvas backend this imperative ocean rect lives in the compute
+      // <svg>, which overlays the <canvas> and would hide the geography. Keep
+      // it transparent there; geomapEmit paints the ocean into the scene (and
+      // thus onto the canvas) beneath the geography instead.
+      ocean: viz._renderer === "canvas" ? "transparent" : viz.schema.ocean,
     });
     if (!viz._zoomSet) {
       viz._zoomBehavior

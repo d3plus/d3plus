@@ -7,6 +7,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
@@ -24,6 +25,25 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
+
+  // Canvas backend: ensureZoomDom keeps its imperative ocean rect transparent
+  // (it lives in the overlaying compute <svg>), so paint the ocean into the
+  // scene here — first, beneath the geography — to match the SVG backend.
+  if (viz._renderer === "canvas") {
+    const ocean = viz.schema.ocean as string | undefined;
+    if (ocean && ocean !== "transparent") {
+      const {width, height} = chartBounds(viz);
+      out.push({
+        type: "rect",
+        key: "geomap-ocean",
+        x: viz._margin.left,
+        y: viz._margin.top,
+        width,
+        height,
+        paint: {fill: ocean},
+      } as SceneNode);
+    }
+  }
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");
