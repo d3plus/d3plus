@@ -181,6 +181,51 @@ const charts = [
       {geo: "a", value: 10},
       {geo: "b", value: 20},
     ])`],
+  ["area-plot", `lib => new lib.AreaPlot()
+    .groupBy("group")
+    .data([
+      {group: "A", x: 1, y: 10}, {group: "A", x: 2, y: 20}, {group: "A", x: 3, y: 15},
+      {group: "A", x: 4, y: 25}, {group: "A", x: 5, y: 30},
+      {group: "B", x: 1, y: 5},  {group: "B", x: 2, y: 12}, {group: "B", x: 3, y: 18},
+      {group: "B", x: 4, y: 14}, {group: "B", x: 5, y: 20},
+    ]).x("x").y("y")`],
+  // Explicit node x/y so the force layout is fixed and the fingerprint stays
+  // deterministic (no simulation jitter).
+  ["network", `lib => new lib.Network()
+    .nodes([
+      {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0},
+      {id: "C", x: 0, y: -50}, {id: "D", x: 0, y: 50},
+      {id: "E", x: -100, y: -50}, {id: "F", x: 100, y: 50},
+    ])
+    .links([
+      {source: "A", target: "B"}, {source: "A", target: "C"},
+      {source: "A", target: "D"}, {source: "B", target: "D"},
+      {source: "C", target: "B"}, {source: "E", target: "A"},
+      {source: "F", target: "B"},
+    ])`],
+  ["priestley", `lib => new lib.Priestley()
+    .groupBy("group")
+    .data([
+      {id: "Era 1", start: 1900, end: 1925, group: "Period A"},
+      {id: "Era 2", start: 1920, end: 1950, group: "Period B"},
+      {id: "Era 3", start: 1945, end: 1975, group: "Period A"},
+      {id: "Era 4", start: 1965, end: 1990, group: "Period B"},
+      {id: "Era 5", start: 1985, end: 2010, group: "Period A"},
+      {id: "Era 6", start: 2005, end: 2025, group: "Period B"},
+    ])`],
+  ["radial-matrix", `lib => new lib.RadialMatrix()
+    .groupBy(["row", "column"])
+    .column("column")
+    .row("row")
+    .colorScale("value")
+    .data([
+      {row: "Inner", column: "A", value: 10}, {row: "Inner", column: "B", value: 25},
+      {row: "Inner", column: "C", value: 15}, {row: "Inner", column: "D", value: 20},
+      {row: "Middle", column: "A", value: 18}, {row: "Middle", column: "B", value: 22},
+      {row: "Middle", column: "C", value: 28}, {row: "Middle", column: "D", value: 12},
+      {row: "Outer", column: "A", value: 30}, {row: "Outer", column: "B", value: 16},
+      {row: "Outer", column: "C", value: 24}, {row: "Outer", column: "D", value: 8},
+    ])`],
 ];
 
 // Runs in-page: build + render the chart, then walk the rendered SVG and
