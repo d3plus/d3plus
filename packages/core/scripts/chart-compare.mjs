@@ -128,22 +128,25 @@ const examples = [
       .x("x").y("y")
       .render(done);
   `],
+  // groupBy must include the value key — otherwise the observations sharing an
+  // id are aggregated (summed) into a single point and each box collapses to a
+  // line. ["id", "value"] keeps every observation distinct for the distribution.
   ["box-whisker", "BoxWhisker", `
     new d3plus.BoxWhisker()
       .select("#viz")
-      .groupBy("group")
       .data([
-        {group: "A", x: "Group A", y: 10}, {group: "A", x: "Group A", y: 15},
-        {group: "A", x: "Group A", y: 20}, {group: "A", x: "Group A", y: 25},
-        {group: "A", x: "Group A", y: 30}, {group: "A", x: "Group A", y: 35},
-        {group: "B", x: "Group B", y: 12}, {group: "B", x: "Group B", y: 18},
-        {group: "B", x: "Group B", y: 24}, {group: "B", x: "Group B", y: 28},
-        {group: "B", x: "Group B", y: 38}, {group: "B", x: "Group B", y: 45},
-        {group: "C", x: "Group C", y: 8},  {group: "C", x: "Group C", y: 14},
-        {group: "C", x: "Group C", y: 20}, {group: "C", x: "Group C", y: 26},
-        {group: "C", x: "Group C", y: 32}, {group: "C", x: "Group C", y: 40},
+        {id: "Group A", value: 300}, {id: "Group A", value: 20}, {id: "Group A", value: 180},
+        {id: "Group A", value: 40}, {id: "Group A", value: 170}, {id: "Group A", value: 125},
+        {id: "Group A", value: 74}, {id: "Group A", value: 80},
+        {id: "Group B", value: 180}, {id: "Group B", value: 30}, {id: "Group B", value: 120},
+        {id: "Group B", value: 50}, {id: "Group B", value: 140}, {id: "Group B", value: 115},
+        {id: "Group B", value: 14}, {id: "Group B", value: 30},
+        {id: "Group C", value: 220}, {id: "Group C", value: 90}, {id: "Group C", value: 160},
+        {id: "Group C", value: 60}, {id: "Group C", value: 200}, {id: "Group C", value: 130},
+        {id: "Group C", value: 45}, {id: "Group C", value: 100},
       ])
-      .x("x").y("y")
+      .groupBy(["id", "value"])
+      .x("id").y("value")
       .render(done);
   `],
   ["pie", "Pie", `
