@@ -19,6 +19,10 @@ export function tagFor(node: SceneNode): string {
     case "image": return "image";
     case "text": return "text";
     case "group": return "g";
+    // htmlOverlay nodes are realized by overlay.ts, not as an SVG tag; the
+    // SvgRenderer filters them out before tagFor runs. This keeps the switch
+    // exhaustive over SceneNode.
+    case "htmlOverlay": return "g";
   }
 }
 
@@ -64,10 +68,10 @@ export function applyStatic(sel: any, node: SceneNode): void {
 }
 
 /** Direct-child <tspan> elements of an element (not nested run tspans). */
-function childTspans(parent: Element): Element[] {
-  const out: Element[] = [];
+function childTspans(parent: Element): SVGTSpanElement[] {
+  const out: SVGTSpanElement[] = [];
   for (let c = parent.firstElementChild; c; c = c.nextElementSibling)
-    if (c.tagName.toLowerCase() === "tspan") out.push(c);
+    if (c.tagName.toLowerCase() === "tspan") out.push(c as SVGTSpanElement);
   return out;
 }
 
@@ -125,7 +129,7 @@ export function applyText(sel: any, node: TextNode): void {
         n = next;
       }
       const runs = lineSel
-        .selectAll(function (this: Element) {
+        .selectAll<SVGTSpanElement, TextRun>(function (this: Element) {
           return childTspans(this);
         })
         .data(ln.runs);

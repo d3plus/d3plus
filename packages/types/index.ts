@@ -16,6 +16,10 @@ export * from "@d3plus/locales";
 export * from "@d3plus/math";
 export * from "@d3plus/text";
 
+// @d3plus/core and @d3plus/dom both export a `D3Selection` type; the core
+// definition is canonical for consumers of this unified package.
+export type {D3Selection} from "@d3plus/core";
+
 // Re-export only the types unique to @d3plus/react (not the component functions
 // which share names with @d3plus/core classes).
 export type { D3plusComponentProps, D3plusConstructor, RendererProps } from "@d3plus/react";

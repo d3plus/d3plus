@@ -320,7 +320,7 @@ export default class CanvasRenderer implements Renderer {
         // Paint runs left-to-right with per-run weight/style. textAlign is
         // forced to "left" within the line — the line's own x already encodes
         // anchor placement at layout time.
-        const prevAlign = ctx.textAlign;
+        const prevAlign: CanvasTextAlign = ctx.textAlign;
         ctx.textAlign = "left";
         let cursor = ln.x;
         for (const run of ln.runs) {
