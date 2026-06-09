@@ -5,4 +5,5 @@ export type {D3plusConfig, AxisConfig, TooltipConfig} from "./D3plusConfig.js";
 export {default as configPrep} from "./configPrep.js";
 export {default as constant} from "./constant.js";
 export {default as getProp} from "./getProp.js";
+export {paintComponentScene} from "./paintComponentScene.js";
 export {default as RESET} from "./RESET.js";

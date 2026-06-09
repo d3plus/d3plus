@@ -27,9 +27,11 @@ const Template = (args) => <Path config={configify(args, argTypes)} />;
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
+  // The default `d` accessor reads the `path` key from each datum; fill,
+  // stroke and strokeWidth take constant values.
   data: [
-    {id: "wave", d: "M40,200 C140,80 240,320 340,200 S540,80 640,200", fill: "none", stroke: "#cc4b4b", strokeWidth: 4}
+    {id: "wave", path: "M40,200 C140,80 240,320 340,200 S540,80 640,200"}
   ],
-  d: "d", fill: "fill", stroke: "stroke", strokeWidth: "strokeWidth"
+  fill: "none", stroke: "#cc4b4b", strokeWidth: 4
 };
 BasicExample.parameters = {controls: {include: ["d"]}};

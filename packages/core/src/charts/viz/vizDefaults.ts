@@ -331,7 +331,10 @@ function initShapeDefaults(viz: Viz): void {
         typeof viz.schema.shapeConfig.fill === "function"
           ? viz.schema.shapeConfig.fill(d, i)
           : viz.schema.shapeConfig.fill;
-      return color(c)!.darker(0.25);
+      // A fill that doesn't parse as a color (e.g. "none"/"transparent" on a
+      // confidence band) has no darker shade — fall back to the fill itself.
+      const col = color(c as string);
+      return col ? col.darker(0.25) : c;
     },
     role: "presentation",
     strokeWidth: constant(0),

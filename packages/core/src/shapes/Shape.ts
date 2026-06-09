@@ -136,18 +136,21 @@ export default class Shape extends BaseClass {
     this._textureDefs = {};
 
     // stroke defaults to a darker shade of fill — closes over `this.schema`
-    // so it tracks the current fill accessor.
-    this.schema.stroke = (d: DataPoint, i?: number) =>
-      color(this.schema.fill(d, i) as string)!
-        .darker(1)
-        .formatHex();
+    // so it tracks the current fill accessor. A fill that doesn't parse as a
+    // color (e.g. "none"/"transparent", a gradient token) has no darker shade,
+    // so fall back to the fill value itself.
+    this.schema.stroke = (d: DataPoint, i?: number) => {
+      const c = color(this.schema.fill(d, i) as string);
+      return c ? c.darker(1).formatHex() : (this.schema.fill(d, i) as string);
+    };
 
     this.schema.activeStyle = {
       stroke: (d: DataPoint, i: number) => {
         let c = this.schema.fill(d, i) as string;
         if (["transparent", "none"].includes(c))
           c = this.schema.stroke(d, i) as string;
-        return color(c)!.darker(1);
+        const col = color(c);
+        return col ? col.darker(1) : c;
       },
       "stroke-width": (d: DataPoint, i: number) => {
         const s = (this.schema.strokeWidth(d, i) as number) || 1;
@@ -159,7 +162,8 @@ export default class Shape extends BaseClass {
         let c = this.schema.fill(d, i) as string;
         if (["transparent", "none"].includes(c))
           c = this.schema.stroke(d, i) as string;
-        return color(c)!.darker(0.5);
+        const col = color(c);
+        return col ? col.darker(0.5) : c;
       },
       "stroke-width": (d: DataPoint, i: number) => {
         const s = (this.schema.strokeWidth(d, i) as number) || 1;

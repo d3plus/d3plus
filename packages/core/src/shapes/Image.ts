@@ -55,6 +55,31 @@ export default class Image {
   }
 
   /**
+      Get/set multiple config values at once. Mirrors the `BaseClass.config()`
+      contract used by the other shapes (and relied on by the React wrapper):
+      each patch key is routed through its matching fluent accessor (or
+      `data`/`select`), with unknown keys stored on `schema` verbatim.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(): Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_: Record<string, any>): this;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config(_?: Record<string, any>): Record<string, any> | this {
+    if (!arguments.length)
+      return {...this.schema, data: this._data, select: this._select};
+    const patch = _ as Record<string, unknown>;
+    for (const k in patch) {
+      if (!Object.prototype.hasOwnProperty.call(patch, k)) continue;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const self = this as any;
+      if (typeof self[k] === "function") self[k](patch[k]);
+      else this.schema[k] = patch[k];
+    }
+    return this;
+  }
+
+  /**
       Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.
     @param callback Optional callback invoked after rendering completes.
 */

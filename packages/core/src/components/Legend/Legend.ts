@@ -7,7 +7,7 @@ import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
-import {accessor, BaseClass, constant} from "../../utils/index.js";
+import {accessor, BaseClass, constant, paintComponentScene} from "../../utils/index.js";
 import {installFluent} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
@@ -59,6 +59,10 @@ export default class Legend extends BaseClass {
   _titleWidth: number;
   _wrapLines: (() => void) | undefined;
   _wrapRows: (() => void) | undefined;
+  // Standalone scene renderer (used when rendered on its own, not inside a
+  // Viz). Reused across re-renders by paintComponentScene().
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _sceneRenderer?: any;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -223,6 +227,10 @@ export default class Legend extends BaseClass {
     computeLegendBounds(this, spaceNeeded);
     renderLegendTitle(this);
     renderLegendShapes(this);
+
+    // Standalone render: paint the scene into the user's `_select`. Inside a
+    // Viz the legend runs in compute mode and the Viz composes its toScene().
+    if (this.schema.renderMode !== "compute") paintComponentScene(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
 

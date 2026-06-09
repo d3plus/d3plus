@@ -21,7 +21,7 @@ import {
   isNegative,
   renderAxisTitle,
 } from "./axisRender.js";
-import {BaseClass, constant} from "../../utils/index.js";
+import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
 import {installFluent} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
@@ -99,6 +99,13 @@ export default class Axis extends BaseClass {
   _visibleTicks: unknown[];
   _transition!: ReturnType<typeof transition>;
   _userFormat: ((d: unknown) => string) | false | undefined;
+  // Standalone scene renderer (used when rendered on its own, not inside a
+  // Viz). Reused across re-renders by paintComponentScene().
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _sceneRenderer?: any;
+  // Subclasses (Timeline) that paint after their own post-super render work
+  // set this so Axis.render() doesn't paint a half-built scene.
+  _managesOwnScenePaint?: boolean;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -384,6 +391,15 @@ export default class Axis extends BaseClass {
     renderAxisTitle(this, measure, group);
 
     this._lastScale = this._getPosition.bind(this);
+
+    // Standalone render: paint the scene into the user's `_select`. Inside a
+    // Viz the axis runs in compute mode and the Viz composes its toScene(), so
+    // skip both compute mode and subclasses that paint themselves (Timeline).
+    if (
+      this.schema.renderMode !== "compute" &&
+      !this._managesOwnScenePaint
+    )
+      paintComponentScene(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
 

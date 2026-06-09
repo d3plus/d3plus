@@ -12,7 +12,7 @@ import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 
 import {Axis, TextBox} from "../index.js";
 import {Rect} from "../../shapes/index.js";
-import {accessor, BaseClass} from "../../utils/index.js";
+import {accessor, BaseClass, paintComponentScene} from "../../utils/index.js";
 import {installFluent} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
@@ -76,6 +76,10 @@ export default class ColorScale extends BaseClass {
   _rectClass: Rect;
   /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
   _gradientFill?: string;
+  // Standalone scene renderer (used when rendered on its own, not inside a
+  // Viz). Reused across re-renders by paintComponentScene().
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _sceneRenderer?: any;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -222,6 +226,11 @@ export default class ColorScale extends BaseClass {
 
     if (gradient) renderGradient(this, compute, groups);
     else renderLegendVariant(this, compute, groups);
+
+    // Standalone render: paint the scene into the user's `_select`. Inside a
+    // Viz the color scale runs in compute mode and the Viz composes its
+    // toScene().
+    if (this._renderMode !== "compute") paintComponentScene(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
 

@@ -79,6 +79,10 @@ export const ringsDef: ChartDefinition = {
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
       viz._draw();
+      // _draw() only recomputes layout/scene; paint it with the chart duration
+      // so the re-centering animates (a bare _draw leaves the only repaint to
+      // the coalesced duration-0 one, which snaps).
+      if (viz._sceneRenderer) viz._drawSceneToTarget(viz.schema.duration);
     };
 
     v.links = function(this: VizInstance, _: any, f?: any) {

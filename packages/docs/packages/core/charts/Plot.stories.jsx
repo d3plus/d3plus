@@ -92,26 +92,29 @@ TrendlineUsingAnnotations.args = {
   groupBy: "State",
   annotations: [
     {
+      // x is "Diabetes Prevalence" (~0.07–0.14) and y is "Adult Obesity"
+      // (~0.25–0.42), both proportions — so annotation coordinates must use
+      // the same units to overlay the scatter.
       data: [
         {
           "id": "Trend",
-          "x": 16,
-          "y": 0.4
+          "x": 0.07,
+          "y": 0.28
         },
         {
           "id": "Trend",
-          "x": 34,
-          "y": 0.25
+          "x": 0.14,
+          "y": 0.4
         },
         {
           "id": "Baseline",
-          "x": 16,
-          "y": 0.3
+          "x": 0.07,
+          "y": 0.34
         },
         {
           "id": "Baseline",
-          "x": 34,
-          "y": 0.3
+          "x": 0.14,
+          "y": 0.34
         }
       ],
       shape: "Line",

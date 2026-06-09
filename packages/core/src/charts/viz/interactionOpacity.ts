@@ -16,6 +16,9 @@ import type {VizInstance} from "./vizTypes.js";
 
 type Predicate = (d: DataPoint, i: number) => boolean;
 
+/** z value that floats a hovered node above its (z-less, i.e. 0) siblings. */
+const HOVER_RAISE_Z = 1e6;
+
 export function applyInteractionOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
@@ -56,6 +59,12 @@ export function applyInteractionOpacity(
             ? node.paint.opacity
             : 1;
         next = {...node, paint: {...(node.paint ?? {}), opacity: base * dimOpacity}};
+      } else if (hover) {
+        // Raise the hovered node above its siblings. Both renderers paint by
+        // ascending `z`, so a large value floats it to the top; restore is
+        // automatic — the next repaint (incl. when hover clears) rebuilds the
+        // scene with no `z`.
+        next = {...node, z: HOVER_RAISE_Z} as SceneNode;
       }
     }
     const kids = (next as {children?: SceneNode[]}).children;

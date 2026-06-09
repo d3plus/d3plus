@@ -59,6 +59,10 @@ export default class Timeline extends Axis {
     super();
     installFluent(this, timelineSchema);
     initTimelineDefaults(this);
+    // Timeline composes its brush/play-button after super.render(); it paints
+    // the scene itself at the end of render() so Axis.render() must not paint
+    // a half-built scene mid-way through.
+    this._managesOwnScenePaint = true;
   }
 
   /**

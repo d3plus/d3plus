@@ -88,14 +88,17 @@ export default class Viz extends VizBase {
         this._chartScene,
         this as unknown as VizInstance,
       );
-      const zoomNode = this._zoomTransform
-        ? [{
-            type: "group" as const,
-            key: "viz-zoom",
-            transform: this._zoomTransform,
-            children: sliced,
-          }]
-        : sliced;
+      // Always emit the viz-zoom group (identity transform when no zoom is
+      // active) so its key is stable across the first zoom. Otherwise the first
+      // zoom adds a brand-new group → the renderer treats the chart cells as
+      // exit+enter (teardown/rebuild) instead of tweening the group transform,
+      // so the zoom snaps in instead of animating.
+      const zoomNode = [{
+        type: "group" as const,
+        key: "viz-zoom",
+        transform: this._zoomTransform ?? {x: 0, y: 0, scale: 1},
+        children: sliced,
+      }];
       children.push({
         type: "group",
         key: "viz-chart-cells",
@@ -157,11 +160,17 @@ export default class Viz extends VizBase {
     }
     // E2: FeatureModule.layout() panels (title/subtitle/total/back).
     if (this._featurePanels && this._featurePanels.length) {
-      children.push({
-        type: "group",
-        key: "viz-features",
-        children: this._featurePanels.slice(),
-      });
+      const panels = this._featurePanels.slice();
+      // Tag the back-button panel so the pointer bridge can route its click.
+      for (const panel of panels) {
+        if (
+          panel &&
+          typeof (panel as {key?: string}).key === "string" &&
+          (panel as {key: string}).key.toLowerCase().includes("back")
+        )
+          tagInteractionGroup(panel as SceneNode, "back");
+      }
+      children.push({type: "group", key: "viz-features", children: panels});
     }
     return {
       width: this.schema.width,
@@ -373,6 +382,18 @@ export default class Viz extends VizBase {
         if (!pick || !pick.node) return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const nodeAny = pick.node as any;
+        // Back-button panel: its d3-selection click listener never fires in the
+        // scene path (it's a plain text node), so route its click here to pop
+        // the drill-down history / step up a level.
+        if (nodeAny.interactionGroup === "back") {
+          if (event.type === "click") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const self = this as any;
+            if (self._history.length) self.config(self._history.pop()).render();
+            else self.depth(self._drawDepth - 1).filter(false).render();
+          }
+          return;
+        }
         // Walk up from the picked DOM element to find the group the scene
         // composes the Legend under (`key: "viz-legend"`, Viz.toScene). Leaf
         // swatch nodes are keyed by fill color (e.g. "#c92a2a_1_"), so the
@@ -427,6 +448,14 @@ export default class Viz extends VizBase {
     // accumulates `setTimeout(duration+10)` per event.
     const drawDuration =
       durationOverride !== undefined ? durationOverride : this.schema.duration;
+    // A duration>0 render (drill-down, zoom, re-center) must win over any
+    // pending coalesced duration-0 repaint — otherwise that repaint fires on
+    // the next frame and interrupts this transition, snapping shapes to their
+    // final geometry.
+    if (drawDuration > 0 && this._sceneRepaintRAF != null) {
+      cancelAnimationFrame(this._sceneRepaintRAF);
+      this._sceneRepaintRAF = undefined;
+    }
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
   }

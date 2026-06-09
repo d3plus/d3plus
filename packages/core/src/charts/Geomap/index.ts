@@ -386,7 +386,8 @@ export const geomapDef: ChartDefinition = {
             const c = typeof sc.fill === "function"
               ? (sc.fill as (d: DataPoint, i: number) => unknown)(d, i)
               : sc.fill;
-            return color(c as string)!.darker();
+            const col = color(c as string);
+            return col ? col.darker() : (c as string);
           },
           strokeWidth: 1,
         },
