@@ -52,7 +52,7 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
   viz.schema.on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
     viz._tooltipClass.data([]).render();
 
-    if (viz._hover && viz._drawDepth >= viz.schema.groupBy.length - 1) {
+    if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
       const id = getNodeId(viz, d, i);
 
       if (viz._focus && viz._focus === id) {
@@ -102,7 +102,7 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
     const id = idList[idList.length - 1];
     const ids = viz._id(d, i) as string | number | (string | number)[];
 
-    if (viz._hover && viz._drawDepth >= viz.schema.groupBy.length - 1) {
+    if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
       if (viz._focus && viz._focus === ids) {
         v.active(false);
         viz._focus = undefined;
@@ -254,6 +254,9 @@ function setupNetworkFluent(v: NetworkViz) {
       (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
       if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
     }
+    // Scene-emit charts dim via applyInteractionOpacity during toScene(), so a
+    // hover change only takes effect if a repaint is scheduled.
+    if (this._sceneRenderer) this._scheduleSceneRepaint();
     return this;
   };
 }
@@ -305,6 +308,18 @@ export const networkDef: ChartDefinition = {
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        title: (
+          d: DataPoint & {source?: {id: string | number}; target?: {id: string | number}; i?: number},
+        ) =>
+          d && d.source && d.target
+            ? `${d.source.id} → ${d.target.id}`
+            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0),
+      }),
+    },
     {key: "nodes", default: []},
     {key: "sizeMax"},
     {key: "sizeMin", default: 5},

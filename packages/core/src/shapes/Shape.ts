@@ -432,6 +432,11 @@ export default class Shape extends BaseClass {
         | false;
       if (bg) {
         const g = geom as Record<string, unknown>;
+        // Shape geometry is origin-centered; its on-screen position lives in
+        // the node transform. The background image is emitted as a flat sibling
+        // (no transform), so bake the shape's translate into the image x/y —
+        // otherwise every image lands at the origin (top-left).
+        const t = this._sceneTransform(d, i) as {x?: number; y?: number};
         const w = typeof g.width === "number" ? g.width : undefined;
         const h = typeof g.height === "number" ? g.height : undefined;
         const cx = typeof g.cx === "number" ? g.cx : (typeof g.x === "number" ? g.x : 0);
@@ -445,8 +450,8 @@ export default class Shape extends BaseClass {
           i,
           id: this._nestWrapper(this.schema.id)(d, i),
           url: bg,
-          x: (cx as number) - iw / 2,
-          y: (cy as number) - ih / 2,
+          x: (t.x ?? 0) + (cx as number) - iw / 2,
+          y: (t.y ?? 0) + (cy as number) - ih / 2,
           width: iw,
           height: ih,
         } as unknown as DataPoint);

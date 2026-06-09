@@ -124,6 +124,9 @@ export const ringsDef: ChartDefinition = {
       this._hover = _;
       this._shapes!.forEach((s: any) => s.hover(_));
       if (this.schema.legend) this._legendClass.hover(_);
+      // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
+      // hover change only takes effect once a repaint is scheduled.
+      if (this._sceneRenderer) this._scheduleSceneRepaint();
       return this;
     };
   },
@@ -132,6 +135,17 @@ export const ringsDef: ChartDefinition = {
 
   fields: [
     {key: "center"},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        title: (d: any) =>
+          d && d.source && d.target
+            ? `${d.source.id} → ${d.target.id}`
+            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0),
+      }),
+    },
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
     {key: "linkSizeMin", default: 1},
