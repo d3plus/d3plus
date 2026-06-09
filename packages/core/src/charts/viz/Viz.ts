@@ -354,6 +354,23 @@ export default class Viz extends VizBase {
     }
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
+
+    // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
+    // the outer svg) must paint above the scene-rendered timeline buttons/ticks
+    // so its selection tint + handles sit on top of them (matching v3). The
+    // renderer appends its scene <svg> last, so without this the brush layer
+    // ends up behind it — the selection's translucent fill is then hidden by
+    // the opaque buttons and only the edge handles peek out.
+    if (kind === "svg") {
+      const host =
+        userTarget && typeof (userTarget as Element).querySelector === "function"
+          ? (userTarget as Element)
+          : null;
+      const tlGroup = host
+        ? host.querySelector(":scope > g.d3plus-viz-timeline")
+        : null;
+      if (tlGroup) host!.appendChild(tlGroup);
+    }
   }
 
   /**
