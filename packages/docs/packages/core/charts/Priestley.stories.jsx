@@ -47,7 +47,7 @@ GroupingBarsIntoLanes.args = {
     {parent: "Group 1", id: "gamma",   start: 2008, end: 2013},
     {parent: "Group 2", id: "delta",   start: 2004, end: 2007}
   ],
-  end: "death",
+  end: "end",
   groupBy: ["parent", "id"],
   shapeConfig: {
     fill: funcify(
@@ -55,6 +55,6 @@ GroupingBarsIntoLanes.args = {
       `d => d.parent === "Group 1" ? "firebrick" : "cornflowerblue"`
     )
   },
-  start: "birth"
+  start: "start"
 };
 GroupingBarsIntoLanes.parameters = {controls: {include: ["groupBy", "shapeConfig"]}};

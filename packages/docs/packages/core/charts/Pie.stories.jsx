@@ -59,10 +59,11 @@ DrillDownOnClick.args = {
     {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
     {category: "Vegetable", id: "Kale", value: 8}
   ],
+  depth: 0,
   groupBy: ["category", "id"],
   value: "value"
 };
 DrillDownOnClick.parameters = {
-  controls: {include: ["groupBy"]},
+  controls: {include: ["depth", "groupBy"]},
   docs: {description: {story: "A hierarchical `groupBy` ([\"category\", \"id\"]) renders the top level first; click a slice to drill into its children. A back button appears automatically to return."}}
 };
