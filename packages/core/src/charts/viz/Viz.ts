@@ -352,6 +352,14 @@ export default class Viz extends VizBase {
       cancelAnimationFrame(this._sceneRepaintRAF);
       this._sceneRepaintRAF = undefined;
     }
+    // Mark the window during which an animated transition is in flight, so the
+    // pointer bridge can ignore interaction until it settles. A hover/click
+    // mid-transition would schedule a duration-0 repaint that interrupts the
+    // running transition and snaps it to its end (the glitchy jump). Matches
+    // the SvgRenderer/CanvasRenderer `duration + 10` end timer, plus a small
+    // buffer so events re-enable just after the paint completes.
+    if (drawDuration > 0)
+      this._transitionEndsAt = Date.now() + drawDuration + 30;
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
 
@@ -384,6 +392,14 @@ export default class Viz extends VizBase {
       @private
   */
   _routeSceneEvent(event: SceneEvent): void {
+    // Ignore all pointer interaction while an animated transition (zoom,
+    // re-center, drill-down, entrance) is in flight. Hovering or clicking a
+    // shape mid-transition would fire a handler that schedules a duration-0
+    // repaint, interrupting the running transition and snapping it to its end
+    // — the glitchy jump. `_transitionEndsAt` is stamped by `_drawSceneToTarget`
+    // for the transition's duration; it lapses on its own, so interaction
+    // resumes the instant the transition settles.
+    if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.
     const fire = (
