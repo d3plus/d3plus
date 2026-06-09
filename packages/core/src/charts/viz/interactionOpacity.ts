@@ -39,6 +39,10 @@ export function applyInteractionOpacity(
   const dimOpacity = hover ? hoverOpacity : activeOpacity;
 
   const walk = (node: SceneNode): SceneNode => {
+    // Axes and the timeline are chrome, not data marks — they keep full
+    // opacity when a shape is hovered/selected (the whole subtree is tagged).
+    const group = (node as {interactionGroup?: string}).interactionGroup;
+    if (group === "axis" || group === "timeline") return node;
     let next = node;
     const datum = node.datum as (DataPoint & {data?: DataPoint; i?: number}) | undefined;
     if (datum) {

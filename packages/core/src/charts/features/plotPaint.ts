@@ -423,6 +423,17 @@ const isGridNode = (node: SceneNode): boolean =>
   typeof node.key === "string" && node.key.startsWith("grid-");
 
 /**
+    Stamps `interactionGroup: "axis"` onto an axis scene subtree so the pointer
+    bridge can skip shape tooltips on axis ticks, and so the hover/active
+    dimming pass leaves the axes at full opacity.
+*/
+const tagAxisGroup = (node: SceneNode): void => {
+  (node as {interactionGroup?: string}).interactionGroup = "axis";
+  const kids = (node as {children?: SceneNode[]}).children;
+  if (kids) for (const child of kids) tagAxisGroup(child);
+};
+
+/**
     Drains the deferred axis-scene queue, splitting each axis into its
     gridline children (rendered behind the data shapes) and everything else
     — ticks, tick labels, domain bar, title — which stays on top. Each axis
@@ -443,10 +454,14 @@ function collectAxisScenes(
     const gridChildren = children.filter(isGridNode);
     const restChildren = children.filter(c => !isGridNode(c));
     if (gridChildren.length) {
-      grid.push({type: "group", key: `${key}-grid`, transform, children: gridChildren});
+      const g: SceneNode = {type: "group", key: `${key}-grid`, transform, children: gridChildren};
+      tagAxisGroup(g);
+      grid.push(g);
     }
     if (restChildren.length) {
-      rest.push({type: "group", key, transform, children: restChildren});
+      const r: SceneNode = {type: "group", key, transform, children: restChildren};
+      tagAxisGroup(r);
+      rest.push(r);
     }
   });
   return {grid, rest};

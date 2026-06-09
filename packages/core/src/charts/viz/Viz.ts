@@ -151,6 +151,9 @@ export default class Viz extends VizBase {
         // Tag the legend subtree so its swatches route to legend handlers via
         // the node stamp (renderer-independent), not just SVG DOM ancestry.
         if (name === "legend") tagInteractionGroup(compScene, "legend");
+        // Tag the timeline subtree so its ticks/labels are exempt from shape
+        // tooltips and hover/active dimming (it's chrome, not data marks).
+        else if (name === "timeline") tagInteractionGroup(compScene, "timeline");
         children.push({
           type: "group",
           key: `viz-${name}`,
@@ -325,120 +328,13 @@ export default class Viz extends VizBase {
       // tooltips never fire on the v4 scene-rendered path because
       // `shape.on(evt, fn)` in plotPaint only wires d3-selection
       // listeners on DOM nodes the scene renderer doesn't create.
-      // Renderer events carry the picked scene node; we look up the
-      // appropriate viz.schema.on key based on whether the pick belongs to
-      // a chart shape, the legend, or neither.
-      // Remembers the most recently hovered node so `mouseleave` — which the
-      // renderer fires with a null pick — can still tell the matching
+      // Renderer events carry the picked scene node; the routing lives in
+      // `_routeSceneEvent` (kept out of this method so the mount path stays
+      // readable). `_lastScenePick` remembers the most recently hovered node
+      // so `mouseleave` — fired with a null pick — can still tell the matching
       // handlers which shape/legend item was left (so the tooltip clears).
-      let lastPick: {
-        d: unknown;
-        i: number;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        x: any;
-        isLegend: boolean;
-        shapeType: string | null;
-      } | null = null;
-      this._sceneRenderer.on((event: SceneEvent) => {
-        const pick = event.pick;
-        // Dispatch helper shared by the live-pick path and the leave path.
-        const fire = (
-          key: string,
-          d: unknown,
-          i: number,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          x: any,
-        ): void => {
-          const fn = this.schema.on && this.schema.on[key];
-          if (typeof fn === "function") {
-            try {
-              fn.call(this, d, i, x, event.nativeEvent);
-            } catch {
-              // swallow per-event errors so one bad handler doesn't
-              // break subsequent events.
-            }
-          }
-        };
-        if (event.type === "mouseleave") {
-          if (lastPick) {
-            fire(
-              `mouseleave.${lastPick.isLegend ? "legend" : "shape"}`,
-              lastPick.d,
-              lastPick.i,
-              lastPick.x,
-            );
-            if (!lastPick.isLegend && lastPick.shapeType)
-              fire(`mouseleave.${lastPick.shapeType}`, lastPick.d, lastPick.i, lastPick.x);
-            fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
-          }
-          lastPick = null;
-          // Cleared here, then re-set by the enter/move the renderer fires
-          // synchronously when the pointer crosses to an adjacent node — so a
-          // shape→label hand-off leaves `_hoverDatum` pointing at the new node
-          // (same datum), which `mouseleave` reads to suppress a flicker.
-          this._hoverDatum = null;
-          return;
-        }
-        if (!pick || !pick.node) return;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const nodeAny = pick.node as any;
-        // Back-button panel: its d3-selection click listener never fires in the
-        // scene path (it's a plain text node), so route its click here to pop
-        // the drill-down history / step up a level.
-        if (nodeAny.interactionGroup === "back") {
-          if (event.type === "click") {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const self = this as any;
-            if (self._history.length) self.config(self._history.pop()).render();
-            else self.depth(self._drawDepth - 1).filter(false).render();
-          }
-          return;
-        }
-        // Walk up from the picked DOM element to find the group the scene
-        // composes the Legend under (`key: "viz-legend"`, Viz.toScene). Leaf
-        // swatch nodes are keyed by fill color (e.g. "#c92a2a_1_"), so the
-        // node key alone can't tell a legend swatch from a chart shape —
-        // only its ancestry can. If found, dispatch to legend handlers; else
-        // dispatch to shape handlers.
-        const target =
-          event.nativeEvent && (event.nativeEvent as Event).target;
-        // Prefer the node's stamped interaction group (set by Viz.toScene), so
-        // legend swatches route to legend handlers on Canvas too — where the
-        // single canvas element has no per-shape DOM to walk. Fall back to SVG
-        // DOM ancestry for nodes the stamp didn't reach.
-        const isLegendNode =
-          nodeAny.interactionGroup === "legend" ||
-          (target && typeof (target as Element).closest === "function"
-            ? !!(target as Element).closest('[data-key="viz-legend"]')
-            : false);
-        const suffix = isLegendNode ? "legend" : "shape";
-        const handlerKey = `${event.type}.${suffix}`;
-        // Resolve the source datum + index. `pick.datum` is the raw
-        // scene datum (which Shape._sceneXxx populated). For Plot
-        // shapes that's the wrapped record; the handlers expect
-        // `(d.data, d.i, x, event)`.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rawDatum: any = pick.datum;
-        const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
-        const sourceIndex =
-          rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
-        const shapeType =
-          typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
-        lastPick = {d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType};
-        this._hoverDatum = rawDatum;
-        fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
-        // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`).
-        // The emitting shape stamps its type onto the node; on the scene
-        // path this is the only place these fire (compute-mode shapes wire
-        // no DOM listeners). Legend nodes are excluded so a legend swatch's
-        // shape type can't masquerade as a chart-shape handler.
-        if (!isLegendNode && shapeType) {
-          fire(`${event.type}.${shapeType}`, sourceDatum, sourceIndex, rawDatum);
-        }
-        // Also fire the un-suffixed handler (e.g. "mousemove") so
-        // user-registered global handlers see the event too.
-        fire(event.type, sourceDatum, sourceIndex, rawDatum);
-      });
+      this._lastScenePick = null;
+      this._sceneRenderer.on((event: SceneEvent) => this._routeSceneEvent(event));
     } else {
       this._sceneRenderer.resize(w, h);
     }
@@ -458,6 +354,120 @@ export default class Viz extends VizBase {
     }
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
+  }
+
+  /**
+      Routes a renderer pointer event to the matching `viz.schema.on` handlers.
+      Bridges the v4 scene-rendered path (SvgRenderer/CanvasRenderer), where
+      compute-mode shapes mount no per-shape DOM, so `shape.on(evt, fn)`
+      listeners never fire. We look up the appropriate `on` key from the picked
+      scene node: legend swatches route to legend handlers, chart shapes to
+      shape (+ shape-class-scoped) handlers, and chrome (axis/timeline/back) is
+      excluded. Split out of `_drawSceneToTarget` to keep that method small.
+      @private
+  */
+  _routeSceneEvent(event: SceneEvent): void {
+    const pick = event.pick;
+    // Dispatch helper shared by the live-pick path and the leave path.
+    const fire = (
+      key: string,
+      d: unknown,
+      i: number,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      x: any,
+    ): void => {
+      const fn = this.schema.on && this.schema.on[key];
+      if (typeof fn === "function") {
+        try {
+          fn.call(this, d, i, x, event.nativeEvent);
+        } catch {
+          // swallow per-event errors so one bad handler doesn't
+          // break subsequent events.
+        }
+      }
+    };
+    if (event.type === "mouseleave") {
+      const lastPick = this._lastScenePick;
+      if (lastPick) {
+        fire(
+          `mouseleave.${lastPick.isLegend ? "legend" : "shape"}`,
+          lastPick.d,
+          lastPick.i,
+          lastPick.x,
+        );
+        if (!lastPick.isLegend && lastPick.shapeType)
+          fire(`mouseleave.${lastPick.shapeType}`, lastPick.d, lastPick.i, lastPick.x);
+        fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
+      }
+      this._lastScenePick = null;
+      // Cleared here, then re-set by the enter/move the renderer fires
+      // synchronously when the pointer crosses to an adjacent node — so a
+      // shape→label hand-off leaves `_hoverDatum` pointing at the new node
+      // (same datum), which `mouseleave` reads to suppress a flicker.
+      this._hoverDatum = null;
+      return;
+    }
+    if (!pick || !pick.node) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nodeAny = pick.node as any;
+    // Back-button panel: its d3-selection click listener never fires in the
+    // scene path (it's a plain text node), so route its click here to pop
+    // the drill-down history / step up a level.
+    if (nodeAny.interactionGroup === "back") {
+      if (event.type === "click") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const self = this as any;
+        if (self._history.length) self.config(self._history.pop()).render();
+        else self.depth(self._drawDepth - 1).filter(false).render();
+      }
+      return;
+    }
+    // Axis ticks/labels and the timeline are chrome — they carry data but
+    // are not chart shapes, so they must not fire shape tooltips/handlers.
+    if (
+      nodeAny.interactionGroup === "axis" ||
+      nodeAny.interactionGroup === "timeline"
+    )
+      return;
+    // Prefer the node's stamped interaction group (set by Viz.toScene), so
+    // legend swatches route to legend handlers on Canvas too — where the
+    // single canvas element has no per-shape DOM to walk. Fall back to SVG
+    // DOM ancestry for nodes the stamp didn't reach.
+    const target =
+      event.nativeEvent && (event.nativeEvent as Event).target;
+    const isLegendNode =
+      nodeAny.interactionGroup === "legend" ||
+      (target && typeof (target as Element).closest === "function"
+        ? !!(target as Element).closest('[data-key="viz-legend"]')
+        : false);
+    const suffix = isLegendNode ? "legend" : "shape";
+    const handlerKey = `${event.type}.${suffix}`;
+    // Resolve the source datum + index. `pick.datum` is the raw scene datum
+    // (which Shape._sceneXxx populated). For Plot shapes that's the wrapped
+    // record; the handlers expect `(d.data, d.i, x, event)`.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawDatum: any = pick.datum;
+    const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
+    const sourceIndex =
+      rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
+    const shapeType =
+      typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
+    this._lastScenePick = {
+      d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType,
+    };
+    this._hoverDatum = rawDatum;
+    fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
+    // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`). The
+    // emitting shape stamps its type onto the node; on the scene path this is
+    // the only place these fire (compute-mode shapes wire no DOM listeners).
+    // Legend nodes are excluded so a legend swatch's shape type can't
+    // masquerade as a chart-shape handler.
+    if (!isLegendNode && shapeType) {
+      fire(`${event.type}.${shapeType}`, sourceDatum, sourceIndex, rawDatum);
+    }
+    // Also fire the un-suffixed handler (e.g. "mousemove") so user-registered
+    // global handlers see the event too.
+    fire(event.type, sourceDatum, sourceIndex, rawDatum);
   }
 
   /**
