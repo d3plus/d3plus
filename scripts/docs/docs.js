@@ -15,7 +15,28 @@ const log = Logger("documentation");
 import readmeHeader from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
 import storiesStub from "./stubs/stories.js";
+import {chartDefMap} from "./stubs/chartDefs.js";
 import {buildPublicDocs} from "./typedoc.js";
+
+/**
+ * Replaces each chart's `> **Name**: VizCtor` line (TypeDoc's view of a
+ * `makeChart(...)` value) with the base class it extends plus a table of the
+ * chart-specific config declared in its ChartDefinition `fields`.
+ */
+function injectChartConfig(readme, defMap) {
+  for (const [name, def] of Object.entries(defMap)) {
+    const anchor = def.base.toLowerCase();
+    let block = `Extends [\`${def.base}\`](#${anchor}) — accepts all of its configuration.`;
+    if (def.fields.length) {
+      block += " Adds or overrides these defaults:\n\n| Method | Default |\n| --- | --- |\n";
+      for (const f of def.fields)
+        block += `| \`${f.key}\` | ${f.default != null ? `\`${f.default}\`` : "—"} |\n`;
+    }
+    const re = new RegExp(`> \\*\\*${name}\\*\\*: \`[^\\n]*\``);
+    readme = readme.replace(re, block);
+  }
+  return readme;
+}
 
 const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
@@ -194,6 +215,12 @@ async function generateMarkdown() {
     let readme = fs.readFileSync(path.join(tempDir, "README.md"), "utf8");
     readme = readme.replace(/\| Default value \|/g, "| Default |");
     readme = readme.replace(/\| `undefined` \|/g, "| *required* |");
+
+    // Charts are `makeChart(...)` values, so TypeDoc renders them as opaque
+    // `VizCtor` variables with no config. Read each chart's ChartDefinition and
+    // replace that useless type line with the base it extends + its declared
+    // config fields (full inherited config stays documented on the base class).
+    readme = injectChartConfig(readme, chartDefMap(`${folder}/src/charts`));
 
     // Copy the generated README back to the package folder
     fs.writeFileSync(`${folder}/README.md`, readme);
