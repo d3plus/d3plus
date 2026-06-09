@@ -111,6 +111,9 @@ function buildTableOfContents(project) {
 /** Shared typedoc-plugin-markdown options for all packages. */
 const markdownOptions = {
   plugin: ["typedoc-plugin-markdown"],
+  // Link source to a stable branch ref instead of the current commit SHA, so
+  // regenerating the READMEs doesn't churn every "Defined in" link each commit.
+  gitRevision: "main",
   router: "module",
   mergeReadme: true,
   readme: "none",
