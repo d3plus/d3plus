@@ -265,18 +265,43 @@ function initEventDefaults(viz: Viz): void {
     "mousemove.legend": mousemoveLegend.bind(viz),
   };
   viz._queue = [];
+  // Applies a detected container resize: re-sizes the SVG and re-renders when
+  // the observed size actually differs from what the chart last drew at.
+  const applyResize = (entries: ResizeObserverEntry[]): void => {
+    const {width, height} = entries[0]!.contentRect;
+    if (
+      ((width !== viz.schema.width && viz._autoWidth) ||
+        (height !== viz.schema.height && viz._autoHeight)) &&
+      width &&
+      height
+    ) {
+      viz._setSVGSize(width, height);
+      if (!viz._callback) viz.render();
+    }
+  };
+  const debouncedResize = debounce(applyResize, viz.schema.detectResizeDelay);
   viz._resizeObserver = new ResizeObserver(
-    debounce((entries: ResizeObserverEntry[]) => {
+    (entries: ResizeObserverEntry[]) => {
+      // The first real-size notification after `observe()` reports the
+      // container's settled layout size, which on an auto-sized chart often
+      // differs from the size the chart just measured pre-layout (the
+      // height:100% chain resolves after the synchronous render). Apply that
+      // correction SYNCHRONOUSLY rather than through the debounce: debounced,
+      // it lands ~detectResizeDelay (400ms) into the 600ms entrance transition
+      // and restarts it with ease-in — the visible "pause ~75% through then
+      // continue". Applied immediately it lands before the transition is
+      // visible, so the entrance plays once at the correct size. Genuine later
+      // resizes (window drags) still debounce. A collapsed (0-size) first
+      // notification is ignored so it doesn't waste the immediate slot.
       const {width, height} = entries[0]!.contentRect;
-      if (
-        ((width !== viz.schema.width && viz._autoWidth) || (height !== viz.schema.height && viz._autoHeight)) &&
-        width &&
-        height
-      ) {
-        viz._setSVGSize(width, height);
-        if (!viz._callback) viz.render();
+      if (!viz._resizeSettled) {
+        if (!width || !height) return;
+        viz._resizeSettled = true;
+        applyResize(entries);
+      } else {
+        debouncedResize(entries);
       }
-    }, viz.schema.detectResizeDelay),
+    },
   );
   viz.schema.scrollContainer = typeof window === "undefined" ? "" : window;
 }
