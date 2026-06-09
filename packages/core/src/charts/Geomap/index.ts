@@ -7,6 +7,7 @@
 */
 
 import {color} from "d3-color";
+import {select} from "d3-selection";
 import {zoomTransform} from "d3-zoom";
 import {tile} from "d3-tile";
 import * as d3GeoCore from "d3-geo";
@@ -129,6 +130,38 @@ function setupGeomapDraw(viz: VizInstance): void {
       viz._zoomSet = true;
     }
     return result;
+  };
+
+  // On the Canvas backend the geography is painted on the <canvas>, but the
+  // compute <svg> (`_container`, holding the transparent ocean rect) is
+  // absolutely positioned and paints above it — intercepting the pointer
+  // events the canvas needs for hover/pick, so tooltips never fired. After the
+  // scene is painted (when the canvas exists), make that svg transparent to
+  // pointer events and move d3-zoom onto the canvas, so the canvas is the sole
+  // interaction surface: CanvasRenderer's pick drives tooltips and d3-zoom
+  // drives pan/zoom on the same element. (On SVG this is a no-op — the scene
+  // svg already sits on top and handles both.)
+  const supDrawScene = viz._drawSceneToTarget.bind(viz);
+  viz._drawSceneToTarget = function(durationOverride?: number) {
+    supDrawScene(durationOverride);
+    if (
+      viz._renderer === "canvas" &&
+      viz._sceneRenderer &&
+      typeof viz._sceneRenderer.toCanvas === "function"
+    ) {
+      const canvasNode = viz._sceneRenderer.toCanvas();
+      if (canvasNode) {
+        // The compute svg is absolutely positioned over the canvas; an svg root
+        // hit-tests its whole box, so even an empty one swallows the canvas's
+        // pointer events. The canvas is the sole render + interaction surface in
+        // canvas mode, so make the entire compute svg transparent to events.
+        if (viz._select) viz._select.style("pointer-events", "none");
+        if (viz._container) viz._container.style("pointer-events", "none");
+        viz._zoomEventTarget = select(canvasNode);
+        if (viz.schema.zoom && !viz._brushing)
+          viz._zoomEventTarget.call(viz._zoomBehavior);
+      }
+    }
   };
 }
 

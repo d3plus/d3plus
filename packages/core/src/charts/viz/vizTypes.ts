@@ -210,6 +210,12 @@ export interface VizInstance {
 
   /* 10. DOM + interaction */
   _container?: D3Selection;
+  /**
+      Element d3-zoom binds to. Defaults to `_container` (the compute svg); the
+      Canvas backend points it at the <canvas> so pan/zoom and pointer picking
+      share one interaction surface.
+  */
+  _zoomEventTarget?: D3Selection;
   _zoomGroup?: D3Selection;
   _tileGroup?: D3Selection;
   _tileGen?: any;

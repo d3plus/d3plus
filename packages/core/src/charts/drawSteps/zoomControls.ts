@@ -199,13 +199,20 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
   if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
 
+  // The element d3-zoom binds its pointer listeners to. Defaults to the compute
+  // `<svg>` container; on the Canvas backend it's the <canvas> (see
+  // `bindCanvasZoom`), because the canvas is the interaction surface there —
+  // the svg is made pointer-events:none so hover events reach the canvas for
+  // tooltip picking.
+  const tgt = this._zoomEventTarget || this._container;
+
   if (!brush && this.schema.zoom) {
-    this._container.call(this._zoomBehavior);
+    tgt.call(this._zoomBehavior);
     if (!this.schema.zoomScroll) {
-      this._container.on("wheel.zoom", null);
+      tgt.on("wheel.zoom", null);
     }
     if (!this.schema.zoomPan) {
-      this._container
+      tgt
         .on("mousedown.zoom mousemove.zoom", null)
         .on(
           "touchstart.zoom touchmove.zoom touchend.zoom touchcancel.zoom",
@@ -213,7 +220,7 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
         );
     }
   } else {
-    this._container.on(".zoom", null);
+    tgt.on(".zoom", null);
   }
 }
 
@@ -283,7 +290,9 @@ function zoomMath(this: Viz, factor: number = 0): void {
       .bind(document)()[1]
       .map((d: number) => d / 2),
     scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(this._container.node()) as unknown as MutableTransform;
+    t = zoomTransform(
+      (this._zoomEventTarget || this._container).node(),
+    ) as unknown as MutableTransform;
 
   if (!factor) {
     t.k = scaleExtent[0];
@@ -317,7 +326,9 @@ function zoomToBounds(
   duration: number = this.schema.duration,
 ): void {
   const scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(this._container.node()) as unknown as MutableTransform;
+    t = zoomTransform(
+      (this._zoomEventTarget || this._container).node(),
+    ) as unknown as MutableTransform;
 
   if (bounds) {
     const [width, height] = this._zoomBehavior.translateExtent()[1],
