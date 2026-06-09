@@ -35,3 +35,14 @@ BasicExample.args = {
   width: 400
 };
 BasicExample.parameters = {controls: {include: ["domain", "playButton"]}};
+export const RangeSelection = Template.bind({});
+RangeSelection.args = {
+  domain: [2000, 2020],
+  brushing: true,
+  height: 100,
+  width: 520
+};
+RangeSelection.parameters = {
+  controls: {include: ["domain", "brushing"]},
+  docs: {description: {story: "With `brushing: true`, viewers can drag to select a time range instead of a single period."}}
+};

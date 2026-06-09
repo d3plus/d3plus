@@ -21,3 +21,11 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = () => {
+  const input = {headers: ["year", "apples", "bananas"], data: [[2020, 5, 8], [2021, 7, 6]]};
+  return (
+    <pre style={{fontFamily: "monospace", fontSize: 13}}>
+      {`fold(${JSON.stringify(input, null, 2)})\n\n→ ${JSON.stringify(fold(input), null, 2)}`}
+    </pre>
+  );
+};

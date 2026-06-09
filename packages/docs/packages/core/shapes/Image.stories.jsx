@@ -25,7 +25,6 @@ const Template = (args) => <Image config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [

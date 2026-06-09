@@ -21,3 +21,16 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = () => {
+  const colors = ["#aaddff", "#ffeb3b", "#c8e6c9", "#ff8a80", "#e0e0e0"];
+  return (
+    <div style={{display: "flex", gap: 12, fontFamily: "sans-serif"}}>
+      {colors.map(c => (
+        <div key={c} style={{textAlign: "center"}}>
+          <div style={{background: c, padding: "14px 18px", borderRadius: 4}}>{c}</div>
+          <div style={{color: colorLegible(c), padding: "10px", fontWeight: "bold"}}>legible on white</div>
+        </div>
+      ))}
+    </div>
+  );
+};

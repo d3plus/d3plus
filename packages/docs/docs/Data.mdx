@@ -78,17 +78,17 @@ import {fold, nest, merge, concat, unique} from "@d3plus/data";
 
 | Function | Purpose |
 |---|---|
-| `fold` | Convert a "wide" table (one column per series) into the "long" format charts expect. |
+| `fold` | Combine a columnar `{headers, data}` response (separate header and value arrays) into an array of objects. |
 | `nest` / `nestGroups` | Group rows into a `{key, values}` hierarchy. |
 | `merge` | Combine an array of objects into one aggregated record. |
 | `concat` | Flatten/append arrays of data. |
 | `unique` | De-duplicate values, optionally by accessor. |
 
 ```js
-// "wide" → "long"
-fold(
-  {year: 2020, apples: 5, bananas: 8},
-  ["apples", "bananas"]
-);
-// → [{year: 2020, key: "apples", value: 5}, {year: 2020, key: "bananas", value: 8}]
+// columnar response → array of objects
+fold({
+  headers: ["year", "apples", "bananas"],
+  data: [[2020, 5, 8], [2021, 7, 6]]
+});
+// → [{year: 2020, apples: 5, bananas: 8}, {year: 2021, apples: 7, bananas: 6}]
 ```

@@ -21,3 +21,11 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = () => {
+  const arr = [1, 2, 2, 3, 3, 3, 4];
+  return (
+    <pre style={{fontFamily: "monospace", fontSize: 14}}>
+      {`unique([${arr.join(", ")}])\n→ [${unique(arr).join(", ")}]`}
+    </pre>
+  );
+};

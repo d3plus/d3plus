@@ -21,3 +21,13 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = () => {
+  const strings = ["hello world", "the quick brown fox", "a tale of two cities"];
+  return (
+    <ul style={{fontFamily: "sans-serif", lineHeight: 1.8}}>
+      {strings.map(s => (
+        <li key={s}><code>{s}</code> → <strong>{titleCase(s)}</strong></li>
+      ))}
+    </ul>
+  );
+};

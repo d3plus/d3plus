@@ -21,3 +21,14 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = () => {
+  const input = [
+    {id: "foo", group: "A", value: 10},
+    {id: "bar", group: "A", value: 20}
+  ];
+  return (
+    <pre style={{fontFamily: "monospace", fontSize: 13}}>
+      {`merge(${JSON.stringify(input, null, 2)})\n\n→ ${JSON.stringify(merge(input), null, 2)}`}
+    </pre>
+  );
+};
