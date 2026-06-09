@@ -100,4 +100,7 @@ export const pieDef: DataDrivenChartDefinition = {
   ],
 };
 
+/**
+    Uses the d3 pie layout to create SVG arcs based on an array of data.
+*/
 export default makeChart(pieDef);

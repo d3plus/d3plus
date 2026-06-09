@@ -92,4 +92,7 @@ export const treeDef: ChartDefinition = {
   ],
 };
 
+/**
+    Uses d3's tree layout to create a tidy tree chart based on an array of data.
+*/
 export default makeChart(treeDef);

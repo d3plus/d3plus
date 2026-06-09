@@ -83,4 +83,7 @@ export const priestleyDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a Priestley timeline based on an array of data.
+*/
 export default makeChart(priestleyDef);

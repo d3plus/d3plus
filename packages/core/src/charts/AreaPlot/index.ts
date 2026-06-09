@@ -22,4 +22,7 @@ export const areaPlotDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates an area plot based on an array of data.
+*/
 export default makeChart(areaPlotDef, Plot);

@@ -44,4 +44,7 @@ export const barChartDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a bar chart based on an array of data.
+*/
 export default makeChart(barChartDef, Plot);

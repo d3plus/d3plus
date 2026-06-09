@@ -155,4 +155,7 @@ export const packDef: ChartDefinition = {
   ],
 };
 
+/**
+    Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
+*/
 export default makeChart(packDef);

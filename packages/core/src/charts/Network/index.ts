@@ -333,4 +333,7 @@ export const networkDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a network visualization based on a defined set of nodes and edges.
+*/
 export default makeChart(networkDef);

@@ -81,4 +81,7 @@ export const radarDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a radar visualization based on an array of data.
+*/
 export default makeChart(radarDef);

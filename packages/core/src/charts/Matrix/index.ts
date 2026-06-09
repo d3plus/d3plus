@@ -93,4 +93,7 @@ export const matrixDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a simple rows/columns Matrix view of any dataset.
+*/
 export default makeChart(matrixDef);

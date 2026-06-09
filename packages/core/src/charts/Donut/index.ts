@@ -36,4 +36,7 @@ export const donutDef: ChartDefinition = {
   ],
 };
 
+/**
+    Extends the Pie visualization to create a donut chart.
+*/
 export default makeChart(donutDef, Pie);

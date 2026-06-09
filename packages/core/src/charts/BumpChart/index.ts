@@ -69,4 +69,7 @@ export const bumpChartDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a bump chart based on an array of data.
+*/
 export default makeChart(bumpChartDef, Plot);

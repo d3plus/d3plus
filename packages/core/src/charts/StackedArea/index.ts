@@ -19,4 +19,7 @@ export const stackedAreaDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a stacked area plot based on an array of data.
+*/
 export default makeChart(stackedAreaDef, AreaPlot);

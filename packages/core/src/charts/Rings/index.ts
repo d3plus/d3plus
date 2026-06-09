@@ -165,4 +165,7 @@ export const ringsDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a ring visualization based on a defined set of nodes and edges.
+*/
 export default makeChart(ringsDef);

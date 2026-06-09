@@ -43,4 +43,7 @@ export const boxWhiskerDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a simple box and whisker based on an array of data.
+*/
 export default makeChart(boxWhiskerDef, Plot);

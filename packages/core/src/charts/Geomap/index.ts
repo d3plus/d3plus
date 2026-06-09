@@ -395,4 +395,7 @@ export const geomapDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
+*/
 export default makeChart(geomapDef);

@@ -155,4 +155,7 @@ export const treemapDef: ChartDefinition = {
   ],
 };
 
+/**
+    Uses the d3 treemap layout to create SVG rectangles based on an array of data.
+*/
 export default makeChart(treemapDef);

@@ -21,4 +21,7 @@ export const linePlotDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a line plot based on an array of data.
+*/
 export default makeChart(linePlotDef, Plot);

@@ -211,4 +211,7 @@ export const sankeyDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a Sankey visualization based on a defined set of nodes and links.
+*/
 export default makeChart(sankeyDef);

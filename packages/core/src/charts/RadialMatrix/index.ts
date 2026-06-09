@@ -126,4 +126,7 @@ export const radialMatrixDef: ChartDefinition = {
   ],
 };
 
+/**
+    Creates a radial layout of a rows/columns Matrix of any dataset.
+*/
 export default makeChart(radialMatrixDef);

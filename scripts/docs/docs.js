@@ -36,28 +36,38 @@ function buildTableOfContents(project) {
   const children = project.children || [];
   if (!children.length) return "";
 
-  // Group by kind, preserving a stable order
-  const kindOrder = [
-    ReflectionKind.Class,
-    ReflectionKind.Function,
-    ReflectionKind.Variable,
-    ReflectionKind.Interface,
-    ReflectionKind.Enum,
-    ReflectionKind.TypeAlias,
+  // Chart types are exported as `makeChart(...)` values, so TypeDoc classifies
+  // them as Variables. Group those under a dedicated "Charts" heading so they
+  // aren't buried among unrelated module variables.
+  const groupLabel = child => {
+    if (
+      child.kind === ReflectionKind.Variable &&
+      /(^|[/\\])charts[/\\]/.test(child.sources?.[0]?.fileName || "")
+    )
+      return "Charts";
+    return kindLabels[child.kind] || "Other";
+  };
+  const labelOrder = [
+    "Charts",
+    "Classes",
+    "Functions",
+    "Variables",
+    "Interfaces",
+    "Enums",
+    "Type Aliases",
   ];
 
   const groups = new Map();
   for (const child of children) {
-    const kind = child.kind;
-    if (!groups.has(kind)) groups.set(kind, []);
-    groups.get(kind).push(child);
+    const label = groupLabel(child);
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(child);
   }
 
   let md = "";
-  for (const kind of kindOrder) {
-    const items = groups.get(kind);
+  for (const label of labelOrder) {
+    const items = groups.get(label);
     if (!items?.length) continue;
-    const label = kindLabels[kind] || "Other";
     md += `| ${label} | Description |\n`;
     md += `| --- | --- |\n`;
     for (const item of items) {
