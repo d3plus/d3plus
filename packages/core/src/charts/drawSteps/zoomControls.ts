@@ -130,8 +130,8 @@ export const zoomFeature: FeatureModule = {
               applyStyleObj(
                 btn,
                 isActive
-                  ? that._zoomControlStyleActive || {}
-                  : that._zoomControlStyle || {},
+                  ? that.schema.zoomControlStyleActive || {}
+                  : that.schema.zoomControlStyle || {},
               );
               zoomEvents.bind(that)(willBrush);
             },
@@ -144,16 +144,16 @@ export const zoomFeature: FeatureModule = {
         onMount: (host: HTMLElement) => {
           const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
           buttons.forEach(btn => {
-            applyStyleObj(btn, that._zoomControlStyle || {});
+            applyStyleObj(btn, that.schema.zoomControlStyle || {});
             btn.addEventListener("mouseenter", () => {
-              applyStyleObj(btn, that._zoomControlStyleHover || {});
+              applyStyleObj(btn, that.schema.zoomControlStyleHover || {});
             });
             btn.addEventListener("mouseleave", () => {
               applyStyleObj(
                 btn,
                 btn.classList.contains("active")
-                  ? that._zoomControlStyleActive || {}
-                  : that._zoomControlStyle || {},
+                  ? that.schema.zoomControlStyleActive || {}
+                  : that.schema.zoomControlStyle || {},
               );
             });
           });
