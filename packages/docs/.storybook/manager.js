@@ -7,7 +7,7 @@ import "./favicon.js";
 addons.setConfig({
   navSize: 250,
   sidebar: {
-    collapsedRoots: ["color"],
+    collapsedRoots: [],
   },
   theme,
 });
