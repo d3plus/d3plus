@@ -82,6 +82,25 @@ describe("Renderer", function() {
     assert.ok(destroyed, "destroy() was called on unmount");
   });
 
+  it("re-renders on config change WITHOUT destroying the instance (so it can tween)", async function() {
+    let instances = 0, renders = 0, destroys = 0;
+    class TrackingViz {
+      constructor() { instances++; }
+      config() { return this; }
+      render() { renders++; return this; }
+      destroy() { destroys++; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: TrackingViz, config: {a: 1}}));
+    });
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: TrackingViz, config: {a: 2}}));
+    });
+    assert.strictEqual(instances, 1, "reuses a single instance across config changes");
+    assert.strictEqual(renders, 2, "re-renders when the config changes");
+    assert.strictEqual(destroys, 0, "does not destroy between config changes (preserves the scene for tweening)");
+  });
+
   it("invokes the callback after render", async function() {
     let callbackCalled = false;
     class CallbackViz {

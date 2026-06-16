@@ -66,6 +66,9 @@ export default function Renderer({
   const container = useRef<SVGSVGElement>(null);
   const [instance] = useState<D3plusInstance>(() => new Constructor());
 
+  // Apply config + render on mount and whenever the config changes. The
+  // instance (and its scene renderer) PERSISTS across these updates, so the
+  // chart tweens between states instead of starting over each time.
   useEffect(
     () => {
       if (container.current) {
@@ -90,12 +93,19 @@ export default function Renderer({
 
         instance.render?.(callback);
       }
-
-      return () => {
-        instance.destroy?.();
-      };
     },
     forceUpdate ? undefined : [hash(globalConfig), hash(config)],
+  );
+
+  // Tear down ONLY on unmount — not on every config change. `destroy()`
+  // disposes the scene renderer and clears the rendered DOM, so running it
+  // between frames would make each config change start from scratch (shapes
+  // exit/enter — a flash — instead of tweening). Empty deps = unmount only.
+  useEffect(
+    () => () => {
+      instance.destroy?.();
+    },
+    [],
   );
 
   return (
