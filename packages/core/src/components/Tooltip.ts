@@ -69,6 +69,11 @@ async function positionTooltip(
   arrowHeight: number,
 ) {
   const {x, y, placement, middlewareData} = await computePosition(reference, tooltip, {
+    // `fixed` positions the tooltip against the viewport, so it can overflow
+    // its chart's bounds and `flip`/`shift` keep it inside the viewport
+    // (not the chart container). Pairs with the body-level portal in
+    // `resolvePortal` and `position: fixed` below.
+    strategy: "fixed",
     placement: "top",
     middleware: [
       offset(offsetVal + arrowDistance),
@@ -79,7 +84,7 @@ async function positionTooltip(
   });
 
   Object.assign(tooltip.style, {
-    position: "absolute",
+    position: "fixed",
     left: `${x}px`,
     top: `${y}px`,
     visibility: "visible",
@@ -101,30 +106,30 @@ async function positionTooltip(
 
 /**
     Resolves the portal selection the tooltips mount into: a per-instance
-    `.d3plus-tooltip-portal` child of `_parentEl`, or the global portal div.
+    `.d3plus-tooltip-portal` appended to `<body>`, or the global portal div.
 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resolvePortal(that: any): D3Selection {
-  // v4: parent() lets a chart scope the tooltip to its own container
-  // (so multiple charts on a page don't fight over the global portal).
   // Default behavior — append to body via the global #d3plus-portal —
   // preserved when parent() isn't set.
   if (!that._parentEl) return elem("div#d3plus-portal");
-  // Per-instance portal: each Tooltip owns its own
-  // `.d3plus-tooltip-portal` child of `_parentEl`. Two Tooltips
-  // pointed at the same parent get two sibling portal divs, so
-  // a `parent()` switch on one can clean up only its own portal.
+  // Per-instance portal: each Tooltip owns its own `.d3plus-tooltip-portal`.
+  // It's mounted on `<body>` (not inside `_parentEl`) so the tooltip lives at
+  // the viewport level — free to overflow its chart's bounds and immune to
+  // styling/clipping from the chart's container (e.g. a docs page reset).
+  // `_parentEl` (set via parent()) still scopes ownership so multiple charts
+  // on a page each get their own portal rather than fighting over one.
   let host = that._portalEl ?? null;
-  if (!host || host.parentNode !== that._parentEl) {
+  if (!host || !host.isConnected) {
     host = document.createElement("div");
     host.setAttribute("class", "d3plus-tooltip-portal");
-    host.style.position = "absolute";
+    host.style.position = "fixed";
     host.style.top = "0";
     host.style.left = "0";
     host.style.width = "0";
     host.style.height = "0";
     host.style.pointerEvents = "none";
-    that._parentEl.appendChild(host);
+    document.body.appendChild(host);
     that._portalEl = host;
   }
   return select(host);
@@ -319,10 +324,10 @@ export default class Tooltip extends BaseClass {
   /** v4: optional per-chart parent element (default: global #d3plus-portal). */
   _parentEl?: HTMLElement;
   /**
-   * v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` child of
-   * `_parentEl`). Tracked per-instance so that two Tooltips sharing a
-   * parent each own a distinct portal — and so `parent()` switches only
-   * remove THIS instance's portal, not a sibling Tooltip's.
+   * v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to
+   * `<body>`). Tracked per-instance so that charts each own a distinct portal
+   * — and so `parent()` switches only remove THIS instance's portal, not a
+   * sibling Tooltip's.
    */
   _portalEl?: HTMLElement;
   _tooltipRefs: Record<string, {reference: VirtualElement | HTMLElement; arrowEl: HTMLElement; tooltip: HTMLElement; arrowHeight: number; arrowDistance: number}>;
@@ -477,11 +482,10 @@ export default class Tooltip extends BaseClass {
     const prev = this._parentEl;
     const next = _ || undefined;
     if (prev && prev !== next && this._portalEl) {
-      // Remove only THIS Tooltip's own portal so it doesn't sit orphaned
-      // in the prior parent. Sibling Tooltip instances that share the
-      // same prior parent keep their portals intact. Re-renders against
-      // the new parent will create a fresh portal there.
-      if (this._portalEl.parentNode === prev) this._portalEl.remove();
+      // Switching parents: tear down this Tooltip's own (body-level) portal
+      // so it doesn't sit orphaned. A re-render against the new parent
+      // creates a fresh one. Other Tooltip instances own their own portals.
+      this._portalEl.remove();
       this._portalEl = undefined;
     }
     this._parentEl = next;
