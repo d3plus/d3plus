@@ -21,11 +21,17 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import FunctionExample from "../../helpers/FunctionExample.jsx";
+import stringify from "../../helpers/stringify.js";
+
 export const BasicExample = () => {
   const input = {headers: ["year", "apples", "bananas"], data: [[2020, 5, 8], [2021, 7, 6]]};
+  // stringify mangles arrays-of-arrays, so hand-format the headers/data matrix.
+  const inputStr = `{
+  headers: [${input.headers.map(h => `"${h}"`).join(", ")}],
+  data: [${input.data.map(row => `[${row.join(", ")}]`).join(", ")}]
+}`;
   return (
-    <pre style={{fontFamily: "monospace", fontSize: 13}}>
-      {`fold(${JSON.stringify(input, null, 2)})\n\n→ ${JSON.stringify(fold(input), null, 2)}`}
-    </pre>
+    <FunctionExample input={`fold(${inputStr})`} output={stringify(fold(input))} />
   );
 };
