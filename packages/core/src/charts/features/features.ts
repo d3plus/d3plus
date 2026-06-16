@@ -550,7 +550,25 @@ export const colorScaleFeature: FeatureModule = {
       return c !== undefined && c !== null;
     });
 
+    // Discrete (bucket/jenks/quantile) colorScales render their swatches via an
+    // internal Legend, which composes cleanly through the Viz scene — so run
+    // them in compute mode (like the legend) so the Viz's toScene owns them and
+    // hover/active dimming applies. Without this they render full-mode, where
+    // paintComponentScene paints a full-opacity copy that overlays and defeats
+    // the dimming. The smooth-gradient variant stays full-mode: its gradient
+    // fill is materialized through paintComponentScene, not the Viz scene.
+    const csCfg = (viz.schema.colorScaleConfig || {}) as {
+      scale?: string;
+      bucketAxis?: boolean;
+    };
+    const csDiscrete =
+      !csCfg.bucketAxis &&
+      ["buckets", "jenks", "quantile"].includes(
+        typeof csCfg.scale === "string" ? csCfg.scale : "",
+      );
+
     viz._colorScaleClass
+      .renderMode(csDiscrete ? "compute" : "full")
       .align(
         ({bottom: "end", left: "start", right: "end", top: "start"} as Record<string, string>)[
           position as string

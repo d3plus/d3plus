@@ -13,6 +13,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -81,8 +82,28 @@ export const pieDef: DataDrivenChartDefinition = {
         tbody: [
           [
             () => viz.schema.translate("Share"),
-            (_d: DataPoint, _i: number, x: Record<string, unknown>) =>
-              `${formatAbbreviate((x.share as number) * 100, viz.schema.locale)}%`,
+            (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
+              // A ColorScale range swatch carries no per-row share, so sum the
+              // share of every datum that falls in its color range.
+              if (x._isColorScaleBucket) {
+                const s = colorScaleBucketShare(
+                  viz,
+                  x.color,
+                  viz.schema.value as (d: DataPoint, i: number) => number,
+                );
+                return s == null
+                  ? ""
+                  : `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
+              }
+              // A Legend bucket aggregates multiple rows, so `share` arrives
+              // as an array of the members' shares — sum it; a single cell's
+              // share is a plain number.
+              const share = Array.isArray(x.share)
+                ? (x.share as number[]).reduce((a, b) => a + b, 0)
+                : (x.share as number);
+              if (!Number.isFinite(share)) return "";
+              return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
+            },
           ],
         ],
       }),

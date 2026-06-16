@@ -178,6 +178,11 @@ export default class Shape extends BaseClass {
     this.schema.labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
         colorContrast(this.schema.fill(d, i) as string),
+      // Fade labels with their shape's opacity (e.g. an axis tick label hides
+      // when `shapeConfig.opacity` is 0). Reads `this.schema.opacity` live —
+      // like `fontColor` reads `fill` — which unwraps nested label data.
+      fontOpacity: (d: DataPoint, i: number) =>
+        this.schema.opacity(d, i) as number,
       fontResize: true,
       fontMax: 50,
       fontMin: 8,

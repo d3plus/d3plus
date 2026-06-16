@@ -12,12 +12,68 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {activeBucketColors} from "../features/colorScaleBucket.js";
 import type {VizInstance} from "./vizTypes.js";
 
 type Predicate = (d: DataPoint, i: number) => boolean;
 
 /** z value that floats a hovered node above its (z-less, i.e. 0) siblings. */
 const HOVER_RAISE_Z = 1e6;
+
+/** Reads the hover/active predicate + dim opacity off a viz, or null when neither is set. */
+function dimSettings(
+  viz: VizInstance,
+): {predicate: Predicate; dimOpacity: number; isHover: boolean} | null {
+  const hover = typeof viz._hover === "function" ? (viz._hover as Predicate) : null;
+  const active = typeof viz._active === "function" ? (viz._active as Predicate) : null;
+  if (!hover && !active) return null;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const hoverOpacity = typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
+  const activeOpacity = typeof sc.activeOpacity === "number" ? sc.activeOpacity : 0.25;
+  return {
+    predicate: (hover ?? active) as Predicate,
+    dimOpacity: hover ? hoverOpacity : activeOpacity,
+    isHover: !!hover,
+  };
+}
+
+/**
+    `applyColorScaleBucketOpacity` — dims the colorScale's sibling swatches on
+    hover, the way `applyInteractionOpacity` dims chart marks and legend
+    swatches. A swatch (and its label) is a `_isColorScaleBucket` node matched
+    by its bucket COLOR, not by id/value — so this only touches those nodes and
+    leaves the colorScale title/axis/gradient at full opacity. A swatch stays
+    bright when its color is "active" (its range contains a datum matching the
+    current hover); every other swatch dims. No-op when nothing is hovered.
+*/
+export function applyColorScaleBucketOpacity(
+  nodes: SceneNode[],
+  viz: VizInstance,
+): SceneNode[] {
+  const settings = dimSettings(viz);
+  if (!settings) return nodes;
+  const activeColors = activeBucketColors(viz, settings.predicate);
+  if (!activeColors) return nodes;
+
+  const walk = (node: SceneNode): SceneNode => {
+    let next = node;
+    // Unwrap the node's datum to the source row: the swatch label is a
+    // double-wrapped TextBox node (label → shape-row → bucket).
+    let src = node.datum as
+      | (DataPoint & {__d3plus__?: boolean; data?: DataPoint; _isColorScaleBucket?: boolean; color?: unknown})
+      | undefined;
+    while (src && src.__d3plus__ && src.data) src = src.data as typeof src;
+    if (src && src._isColorScaleBucket && !activeColors.has(src.color)) {
+      const base =
+        node.paint && typeof node.paint.opacity === "number" ? node.paint.opacity : 1;
+      next = {...node, paint: {...(node.paint ?? {}), opacity: base * settings.dimOpacity}};
+    }
+    const kids = (next as {children?: SceneNode[]}).children;
+    if (kids && kids.length) next = {...next, children: kids.map(walk)} as SceneNode;
+    return next;
+  };
+  return nodes.map(walk);
+}
 
 export function applyInteractionOpacity(
   nodes: SceneNode[],

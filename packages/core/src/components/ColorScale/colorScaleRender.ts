@@ -383,9 +383,16 @@ export function renderLegendVariant(
   );
 
   let legendData = ticks!.reduce(
-    (arr: {color: string; id: string}[], tick: number, i: number) => {
+    (
+      arr: {color: string; id: string; _isColorScaleBucket: boolean}[],
+      tick: number,
+      i: number,
+    ) => {
       const label = cs.schema.bucketFormat.bind(cs)(tick, i, ticks!, allValues);
-      arr.push({color: colors[i + 1], id: label});
+      // `_isColorScaleBucket` marks these as range buckets (not groupBy rows)
+      // so a parent Viz's `_drawLabel` titles their tooltip with the bucket
+      // label (`id`) instead of resolving to "undefined" via groupBy.
+      arr.push({color: colors[i + 1], id: label, _isColorScaleBucket: true});
 
       return arr;
     },

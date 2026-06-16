@@ -47,6 +47,7 @@ const colorScaleSchema: ConfigField[] = [
   {key: "midpoint", coerce: "identity", default: 0},
   {key: "orient", coerce: "identity", default: "bottom"},
   {key: "padding", coerce: "identity", default: 5},
+  {key: "renderMode", coerce: "identity", default: "full"},
   {key: "scale", coerce: "identity", default: "linear"},
   {key: "size", coerce: "identity", default: 10},
   {key: "value", coerce: "const", default: accessor("value")},
@@ -178,7 +179,7 @@ export default class ColorScale extends BaseClass {
   render(callback?: (...args: unknown[]) => unknown): this {
     // Skip the body-svg fallback in compute mode — mirrors Axis +
     // Legend so the caller can do a DOM-free snapshot via toScene().
-    if (this._select === void 0 && this._renderMode !== "compute")
+    if (this._select === void 0 && this.schema.renderMode !== "compute")
       this.select(
         select("body")
           .append("svg")
@@ -230,7 +231,7 @@ export default class ColorScale extends BaseClass {
     // Standalone render: paint the scene into the user's `_select`. Inside a
     // Viz the color scale runs in compute mode and the Viz composes its
     // toScene().
-    if (this._renderMode !== "compute") paintComponentScene(this);
+    if (this.schema.renderMode !== "compute") paintComponentScene(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
 

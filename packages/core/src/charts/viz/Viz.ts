@@ -6,7 +6,7 @@ import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
 import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
-import {applyInteractionOpacity} from "./interactionOpacity.js";
+import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
@@ -147,10 +147,29 @@ export default class Viz extends VizBase {
         typeof comp._select.node === "function" &&
         comp._select.node()
       ) {
-        const compScene = comp.toScene();
+        let compScene = comp.toScene();
         // Tag the legend subtree so its swatches route to legend handlers via
         // the node stamp (renderer-independent), not just SVG DOM ancestry.
-        if (name === "legend") tagInteractionGroup(compScene, "legend");
+        if (name === "legend") {
+          tagInteractionGroup(compScene, "legend");
+          // Hovering a legend swatch dims the others, like the chart marks:
+          // run the legend subtree through the same interaction-opacity pass
+          // (a no-op when no hover/active predicate is set).
+          compScene = applyInteractionOpacity(
+            [compScene],
+            this as unknown as VizInstance,
+          )[0];
+        }
+        // Hovering a colorScale swatch (or a data shape) dims the sibling
+        // swatches by bucket color — leaving the colorScale title/axis/gradient
+        // untouched. Not tagged "legend": colorScale swatches keep the shape
+        // event path (range-based tooltip + hover), unlike groupBy legend items.
+        else if (name === "colorScale") {
+          compScene = applyColorScaleBucketOpacity(
+            [compScene],
+            this as unknown as VizInstance,
+          )[0];
+        }
         // Tag the timeline subtree so its ticks/labels are exempt from shape
         // tooltips and hover/active dimming (it's chrome, not data marks).
         else if (name === "timeline") tagInteractionGroup(compScene, "timeline");

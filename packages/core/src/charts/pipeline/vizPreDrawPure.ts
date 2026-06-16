@@ -150,6 +150,9 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
       d = d.data as DataPoint;
       i = d.i as number;
     }
+    // ColorScale range buckets carry their label in `id` and have no groupBy
+    // fields, so the groupBy resolution below would yield "undefined".
+    if (d._isColorScaleBucket) return `${d.id}`;
     if (d._isAggregation) {
       return `${snapThresholdName(d, i)} < ${formatAbbreviate(
         (d._threshold as number) * 100,
