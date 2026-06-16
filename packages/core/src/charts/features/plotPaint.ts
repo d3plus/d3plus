@@ -244,6 +244,58 @@ function emitBackgroundRect(viz: Viz, out: SceneNode[], xRange: number[], yRange
 }
 
 /**
+    Annotations are decorative chrome, not data marks. Stamp their scene nodes
+    `interactive: false` so the renderer's hit-test skips them: they fire no
+    shape tooltips and let pointer events pass through to the data shapes
+    beneath — matching v3, where annotations had no tooltips.
+*/
+function markAnnotationsInert(nodes: SceneNode[]): SceneNode[] {
+  const mark = (node: SceneNode): void => {
+    (node as {interactive?: boolean}).interactive = false;
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) for (const child of kids) mark(child);
+  };
+  nodes.forEach(mark);
+  return nodes;
+}
+
+/**
+    Wraps one annotation's scene in its OWN stable-keyed group, keeping the
+    shape's node group and label group as distinct sub-groups (rather than
+    flattening them into the chart-cell siblings, as `collectComputed` would).
+
+    The per-annotation `key` scopes the renderer's keyed join: ids reused
+    across different annotation shapes (e.g. "curve-mask" on both a Circle and
+    a Rect) no longer collide into one sibling list, so each annotation's nodes
+    match old→new by id frame-to-frame and TWEEN instead of exit/entering. The
+    subtree is marked inert (annotations never show tooltips).
+*/
+function collectAnnotationGroup(
+  inst: shapes.Shape,
+  key: string,
+): SceneNode | null {
+  const children: SceneNode[] = [];
+  try {
+    const s = inst.toScene();
+    if (s && Array.isArray(s.children) && s.children.length)
+      children.push(s as unknown as SceneNode);
+    const lbl = (inst as {_labelClass?: {toScene?: () => {children?: unknown[]}}})
+      ._labelClass;
+    if (lbl && typeof lbl.toScene === "function") {
+      const ls = lbl.toScene();
+      if (ls && Array.isArray(ls.children) && ls.children.length)
+        children.push(ls as unknown as SceneNode);
+    }
+  } catch {
+    return null;
+  }
+  if (!children.length) return null;
+  const group: SceneNode = {type: "group", key, children} as SceneNode;
+  markAnnotationsInert([group]);
+  return group;
+}
+
+/**
     Renders back/front annotations, pushing back-layer scenes onto `out` and
     returning the front-layer shape instances for later absorption.
 */
@@ -294,10 +346,13 @@ function emitAnnotations(
       (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
     );
     const annotationShapes = annotationData.map(d => d.shape);
-    annotationData.forEach(annotation => {
+    annotationData.forEach((annotation, i) => {
       const inst = renderAnnotation(annotation);
       if (layer === "front") frontAnnotationShapes.push(inst);
-      else out.push(...collectComputed(inst));
+      else {
+        const group = collectAnnotationGroup(inst, `annotation-${layer}-${i}`);
+        if (group) out.push(group);
+      }
     });
     // Exits: render with empty data in compute mode so their scenes go
     // empty; no DOM to clean up.
@@ -501,7 +556,10 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 
     // Absorb queued front annotations AFTER the shape loop so they render
     // above shapes.
-    frontAnnotationShapes.forEach(inst => out.push(...collectComputed(inst)));
+    frontAnnotationShapes.forEach((inst, i) => {
+      const group = collectAnnotationGroup(inst, `annotation-front-${i}`);
+      if (group) out.push(group);
+    });
 
     // Ticks, tick labels, domain bar, and title render on top of the shapes.
     out.push(...axisScenes.rest);
