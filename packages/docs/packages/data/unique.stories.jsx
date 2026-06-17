@@ -22,10 +22,11 @@ export default {
 // from the source code. Stories below this line can be modified.
 
 import FunctionExample from "../../helpers/FunctionExample.jsx";
+import sourceSnippet from "../../helpers/sourceSnippet.js";
 
-export const BasicExample = () => {
-  const arr = [1, 2, 2, 3, 3, 3, 4];
-  return (
-    <FunctionExample input={`unique([${arr.join(", ")}])`} output={`[${unique(arr).join(", ")}]`} />
-  );
-};
+const arr = [1, 2, 2, 3, 3, 3, 4];
+const call = `unique([${arr.join(", ")}])`;
+const result = `[${unique(arr).join(", ")}]`;
+
+export const BasicExample = () => <FunctionExample input={call} output={result} />;
+BasicExample.parameters = sourceSnippet("data", "unique", [{call, result}]);

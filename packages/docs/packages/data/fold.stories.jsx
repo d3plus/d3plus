@@ -22,16 +22,17 @@ export default {
 // from the source code. Stories below this line can be modified.
 
 import FunctionExample from "../../helpers/FunctionExample.jsx";
+import sourceSnippet from "../../helpers/sourceSnippet.js";
 import stringify from "../../helpers/stringify.js";
 
-export const BasicExample = () => {
-  const input = {headers: ["year", "apples", "bananas"], data: [[2020, 5, 8], [2021, 7, 6]]};
-  // stringify mangles arrays-of-arrays, so hand-format the headers/data matrix.
-  const inputStr = `{
+const input = {headers: ["year", "apples", "bananas"], data: [[2020, 5, 8], [2021, 7, 6]]};
+// stringify mangles arrays-of-arrays, so hand-format the headers/data matrix.
+const inputStr = `{
   headers: [${input.headers.map(h => `"${h}"`).join(", ")}],
   data: [${input.data.map(row => `[${row.join(", ")}]`).join(", ")}]
 }`;
-  return (
-    <FunctionExample input={`fold(${inputStr})`} output={stringify(fold(input))} />
-  );
-};
+const call = `fold(${inputStr})`;
+const result = stringify(fold(input));
+
+export const BasicExample = () => <FunctionExample input={call} output={result} />;
+BasicExample.parameters = sourceSnippet("data", "fold", [{call, result}]);
