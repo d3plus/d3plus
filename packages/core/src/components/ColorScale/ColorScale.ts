@@ -177,16 +177,12 @@ export default class ColorScale extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: (...args: unknown[]) => unknown): this {
-    // Skip the body-svg fallback in compute mode — mirrors Axis +
-    // Legend so the caller can do a DOM-free snapshot via toScene().
+    // Standalone full-render fallback: mount into a <div> appended to <body> so
+    // `paintComponentScene` creates the single <svg> inside it — mounting the
+    // renderer into an <svg> container would nest a second one. Skipped in
+    // compute mode, where the caller reads `toScene()` and no DOM is created.
     if (this._select === void 0 && this.schema.renderMode !== "compute")
-      this.select(
-        select("body")
-          .append("svg")
-          .attr("width", `${this.schema.width}px`)
-          .attr("height", `${this.schema.height}px`)
-          .node() as unknown as HTMLElement,
-      );
+      this.select(select("body").append("div").node() as unknown as HTMLElement);
 
     // Shape <g> Group
     this._group = elem("g.d3plus-ColorScale", {parent: this._select});

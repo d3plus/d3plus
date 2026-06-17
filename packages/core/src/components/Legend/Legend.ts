@@ -196,18 +196,12 @@ export default class Legend extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: (...args: unknown[]) => unknown): this {
-    // Skip the body-svg fallback in compute mode — the caller intends
-    // a DOM-free snapshot via `toScene()`. Mirrors Axis.render's
-    // standalone-compute branch so Legend doesn't leak <svg>s into
-    // <body> on every render() call when used as a scene-emitter.
+    // Standalone full-render fallback: mount into a <div> appended to <body> so
+    // `paintComponentScene` creates the single <svg> inside it — mounting the
+    // renderer into an <svg> container would nest a second one. Skipped in
+    // compute mode, where the caller reads `toScene()` and no DOM is created.
     if (this._select === void 0 && this.schema.renderMode !== "compute")
-      this.select(
-        select("body")
-          .append("svg")
-          .attr("width", `${this.schema.width}px`)
-          .attr("height", `${this.schema.height}px`)
-          .node(),
-      );
+      this.select(select("body").append("div").node());
 
     // Legend Container <g> Groups
     this._group = elem("g.d3plus-Legend", {parent: this._select});
