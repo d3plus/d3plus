@@ -52,6 +52,11 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
       fontFamily: legend._titleClass.fontFamily(),
       fontResize: false,
       fontSize: constant(10),
+      // The swatch's `hitArea` already spans the label, so let it own pointer
+      // events for the whole item. A bare label would carry a different scene
+      // key than its swatch, so hovering across the swatch→label padding would
+      // otherwise read as leaving one item and entering another.
+      pointerEvents: constant("none"),
       verticalAlign: "middle",
     },
     opacity: 1,

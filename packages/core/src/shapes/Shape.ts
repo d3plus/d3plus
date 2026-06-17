@@ -16,6 +16,7 @@ import type {AccessorFn} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
+import {hitAreaNode} from "./hitAreaNode.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
 /** Coerces a value to a finite number, or undefined. @private */
@@ -420,14 +421,26 @@ export default class Shape extends BaseClass {
     data.forEach((d, i) => {
       const geom = this._sceneGeometry(d, i);
       if (!geom) return;
+      const key = this._nestWrapper(this.schema.id)(d, i) as string | number;
+      const datum = (d.__d3plusShape__ ? d.data : d) as DataPoint;
+      const transform = this._sceneTransform(d, i);
+
+      // Push the hit area (if any) before the geometry so it sits behind it.
+      if (this.schema.hitArea) {
+        const ha = hitAreaNode(
+          this.schema.hitArea, d, i, this._aes(d, i), key, datum, this._name, transform,
+        );
+        if (ha) children.push(ha);
+      }
+
       children.push({
         ...geom,
-        key: this._nestWrapper(this.schema.id)(d, i) as string | number,
-        datum: (d.__d3plusShape__ ? d.data : d) as DataPoint,
+        key,
+        datum,
         index: i,
         shapeType: this._name,
         paint: this._scenePaint(d, i),
-        transform: this._sceneTransform(d, i),
+        transform,
         aria: {
           role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
           label: strOrUndef(this._nestWrapper(this.schema.ariaLabel)(d, i)),
