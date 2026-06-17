@@ -439,6 +439,9 @@ importers:
       '@d3plus/dom':
         specifier: workspace:*
         version: link:../dom
+      '@d3plus/locales':
+        specifier: workspace:*
+        version: link:../locales
       d3-selection:
         specifier: ^3.0.0
         version: 3.0.0
