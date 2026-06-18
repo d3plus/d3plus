@@ -335,14 +335,24 @@ export default class Axis extends BaseClass {
      * body-attached svg so standalone `new Axis().render()` works.
 */
     if (this._select === void 0 && this.schema.renderMode !== "compute") {
-      const svgNode = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "svg",
-      );
-      svgNode.setAttribute("width", `${this.schema.width}px`);
-      svgNode.setAttribute("height", `${this.schema.height}px`);
-      document.body.appendChild(svgNode);
-      this.select(svgNode as unknown as HTMLElement);
+      // Timeline (`_managesOwnScenePaint`) paints its own brush + play-button
+      // DOM into this root, so it needs a real <svg>. A plain Axis paints
+      // through `paintComponentScene`, whose renderer creates the single <svg> —
+      // so mount it into a <div>, since an <svg> container would nest a second.
+      if (this._managesOwnScenePaint) {
+        const svgNode = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg",
+        );
+        svgNode.setAttribute("width", `${this.schema.width}px`);
+        svgNode.setAttribute("height", `${this.schema.height}px`);
+        document.body.appendChild(svgNode);
+        this.select(svgNode as unknown as HTMLElement);
+      } else {
+        const div = document.createElement("div");
+        document.body.appendChild(div);
+        this.select(div as unknown as HTMLElement);
+      }
     }
 
     // Pure layout pass. `measureAxis(this)` constructs the d3 scale, picks
