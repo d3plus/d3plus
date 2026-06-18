@@ -48,11 +48,13 @@ it("Line.toScene stamps shapeType = 'Line'", () => {
 
 // Register the bridge by mounting the scene renderer, then return its single
 // subscriber. `_drawSceneToTarget` needs only a `_select` target — no full
-// draw — because we feed the bridge fabricated picks below.
+// draw — because we feed the bridge fabricated picks below. Draw with
+// duration 0 so it doesn't arm `_transitionEndsAt`, which `_routeSceneEvent`
+// uses to ignore pointer interaction while a transition is in flight.
 function bridgeHandler(chart) {
   chart._chartScene = [];
   chart._featurePanels = [];
-  chart._drawSceneToTarget();
+  chart._drawSceneToTarget(0);
   const handlers = chart._sceneRenderer && chart._sceneRenderer._handlers;
   assert.ok(handlers && handlers.size >= 1, "bridge handler registered");
   return [...handlers][0];

@@ -24,7 +24,7 @@ function findGroup(scene, key) {
   return null;
 }
 
-it("toScene() omits viz-zoom group when _zoomTransform is unset", () => {
+it("toScene() emits viz-zoom group with an identity transform when _zoomTransform is unset", () => {
   const chart = new BarChart()
     .data([{id: "a", x: 1, y: 10}])
     .groupBy(["id"]);
@@ -38,9 +38,18 @@ it("toScene() omits viz-zoom group when _zoomTransform is unset", () => {
   const scene = chart.toScene();
   const cells = findGroup(scene, "viz-chart-cells");
   assert.ok(cells, "viz-chart-cells group exists when _chartScene has content");
-  // No nested viz-zoom group — children are the chart cells directly.
+  // The viz-zoom group is ALWAYS emitted (identity transform when no zoom is
+  // active) so its key stays stable across the first zoom — otherwise the chart
+  // cells exit+enter (teardown/rebuild) instead of tweening the zoom in.
   const zoom = findGroup(scene, "viz-zoom");
-  assert.strictEqual(zoom, null, "viz-zoom group absent when no _zoomTransform");
+  assert.ok(zoom, "viz-zoom group present with identity transform");
+  assert.deepStrictEqual(
+    zoom.transform,
+    {x: 0, y: 0, scale: 1},
+    "identity transform when no zoom is active",
+  );
+  const rect = zoom.children.find(c => c.key === "r1");
+  assert.ok(rect, "chart-scene rect lives inside viz-zoom");
 });
 
 it("toScene() wraps _chartScene in a viz-zoom group when _zoomTransform is set", () => {
@@ -98,7 +107,7 @@ it("toScene() composes _chartTransform OUTSIDE the viz-zoom group", () => {
   );
 });
 
-it("Clearing _zoomTransform back to undefined removes the viz-zoom group", () => {
+it("Clearing _zoomTransform back to undefined resets the viz-zoom group to identity", () => {
   const chart = new BarChart()
     .data([{id: "a", x: 1, y: 10}])
     .groupBy(["id"]);
@@ -108,11 +117,15 @@ it("Clearing _zoomTransform back to undefined removes the viz-zoom group", () =>
   chart.schema.width = 400;
   chart.schema.height = 300;
   chart._zoomTransform = {x: 5, y: 5, scale: 1.2};
-  assert.ok(findGroup(chart.toScene(), "viz-zoom"), "viz-zoom present");
+  const zoomed = findGroup(chart.toScene(), "viz-zoom");
+  assert.deepStrictEqual(zoomed.transform, {x: 5, y: 5, scale: 1.2}, "viz-zoom reflects the zoom");
   chart._zoomTransform = undefined;
-  assert.strictEqual(
-    findGroup(chart.toScene(), "viz-zoom"),
-    null,
-    "viz-zoom gone after clear",
+  // The group stays (stable key); its transform falls back to identity.
+  const cleared = findGroup(chart.toScene(), "viz-zoom");
+  assert.ok(cleared, "viz-zoom group remains after clear for stable keying");
+  assert.deepStrictEqual(
+    cleared.transform,
+    {x: 0, y: 0, scale: 1},
+    "transform reset to identity after clear",
   );
 });
