@@ -219,31 +219,53 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     parent: tl._group,
   });
 
+  const playData = tl.schema.playButton
+    ? [
+        {
+          x: tl._paddingLeft - playButtonWidth,
+          y:
+            tl._buttonBehaviorCurrent === "buttons"
+              ? tl.schema.align === "middle"
+                ? tl.schema.height / 2 - tl.schema.buttonHeight / 2
+                : tl.schema.align === "start"
+                  ? tl._margin.top
+                  : tl.schema.height -
+                    tl.schema.buttonHeight -
+                    tl._margin.bottom
+              : tl._outerBounds.y,
+          width: playButtonWidth,
+          height: tl.schema.buttonHeight,
+        },
+      ]
+    : [];
+
   tl._playButtonClass
     .renderMode("compute")
-    .data(
-      tl.schema.playButton
-        ? [
-            {
-              x: tl._paddingLeft - playButtonWidth,
-              y:
-                tl._buttonBehaviorCurrent === "buttons"
-                  ? tl.schema.align === "middle"
-                    ? tl.schema.height / 2 - tl.schema.buttonHeight / 2
-                    : tl.schema.align === "start"
-                      ? tl._margin.top
-                      : tl.schema.height -
-                        tl.schema.buttonHeight -
-                        tl._margin.bottom
-                  : tl._outerBounds.y,
-              width: playButtonWidth,
-              height: tl.schema.buttonHeight,
-            },
-          ]
-        : [],
-    )
+    .data(playData)
     .select(playButtonGroup.node())
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .config(configPrep.bind(tl as any)(tl.schema.playButtonConfig))
     .render();
+
+  // The play button's pixels are composed into the scene (compute mode), but
+  // the scene render path mounts no per-node listeners, so a click can't reach
+  // the TextBox. Mirror the d3-brush DOM that drives the brush: mount a
+  // transparent hit rect in this group (lifted above the scene with the rest
+  // of the timeline) and route its click to the play/pause toggle.
+  const hit = elem("rect.d3plus-Timeline-play-hit", {
+    parent: playButtonGroup,
+    condition: playData.length > 0,
+  });
+  if (playData.length) {
+    const box = playData[0];
+    hit
+      .attr("x", box.x)
+      .attr("y", box.y)
+      .attr("width", box.width)
+      .attr("height", box.height)
+      .attr("fill", "transparent")
+      .attr("cursor", "pointer")
+      .style("pointer-events", "all")
+      .on("click", () => tl._togglePlay());
+  }
 }

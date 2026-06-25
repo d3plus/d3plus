@@ -455,6 +455,10 @@ export const timelineFeature: FeatureModule = {
     }
     timeline.selection(viz._timelineSelection);
 
+    // Repaint the scene when playback toggles without moving the selection
+    // (e.g. a manual pause), so the play/pause glyph refreshes immediately.
+    timeline._onPlayToggle = () => viz._scheduleSceneRepaint();
+
     const config = viz.schema.timelineConfig;
     timeline
       .config(config)

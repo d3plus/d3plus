@@ -1,10 +1,9 @@
 import {max, min} from "d3-array";
-import {brushSelection} from "d3-brush";
 import {pointers} from "d3-selection";
 
 import {assign, attrize, date} from "@d3plus/dom";
 import {closest} from "@d3plus/math";
-import type {GroupNode, SceneNode} from "@d3plus/render";
+import type {GroupNode} from "@d3plus/render";
 
 import {Axis, TextBox} from "../index.js";
 import {constant} from "../../utils/index.js";
@@ -44,6 +43,10 @@ export default class Timeline extends Axis {
   _hiddenHandles!: boolean;
   _playButtonClass!: TextBox;
   _playTimer!: ReturnType<typeof setInterval> | false;
+  // Set by the host Viz (timelineFeature) to repaint the scene after a play
+  // state change that doesn't move the selection — e.g. a manual pause — so the
+  // play/pause glyph refreshes without waiting for the next interaction.
+  _onPlayToggle?: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _brush: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -352,66 +355,79 @@ export default class Timeline extends Axis {
   }
 
   /**
-      Extends the native Axis scene with the Timeline-specific brush selection
-      overlay (snapshotted, since d3-brush manages its DOM directly) and the
-      play-button TextBox (native).
+      Toggles timeline playback. When stopped, advances the selection one tick
+      every `playButtonInterval` ms until it reaches the final tick; when
+      playing, stops. Invoked by the play button's DOM hit target (the scene
+      path wires no listeners, so the click can't reach the TextBox itself).
+      @private
+*/
+  _togglePlay(): void {
+    // Currently playing → pause.
+    if (this._playTimer) {
+      clearInterval(this._playTimer);
+      this._playTimer = false;
+      this._playButtonClass.render();
+      this._onPlayToggle?.();
+      return;
+    }
+
+    // Stopped → start advancing the selection one tick per interval.
+    let firstTime = true;
+    const nextYear = () => {
+      let selection: unknown[] = (this.schema.selection || [
+        this.schema.domain[this.schema.domain.length - 1],
+      ]) as unknown[];
+      if (!(selection instanceof Array)) selection = [selection];
+      selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
+      if (selection.length === 1) selection.push(selection[0]);
+      const ticks = this.schema.ticks!.map(Number);
+      const firstIndex = ticks.indexOf(selection[0] as number);
+      const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
+      if (lastIndex === ticks.length - 1) {
+        if (!firstTime) {
+          if (this._playTimer) clearInterval(this._playTimer);
+          this._playTimer = false;
+          this._playButtonClass.render();
+          this._onPlayToggle?.();
+        } else {
+          this.selection([
+            this.schema.ticks![0],
+            this.schema.ticks![lastIndex - firstIndex],
+          ]).render();
+        }
+      } else {
+        if (lastIndex + 1 === ticks.length - 1) {
+          if (this._playTimer) clearInterval(this._playTimer);
+          this._playTimer = false;
+        }
+        this.selection([
+          this.schema.ticks![firstIndex + 1],
+          this.schema.ticks![lastIndex + 1],
+        ]).render();
+      }
+      firstTime = false;
+    };
+    this._playTimer = setInterval(nextYear, this.schema.playButtonInterval);
+    nextYear();
+    // Reflect the now-playing state immediately, even when the selection was
+    // already at the final tick (nextYear made no move, so no brush re-render).
+    this._onPlayToggle?.();
+  }
+
+  /**
+      Extends the native Axis scene with the Timeline-specific play-button
+      TextBox.
+
+      The brush selection + handles are NOT composed here: d3-brush owns its
+      own DOM (mounted in `g.brushGroup` and styled by `_brushStyle`), which the
+      Viz lifts above the scene so it paints on top of the timeline ticks. That
+      DOM brush is the sole brush visual and interaction layer — drawing a
+      second copy from the scene only duplicated it at the wrong height (the
+      full outer bounds rather than the tick band), so the overlay no longer
+      lined up with the timeline.
 */
   toScene(): GroupNode {
     const scene = super.toScene();
-
-    // Native brush selection + handles (no domToScene snapshot). The selection
-    // is read directly from d3-brush via brushSelection(node) — returns pixel
-    // coords. Interaction belongs to the renderer/event layer; this draws only
-    // the visual.
-    const brushNode =
-      this._brushGroup && typeof this._brushGroup.node === "function"
-        ? (this._brushGroup.node() as Element | null)
-        : null;
-    const sel = brushNode ? brushSelection(brushNode as SVGGElement) : null;
-    if (sel && Array.isArray(sel) && sel.length === 2) {
-      const {y: yKey, height: hKey} = this._position;
-      const yPos = this._outerBounds[yKey];
-      const hPos = this._outerBounds[hKey];
-      const x1 = sel[0] as number;
-      const x2 = sel[1] as number;
-      const left = Math.min(x1, x2);
-      const right = Math.max(x1, x2);
-      const handle = this._hiddenHandles ? 0 : this.schema.handleSize;
-      const selectionPaint = {fill: "rgba(0,0,0,0.10)", stroke: "rgba(0,0,0,0.25)", strokeWidth: 1};
-      const handlePaint = {fill: "#fff", stroke: "rgba(0,0,0,0.5)", strokeWidth: 1};
-      const extras: SceneNode[] = [
-        {
-          type: "rect",
-          key: "tl-brush-selection",
-          x: left,
-          y: yPos,
-          width: right - left,
-          height: hPos,
-          paint: selectionPaint,
-        },
-      ];
-      if (handle > 0) {
-        extras.push({
-          type: "rect",
-          key: "tl-brush-handle-w",
-          x: left - handle / 2,
-          y: yPos,
-          width: handle,
-          height: hPos,
-          paint: handlePaint,
-        });
-        extras.push({
-          type: "rect",
-          key: "tl-brush-handle-e",
-          x: right - handle / 2,
-          y: yPos,
-          width: handle,
-          height: hPos,
-          paint: handlePaint,
-        });
-      }
-      scene.children.push(...extras);
-    }
 
     const pb = this._playButtonClass as unknown as {
       toScene?: () => GroupNode;

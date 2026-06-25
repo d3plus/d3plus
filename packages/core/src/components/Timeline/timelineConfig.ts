@@ -1,64 +1,19 @@
 import {colorContrast, colorDefaults} from "@d3plus/color";
-import {assign, backgroundColor, date} from "@d3plus/dom";
+import {assign, backgroundColor} from "@d3plus/dom";
 
 import TextBox from "../TextBox.js";
 import type Timeline from "./Timeline.js";
 
 const colorMid = "#bbb";
 
-/** Builds the play/pause TextBox, wiring its click + hover behavior. */
-function buildPlayButton(tl: Timeline): TextBox {
-  return new TextBox()
-    .on("click", () => {
-      // if playing, pause
-      if (tl._playTimer) {
-        if (tl._playTimer) clearInterval(tl._playTimer);
-        tl._playTimer = false;
-        tl._playButtonClass.render();
-      }
-      // otherwise, start playing
-      else {
-        let firstTime = true;
-        const nextYear = () => {
-          let selection: unknown[] = (tl.schema.selection || [
-            tl.schema.domain[tl.schema.domain.length - 1],
-          ]) as unknown[];
-          if (!(selection instanceof Array)) selection = [selection];
-          selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
-          if (selection.length === 1) selection.push(selection[0]);
-          const ticks = tl.schema.ticks!.map(Number);
-          const firstIndex = ticks.indexOf(selection[0] as number);
-          const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
-          if (lastIndex === ticks.length - 1) {
-            if (!firstTime) {
-              if (tl._playTimer) clearInterval(tl._playTimer);
-              tl._playTimer = false;
-              tl._playButtonClass.render();
-            } else {
-              tl.selection([
-                tl.schema.ticks![0],
-                tl.schema.ticks![lastIndex - firstIndex],
-              ]).render();
-            }
-          } else {
-            if (lastIndex + 1 === ticks.length - 1) {
-              if (tl._playTimer) clearInterval(tl._playTimer);
-              tl._playTimer = false;
-            }
-            tl.selection([
-              tl.schema.ticks![firstIndex + 1],
-              tl.schema.ticks![lastIndex + 1],
-            ]).render();
-          }
-          firstTime = false;
-        };
-        tl._playTimer = setInterval(nextYear, tl.schema.playButtonInterval);
-        nextYear();
-      }
-    })
-    .on("mousemove", () =>
-      tl._playButtonClass.select().style("cursor", "pointer"),
-    );
+/**
+    Builds the play/pause TextBox. The button's visual is composed into the
+    scene in compute mode; its click is wired to `Timeline._togglePlay` via a
+    DOM hit target in `renderPlayButton` (the scene path mounts no per-node
+    listeners, so a handler on the TextBox itself would never fire).
+*/
+function buildPlayButton(): TextBox {
+  return new TextBox();
 }
 
 /** Assembles the per-tick shapeConfig overrides (button vs. tick mode). */
@@ -145,7 +100,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.schema.labelOffset = false;
   tl.schema.on = {};
   tl.orient("bottom");
-  tl._playButtonClass = buildPlayButton(tl);
+  tl._playButtonClass = buildPlayButton();
   tl.schema.playButtonConfig = {
     fontColor: colorDefaults.dark,
     fontSize: 15,
