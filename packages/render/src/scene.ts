@@ -252,6 +252,42 @@ export interface TextNode extends NodeBase {
   /** Pre-wrapped, pre-positioned lines — backends do not re-measure or re-wrap. */
   lines: TextLine[];
   font: FontSpec;
+  /**
+      Layout box width/height (the wrap box the lines were positioned in). Used
+      only as a fallback to center a font-size transition's scale when a node has
+      no laid-out lines.
+  */
+  width?: number;
+  height?: number;
+}
+
+/**
+    The center of a text node's visible glyph box in its local coordinate space,
+    derived from the laid-out lines. Unlike the layout box center
+    (`[width/2, height/2]`), this reflects the actual text-anchor and vertical
+    alignment — `start`/`end` text sits to one side of its box, `top`-aligned
+    text near the top. A font-size transition glides this *visual* center so the
+    label stays put even when the anchor/alignment flips (e.g. Rings' ring →
+    center re-focus, where `text-anchor` changes start/end → middle).
+*/
+export function textVisualCenter(node: TextNode): [number, number] {
+  const lines = node.lines;
+  const fs = node.font?.size ?? 0;
+  if (!lines || !lines.length)
+    return [(node.width ?? 0) / 2, (node.height ?? 0) / 2];
+  const anchor = node.font?.anchor;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const ln of lines) {
+    const w = ln.width || 0;
+    const left = anchor === "middle" ? ln.x - w / 2 : anchor === "end" ? ln.x - w : ln.x;
+    if (left < minX) minX = left;
+    if (left + w > maxX) maxX = left + w;
+    if (ln.y < minY) minY = ln.y;
+    if (ln.y > maxY) maxY = ln.y;
+  }
+  // `y` is a baseline; glyphs extend ~0.8em above and ~0.2em below it, so the
+  // optical mid-line sits ~0.3em above the baseline midpoint.
+  return [(minX + maxX) / 2, (minY + maxY) / 2 - fs * 0.3];
 }
 
 /** A transform/clip container; mirrors the nested <g> structure of the SVG output. */

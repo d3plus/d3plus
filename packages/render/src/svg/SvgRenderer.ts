@@ -4,7 +4,7 @@ import {transition} from "d3-transition";
 import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
-import type {GroupNode, HtmlOverlayNode, Scene, SceneNode} from "../scene.js";
+import type {GroupNode, HtmlOverlayNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -17,6 +17,7 @@ import {
   buildIndex,
   SVG_NS,
   tagFor,
+  textFontTween,
 } from "./svgNodeAttrs.js";
 import type {
   DrawOptions,
@@ -288,9 +289,31 @@ export default class SvgRenderer implements Renderer {
 
     merged.each(function (this: Element, d: SceneNode) {
       const s = select(this);
+      // A text label whose font-size changed eases into its new size/place
+      // instead of snapping. `__d3plusTextPrev__` is the node this element drew
+      // last time; comparing font sizes detects a resize. (The layout/tspans
+      // are already at the new size — the tween scales the painted glyphs.)
+      const prevText =
+        duration && d.type === "text"
+          ? ((this as any).__d3plusTextPrev__ as TextNode | undefined)
+          : undefined;
       applyStatic(s, d);
-      if (duration) applyGeometry((s as any).transition(t), d, true, resolveFill);
-      else applyGeometry(s, d, false, resolveFill);
+      if (duration) {
+        const tsel = (s as any).transition(t);
+        applyGeometry(tsel, d, true, resolveFill);
+        if (
+          d.type === "text" &&
+          prevText &&
+          prevText.font &&
+          (d as TextNode).font &&
+          prevText.font.size !== (d as TextNode).font.size
+        ) {
+          // Override the transform tween: glide position/rotation and ease the
+          // scale (old/new → 1) about the box center.
+          tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
+        }
+      } else applyGeometry(s, d, false, resolveFill);
+      if (d.type === "text") (this as any).__d3plusTextPrev__ = d;
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
         self._reconcile(s as any, (d as GroupNode).children, duration, t);

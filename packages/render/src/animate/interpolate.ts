@@ -1,6 +1,8 @@
 import {interpolateNumber, interpolateRgb} from "d3-interpolate";
 import {interpolatePath} from "d3-interpolate-path";
 
+import {textVisualCenter} from "../scene.js";
+
 import type {
   AreaNode,
   CircleNode,
@@ -10,6 +12,7 @@ import type {
   PathNode,
   RectNode,
   SceneNode,
+  TextNode,
   Transform,
 } from "../scene.js";
 
@@ -134,8 +137,36 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
       const d = interpolatePath(f.d, to.d);
       return t => ({...(base(t) as PathNode), d: d(t)});
     }
+    case "text": {
+      // A font-size change eases in as a scale (old/new → 1) layered on the
+      // target transform, mirroring the SVG renderer. The text layout (tspans)
+      // stays at the target size; the scale grows/shrinks the glyphs into place.
+      // The scale pivots about the NEW visual center (anchor-aware); we glide
+      // that center's position old→new and place the origin at `pos − scale·c`.
+      // `base(t)` is still used for rotation interpolation.
+      const f = from as TextNode, n = to as TextNode;
+      const fromSize = f.font?.size, toSize = n.font?.size;
+      if (fromSize && toSize && fromSize !== toSize) {
+        const baseScale = to.transform?.scale ?? 1;
+        const [nvcx, nvcy] = textVisualCenter(n);
+        const [ovcx, ovcy] = textVisualCenter(f);
+        const si = lerpNum(fromSize / toSize, 1);
+        const pxI = lerpNum((f.transform?.x ?? 0) + ovcx, (n.transform?.x ?? 0) + nvcx);
+        const pyI = lerpNum((f.transform?.y ?? 0) + ovcy, (n.transform?.y ?? 0) + nvcy);
+        return t => {
+          const b = base(t);
+          const tr = b.transform ?? to.transform ?? {};
+          const scale = baseScale * si(t);
+          return {
+            ...b,
+            transform: {...tr, scale, x: pxI(t) - scale * nvcx, y: pyI(t) - scale * nvcy},
+          } as SceneNode;
+        };
+      }
+      return base;
+    }
     default:
-      // image, text, group: snap geometry, animate paint/transform only.
+      // image, group: snap geometry, animate paint/transform only.
       return base;
   }
 }

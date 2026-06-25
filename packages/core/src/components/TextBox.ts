@@ -477,6 +477,8 @@ export default class TextBox extends BaseClass {
         index: d.i,
         x: 0,
         y: 0,
+        width: d.w,
+        height: d.h,
         lines,
         font: {
           family: d.fF,

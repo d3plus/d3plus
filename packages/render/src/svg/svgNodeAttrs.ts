@@ -3,6 +3,7 @@ import {interpolatePath} from "d3-interpolate-path";
 import {select} from "d3-selection";
 
 import {areaPath, linePath} from "../paths.js";
+import {textVisualCenter} from "../scene.js";
 import type {SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
@@ -41,6 +42,49 @@ export function transformStr(node: SceneNode): string | null {
         : `rotate(${tr.rotate})`,
     );
   return parts.join(" ") || null;
+}
+
+/**
+    Builds an `attrTween` interpolator for a text label whose font-size changed
+    between renders, so it eases into its new size/place instead of snapping.
+
+    The text layout (tspans) is already at the NEW size; the tween layers a
+    `scale(old/new → 1)` on top so the painted glyphs grow/shrink into place,
+    while the label's CENTER glides from where it was to where it's going and the
+    rotation glides too.
+
+    The scale pivots about the NEW visual center (`textVisualCenter`, which
+    reflects text-anchor/alignment) — the glyphs are already laid out there, so
+    that's the point that must stay put as they scale; using the box center or
+    the old center instead parks the shrunk label off to one side and it visibly
+    jumps at the start. We track the visual center's position in the parent frame
+    (`pos = origin + center`), glide it old→new, and place the origin at
+    `pos − scale·center`. At k=0 this lands exactly on the previous label —
+    even across an anchor flip — and at k=1 reduces to the node's own `translate`.
+*/
+export function textFontTween(
+  prev: TextNode,
+  node: TextNode,
+): () => (k: number) => string {
+  const pt = prev.transform || {};
+  const nt = node.transform || {};
+  const orot = pt.rotate ?? 0, nrot = nt.rotate ?? 0;
+  const [nvcx, nvcy] = textVisualCenter(node);
+  const [ovcx, ovcy] = textVisualCenter(prev);
+  // Visual-center positions in the parent frame (origin + visual center).
+  const oldCx = (pt.x ?? 0) + ovcx, oldCy = (pt.y ?? 0) + ovcy;
+  const newCx = (nt.x ?? 0) + nvcx, newCy = (nt.y ?? 0) + nvcy;
+  const s0 = (prev.font?.size ?? 1) / (node.font?.size ?? 1);
+  const ra = nt.rotateAnchor;
+  return () => (k: number): string => {
+    const sc = s0 + (1 - s0) * k;
+    const px = oldCx + (newCx - oldCx) * k;
+    const py = oldCy + (newCy - oldCy) * k;
+    const rot = orot + (nrot - orot) * k;
+    let str = `translate(${px - sc * nvcx},${py - sc * nvcy}) scale(${sc})`;
+    if (rot) str += ra ? ` rotate(${rot},${ra[0]},${ra[1]})` : ` rotate(${rot})`;
+    return str;
+  };
 }
 
 /** Recursively records every node by its (stringified) key for hit-testing. */
