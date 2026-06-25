@@ -11,6 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import {Axis} from "../../components/index.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -50,6 +51,10 @@ export const matrixDef: ChartDefinition = {
       d: DataPoint, i: number, x: unknown, event: unknown,
     ) => {
       baseMouseMoveShape(d, i, x, event);
+      // A colorScale swatch routes through the shape path but has no row/column,
+      // so its row/column hover would match nothing and wipe out the bucket
+      // highlight `mouseenter` already set. Leave that highlight in place.
+      if (colorScaleBucketOf(x) || colorScaleBucketOf(d)) return;
       const row = getProp.bind(viz)("row", d, i);
       const column = getProp.bind(viz)("column", d, i);
       type HoverFn = (fn: (h: DataPoint, ii: number) => boolean) => unknown;

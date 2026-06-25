@@ -46,10 +46,19 @@ export interface BuildLabelDataOpts {
   rotate: Accessor<number>;
   /** Returns the unique id for a datum. */
   id: Accessor<string | number>;
+  /**
+      Resolves the source row stored as each label record's `.data`. Defaults to
+      the iterated datum itself. Charts whose `data` array is a layout/hierarchy
+      node (e.g. Pack's d3-hierarchy nodes) pass `d => d.data` so the label
+      resolves to the same source row its shape node carries — without it, the
+      shape and its label unwrap to different objects and hover treats them
+      separately (the shape highlights/raises while the label dims behind it).
+  */
+  datum?: (d: DataPoint, i: number) => DataPoint;
 }
 
 export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
-  const {data, dataFilter, label, labelBounds, x, y, aes, rotate, id} = opts;
+  const {data, dataFilter, label, labelBounds, x, y, aes, rotate, id, datum: datumFn} = opts;
   const out: DataPoint[] = [];
   const src = dataFilter ? dataFilter(data) : data;
 
@@ -111,7 +120,7 @@ export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
 
         out.push({
           __d3plus__: true,
-          data: d,
+          data: datumFn ? datumFn(d, i) : d,
           height: b.height,
           l,
           id: `${id(d, i)}_${l}`,

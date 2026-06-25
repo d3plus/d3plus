@@ -75,6 +75,25 @@ export function colorScaleBucketShare(
 }
 
 /**
+    Unwraps a scene/handler datum to its colorScale-bucket source, or null when
+    it isn't a bucket. A swatch (or its label) reaches a handler wrapped one or
+    more levels deep (label → shape-row → bucket), so walk the `__d3plus__`
+    chain before reading `_isColorScaleBucket`. Shared by `mouseenter` (to build
+    the highlight predicate) and the chart `mousemove.shape` overrides (to skip
+    their row/column hover so the bucket highlight isn't clobbered on move).
+*/
+export function colorScaleBucketOf(
+  d: unknown,
+): (DataPoint & {color?: unknown}) | null {
+  let bucket = d as
+    | (DataPoint & {__d3plus__?: boolean; data?: DataPoint; _isColorScaleBucket?: boolean; color?: unknown})
+    | undefined;
+  while (bucket && bucket.__d3plus__ && bucket.data)
+    bucket = bucket.data as typeof bucket;
+  return bucket && bucket._isColorScaleBucket ? bucket : null;
+}
+
+/**
     Predicate matching every datum whose ColorScale value falls in
     `bucketColor`'s range — used to highlight the data shapes when a colorScale
     swatch is hovered (it has no groupBy id to match on, unlike a normal

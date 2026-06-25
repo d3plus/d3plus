@@ -62,6 +62,11 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
     },
     x: d => (d as unknown as PackLeaf).x,
     y: d => (d as unknown as PackLeaf).y,
+    // Store the leaf's source row (not the d3-hierarchy node) as the label's
+    // `.data`, matching the circle node's datum (`d.data` above). Without this
+    // the label and its circle unwrap to different objects, so on hover the
+    // circle highlights/raises while its label dims behind it.
+    datum: d => (d as unknown as PackLeaf).data as DataPoint,
     aes: d => {
       const r = (d as unknown as PackLeaf).r;
       return {r, width: 2 * r, height: 2 * r};
