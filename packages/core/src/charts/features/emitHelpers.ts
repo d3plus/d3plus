@@ -21,6 +21,7 @@
 */
 
 import configPrep from "../../utils/configPrep.js";
+import type {VizContext} from "../../utils/configPrep.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, SceneNode} from "@d3plus/render";
@@ -127,11 +128,13 @@ export function shapeConfigFor(
   config?: Record<string, unknown>,
   kind: string = "shape",
 ): Record<string, unknown> {
-  // configPrep itself isn't yet typed in @d3plus/dom; the cast lives here so
-  // every caller doesn't need to know about it. The runtime contract is
-  // `configPrep.bind(viz)(config, kind, key) → massagedConfig`.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (configPrep as any).bind(viz)(config ?? viz.schema.shapeConfig, kind, shapeKey);
+  // configPrep binds its `this` to a VizContext-shaped object; VizLike
+  // satisfies that contract at runtime.
+  return configPrep.bind(viz as unknown as VizContext)(
+    (config ?? viz.schema.shapeConfig) as Parameters<typeof configPrep>[0],
+    kind,
+    shapeKey,
+  );
 }
 
 /**
