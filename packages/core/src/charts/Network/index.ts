@@ -50,7 +50,7 @@ type NetworkViz = VizInstance & NetworkFluent;
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
 function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
   viz.schema.on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
-    viz._tooltipClass.data([]).render();
+    viz._tooltipClass!.data([]).render();
 
     if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
       const id = getNodeId(viz, d, i);

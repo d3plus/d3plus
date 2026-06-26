@@ -16,6 +16,10 @@ import Viz from "../viz/Viz.js";
 import type {ChartDefinition} from "./ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+// The generated chart class extends a runtime-chosen base and overrides
+// `_draw`/`_thresholdFunction` with looser signatures, which a concrete
+// `new () => VizInstance` constructor type can't express; `any` is the factory
+// escape hatch (call sites still get the real `Viz` API via the class itself).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyViz = any;
 type VizCtor = new () => AnyViz;

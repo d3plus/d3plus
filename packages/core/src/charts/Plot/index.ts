@@ -89,8 +89,7 @@ export default class Plot extends Viz {
     // E4: install identity-coerce accessors on Plot.prototype. Defaults
     // are still applied below imperatively from plotDef; installFluent
     // skips slots that are already set, so the constructor wins.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    installFluent(this as any, plotSchema);
+    installFluent(this, plotSchema);
     // E3: scalar defaults sourced from plotDef.
     const defaults = plotDef.defaults!;
     this._axisPersist = defaults.axisPersist as boolean;

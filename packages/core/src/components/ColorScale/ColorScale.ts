@@ -67,7 +67,7 @@ export default class ColorScale extends BaseClass {
   _select!: D3Selection;
   _axisClass: Axis;
   _axisTest: Axis;
-  _colorScale!: D3Scale<string>;
+  _colorScale?: D3Scale<string>;
   _data: DataPoint[];
   _group!: D3Selection;
   _labelClass: TextBox;

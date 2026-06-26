@@ -374,7 +374,7 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
       ? computeJenksScale(cs, ctx)
       : computeLinearScale(cs, ctx);
 
-  if (cs._colorScale.clamp) cs._colorScale.clamp(true);
+  if (cs._colorScale!.clamp) cs._colorScale!.clamp(true);
 
   return {
     allValues,

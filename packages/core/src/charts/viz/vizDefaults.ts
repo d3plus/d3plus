@@ -24,13 +24,12 @@ import mousemoveShape from "../events/mousemove.shape.js";
 
 import type Viz from "./Viz.js";
 
-function debounce(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  func: (...args: any[]) => void,
+function debounce<A extends unknown[]>(
+  func: (...args: A) => void,
   delay: number,
-): (...args: unknown[]) => void {
+): (...args: A) => void {
   let timeout: ReturnType<typeof setTimeout>;
-  return function (this: unknown, ...args: unknown[]) {
+  return function (this: unknown, ...args: A) {
     const context = this;
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), delay);
@@ -486,8 +485,7 @@ export function initVizDefaults(viz: Viz): void {
   // `viz._x = …` assignments below seed defaults; installFluent's "skip
   // if slot already set" guard respects them. Methods are visible to
   // BaseClass.config()'s `getAllMethods` reflection.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  installFluent(viz as any, vizSchema);
+  installFluent(viz, vizSchema);
   initBaseDefaults(viz);
   initColorDefaults(viz);
   initDataDefaults(viz);

@@ -386,8 +386,9 @@ export const geomapDef: ChartDefinition = {
             if (cs && !coordFeatures.includes(d)) {
               const c = cs(d);
               if (c !== undefined && c !== null) {
-                if (viz._colorScaleClass._colorScale) return viz._colorScaleClass._colorScale(c);
-                let col = viz._colorScaleClass.color();
+                if (viz._colorScaleClass!._colorScale)
+                  return viz._colorScaleClass!._colorScale(c as number);
+                let col = viz._colorScaleClass!.color();
                 if (col instanceof Array) col = col[col.length - 1];
                 return col;
               }

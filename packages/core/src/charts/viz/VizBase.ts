@@ -5,6 +5,7 @@ import {assign, date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, constant} from "../../utils/index.js";
+import type {D3plusConfig} from "../../utils/index.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
 /**
@@ -109,7 +110,9 @@ export default class VizBase extends VizBaseConfig {
   /**
       Configuration object with key/value pairs applied as method calls on each shape.
 */
-  shapeConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+  shapeConfig(): D3plusConfig;
+  shapeConfig(_: D3plusConfig): this;
+  shapeConfig(_?: D3plusConfig): this | D3plusConfig {
     return arguments.length
       ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
       : this.schema.shapeConfig;

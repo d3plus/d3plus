@@ -207,7 +207,7 @@ function renderGradientStops(
 ): void {
   const {horizontal, colors} = compute;
 
-  const scaleDomain = cs._colorScale.domain();
+  const scaleDomain = cs._colorScale!.domain();
   const offsetScale = scaleLinear()
     .domain(scaleRange as number[])
     .range(horizontal ? [0, 100] : [100, 0]);
@@ -252,7 +252,7 @@ function renderGradientRect(
     {
       duration: cs.schema.duration,
       fill: ticks
-        ? (d: number) => cs._colorScale(d)
+        ? (d: number) => cs._colorScale!(d)
         : cs._gradientFill,
       [x]: ticks
         ? (d: number, i: number) =>

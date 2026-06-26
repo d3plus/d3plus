@@ -6,6 +6,8 @@ import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
 import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
+import type {ColorScale, Legend, Timeline} from "../../components/index.js";
+import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {vizRender} from "./vizRender.js";
@@ -111,7 +113,7 @@ export default class Viz extends VizBase {
     // pushing into `_shapes` gets its `toScene()` walked here; we read the
     // shape's `_select` transform via d3's transform baseVal if present,
     // otherwise emit without a transform.
-    (this._shapes || []).forEach((shape: any, si: number) => {
+    (this._shapes || []).forEach((shape: Shape, si: number) => {
       if (!shape || typeof shape.toScene !== "function") return;
       const group = shape.toScene();
       let transform: Transform | undefined;
@@ -134,7 +136,7 @@ export default class Viz extends VizBase {
       });
     });
     // Chart-level components that have their own toScene.
-    const components: [string, any][] = [
+    const components: [string, Legend | ColorScale | Timeline | undefined][] = [
       ["legend", this._legendClass],
       ["colorScale", this._colorScaleClass],
       ["timeline", this._timelineClass],
@@ -147,7 +149,7 @@ export default class Viz extends VizBase {
         typeof comp._select.node === "function" &&
         comp._select.node()
       ) {
-        let compScene = comp.toScene();
+        let compScene: SceneNode = comp.toScene();
         // Tag the legend subtree so its swatches route to legend handlers via
         // the node stamp (renderer-independent), not just SVG DOM ancestry.
         if (name === "legend") {
@@ -425,8 +427,7 @@ export default class Viz extends VizBase {
       key: string,
       d: unknown,
       i: number,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      x: any,
+      x: unknown,
     ): void => {
       const fn = this.schema.on && this.schema.on[key];
       if (typeof fn === "function") {
@@ -460,15 +461,17 @@ export default class Viz extends VizBase {
       return;
     }
     if (!pick || !pick.node) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nodeAny = pick.node as any;
+    // Scene nodes carry interaction metadata stamped by Viz.toScene.
+    const nodeAny = pick.node as {
+      interactionGroup?: string;
+      shapeType?: string;
+    };
     // Back-button panel: its d3-selection click listener never fires in the
     // scene path (it's a plain text node), so route its click here to pop
     // the drill-down history / step up a level.
     if (nodeAny.interactionGroup === "back") {
       if (event.type === "click") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const self = this as any;
+        const self = this;
         if (self._history.length) self.config(self._history.pop()).render();
         else self.depth(self._drawDepth - 1).filter(false).render();
       }
@@ -497,8 +500,10 @@ export default class Viz extends VizBase {
     // Resolve the source datum + index. `pick.datum` is the raw scene datum
     // (which Shape._sceneXxx populated). For Plot shapes that's the wrapped
     // record; the handlers expect `(d.data, d.i, x, event)`.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawDatum: any = pick.datum;
+    const rawDatum = pick.datum as
+      | {data?: unknown; i?: number}
+      | null
+      | undefined;
     const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
     const sourceIndex =
       rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;

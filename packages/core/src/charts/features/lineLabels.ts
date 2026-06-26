@@ -52,7 +52,7 @@ export function bumpLineLabels(
 
       /***/
       function bumpPrevious(d: LabelWidth, i: number, arr: LabelWidth[]) {
-        if (!d.defaultY) d.defaultY = viz._yAxis._getPosition(d.value);
+        if (!d.defaultY) d.defaultY = viz._yAxis!._getPosition(d.value);
         if (i) {
           const prev = arr[i - 1];
           const {fontSize, padding} = d;
@@ -98,7 +98,7 @@ export function emitLineLabelConnectors(
     .map(d =>
       assign(
         {
-          x: viz._xAxis._getPosition.bind(viz._xAxis)(d.xValue),
+          x: viz._xAxis!._getPosition.bind(viz._xAxis!)(d.xValue),
           y: d.defaultY,
         },
         d as unknown as Record<string, unknown>,
@@ -109,7 +109,7 @@ export function emitLineLabelConnectors(
         assign(
           {
             x:
-              viz._xAxis._getPosition.bind(viz._xAxis)(d.xValue) +
+              viz._xAxis!._getPosition.bind(viz._xAxis!)(d.xValue) +
               d.padding -
               1,
             y: d.newY || d.defaultY,

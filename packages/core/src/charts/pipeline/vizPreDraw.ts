@@ -67,7 +67,7 @@ export function vizPreDraw(viz: Viz): void {
 
   // 5. No-data-message DOM mount + opacity fade.
   if (post.noDataMessage) {
-    viz._messageClass.render({
+    viz._messageClass!.render({
       container: viz._select!.node().parentNode,
       html: viz.schema.noDataHTML(viz),
       mask: false,

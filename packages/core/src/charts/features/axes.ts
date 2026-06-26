@@ -458,7 +458,11 @@ function renderXAxes(
   const {defaultX2Config, showX, x2Exists, xC} = pCtx;
   const {xTicks, x2Ticks, x2Height, topOffset, height, width, verticalMargin} = pCtx;
 
-  viz._xAxis
+  // Plot sets these before the axis pass runs.
+  const xAxis = viz._xAxis!;
+  const x2Axis = viz._x2Axis!;
+
+  xAxis
     .renderMode("compute")
     .select(null)
     .domain(xDomain)
@@ -475,12 +479,12 @@ function renderXAxes(
     axisSceneQueue.push({
       key: "plot-x-axis",
       transform: axisRelativeTransform("x"),
-      axis: viz._xAxis,
+      axis: xAxis,
     });
   }
 
   if (x2Exists) {
-    viz._x2Axis
+    x2Axis
       .renderMode("compute")
       .select(null)
       .domain(x2Domain)
@@ -496,7 +500,7 @@ function renderXAxes(
     axisSceneQueue.push({
       key: "plot-x2-axis",
       transform: axisRelativeTransform("x2"),
-      axis: viz._x2Axis,
+      axis: x2Axis,
     });
   }
 
@@ -505,16 +509,16 @@ function renderXAxes(
       if (x2ConfigScale === "log" && d === 0)
         d =
           x2Domain[0] < 0
-            ? viz._x2Axis._d3Scale.domain()[1]
-            : viz._x2Axis._d3Scale.domain()[0];
-      return viz._x2Axis._getPosition.bind(viz._x2Axis)(d);
+            ? x2Axis._d3Scale!.domain()[1]
+            : x2Axis._d3Scale!.domain()[0];
+      return x2Axis._getPosition.bind(x2Axis)(d);
     } else {
       if (xConfigScale === "log" && d === 0)
         d =
           xDomain[0] < 0
-            ? viz._xAxis._d3Scale.domain()[1]
-            : viz._xAxis._d3Scale.domain()[0];
-      return viz._xAxis._getPosition.bind(viz._xAxis)(d);
+            ? xAxis._d3Scale!.domain()[1]
+            : xAxis._d3Scale!.domain()[0];
+      return xAxis._getPosition.bind(xAxis)(d);
     }
   };
   viz._xFunc = x;
@@ -539,7 +543,11 @@ function renderYAxes(
   const {defaultY2Config, showY, y2Exists, yC} = pCtx;
   const {yTicks, x2Height, height, width} = pCtx;
 
-  viz._yAxis
+  // Plot sets these before the axis pass runs.
+  const yAxis = viz._yAxis!;
+  const y2Axis = viz._y2Axis!;
+
+  yAxis
     .renderMode("compute")
     .select(null)
     .domain(yDomain)
@@ -556,12 +564,12 @@ function renderYAxes(
     axisSceneQueue.push({
       key: "plot-y-axis",
       transform: axisRelativeTransform("y"),
-      axis: viz._yAxis,
+      axis: yAxis,
     });
   }
 
   if (y2Exists) {
-    viz._y2Axis
+    y2Axis
       .renderMode("compute")
       .select(null)
       .config(yC)
@@ -578,7 +586,7 @@ function renderYAxes(
     axisSceneQueue.push({
       key: "plot-y2-axis",
       transform: axisRelativeTransform("y2"),
-      axis: viz._y2Axis,
+      axis: y2Axis,
     });
   }
 
@@ -587,16 +595,16 @@ function renderYAxes(
       if (y2ConfigScale === "log" && d === 0)
         d =
           y2Domain[1] < 0
-            ? viz._y2Axis._d3ScaleNegative.domain()[0]
-            : viz._y2Axis._d3Scale.domain()[1];
-      return viz._y2Axis._getPosition.bind(viz._y2Axis)(d) - x2Height;
+            ? y2Axis._d3ScaleNegative!.domain()[0]
+            : y2Axis._d3Scale!.domain()[1];
+      return y2Axis._getPosition.bind(y2Axis)(d) - x2Height;
     } else {
       if (yConfigScale === "log" && d === 0)
         d =
           yDomain[1] < 0
-            ? viz._yAxis._d3ScaleNegative.domain()[0]
-            : viz._yAxis._d3Scale.domain()[1];
-      return viz._yAxis._getPosition.bind(viz._yAxis)(d) - x2Height;
+            ? yAxis._d3ScaleNegative!.domain()[0]
+            : yAxis._d3Scale!.domain()[1];
+      return yAxis._getPosition.bind(yAxis)(d) - x2Height;
     }
   };
   viz._yFunc = y;
@@ -633,7 +641,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult 
     x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue);
 
     yRange = [
-      viz._xAxis.outerBounds().y + x2Height,
+      viz._xAxis!.outerBounds().y + x2Height,
       height - (xHeight + topOffset + verticalMargin),
     ];
 
@@ -644,7 +652,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult 
 
     const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
 
-    let yOffset = viz._xAxis.barConfig()["stroke-width"];
+    let yOffset = viz._xAxis!.barConfig()["stroke-width"] as number;
     if (yOffset) yOffset /= 2;
 
     return {

@@ -158,6 +158,9 @@ export function createFluent<C extends Record<string, unknown>>(
     @param defaults Default values (applied to `this.schema.<key>` when unset).
 */
 export function installFluent(
+  // `target` is any instance that stores fluent values on `target.schema`
+  // (every shape/component/Viz, plus the non-BaseClass `Image`). `any` is the
+  // structural escape hatch for this heterogeneous, prototype-mutating helper.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   target: any,
   schema: ConfigField[],

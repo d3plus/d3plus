@@ -14,8 +14,13 @@ import {accessor, BaseClass, constant} from "../../utils/index.js";
     methods, so `BaseClass.config()` reflection and polymorphic `this` chaining
     are unchanged.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default class VizBaseConfig extends (BaseClass as any) {
+export default class VizBaseConfig extends BaseClass {
+  // installFluent generates the config accessors (data, sum, x, …) and the
+  // pipeline stamps derived `_`-prefixed state at runtime; the index signature
+  // lets the chart code reach both through the type (same rationale as the
+  // shape/component classes).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 
   /**
       The active callback function for highlighting shapes.
@@ -176,8 +181,11 @@ Defaults to an empty array (`[]`).
     f?: (data: DataPoint[]) => DataPoint[] | Record<string, unknown>,
   ): this | DataPoint[] {
     if (arguments.length) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      addToQueue.bind(this as any)(_ as any, f, "data");
+      addToQueue.bind(this as unknown as ThisParameterType<typeof addToQueue>)(
+        _!,
+        f,
+        "data",
+      );
       this._hidden = [];
       this._solo = [];
       if (

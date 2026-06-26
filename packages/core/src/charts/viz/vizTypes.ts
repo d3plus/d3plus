@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
     `Viz` — the typed contract for the runtime Viz surface that v4's free
     functions (plotPaint, vizPreDrawPure, vizDrawPure, runVizPipeline,
@@ -23,9 +21,22 @@
     @module
 */
 
+import type {ZoomTransform} from "d3-zoom";
+
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, Transform} from "@d3plus/render";
 
+import type {
+  Axis,
+  ColorScale,
+  Legend,
+  Message,
+  TextBox,
+  Timeline,
+  Tooltip,
+} from "../../components/index.js";
+import type Shape from "../../shapes/Shape.js";
+import type {D3plusConfig} from "../../utils/index.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
@@ -45,7 +56,14 @@ export interface Padding {
   right: number;
 }
 
-/** D3-style selection (loose — d3-selection's types are too generic to repeat here). */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+    D3-style selection — deliberately loose. d3-selection's element/datum
+    generics are invariant, so a single typed alias can't accept every
+    `select(...)` result the chart code assigns to `_select`/`_container`/etc.;
+    the `any` methods + index signature are the escape hatch (same rationale as
+    the per-class fluent-accessor index signatures).
+*/
 export type D3Selection = {
   node(): any;
   attr(name: string, ...args: any[]): any;
@@ -58,7 +76,7 @@ export type D3Selection = {
   [key: string]: any;
 };
 
-/** A Renderer instance — see @d3plus/render. */
+/** A Renderer instance — loose to accept any backend (svg/canvas). */
 export interface VizRenderer {
   kind: "svg" | "canvas";
   target(): {container: Element; width: number; height: number} | undefined;
@@ -66,6 +84,7 @@ export interface VizRenderer {
   drawScene(scene: any, opts?: any): any;
   [key: string]: any;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
     The structural contract free functions read/write on a chart instance.
@@ -73,8 +92,11 @@ export interface VizRenderer {
     chart-specific extensions (TreeViz, PieViz, etc.) add stash slots.
 */
 export interface VizInstance {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  /** User-set config from fluent accessors (`.sum(...)`, `.x(...)`, …). */
+  /**
+      Post-coercion fluent storage. `any` is deliberate (see BaseClass.schema):
+      accessor/const fields are stored as functions and called as such.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: Record<string, any>;
   /** Chart-internal scratch (d3 layout instances, computed derived state). */
   ctx: Record<string, unknown>;
@@ -94,7 +116,7 @@ export interface VizInstance {
   _solo: (string | number)[];
   _filter?: (d: DataPoint, i: number) => boolean;
   _timeFilter?: (d: DataPoint, i: number) => boolean;
-  _noDataMessage?: false | string | ((config: any) => string);
+  _noDataMessage?: false | string | ((config: VizInstance) => string);
 
   /* 3. Grouping & aggregation */
   _groupBy: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[];
@@ -115,30 +137,30 @@ export interface VizInstance {
   _size?: (d: DataPoint, i: number) => number;
   _value?: (d: DataPoint, i: number) => number;
   _time?: (d: DataPoint, i: number) => string | number | Date;
-  _sort?: ((a: any, b: any) => number) | null;
+  _sort?: ((a: DataPoint, b: DataPoint) => number) | null;
   _label?: (d: DataPoint, i: number) => string;
   _thresholdName?: (d: DataPoint, i: number) => string;
   _sum?: (d: DataPoint, i: number) => number;
 
   /* 5. Config slots */
-  _xConfig?: Record<string, any>;
-  _yConfig?: Record<string, any>;
-  _x2Config?: Record<string, any>;
-  _y2Config?: Record<string, any>;
-  _backgroundConfig?: Record<string, any>;
-  _legendConfig?: Record<string, any>;
-  _colorScaleConfig?: Record<string, any>;
-  _timelineConfig?: Record<string, any>;
-  _backConfig?: Record<string, any>;
-  _titleConfig?: Record<string, any>;
-  _subtitleConfig?: Record<string, any>;
-  _axisConfig?: Record<string, any>;
+  _xConfig?: Record<string, unknown>;
+  _yConfig?: Record<string, unknown>;
+  _x2Config?: Record<string, unknown>;
+  _y2Config?: Record<string, unknown>;
+  _backgroundConfig?: Record<string, unknown>;
+  _legendConfig?: Record<string, unknown>;
+  _colorScaleConfig?: Record<string, unknown>;
+  _timelineConfig?: Record<string, unknown>;
+  _backConfig?: Record<string, unknown>;
+  _titleConfig?: Record<string, unknown>;
+  _subtitleConfig?: Record<string, unknown>;
+  _axisConfig?: Record<string, unknown>;
 
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
   _chartTransform?: Transform;
   _featurePanels?: SceneNode[];
-  _shapes?: any[];
+  _shapes?: Shape[];
   _previousShapes?: string[];
   _previousAnnotations?: Record<string, string[]>;
   _zoomTransform?: Transform;
@@ -160,51 +182,51 @@ export interface VizInstance {
   _brushing?: boolean;
 
   /* 8. Plot-specific (only present on Plot subclasses) */
-  _xAxis?: any;
-  _yAxis?: any;
-  _x2Axis?: any;
-  _y2Axis?: any;
-  _xFunc?: (d: any, axis?: string) => number;
-  _yFunc?: (d: any, axis?: string) => number;
+  _xAxis?: Axis;
+  _yAxis?: Axis;
+  _x2Axis?: Axis;
+  _y2Axis?: Axis;
+  _xFunc?: (d: DataPoint, axis?: string) => number;
+  _yFunc?: (d: DataPoint, axis?: string) => number;
   _baseline?: number;
   _stacked?: boolean;
-  _stackOffset?: (series: any[], order: any) => void;
-  _stackOrder?: (series: any[]) => number[];
+  _stackOffset?: (series: number[][][], order: number[]) => void;
+  _stackOrder?: (series: number[][][]) => number[];
   _confidence?: [number, number] | false;
   _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
   _barPadding?: number;
   _groupPadding?: number;
-  _annotations?: any[];
+  _annotations?: Record<string, unknown>[];
   _axisPersist?: boolean;
   _labelPosition?: (d: DataPoint, i: number) => "auto" | "inside" | "outside";
-  _labelConnectorConfig?: Record<string, any>;
-  _lineMarkerConfig?: Record<string, any>;
-  _confidenceConfig?: Record<string, any>;
+  _labelConnectorConfig?: Record<string, unknown>;
+  _lineMarkerConfig?: Record<string, unknown>;
+  _confidenceConfig?: Record<string, unknown>;
   _xCutoff?: number;
   _yCutoff?: number;
   _discreteCutoff?: number;
-  _buffer?: Record<string, any>;
+  _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */
-  _legendClass?: any;
-  _colorScaleClass?: any;
-  _timelineClass?: any;
-  _titleClass?: any;
-  _subtitleClass?: any;
-  _backClass?: any;
-  _messageClass?: any;
-  _tooltipClass?: any;
+  _legendClass?: Legend;
+  _colorScaleClass?: ColorScale;
+  _timelineClass?: Timeline;
+  _titleClass?: TextBox;
+  _subtitleClass?: TextBox;
+  _backClass?: TextBox;
+  _messageClass?: Message;
+  _tooltipClass?: Tooltip;
   _legendSort?: (a: DataPoint, b: DataPoint) => number;
-  _legendPosition?: (config: any) => string | false;
-  _legend?: ((config: any, data: DataPoint[]) => boolean) | boolean;
+  _legendPosition?: (config: VizInstance) => string | false;
+  _legend?: ((config: VizInstance, data: DataPoint[]) => boolean) | boolean;
   _legendDepth?: number;
-  _colorScalePosition?: (config: any) => string | false;
+  _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
   _title?: ((data: DataPoint[]) => string | false) | string | false;
   _subtitle?: ((data: DataPoint[]) => string | false) | string | false;
   _attribution?: string | false;
-  _attributionStyle?: Record<string, any>;
+  _attributionStyle?: Record<string, unknown>;
   _timeline?: boolean;
   _total?: boolean | ((d: DataPoint[], i: number) => number);
 
@@ -218,13 +240,18 @@ export interface VizInstance {
   _zoomEventTarget?: D3Selection;
   _zoomGroup?: D3Selection;
   _tileGroup?: D3Selection;
+  // Opaque d3 instances (d3-tile generator, d3-zoom behavior + brush); their
+  // generic types add no value at this contract boundary.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _tileGen?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _zoomBehavior?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _zoomBrush?: any;
   _zoomSet?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
-  _renderTiles?: (transform?: any, duration?: number) => void;
-  _wirePlotShapeEvents?: (shape: any, shapeKey: string, events: string[]) => void;
+  _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
+  _wirePlotShapeEvents?: (shape: Shape, shapeKey: string, events: string[]) => void;
 
   /* 11. Identity */
   _uuid: string;
@@ -235,9 +262,9 @@ export interface VizInstance {
   _drawSceneToTarget(durationOverride?: number): void;
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
-  _thresholdFunction?(data: DataPoint[], tree?: any): DataPoint[];
-  toScene?(): any;
-  config?(_?: any): any;
-  active?(_?: any): any;
-  hover?(_?: any): any;
+  _thresholdFunction?(data: DataPoint[], tree?: unknown): DataPoint[];
+  toScene?(): SceneNode;
+  config?(_?: D3plusConfig): D3plusConfig | this;
+  active?(_?: unknown): unknown;
+  hover?(_?: unknown): unknown;
 }

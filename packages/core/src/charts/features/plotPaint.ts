@@ -342,7 +342,9 @@ function emitAnnotations(
   };
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
-    const annotationData: Annotation[] = viz._annotations!.filter(
+    const annotationData: Annotation[] = (
+      viz._annotations as unknown as Annotation[]
+    ).filter(
       (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
     );
     const annotationShapes = annotationData.map(d => d.shape);

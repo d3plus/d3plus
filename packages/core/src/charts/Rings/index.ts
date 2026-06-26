@@ -127,7 +127,7 @@ export const ringsDef: ChartDefinition = {
     v.hover = function(this: VizInstance, _: any) {
       this._hover = _;
       this._shapes!.forEach((s: any) => s.hover(_));
-      if (this.schema.legend) this._legendClass.hover(_);
+      if (this.schema.legend) this._legendClass!.hover(_);
       // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
       // hover change only takes effect once a repaint is scheduled.
       if (this._sceneRenderer) this._scheduleSceneRepaint();
