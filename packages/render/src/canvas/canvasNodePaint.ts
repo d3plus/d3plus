@@ -93,15 +93,23 @@ function gradientBox(
 }
 
 /**
+    Resolves a token (`pattern:<json>`) to a tiled `CanvasPattern`, or null when
+    it isn't ready yet (rasterization is async — see CanvasRenderer).
+*/
+export type PatternResolver = (token: string) => CanvasPattern | null;
+
+/**
     Resolves a node's fill to a Canvas-paintable style. A `gradient:<json>` token
-    on a node with a bounding box becomes a CanvasGradient scaled to that box;
-    everything else degrades to a solid color via {@link solidFill}.
+    on a node with a bounding box becomes a CanvasGradient scaled to that box; a
+    `pattern:<json>` token becomes a tiled CanvasPattern once `resolvePattern`
+    has it ready; everything else degrades to a solid color via {@link solidFill}.
 */
 function canvasFillStyle(
   ctx: Ctx,
   node: SceneNode,
   fill: string,
-): string | CanvasGradient {
+  resolvePattern?: PatternResolver,
+): string | CanvasGradient | CanvasPattern {
   if (fill.startsWith("gradient:")) {
     const g = parseGradient(fill);
     const box = g && gradientBox(node);
@@ -117,15 +125,27 @@ function canvasFillStyle(
       return grad;
     }
   }
+  if (resolvePattern && fill.startsWith("pattern:")) {
+    const pat = resolvePattern(fill);
+    if (pat) return pat;
+    // Not rasterized yet: paint the texture's solid fallback this frame; the
+    // renderer repaints once the tile is ready.
+  }
   return solidFill(fill) ?? "none";
 }
 
 /** Fills and/or strokes the context's current path (or a Path2D) per the node's paint. */
-export function paint(ctx: Ctx, node: SceneNode, alpha: number, path?: Path2D): void {
+export function paint(
+  ctx: Ctx,
+  node: SceneNode,
+  alpha: number,
+  path?: Path2D,
+  resolvePattern?: PatternResolver,
+): void {
   const p = node.paint || {};
   if (p.fill && p.fill !== "none") {
     ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
-    ctx.fillStyle = canvasFillStyle(ctx, node, p.fill);
+    ctx.fillStyle = canvasFillStyle(ctx, node, p.fill, resolvePattern);
     if (path) ctx.fill(path);
     else ctx.fill();
   }

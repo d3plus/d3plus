@@ -1309,3 +1309,52 @@ it("CanvasRenderer picks a Path2D path in a real browser", async () => {
   assert.strictEqual(res.inside, "p", "point inside the square path hits (Path2D isPointInPath)");
   assert.strictEqual(res.outside, null, "point outside the path misses");
 });
+
+it("CanvasRenderer paints a real texture pattern (not the solid fallback) in a real browser", async () => {
+  const page = await newPage();
+  const res = await page.evaluate(async () => {
+    const B = document.getElementById("B");
+    const r = new window.d3plus.CanvasRenderer();
+    r.mount({container: B, width: 100, height: 100, pixelRatio: 1});
+    // A high-contrast lines texture: red background (== the solid fallback the
+    // first frame paints) with thick blue diagonal lines. Blue pixels can only
+    // appear once the SVG tile rasterizes into a real CanvasPattern.
+    const token =
+      "pattern:" +
+      JSON.stringify({texture: "lines", background: "#ff0000", stroke: "#0000ff", strokeWidth: 4, size: 10});
+    r.drawScene({
+      width: 100,
+      height: 100,
+      root: {
+        type: "group",
+        key: "root",
+        children: [{type: "rect", key: "a", x: 0, y: 0, width: 100, height: 100, paint: {fill: token}}],
+      },
+    });
+    const canvas = B.querySelector("canvas.d3plus-render-canvas");
+    const ctx = canvas.getContext("2d");
+    const sample = () => {
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let red = 0, blue = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 150 && data[i + 2] < 100) red++;
+        if (data[i + 2] > 150 && data[i] < 100) blue++;
+      }
+      return {red, blue};
+    };
+    // Poll until the async tile rasterizes and the renderer repaints (≤ ~1s).
+    for (let k = 0; k < 40; k++) {
+      const s = sample();
+      if (s.blue > 0 && s.red > 0) return s;
+      await new Promise(done => window.setTimeout(done, 25));
+    }
+    return sample();
+  });
+  if (page._errors.length) throw new Error(page._errors.join("; "));
+  await page.close();
+  assert.ok(res.red > 0, "tile background (red) painted");
+  assert.ok(
+    res.blue > 0,
+    "tile stroke lines (blue) painted — a real CanvasPattern tiled, not the solid fallback",
+  );
+});

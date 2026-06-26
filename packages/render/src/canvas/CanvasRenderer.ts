@@ -18,6 +18,7 @@ import SvgRenderer from "../svg/SvgRenderer.js";
 import {apply, invert, multiply, nodeMatrix} from "./transform.js";
 import type {Mat} from "./transform.js";
 import {paint, pathFor, solidFill} from "./canvasNodePaint.js";
+import {patternTileSvg} from "./patternTile.js";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -65,6 +66,14 @@ export default class CanvasRenderer implements Renderer {
   private _scene: Scene | null = null;
   private _pickIndex: PickEntry[] = [];
   private _images = new Map<string, HTMLImageElement>();
+  // Token → tiled CanvasPattern (rasterized from the texture's SVG tile), plus
+  // the set of tokens whose rasterization is in flight. `_patternResolver` is a
+  // pre-bound view passed into the paint path so no closure is allocated per
+  // node per frame.
+  private _patterns = new Map<string, CanvasPattern>();
+  private _patternsPending = new Set<string>();
+  private _patternResolver = (token: string): CanvasPattern | null =>
+    this._resolvePattern(token);
   private _handlers = new Set<(event: SceneEvent) => void>();
   private _domListeners: Record<string, (e: Event) => void> = {};
   private _listening = false;
@@ -231,10 +240,10 @@ export default class CanvasRenderer implements Renderer {
       case "line":
       case "area":
         pathFor(ctx, node);
-        paint(ctx, node, a);
+        paint(ctx, node, a, undefined, this._patternResolver);
         break;
       case "path":
-        paint(ctx, node, a, new Path2D(node.d));
+        paint(ctx, node, a, new Path2D(node.d), this._patternResolver);
         break;
       case "image":
         this._drawImage(ctx, node, a);
@@ -336,6 +345,49 @@ export default class CanvasRenderer implements Renderer {
         ctx.fillText(ln.text, ln.x, ln.y);
       }
     }
+  }
+
+  /**
+      Resolves a `pattern:<json>` texture token to a tiled CanvasPattern.
+
+      textures.js emits SVG `<pattern>`s a 2D context can't consume, so the tile
+      is rasterized: its standalone SVG markup ({@link patternTileSvg}) is loaded
+      as an Image onto an offscreen canvas, then `createPattern(…, "repeat")`
+      tiles it. Loading is async, so the first paint returns null (the caller
+      paints the texture's solid fallback) and we repaint once the tile is ready
+      — the same warm-up-then-repaint model as {@link _drawImage}.
+  */
+  private _resolvePattern(token: string): CanvasPattern | null {
+    const cached = this._patterns.get(token);
+    if (cached) return cached;
+    if (this._patternsPending.has(token)) return null;
+
+    const tile = patternTileSvg(token);
+    if (!tile) return null;
+
+    this._patternsPending.add(token);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const off = document.createElement("canvas");
+        off.width = tile.width;
+        off.height = tile.height;
+        const octx = off.getContext("2d");
+        const pat =
+          octx &&
+          (octx.drawImage(img, 0, 0, tile.width, tile.height),
+          this._ctx?.createPattern(off, "repeat"));
+        if (pat) this._patterns.set(token, pat);
+      } finally {
+        this._patternsPending.delete(token);
+        if (this._scene) this._paint(this._scene);
+      }
+    };
+    img.onerror = () => {
+      this._patternsPending.delete(token);
+    };
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(tile.svg)}`;
+    return null;
   }
 
   private _drawImage(ctx: Ctx, node: Extract<SceneNode, {type: "image"}>, alpha: number): void {
@@ -522,6 +574,9 @@ export default class CanvasRenderer implements Renderer {
     this._domListeners = {};
     this._listening = false;
     this._images.clear();
+    // CanvasPatterns are bound to the context being torn down.
+    this._patterns.clear();
+    this._patternsPending.clear();
     this._canvas = undefined;
     this._ctx = undefined;
     this._scene = null;
