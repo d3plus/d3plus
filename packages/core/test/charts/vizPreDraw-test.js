@@ -1,6 +1,6 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {vizPreDraw} from "../../es/index.js";
+import {vizPreDraw} from "../../es/internal.js";
 
 /**
     `vizPreDraw(viz)` is the architectural seam for the

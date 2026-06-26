@@ -1,6 +1,7 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, runVizPipeline} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
+import {runVizPipeline} from "../../es/internal.js";
 
 /**
     `runVizPipeline(viz)` is the architectural seam: the chart

@@ -4,18 +4,14 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 
 import it from "./jsdom.js";
+import {BarChart, LinePlot, Pack, Pie, Treemap} from "../es/index.js";
 import {
-  BarChart,
-  LinePlot,
-  Pack,
-  Pie,
-  Treemap,
   applyPackLayout,
   applyPieLayout,
   applyTreemapLayout,
   runStages,
   vizPreDrawPure,
-} from "../es/index.js";
+} from "../es/internal.js";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,

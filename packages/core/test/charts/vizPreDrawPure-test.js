@@ -1,6 +1,7 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, vizPreDrawPure, vizPostThresholdCtx} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
+import {vizPreDrawPure, vizPostThresholdCtx} from "../../es/internal.js";
 
 /**
     `vizPreDrawPure(viz, prevCtx) → Partial<VizContext>` is the

@@ -110,7 +110,10 @@ import {formatAbbreviate} from "@d3plus/format";
 To get all d3plus types in one import (useful for typing config objects or function parameters):
 
 ```ts
-import type {Treemap, D3plusComponentProps} from "@d3plus/types";
+import type {Treemap} from "@d3plus/types";
+// React component types live in a separate entry, so non-React projects
+// don't pull in React:
+import type {D3plusComponentProps} from "@d3plus/types/react";
 ```
 
 ## Accessibility

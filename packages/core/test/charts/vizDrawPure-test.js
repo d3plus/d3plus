@@ -1,6 +1,7 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, vizDrawPure} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
+import {vizDrawPure} from "../../es/internal.js";
 
 /**
     `vizDrawPure(viz, prevCtx) → Partial<VizDrawCtx>` is the pure form of

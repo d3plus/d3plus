@@ -63,54 +63,6 @@ export type {
   TooltipConfig,
 } from "./src/utils/index.js";
 
-// E3/E4 internals — exposed for parity tests + advanced users wanting to build
-// custom charts on the ChartDefinition contract. Not yet a stable public API.
-import {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
-import {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
-import {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
-import {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
-import {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
-import {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
-import {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
-import {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
-import {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
-import {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
-import {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
-import {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
-import {geomapDef} from "./src/charts/Geomap/index.js";
-import {matrixDef} from "./src/charts/Matrix/index.js";
-import {networkDef} from "./src/charts/Network/index.js";
-import {ringsDef} from "./src/charts/Rings/index.js";
-import {sankeyDef} from "./src/charts/Sankey/index.js";
-import {packDef} from "./src/charts/Pack/index.js";
-import {pieDef} from "./src/charts/Pie/index.js";
-import {priestleyDef} from "./src/charts/Priestley/index.js";
-import {radarDef} from "./src/charts/Radar/index.js";
-import {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
-import {treeDef} from "./src/charts/Tree/index.js";
-import {treemapDef} from "./src/charts/Treemap/index.js";
-import {createFluent, installFluent} from "./src/fluent.js";
-import {runStages} from "./src/charts/pipeline/stages.js";
-import {runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
-import {plotEmit, plotPaint} from "./src/charts/features/plotPaint.js";
-import {renderAxes} from "./src/charts/features/axes.js";
-import {vizDraw} from "./src/charts/pipeline/vizDraw.js";
-import {vizDrawPure} from "./src/charts/pipeline/vizDrawPure.js";
-import {vizPreDraw} from "./src/charts/pipeline/vizPreDraw.js";
-import {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/pipeline/vizPreDrawPure.js";
-import {resolveSpec} from "./src/charts/pipeline/resolveSpec.js";
-export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
-export type {VizContext} from "./src/charts/pipeline/vizContext.js";
-export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
-export type {VizPreDrawResult} from "./src/charts/pipeline/vizPreDrawPure.js";
-export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
-export type {
-  D3Selection,
-  Margin,
-  Padding,
-  VizInstance,
-  VizRenderer,
-} from "./src/charts/viz/vizTypes.js";
 export type {
   AnyShapeConfig,
   AreaConfig,
@@ -126,74 +78,18 @@ export type {
   StringOrAccessor,
   WhiskerConfig,
 } from "./src/shapes/shapeConfig.js";
-import {
-  backFeature,
-  colorScaleFeature,
-  legendFeature,
-  runLayout,
-  subtitleFeature,
-  timelineFeature,
-  titleFeature,
-  totalFeature,
-} from "./src/charts/features/features.js";
-import {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
-export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";
 
-export {
-  // Chart-specific layout stages (all 12 chart subclasses).
-  applyGeomapLayout,
-  applyMatrixLayout,
-  applyNetworkLayout,
-  applyPackLayout,
-  applyPieLayout,
-  applyPriestleyLayout,
-  applyRadarLayout,
-  applyRadialMatrixLayout,
-  applyRingsLayout,
-  applySankeyLayout,
-  applyTreeLayout,
-  applyTreemapLayout,
-  // Core pipeline + factory infrastructure.
-  geomapDef,
-  matrixDef,
-  networkDef,
-  packDef,
-  pieDef,
-  priestleyDef,
-  radarDef,
-  radialMatrixDef,
-  ringsDef,
-  sankeyDef,
-  treeDef,
-  treemapDef,
-  createFluent,
-  installFluent,
-  computeAxisLayout,
-  measureAxis,
-  plotEmit,
-  plotPaint,
-  renderAxes,
-  resolveSpec,
-  runVizPipeline,
-  vizDraw,
-  vizDrawPure,
-  vizPostThresholdCtx,
-  vizPreDraw,
-  vizPreDrawPure,
-};
+export type {
+  D3Selection,
+  Margin,
+  Padding,
+} from "./src/charts/viz/vizTypes.js";
 
-// The pipeline runners and feature modules are exported directly (above
-// + below) — no separate `__test_internals__` indirection. Tests and
-// advanced consumers reach for the same surface; making them go through
-// a sentinel namespace was redundant noise.
-export {
-  runStages,
-  runLayout,
-  backFeature,
-  colorScaleFeature,
-  legendFeature,
-  subtitleFeature,
-  timelineFeature,
-  titleFeature,
-  totalFeature,
-};
+// The v4 scene-graph pipeline (layout stages, ChartDefinitions, feature
+// modules, the pure pre-draw/draw functions, fluent generation, axis
+// measurement, …) is not part of the stable public API. It lives in a
+// dedicated entry so it can keep evolving without semver friction:
+//
+//   import {runVizPipeline, treemapDef} from "@d3plus/core/internal";
+//
+// See ./internal.ts.

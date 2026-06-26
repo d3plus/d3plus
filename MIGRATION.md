@@ -72,7 +72,10 @@ and event listeners. The React wrapper does this for you on unmount.
 ### One import for types
 
 ```ts
-import type {Treemap, D3plusComponentProps} from "@d3plus/types";
+import type {Treemap} from "@d3plus/types";
+// React component types live in a separate entry, so non-React projects
+// don't pull in React:
+import type {D3plusComponentProps} from "@d3plus/types/react";
 ```
 
 ## Need help?

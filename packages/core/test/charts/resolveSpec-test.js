@@ -1,6 +1,7 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, resolveSpec} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
+import {resolveSpec} from "../../es/internal.js";
 
 /**
     `resolveSpec(viz)` is the config/context boundary — snapshots

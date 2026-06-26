@@ -1,13 +1,12 @@
 import assert from "assert";
 import it from "../jsdom.js";
+import {BarChart, Treemap} from "../../es/index.js";
 import {
-  BarChart,
-  Treemap,
   vizPreDrawPure,
   vizPostThresholdCtx,
   vizDrawPure,
   runVizPipeline,
-} from "../../es/index.js";
+} from "../../es/internal.js";
 
 /**
     Output-correctness tests for the pure pipeline functions.

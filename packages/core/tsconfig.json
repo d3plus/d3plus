@@ -5,5 +5,5 @@
     "outDir": "./types",
     "rootDir": "."
   },
-  "include": ["index.ts", "src/**/*.ts", "../../externals.d.ts"]
+  "include": ["index.ts", "internal.ts", "umd-entry.ts", "src/**/*.ts", "../../externals.d.ts"]
 }

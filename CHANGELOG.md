@@ -23,7 +23,14 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   `touchstart` listener, preventing leaks when a chart is torn down. The React
   wrapper calls it automatically on unmount.
 - **`@d3plus/types`** — a unified package that re-exports every d3plus type from a
-  single import for typing config objects and parameters.
+  single import for typing config objects and parameters. React component types
+  are in a separate `@d3plus/types/react` entry so non-React projects don't pull
+  in React.
+- **`@d3plus/core/internal`** — an opt-in entry point exposing the v4 pipeline
+  (layout stages, `ChartDefinition`s, feature modules, `runVizPipeline`,
+  `resolveSpec`, `installFluent`, axis measurement, …) for parity tests and
+  advanced consumers building custom charts. The root `@d3plus/core` entry stays
+  curated to the stable public API; the `internal` surface is not semver-stable.
 - Share-of-total percentages in Pie and Donut tooltips.
 - Sankey link enter/exit animations (stroke-width grows from zero).
 - Visual-regression, pipeline-parity, and v3↔v4 chart-compare test harnesses.
@@ -55,6 +62,11 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 - Geomap renders on the Canvas backend: the ocean now paints into the scene
   (onto the canvas) rather than into the overlaying compute `<svg>`, which had
   hidden the geography.
+- Canvas backend paints **texture/pattern fills** at parity with SVG. A
+  `pattern:<json>` token is rasterized to an offscreen tile and tiled as a
+  repeating `CanvasPattern` (the texture's solid color is used for the first
+  frame while the tile rasterizes, then the chart repaints). Gradient fills
+  already paint as real `CanvasGradient`s.
 
 ### Breaking changes
 
@@ -67,5 +79,6 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 
 ### Known limitations
 
-- The **SVG backend is the most complete** and remains the default; the Canvas
-  backend is optimized for dense shape-based charts.
+- The **SVG backend remains the default**; both backends paint shapes, gradients,
+  and texture/pattern fills. The Canvas backend is optimized for dense,
+  high-shape-count charts where paint performance matters.

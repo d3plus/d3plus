@@ -1,6 +1,7 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {runLayout, BarChart} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
+import {runLayout} from "../../es/internal.js";
 
 /**
     `FeatureLayout.vizUpdate` — the v4 cross-feature write mechanism. A
