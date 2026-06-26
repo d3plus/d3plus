@@ -3,9 +3,10 @@
     Adds left/right padding to a point or time scale.
     @private
 */
+import type {D3Scale} from "../../utils/index.js";
+
 const discreteBuffer = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scale: any,
+  scale: D3Scale,
   data: Record<string, unknown>[],
   discrete: string,
 ): void => {
@@ -25,7 +26,7 @@ const discreteBuffer = (
       },
       0,
     );
-    const domain = scale.domain().slice();
+    const domain = scale.domain().slice() as (number | string | Date)[];
     if (discrete === "y") domain.reverse();
     domain[0] = new Date(+domain[0] - closest / 2);
     domain[1] = new Date(+domain[1] + closest / 2);

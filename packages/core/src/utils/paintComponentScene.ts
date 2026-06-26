@@ -17,8 +17,7 @@ import type {GroupNode, Scene} from "@d3plus/render";
 
 interface SceneComponent {
   _select?: {node: () => Element | null};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _sceneRenderer?: any;
+  _sceneRenderer?: SvgRenderer;
   schema: {width?: number; height?: number};
   toScene: () => GroupNode;
 }

@@ -1,6 +1,7 @@
 import type Plot from "../Plot/index.js";
 import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
+import type {D3Scale} from "../../utils/index.js";
 
 /**
     @module rectBuffer
@@ -23,14 +24,10 @@ export default function (
     config,
   }: {
     data: Record<string, unknown>[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    x: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    y: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    x2?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    y2?: any;
+    x: D3Scale;
+    y: D3Scale;
+    x2?: D3Scale;
+    y2?: D3Scale;
     yScale?: string;
     xScale?: string;
     config?: Record<string, (...args: unknown[]) => unknown>;
@@ -42,8 +39,8 @@ export default function (
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";
 
-  let xD = x.domain().slice(),
-    yD = y.domain().slice();
+  let xD = x.domain().slice() as number[],
+    yD = y.domain().slice() as number[];
 
   const xR = x.range(),
     yR = y.range();
