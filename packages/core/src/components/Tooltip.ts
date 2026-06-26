@@ -108,8 +108,7 @@ async function positionTooltip(
     Resolves the portal selection the tooltips mount into: a per-instance
     `.d3plus-tooltip-portal` appended to `<body>`, or the global portal div.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function resolvePortal(that: any): D3Selection {
+function resolvePortal(that: Tooltip): D3Selection {
   // Default behavior — append to body via the global #d3plus-portal —
   // preserved when parent() isn't set.
   if (!that._parentEl) return elem("div#d3plus-portal");
@@ -140,8 +139,7 @@ function resolvePortal(that: any): D3Selection {
     @private
 */
 function divElement(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  that: any,
+  that: Tooltip,
   enter: D3Selection,
   update: D3Selection,
   cat: string,
@@ -189,8 +187,7 @@ function divElement(
     Sets styles for both enter and update.
     @private
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function boxStyles(that: any, box: D3Selection): void {
+function boxStyles(that: Tooltip, box: D3Selection): void {
   box
     .style("background", that.schema.background as never)
     .style("border-radius", that.schema.borderRadius as never)
@@ -208,8 +205,7 @@ function boxStyles(that: any, box: D3Selection): void {
     @private
 */
 function buildTable(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  that: any,
+  that: Tooltip,
   enter: D3Selection,
   update: D3Selection,
   cellContent: (this: HTMLElement, d: unknown) => string,
@@ -257,8 +253,7 @@ function buildTable(
     @private
 */
 function bindTooltips(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  that: any,
+  that: Tooltip,
   enter: D3Selection,
   update: D3Selection,
   tooltips: D3Selection,
@@ -407,8 +402,7 @@ export default class Tooltip extends BaseClass {
     const portal = resolvePortal(this);
     const tooltips = portal
       .selectAll(`.${this.schema.className}`)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .data(this._data, this.schema.id as any);
+      .data(this._data, this.schema.id);
 
     const enter = tooltips.enter().append("div").attr("class", this.schema.className);
 

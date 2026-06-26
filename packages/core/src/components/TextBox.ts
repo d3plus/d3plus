@@ -137,8 +137,7 @@ function lineToRuns(
 
 /** Builds the per-line LineRun arrays from wrapped lines, carrying open-tag state. */
 function buildLineRuns(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  box: any,
+  box: TextBox,
   lineData: string[],
 ): LineRun[][] | null {
   let lineRuns: LineRun[][] | null = null;
@@ -166,10 +165,8 @@ function resizeFontSize(
   w: number,
   h: number,
   lH: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  words: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  style: Record<string, any>,
+  words: string[],
+  style: Record<string, string | number>,
 ): number {
   const sizes = textWidth(words, style) as unknown as number[];
 
@@ -192,8 +189,7 @@ function resizeFontSize(
 
 /** Assembles the final TextBoxDatum from the resolved layout values. */
 function assembleTextBoxDatum(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  box: any,
+  box: TextBox,
   d: DataPoint,
   i: number,
   layout: {
@@ -204,11 +200,9 @@ function assembleTextBoxDatum(
     w: number;
     h: number;
     vA: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    style: Record<string, any>;
+    style: Record<string, string | number>;
     widths: number[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    padding: any;
+    padding: {top: number; right: number; bottom: number; left: number};
   },
 ): TextBoxDatum {
   const {lineData, line, fS, lH, w, h, vA, style, widths, padding} = layout;
@@ -260,8 +254,7 @@ function assembleTextBoxDatum(
     text is undefined or wraps to no visible lines.
 */
 function computeTextBoxDatum(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  box: any,
+  box: TextBox,
   d: DataPoint,
   i: number,
 ): TextBoxDatum | null {
@@ -279,9 +272,8 @@ function computeTextBoxDatum(
     lineData: string[] = [],
     wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const style: Record<string, any> = {
-    "font-family": fontExists(box.schema.fontFamily(d, i)),
+  const style: Record<string, string | number> = {
+    "font-family": fontExists(box.schema.fontFamily(d, i)) as string,
     "font-size": fS,
     "font-weight": box.schema.fontWeight(d, i),
     "line-height": lH,
@@ -293,7 +285,7 @@ function computeTextBoxDatum(
     w = box.schema.width(d, i) - (padding.left + padding.right);
 
   const wrapper = textWrap()
-    .fontFamily(style["font-family"])
+    .fontFamily(style["font-family"] as string)
     .fontSize(fS)
     .fontWeight(style["font-weight"])
     .lineHeight(lH)
@@ -526,10 +518,11 @@ export default class TextBox extends BaseClass {
     }
 
     if (this._select) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const sel = this._select as any;
+      const sel = this._select;
       const node: Element | null =
-        sel && typeof sel.node === "function" ? sel.node() : sel;
+        sel && typeof sel.node === "function"
+          ? (sel.node() as Element | null)
+          : (sel as unknown as Element | null);
       if (node) {
         const tag = (node.tagName || "").toLowerCase();
         const isSvg = tag === "svg";

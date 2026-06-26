@@ -8,6 +8,7 @@ import {locale} from "@d3plus/locales";
 import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
 
@@ -243,8 +244,7 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     .renderMode("compute")
     .data(playData)
     .select(playButtonGroup.node())
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .config(configPrep.bind(tl as any)(tl.schema.playButtonConfig))
+    .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig))
     .render();
 
   // The play button's pixels are composed into the scene (compute mode), but

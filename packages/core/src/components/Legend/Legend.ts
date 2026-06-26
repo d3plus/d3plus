@@ -5,6 +5,7 @@ import type {DataPoint} from "@d3plus/data";
 import {assign, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
+import type {SvgRenderer} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
 import {accessor, BaseClass, constant, paintComponentScene} from "../../utils/index.js";
@@ -61,8 +62,7 @@ export default class Legend extends BaseClass {
   _wrapRows: (() => void) | undefined;
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _sceneRenderer?: any;
+  _sceneRenderer?: SvgRenderer;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -273,12 +273,10 @@ export default class Legend extends BaseClass {
       The SVG container element as a d3 selector or DOM element.
 */
   select(): D3Selection;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  select(_: any): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  select(_?: any): D3Selection | this {
+  select(_: string | HTMLElement | SVGElement | null): this;
+  select(_?: string | HTMLElement | SVGElement | null): D3Selection | this {
     if (arguments.length) {
-      this._select = select(_);
+      this._select = select(_ as string) as unknown as D3Selection;
       this._rtl = detectRTL();
       return this;
     }

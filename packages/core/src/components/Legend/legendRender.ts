@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {max, sum} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
@@ -6,7 +5,9 @@ import {assign, textWidth} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
 
 import * as shapes from "../../shapes/index.js";
+import type Shape from "../../shapes/Shape.js";
 import {configPrep} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 
 import type Legend from "./Legend.js";
 
@@ -23,8 +24,8 @@ export function measureLegendTitle(legend: Legend): void {
   legend._titleHeight = 0;
   legend._titleWidth = 0;
   if (legend.schema.title) {
-    const f = (legend.schema.titleConfig.fontFamily || (legend._titleClass.fontFamily() as any)()) as string,
-      s = (legend.schema.titleConfig.fontSize || (legend._titleClass.fontSize() as any)()) as number;
+    const f = (legend.schema.titleConfig.fontFamily || legend._titleClass.fontFamily()()) as string,
+      s = (legend.schema.titleConfig.fontSize || legend._titleClass.fontSize()()) as number;
     let lH = (legend.schema.titleConfig.lineHeight || legend._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
     lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
 
@@ -317,7 +318,7 @@ export function renderLegendTitle(legend: Legend): void {
 /** Builds the per-shape data and renders the Circle/Rect swatch groups. */
 export function renderLegendShapes(legend: Legend): void {
   legend._shapes = [];
-  const baseConfig = configPrep.bind(legend as any)(legend.schema.shapeConfig, "legend"),
+  const baseConfig = configPrep.bind(legend as unknown as VizContext)(legend.schema.shapeConfig, "legend"),
     config = {
       id: (d: Record<string, unknown>) => d.id,
       label: (d: Record<string, unknown>) => d.label,
@@ -339,14 +340,14 @@ export function renderLegendShapes(legend: Legend): void {
   });
 
   legend._shapes = [];
-  (["Circle", "Rect"] as const).forEach((Shape: string) => {
+  (["Circle", "Rect"] as const).forEach((shapeName: string) => {
     legend._shapes.push(
       // Child shapes are compute-only — Legend composes the swatches into its
       // own toScene, so sub-shapes never auto-render their own <svg>.
-      new (shapes as Record<string, new () => any>)[Shape]()
+      new (shapes as unknown as Record<string, new () => Shape>)[shapeName]()
         .renderMode("compute")
         .parent(legend)
-        .data(data.filter((d: Record<string, unknown>) => d.shape === Shape))
+        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName))
         .duration(legend.schema.duration)
         .labelConfig({padding: 0})
         .select(legend._shapeGroup.node())
