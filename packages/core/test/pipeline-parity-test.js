@@ -4,10 +4,16 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 
 import it from "./jsdom.js";
-import {BarChart, LinePlot, Pack, Pie, Treemap} from "../es/index.js";
 import {
+  BarChart, LinePlot, Network, Pack, Pie, Rings, Sankey, Tree, Treemap,
+} from "../es/index.js";
+import {
+  applyNetworkLayout,
   applyPackLayout,
   applyPieLayout,
+  applyRingsLayout,
+  applySankeyLayout,
+  applyTreeLayout,
   applyTreemapLayout,
   runStages,
   vizPreDrawPure,
@@ -170,11 +176,43 @@ function summarizeLayout(shapeData) {
   return {length: shapeData.length, nodes: shapeData.map(summarizeNode)};
 }
 
+const sankeyLinks = [
+  {source: "alpha", target: "beta"}, {source: "alpha", target: "gamma"},
+  {source: "beta", target: "delta"}, {source: "beta", target: "epsilon"},
+  {source: "zeta", target: "gamma"}, {source: "theta", target: "gamma"},
+  {source: "eta", target: "gamma"},
+];
+const treeData = [
+  {parent: "Group 1", id: "alpha"}, {parent: "Group 1", id: "beta"},
+  {parent: "Group 1", id: "gamma"}, {parent: "Group 2", id: "delta"},
+  {parent: "Group 2", id: "eta"},
+];
+// Explicit node x/y pin the force layout so geometry is deterministic (no
+// simulation jitter) — mirrors the network visual-regression fixture.
+const networkNodes = [
+  {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0},
+  {id: "C", x: 0, y: -50}, {id: "D", x: 0, y: 50},
+  {id: "E", x: -100, y: -50}, {id: "F", x: 100, y: 50},
+];
+const networkLinks = [
+  {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "A", target: "D"},
+  {source: "B", target: "D"}, {source: "C", target: "B"}, {source: "E", target: "A"},
+  {source: "F", target: "B"},
+];
+
 const layoutCharts = [
   ["layout-treemap", () => new Treemap().groupBy(["group", "id"]).data(treemapData).sum("value"), applyTreemapLayout],
   ["layout-pie", () => new Pie().groupBy("id").data(pieData), applyPieLayout],
   ["layout-pack", () => new Pack().groupBy(["group", "id"]).data(packData).sum("value"), applyPackLayout],
+  ["layout-sankey", () => new Sankey().links(sankeyLinks), applySankeyLayout],
+  ["layout-rings", () => new Rings().center("alpha").links(sankeyLinks), applyRingsLayout],
+  ["layout-tree", () => new Tree().groupBy(["parent", "id"]).data(treeData), applyTreeLayout],
+  ["layout-network", () => new Network().nodes(networkNodes).links(networkLinks), applyNetworkLayout],
 ];
+// Radar, Priestley, and Matrix are intentionally absent: their layout stages
+// emit geometry to the scene rather than returning it on `shapeData`, so the
+// shapeData fingerprint can't capture them. Their rendered geometry is covered
+// by the visual-regression suite instead.
 
 for (const [name, build, stage] of layoutCharts) {
   it(`pipeline snapshot: ${name}`, () => {

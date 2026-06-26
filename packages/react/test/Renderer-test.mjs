@@ -3,6 +3,7 @@ import {JSDOM} from "jsdom";
 import React, {act} from "react";
 import {createRoot} from "react-dom/client";
 import Renderer from "../es/src/Renderer.jsx";
+import D3plusContext from "../es/src/D3plusContext.jsx";
 
 // Set up DOM environment before any test bodies run.
 // React and react-dom don't access globals at import time, only at call time,
@@ -167,6 +168,110 @@ describe("Renderer", function() {
     });
     assert.ok(configReceived, "config was received");
     assert.strictEqual(configReceived.label, "test", "non-function config passed through");
+  });
+
+  it("does NOT re-render when the config is unchanged across React renders", async function() {
+    let renders = 0;
+    class CountingViz {
+      config() { return this; }
+      render() { renders++; return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {a: 1}}));
+    });
+    // Re-render with a NEW object of identical content — the config hash is the
+    // same, so the effect should not re-run.
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {a: 1}}));
+    });
+    assert.strictEqual(renders, 1, "identical config content does not trigger a re-render");
+  });
+
+  it("diffs function-valued config by source: same source no-ops, changed source re-renders", async function() {
+    let renders = 0;
+    class CountingViz {
+      config() { return this; }
+      render() { renders++; return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {x: d => d.a}}));
+    });
+    // A different function object with identical source -> same hash -> no re-render.
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {x: d => d.a}}));
+    });
+    assert.strictEqual(renders, 1, "identical function source does not re-render");
+    // Different source -> different hash -> re-render.
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {x: d => d.b}}));
+    });
+    assert.strictEqual(renders, 2, "changed function source triggers a re-render");
+  });
+
+  it("forceUpdate re-renders on every React render even when the config is unchanged", async function() {
+    let renders = 0;
+    class CountingViz {
+      config() { return this; }
+      render() { renders++; return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {a: 1}, forceUpdate: true}));
+    });
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: CountingViz, config: {a: 1}, forceUpdate: true}));
+    });
+    assert.strictEqual(renders, 2, "forceUpdate bypasses config diffing and renders every cycle");
+  });
+
+  it("merges the D3plusContext global config with the component's config", async function() {
+    let configReceived = null;
+    class ConfigViz {
+      config(c) { configReceived = c; return this; }
+      render() { return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(
+        D3plusContext.Provider,
+        {value: {globalSetting: "g"}},
+        React.createElement(Renderer, {constructor: ConfigViz, config: {localSetting: "l"}}),
+      ));
+    });
+    assert.strictEqual(configReceived.globalSetting, "g", "global context config is applied");
+    assert.strictEqual(configReceived.localSetting, "l", "props config is applied");
+  });
+
+  it("strips data/dataFormat from the config() payload (they are routed to data())", async function() {
+    let configReceived = null, dataArgs = null;
+    class DataViz {
+      config(c) { configReceived = c; return this; }
+      render() { return this; }
+      data(d, fmt) { dataArgs = [d, fmt]; }
+    }
+    const fmt = d => d;
+    await act(async () => {
+      root.render(React.createElement(Renderer, {
+        constructor: DataViz,
+        config: {data: [1, 2], dataFormat: fmt, other: "keep"},
+      }));
+    });
+    assert.deepStrictEqual(dataArgs, [[1, 2], fmt], "data() receives the data array + formatter");
+    assert.ok(configReceived && !("data" in configReceived) && !("dataFormat" in configReceived),
+      "data/dataFormat are removed from the config() payload");
+    assert.strictEqual(configReceived.other, "keep", "unrelated config keys are preserved");
+  });
+
+  it("passes the container <svg> to the viz as the `select` config", async function() {
+    let configReceived = null;
+    class ConfigViz {
+      config(c) { configReceived = c; return this; }
+      render() { return this; }
+    }
+    await act(async () => {
+      root.render(React.createElement(Renderer, {constructor: ConfigViz, config: {}}));
+    });
+    assert.ok(configReceived.select, "select is set");
+    assert.strictEqual(configReceived.select.tagName.toLowerCase(), "svg", "select is an svg element");
+    assert.strictEqual(configReceived.select, container.querySelector("svg"), "select is the component's own svg");
   });
 
 });
