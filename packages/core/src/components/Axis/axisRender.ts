@@ -9,6 +9,7 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
+import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
@@ -194,8 +195,7 @@ export interface AxisMeasure {
   ticks: unknown[];
   labels: unknown[];
   range: number[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  textData: any[];
+  textData: AxisTextDatum[];
   tickFormat: (d: unknown) => string;
   hBuff: number;
   labelHeight: number;
@@ -207,8 +207,7 @@ export interface AxisMeasure {
     behavior is identical.
     @private
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
+export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, unknown>[] {
   const {ticks, labels, textData, tickFormat, hBuff, labelHeight} = measure;
   const {height, x, y, horizontal, opposite} = axis._position;
   const flip = ["top", "left"].includes(axis.schema.orient);
@@ -220,13 +219,12 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
     (d: unknown, i: number) => textData[i].lines.length && !ticks.includes(d),
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rotated = textData.some((d: any) => d.rotate);
+  const rotated = textData.some((d: AxisTextDatum) => d.rotate);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let tickData: any[] = ticks.concat(labelOnly).map((d: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = textData.find((td: any) => td.d === d);
+  let tickData: Record<string, unknown>[] = ticks
+    .concat(labelOnly)
+    .map((d: unknown) => {
+      const data = textData.find((td: AxisTextDatum) => td.d === d);
 
     const xPos = axis._getPosition(d);
     const space = data ? data.space : 0;
@@ -234,7 +232,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
     const lineHeight = data ? data.lineHeight : 1;
     const fP = data ? data.fP : 0;
 
-    const labelOffset = data && axis.schema.labelOffset ? data.offset : 0;
+    const labelOffset = data && axis.schema.labelOffset ? data.offset ?? 0 : 0;
 
     const labelWidth = horizontal
       ? space
@@ -248,8 +246,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
       size = (hBuff + labelOffset) * (flip ? -1 : 1),
       yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tickConfig: any = {
+    const tickConfig: Record<string, unknown> = {
       id: d,
       labelBounds:
         rotated && data
@@ -279,7 +276,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
       rotate: data ? data.rotate : false,
       size:
         labels.includes(d) ||
-        (axis.schema.scale === "log" && Math.log10(Math.abs(d)) % 1 === 0)
+        (axis.schema.scale === "log" && Math.log10(Math.abs(d as number)) % 1 === 0)
           ? size
           : ticks.includes(d)
             ? Math.ceil(size / 2)
@@ -287,10 +284,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
               ? Math.ceil(size / 4)
               : 0,
       text:
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        !(data || ({} as any)).truncated && labels.includes(d)
-          ? tickFormat(d)
-          : false,
+        !data?.truncated && labels.includes(d) ? tickFormat(d) : false,
       tick: ticks.includes(d),
       [x]:
         xPos +
@@ -303,10 +297,9 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
 
   if (axis.schema.shape === "Line") {
     tickData = tickData.concat(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tickData.map((d: any) => {
+      tickData.map((d: Record<string, unknown>) => {
         const dupe = Object.assign({}, d);
-        dupe[y] += d.size;
+        dupe[y] = (dupe[y] as number) + (d.size as number);
         return dupe;
       }),
     );
@@ -320,8 +313,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
     Extracted from `Axis.render`; behavior is identical.
     @private
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function configureTickShape(axis: Axis, tickData: any[]): void {
+export function configureTickShape(axis: Axis, tickData: Record<string, unknown>[]): void {
   axis._tickShape = new (shapes as unknown as Record<string, new () => Shape>)[
     axis.schema.shape
   ]()

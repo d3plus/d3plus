@@ -4,7 +4,6 @@
     (`_d3Scale`, `_d3ScaleNegative`, `_tickUnit`, `_availableTicks`,
     `_visibleTicks`) exactly as the original inline `Axis.render` body did.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {max, range as d3Range, min, sum} from "d3-array";
 import * as scales from "d3-scale";
 import {timeFormat} from "d3-time-format";
@@ -13,6 +12,10 @@ import {date} from "@d3plus/dom";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import {formatLocale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
+
+import type Axis from "./Axis.js";
+import type {TickGet} from "./axisLayoutLabels.js";
+import type {D3Scale} from "../../utils/index.js";
 
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
 const floorPow = (d: number): number =>
@@ -33,21 +36,26 @@ const fixFloat = (d: number): number => {
 
 /** Builds the tick label formatter (user-supplied or scale-derived). */
 export function buildTickFormat(
-  axis: any,
-  timeLocaleObj: any,
-  getTicks: () => any[],
-): (d: any) => any {
+  axis: Axis,
+  timeLocaleObj: Record<string, unknown>,
+  getTicks: () => unknown[],
+): (d: unknown) => string {
   return axis.schema.tickFormat
     ? axis.schema.tickFormat
-    : (d: any) => {
-        if (isNaN(d) || ["band", "ordinal", "point"].includes(axis.schema.scale)) {
-          return d;
+    : (d: unknown): string => {
+        if (
+          isNaN(d as number) ||
+          ["band", "ordinal", "point"].includes(axis.schema.scale)
+        ) {
+          return d as string;
         } else if (axis.schema.scale === "time") {
-          const refData = (axis._data.length ? axis._data : axis.schema.domain)
+          const refData = (
+            (axis._data.length ? axis._data : axis.schema.domain) as unknown[]
+          )
             .map((v: unknown) => date(v as string | number | false))
-            .filter((d: Date | false): d is Date => d instanceof Date)
+            .filter((d: Date | false | undefined): d is Date => d instanceof Date)
             .sort((a: Date, b: Date) => +a - +b);
-          return formatDate(d, refData, timeFormat).replace(
+          return formatDate(d as Date, refData, timeFormat).replace(
             /^Q/g,
             timeLocaleObj.quarter as string,
           );
@@ -60,8 +68,8 @@ export function buildTickFormat(
               ? axis.schema.locale
               : formatLocale[axis.schema.locale];
           const {separator, suffixes} = loc;
-          const suff = d >= 1000 ? suffixes[axis._tickUnit + 8] : "";
-          const tick = d / Math.pow(10, 3 * axis._tickUnit);
+          const suff = (d as number) >= 1000 ? suffixes[axis._tickUnit + 8] : "";
+          const tick = (d as number) / Math.pow(10, 3 * axis._tickUnit);
           const number = formatAbbreviate(
             tick,
             loc,
@@ -70,7 +78,7 @@ export function buildTickFormat(
           return `${number}${separator}${suff}`;
         } else {
           const ticks = getTicks();
-          const inverted = ticks[1] < ticks[0];
+          const inverted = (ticks[1] as number) < (ticks[0] as number);
           const minTick = inverted ? ticks.length - 1 : 0;
           const maxTick = inverted ? 0 : ticks.length - 1;
           const prefix =
@@ -89,14 +97,19 @@ export function buildTickFormat(
                   ? axis.schema.roundingInsideMaxSuffix
                   : ""
               : "";
-          return `${prefix}${formatAbbreviate(d, axis.schema.locale)}${suffix}`;
+          return `${prefix}${formatAbbreviate(d as number, axis.schema.locale)}${suffix}`;
         }
       };
 }
 
 /** Resolves the pixel range, clamping to config + expanding ordinal buckets. */
-function resolveRange(axis: any, rangeOuter: number[], newRange: any): any[] {
-  let range = newRange ? newRange.slice() : [undefined, undefined];
+function resolveRange(
+  axis: Axis,
+  rangeOuter: number[],
+  newRange: number[] | undefined,
+): number[] {
+  // Indices 0/1 are filled by the guards below before any read.
+  let range: number[] = newRange ? newRange.slice() : [];
   let [minRange, maxRange] = rangeOuter;
   if (axis.schema.range) {
     if (axis.schema.range[0] !== undefined) minRange = axis.schema.range[0];
@@ -126,7 +139,7 @@ function resolveRange(axis: any, rangeOuter: number[], newRange: any): any[] {
 }
 
 /** Rounds the linear/log domain to "nice" values per the rounding mode. */
-function roundDomain(axis: any, initialDomain: any[]): void {
+function roundDomain(axis: Axis, initialDomain: number[]): void {
   const zeroLength = (d: number) => {
     if (smallScale) {
       if (!d) return 0;
@@ -188,11 +201,11 @@ function roundDomain(axis: any, initialDomain: any[]): void {
     if (newDomain[0] === 0) newDomain[0] = initialDomain[0];
     if (newDomain[1] === 0) newDomain[1] = initialDomain[1];
   }
-  axis._d3Scale.domain(newDomain.map(fixFloat));
+  axis._d3Scale!.domain(newDomain.map(fixFloat));
 }
 
 /** Dispatches domain rounding for linear vs. log scales. */
-function applyRounding(axis: any, initialDomain: any[]): void {
+function applyRounding(axis: Axis, initialDomain: number[]): void {
   if (axis.schema.scale === "linear") {
     roundDomain(axis, initialDomain);
   } else if (axis.schema.scale === "log") {
@@ -238,7 +251,7 @@ function applyRounding(axis: any, initialDomain: any[]): void {
       powDomain.some((d: number) => Math.abs(d) > 10) &&
       powInverted === inverted
     ) {
-      axis._d3Scale.domain(powDomain);
+      axis._d3Scale!.domain(powDomain);
     } else {
       roundDomain(axis, initialDomain);
     }
@@ -246,8 +259,8 @@ function applyRounding(axis: any, initialDomain: any[]): void {
 }
 
 /** Splits a log scale into positive/negative sub-scales when it spans zero. */
-function applyLogScaleSplit(axis: any): void {
-  const domain = axis._d3Scale.domain() as number[];
+function applyLogScaleSplit(axis: Axis): void {
+  const domain = axis._d3Scale!.domain() as number[];
   const data = axis._data as number[];
   if (domain[0] === 0) {
     const smallestNumber = min([min(data)!, Math.abs(domain[1])]);
@@ -268,16 +281,16 @@ function applyLogScaleSplit(axis: any): void {
           : 1;
     if (isNegative(domain[0])) domain[domain.length - 1] *= -1;
   }
-  const scaleRange = axis._d3Scale.range();
+  const scaleRange = axis._d3Scale!.range();
 
   if (isNegative(domain[0]) && isNegative(domain[domain.length - 1])) {
-    axis._d3ScaleNegative = axis._d3Scale
+    axis._d3ScaleNegative = axis._d3Scale!
       .copy()
       .domain(domain)
       .range(scaleRange);
     axis._d3Scale = null;
   } else if (domain[0] > 0 && domain[domain.length - 1] > 0) {
-    axis._d3Scale.domain(domain).range(scaleRange);
+    axis._d3Scale!.domain(domain).range(scaleRange);
   } else {
     const powers = domain
       .map((d: number) => Math.log10(Math.abs(d)))
@@ -308,24 +321,24 @@ function applyLogScaleSplit(axis: any): void {
           ? floorPow(minNegative!)
           : 1;
     const minValue = min([Math.abs(minPosPow), Math.abs(minNegPow)]);
-    axis._d3ScaleNegative = axis._d3Scale.copy();
-    (isNegative(domain[0]) ? axis._d3Scale : axis._d3ScaleNegative)
-      .domain([isNegative(domain[0]) ? minValue : -minValue!, domain[1]])
+    axis._d3ScaleNegative = axis._d3Scale!.copy();
+    (isNegative(domain[0]) ? axis._d3Scale : axis._d3ScaleNegative)!
+      .domain([isNegative(domain[0]) ? minValue! : -minValue!, domain[1]])
       .range([scaleRange[0] + zero, scaleRange[1]]);
-    (isNegative(domain[0]) ? axis._d3ScaleNegative : axis._d3Scale)
-      .domain([domain[0], isNegative(domain[0]) ? -minValue! : minValue])
+    (isNegative(domain[0]) ? axis._d3ScaleNegative : axis._d3Scale)!
+      .domain([domain[0], isNegative(domain[0]) ? -minValue! : minValue!])
       .range([scaleRange[0], scaleRange[0] + zero]);
   }
 }
 
 /** Resolves the tick + label value arrays (config, scale ticks, or domain). */
-function resolveTicksLabels(axis: any): {ticks: any[]; labels: any[]} {
+function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   let ticks = (
     axis.schema.ticks
       ? axis.schema.scale === "time"
         ? (axis.schema.ticks as (string | number | false | undefined)[]).map(date)
         : axis.schema.ticks
-      : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative.ticks)
+      : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getTicks()
         : axis.schema.domain
   ).slice();
@@ -334,7 +347,7 @@ function resolveTicksLabels(axis: any): {ticks: any[]; labels: any[]} {
       ? axis.schema.scale === "time"
         ? (axis.schema.labels as (string | number | false | undefined)[]).map(date)
         : axis.schema.labels
-      : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative.ticks)
+      : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getLabels()
         : ticks
   ).slice();
@@ -353,11 +366,11 @@ function resolveTicksLabels(axis: any): {ticks: any[]; labels: any[]} {
 }
 
 /** Sets `axis._tickUnit` for the "smallest" linear tick-suffix mode. */
-function applyTickSuffixUnit(axis: any, labels: any[]): void {
+function applyTickSuffixUnit(axis: Axis, labels: unknown[]): void {
   if (axis.schema.scale === "linear" && axis.schema.tickSuffix === "smallest") {
     const suffixes = labels.filter((d: unknown) => (d as number) >= 1000);
     if (suffixes.length > 0) {
-      const minVal = Math.min(...suffixes);
+      const minVal = Math.min(...(suffixes as number[]));
       let i = 1;
       while (i && i < 7) {
         const n = Math.pow(10, 3 * i);
@@ -373,7 +386,7 @@ function applyTickSuffixUnit(axis: any, labels: any[]): void {
 }
 
 /** Drops ticks that would visually collide, recording available/visible sets. */
-function filterVisibleTicks(axis: any, ticks: any[], tickGet: any): any[] {
+function filterVisibleTicks(axis: Axis, ticks: unknown[], tickGet: TickGet): unknown[] {
   const pixels: (number | false)[] = [];
   axis._availableTicks = ticks;
   ticks.forEach((d: unknown, i: number) => {
@@ -395,11 +408,11 @@ function filterVisibleTicks(axis: any, ticks: any[], tickGet: any): any[] {
     the caller threads through the rest of `measureAxis`.
 */
 export function setAxisScale(
-  axis: any,
+  axis: Axis,
   rangeOuter: number[],
-  tickGet: any,
-  newRangeArg?: any,
-): {range: any[]; ticks: any[]; labels: any[]} {
+  tickGet: TickGet,
+  newRangeArg?: number[],
+): {range: number[]; ticks: unknown[]; labels: unknown[]} {
   const newRange = newRangeArg !== undefined ? newRangeArg : axis.schema.range;
   const range = resolveRange(axis, rangeOuter, newRange);
 
@@ -409,7 +422,7 @@ export function setAxisScale(
 
   const initialDomain = axis.schema.domain.slice();
 
-  axis._d3Scale = (scales as any)[scale]()
+  axis._d3Scale = (scales as unknown as Record<string, () => D3Scale>)[scale]()
     .domain(
       axis.schema.scale === "time" ? initialDomain.map(date) : initialDomain,
     )
@@ -417,11 +430,12 @@ export function setAxisScale(
 
   if (axis.schema.rounding !== "none") applyRounding(axis, initialDomain);
 
-  if (axis._d3Scale.padding) axis._d3Scale.padding(axis.schema.scalePadding);
-  if (axis._d3Scale.paddingInner)
-    axis._d3Scale.paddingInner(axis.schema.paddingInner);
-  if (axis._d3Scale.paddingOuter)
-    axis._d3Scale.paddingOuter(axis.schema.paddingOuter);
+  if (axis._d3Scale!.padding)
+    axis._d3Scale!.padding(axis.schema.scalePadding);
+  if (axis._d3Scale!.paddingInner)
+    axis._d3Scale!.paddingInner(axis.schema.paddingInner);
+  if (axis._d3Scale!.paddingOuter)
+    axis._d3Scale!.paddingOuter(axis.schema.paddingOuter);
 
   axis._d3ScaleNegative = null;
   if (axis.schema.scale === "log") applyLogScaleSplit(axis);

@@ -4,22 +4,49 @@
     resolves truncation/offset, and returns the `textData` array the paint
     phase consumes; `computeAxisBounds` derives `_outerBounds` + margins.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {max, min} from "d3-array";
 
 import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
+
+import type Axis from "./Axis.js";
+
+/** Resolves a tick's pixel size from the shape config (or a constant). */
+export type TickGet = (d?: {tick?: boolean; id?: unknown}, i?: number) => number;
+
+/**
+    One measured axis label. Built incrementally: the base fields come from the
+    label-mapping pass, `space`/`lines`/`widths`/`width`/`height` are filled by
+    `calculateLabelSize`, and `truncated`/`offset` by the collision passes.
+*/
+export interface AxisTextDatum {
+  d: unknown;
+  i: number;
+  fF: string;
+  fP: number;
+  fS: number;
+  lineHeight: number;
+  position: number;
+  rotate?: boolean;
+  space: number;
+  lines: string[];
+  widths: number[];
+  width: number;
+  height: number;
+  truncated?: boolean;
+  offset?: number;
+}
 
 interface LabelLayoutCtx {
   horizontal: boolean;
   hBuff: number;
   p: number;
-  tickFormat: (d: any) => any;
+  tickFormat: (d: unknown) => string;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
 export function applyTitleMargin(
-  axis: any,
-  ctx: {range: any[]; p: number; height: string; margin: Record<string, number>},
+  axis: Axis,
+  ctx: {range: number[]; p: number; height: string; margin: Record<string, number>},
 ): void {
   if (!axis.schema.title) return;
   const {range, p, height, margin} = ctx;
@@ -36,33 +63,37 @@ export function applyTitleMargin(
 
 /** Resolves the tick height/width buffers from the shape config. */
 export function computeBuffers(
-  axis: any,
-  ticks: any[],
-  tickGet: any,
+  axis: Axis,
+  _ticks: unknown[],
+  tickGet: TickGet,
   height: string,
 ): {hBuff: number; wBuff: number} {
-  let hBuff: any =
-      axis.schema.shape === "Circle"
-        ? typeof axis.schema.shapeConfig.r === "function"
-          ? axis.schema.shapeConfig.r({tick: true})
-          : axis.schema.shapeConfig.r
-        : axis.schema.shape === "Rect"
-          ? typeof axis.schema.shapeConfig[height] === "function"
-            ? axis.schema.shapeConfig[height]({tick: true})
-            : axis.schema.shapeConfig[height]
-          : axis.schema.tickSize,
-    wBuff: any = tickGet({tick: true});
+  // The ternary and `tickGet` already resolve per-tick functions to a single
+  // value, so both buffers are numbers by here.
+  let hBuff: number =
+    axis.schema.shape === "Circle"
+      ? typeof axis.schema.shapeConfig.r === "function"
+        ? axis.schema.shapeConfig.r({tick: true})
+        : axis.schema.shapeConfig.r
+      : axis.schema.shape === "Rect"
+        ? typeof axis.schema.shapeConfig[height] === "function"
+          ? axis.schema.shapeConfig[height]({tick: true})
+          : axis.schema.shapeConfig[height]
+        : axis.schema.tickSize;
+  let wBuff: number = tickGet({tick: true});
 
-  if (typeof hBuff === "function") hBuff = max(ticks.map(hBuff));
   if (axis.schema.shape === "Rect") hBuff /= 2;
-  if (typeof wBuff === "function") wBuff = max(ticks.map(wBuff));
   if (axis.schema.shape !== "Circle") wBuff /= 2;
 
   return {hBuff, wBuff};
 }
 
 /** Wraps + measures a single label, returning its sized text result. */
-function calculateLabelSize(axis: any, datum: any, ctx: LabelLayoutCtx): any {
+function calculateLabelSize(
+  axis: Axis,
+  datum: AxisTextDatum,
+  ctx: LabelLayoutCtx,
+): {lines: string[]; widths: number[]; width: number; height: number} {
   const {horizontal, hBuff, p, tickFormat} = ctx;
   const {d, i, fF, fP, fS, rotate, space} = datum;
   const h = rotate ? "width" : "height",
@@ -104,9 +135,9 @@ function calculateLabelSize(axis: any, datum: any, ctx: LabelLayoutCtx): any {
 }
 
 /** Assigns vertical offsets to alternating labels that would overlap. */
-function calculateOffset(arr: any[] = [], horizontal: boolean): void {
+function calculateOffset(arr: AxisTextDatum[] = [], horizontal: boolean): void {
   let offset = 0;
-  arr.forEach((datum: any) => {
+  arr.forEach((datum: AxisTextDatum) => {
     const prev = arr[datum.i - 1];
     const h =
         (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
@@ -136,9 +167,9 @@ function calculateOffset(arr: any[] = [], horizontal: boolean): void {
     resolves truncation (and optional offset). Returns the `textData` array.
 */
 export function createTextData(
-  axis: any,
-  ctx: LabelLayoutCtx & {labels: any[]; rangeOuter: number[]; offset?: number},
-): any[] {
+  axis: Axis,
+  ctx: LabelLayoutCtx & {labels: unknown[]; rangeOuter: number[]; offset?: number},
+): AxisTextDatum[] {
   const {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset = 1} = ctx;
   const labelCtx: LabelLayoutCtx = {horizontal, hBuff, p, tickFormat};
   const {fontSize} = axis.schema.shapeConfig.labelConfig;
@@ -146,7 +177,7 @@ export function createTextData(
     axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
   const fontPadding = axis.schema.shapeConfig.labelConfig.padding;
 
-  let textData = labels.map((d: any, i: number) => {
+  let textData = labels.map((d: unknown, i: number) => {
     const fF =
         typeof fontFamilyConfig === "function" ? fontFamilyConfig(d, i) : fontFamilyConfig,
       fP =
@@ -157,7 +188,8 @@ export function createTextData(
     const lineHeight = axis.schema.shapeConfig.lineHeight
       ? axis.schema.shapeConfig.lineHeight(d, i)
       : fS * 1.4;
-    const datum: any = {
+    // Base record — `space`/`lines`/`width`/`height` are filled below.
+    return {
       d,
       i,
       fF,
@@ -166,14 +198,13 @@ export function createTextData(
       lineHeight,
       position,
       rotate: axis._labelRotation,
-    };
-    return datum;
+    } as AxisTextDatum;
   });
 
   const maxSpace =
     axis.schema.scale === "band"
-      ? axis._d3Scale.bandwidth()
-      : textData.reduce((s: number, d: any, i: number) => {
+      ? axis._d3Scale!.bandwidth!()
+      : textData.reduce((s: number, d: AxisTextDatum, i: number) => {
           const {position} = d;
           const prevPosition = !i
             ? textData.length === 1
@@ -193,22 +224,22 @@ export function createTextData(
           return max([max([prevSpace, nextSpace])! * mod, s])!;
         }, 0);
 
-  textData = textData.map((datum: any) => {
+  textData = textData.map((datum: AxisTextDatum) => {
     datum.space = maxSpace - datum.fP * 2;
     const res = calculateLabelSize(axis, datum, labelCtx);
     return Object.assign(res, datum);
   });
 
   const reverseTextData = textData.slice().reverse();
-  textData.forEach((datum: any) => {
+  textData.forEach((datum: AxisTextDatum) => {
     const {fP, i, position} = datum;
     const sizeName =
       (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
         ? "height"
         : "width";
-    let prev: any = i
-      ? reverseTextData.find((t: any) => t.i < i && !t.truncated)
-      : false;
+    let prev: AxisTextDatum | undefined = i
+      ? reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated)
+      : undefined;
     if (i === textData.length - 1) {
       while (
         prev &&
@@ -216,7 +247,7 @@ export function createTextData(
           prev.position + prev[sizeName] / 2
       ) {
         prev.truncated = true;
-        prev = reverseTextData.find((t: any) => t.i < i && !t.truncated);
+        prev = reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated);
       }
     }
     datum.truncated = prev
@@ -231,9 +262,9 @@ export function createTextData(
 
 /** Derives `_outerBounds` + axis margins from the measured text data. */
 export function computeAxisBounds(
-  axis: any,
+  axis: Axis,
   ctx: {
-    textData: any[];
+    textData: AxisTextDatum[];
     rangeOuter: number[];
     hBuff: number;
     horizontal: boolean;
@@ -245,13 +276,13 @@ export function computeAxisBounds(
     opposite: string;
     margin: Record<string, number>;
   },
-): any {
+): Record<string, number> {
   const {textData, rangeOuter, hBuff, horizontal, p, width, height, x, y, opposite, margin} = ctx;
   const tBuff = axis.schema.shape === "Line" ? 0 : hBuff;
-  const bounds: any = (axis._outerBounds = {
+  const bounds: Record<string, number> = (axis._outerBounds = {
     [height]:
-      (max(textData, (t: any) =>
-        Math.ceil(t[t.rotate || !horizontal ? "width" : "height"] + t.offset),
+      (max(textData, (t: AxisTextDatum) =>
+        Math.ceil(t[t.rotate || !horizontal ? "width" : "height"] + (t.offset ?? 0)),
       ) || 0) + (textData.length ? p : 0),
     [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
     [x]: rangeOuter[0],

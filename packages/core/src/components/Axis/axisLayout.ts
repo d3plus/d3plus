@@ -23,18 +23,19 @@
     pure data, no Axis class instance required (any object satisfying the
     duck-typed AxisLike shape works).
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {max} from "d3-array";
 import {timeFormatDefaultLocale} from "d3-time-format";
 
 import {locale} from "@d3plus/locales";
 
+import type Axis from "./Axis.js";
 import {
   applyTitleMargin,
   computeAxisBounds,
   computeBuffers,
   createTextData,
 } from "./axisLayoutLabels.js";
+import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
 
 /**
@@ -45,14 +46,14 @@ import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
     callers reading those slots stay in sync.
 */
 export interface AxisLayoutResult {
-  ticks: any[];
-  labels: any[];
+  ticks: unknown[];
+  labels: unknown[];
   range: number[];
-  textData: any[];
-  tickFormat: (d: any) => string;
+  textData: AxisTextDatum[];
+  tickFormat: (d: unknown) => string;
   hBuff: number;
   wBuff: number;
-  tickGet: (d: any, i?: number) => any;
+  tickGet: TickGet;
   labelHeight: number;
   bounds: Record<string, number>;
 }
@@ -64,7 +65,7 @@ export interface AxisLayoutResult {
     `_d3Scale`/`_outerBounds`/`_margin`/etc. for callers that read those off
     the instance afterward.
 */
-export function measureAxis(axis: any): AxisLayoutResult {
+export function measureAxis(axis: Axis): AxisLayoutResult {
   const timeLocaleObj =
     axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"];
   timeFormatDefaultLocale(
@@ -86,7 +87,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
 
-  let labels: any[] = [], range: any[] = [], ticks: any[] = [];
+  let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
 
   const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
 
@@ -98,7 +99,7 @@ export function measureAxis(axis: any): AxisLayoutResult {
 
   let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat});
   const offsetEnabled =
-    axis.schema.labelOffset && textData.some((d: any) => d.truncated);
+    axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
   if (offsetEnabled)
     textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
 
@@ -126,10 +127,10 @@ export function measureAxis(axis: any): AxisLayoutResult {
     textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
   }
 
-  const labelHeight = max(textData, (t: any) => t.height) || 0;
+  const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
   axis._labelRotation =
     horizontal && axis._labelRotation === undefined
-      ? textData.some((datum: any) => {
+      ? textData.some((datum: AxisTextDatum) => {
           const {i, height: dH, position, truncated} = datum;
           const prev = textData[i - 1];
           return (
@@ -140,10 +141,10 @@ export function measureAxis(axis: any): AxisLayoutResult {
       : axis._labelRotation;
 
   const globalOffset = axis.schema.labelOffset
-    ? max(textData, (d: any) => d.offset || 0)
+    ? max(textData, (d: AxisTextDatum) => d.offset || 0)
     : 0;
   textData.forEach(
-    (datum: any) => (datum.offset = datum.offset ? globalOffset : 0),
+    (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
   );
 
   const bounds = computeAxisBounds(axis, {textData, rangeOuter, hBuff, horizontal, p, width, height, x, y, opposite, margin});
