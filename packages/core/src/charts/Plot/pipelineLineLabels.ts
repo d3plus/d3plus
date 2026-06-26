@@ -8,24 +8,28 @@
     The test axes themselves come via `plotTestAxes` ctx field (Plot._draw
     measures them then injects).
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {groups, max, min} from "d3-array";
 
 import {textWidth as d3plusTextWidth} from "@d3plus/dom";
 
+import type {Axis, TextBox} from "../../components/index.js";
+import type Shape from "../../shapes/Shape.js";
+
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 
+/** A d3plus config value: a constant or a `(datum, index)` accessor. */
+type ConfigAccessor<T> = T | ((d: Record<string, unknown>, i?: number) => T);
+
 interface LineLabelCtx {
-  labelFunction: any;
-  fontColorAccessor: any;
-  fontSizeAccessor: any;
-  fontWeightAccessor: any;
-  fontFamilyAccessor: any;
-  paddingAccessor: any;
-  xEstimate: (d: any) => any;
-  yEstimate: (d: any) => any;
+  labelFunction: ConfigAccessor<string>;
+  fontColorAccessor: ConfigAccessor<string>;
+  fontSizeAccessor: ConfigAccessor<number>;
+  fontWeightAccessor: ConfigAccessor<number | string>;
+  fontFamilyAccessor: ConfigAccessor<string | string[]>;
+  paddingAccessor: ConfigAccessor<number>;
+  xEstimate: (d: unknown) => number;
+  yEstimate: (d: unknown) => number;
 }
 
 /** Measures one line's label (width, position, overlap coords). */
@@ -45,10 +49,10 @@ function measureLineLabel(
   } = ctx;
 
   let d = lineValues[lineValues.length - 1] as Record<string, unknown>;
-  let i;
+  let i: number | undefined;
   while (d.__d3plus__ && d.data) {
     d = d.data as Record<string, unknown>;
-    i = d.i;
+    i = d.i as number | undefined;
   }
   const label = typeof labelFunction === "function" ? labelFunction(d, i) : labelFunction;
   const fontColor = typeof fontColorAccessor === "function" ? fontColorAccessor(d, i) : fontColorAccessor;
@@ -66,9 +70,10 @@ function measureLineLabel(
     xEstimate(d.x),
     yEstimate(d.y),
   ]);
+  // A line always has values, so the max is defined.
   const myMaxX = max(
     lineValues.map((d: Record<string, unknown>) => xEstimate(d.x)),
-  );
+  ) as number;
   const labelY = (
     lineValues.find((d: Record<string, unknown>) => xEstimate(d.x) === myMaxX) as Record<string, unknown>
   ).y;
@@ -92,7 +97,7 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   if (!viz.schema.lineLabels || y2Exists) {
     return {plotLabelWidths: [], plotLargestLabel: undefined, plotXRangeMax: undefined};
   }
-  const labelData = data.filter((d: any) => {
+  const labelData = data.filter((d: Record<string, unknown>) => {
     if (d.shape !== "Line") return false;
     return typeof viz.schema.lineLabels === "function"
       ? viz.schema.lineLabels(d.data, d.i)
@@ -103,8 +108,11 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
     return {plotLabelWidths: [], plotLargestLabel: undefined, plotXRangeMax: undefined};
   }
 
-  const {testLineShape, testTextBox} = plotLineLabelTest as any;
-  const {xTest, yTest} = plotTestAxes as any;
+  const {testLineShape, testTextBox} = plotLineLabelTest as {
+    testLineShape: Shape;
+    testTextBox: TextBox;
+  };
+  const {xTest, yTest} = plotTestAxes as {xTest: Axis; yTest: Axis};
   const xDomain = plotScales.x.domain();
   const yDomain = plotScales.y.domain();
   const xConfigScale = plotConfigScales.xConfigScale;
@@ -114,21 +122,23 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   const userConfig = shapeConfigFor(viz, "Line");
   testLineShape.config(userConfig);
   const lineLabelConfig = testLineShape.labelConfig();
-  const fontColorAccessor = lineLabelConfig.fontColor !== undefined ? lineLabelConfig.fontColor : testTextBox.fontColor();
-  const fontSizeAccessor = lineLabelConfig.fontSize !== undefined ? lineLabelConfig.fontSize : testTextBox.fontSize();
-  const fontWeightAccessor = lineLabelConfig.fontWeight !== undefined ? lineLabelConfig.fontWeight : testTextBox.fontWeight();
-  const fontFamilyAccessor = lineLabelConfig.fontFamily !== undefined ? lineLabelConfig.fontFamily : testTextBox.fontFamily();
-  const paddingAccessor = lineLabelConfig.padding !== undefined ? lineLabelConfig.padding : testTextBox.padding();
-  const labelFunction = userConfig.label || viz._drawLabel;
+  // Each accessor falls back from the Line shape's labelConfig to the test
+  // TextBox's getter; both yield a d3plus config value (constant or accessor).
+  const fontColorAccessor = (lineLabelConfig.fontColor !== undefined ? lineLabelConfig.fontColor : testTextBox.fontColor()) as ConfigAccessor<string>;
+  const fontSizeAccessor = (lineLabelConfig.fontSize !== undefined ? lineLabelConfig.fontSize : testTextBox.fontSize()) as ConfigAccessor<number>;
+  const fontWeightAccessor = (lineLabelConfig.fontWeight !== undefined ? lineLabelConfig.fontWeight : testTextBox.fontWeight()) as ConfigAccessor<number | string>;
+  const fontFamilyAccessor = (lineLabelConfig.fontFamily !== undefined ? lineLabelConfig.fontFamily : testTextBox.fontFamily()) as ConfigAccessor<string | string[]>;
+  const paddingAccessor = (lineLabelConfig.padding !== undefined ? lineLabelConfig.padding : testTextBox.padding()) as ConfigAccessor<number>;
+  const labelFunction = (userConfig.label || viz._drawLabel) as ConfigAccessor<string>;
 
-  const xEstimate = (d: any) => {
+  const xEstimate = (d: unknown): number => {
     if (xConfigScale === "log" && d === 0)
-      d = xDomain[0] < 0 ? xTest._d3Scale.domain()[1] : xTest._d3Scale.domain()[0];
+      d = xDomain[0] < 0 ? xTest._d3Scale!.domain()[1] : xTest._d3Scale!.domain()[0];
     return xTest._getPosition.bind(xTest)(d);
   };
-  const yEstimate = (d: any) => {
+  const yEstimate = (d: unknown): number => {
     if (yConfigScale === "log" && d === 0)
-      d = yDomain[0] < 0 ? yTest._d3Scale.domain()[1] : yTest._d3Scale.domain()[0];
+      d = yDomain[0] < 0 ? yTest._d3Scale!.domain()[1] : yTest._d3Scale!.domain()[0];
     return yTest._getPosition.bind(yTest)(d);
   };
 
@@ -156,9 +166,9 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
         l =>
           l.id !== id &&
           l.coords.some(
-            (c: any) =>
+            (c: number[]) =>
               (c[0] > maxX || (c[0] === maxX && l.maxX !== maxX)) &&
-              c[0] <= (maxX as number) + labelWidth &&
+              c[0] <= maxX + labelWidth &&
               c[1] <= yEstimate + fontSize * 0.75 &&
               c[1] >= yEstimate - fontSize * 0.75,
           ),

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
     `vizDrawPure(viz, prevCtx)` — the returning form of `vizDraw`.
 
@@ -43,12 +41,14 @@ import {
 
 import {resolveSpec} from "./resolveSpec.js";
 
+import type {SceneNode} from "@d3plus/render";
+
 import type {VizContext} from "./vizContext.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 export interface VizDrawCtx extends VizContext {
   marginDelta?: {top: number; bottom: number; left: number; right: number};
-  featurePanels?: any[];
+  featurePanels?: SceneNode[];
   legendPosition?: string | false;
   colorScalePosition?: string | false;
   resetChartScene?: boolean;
@@ -108,7 +108,7 @@ export function vizDrawPure(
   // margin.top grows BEFORE the left/right legend lays out — the legend
   // positions against it. Title must lay out first or the left legend
   // overlaps the title at y=0.
-  const topBlocks = runLayout({viz} as any, [
+  const topBlocks = runLayout({viz}, [
     backFeature,
     titleFeature,
     subtitleFeature,
@@ -118,7 +118,7 @@ export function vizDrawPure(
   out.marginDelta!.top += topBlocks.margin.top;
   running.top += topBlocks.margin.top;
 
-  const timelineClaim = runLayout({viz} as any, [timelineFeature], running);
+  const timelineClaim = runLayout({viz}, [timelineFeature], running);
   out.marginDelta!.bottom += timelineClaim.margin.bottom;
   running.bottom += timelineClaim.margin.bottom;
 
@@ -130,7 +130,7 @@ export function vizDrawPure(
     legendPosition === "right" ||
     legendPosition === false
   ) {
-    const claim = runLayout({viz} as any, [legendFeature], running);
+    const claim = runLayout({viz}, [legendFeature], running);
     out.marginDelta!.left += claim.margin.left;
     out.marginDelta!.right += claim.margin.right;
     running.left += claim.margin.left;
@@ -141,7 +141,7 @@ export function vizDrawPure(
     colorScalePosition === "right" ||
     colorScalePosition === false
   ) {
-    const claim = runLayout({viz} as any, [colorScaleFeature], running);
+    const claim = runLayout({viz}, [colorScaleFeature], running);
     out.marginDelta!.left += claim.margin.left;
     out.marginDelta!.right += claim.margin.right;
     running.left += claim.margin.left;
@@ -150,14 +150,14 @@ export function vizDrawPure(
 
   // Top/bottom legend + colorScale.
   if (legendPosition === "top" || legendPosition === "bottom") {
-    const claim = runLayout({viz} as any, [legendFeature], running);
+    const claim = runLayout({viz}, [legendFeature], running);
     out.marginDelta!.top += claim.margin.top;
     out.marginDelta!.bottom += claim.margin.bottom;
     running.top += claim.margin.top;
     running.bottom += claim.margin.bottom;
   }
   if (colorScalePosition === "top" || colorScalePosition === "bottom") {
-    const claim = runLayout({viz} as any, [colorScaleFeature], running);
+    const claim = runLayout({viz}, [colorScaleFeature], running);
     out.marginDelta!.top += claim.margin.top;
     out.marginDelta!.bottom += claim.margin.bottom;
     running.top += claim.margin.top;
