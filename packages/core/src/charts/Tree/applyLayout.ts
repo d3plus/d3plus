@@ -7,8 +7,6 @@
     groupings. Stashes `linksData`/`linkD`/`shapeGroups`/`shapeConfig` and
     `labelHeight`/`labelWidths`/`previousShapes` on `viz.ctx`.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {extent, max, min} from "d3-array";
 import {hierarchy} from "d3-hierarchy";
 import {scaleLinear} from "d3-scale";
@@ -18,6 +16,7 @@ import {merge, nest} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 type TreeNode = DataPoint & {
   __d3plus__?: true;
@@ -32,7 +31,7 @@ type TreeNode = DataPoint & {
 type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<string, unknown>;
 
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
-function flattenBranchData(viz: any, branch: Branch): DataPoint {
+function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
   return merge(
     (branch.values as Branch[]).map(l =>
       l.key && l.values ? flattenBranchData(viz, l) : (l as DataPoint),
@@ -42,7 +41,7 @@ function flattenBranchData(viz: any, branch: Branch): DataPoint {
 }
 
 /** Run the d3-hierarchy tree layout, flatten branch aggregations, and tag nodes. */
-function buildTreeData(viz: any, width: number, height: number): TreeNode[] {
+function buildTreeData(viz: VizInstance, width: number, height: number): TreeNode[] {
   const treeLayout = viz.ctx.tree as {
     separation: (fn: (a: unknown, b: unknown) => number) => typeof treeLayout;
     size: (s: [number, number]) => typeof treeLayout;
@@ -89,7 +88,7 @@ function buildTreeData(viz: any, width: number, height: number): TreeNode[] {
     Stashes `labelHeight`/`labelWidths` on `viz.ctx`.
 */
 function measureTreeLabels(
-  viz: any,
+  viz: VizInstance,
   treeData: TreeNode[],
   isVertical: boolean,
   isHorizontal: boolean,
@@ -148,7 +147,7 @@ function measureTreeLabels(
 
 /** Build the per-shape config object consumed by the Tree's shape emit. */
 function buildTreeShapeConfig(
-  viz: any,
+  viz: VizInstance,
   labelHeight: number,
   labelWidths: number[],
   isVertical: boolean,
@@ -223,7 +222,7 @@ function buildTreeShapeConfig(
     `linksData`/`linkD`/`shapeGroups`/`shapeConfig`/`previousShapes` on `viz.ctx`.
 */
 function publishTreeCtx(
-  viz: any,
+  viz: VizInstance,
   treeData: TreeNode[],
   labelHeight: number,
   labelWidths: number[],

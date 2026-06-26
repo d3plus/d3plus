@@ -4,8 +4,6 @@
     each by extent, builds bezier link `d` accessor, and stashes
     `ringsCtx` + `nodeLookup`/`linkLookup` on `viz.ctx`.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
 
@@ -16,6 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 import {chartBounds} from "../features/chartGeometry.js";
 import {resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     Single laid-out node — accreted across the layout's passes. Each
@@ -89,7 +88,7 @@ const emptyRingsCtx = () => ({
     `nodes`, `nodeLookup`, `links`, and per-node `linkMap`.
 */
 function buildRingsGraph(
-  v: any,
+  v: VizInstance,
   data: Record<string, DataPoint>,
 ): {
   nodes: RingsNode[];
@@ -214,7 +213,7 @@ interface RingGeometry {
     plus the `primaries`/`secondaries` rings.
 */
 function placeRingsNodes(
-  v: any,
+  v: VizInstance,
   nodeLookup: Record<string, RingsNode>,
   linkMap: Record<string, RingsEdge[]>,
   center: RingsNode,
@@ -299,7 +298,7 @@ function placeRingsNodes(
     each ring node its `ring` + `r`. Mutates `center.r` and every ring node.
 */
 function sizeRingsNodes(
-  v: any,
+  v: VizInstance,
   center: RingsNode,
   geom: RingGeometry,
   data: Record<string, DataPoint>,
@@ -363,7 +362,7 @@ function sizeRingsNodes(
     spline edges, and push every edge onto `edges` (mutated in place).
 */
 function buildRingsEdges(
-  v: any,
+  v: VizInstance,
   nodes: RingsNode[],
   primaries: RingsNode[],
   secondaries: RingsNode[],
@@ -427,7 +426,7 @@ function buildRingsEdges(
 }
 
 /** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
-function applyRingsLabelBounds(v: any, nodes: RingsNode[], geom: RingGeometry): void {
+function applyRingsLabelBounds(v: VizInstance, nodes: RingsNode[], geom: RingGeometry): void {
   const {primaryRing, ringWidth} = geom;
   nodes.forEach(node => {
     if (node.id === v.schema.center) {
@@ -469,7 +468,7 @@ function applyRingsLabelBounds(v: any, nodes: RingsNode[], geom: RingGeometry): 
     stash `linkLookup` + `ringsCtx` on `viz.ctx`.
 */
 function publishRingsCtx(
-  v: any,
+  v: VizInstance,
   nodes: RingsNode[],
   nodeLookup: Record<string, RingsNode>,
   links: RingsEdge[],
@@ -510,8 +509,8 @@ function publishRingsCtx(
   const shapeConfig = {
     label: (d: RingsNode) =>
       nodes.length <= v.schema.dataCutoff ||
-      (v._hover && v._hover(d)) ||
-      (v._active && v._active(d))
+      (v._hover && v._hover(d as unknown as DataPoint)) ||
+      (v._active && v._active(d as unknown as DataPoint))
         ? v._drawLabel(d.data || d.node, d.i)
         : false,
     labelBounds: (d: RingsNode) => d.labelBounds,

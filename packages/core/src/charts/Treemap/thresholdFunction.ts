@@ -10,19 +10,15 @@ import type {DataPoint} from "@d3plus/data";
 
 export interface ThresholdInputs {
   /** Per-key aggregation overrides used by `merge` to bucket removed items. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  aggs: any;
+  aggs: Record<string, (leaves: DataPoint[]) => unknown>;
   /** The drill-down depth at which the threshold filter applies. */
   drawDepth: number;
   /** GroupBy accessors used to walk down the tree to `drawDepth`. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  groupBy: ((d: any) => any)[];
+  groupBy: ((d: DataPoint) => DataPoint[keyof DataPoint])[];
   /** Threshold accessor — returns a 0..1 percentage given the branch data. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  threshold: (branchData: any[]) => number;
+  threshold: (branchData: DataPoint[]) => number;
   /** Per-datum value accessor compared against `threshold * totalSum`. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  thresholdKey: (d: any) => number;
+  thresholdKey: (d: DataPoint) => number;
 }
 
 /**
@@ -32,11 +28,9 @@ export interface ThresholdInputs {
     is not mutated.
 */
 export function thresholdFunction(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[],
+  data: DataPoint[],
   inputs: ThresholdInputs,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any[] {
+): DataPoint[] {
   const {aggs, drawDepth, groupBy, threshold, thresholdKey} = inputs;
   const totalSum = sum(data, thresholdKey);
 
@@ -46,14 +40,15 @@ export function thresholdFunction(
       Explores the data tree recursively and merges elements under
       the indicated threshold.
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function thresholdByDepth(branchData: any[], depth: number): any[] | null {
+  function thresholdByDepth(
+    branchData: DataPoint[],
+    depth: number,
+  ): DataPoint[] | null {
     if (depth < drawDepth) {
       return [...group(branchData, groupBy[depth])].reduce(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (bulk: any[], [, values]): any[] => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const subBranchData: any[] = thresholdByDepth(values, depth + 1) ?? [];
+        (bulk: DataPoint[], [, values]): DataPoint[] => {
+          const subBranchData: DataPoint[] =
+            thresholdByDepth(values, depth + 1) ?? [];
           return bulk.concat(subBranchData);
         },
         [],
@@ -69,10 +64,8 @@ export function thresholdFunction(
       if (!isFinite(thresholdPercent) || isNaN(thresholdPercent)) return null;
 
       // Single-pass O(N) partition into kept + removed bucket.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const removedItems: any[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const kept: any[] = [];
+      const removedItems: DataPoint[] = [];
+      const kept: DataPoint[] = [];
       const thresholdValue = thresholdPercent * totalSum;
       for (let i = 0; i < branchData.length; i++) {
         const datum = branchData[i];
@@ -81,10 +74,13 @@ export function thresholdFunction(
       }
 
       if (removedItems.length > 0) {
-        const mergedItem = merge(removedItems as DataPoint[], aggs);
+        const mergedItem = merge(
+          removedItems,
+          aggs as unknown as Parameters<typeof merge>[1],
+        );
         mergedItem._isAggregation = true;
         mergedItem._threshold = thresholdPercent;
-        kept.push(mergedItem);
+        kept.push(mergedItem as unknown as DataPoint);
       }
 
       return kept;

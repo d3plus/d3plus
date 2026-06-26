@@ -68,7 +68,7 @@ export const treemapDef: ChartDefinition = {
     thresholdFunction(data as DataPoint[], {
       aggs: viz.schema.aggs,
       drawDepth: viz._drawDepth,
-      groupBy: viz.schema.groupBy as ((d: DataPoint) => unknown)[],
+      groupBy: viz.schema.groupBy as ((d: DataPoint) => DataPoint[keyof DataPoint])[],
       threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
       thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
     }),
