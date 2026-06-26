@@ -180,6 +180,12 @@ export interface VizInstance {
   _userDuration?: number;
   _dataCutoff: number;
   _brushing?: boolean;
+  /** Timeline brush selection (timeline feature). */
+  _timelineSelection?: (Date | number)[] | false;
+  /** The user-set data, retained to detect changes across `.data()` calls. */
+  _userData?: DataPoint[] | string;
+  /** Drill-down history stack (back button). */
+  _history?: DataPoint[];
 
   /* 8. Plot-specific (only present on Plot subclasses) */
   _xAxis?: Axis;
@@ -267,4 +273,7 @@ export interface VizInstance {
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;
   hover?(_?: unknown): unknown;
+  /* Fluent accessors invoked imperatively by features/pipeline (installFluent). */
+  timeFilter?(_?: ((d: DataPoint, i: number) => boolean) | false): VizInstance;
+  render?(callback?: () => void): VizInstance;
 }

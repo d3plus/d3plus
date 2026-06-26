@@ -16,11 +16,13 @@ import {select} from "d3-selection";
 import {merge, unique} from "@d3plus/data";
 import type {DataPoint, MergedDataPoint} from "@d3plus/data";
 import {date, elem, stylize} from "@d3plus/dom";
+import type {D3Selection} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -203,7 +205,7 @@ function textBlockLayout(
   ctx: VizContext & {layoutMargin: Required<MarginClaim>},
   opts: {
     panelKey: string;
-    getText: (viz: any) => string | false;
+    getText: (viz: VizInstance) => string | false;
     textClassKey: string; // e.g. "_titleClass"
     configKey: string; // schema key, e.g. "titleConfig"
     paddingMethod: string; // schema key, e.g. "titlePadding"
@@ -375,15 +377,17 @@ export {legendFeature} from "./featuresLegend.js";
     Helper mirroring drawTimeline's `setTimeFilter`. Triggers a re-render when
     the brush selection changes — kept here so the feature owns its event flow.
 */
-function setTimeFilter(viz: any, s: Date | Date[] | number[]): void {
+function setTimeFilter(viz: VizInstance, s: Date | Date[] | number[]): void {
   if (!Array.isArray(s)) s = [s, s] as Date[];
   if (JSON.stringify(s) !== JSON.stringify(viz._timelineSelection)) {
     viz._timelineSelection = s;
     const nums = (s as Array<Date | number>).map(Number) as number[];
-    (viz.timeFilter((d: DataPoint) => {
-      const ms = (date(viz.schema.time(d)) as Date).getTime();
-      return ms >= nums[0] && ms <= nums[1];
-    }) as any).render();
+    viz
+      .timeFilter!((d: DataPoint) => {
+        const ms = (date(viz.schema.time(d)) as Date).getTime();
+        return ms >= nums[0] && ms <= nums[1];
+      })
+      .render!();
   }
 }
 
@@ -625,9 +629,9 @@ export const attributionFeature: FeatureModule = {
   name: "attribution",
   configFields: ["attribution", "attributionStyle"],
   layout: ({viz}) => {
-    let attr: any = select(viz._select.node().parentNode)
+    let attr: D3Selection = select(viz._select.node().parentNode)
       .selectAll("div.d3plus-attribution")
-      .data(viz.schema.attribution ? [0] : []);
+      .data(viz.schema.attribution ? [0] : []) as unknown as D3Selection;
 
     const attrEnter = attr
       .enter()

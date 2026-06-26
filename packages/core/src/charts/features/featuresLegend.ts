@@ -4,19 +4,21 @@
     (rollup + sort + legend-depth) and `renderLegendFeature` (positioning,
     render, margin claim) so each stays a readable unit.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {rollup} from "d3-array";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {elem} from "@d3plus/dom";
+import type {D3Selection} from "@d3plus/dom";
 
 import {configPrep} from "../../utils/index.js";
+import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {sanitizePosition} from "./features.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 const legendAttrs = ["fill", "opacity", "texture"];
 
@@ -32,7 +34,7 @@ interface LegendData {
     Returns the `legendData` array plus the `fill`/`getAttr` accessors the
     render step reuses.
 */
-function buildLegendData(viz: any): LegendData {
+function buildLegendData(viz: VizInstance): LegendData {
   // Source: `_legendData` from the rollupAndFilter pipeline stage — same
   // arg drawLegend received via `drawLegend.bind(this)(this._legendData)`.
   const data: DataPoint[] = viz._legendData || [];
@@ -70,7 +72,7 @@ function buildLegendData(viz: any): LegendData {
   );
   // viz._legendDepth: the legend's drill-down depth (lowest unique
   // groupBy level). Computed and written here BEFORE the
-  // `viz._legendClass.render()` call below, because that render
+  // `viz._legendClass!.render()` call below, because that render
   // invokes `legendLabel.bind(viz)` (Viz.ts:217) which reads
   // `viz._legendDepth` live to format each legend entry. The write
   // is INTRA-FEATURE state — it's owned by legendFeature, consumed
@@ -102,7 +104,7 @@ function buildLegendData(viz: any): LegendData {
     derived from the previous render's outerBounds.
 */
 function renderLegendFeature(
-  viz: any,
+  viz: VizInstance,
   built: LegendData,
   layoutMargin: Required<MarginClaim>,
 ): FeatureLayout {
@@ -113,14 +115,14 @@ function renderLegendFeature(
     if (Array.isArray(id)) id = id[0];
     return (
       viz._hidden.includes(id) ||
-      (viz._solo.length && !viz._solo.includes(id))
+      (viz._solo.length > 0 && !viz._solo.includes(id))
     );
   };
 
   // The margin *claim* uses the previous render's outerBounds; on first
   // render it's zero and the Legend re-flows on the second render with the
   // real space.
-  const legendBounds = viz._legendClass.outerBounds();
+  const legendBounds = viz._legendClass!.outerBounds();
   const config = resolveSpec(viz);
   const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
   const wide = ["top", "bottom"].includes(position as string);
@@ -146,12 +148,12 @@ function renderLegendFeature(
   const legendGroup = elem("g.d3plus-viz-legend", {
     condition: visible && !viz.schema.legendConfig.select,
     enter: transform,
-    parent: viz._select,
+    parent: viz._select as unknown as D3Selection,
     duration: viz.schema.duration,
     update: transform,
   }).node();
 
-  viz._legendClass
+  viz._legendClass!
     .renderMode("compute")
     .id(fill)
     .align(wide ? "center" : position)
@@ -177,7 +179,7 @@ function renderLegendFeature(
             (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
         : viz.schema.width - (layoutMargin.left + layoutMargin.right),
     )
-    .shapeConfig((configPrep as any).bind(viz)(viz.schema.shapeConfig, "legend"))
+    .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepContext)(viz.schema.shapeConfig, "legend"))
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
@@ -197,10 +199,10 @@ function renderLegendFeature(
   if (!viz.schema.legendConfig.select && legendBounds.height) {
     if (wide)
       (margin as Record<string, number>)[position as string] =
-        legendBounds.height + viz._legendClass.padding() * 2;
+        legendBounds.height + viz._legendClass!.padding() * 2;
     else
       (margin as Record<string, number>)[position as string] =
-        legendBounds.width + viz._legendClass.padding() * 2;
+        legendBounds.width + viz._legendClass!.padding() * 2;
   }
   return {panel: null, margin};
 }
