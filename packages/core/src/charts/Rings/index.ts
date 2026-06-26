@@ -21,6 +21,86 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyRingsLayout} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
 
+type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
+
+/** The extra fluent accessors Rings installs on top of the base Viz surface. */
+interface RingsFluent {
+  links: (data?: DataPoint[], formatter?: unknown) => unknown;
+  nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
+  linkSize: (value?: RingsAccessor) => unknown;
+  nodeGroupBy: (
+    keys?: string | string[] | ((d: DataPoint, i: number) => unknown),
+  ) => unknown;
+  size: (value?: RingsAccessor) => unknown;
+  hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
+}
+
+/** Installs Rings' nodes/links/size/hover fluent accessors onto the instance. */
+function installRingsAccessors(viz: VizInstance): void {
+  const v = viz as VizInstance & RingsFluent;
+  const queue = (that: VizInstance, _?: DataPoint[], f?: unknown, key?: string) =>
+    addToQueue.bind(that as unknown as ThisParameterType<typeof addToQueue>)(
+      _!,
+      f as Parameters<typeof addToQueue>[1],
+      key!,
+    );
+  v.links = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
+    if (!arguments.length) return this.schema.links;
+    queue(this, _, f, "links");
+    return this;
+  };
+  v.nodes = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
+    if (!arguments.length) return this.schema.nodes;
+    queue(this, _, f, "nodes");
+    return this;
+  };
+  v.linkSize = function(this: VizInstance, _?: RingsAccessor) {
+    return arguments.length
+      ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_ as never)), this)
+      : this.schema.linkSize;
+  };
+  v.nodeGroupBy = function(
+    this: VizInstance,
+    _?: string | string[] | ((d: DataPoint, i: number) => unknown),
+  ) {
+    if (!arguments.length) return this.schema.nodeGroupBy;
+    const keys = (_ instanceof Array ? _ : [_]) as (
+      string | ((d: DataPoint, i: number) => unknown)
+    )[];
+    this.schema.nodeGroupBy = keys.map(k => {
+      if (typeof k === "function") return k;
+      if (!this.schema.aggs[k])
+        this.schema.aggs[k] = (a: DataPoint[], c: (d: DataPoint) => unknown) => {
+          const vv = Array.from(new Set(a.map(c)));
+          return vv.length === 1 ? vv[0] : vv;
+        };
+      return accessor(k);
+    });
+    return this;
+  };
+  v.size = function(this: VizInstance, _?: RingsAccessor) {
+    return arguments.length
+      ? ((this._size = (typeof _ === "function" || !_
+          ? _
+          : accessor(_ as unknown as string)) as VizInstance["_size"]),
+        this)
+      : this._size;
+  };
+  v.hover = function(
+    this: VizInstance,
+    _?: boolean | ((d: DataPoint, i: number) => boolean),
+  ) {
+    const pred = _ as unknown as ((d: DataPoint, i: number) => boolean) | null;
+    this._hover = _ as VizInstance["_hover"];
+    this._shapes!.forEach((s: Shape) => s.hover(pred));
+    if (this.schema.legend) this._legendClass!.hover(pred);
+    // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
+    // hover change only takes effect once a repaint is scheduled.
+    if (this._sceneRenderer) this._scheduleSceneRepaint();
+    return this;
+  };
+}
+
 export const ringsDef: ChartDefinition = {
   name: "Rings",
 
@@ -29,15 +109,7 @@ export const ringsDef: ChartDefinition = {
   emit: ringsEmit,
 
   setup: (viz: VizInstance) => {
-    type Accessor = number | ((d: DataPoint, i: number) => unknown);
-    type RingsFluent = {
-      links: (data?: DataPoint[], formatter?: unknown) => unknown;
-      nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
-      linkSize: (value?: Accessor) => unknown;
-      nodeGroupBy: (keys?: string | string[] | ((d: DataPoint, i: number) => unknown)) => unknown;
-      size: (value?: Accessor) => unknown;
-      hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
-    };
+    installRingsAccessors(viz);
     const v = viz as VizInstance & RingsFluent;
     viz.schema.on.mouseenter = () => undefined;
     viz.schema.on["mouseleave.shape"] = () => {
@@ -85,76 +157,6 @@ export const ringsDef: ChartDefinition = {
       // so the re-centering animates (a bare _draw leaves the only repaint to
       // the coalesced duration-0 one, which snaps).
       if (viz._sceneRenderer) viz._drawSceneToTarget(viz.schema.duration);
-    };
-
-    v.links = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
-      if (arguments.length) {
-        addToQueue.bind(this as unknown as ThisParameterType<typeof addToQueue>)(
-          _!,
-          f as Parameters<typeof addToQueue>[1],
-          "links",
-        );
-        return this;
-      }
-      return this.schema.links;
-    };
-    v.nodes = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
-      if (arguments.length) {
-        addToQueue.bind(this as unknown as ThisParameterType<typeof addToQueue>)(
-          _!,
-          f as Parameters<typeof addToQueue>[1],
-          "nodes",
-        );
-        return this;
-      }
-      return this.schema.nodes;
-    };
-    v.linkSize = function(this: VizInstance, _?: Accessor) {
-      return arguments.length
-        ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_ as never)), this)
-        : this.schema.linkSize;
-    };
-    v.nodeGroupBy = function(
-      this: VizInstance,
-      _?: string | string[] | ((d: DataPoint, i: number) => unknown),
-    ) {
-      if (!arguments.length) return this.schema.nodeGroupBy;
-      const keys = (_ instanceof Array ? _ : [_]) as (
-        | string
-        | ((d: DataPoint, i: number) => unknown)
-      )[];
-      this.schema.nodeGroupBy = keys.map(k => {
-        if (typeof k === "function") return k;
-        if (!this.schema.aggs[k]) {
-          this.schema.aggs[k] = (a: DataPoint[], c: (d: DataPoint) => unknown) => {
-            const vv = Array.from(new Set(a.map(c)));
-            return vv.length === 1 ? vv[0] : vv;
-          };
-        }
-        return accessor(k);
-      });
-      return this;
-    };
-    v.size = function(this: VizInstance, _?: Accessor) {
-      return arguments.length
-        ? ((this._size = (typeof _ === "function" || !_
-            ? _
-            : accessor(_ as unknown as string)) as VizInstance["_size"]),
-          this)
-        : this._size;
-    };
-    v.hover = function(
-      this: VizInstance,
-      _?: boolean | ((d: DataPoint, i: number) => boolean),
-    ) {
-      const pred = _ as unknown as ((d: DataPoint, i: number) => boolean) | null;
-      this._hover = _ as VizInstance["_hover"];
-      this._shapes!.forEach((s: Shape) => s.hover(pred));
-      if (this.schema.legend) this._legendClass!.hover(pred);
-      // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
-      // hover change only takes effect once a repaint is scheduled.
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
-      return this;
     };
   },
 
