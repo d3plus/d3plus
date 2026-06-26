@@ -196,10 +196,16 @@ export interface VizInstance {
   _yFunc?: (d: DataPoint, axis?: string) => number;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
+  /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
+  _xTime?: boolean;
+  _x2Time?: boolean;
+  _yTime?: boolean;
+  _y2Time?: boolean;
   _baseline?: number;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
-  _stackOrder?: (series: number[][][]) => number[];
+  /** d3-stack order: an accessor, or an explicit array of series keys. */
+  _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
   _confidence?: [number, number] | false;
   _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
