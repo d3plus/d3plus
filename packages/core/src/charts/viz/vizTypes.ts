@@ -37,6 +37,7 @@ import type {
 } from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
+import type {PlotPaintContext} from "../features/plotPaint.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
@@ -273,6 +274,8 @@ export interface VizInstance {
   /* Pipeline shims (these are class methods on chart instances) */
   _preDraw(): void;
   _draw(callback?: () => void): void;
+  /** Plot's paint phase: builds `_chartScene` from the measured context. */
+  _paint?(pCtx: PlotPaintContext): VizInstance;
   _drawSceneToTarget(durationOverride?: number): void;
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;

@@ -306,7 +306,7 @@ export default class Plot extends Viz {
       @private
 */
   _draw(callback?: () => void) {
-    return drawPlot(this, callback);
+    return drawPlot(this as unknown as VizInstance, callback);
   }
 
   /**
