@@ -156,7 +156,7 @@ export function setupBrush(
   y: string,
 ): void {
   const offset = tl._outerBounds[y],
-    range = tl._d3Scale.range();
+    range = tl._d3Scale!.range();
 
   const brush = (tl._brush = brushX()
     .extent([

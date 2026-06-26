@@ -60,20 +60,16 @@ export default class Image {
       each patch key is routed through its matching fluent accessor (or
       `data`/`select`), with unknown keys stored on `schema` verbatim.
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config(_?: Record<string, any>): Record<string, any> | this {
+  config(): Record<string, unknown>;
+  config(_: Record<string, unknown>): this;
+  config(_?: Record<string, unknown>): Record<string, unknown> | this {
     if (!arguments.length)
       return {...this.schema, data: this._data, select: this._select};
     const patch = _ as Record<string, unknown>;
     for (const k in patch) {
       if (!Object.prototype.hasOwnProperty.call(patch, k)) continue;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const self = this as any;
-      if (typeof self[k] === "function") self[k](patch[k]);
+      // `this[k]` resolves the fluent accessor via the index signature.
+      if (typeof this[k] === "function") this[k](patch[k]);
       else this.schema[k] = patch[k];
     }
     return this;
@@ -100,9 +96,8 @@ export default class Image {
           .node(),
       );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const images = (this._select as any)
-      .selectAll(".d3plus-Image")
+    const images = this._select
+      .selectAll<SVGImageElement, DataPoint>(".d3plus-Image")
       .data(this._data, this.schema.id);
 
     const enter = images
@@ -161,7 +156,7 @@ export default class Image {
       });
 
     images
-      .exit()
+      .exit<DataPoint>()
       .transition(t)
       .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
       .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))

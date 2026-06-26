@@ -1,3 +1,5 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
@@ -42,8 +44,7 @@ export default class Circle extends Shape {
       @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
       .attr("r", (d: DataPoint, i: number) => this.schema.r(d, i))
       .attr("x", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2)
       .attr("y", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2);
@@ -77,7 +78,8 @@ export default class Circle extends Shape {
   config(): CircleConfig;
   config(_: Partial<CircleConfig>): this;
   config(_?: Partial<CircleConfig>): CircleConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as CircleConfig;
+    super.config(_!);
+    return this;
   }
 }

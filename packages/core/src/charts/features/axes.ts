@@ -286,7 +286,9 @@ function measureXTestAxes(
   }
 
   const topOffset = showY
-    ? yTest.shapeConfig().labelConfig.fontSize() / 2
+    ? (
+        yTest.shapeConfig().labelConfig as {fontSize: () => number}
+      ).fontSize() / 2
     : 0;
 
   const xOffsetRight = max([

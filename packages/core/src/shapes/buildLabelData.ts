@@ -16,15 +16,12 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Accessor<T = any> = (d: DataPoint, i: number) => T;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AesFn = (d: DataPoint, i: number) => any;
+type Accessor<T = unknown> = (d: DataPoint, i: number) => T;
+type AesFn = (d: DataPoint, i: number) => unknown;
 type BoundsFn = (
   d: DataPoint,
   i: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  aesValue: any,
+  aesValue: unknown,
 ) => Record<string, unknown> | Record<string, unknown>[] | false | null | undefined;
 
 export interface BuildLabelDataOpts {

@@ -1,5 +1,6 @@
 import {extent, groups} from "d3-array";
 import * as paths from "d3-shape";
+import type {CurveFactory} from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
@@ -69,23 +70,26 @@ export default class Area extends Shape {
     );
     const curve = (paths as Record<string, unknown>)[
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
-    ];
+    ] as CurveFactory;
     const offX = (fn: AccessorFn) => (v: DataPoint, z: number) =>
       (fn(v, z) as number) - cx;
     const offY = (fn: AccessorFn) => (v: DataPoint, z: number) =>
       (fn(v, z) as number) - cy;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gen = (paths as any)
-      .area()
+    const gen = paths
+      .area<DataPoint>()
       .defined(this.schema.defined)
       .curve(curve)
       .x(offX(this.schema.x))
       .x0(offX(this.schema.x0))
-      .x1(this.schema.x1 ? offX(this.schema.x1) : null)
       .y(offY(this.schema.y))
-      .y0(offY(this.schema.y0))
-      .y1(this.schema.y1 ? offY(this.schema.y1) : null);
-    return {type: "path", d: gen(d.values) || ""};
+      .y0(offY(this.schema.y0));
+    // `.x1`/`.y1` overload null and function-accessor separately, so branch
+    // rather than pass a `fn | null` union.
+    if (this.schema.x1) gen.x1(offX(this.schema.x1));
+    else gen.x1(null);
+    if (this.schema.y1) gen.y1(offY(this.schema.y1));
+    else gen.y1(null);
+    return {type: "path", d: gen(d.values as unknown as DataPoint[]) || ""};
   }
 
   /**
@@ -264,7 +268,8 @@ export default class Area extends Shape {
   config(): AreaConfig;
   config(_: Partial<AreaConfig>): this;
   config(_?: Partial<AreaConfig>): AreaConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as AreaConfig;
+    super.config(_!);
+    return this;
   }
 }

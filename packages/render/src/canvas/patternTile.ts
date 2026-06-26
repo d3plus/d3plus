@@ -3,8 +3,6 @@ import textures from "textures";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
     Builds standalone SVG markup for one tile of a `pattern:<json>` texture
     token, plus the tile's pixel dimensions.
@@ -25,24 +23,25 @@ export function patternTileSvg(
   token: string,
 ): {svg: string; width: number; height: number} | null {
   if (!token.startsWith("pattern:")) return null;
-  let config: Record<string, any> & {texture?: string};
+  let config: Record<string, unknown> & {texture?: string};
   try {
     config = JSON.parse(token.slice("pattern:".length));
   } catch {
     return null;
   }
   const textureClass = config.texture;
-  if (!textureClass || typeof (textures as any)[textureClass] !== "function") return null;
+  if (!textureClass || typeof textures[textureClass] !== "function") return null;
   delete config.texture;
 
-  const t = (textures as any)[textureClass]();
+  const t = textures[textureClass]();
   for (const k in config) {
     // NB: textures.js accessors are setters only — calling one with no args
     // (e.g. `t.size()`) writes `undefined`, so never read through them. Always
     // pass the configured value.
     if (k in t) {
-      if (Array.isArray(config[k])) t[k](...config[k]);
-      else t[k](config[k]);
+      const v = config[k];
+      if (Array.isArray(v)) t[k](...v);
+      else t[k](v);
     }
   }
 
@@ -62,7 +61,7 @@ export function patternTileSvg(
   // Resolve XMLSerializer from the document's own window so this works under
   // both a real browser and jsdom (where it isn't a bare global).
   const view = document.defaultView as (Window & typeof globalThis) | null;
-  const Serializer = view?.XMLSerializer ?? (globalThis as any).XMLSerializer;
+  const Serializer = view?.XMLSerializer ?? globalThis.XMLSerializer;
   const markup = new Serializer().serializeToString(svg.node() as Node);
   return {svg: markup, width, height};
 }

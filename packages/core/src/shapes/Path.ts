@@ -72,7 +72,8 @@ export default class Path extends Shape {
   config(): PathConfig;
   config(_: Partial<PathConfig>): this;
   config(_?: Partial<PathConfig>): PathConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as PathConfig;
+    super.config(_!);
+    return this;
   }
 }

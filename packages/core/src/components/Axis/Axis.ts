@@ -10,8 +10,10 @@ import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom
 import type {D3Selection} from "@d3plus/dom";
 
 import type {GroupNode} from "@d3plus/render";
+import type {SvgRenderer} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
+import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
 import {
   axisToScene,
@@ -22,6 +24,7 @@ import {
   renderAxisTitle,
 } from "./axisRender.js";
 import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
+import type {D3Scale} from "../../utils/index.js";
 import {installFluent} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
@@ -69,8 +72,7 @@ export default class Axis extends BaseClass {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   _select!: D3Selection;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _data: any[];
+  _data: unknown[];
   _labelRotation: boolean | undefined;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
@@ -84,15 +86,13 @@ export default class Axis extends BaseClass {
   };
   _tickUnit: number;
   _titleClass: TextBox;
-  // Stored render() intermediates so toScene() can compose natively.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _tickShape?: {toScene?: () => GroupNode; _data?: unknown[]} | any;
+  // Stored render() intermediate (the compute-mode tick Shape) so toScene()
+  // can compose it natively. Type-only import avoids the components↔shapes
+  // runtime cycle.
+  _tickShape?: Shape;
   _gridLineData?: {id: unknown}[];
-  // D3 scales have complex polymorphic types that vary at runtime
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _d3Scale: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _d3ScaleNegative: any;
+  _d3Scale: D3Scale | null = null;
+  _d3ScaleNegative: D3Scale | null = null;
   _group!: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
   _availableTicks: unknown[];
@@ -101,8 +101,7 @@ export default class Axis extends BaseClass {
   _userFormat: ((d: unknown) => string) | false | undefined;
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _sceneRenderer?: any;
+  _sceneRenderer?: SvgRenderer;
   // Subclasses (Timeline) that paint after their own post-super render work
   // set this so Axis.render() doesn't paint a half-built scene.
   _managesOwnScenePaint?: boolean;
@@ -221,14 +220,15 @@ export default class Axis extends BaseClass {
   _getPosition(d: unknown): number {
     if (this.schema.scale === "log") {
       if (d === 0)
-        return (this._d3Scale || this._d3ScaleNegative).range()[
+        return (this._d3Scale || this._d3ScaleNegative)!.range()[
           this._d3Scale ? 0 : 1
         ];
-      return (
-        isNegative(d as number) ? this._d3ScaleNegative || (() => 0) : this._d3Scale
-      )(d);
+      const scale = isNegative(d as number)
+        ? this._d3ScaleNegative
+        : this._d3Scale;
+      return scale ? scale(d as number) : 0;
     }
-    return this._d3Scale(d);
+    return this._d3Scale ? this._d3Scale(d as number | string | Date) : 0;
   }
 
   /**
@@ -262,8 +262,8 @@ export default class Axis extends BaseClass {
         labels.some((d: unknown) => (d as number) > 0);
       if (diverging) {
         const minValue = min([
-          ...this._d3ScaleNegative.domain().map(Math.abs),
-          ...this._d3Scale.domain(),
+          ...(this._d3ScaleNegative!.domain() as number[]).map(Math.abs),
+          ...(this._d3Scale!.domain() as number[]),
         ]);
         // add minValue if it does not exist, and should
         if (!labels.includes(minValue)) {
@@ -292,7 +292,9 @@ export default class Axis extends BaseClass {
       this._data.length &&
       this._data.length < this.schema.width / 4
     ) {
-      return this.schema.scale === "time" ? this._data.map(date) : this._data;
+      return this.schema.scale === "time"
+        ? this._data.map(d => date(d as string | number | false))
+        : this._data;
     }
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative)
@@ -430,12 +432,9 @@ export default class Axis extends BaseClass {
   /**
       An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data(): any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data(_: any[]): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data(_?: any[]): unknown {
+  data(): unknown[];
+  data(_: unknown[]): this;
+  data(_?: unknown[]): unknown {
     return arguments.length ? ((this._data = _!), this) : this._data;
   }
 
@@ -538,12 +537,9 @@ export default class Axis extends BaseClass {
   /**
       Tick style of the axis.
 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shapeConfig(): Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shapeConfig(_: Record<string, any>): this;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shapeConfig(_?: Record<string, any>): unknown {
+  shapeConfig(): Record<string, unknown>;
+  shapeConfig(_: Record<string, unknown>): this;
+  shapeConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
       ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _ as Record<string, unknown>)), this)
       : this.schema.shapeConfig;
@@ -588,18 +584,15 @@ export default class Axis extends BaseClass {
 */
 export interface AxisLayout {
   bounds: Record<string, number>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  d3Scale: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  d3ScaleNegative: any;
+  d3Scale: D3Scale | null;
+  d3ScaleNegative: D3Scale | null;
   getPosition: (d: unknown) => number;
   availableTicks: unknown[];
   visibleTicks: unknown[];
   margin: Record<string, number>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function computeAxisLayout(axis: any): AxisLayout {
+export function computeAxisLayout(axis: Axis): AxisLayout {
   // Free function from axisLayout.ts. Mutates `axis` (so instance-slot
   // readers stay in sync) and returns the layout artifacts; we re-shape
   // its result + the mutated instance fields into the stable `AxisLayout` API.

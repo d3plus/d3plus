@@ -2,6 +2,7 @@ export type {AccessorFn} from "./AccessorFn.js";
 export {default as accessor} from "./accessor.js";
 export {default as BaseClass} from "./BaseClass.js";
 export type {D3plusConfig, AxisConfig, TooltipConfig} from "./D3plusConfig.js";
+export type {D3Scale} from "./D3Scale.js";
 export {default as configPrep} from "./configPrep.js";
 export {default as constant} from "./constant.js";
 export {default as getProp} from "./getProp.js";

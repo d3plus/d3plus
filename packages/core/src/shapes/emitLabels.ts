@@ -9,6 +9,7 @@
 */
 
 import {colorContrast} from "@d3plus/color";
+import type {DataPoint} from "@d3plus/data";
 
 import TextBox from "../components/TextBox.js";
 import {buildLabelData} from "./buildLabelData.js";
@@ -27,18 +28,21 @@ const shapeLabelDefaults = {
   // (`.r` / `.rotateAnchor`). TextBox's `rotate` accessor receives the raw
   // label record; `rotateAnchor` receives the laid-out datum whose `.data`
   // is that record — so both shapes are checked.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rotate(d: any) {
-    const r = d?.r ?? d?.data?.r;
+  rotate(d: DataPoint) {
+    const r = d.r ?? (d.data as DataPoint | undefined)?.r;
     return typeof r === "number" ? r : 0;
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rotateAnchor(d: any) {
-    const ra = d?.rotateAnchor ?? d?.data?.rotateAnchor;
-    return Array.isArray(ra) ? ra : [(d?.w ?? 0) / 2, (d?.h ?? 0) / 2];
+  rotateAnchor(d: DataPoint) {
+    const ra = d.rotateAnchor ?? (d.data as DataPoint | undefined)?.rotateAnchor;
+    return Array.isArray(ra)
+      ? ra
+      : [((d.w as number) ?? 0) / 2, ((d.h as number) ?? 0) / 2];
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fontColor(this: any, d: any, i: number) {
+  fontColor(
+    this: {_fill?: ((d: DataPoint, i: number) => unknown) | string},
+    d: DataPoint,
+    i: number,
+  ) {
     const fill = typeof this._fill === "function" ? this._fill(d, i) : this._fill;
     return typeof fill === "string" ? colorContrast(fill) : "black";
   },
@@ -53,10 +57,8 @@ export function emitLabels(opts: EmitLabelsOpts): SceneNode[] {
   const labelData = buildLabelData(opts);
   if (!labelData.length) return [];
   const tb = new TextBox()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .config({...shapeLabelDefaults, ...(opts.labelConfig ?? {})} as any)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .data(labelData as any)
+    .config({...shapeLabelDefaults, ...(opts.labelConfig ?? {})})
+    .data(labelData)
     .renderMode("compute");
   try {
     const scene = tb.toScene();

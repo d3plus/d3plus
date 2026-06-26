@@ -32,15 +32,13 @@ import type {AccessorFn} from "../utils/index.js";
     A value that can either be a function (called per-datum) or a literal
     that wraps as `constant(_)`. Mirrors the runtime "const" coerce.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ConstOrAccessor<T = any> = T | AccessorFn;
+export type ConstOrAccessor<T = unknown> = T | AccessorFn;
 
 /**
     A value that can be a function, a string key (wrapped in `accessor`),
     or a literal (wrapped in `constant`). Mirrors the "accessor" coerce.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type StringOrAccessor<T = any> = T | string | AccessorFn;
+export type StringOrAccessor<T = unknown> = T | string | AccessorFn;
 
 /**
     Common props inherited from `Shape` — every shape subclass accepts

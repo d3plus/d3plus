@@ -14,9 +14,10 @@ function _elementSize(
     (element as HTMLElement).tagName === undefined ||
     ["BODY", "HTML"].indexOf((element as HTMLElement).tagName) >= 0
   ) {
-    let val = (window as any)[
-      `inner${s.charAt(0).toUpperCase() + s.slice(1)}`
-    ] as number;
+    const key = `inner${s.charAt(0).toUpperCase() + s.slice(1)}` as
+      | "innerWidth"
+      | "innerHeight";
+    let val = window[key];
     const elem = select(element);
 
     if (s === "width") {

@@ -26,6 +26,8 @@
     freezing happens in `resolveSpec()`.
 */
 
+import type {VizInstance} from "../viz/vizTypes.js";
+
 /**
     All user-settable configuration keys on a chart, frozen.
 
@@ -33,13 +35,12 @@
     instance field that has a matching accessor method. Accessor reflection
     is handled by `BaseClass.config()`; this type is the static shape.
 
-    Extends `Record<string, unknown>` for incremental migration — chart
-    subclasses add their own fields and the existing `installFluent`-
-    installed accessors don't yet have static type info. As schemas gain
-    types, this can narrow to per-field unions.
+    A `Record<string, unknown>` keyed by config name — chart subclasses add
+    their own fields and the `installFluent`-installed accessors don't carry
+    static type info. As schemas gain types, this can narrow to per-field
+    unions.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResolvedSpec = Readonly<Record<string, any>>;
+export type ResolvedSpec = Readonly<Record<string, unknown>>;
 
 /**
     Snapshot every config key from a viz instance into a frozen spec.
@@ -50,10 +51,7 @@ export type ResolvedSpec = Readonly<Record<string, any>>;
     Returns a frozen object so consumers can't accidentally mutate it
     upstream of the chart.
 */
-export function resolveSpec(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  viz: any,
-): ResolvedSpec {
+export function resolveSpec(viz: VizInstance): ResolvedSpec {
   // BaseClass.config() already does this reflection; reuse it.
   const cfg = typeof viz.config === "function" ? viz.config() : {};
   // Object.freeze for shallow protection. Deep freeze isn't worth the cost

@@ -1,3 +1,5 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
 import {accessor, constant} from "../utils/index.js";
@@ -84,8 +86,7 @@ export default class Bar extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
       .attr("width", (d: DataPoint, i: number) => this._getWidth(d, i))
       .attr("height", (d: DataPoint, i: number) => this._getHeight(d, i))
       .attr("x", (d: DataPoint, i: number) =>
@@ -206,7 +207,8 @@ export default class Bar extends Shape {
   config(): BarConfig;
   config(_: Partial<BarConfig>): this;
   config(_?: Partial<BarConfig>): BarConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as BarConfig;
+    super.config(_!);
+    return this;
   }
 }

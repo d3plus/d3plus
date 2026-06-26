@@ -80,8 +80,12 @@ export interface D3plusConfig {
 
   /** Custom aggregation functions keyed by data property. */
   aggs?: {[k: string]: (d: DataPoint[]) => unknown};
+  /** Hides the SVG from assistive technology when true (`aria-hidden`). */
+  ariaHidden?: boolean;
   /** Padding between bars in pixels. */
   barPadding?: number;
+  /** Whether to cache the processed data between renders. */
+  cache?: boolean;
   /** Color scale key or custom color function. */
   colorScale?: string | ((d: number) => string);
   /** Configuration for the color scale component. */
@@ -98,12 +102,16 @@ export interface D3plusConfig {
   colorScalePosition?: false | Position;
   /** Column key for matrix-style layouts. */
   column?: string;
+  /** Maximum number of data points to render before downsampling. */
+  dataCutoff?: number;
   /** Active depth level for nested groupings. */
   depth?: number;
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /** Predicate filtering which data points are included, or false to disable. */
+  filter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Allows removing specific geographies from topojson file to improve zoom. */
   fitFilter?:
     | number
@@ -117,6 +125,8 @@ export interface D3plusConfig {
     | ((d: DataPoint) => string | number)[];
   /** Padding between groups of bars in pixels. */
   groupPadding?: number;
+  /** Overall height of the visualization in pixels. */
+  height?: number;
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
   /** Whether to show the legend. */
@@ -128,6 +138,8 @@ export interface D3plusConfig {
   };
   /** Position of the legend. */
   legendPosition?: Position;
+  /** Custom sort comparator for legend items. */
+  legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
   legendTooltip?: TooltipConfig;
   /** Whether to show labels on line charts. */
@@ -173,6 +185,10 @@ export interface D3plusConfig {
   stackOrder?: string[];
   /** Value accessor for treemaps and aggregation. */
   sum?: DataPointAccessor<number>;
+  /** Accessible description applied to the root SVG (`<desc>`). */
+  svgDesc?: string;
+  /** Accessible title applied to the root SVG (`<title>`). */
+  svgTitle?: string;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group. */
@@ -183,6 +199,10 @@ export interface D3plusConfig {
   tiles?: boolean;
   /** Time key for temporal data. */
   time?: string;
+  /** Predicate filtering which time slices are shown, or false to disable. */
+  timeFilter?: ((d: DataPoint, i: number) => boolean) | false;
+  /** Whether to show the timeline component. */
+  timeline?: boolean;
   /** Chart title or title accessor function. */
   title?: string | ((data: DataPoint[]) => string);
   /** CSS style configuration for the title. */
@@ -199,6 +219,8 @@ export interface D3plusConfig {
   topojsonId?: (obj: Record<string, unknown>) => string;
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Overall width of the visualization in pixels. */
+  width?: number;
   /** Key, index, or accessor function for x-axis values. */
   x?: string | number | ((d: DataPoint, i: number) => unknown);
   /** Configuration for the x-axis. */
@@ -213,6 +235,14 @@ export interface D3plusConfig {
   ySort?: (a: DataPoint, b: DataPoint) => number;
   /** Set to false to disable zooming on Geomap and Network. */
   zoom?: boolean;
+  /** Multiplier applied to programmatic zoom steps. */
+  zoomFactor?: number;
+  /** Maximum zoom scale factor. */
+  zoomMax?: number;
+  /** Whether panning (drag) is enabled while zoomed. */
+  zoomPan?: boolean;
+  /** Whether scroll-wheel zooming is enabled. */
+  zoomScroll?: boolean;
 
   /** Allows additional custom properties. */
   [key: string]: unknown;

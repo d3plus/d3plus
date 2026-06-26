@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {interpolatePath} from "d3-interpolate-path";
-import {select} from "d3-selection";
+import {select, type Selection} from "d3-selection";
+import type {Transition} from "d3-transition";
 
 import {areaPath, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
@@ -8,6 +8,25 @@ import type {SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 export const XLINK_NS = "http://www.w3.org/1999/xlink";
+
+/**
+    A d3 selection over a single DOM element — exactly what `select(node)`
+    produces, which is how every call site here is built.
+*/
+export type SvgSelection = Selection<Element, unknown, null, undefined>;
+/** The transition counterpart of {@link SvgSelection}. */
+export type SvgTransition = Transition<Element, unknown, null, undefined>;
+/**
+    The chainable attribute-writing surface shared by d3 `Selection` and
+    `Transition` — just enough for the SVG node writers. A structural type
+    (rather than `SvgSelection | SvgTransition`) so chained `.attr(...)` calls
+    keep returning the sink instead of collapsing to the read-only `.attr`
+    getter overload. Only transitions carry `.attrTween`, so {@link setPath}
+    narrows to {@link SvgTransition} for the animated branch.
+*/
+export interface AttrTarget {
+  attr(name: string, value: null | string | number | boolean): this;
+}
 
 /** Maps a scene node to the SVG element tag that realizes it. */
 export function tagFor(node: SceneNode): string {
@@ -94,7 +113,7 @@ export function buildIndex(node: SceneNode, index: Map<string, SceneNode>): void
 }
 
 /** Applies non-animated attributes: classes, accessibility, pointer behavior, content. */
-export function applyStatic(sel: any, node: SceneNode): void {
+export function applyStatic(sel: SvgSelection, node: SceneNode): void {
   sel
     .attr("class", `d3plus-render-node d3plus-render-${node.type}`)
     .attr("data-key", String(node.key))
@@ -136,7 +155,7 @@ function runStyle(run: TextRun): string | null {
     the existing tspans in place rather than tearing them down and rebuilding
     (text content is set directly, not animated).
 */
-export function applyText(sel: any, node: TextNode): void {
+export function applyText(sel: SvgSelection, node: TextNode): void {
   const f = node.font || {};
   sel
     .attr("font-family", f.family ?? null)
@@ -188,7 +207,7 @@ export function applyText(sel: any, node: TextNode): void {
 }
 
 /** Applies paint attributes to a selection or transition. */
-export function applyPaint(target: any, node: SceneNode, resolveFill: (f?: string) => string | null): void {
+export function applyPaint(target: AttrTarget, node: SceneNode, resolveFill: (f?: string) => string | null): void {
   const p = node.paint || {};
   target
     .attr("fill", resolveFill(p.fill))
@@ -204,9 +223,9 @@ export function applyPaint(target: any, node: SceneNode, resolveFill: (f?: strin
 }
 
 /** Sets a path's `d`, morphing via interpolatePath when animating on a transition. */
-export function setPath(target: any, d: string, animated: boolean): void {
+export function setPath(target: AttrTarget, d: string, animated: boolean): void {
   if (animated)
-    target.attrTween("d", function (this: Element) {
+    (target as unknown as SvgTransition).attrTween("d", function (this: Element) {
       return interpolatePath(this.getAttribute("d") || d, d);
     });
   else target.attr("d", d);
@@ -214,7 +233,7 @@ export function setPath(target: any, d: string, animated: boolean): void {
 
 /** Applies geometry + paint + transform to a selection (animated=false) or transition. */
 export function applyGeometry(
-  target: any,
+  target: AttrTarget,
   node: SceneNode,
   animated: boolean,
   resolveFill: (f?: string) => string | null,

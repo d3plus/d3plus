@@ -7,6 +7,7 @@
     `makeChart(def, Base?)` produces the chart class from the def.
 */
 
+import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import type {FeatureModule} from "../features/features.js";
@@ -54,8 +55,7 @@ interface ChartDefinitionBase {
     A data-driven chart's emit: a pure function from a chart context (with
     optional laid-out `shapeData`) to the scene nodes for one frame.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ChartEmit = (ctx: VizContext & {shapeData?: any[]}) => SceneNode[];
+export type ChartEmit = (ctx: VizContext & {shapeData?: DataPoint[]}) => SceneNode[];
 
 /** Data-driven chart: `emit(ctx)` produces the scene nodes. */
 export interface DataDrivenChartDefinition extends ChartDefinitionBase {

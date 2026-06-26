@@ -11,6 +11,7 @@
     handed back as a value (not bound to a Viz instance).
 */
 
+import type {VizInstance} from "./charts/viz/vizTypes.js";
 import accessor from "./utils/accessor.js";
 import constant from "./utils/constant.js";
 
@@ -36,8 +37,7 @@ export interface ConfigField {
       - `"const"`: non-function → `constant(value)`.
       - function form: full custom coercion (receives the raw value, returns the stored value).
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  coerce?: "identity" | "accessor" | "const" | ((value: unknown) => any);
+  coerce?: "identity" | "accessor" | "const" | ((value: unknown) => unknown);
   /** Static default applied to `schema.<key>` when unset. */
   default?: unknown;
   /**
@@ -45,8 +45,7 @@ export interface ConfigField {
       can close over instance state (e.g. tooltip cells that read live config).
       Mutually exclusive with `default`.
   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  factory?: (viz: any) => unknown;
+  factory?: (viz: VizInstance) => unknown;
   /**
       Merge semantics: when set, default/factory output is merged into the
       existing value (shallow assign) instead of replacing it. Use for
@@ -55,11 +54,9 @@ export interface ConfigField {
   */
   merge?: boolean;
   /** Side-effect run after the value is stored, both at init and on every set. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSet?: (viz: any, value: unknown) => void;
+  onSet?: (viz: VizInstance, value: unknown) => void;
   /** One-shot wrap of the default value at init time; result is stored. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  decorate?: (viz: any, value: unknown) => unknown;
+  decorate?: (viz: VizInstance, value: unknown) => unknown;
 }
 
 /**
@@ -219,7 +216,9 @@ export function installFluent(
           ? Object.assign({}, existing, value)
           : value;
       this.schema[key] = next;
-      field.onSet?.(this, next);
+      // `onSet` is declared only by Viz chart defs; at runtime `this` is that
+      // Viz instance, so the cast across the generic accessor body is sound.
+      field.onSet?.(this as unknown as VizInstance, next);
       return this;
     };
   }

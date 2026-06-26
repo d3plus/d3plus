@@ -65,9 +65,14 @@ function getAllMethods(obj: object): string[] {
     Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 */
 export default class BaseClass {
-  /** User-set values from fluent accessors (`.sum(...)`, `.x(...)`, …). */
-  // installFluent stores config-accessor values (often `(d, i) => …`
-  // functions) here; `any` lets `this.schema.fill(d, i)` call sites type-check.
+  /**
+      Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is
+      deliberate and load-bearing: `installFluent` coerces accessor/const
+      fields into functions, so call sites invoke `schema.fill(d, i)` and
+      index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes
+      the pre-coercion user input). Typing it as a coerced `ResolvedSchema`
+      interface is the only way to drop the `any`; until then it stays.
+  */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: Record<string, any>;
   /** Chart-internal scratch (d3 layout instances, computed derived state). */

@@ -1,5 +1,6 @@
 import {extent, groups} from "d3-array";
 import * as paths from "d3-shape";
+import type {CurveFactory} from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
@@ -119,15 +120,14 @@ export default class Line extends Shape {
     );
     const curve = (paths as Record<string, unknown>)[
       `curve${userCurve.charAt(0).toUpperCase()}${userCurve.slice(1)}`
-    ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gen = (paths as any)
-      .line()
+    ] as CurveFactory;
+    const gen = paths
+      .line<DataPoint>()
       .curve(curve)
       .defined(this.schema.defined)
       .x((v: DataPoint, z: number) => (this.schema.x(v, z) as number) - cx)
       .y((v: DataPoint, z: number) => (this.schema.y(v, z) as number) - cy);
-    return {type: "path", d: gen(d.values) || ""};
+    return {type: "path", d: gen(d.values as unknown as DataPoint[]) || ""};
   }
 
   /**
@@ -152,7 +152,8 @@ export default class Line extends Shape {
   config(): LineConfig;
   config(_: Partial<LineConfig>): this;
   config(_?: Partial<LineConfig>): LineConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as LineConfig;
+    super.config(_!);
+    return this;
   }
 }

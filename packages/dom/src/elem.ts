@@ -4,10 +4,6 @@ import {transition} from "d3-transition";
 import {default as attrize} from "./attrize.js";
 import type {D3Selection} from "./D3Selection.js";
 
- 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnySelection = ReturnType<typeof select<any, any>>;
-
 type AttrMap = Record<string, string | number | boolean | null>;
 
 export interface ElemParams {
@@ -45,7 +41,7 @@ export default function (selector: string, p?: ElemParams): D3Selection {
     t = transition().duration(params.duration),
     tag = /^([^.^#]+)/g.exec(selector)![1];
 
-  const elem = (params.parent as AnySelection)
+  const elem = params.parent
     .selectAll(selector.includes(":") ? selector.split(":")[1] : selector)
     .data(params.condition ? [null] : []);
 

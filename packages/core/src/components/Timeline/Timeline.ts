@@ -1,7 +1,9 @@
 import {max, min} from "d3-array";
+import type {BrushBehavior} from "d3-brush";
 import {pointers} from "d3-selection";
 
 import {assign, attrize, date} from "@d3plus/dom";
+import type {D3Selection} from "@d3plus/dom";
 import {closest} from "@d3plus/math";
 import type {GroupNode} from "@d3plus/render";
 
@@ -47,10 +49,8 @@ export default class Timeline extends Axis {
   // state change that doesn't move the selection — e.g. a manual pause — so the
   // play/pause glyph refreshes without waiting for the next interaction.
   _onPlayToggle?: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _brush: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _brushGroup: any;
+  _brush!: BrushBehavior<unknown>;
+  _brushGroup!: D3Selection;
   _paddingLeft!: number;
   _ticksWidth!: number;
 
@@ -85,7 +85,10 @@ export default class Timeline extends Axis {
       this._playButtonClass.render();
 
       const domain = this._updateDomain(event);
-      this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
+      this._brushGroup.call(
+        this._brush.move,
+        this._updateBrushLimit(domain) as [number, number],
+      );
     }
 
     this._brushStyle();
@@ -124,7 +127,10 @@ export default class Timeline extends Axis {
       this._playButtonClass.render();
 
       const domain = this._updateDomain(event);
-      this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
+      this._brushGroup.call(
+        this._brush.move,
+        this._updateBrushLimit(domain) as [number, number],
+      );
     }
 
     this._brushStyle();
@@ -155,10 +161,10 @@ export default class Timeline extends Axis {
       .attr("height", timelineHeight + 2);
 
     const brushHandle = this._brushGroup
-      .selectAll(".handle")
+      .selectAll<SVGGElement, {type: string}>(".handle")
       .call(attrize, this.schema.handleConfig)
       .attr("display", this._hiddenHandles ? "none" : "block")
-      .attr("transform", (d: Record<string, unknown>) =>
+      .attr("transform", (d: {type: string}) =>
         this._buttonBehaviorCurrent === "buttons"
           ? `translate(${d.type === "w" ? -this.schema.handleSize / 2 : 0},-1)`
           : "",
@@ -221,7 +227,7 @@ export default class Timeline extends Axis {
         : [x[0][0], x[0][0]];
 
     if (this._buttonBehaviorCurrent === "ticks")
-      domain = domain.map(this._d3Scale.invert);
+      domain = domain.map(d => this._d3Scale!.invert!(d as number));
     domain = domain.map(Number);
 
     if (
@@ -248,7 +254,7 @@ export default class Timeline extends Axis {
     const ticks =
       this._buttonBehaviorCurrent === "ticks"
         ? this._availableTicks.map(Number)
-        : this._d3Scale.range();
+        : this._d3Scale!.range();
 
     if (this._buttonBehaviorCurrent === "ticks") {
       // find closest min and max ticks from data
@@ -303,22 +309,18 @@ export default class Timeline extends Axis {
           : single
             ? date(
                 this._availableTicks[
-                  ticks.indexOf(domain[0] as unknown as string | number | false)
+                  ticks.indexOf(domain[0] as number)
                 ] as string | number | false,
               )
             : [
                 date(
                   this._availableTicks[
-                    ticks.indexOf(
-                      domain[0] as unknown as string | number | false,
-                    )
+                    ticks.indexOf(domain[0] as number)
                   ] as string | number | false,
                 ),
                 date(
                   this._availableTicks[
-                    ticks.indexOf(
-                      domain[1] as unknown as string | number | false,
-                    )
+                    ticks.indexOf(domain[1] as number)
                   ] as string | number | false,
                 ),
               ];
@@ -335,7 +337,9 @@ export default class Timeline extends Axis {
   _updateBrushLimit(domain: unknown[]): unknown[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
-        ? (domain as (string | number | false | undefined)[]).map(date).map(this._d3Scale) as number[]
+        ? (domain as (string | number | false | undefined)[])
+            .map(date)
+            .map(d => this._d3Scale!(d as Date)) as number[]
         : domain as number[];
 
     if (selection[0] === selection[1]) {

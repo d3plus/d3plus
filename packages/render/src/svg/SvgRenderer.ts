@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {select} from "d3-selection";
-import {transition} from "d3-transition";
+import {type BaseType, select, type Selection} from "d3-selection";
+import {transition, type Transition} from "d3-transition";
 import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
-import type {GroupNode, HtmlOverlayNode, Scene, SceneNode, TextNode} from "../scene.js";
+import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -27,6 +26,11 @@ import type {
   RenderTarget,
   SceneEvent,
 } from "../Renderer.js";
+
+/** The transition `drawScene` threads through the reconcile recursion. */
+type RenderTransition = Transition<BaseType, unknown, null, undefined>;
+/** One walked overlay row: its node plus accumulated ancestor offset. */
+type OverlayItem = ReturnType<typeof walkOverlays>[number];
 
 /**
     A Renderer backend that realizes a Scene as SVG, using a keyed enter/update/exit
@@ -131,7 +135,7 @@ export default class SvgRenderer implements Renderer {
       this._svg.style.background = scene.meta.background;
 
     const t = transition().duration(duration);
-    this._reconcile(select(this._root) as any, scene.root.children, duration, t);
+    this._reconcile(select(this._root), scene.root.children, duration, t);
     this._reconcileOverlays(scene);
 
     let cancelled = false;
@@ -209,28 +213,29 @@ export default class SvgRenderer implements Renderer {
     const key = fill.slice("pattern:".length);
     let def = this._textureDefs.get(key);
     if (!def) {
-      const config = JSON.parse(key) as Record<string, any> & {texture: string};
+      const config = JSON.parse(key) as Record<string, unknown> & {texture: string};
       const textureClass = config.texture;
       delete (config as Record<string, unknown>).texture;
-      const t = (textures as any)[textureClass]();
+      const t = textures[textureClass]();
       for (const k in config) {
         if (k in t) {
-          if (Array.isArray(config[k])) t[k](...config[k]);
-          else t[k](config[k]);
+          const v = config[k];
+          if (Array.isArray(v)) t[k](...v);
+          else t[k](v);
         }
       }
       select(this._svg).call(t);
-      def = t as {url: () => string};
+      def = t;
       this._textureDefs.set(key, def);
     }
     return def.url();
   }
 
-  private _reconcile(
-    parent: any,
+  private _reconcile<E extends BaseType>(
+    parent: Selection<E, unknown, null, undefined>,
     children: SceneNode[],
     duration: number,
-    t: any,
+    t: RenderTransition,
   ): void {
     // HtmlOverlay nodes live outside the SVG; they're reconciled separately
     // by `_reconcileOverlays` against the sibling overlay host. Skip the
@@ -257,10 +262,12 @@ export default class SvgRenderer implements Renderer {
     const ordered = needsSort
       ? [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
       : svgChildren;
-    const sel = parent.selectChildren("*").data(ordered, (d: SceneNode) => d.key);
+    const sel = parent
+      .selectChildren<Element, SceneNode>("*")
+      .data(ordered, (d: SceneNode) => d.key);
     const resolveFill = (f?: string): string | null => this._resolveFill(f);
 
-    const exit = sel.exit();
+    const exit = sel.exit<SceneNode>();
     // Free any clipPath entries owned by exiting groups so they don't
     // accumulate in <defs> across the chart's lifetime. _applyGroupClip
     // is only invoked on the merge selection (live groups); without
@@ -277,7 +284,10 @@ export default class SvgRenderer implements Renderer {
 
     const enter = sel
       .enter()
-      .append((d: SceneNode) => document.createElementNS(SVG_NS, tagFor(d)));
+      .append(
+        (d: SceneNode) =>
+          document.createElementNS(SVG_NS, tagFor(d)) as Element,
+      );
     enter.each(function (this: Element, d: SceneNode) {
       const s = select(this);
       applyStatic(s, d);
@@ -293,13 +303,12 @@ export default class SvgRenderer implements Renderer {
       // instead of snapping. `__d3plusTextPrev__` is the node this element drew
       // last time; comparing font sizes detects a resize. (The layout/tspans
       // are already at the new size — the tween scales the painted glyphs.)
+      const stash = this as Element & {__d3plusTextPrev__?: TextNode};
       const prevText =
-        duration && d.type === "text"
-          ? ((this as any).__d3plusTextPrev__ as TextNode | undefined)
-          : undefined;
+        duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
-        const tsel = (s as any).transition(t);
+        const tsel = s.transition(t);
         applyGeometry(tsel, d, true, resolveFill);
         if (
           d.type === "text" &&
@@ -313,10 +322,10 @@ export default class SvgRenderer implements Renderer {
           tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
         }
       } else applyGeometry(s, d, false, resolveFill);
-      if (d.type === "text") (this as any).__d3plusTextPrev__ = d;
+      if (d.type === "text") stash.__d3plusTextPrev__ = d;
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
-        self._reconcile(s as any, (d as GroupNode).children, duration, t);
+        self._reconcile(s, (d as GroupNode).children, duration, t);
       }
     });
   }
@@ -400,8 +409,8 @@ export default class SvgRenderer implements Renderer {
     if (!this._overlayHost) return;
     const collected = walkOverlays(scene);
     const sel = select(this._overlayHost)
-      .selectChildren<HTMLDivElement, unknown>(".d3plus-render-overlay")
-      .data(collected, (d: any) => String(d.node.key));
+      .selectChildren<HTMLDivElement, OverlayItem>(".d3plus-render-overlay")
+      .data(collected, d => String(d.node.key));
     sel.exit().remove();
     const enter = sel
       .enter()
@@ -420,10 +429,10 @@ export default class SvgRenderer implements Renderer {
     // dimension/style/innerHTML/events block is identical to the
     // Canvas backend's — both delegate to `applyOverlayToElement`.
     enter
-      .merge(sel as any)
-      .each(function (this: HTMLDivElement, d: any) {
+      .merge(sel)
+      .each(function (this: HTMLDivElement, d) {
         applyOverlayToElement(this, d);
-        const o = d.node as HtmlOverlayNode;
+        const o = d.node;
         const flags = this as unknown as {__justEntered?: boolean};
         if (flags.__justEntered) {
           flags.__justEntered = false;

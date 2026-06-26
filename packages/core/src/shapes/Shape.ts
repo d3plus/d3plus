@@ -12,7 +12,7 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import type {AccessorFn, D3plusConfig} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
@@ -119,6 +119,8 @@ export default class Shape extends BaseClass {
   _hoverGroup!: D3Selection;
   _activeGroup!: D3Selection;
   _path!: Record<string, unknown>;
+  /** SvgRenderer mounted by the standalone `render()` path; reused across redraws. */
+  _sceneRenderer?: SvgRenderer;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -509,8 +511,7 @@ export default class Shape extends BaseClass {
   render(callback?: () => void): this {
     // Populate the label TextBox so toScene() reads correct label data. The
     // label class is always in compute mode — the scene path materializes text.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lc = this._labelClass as unknown as {renderMode?: (m: string) => any};
+    const lc = this._labelClass as unknown as {renderMode?: (m: string) => unknown};
     if (lc && typeof lc.renderMode === "function") lc.renderMode("compute");
     // Apply Shape's labelConfig (fontColor, fontResize, padding, textAnchor,
     // verticalAlign, fontSize, …) to the underlying TextBox. Function
@@ -540,15 +541,17 @@ export default class Shape extends BaseClass {
       const div = document.createElement("div");
       div.style.cssText = "display:block;";
       document.body.appendChild(div);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.select(div as any);
+      this.select(div);
     }
 
     if (this._select) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const sel = this._select as any;
+      const sel = this._select;
+      // `_select` is a D3Selection, but the standalone path historically also
+      // accepted a raw element; handle both without widening to `any`.
       const node: Element | null =
-        sel && typeof sel.node === "function" ? sel.node() : sel;
+        sel && typeof sel.node === "function"
+          ? (sel.node() as Element | null)
+          : (sel as unknown as Element | null);
       if (node) {
         const tag = (node.tagName || "").toLowerCase();
         const isSvg = tag === "svg";
@@ -581,10 +584,7 @@ export default class Shape extends BaseClass {
         const scene = {root, width, height};
         // Tear down any previous SvgRenderer so its DOM listeners + timers
         // are cleared instead of leaking on every re-render.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const prev = (this as any)._sceneRenderer as
-          | {destroy?: () => void}
-          | undefined;
+        const prev = this._sceneRenderer;
         if (prev && typeof prev.destroy === "function") prev.destroy();
         // Caller's element is preserved (downstream selectors still find it);
         // we mount SvgRenderer INSIDE it. When `node` is a <g> the result is
@@ -600,8 +600,7 @@ export default class Shape extends BaseClass {
         const renderer = new SvgRenderer();
         renderer.mount({container: node, width, height});
         renderer.drawScene(scene);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this as any)._sceneRenderer = renderer;
+        this._sceneRenderer = renderer;
       }
     }
 
@@ -725,7 +724,8 @@ export default class Shape extends BaseClass {
   config(): BaseShapeConfig;
   config(_: Partial<BaseShapeConfig>): this;
   config(_?: Partial<BaseShapeConfig>): BaseShapeConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as BaseShapeConfig;
+    super.config(_ as D3plusConfig);
+    return this;
   }
 }

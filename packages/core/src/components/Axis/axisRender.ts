@@ -2,11 +2,16 @@ import {extent, min, range as d3Range} from "d3-array";
 import * as scales from "d3-scale";
 
 import {elem} from "@d3plus/dom";
+import type {D3Selection} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import * as shapes from "../../shapes/index.js";
+import type Shape from "../../shapes/Shape.js";
+import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import {configPrep} from "../../utils/index.js";
+import type {D3Scale} from "../../utils/index.js";
+import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 
@@ -38,12 +43,10 @@ const maxTimezoneOffset = 1000 * 60 * 60 * 26;
 */
 function calculateStep(
   this: Axis,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scale: any,
+  scale: D3Scale,
   minorTicks: boolean = false,
 ): number {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const stepScale = (scales as any)
+  const stepScale = scales
     .scaleLinear()
     .domain([200, 1200])
     .range([8, 28]);
@@ -53,7 +56,7 @@ function calculateStep(
 
   if (this.schema.scale === "time") {
     if (this._data && this._data.length) {
-      const dataExtent = extent(this._data);
+      const dataExtent = extent(this._data as number[]);
       const distance = this._data.reduce(
         (n: number, d: unknown, i: number, arr: unknown[]) => {
           if (i) {
@@ -83,20 +86,19 @@ function calculateStep(
 */
 export function calculateTicks(
   this: Axis,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scale: any,
+  scale: D3Scale,
   minorTicks: boolean = false,
 ): unknown[] {
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
   if (this.schema.scale === "time" && this._data.length) {
-    const newDomain = extent(this._data);
-    const range = (newDomain as unknown[]).map(scale);
+    const newDomain = extent(this._data as number[]) as number[];
+    const range = newDomain.map(d => scale(d));
     scaleClone.domain(newDomain).range(range);
   }
 
-  const domain = scaleClone.domain();
+  const domain = scaleClone.domain() as number[];
   const inverted = domain[1] < domain[0];
   const step = calculateStep.bind(this)(scaleClone, minorTicks);
 
@@ -117,7 +119,7 @@ export function calculateTicks(
     ticks =
       (powMod <= 1 && powers[0] === powers[1]) || invertedRound !== inverted
         ? scaleClone
-            .ticks(step)
+            .ticks!(step)
             .filter((d: number) => +`${d}`.replace("0.", "") % 2 === 0)
         : d3Range(powers[0], powers[1], powers[1] < powers[0] ? -1 : 1)
             .concat([powers[1]])
@@ -134,7 +136,7 @@ export function calculateTicks(
                 }`.replace(/9+/g, "1"),
             );
   } else {
-    ticks = scaleClone.ticks(step);
+    ticks = scaleClone.ticks!(step);
     if (
       !minorTicks &&
       !["log", "time"].includes(this.schema.scale) &&
@@ -291,7 +293,8 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
           : false,
       tick: ticks.includes(d),
       [x]:
-        xPos + (axis.schema.scale === "band" ? axis._d3Scale.bandwidth() / 2 : 0),
+        xPos +
+        (axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0),
       [y]: yPos,
     };
 
@@ -319,8 +322,9 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): any[] {
 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function configureTickShape(axis: Axis, tickData: any[]): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axis._tickShape = (new (shapes as any)[axis.schema.shape]())
+  axis._tickShape = new (shapes as unknown as Record<string, new () => Shape>)[
+    axis.schema.shape
+  ]()
     // v4: tick shape is always compute-only — the Axis composes ticks into
     // its own toScene; the inner shape never auto-renders its own <svg>.
     // `.select(null)` is the formal no-mount signal that pairs with
@@ -336,14 +340,17 @@ export function configureTickShape(axis: Axis, tickData: any[]): void {
       // The label TextBox invokes this with the laid-out label record, whose
       // tick datum (carrying `rotate`) sits on `.data`; fall back to the raw
       // datum for any path that passes it directly.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      rotate: (d: any) => ((d.rotate ?? (d.data && d.data.rotate)) ? -90 : 0),
+      rotate: (d: DataPoint) =>
+        (d.rotate ?? (d.data as DataPoint | undefined)?.rotate) ? -90 : 0,
     });
   // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
   // No `g.ticks` DOM wrapper needed in the detached compute.
-  axis._tickShape
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .config(configPrep.bind(axis as any)(axis.schema.shapeConfig))
+  axis._tickShape!
+    .config(
+      configPrep.bind(axis as unknown as VizContext)(
+        axis.schema.shapeConfig,
+      ) as Partial<BaseShapeConfig>,
+    )
     .labelConfig({padding: 0})
     .render();
 }
@@ -356,8 +363,7 @@ export function configureTickShape(axis: Axis, tickData: any[]): void {
 export function renderAxisTitle(
   axis: Axis,
   measure: AxisMeasure,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  group: any,
+  group: D3Selection | null,
 ): void {
   const {range} = measure;
   const {horizontal} = axis._position;
@@ -402,8 +408,7 @@ export function renderAxisTitle(
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
     )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .config(configPrep.bind(axis as any)(axis.schema.titleConfig))
+    .config(configPrep.bind(axis as unknown as VizContext)(axis.schema.titleConfig))
     .render();
 }
 
@@ -474,9 +479,10 @@ export function gridLinePoints(axis: Axis): {points: [number, number][]}[] {
     ? axis._outerBounds[yKey] + axis._outerBounds[height] - offset
     : axis._outerBounds[yKey] + offset;
   const size = ["top", "left"].includes(axis.schema.orient) ? offset : -offset;
-  const xDiff = axis.schema.scale === "band" ? axis._d3Scale.bandwidth() / 2 : 0;
+  const xDiff =
+    axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0;
   const isHorizontalAxis = xKey === "x";
-  return axis._gridLineData.map(d => {
+  return (axis._gridLineData ?? []).map(d => {
     const xPos = (axis._getPosition(d.id) as number) + xDiff;
     const a: [number, number] = isHorizontalAxis ? [xPos, position] : [position, xPos];
     const b: [number, number] = isHorizontalAxis
@@ -499,21 +505,21 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
     : axis._outerBounds[yKey] + offset;
   const x1mod =
     axis.schema.scale === "band"
-      ? axis._d3Scale.step() - axis._d3Scale.bandwidth()
+      ? axis._d3Scale!.step!() - axis._d3Scale!.bandwidth!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale.step() * axis._d3Scale.padding()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
         : 0;
   const x2mod =
     axis.schema.scale === "band"
-      ? axis._d3Scale.step()
+      ? axis._d3Scale!.step!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale.step() * axis._d3Scale.padding()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
         : 0;
   const sortedDomain = (
     axis._d3ScaleNegative ? axis._d3ScaleNegative.domain() : []
   )
     .concat(axis._d3Scale ? axis._d3Scale.domain() : [])
-    .sort((a: number, b: number) => a - b);
+    .sort((a, b) => (a as number) - (b as number));
   if (!sortedDomain.length) return null;
   const x1 = (axis._getPosition(sortedDomain[0]) as number) - x1mod;
   const x2 =

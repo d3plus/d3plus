@@ -25,18 +25,15 @@
 import type {DataPoint} from "@d3plus/data";
 
 /**
-    The shape of every field vizPreDraw + vizDraw can populate. Currently
-    permissive (any) for the closure-typed helpers (_id, _ids, _drawLabel,
-    _thresholdName, _thresholdData). As subclasses formalize their typed
-    contexts, this can tighten.
+    The shape of every field vizPreDraw + vizDraw can populate. The
+    `Record<string, unknown>` base covers chart-specific stash slots that
+    aren't enumerated below; named fields type the common pipeline outputs.
 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface VizContext extends Record<string, any> {
+export interface VizContext extends Record<string, unknown> {
   /** Effective draw depth (capped to groupBy.length - 1). */
   drawDepth?: number;
   /** Unique-id-per-datum accessor (depth-scoped). */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  id?: (d: DataPoint, i: number) => any;
+  id?: (d: DataPoint, i: number) => string | number;
   /** Array-of-ids-per-datum accessor. */
   ids?: (d: DataPoint, i: number) => string[];
   /** Human-readable label-per-datum accessor (handles aggregation labels). */

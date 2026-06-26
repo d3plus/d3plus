@@ -8,6 +8,8 @@ import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
+import type {D3plusConfig} from "../utils/index.js";
+import type {VizContext} from "../utils/configPrep.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
@@ -21,9 +23,12 @@ const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 // Box's x/y setters wrap every non-function (including numbers) in
 // `accessor(...)`, unlike the "accessor" coerce which would `constant(...)`
 // a non-string — so a custom coerce preserves the exact behavior.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toAccessor = (value: unknown): any =>
-  typeof value === "function" ? value : accessor(value as string);
+const toAccessor = (
+  value: unknown,
+): ((d: DataPoint) => DataPoint[keyof DataPoint]) =>
+  typeof value === "function"
+    ? (value as (d: DataPoint) => DataPoint[keyof DataPoint])
+    : accessor(value as string);
 
 /** Box's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const boxSchema: ConfigField[] = [
@@ -47,8 +52,7 @@ const boxSchema: ConfigField[] = [
 function applyWhiskerLimits(
   d: DataPoint,
   values: number[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mode: any,
+  mode: (string | number)[],
 ): void {
   if (mode[0] === "tukey") {
     (d as Record<string, unknown>).lowerLimit =
@@ -75,8 +79,7 @@ function applyWhiskerLimits(
 
 /** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
 function collectOutliers(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  box: any,
+  box: Box,
   d: DataPoint,
   outlierData: DataPoint[],
 ): void {
@@ -119,8 +122,7 @@ function collectOutliers(
     orientation group and appends any outliers to `outlierData`.
 */
 function computeBoxGroup(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  box: any,
+  box: Box,
   key: DataPoint[keyof DataPoint],
   groupData: DataPoint[],
   outlierData: DataPoint[],
@@ -332,8 +334,7 @@ export default class Box extends BaseClass {
       .y((d: DataPoint) => d.y)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box") as never)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this.schema.rectConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.rectConfig, "shape")!)
       .render();
 
     // Draw median.
@@ -345,8 +346,7 @@ export default class Box extends BaseClass {
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this.schema.medianConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.medianConfig, "shape")!)
       .render();
 
     // Draw 2 lines using Whisker class.
@@ -358,8 +358,7 @@ export default class Box extends BaseClass {
       .data(whiskerData)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this.schema.whiskerConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.whiskerConfig, "shape")!)
       .render();
 
     // Draw outliers.
@@ -371,8 +370,7 @@ export default class Box extends BaseClass {
             .data(values)
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .config(configPrep.bind(this as any)(this.schema.outlierConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as unknown as VizContext)(this.schema.outlierConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
@@ -504,7 +502,8 @@ export default class Box extends BaseClass {
   config(): BoxConfig;
   config(_: Partial<BoxConfig>): this;
   config(_?: Partial<BoxConfig>): BoxConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as BoxConfig;
+    super.config(_ as D3plusConfig);
+    return this;
   }
 }

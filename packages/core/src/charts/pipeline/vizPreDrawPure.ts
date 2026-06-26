@@ -95,7 +95,7 @@ function accessorFetch(
 
 /** The id / ids / drawLabel closures produced for a given preDraw. */
 interface LabelClosures {
-  id: (d: DataPoint, i: number) => DataPoint[keyof DataPoint];
+  id: (d: DataPoint, i: number) => string | number;
   ids: (d: DataPoint, i: number) => string[];
   drawLabel: (d: DataPoint, i: number, depth?: number) => string;
 }
@@ -125,11 +125,13 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
   const snapThresholdName = viz.schema.thresholdName;
   const snapLocale = viz.schema.locale;
 
-  const id = (d: DataPoint, i: number) => {
+  const id = (d: DataPoint, i: number): string | number => {
     const groupByDrawDepth = accessorFetch(snapGroupBy[drawDepth], d, i);
+    // groupBy values are string|number for id/keying purposes (numbers are
+    // stringified so numeric and string ids never collide).
     return typeof groupByDrawDepth === "number"
       ? `${groupByDrawDepth}`
-      : groupByDrawDepth;
+      : (groupByDrawDepth as string | number);
   };
 
   const ids = (d: DataPoint, i: number) =>

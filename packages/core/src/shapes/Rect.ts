@@ -1,3 +1,5 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
 import {accessor} from "../utils/index.js";
@@ -72,8 +74,7 @@ export default class Rect extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
       .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
       .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
       .attr(
@@ -94,7 +95,8 @@ export default class Rect extends Shape {
   config(): RectConfig;
   config(_: Partial<RectConfig>): this;
   config(_?: Partial<RectConfig>): RectConfig | this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (arguments.length ? super.config(_ as any) : super.config()) as any;
+    if (!arguments.length) return super.config() as RectConfig;
+    super.config(_!);
+    return this;
   }
 }
