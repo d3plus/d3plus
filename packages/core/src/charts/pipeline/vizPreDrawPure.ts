@@ -55,7 +55,9 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
         captures `latestTime` at synthesis) would make a later render
         with newer data skip re-synthesis.
 */
-type ThresholdTree = any;
+/** The d3-array `rollup` result; opaque here — only passed back to
+    `_thresholdFunction(data, tree)`, which accepts it as `unknown`. */
+type ThresholdTree = unknown;
 type TimeFilterFn =
   | ((d: DataPoint, i: number) => boolean)
   | (() => boolean);
