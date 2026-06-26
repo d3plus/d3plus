@@ -124,7 +124,7 @@ export default class Plot extends Viz {
     this._previousAnnotations = {back: [], front: []};
     this._previousShapes = [];
     this.schema.shape = defaults.shape;
-    this.schema.shapeConfig = assign(this.schema.shapeConfig, plotShapeDefaults.call(this));
+    this.schema.shapeConfig = assign(this.schema.shapeConfig, plotShapeDefaults.call(this as unknown as VizInstance));
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
     this.schema.shapeSort = (a: string, b: string) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);

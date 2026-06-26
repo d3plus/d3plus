@@ -7,30 +7,30 @@
     their dynamic call-time `this` binding — identical to when this object
     lived inline in the constructor.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {max, min, range} from "d3-array";
 
 import {colorContrast, colorLegible} from "@d3plus/color";
+import type {DataPoint} from "@d3plus/data";
 import {backgroundColor, rtl} from "@d3plus/dom";
 import {largestRect} from "@d3plus/math";
 
 import {constant} from "../../utils/index.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import {defaultSize, outside} from "./labelPlacement.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
-function areaConfig(self: any) {
+function areaConfig(self: VizInstance) {
   return {
-    label: (d: any, i: any) => (self.schema.stacked ? self._drawLabel(d, i) : false),
-    labelBounds: (d: any, i: any, aes: any) => {
+    label: (d: DataPoint, i: number) => (self.schema.stacked ? self._drawLabel(d, i) : false),
+    labelBounds: (d: DataPoint, i: number, aes: {points: [number, number][]}) => {
       let r = largestRect(aes.points, {angle: range(-20, 20, 5)});
       if (!r || r.height < 20 || r.width < 50)
         r = largestRect(aes.points, {angle: range(-80, 80, 5)});
       if (!r) return null;
-      const x = min(aes.points, (d: any) => d[0]) as unknown as number;
+      const x = min(aes.points, (p: [number, number]) => p[0]) as unknown as number;
       const y = max(
-        aes.points.filter((d: any) => d[0] === x),
-        (d: any) => d[1],
+        aes.points.filter((p: [number, number]) => p[0] === x),
+        (p: [number, number]) => p[1],
       ) as unknown as number;
       return {
         angle: r.angle,
@@ -49,20 +49,20 @@ function areaConfig(self: any) {
 }
 
 /** Builds the top-level `ariaLabel` accessor; `self` is the Plot instance. */
-function ariaLabelConfig(self: any) {
-  return (d: any, i: any) => {
+function ariaLabelConfig(self: VizInstance) {
+  return (d: DataPoint, i: number) => {
     let ariaLabelStr = "";
-    if (d.nested) ariaLabelStr = `${self._drawLabel(d.data, d.i)}`;
+    if (d.nested) ariaLabelStr = `${self._drawLabel(d.data as DataPoint, d.i as number)}`;
     else {
       ariaLabelStr = `${self._drawLabel(d, i)}`;
-      if (self._x(d, i) !== undefined)
-        ariaLabelStr += `, x: ${self._x(d, i)}`;
-      if (self._y(d, i) !== undefined)
-        ariaLabelStr += `, y: ${self._y(d, i)}`;
-      if (self._x2(d, i) !== undefined)
-        ariaLabelStr += `, x2: ${self._x2(d, i)}`;
-      if (self._y2(d, i) !== undefined)
-        ariaLabelStr += `, y2: ${self._y2(d, i)}`;
+      if (self._x!(d, i) !== undefined)
+        ariaLabelStr += `, x: ${self._x!(d, i)}`;
+      if (self._y!(d, i) !== undefined)
+        ariaLabelStr += `, y: ${self._y!(d, i)}`;
+      if (self._x2!(d, i) !== undefined)
+        ariaLabelStr += `, x2: ${self._x2!(d, i)}`;
+      if (self._y2!(d, i) !== undefined)
+        ariaLabelStr += `, y2: ${self._y2!(d, i)}`;
     }
     return `${ariaLabelStr}.`;
   };
@@ -74,11 +74,11 @@ function barLabelConfig() {
     fontMax: 16,
     fontMin: 6,
     fontResize: true,
-    fontColor(this: any, d: any, i: any) {
+    fontColor(this: VizInstance, d: DataPoint, i: number) {
       if (outside.bind(this)(d, i)) {
-        const bg: string = this._backgroundConfig.fill === "transparent"
-          ? backgroundColor(this._select.node())
-          : this._backgroundConfig.fill;
+        const bg = (this._backgroundConfig!.fill === "transparent"
+          ? backgroundColor(this._select!.node())
+          : this._backgroundConfig!.fill) as string;
         return colorContrast(bg);
       }
       return colorContrast(
@@ -87,27 +87,27 @@ function barLabelConfig() {
           : this.schema.shapeConfig.fill,
       );
     },
-    fontStroke(this: any, d: any, i: any) {
+    fontStroke(this: VizInstance, d: DataPoint, i: number) {
       if (outside.bind(this)(d, i)) {
-        const bg: string = this._backgroundConfig.fill === "transparent"
-          ? backgroundColor(this._select.node())
-          : this._backgroundConfig.fill;
+        const bg = (this._backgroundConfig!.fill === "transparent"
+          ? backgroundColor(this._select!.node())
+          : this._backgroundConfig!.fill) as string;
         return colorContrast(bg);
       }
       return "transparent";
     },
-    fontStrokeWidth(this: any, d: any, i: any) {
+    fontStrokeWidth(this: VizInstance, d: DataPoint, i: number) {
       return outside.bind(this)(d, i) ? 0.1 : 0;
     },
     padding: 3,
-    textAnchor(this: any, d: any, i: any): string {
+    textAnchor(this: VizInstance, d: DataPoint, i: number): string {
       const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
       const invert = other === "y";
       const nonDiscrete: string = this.schema.discrete.replace(
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
+      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
       const anchor = invert
         ? "middle"
         : outside.bind(this)(d, i)
@@ -125,14 +125,14 @@ function barLabelConfig() {
             : anchor
         : anchor;
     },
-    verticalAlign(this: any, d: any, i: any): string {
+    verticalAlign(this: VizInstance, d: DataPoint, i: number): string {
       const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
       const invert = other === "y";
       const nonDiscrete: string = this.schema.discrete.replace(
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
+      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
       return invert
         ? outside.bind(this)(d, i)
           ? negative
@@ -149,7 +149,7 @@ function barLabelConfig() {
 /** Builds the `Bar` shape config (dynamic-`this` `labelBounds` preserved). */
 function barConfig() {
   return {
-    labelBounds(this: any, d: any, i: any, s: any) {
+    labelBounds(this: VizInstance, d: DataPoint, i: number, s: {width: number; height: number}) {
       const padding = 1;
 
       const width = this.schema.discrete === "y" ? "width" : "height";
@@ -161,9 +161,10 @@ function barConfig() {
         this.schema.discrete.charAt(0),
         other,
       );
-      const range = (this as any)[`_${nonDiscrete}Axis`]._d3Scale.range();
+      const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;
+      const range = axis._d3Scale!.range();
       const space = Math.abs(range[1] - range[0]);
-      const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;
+      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
 
       if (outside.bind(this)(d, i)) {
         return {
@@ -201,7 +202,7 @@ function barConfig() {
 }
 
 /** Builds the `Line` shape config; `self` is the Plot instance. */
-function lineConfig(self: any) {
+function lineConfig(self: VizInstance) {
   return {
     curve: () =>
       self.schema.discrete
@@ -209,7 +210,7 @@ function lineConfig(self: any) {
         : "linear",
     fill: constant("none"),
     labelConfig: {
-      fontColor: (d: any, i: any) => {
+      fontColor: (d: DataPoint, i: number) => {
         const c =
           typeof self.schema.shapeConfig.Line.stroke === "function"
             ? self.schema.shapeConfig.Line.stroke(d, i)
@@ -225,7 +226,7 @@ function lineConfig(self: any) {
   };
 }
 
-export function plotShapeDefaults(this: any) {
+export function plotShapeDefaults(this: VizInstance) {
   return {
     Area: areaConfig(this),
     ariaLabel: ariaLabelConfig(this),
@@ -235,8 +236,8 @@ export function plotShapeDefaults(this: any) {
     },
     Line: lineConfig(this),
     Rect: {
-      height: (d: any) => defaultSize.bind(this)(d) * 2,
-      width: (d: any) => defaultSize.bind(this)(d) * 2,
+      height: (d: DataPoint) => defaultSize.bind(this)(d) * 2,
+      width: (d: DataPoint) => defaultSize.bind(this)(d) * 2,
     },
   };
 }
