@@ -35,10 +35,11 @@
 import {runStages} from "./stages.js";
 import {marginOriginTransform} from "../features/chartGeometry.js";
 
+import type {DataPoint} from "@d3plus/data";
 import type {Transform} from "@d3plus/render";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {isPaintDriven} from "../definition/ChartDefinition.js";
-import type {TransformStage} from "./stages.js";
+import type {TransformStage, VizContext} from "./stages.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 export function runChartDraw(
@@ -82,7 +83,9 @@ export function runChartDraw(
     );
   }
   const stagePushed = viz._chartScene.slice();
-  const emitted = def.emit(ctx);
+  // ctx.shapeData is the generic layout bag (`unknown[]`); ChartEmit reads it
+  // as DataPoint[] — each chart's layout stage produced rows it understands.
+  const emitted = def.emit(ctx as VizContext & {shapeData?: DataPoint[]});
   // Preserve decorations the stage pushed (Matrix/Priestley/Radar/
   // RadialMatrix push axis/grid groups via `(v._chartScene ||= []).push`)
   // by concatenating them with the emit output. Without this, the

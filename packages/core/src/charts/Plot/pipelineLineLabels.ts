@@ -113,10 +113,10 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
     testTextBox: TextBox;
   };
   const {xTest, yTest} = plotTestAxes as {xTest: Axis; yTest: Axis};
-  const xDomain = plotScales.x.domain();
-  const yDomain = plotScales.y.domain();
-  const xConfigScale = plotConfigScales.xConfigScale;
-  const yConfigScale = plotConfigScales.yConfigScale;
+  const xDomain = plotScales!.x.domain();
+  const yDomain = plotScales!.y.domain();
+  const xConfigScale = plotConfigScales!.xConfigScale;
+  const yConfigScale = plotConfigScales!.yConfigScale;
   const width = viz.schema.width - viz._margin.left - viz._margin.right;
 
   const userConfig = shapeConfigFor(viz, "Line");
@@ -133,12 +133,12 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
 
   const xEstimate = (d: unknown): number => {
     if (xConfigScale === "log" && d === 0)
-      d = xDomain[0] < 0 ? xTest._d3Scale!.domain()[1] : xTest._d3Scale!.domain()[0];
+      d = (xDomain[0] as number) < 0 ? xTest._d3Scale!.domain()[1] : xTest._d3Scale!.domain()[0];
     return xTest._getPosition.bind(xTest)(d);
   };
   const yEstimate = (d: unknown): number => {
     if (yConfigScale === "log" && d === 0)
-      d = yDomain[0] < 0 ? yTest._d3Scale!.domain()[1] : yTest._d3Scale!.domain()[0];
+      d = (yDomain[0] as number) < 0 ? yTest._d3Scale!.domain()[1] : yTest._d3Scale!.domain()[0];
     return yTest._getPosition.bind(yTest)(d);
   };
 
@@ -156,7 +156,7 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   const labelWidths = lineData
     .map((entry: [unknown, Record<string, unknown>[]]) => measureLineLabel(entry, labelCtx))
     .sort((a, b) =>
-      yDomain[1] > yDomain[0]
+      (yDomain[1] as number) > (yDomain[0] as number)
         ? (a.value as number) - (b.value as number)
         : (b.value as number) - (a.value as number),
     )

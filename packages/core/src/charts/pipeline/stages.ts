@@ -15,8 +15,32 @@
     detection) runs through the imperative `vizPreDrawPure` (see
     `vizPreDrawPure.ts`), which is the single source of truth for it.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {DataPoint} from "@d3plus/data";
+
+import type {Axis, TextBox} from "../../components/index.js";
+import type Shape from "../../shapes/Shape.js";
+import type {D3Scale} from "../../utils/index.js";
+import type {VizInstance} from "../viz/vizTypes.js";
+
+/** The four configured d3 scales plus their resolved scale-type strings. */
+export interface PlotScales {
+  x: D3Scale;
+  y: D3Scale;
+  x2: D3Scale;
+  y2: D3Scale;
+  xScale: string;
+  yScale: string;
+  x2Scale: string;
+  y2Scale: string;
+}
+
+/** Resolved (lower-cased) scale-type strings for each axis. */
+export interface PlotConfigScales {
+  xConfigScale: string;
+  yConfigScale: string;
+  x2ConfigScale: string;
+  y2ConfigScale: string;
+}
 
 /**
     @interface VizContext
@@ -26,7 +50,15 @@ import type {DataPoint} from "@d3plus/data";
     consumers (`_draw`, drawSteps, components) see the same shape.
 */
 export interface VizContext {
-  /** The chart instance. Stages read configuration from it. */
+  /**
+      The chart instance. Stages read configuration from it. Deliberately
+      `any`: this is the pipeline's dynamic bag — stages reach into chart-,
+      axis-, and family-specific fields by computed name (`_${axis}Time`,
+      `_${o}Config`, …) that a single structural type can't enumerate. Free
+      functions that take a single chart use the `VizInstance` contract; this
+      bag field stays loose by design (same rationale as `BaseClass.schema`).
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   viz: any;
   // Derived outputs (populated as stages run):
   drawDepth?: number;
@@ -43,59 +75,61 @@ export interface VizContext {
   /**
       Chart-specific layout output (e.g. Treemap's d3-hierarchy result). Produced
       by `applyTreemapLayout` and consumed by Treemap's `_draw` to drive the
-      Rect emit. Generic on purpose — each chart's layout stage shapes it.
+      Rect emit. Generic on purpose — each chart's layout stage shapes it
+      (d3-hierarchy nodes, pie arcs, sankey nodes, …); `ChartEmit` narrows it
+      to `DataPoint[]` at the emit boundary.
   */
-  shapeData?: any[];
+  shapeData?: unknown[];
   /**
       Plot's chart-specific staged outputs. `formatPlotData` produces them;
       downstream Plot stages (and Plot._draw's paint phase) read them.
   */
-  plotFormattedData?: any[];
-  plotAxisData?: any[];
+  plotFormattedData?: Record<string, unknown>[];
+  plotAxisData?: Record<string, unknown>[];
   x2Exists?: boolean;
   y2Exists?: boolean;
   /** Closure used by Plot's stacked branch to compute fillerPoint groups. */
-  plotStackGroup?: (d: any, i: number) => string;
+  plotStackGroup?: (d: DataPoint, i: number) => string;
   /** Per-axis unique values arrays (output of `computePlotAxisValues`). */
-  xData?: any[];
-  x2Data?: any[];
-  yData?: any[];
-  y2Data?: any[];
+  xData?: unknown[];
+  x2Data?: unknown[];
+  yData?: unknown[];
+  y2Data?: unknown[];
   /** Initial domains from the stacked/non-stacked branch (output of `computePlotInitialDomains`). */
-  plotInitialDomains?: Record<string, any[]>;
+  plotInitialDomains?: Record<string, (number | string | Date)[]>;
   /** Stacked-mode bookkeeping (output of `computePlotInitialDomains`). */
-  plotDiscreteKeys?: any[];
-  plotStackData?: any[];
-  plotStackKeys?: any[];
+  plotDiscreteKeys?: unknown[];
+  plotStackData?: unknown[];
+  plotStackKeys?: unknown[];
   /** Final domains after log/baseline adjustments (output of `computePlotScales`). */
-  plotDomains?: Record<string, any[]>;
+  plotDomains?: Record<string, (number | string | Date)[]>;
   /** Four configured d3 scale instances + their scale-type strings. */
-  plotScales?: any;
-  plotConfigScales?: any;
-  plotOpps?: any;
+  plotScales?: PlotScales;
+  plotConfigScales?: PlotConfigScales;
+  plotOpps?: {opp?: string; opp2?: string; opps: string[]};
   /** Pre-measured test axes + label-test shapes for `measurePlotLineLabels`. */
-  plotTestAxes?: any;
-  plotLineLabelTest?: any;
+  plotTestAxes?: {xTest: Axis; yTest: Axis};
+  plotLineLabelTest?: {testLineShape: Shape; testTextBox: TextBox};
   /** Outputs of `measurePlotLineLabels`. */
-  plotLabelWidths?: any[];
+  plotLabelWidths?: unknown[];
   plotLargestLabel?: number;
   plotXRangeMax?: number;
   /** Outputs of `preparePlotAxisLayout`. */
-  plotDefaultConfig?: any;
-  plotDefaultX2Config?: any;
-  plotDefaultY2Config?: any;
+  plotDefaultConfig?: Record<string, unknown>;
+  plotDefaultX2Config?: Record<string, unknown>;
+  plotDefaultY2Config?: Record<string, unknown>;
   plotShowX?: boolean;
   plotShowY?: boolean;
-  plotYC?: any;
+  plotYC?: Record<string, unknown>;
   plotBarLabels?: string[];
-  plotXTicks?: any[] | null;
-  plotX2Ticks?: any[] | null;
-  plotYTicks?: any[] | null;
-  plotY2Ticks?: any[] | null;
-  plotXDomain?: any[];
-  plotX2Domain?: any[];
-  plotYDomain?: any[];
-  plotY2Domain?: any[];
+  plotXTicks?: unknown[] | null;
+  plotX2Ticks?: unknown[] | null;
+  plotYTicks?: unknown[] | null;
+  plotY2Ticks?: unknown[] | null;
+  plotXDomain?: (number | string | Date)[];
+  plotX2Domain?: (number | string | Date)[];
+  plotYDomain?: (number | string | Date)[];
+  plotY2Domain?: (number | string | Date)[];
 }
 
 /**
@@ -112,14 +146,15 @@ export type TransformStage = (ctx: VizContext) => Partial<VizContext>;
     nests by the discrete dimension regardless of where the accessor lives —
     without it, per-metric rows collapse into one aggregated row per group.
 */
-export function discreteNestKeys(
-  viz: any,
-): ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] {
+type NestKey = (d: DataPoint, i: number) => DataPoint[keyof DataPoint];
+
+export function discreteNestKeys(viz: VizInstance): NestKey[] {
   const disc = viz.schema.discrete;
   if (!disc) return [];
-  const keys: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] = [];
+  const keys: NestKey[] = [];
+  const dynamic = viz as unknown as Record<string, NestKey>;
   for (const k of [disc, `${disc}2`]) {
-    if (`_${k}` in viz) keys.push(viz[`_${k}`]);
+    if (`_${k}` in viz) keys.push(dynamic[`_${k}`]);
     else if (typeof viz.schema[k] === "function") keys.push(viz.schema[k]);
   }
   return keys;

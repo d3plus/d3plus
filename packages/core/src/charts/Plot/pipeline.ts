@@ -243,9 +243,9 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
 export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plotAxisData, plotScales, plotConfigScales}) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
-  let {x, y, x2, y2} = plotScales;
-  const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = plotConfigScales;
-  const xScale = plotScales.xScale, yScale = plotScales.yScale;
+  let {x, y, x2, y2} = plotScales!;
+  const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = plotConfigScales!;
+  const xScale = plotScales!.xScale, yScale = plotScales!.yScale;
 
   const oppScale = viz.schema.discrete === "x" ? yScale : xScale;
   if (oppScale !== "Point") {
@@ -284,7 +284,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
     });
   }
 
-  return {plotScales: {...plotScales, x, y, x2, y2}};
+  return {plotScales: {...plotScales!, x, y, x2, y2}};
 };
 
 /**
@@ -302,11 +302,11 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
 */
 export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotScales, x2Exists, y2Exists, x2Data, y2Data, yData}) => {
   const axisData = plotAxisData || [];
-  const {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale} = plotScales;
-  const xDomain = x.domain();
-  const x2Domain = x2.domain();
-  const yDomain = y.domain();
-  const y2Domain = y2.domain();
+  const {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale} = plotScales!;
+  const xDomain = x.domain() as DomainValue[];
+  const x2Domain = x2.domain() as DomainValue[];
+  const yDomain = y.domain() as DomainValue[];
+  const y2Domain = y2.domain() as DomainValue[];
 
   const defaultConfig = {
     barConfig: {"stroke-width": 0},
