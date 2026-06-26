@@ -143,7 +143,6 @@ export const ringsDef: ChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         title: (d: any) =>
           d && d.source && d.target
             ? `${d.source.id} → ${d.target.id}`

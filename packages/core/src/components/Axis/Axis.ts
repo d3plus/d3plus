@@ -500,17 +500,14 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      Phase-E: runs the layout pass only — scale construction, tick selection,
-      label textWrap, and outerBounds — with **no DOM access**. After it
-      returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-      exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-      tick shapes, or label TextBoxes are created.
-
-      This is the v4 path for "how much room will this axis need?" without
-      the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-      caller. Internally it delegates to the standalone `measureAxis(axis)`
-      function in axisLayout.ts; the free function shape means Plot (and
-      future callers) can run layout without owning an Axis instance.
+      Runs the layout pass only — scale construction, tick selection, label
+      textWrap, and outerBounds — with **no DOM access**. After it returns,
+      `outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+      they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+      or label TextBoxes are created. Answers "how much room will this axis
+      need?" without rendering; Plot uses it to size its test-axes. Delegates to
+      the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+      layout without owning an Axis instance.
   */
   measure(): this {
     measureAxis(this);

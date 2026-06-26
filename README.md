@@ -91,6 +91,7 @@ D3plus is a modular monorepo — install only what you need:
 | ---------------------------------------------------------------- | ------------------------------------------------ |
 | [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)     | React component wrappers for all chart types     |
 | [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)       | Charts, components, and shapes (the main engine) |
+| [@d3plus/render](https://www.npmjs.com/package/@d3plus/render)   | Scene-graph renderer; owns the SVG/Canvas backends |
 | [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)     | Color scales, defaults, and utilities            |
 | [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)       | Data loading, filtering, and manipulation        |
 | [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)         | DOM and browser utility functions                |

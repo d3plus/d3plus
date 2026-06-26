@@ -7,7 +7,7 @@ Welcome to the contribution tutorials and guidelines for d3plus :wave: There are
 
 ## Website/Documentation
 
-D3plus users Storybook to build live examples that show the underlying @d3plus/react code and allows users to modify config settings in browser. The Storybook codebase is located in the `docs` folder, and all of the examples currently live in the `docs/charts/` directory, grouped by their chart type (Bar Chart, Line Plot, etc).
+D3plus uses Storybook to build live examples that show the underlying @d3plus/react code and let users modify config settings in the browser. The Storybook codebase lives in the `packages/docs` package: chart examples are `*.stories.jsx` files under `packages/docs/packages/<package>/` (e.g. `packages/docs/packages/core/charts/`, grouped by chart type), and the longer-form guide pages are MDX files in `packages/docs/docs/`.
 
 Typically, they follow the following basic format:
 
@@ -55,12 +55,11 @@ Within each package directory, you will notice the following folder structure:
 - :open_file_folder: `dev/`
 - :open_file_folder: `src/`
 - :open_file_folder: `test/` (optional)
-- :page_facing_up: `index.js`
+- :page_facing_up: `index.ts` (or `index.tsx`)
 - :page_facing_up: `package.json`
 - :page_facing_up: `README.md`
-```
 
-All source code lives in the `src` directory, and adheres to a linting ruleset in the root of the repo (`.eslintrc`). The easiest way to follow the style guide is by installing a linter directly in your text editor, so that errors will be highlighted as you type. If your Pull Request does not match the project's linting style, it will not be merged.
+All source code is TypeScript, lives in the `src` directory, and adheres to a linting ruleset in the root of the repo (`eslint.config.js`). The easiest way to follow the style guide is by installing a linter directly in your text editor, so that errors will be highlighted as you type. If your Pull Request does not match the project's linting style, it will not be merged.
 
 ### Running the Development Server
 
@@ -96,7 +95,7 @@ The development server will recreate the `umd` directory any time the current pa
 
 ### Code Documentation
 
-All of the code documentation you see in the `README.md` file is generated automatically from the [JSDoc](http://usejsdoc.org/) formatted comments within each source file. To regenerate the documentation at any time, simply run: 
+All of the code documentation you see in the `README.md` file is generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To regenerate the documentation at any time, simply run: 
 
 ```sh
 pnpm --filter @d3plus/<package_name> run docs

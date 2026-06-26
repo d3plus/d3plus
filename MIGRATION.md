@@ -61,8 +61,8 @@ new d3plus.BarChart()
 
 Use **SVG** (the default) for the broadest feature coverage and crisp,
 inspectable output. Use **Canvas** for dense, high-shape-count charts where
-paint performance matters. (Maps render on the SVG backend; see the
-[CHANGELOG](CHANGELOG.md) known-limitations note.)
+paint performance matters. Both backends paint shapes, gradients, and
+texture/pattern fills; Geomap renders on either.
 
 ### Clean teardown
 

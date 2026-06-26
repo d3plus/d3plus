@@ -66,6 +66,19 @@ try {
   packageJSON.version = version;
   fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 2));
 
+  // Bump every workspace package to the release version. pnpm rewrites the
+  // `workspace:*` inter-package deps to this version at publish time, so the
+  // version field is all that needs syncing here. Done unconditionally (not as
+  // a side effect of the optional docs/build step below) so a release can never
+  // ship packages still pinned to the previous version.
+  for (const dir of fs.readdirSync("packages")) {
+    const pkgPath = path.join("packages", dir, "package.json");
+    if (!fs.existsSync(pkgPath)) continue;
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    pkg.version = version;
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+  }
+
   const shellOpts = {
     env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"},
     shell: true,
