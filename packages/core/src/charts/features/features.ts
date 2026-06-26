@@ -9,7 +9,6 @@
     Every Plot-family + chart-shell feature here is wired into
     `vizDrawPure` via `runLayout(ctx, [...features])`.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {extent, min, rollup, sum} from "d3-array";
 import {select} from "d3-selection";
 
@@ -60,7 +59,7 @@ export interface FeatureLayout {
       context. The contract is about CROSS-feature mutation, not all
       mutation.
   */
-  vizUpdate?: Record<string, any>;
+  vizUpdate?: Record<string, unknown>;
 }
 
 /**

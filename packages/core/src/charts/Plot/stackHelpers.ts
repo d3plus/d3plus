@@ -2,14 +2,14 @@
     d3-stack ordering + offset helpers used by Plot's `stackOrder` /
     `stackOffset` accessors and their constructor defaults.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import * as d3Shape from "d3-shape";
+
+type Series = d3Shape.Series<Record<string, unknown>, string>;
 
 /**
     Sums a single stack series, ignoring non-numeric segments.
 */
-export function stackSum(series: any) {
+export function stackSum(series: Series): number {
   let i = -1,
     s = 0,
     v;
@@ -21,18 +21,20 @@ export function stackSum(series: any) {
 /**
     Stack order: ascending by series key, tie-broken by summed value.
 */
-export function stackOrderAscending(series: any) {
+export function stackOrderAscending(series: Series[]): number[] {
   const sums = series.map(stackSum);
-  const keys = series.map((d: any) => d.key.split("_")[0]);
+  const keys = series.map((d: Series) => d.key.split("_")[0]);
+  // @types/d3-shape types the order accessors' param as a single `Series`,
+  // though d3 passes the full stack array; cast to satisfy the signature.
   return d3Shape
-    .stackOrderNone(series)
-    .sort((a: any, b: any) => keys[b].localeCompare(keys[a]) || sums[a] - sums[b]);
+    .stackOrderNone(series as unknown as Series)
+    .sort((a: number, b: number) => keys[b].localeCompare(keys[a]) || sums[a] - sums[b]);
 }
 
 /**
     Stack order: the reverse of {@link stackOrderAscending}.
 */
-export function stackOrderDescending(series: any) {
+export function stackOrderDescending(series: Series[]): number[] {
   return stackOrderAscending(series).reverse();
 }
 
@@ -40,7 +42,7 @@ export function stackOrderDescending(series: any) {
     Diverging stack offset: positive segments stack upward from zero,
     negative segments stack downward.
 */
-export function stackOffsetDiverging(series: any, order: any) {
+export function stackOffsetDiverging(series: Series[], order: number[]): void {
   let n;
   if (!((n = series.length) > 0)) return;
   let d, dy, i, yn, yp;

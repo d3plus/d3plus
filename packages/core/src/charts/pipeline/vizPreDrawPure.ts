@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
     `vizPreDrawPure(viz, prevCtx)` — the pure form of `vizPreDraw`.
@@ -326,7 +325,7 @@ export function vizPreDrawPure(
 export function vizPostThresholdCtx(
   viz: Viz,
   filteredData: DataPoint[],
-  id: (d: DataPoint, i: number) => any,
+  id: (d: DataPoint, i: number) => string | number,
 ): {
   hoverOverride?: {
     hoverOpacity: number;

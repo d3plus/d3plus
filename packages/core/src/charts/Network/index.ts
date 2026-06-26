@@ -223,7 +223,7 @@ function setupNetworkFluent(v: NetworkViz) {
     if (!arguments.length) return this._size;
     this._size = ((typeof _ === "function" || !_)
       ? _
-      : accessor(_ as string)) as ((d: DataPoint, i: number) => number) | undefined;
+      : accessor(_ as string)) as ((d: DataPoint, i?: number) => number) | undefined;
     return this;
   };
   v.x = function(this: VizInstance, _?: unknown) {

@@ -36,7 +36,7 @@ import type {
   Tooltip,
 } from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
-import type {D3plusConfig} from "../../utils/index.js";
+import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
@@ -134,7 +134,7 @@ export interface VizInstance {
   _x2?: (d: DataPoint, i: number) => number | Date | string;
   _y2?: (d: DataPoint, i: number) => number | Date | string;
   _shape: (d: DataPoint, i: number) => string;
-  _size?: (d: DataPoint, i: number) => number;
+  _size?: (d: DataPoint, i?: number) => number;
   _value?: (d: DataPoint, i: number) => number;
   _time?: (d: DataPoint, i: number) => string | number | Date;
   _sort?: ((a: DataPoint, b: DataPoint) => number) | null;
@@ -194,6 +194,8 @@ export interface VizInstance {
   _y2Axis?: Axis;
   _xFunc?: (d: DataPoint, axis?: string) => number;
   _yFunc?: (d: DataPoint, axis?: string) => number;
+  /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
+  _sizeScaleD3?: D3Scale;
   _baseline?: number;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
