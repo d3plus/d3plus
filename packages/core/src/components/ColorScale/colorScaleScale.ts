@@ -7,6 +7,7 @@ import {unique} from "@d3plus/data";
 import {ckmeans} from "@d3plus/math";
 
 import type ColorScale from "./ColorScale.js";
+import type {D3Scale} from "../../utils/index.js";
 
 /** Computed values shared between the scale solve and the render branches. */
 export interface ColorScaleCompute {
@@ -14,8 +15,7 @@ export interface ColorScaleCompute {
   domain: number[];
   ticks: number[] | undefined;
   labels: number[] | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colors: any;
+  colors: string[];
   horizontal: boolean;
   height: string;
   width: string;
@@ -30,13 +30,11 @@ interface ScaleContext {
   positive: boolean;
   diverging: boolean;
   numBuckets: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colors: any;
+  colors: string[] | undefined;
 }
 
 interface ScaleResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colors: any;
+  colors: string[];
   ticks: number[] | undefined;
   labels: number[] | undefined;
 }
@@ -99,7 +97,12 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
 
   if (!colors) {
     if (diverging) {
-      colors = [cs.schema.colorMin, cs.schema.colorMid, cs.schema.colorMax];
+      const base: string[] = [
+        cs.schema.colorMin,
+        cs.schema.colorMid,
+        cs.schema.colorMax,
+      ];
+      colors = base;
       const negatives = ticks
         .slice(0, buckets)
         .filter(
@@ -116,13 +119,13 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
         .slice(0, buckets)
         .filter((d: number) => d > cs.schema.midpoint);
       const negativeColors = negatives.map((_d: number, i: number) =>
-        !i ? colors[0] : colorLighter(colors[0], i / negatives.length),
+        !i ? base[0] : colorLighter(base[0], i / negatives.length),
       );
-      const spanningColors = spanning.map(() => colors[1]);
+      const spanningColors = spanning.map(() => base[1]);
       const positiveColors = positives.map((_d: number, i: number) =>
         i === positives.length - 1
-          ? colors[2]
-          : colorLighter(colors[2], 1 - (i + 1) / positives.length),
+          ? base[2]
+          : colorLighter(base[2], 1 - (i + 1) / positives.length),
       );
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
@@ -136,7 +139,9 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
 
   colors = [colors[0]].concat(colors);
 
-  cs._colorScale = scaleThreshold().domain(ticks).range(colors);
+  cs._colorScale = scaleThreshold<number, string>()
+    .domain(ticks)
+    .range(colors) as unknown as D3Scale<string>;
 
   return {colors, ticks, labels};
 }
@@ -145,14 +150,11 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
 function resolveDivergingLinear(
   cs: ColorScale,
   ctx: ScaleContext,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buckets: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): {colors: any; buckets: any} {
+  buckets: number[] | undefined,
+): {colors: string[]; buckets: number[]} {
   const {domain, numBuckets} = ctx;
   const half = Math.floor(numBuckets / 2);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const negativeColorScale = (interpolateRgb as any).gamma(2.2)(
+  const negativeColorScale = interpolateRgb.gamma(2.2)(
     cs.schema.colorMin,
     cs.schema.colorMid,
   );
@@ -162,8 +164,7 @@ function resolveDivergingLinear(
   const spanningColors = (numBuckets % 2 ? [0] : []).map(
     () => cs.schema.colorMid,
   );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const positiveColorScale = (interpolateRgb as any).gamma(2.2)(
+  const positiveColorScale = interpolateRgb.gamma(2.2)(
     cs.schema.colorMax,
     cs.schema.colorMid,
   );
@@ -199,10 +200,8 @@ function resolveDivergingLinear(
 function resolveNonDivergingLinear(
   cs: ColorScale,
   ctx: ScaleContext,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buckets: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): {colors: any; buckets: any} {
+  buckets: number[] | undefined,
+): {colors: string[]; buckets: number[]} {
   const {allValues, domain, negative, positive, diverging, numBuckets} = ctx;
   let {colors} = ctx;
   if (!colors) {
@@ -261,8 +260,7 @@ function resolveNonDivergingLinear(
 
 /** Builds the linear/log/buckets/quantile scale and assigns it to the instance. */
 function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let buckets: any =
+  let buckets: number[] | undefined =
     cs.schema.buckets instanceof Array ? cs.schema.buckets : undefined;
   const resolved =
     ctx.diverging && !ctx.colors
@@ -306,9 +304,8 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
     cs.schema.scale === "buckets" || cs.schema.scale === "quantile"
       ? scaleThreshold
       : scaleLinear;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cs._colorScale = (scaleFn as (...args: unknown[]) => any)()
-    .domain(buckets)
+  cs._colorScale = (scaleFn as unknown as () => D3Scale<string>)()
+    .domain(buckets as number[])
     .range(colors);
 
   return {colors, ticks, labels: undefined};
@@ -345,8 +342,7 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
       : unique(allValues).length,
   ])!;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let colors: any =
+  let colors: string | string[] | undefined =
     diverging &&
     (!cs.schema.color ||
       (cs.schema.color instanceof Array &&
@@ -355,8 +351,9 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
       : cs.schema.color;
 
   if (colors && !(colors instanceof Array)) {
+    const single = colors;
     colors = range(0, numBuckets, 1)
-      .map((i: number) => colorLighter(colors, (i + 1) / numBuckets))
+      .map((i: number) => colorLighter(single, (i + 1) / numBuckets))
       .reverse();
   }
 
@@ -367,7 +364,9 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
     positive,
     diverging,
     numBuckets,
-    colors,
+    // A single color string is expanded to an array above, so by here this
+    // is always an array (or undefined).
+    colors: colors as string[] | undefined,
   };
 
   const result =

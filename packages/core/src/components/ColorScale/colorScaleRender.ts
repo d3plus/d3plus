@@ -10,6 +10,8 @@ import type {DataPoint} from "@d3plus/data";
 
 import type ColorScale from "./ColorScale.js";
 import type {ColorScaleCompute} from "./colorScaleScale.js";
+import type {AccessorFn, D3plusConfig} from "../../utils/index.js";
+import type {RectConfig} from "../../shapes/shapeConfig.js";
 
 /** Shared <g> groups and transition params created by ColorScale.render. */
 export interface ColorScaleGroups {
@@ -20,9 +22,11 @@ export interface ColorScaleGroups {
   gradient: boolean;
 }
 
+/** Maps a domain value to its pixel position (the axis `_getPosition`). */
+type AxisScale = (d: unknown) => number;
+
 interface GradientGeometry {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axisScale: any;
+  axisScale: AxisScale;
   scaleRange: unknown[];
   axisDomain: number[];
   axisBounds: Record<string, number>;
@@ -34,8 +38,7 @@ function prepareGradientAxis(
   cs: ColorScale,
   compute: ColorScaleCompute,
   offsets: Record<string, number>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): {axisConfig: Record<string, any>; labelConfig: Record<string, any>; axisDomain: number[]; labelData: string[]} {
+): {axisConfig: Record<string, unknown>; labelConfig: Record<string, unknown>; axisDomain: number[]; labelData: string[]} {
   const {horizontal, height, width, domain, labels, ticks} = compute;
 
   const axisDomain = (domain as number[]).slice();
@@ -55,8 +58,7 @@ function prepareGradientAxis(
     axisDomain[axisDomain.length - 1] = last + ten;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const axisConfig: Record<string, any> = assign(
+  const axisConfig: Record<string, unknown> = assign(
     {
       domain: horizontal ? axisDomain : axisDomain.slice().reverse(),
       duration: cs.schema.duration,
@@ -71,8 +73,7 @@ function prepareGradientAxis(
     cs.schema.axisConfig,
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const labelConfig: Record<string, any> = assign(
+  const labelConfig: Record<string, unknown> = assign(
     {
       height: cs.schema[height] / 2,
       width: cs.schema[width] / 2,
@@ -80,51 +81,49 @@ function prepareGradientAxis(
     cs.schema.labelConfig,
   );
 
-  cs._labelClass.config(labelConfig);
+  cs._labelClass.config(labelConfig as D3plusConfig);
   const labelData: string[] = [];
 
   if (horizontal && cs._labelMin) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const labelCSS: Record<string, any> = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-family": (cs._labelClass.fontFamily() as any)(cs._labelMin),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-size": (cs._labelClass.fontSize() as any)(cs._labelMin),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-weight": (cs._labelClass.fontWeight() as any)(cs._labelMin),
+    const labelCSS: Record<string, unknown> = {
+      "font-family": cs._labelClass.fontFamily()(cs._labelMin),
+      "font-size": cs._labelClass.fontSize()(cs._labelMin),
+      "font-weight": cs._labelClass.fontWeight()(cs._labelMin),
     };
 
     if (labelCSS["font-family"] instanceof Array)
       labelCSS["font-family"] = labelCSS["font-family"][0];
-    let labelMinWidth = textWidth(cs._labelMin, labelCSS);
+    let labelMinWidth = textWidth(
+      cs._labelMin,
+      labelCSS as Record<string, string | number>,
+    );
 
     if (labelMinWidth && labelMinWidth < cs.schema[width] / 2) {
       labelData.push(cs._labelMin);
       labelMinWidth += cs.schema.padding;
       if (horizontal) offsets.x += labelMinWidth;
-      axisConfig[width] -= labelMinWidth;
+      axisConfig[width] = (axisConfig[width] as number) - labelMinWidth;
     }
   }
   if (horizontal && cs._labelMax) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const labelCSS: Record<string, any> = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-family": (cs._labelClass.fontFamily() as any)(cs._labelMax),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-size": (cs._labelClass.fontSize() as any)(cs._labelMax),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "font-weight": (cs._labelClass.fontWeight() as any)(cs._labelMax),
+    const labelCSS: Record<string, unknown> = {
+      "font-family": cs._labelClass.fontFamily()(cs._labelMax),
+      "font-size": cs._labelClass.fontSize()(cs._labelMax),
+      "font-weight": cs._labelClass.fontWeight()(cs._labelMax),
     };
 
     if (labelCSS["font-family"] instanceof Array)
       labelCSS["font-family"] = labelCSS["font-family"][0];
-    let labelMaxWidth = textWidth(cs._labelMax, labelCSS);
+    let labelMaxWidth = textWidth(
+      cs._labelMax,
+      labelCSS as Record<string, string | number>,
+    );
 
     if (labelMaxWidth && labelMaxWidth < cs.schema[width] / 2) {
       labelData.push(cs._labelMax);
       labelMaxWidth += cs.schema.padding;
       if (!horizontal) offsets.y += labelMaxWidth;
-      axisConfig[width] -= labelMaxWidth;
+      axisConfig[width] = (axisConfig[width] as number) - labelMaxWidth;
     }
   }
 
@@ -136,23 +135,20 @@ function renderGradientAxes(
   cs: ColorScale,
   compute: ColorScaleCompute,
   groups: ColorScaleGroups,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axisConfig: Record<string, any>,
+  axisConfig: Record<string, unknown>,
   offsets: Record<string, number>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): {axisBounds: Record<string, number>; axisScale: any; scaleRange: unknown[]} {
+): {axisBounds: Record<string, number>; axisScale: AxisScale; scaleRange: unknown[]} {
   const {horizontal, height, width, x, y} = compute;
 
   cs._axisTest
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .renderMode("compute" as any)
+    .renderMode("compute")
     .select(
       elem("g.d3plus-ColorScale-axisTest", {
         enter: {opacity: 0},
         parent: cs._group,
       }).node(),
     )
-    .config(axisConfig)
+    .config(axisConfig as D3plusConfig)
     .duration(0)
     .render();
 
@@ -175,8 +171,7 @@ function renderGradientAxes(
     (axisConfig.padding || cs._axisClass.padding());
   const transform = `translate(${offsets.x + (horizontal ? 0 : axisGroupOffset)}, ${offsets.y + (horizontal ? axisGroupOffset : 0)})`;
   cs._axisClass
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .renderMode("compute" as any)
+    .renderMode("compute")
     .select(
       elem(
         "g.d3plus-ColorScale-axis",
@@ -187,7 +182,7 @@ function renderGradientAxes(
         }),
       ).node(),
     )
-    .config(axisConfig)
+    .config(axisConfig as D3plusConfig)
     .align("start")
     .render();
 
@@ -207,8 +202,7 @@ function renderGradientAxes(
 function renderGradientStops(
   cs: ColorScale,
   compute: ColorScaleCompute,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axisScale: any,
+  axisScale: AxisScale,
   scaleRange: unknown[],
 ): void {
   const {horizontal, colors} = compute;
@@ -244,8 +238,7 @@ function renderGradientRect(
   compute: ColorScaleCompute,
   groups: ColorScaleGroups,
   geom: GradientGeometry,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Record<string, any> {
+): Record<string, unknown> {
   const {height, width, x, y, ticks} = compute;
   const {axisScale, scaleRange, axisDomain, axisBounds, offsets} = geom;
 
@@ -255,8 +248,7 @@ function renderGradientRect(
     return Math.abs(axisScale(next) - axisScale(d));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rectConfig: Record<string, any> = assign(
+  const rectConfig: Record<string, unknown> = assign(
     {
       duration: cs.schema.duration,
       fill: ticks
@@ -286,12 +278,10 @@ function renderGradientRect(
   // into the page). Legend/Axis do the same.
   cs._rectClass
     .renderMode("compute")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .data((ticks || [0]) as any)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .id(((_d: unknown, i: number) => i) as any)
+    .data((ticks || [0]) as unknown as DataPoint[])
+    .id(((_d: unknown, i: number) => i) as unknown as AccessorFn)
     .select(groups.rectGroup.node())
-    .config(rectConfig)
+    .config(rectConfig as Partial<RectConfig>)
     .render();
 
   return rectConfig;
@@ -302,30 +292,26 @@ function renderGradientLabels(
   cs: ColorScale,
   compute: ColorScaleCompute,
   groups: ColorScaleGroups,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  labelConfig: Record<string, any>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rectConfig: Record<string, any>,
+  labelConfig: Record<string, unknown>,
+  rectConfig: Record<string, unknown>,
   labelData: string[],
 ): void {
   const {horizontal, height, width} = compute;
 
   labelConfig.height = cs._outerBounds[height];
   labelConfig.width = cs._outerBounds[width];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (cs._labelClass as any).renderMode("compute");
+  cs._labelClass.renderMode("compute");
   cs._labelClass
-    .config(labelConfig)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .data(labelData as any)
+    .config(labelConfig as D3plusConfig)
+    .data(labelData as unknown as DataPoint[])
     .select(groups.labelGroup.node())
     .x(((d: DataPoint) =>
       (d as unknown as string) === cs._labelMax
-        ? rectConfig.x + rectConfig.width / 2 + cs.schema.padding
+        ? (rectConfig.x as number) + (rectConfig.width as number) / 2 + cs.schema.padding
         : cs._outerBounds.x) as unknown as number)
     .y(
       ((d: DataPoint) =>
-        rectConfig.y -
+        (rectConfig.y as number) -
         (cs._labelClass.fontSize() as (d: DataPoint) => number)(d) /
           2) as unknown as number,
     )
