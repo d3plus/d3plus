@@ -2,7 +2,6 @@
     BoxWhisker — Plot with `discrete: "x"`, `shape: "Box"`, plus a
     tooltip-title accessor that walks through `__d3plus__` wrappers.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type {DataPoint} from "@d3plus/data";
 
@@ -27,11 +26,11 @@ export const boxWhiskerDef: ChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        title: (d: any, i: number) => {
+        title: (d: DataPoint, i: number) => {
           if (!d) return "";
           while (d.__d3plus__ && d.data) {
-            d = d.data;
-            i = d.i;
+            d = d.data as DataPoint;
+            i = d.i as number;
           }
           const labelFn = viz.schema.label as ((d: DataPoint, i: number) => string) | undefined;
           if (labelFn) return labelFn(d, i);

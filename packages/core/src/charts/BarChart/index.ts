@@ -1,7 +1,6 @@
 /**
     BarChart — Plot with `baseline: 0`, `discrete: "x"`, `shape: "Bar"`.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type {DataPoint} from "@d3plus/data";
 
@@ -26,8 +25,11 @@ export const barChartDef: ChartDefinition = {
     {
       key: "legend",
       factory: (viz: VizInstance) => {
-        const base = viz.schema.legend as (config: any, arr: DataPoint[]) => unknown;
-        return (config: any, arr: DataPoint[]) => {
+        const base = viz.schema.legend as (
+          config: VizInstance,
+          arr: DataPoint[],
+        ) => unknown;
+        return (config: VizInstance, arr: DataPoint[]) => {
           const legendIds = arr
             .map(viz.schema.groupBy[viz._legendDepth!].bind(viz))
             .sort()
