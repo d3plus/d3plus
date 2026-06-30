@@ -15,14 +15,14 @@ import type {VizContext} from "../../utils/configPrep.js";
 import type Timeline from "./Timeline.js";
 
 /**
-    Standalone paint for the Timeline's axis scene (ticks, domain line, labels).
-    Inside a Viz the parent composes this via `toScene()`; on its own the
-    Timeline `_managesOwnScenePaint`, so `Axis.render()` skips the scene and only
-    the brush + play-button DOM would show. This mounts (or reuses) an
-    SvgRenderer on the Timeline's container and draws the passed axis scene
-    beneath that interactive DOM.
+    Standalone paint for the Timeline's scene (axis ticks/domain line/labels
+    plus the play button's pixels). Inside a Viz the parent composes this via
+    `toScene()`; on its own the Timeline `_managesOwnScenePaint`, so
+    `Axis.render()` skips the scene and only the brush + play-button hit DOM
+    would show. This mounts (or reuses) an SvgRenderer on the Timeline's
+    container and draws the passed scene beneath that interactive DOM.
 */
-export function paintAxisScene(tl: Timeline, root: GroupNode): void {
+export function paintTimelineScene(tl: Timeline, root: GroupNode): void {
   const sel = tl._select;
   const container = sel && typeof sel.node === "function" ? sel.node() : null;
   if (!container) return;
