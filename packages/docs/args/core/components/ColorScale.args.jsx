@@ -69,7 +69,7 @@ export const argTypes = assign(
     },
     bucketFormat: {
       control: {},
-      description: "",
+      description: "Formats the label for each bucket in a bucket-type scale (\"jenks\",\n\"quantile\", …). Passed the bucket's start value, its index, the full\nbucket array, and every data value used to build the buckets.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -82,7 +82,7 @@ export const argTypes = assign(
     },
     bucketJoiner: {
       control: {},
-      description: "",
+      description: "Given a bucket's minimum and maximum values, returns the full label.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -223,8 +223,10 @@ export const argTypes = assign(
       }
     },
     domain: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -232,7 +234,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number&gt;"
       }
     },
     duration: {
@@ -390,7 +392,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
-      description: "",
+      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
           summary: "5"
@@ -398,7 +400,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "number"
+        summary: "string | number | function"
       }
     },
     parent: {

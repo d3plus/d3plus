@@ -200,7 +200,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
-      description: "",
+      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
           summary: "5"
@@ -208,7 +208,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "number"
+        summary: "string | number | function"
       }
     },
     parent: {
@@ -253,8 +253,10 @@ export const argTypes = assign(
       }
     },
     shape: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The shape type used for each legend entry.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -262,7 +264,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -282,7 +284,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Chart title or title accessor function.",
+      description: "Title of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -290,7 +292,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "string"
       }
     },
     titleConfig: {

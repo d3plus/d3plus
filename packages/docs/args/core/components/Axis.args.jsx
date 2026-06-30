@@ -86,7 +86,7 @@ export const argTypes = assign(
         0,
         10
       ],
-      description: "",
+      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
       table: {
         defaultValue: {
           summary: "[0,10]"
@@ -94,7 +94,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array"
+        summary: "array.&lt;number&gt;"
       }
     },
     duration: {
@@ -114,8 +114,10 @@ export const argTypes = assign(
       }
     },
     grid: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "Grid values of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -123,7 +125,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;unknown&gt;"
       }
     },
     gridConfig: {
@@ -156,8 +158,10 @@ export const argTypes = assign(
       }
     },
     gridSize: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Grid size of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -165,7 +169,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "number"
       }
     },
     height: {
@@ -220,7 +224,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "",
+      description: "Visible tick labels of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -250,7 +254,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "",
+      description: "Maximum size allowed for the space that contains the axis tick labels and title.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -262,8 +266,10 @@ export const argTypes = assign(
       }
     },
     minSize: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Minimum size alloted for the space that contains the axis tick labels and title.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -271,7 +277,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "number"
       }
     },
     on: {
@@ -310,7 +316,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 5,
-      description: "",
+      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
           summary: "5"
@@ -318,7 +324,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "number"
+        summary: "string | number | function"
       }
     },
     paddingInner: {
@@ -367,8 +373,10 @@ export const argTypes = assign(
       }
     },
     range: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "Scale range (in pixels) of the axis. The given array must have 2 values,\nbut one may be `undefined` to allow the default behavior for that value.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -376,7 +384,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number | undefined&gt;"
       }
     },
     render: {
@@ -477,7 +485,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "linear",
-      description: "",
+      description: "Scale of the axis.",
       table: {
         defaultValue: {
           summary: "linear"
@@ -524,7 +532,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "Line",
-      description: "",
+      description: "The shape type used for each legend entry.",
       table: {
         defaultValue: {
           summary: "Line"
@@ -532,7 +540,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "string | function"
       }
     },
     shapeConfig: {
@@ -550,7 +558,7 @@ export const argTypes = assign(
     },
     tickFormat: {
       control: {},
-      description: "",
+      description: "Tick formatter.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -597,7 +605,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "",
+      description: "Tick values of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -609,8 +617,10 @@ export const argTypes = assign(
       }
     },
     timeLocale: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "Defines a custom locale object to be used in time scales. Must include\n`dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and\n`shortMonths` (see\n[d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -618,14 +628,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "record"
       }
     },
     title: {
       control: {
         type: "text"
       },
-      description: "",
+      description: "Title of the axis.",
       table: {
         defaultValue: {
           summary: "undefined"

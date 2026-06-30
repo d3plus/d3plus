@@ -50,8 +50,6 @@ export default class VizBaseConfig extends BaseClass {
       : this.schema.aggs;
   }
 
-  // ariaHidden(_?: boolean): installed by installFluent(this, vizSchema).
-
   /**
       Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
 */
@@ -80,8 +78,6 @@ export default class VizBaseConfig extends BaseClass {
       ? ((this.schema.backConfig = assign(this.schema.backConfig, _!)), this)
       : this.schema.backConfig;
   }
-
-  // cache(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
@@ -201,9 +197,6 @@ Defaults to an empty array (`[]`).
     return this._data;
   }
 
-  // dataCutoff(_?: number): installed by installFluent(this, vizSchema).
-  // depth(_?: number): installed by installFluent(this, vizSchema).
-
   /**
       If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 */
@@ -240,8 +233,6 @@ Defaults to an empty array (`[]`).
       : this.schema.detectVisibleInterval;
   }
 
-  // discrete(_?: string): installed by installFluent(this, vizSchema).
-
   /**
       Shows a button that allows for downloading the current visualization.
 */
@@ -268,9 +259,6 @@ Defaults to an empty array (`[]`).
       ? ((this.schema.downloadPosition = _), this)
       : this.schema.downloadPosition;
   }
-
-  // duration(_?: number): installed by installFluent(this, vizSchema).
-  // filter(_?: ((d, i) => boolean) | false): installed by installFluent(this, vizSchema).
 
   /**
       The font family used throughout the visualization.
@@ -341,8 +329,6 @@ Defaults to an empty array (`[]`).
       this
     );
   }
-
-  // height(_?: number): installed by installFluent(this, vizSchema).
 
   /**
       Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
@@ -480,8 +466,6 @@ Defaults to an empty array (`[]`).
         this)
       : this.schema.legendPosition;
   }
-
-  // legendSort(_?: (a, b) => number): installed by installFluent(this, vizSchema).
 
   /**
       Configuration object for the legend tooltip.

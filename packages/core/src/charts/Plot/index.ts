@@ -354,9 +354,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._backgroundConfig;
   }
 
-  // barPadding(_: any): installed by installFluent(this, plotSchema).
-  // baseline(_: any): installed by installFluent(this, plotSchema).
-
   /**
       Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 */
@@ -451,8 +448,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._labelPosition;
   }
 
-  // lineLabels(_: any): installed by installFluent(this, plotSchema).
-
   /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
 */
@@ -471,8 +466,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._lineMarkers;
   }
 
-  // shapeSort(_: any): installed by installFluent(this, plotSchema).
-
   /**
       Sets the size of bubbles to the given Number, data key, or function.
 */
@@ -481,11 +474,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string)), this)
       : this._size;
   }
-
-  // sizeMax(_: any): installed by installFluent(this, plotSchema).
-  // sizeMin(_: any): installed by installFluent(this, plotSchema).
-  // sizeScale(_: any): installed by installFluent(this, plotSchema).
-  // stacked(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Sets the stack offset. If *value* is not specified, returns the current stack offset function.
@@ -562,8 +550,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       : this._xConfig;
   }
 
-  // xCutoff(_: any): installed by installFluent(this, plotSchema).
-
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
@@ -572,11 +558,6 @@ Additionally, each config object can also contain an optional "layer" key, which
       ? ((this._x2Config = assign(this._x2Config, _!)), this)
       : this._x2Config;
   }
-
-  // xDomain(_: any): installed by installFluent(this, plotSchema).
-  // x2Domain(_: any): installed by installFluent(this, plotSchema).
-  // xSort(_: any): installed by installFluent(this, plotSchema).
-  // x2Sort(_: any): installed by installFluent(this, plotSchema).
 
   /**
       Accessor function or string key for the y-axis value of each data point.
@@ -621,8 +602,6 @@ Additionally, each config object can also contain an optional "layer" key, which
     return this._yConfig;
   }
 
-  // yCutoff(_: any): installed by installFluent(this, plotSchema).
-
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
@@ -636,8 +615,4 @@ Additionally, each config object can also contain an optional "layer" key, which
     return this._y2Config;
   }
 
-  // yDomain(_: any): installed by installFluent(this, plotSchema).
-  // y2Domain(_: any): installed by installFluent(this, plotSchema).
-  // ySort(_: any): installed by installFluent(this, plotSchema).
-  // y2Sort(_: any): installed by installFluent(this, plotSchema).
 }

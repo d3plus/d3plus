@@ -97,7 +97,7 @@ export const argTypes = assign(
     },
     ellipsis: {
       control: {},
-      description: "",
+      description: "Handles truncated lines, returning the new line value. Passed the line's\ntext and number; by default appends an ellipsis to every line except a\nfirst word that cannot fit (which returns \"\").",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -109,8 +109,10 @@ export const argTypes = assign(
       }
     },
     fontColor: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The font color as an accessor function or static string. Inferred from the DOM selection by default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -118,12 +120,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     fontFamily: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The font-family to use: a font name, a comma-separated list of fallbacks,\nan array of fallbacks, or an accessor returning a string or array. The\nfirst available font on the client is used.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -131,118 +135,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | array.&lt;string&gt; | function"
       }
     },
     fontMax: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontMin: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontOpacity: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontResize: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontSize: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontStroke: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontStrokeWidth: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    fontWeight: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    height: {
       control: {
         type: "number"
       },
-      description: "Overall height of the visualization in pixels.",
+      description: "The maximum font size in pixels, used when dynamically resizing fonts.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -251,6 +151,126 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    fontMin: {
+      control: {
+        type: "number"
+      },
+      description: "The minimum font size in pixels, used when dynamically resizing fonts.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    fontOpacity: {
+      control: {
+        type: "number"
+      },
+      description: "The font opacity as an accessor function or static number between 0 and 1.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | function"
+      }
+    },
+    fontResize: {
+      control: {
+        type: "boolean"
+      },
+      description: "Toggles font resizing — a static boolean, or an accessor returning a boolean.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | function"
+      }
+    },
+    fontSize: {
+      control: {
+        type: "number"
+      },
+      description: "The font size in pixels. Inferred from the DOM selection by default.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | function"
+      }
+    },
+    fontStroke: {
+      control: {
+        type: "text"
+      },
+      description: "The font stroke color for the rendered text.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
+    },
+    fontStrokeWidth: {
+      control: {
+        type: "number"
+      },
+      description: "The font stroke width for the rendered text.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | function"
+      }
+    },
+    fontWeight: {
+      control: {
+        type: "number"
+      },
+      description: "The font weight. Inferred from the DOM selection by default.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | number | function"
+      }
+    },
+    height: {
+      control: {
+        type: "number"
+      },
+      description: "The height for each text box.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | function"
       }
     },
     html: {
@@ -282,8 +302,10 @@ export const argTypes = assign(
       }
     },
     lineHeight: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The line height, which is 1.2 times the font size by default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -291,7 +313,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number | function"
       }
     },
     locale: {
@@ -310,8 +332,10 @@ export const argTypes = assign(
       }
     },
     maxLines: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Restricts the maximum number of lines to wrap onto; null (unlimited) by default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -319,7 +343,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number | null | function"
       }
     },
     on: {
@@ -338,8 +362,10 @@ export const argTypes = assign(
       }
     },
     overflow: {
-      control: {},
-      description: "",
+      control: {
+        type: "boolean"
+      },
+      description: "Whether text is allowed to overflow its bounding box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -347,12 +373,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "boolean | function"
       }
     },
     padding: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -360,7 +388,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | number | function"
       }
     },
     parent: {
@@ -417,7 +445,7 @@ export const argTypes = assign(
     },
     rotateAnchor: {
       control: {},
-      description: "",
+      description: "The anchor point around which to rotate the text box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -425,7 +453,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "* | function"
       }
     },
     select: {
@@ -458,7 +486,7 @@ export const argTypes = assign(
     },
     split: {
       control: {},
-      description: "",
+      description: "The word split function: given a string, returns it split into an array of words.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -470,8 +498,10 @@ export const argTypes = assign(
       }
     },
     text: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The text content for each box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -479,7 +509,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     textAnchor: {
@@ -525,7 +555,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Overall width of the visualization in pixels.",
+      description: "The width for each text box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -533,12 +563,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "number"
+        summary: "number | function"
       }
     },
     x: {
-      control: {},
-      description: "X position.",
+      control: {
+        type: "number"
+      },
+      description: "The x position (left edge) for each text box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -546,12 +578,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "constoraccessor"
+        summary: "number | function"
       }
     },
     y: {
-      control: {},
-      description: "Y position.",
+      control: {
+        type: "number"
+      },
+      description: "The y position (top edge) for each text box.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -559,7 +593,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "constoraccessor"
+        summary: "number | function"
       }
     }
   }

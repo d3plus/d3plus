@@ -174,6 +174,7 @@ export interface LineConfig extends BaseShapeConfig {
 /** Area-specific config (curve, defined, dual-edge x/y). */
 export interface AreaConfig extends BaseShapeConfig {
   curve?: ConstOrAccessor<string>;
+  /** Determines whether a data point is defined (a gap in the area when false). */
   defined?: (d: DataPoint) => boolean;
   x0?: ConstOrAccessor<number>;
   x1?: ConstOrAccessor<number> | null;

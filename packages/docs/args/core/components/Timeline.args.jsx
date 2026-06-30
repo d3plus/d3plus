@@ -37,7 +37,7 @@ export const argTypes = assign(
     },
     brushFilter: {
       control: {},
-      description: "",
+      description: "Brush event filter.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -49,8 +49,10 @@ export const argTypes = assign(
       }
     },
     brushMin: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The minimum number of ticks that can be highlighted when using \"ticks\"\n`buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time\nperiods is undesirable.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -58,7 +60,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number"
       }
     },
     brushing: {
@@ -79,10 +81,15 @@ export const argTypes = assign(
     },
     buttonAlign: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "middle",
-      description: "",
+      description: "Toggles the horizontal alignment of the button timeline.",
+      options: [
+        "middle",
+        "end",
+        "start"
+      ],
       table: {
         defaultValue: {
           summary: "middle"
@@ -90,15 +97,20 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "\"middle\" | \"end\" | \"start\""
       }
     },
     buttonBehavior: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "auto",
-      description: "",
+      description: "Toggles the style of the timeline.",
+      options: [
+        "auto",
+        "buttons",
+        "ticks"
+      ],
       table: {
         defaultValue: {
           summary: "auto"
@@ -106,7 +118,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "\"auto\" | \"buttons\" | \"ticks\""
       }
     },
     buttonHeight: {
@@ -114,7 +126,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 24,
-      description: "",
+      description: "Button height.",
       table: {
         defaultValue: {
           summary: "24"
@@ -130,7 +142,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 10,
-      description: "",
+      description: "Button padding.",
       table: {
         defaultValue: {
           summary: "10"
@@ -198,7 +210,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 6,
-      description: "",
+      description: "Handle size.",
       table: {
         defaultValue: {
           summary: "6"
@@ -287,7 +299,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "",
+      description: "Determines the visibility of the play button to the left of the timeline,\nwhich cycles through the available periods at a rate set by `playButtonInterval`.",
       table: {
         defaultValue: {
           summary: "true"
@@ -316,7 +328,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1000,
-      description: "",
+      description: "The interval, in milliseconds, used when cycling through periods via the play button.",
       table: {
         defaultValue: {
           summary: "1000"
@@ -356,8 +368,10 @@ export const argTypes = assign(
       }
     },
     selection: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The current selection. Defaults to the most recent period in the timeline.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -365,7 +379,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "number | false | date | array.&lt;number | date&gt;"
       }
     },
     selectionConfig: {
@@ -399,7 +413,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "",
+      description: "Toggles the snapping value.",
       table: {
         defaultValue: {
           summary: "true"

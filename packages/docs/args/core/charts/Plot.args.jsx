@@ -194,8 +194,10 @@ export const argTypes = assign(
       }
     },
     baseline: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The baseline for the x/y plot.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -203,7 +205,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "number"
       }
     },
     buffer: {
@@ -1006,7 +1008,7 @@ export const argTypes = assign(
     },
     shapeSort: {
       control: {},
-      description: "",
+      description: "A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)\nthat receives each shape class (e.g. \"Circle\", \"Line\") as its arguments.\nShapes are drawn in groups by type, so this defines the layering order for\nall shapes of a given type.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1456,8 +1458,10 @@ export const argTypes = assign(
       }
     },
     x2Domain: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The x2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1465,12 +1469,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number | date&gt;"
       }
     },
     x2Sort: {
       control: {},
-      description: "",
+      description: "Defines a custom sorting comparator function for discrete x2 axes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1478,7 +1482,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "function"
       }
     },
     xConfig: {
@@ -1513,8 +1517,10 @@ export const argTypes = assign(
       }
     },
     xDomain: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The x domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1522,7 +1528,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number | date&gt;"
       }
     },
     xSort: {
@@ -1583,8 +1589,10 @@ export const argTypes = assign(
       }
     },
     y2Domain: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The y2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1592,12 +1600,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number | date&gt;"
       }
     },
     y2Sort: {
       control: {},
-      description: "",
+      description: "Defines a custom sorting comparator function for discrete y2 axes.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1605,7 +1613,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "function"
       }
     },
     yConfig: {
@@ -1640,8 +1648,10 @@ export const argTypes = assign(
       }
     },
     yDomain: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The y domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1649,7 +1659,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;number | date&gt;"
       }
     },
     ySort: {

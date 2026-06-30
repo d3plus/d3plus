@@ -60,6 +60,10 @@ export {
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorScaleConfig,
+  LegendConfig,
+  TextBoxConfig,
+  TimelineConfig,
   TooltipConfig,
 } from "./src/utils/index.js";
 

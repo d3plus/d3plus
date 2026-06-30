@@ -89,7 +89,7 @@ export const argTypes = assign(
     },
     defined: {
       control: {},
-      description: "",
+      description: "Determines whether a data point is defined (a gap in the area when false).",
       table: {
         defaultValue: {
           summary: "undefined"

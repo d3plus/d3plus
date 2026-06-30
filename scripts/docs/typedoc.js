@@ -68,6 +68,16 @@ export function typeToString(type) {
  */
 export function typeToNames(type) {
   if (!type) return ["*"];
+  // `Accessor<T>` — d3plus's "constant value or `(datum, index)` accessor"
+  // config alias (utils/D3plusConfig.ts). TypeDoc leaves the alias unexpanded,
+  // so expand it here to the value type + Function; that lets the value type
+  // (number/string/boolean/…) drive the Storybook control.
+  if (
+    type.type === "reference" &&
+    type.name === "Accessor" &&
+    type.typeArguments?.length
+  )
+    return [...typeToNames(type.typeArguments[0]), "Function"];
   if (type.type === "union") {
     return type.types.map(t => typeToString(t));
   }

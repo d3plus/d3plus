@@ -23,8 +23,10 @@ export const argTypes = assign(
   
   {
     arrow: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The inner HTML content of the arrow element, empty by default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -32,7 +34,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     arrowStyle: {
@@ -49,8 +51,10 @@ export const argTypes = assign(
       }
     },
     background: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The background color accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -58,7 +62,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     body: {
@@ -90,8 +94,10 @@ export const argTypes = assign(
       }
     },
     border: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The border accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -99,12 +105,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     borderRadius: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The border-radius accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -112,7 +120,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     className: {
@@ -159,8 +167,10 @@ export const argTypes = assign(
       }
     },
     footer: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "The footer content accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -168,7 +178,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     footerStyle: {
@@ -228,8 +238,10 @@ export const argTypes = assign(
       }
     },
     maxWidth: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The max-width accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -237,12 +249,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | number | function"
       }
     },
     minWidth: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The min-width accessor for each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -250,12 +264,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | number | function"
       }
     },
     offset: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The pixel offset between the tooltip and its anchor point.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -263,7 +279,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number | function"
       }
     },
     on: {
@@ -282,8 +298,10 @@ export const argTypes = assign(
       }
     },
     padding: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "The inner padding of each tooltip.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -291,7 +309,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | number | function"
       }
     },
     parent: {

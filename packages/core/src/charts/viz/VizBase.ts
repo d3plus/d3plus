@@ -150,9 +150,6 @@ export default class VizBase extends VizBaseConfig {
       : this.schema.subtitlePadding;
   }
 
-  // svgDesc(_?: string): installed by installFluent(this, vizSchema).
-  // svgTitle(_?: string): installed by installFluent(this, vizSchema).
-
   /**
       The threshold value for bucketing small data points together.
 */
@@ -242,9 +239,6 @@ export default class VizBase extends VizBaseConfig {
       return this;
     } else return this.schema.time;
   }
-
-  // timeFilter(_?: ((d, i) => boolean) | false): installed by installFluent(this, vizSchema).
-  // timeline(_?: boolean): installed by installFluent(this, vizSchema).
 
   /**
       Configuration object for the timeline.
@@ -374,9 +368,6 @@ export default class VizBase extends VizBaseConfig {
       : this.schema.totalPadding;
   }
 
-  // width(_?: number): installed by installFluent(this, vizSchema).
-  // zoom(_?: boolean): installed by installFluent(this, vizSchema).
-
   /**
       The pixel stroke-width of the zoom brush area.
 */
@@ -441,10 +432,6 @@ export default class VizBase extends VizBaseConfig {
       : this.schema.zoomControlStyleHover;
   }
 
-  // zoomFactor(_?: number): installed by installFluent(this, vizSchema).
-  // zoomMax(_?: number): installed by installFluent(this, vizSchema).
-  // zoomPan(_?: boolean): installed by installFluent(this, vizSchema).
-
   /**
       A pixel value to be used to pad all sides of a zoomed area.
 */
@@ -454,5 +441,4 @@ export default class VizBase extends VizBaseConfig {
       : this.schema.zoomPadding;
   }
 
-  // zoomScroll(_?: boolean): installed by installFluent(this, vizSchema).
 }
