@@ -5,12 +5,41 @@ import {scaleTime} from "d3-scale";
 import {date, elem, textWidth} from "@d3plus/dom";
 import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
+import {SvgRenderer} from "@d3plus/render";
+import type {GroupNode} from "@d3plus/render";
 import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
+
+/**
+    Standalone paint for the Timeline's axis scene (ticks, domain line, labels).
+    Inside a Viz the parent composes this via `toScene()`; on its own the
+    Timeline `_managesOwnScenePaint`, so `Axis.render()` skips the scene and only
+    the brush + play-button DOM would show. This mounts (or reuses) an
+    SvgRenderer on the Timeline's container and draws the passed axis scene
+    beneath that interactive DOM.
+*/
+export function paintAxisScene(tl: Timeline, root: GroupNode): void {
+  const sel = tl._select;
+  const container = sel && typeof sel.node === "function" ? sel.node() : null;
+  if (!container) return;
+  const width = (tl.schema.width as number) ?? 400;
+  const height = (tl.schema.height as number) ?? 100;
+  const ref = tl as unknown as {_sceneRenderer?: SvgRenderer};
+  if (!ref._sceneRenderer) {
+    ref._sceneRenderer = new SvgRenderer();
+    ref._sceneRenderer.mount({container, width, height});
+  } else {
+    ref._sceneRenderer.resize(width, height);
+  }
+  ref._sceneRenderer.drawScene(
+    {root: {type: "group", key: "root", children: [root]}, width, height},
+    {duration: 0},
+  );
+}
 
 /** Coerces ticks/data to dates and resolves the tick format. */
 export function prepareTicks(tl: Timeline): {

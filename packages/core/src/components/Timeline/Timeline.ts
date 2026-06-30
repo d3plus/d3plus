@@ -16,6 +16,7 @@ import {initTimelineDefaults} from "./timelineConfig.js";
 import {
   configureScale,
   measureTicksWidth,
+  paintAxisScene,
   prepareTicks,
   renderPlayButton,
   setupBrush,
@@ -462,8 +463,25 @@ export default class Timeline extends Axis {
 
     super.render(callback);
 
+    // Standalone (non-Viz) use: a parent Viz normally composes the timeline's
+    // axis scene via toScene(), but on its own `_managesOwnScenePaint` made
+    // Axis.render() skip the paint, leaving only the brush/play DOM. Paint the
+    // axis scene (super.toScene() = the Axis scene, without the play button,
+    // which renderPlayButton draws as interactive DOM) beneath that DOM.
+    const standalone = this.schema.renderMode !== "compute" && !!this._select;
+    if (standalone) paintAxisScene(this, super.toScene());
+
     setupBrush(this, hiddenHandles, height, y);
     renderPlayButton(this, playButtonWidth);
+
+    // Lift the interactive brush + play-button group above the painted scene
+    // so the brush overlay receives pointer events and the selection/handles
+    // sit on top of the ticks.
+    if (standalone && this._group) {
+      const parent = this._select.node();
+      const group = this._group.node();
+      if (parent && group && group.parentNode === parent) parent.appendChild(group);
+    }
 
     return this;
   }
