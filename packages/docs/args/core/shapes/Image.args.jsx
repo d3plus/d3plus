@@ -9,7 +9,7 @@ export const Image = ({ config }) => <D3plusImage config={config} />;
 export const argTypes = {
   config: {
     control: {},
-    description: "Methods that correspond to the key/value pairs and returns this class.",
+    description: "Get/set multiple config values at once. Mirrors the `BaseClass.config()`\ncontract used by the other shapes (and relied on by the React wrapper):\neach patch key is routed through its matching fluent accessor (or\n`data`/`select`), with unknown keys stored on `schema` verbatim.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -17,7 +17,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "d3plusconfig"
+      summary: "record"
     }
   },
   data: {

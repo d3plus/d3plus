@@ -956,8 +956,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: false,
-        summary: "record"
+        required: true,
+        summary: "d3plusconfig"
       }
     },
     size: {

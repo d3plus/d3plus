@@ -731,8 +731,8 @@ export const argTypes = {
       }
     },
     type: {
-      required: false,
-      summary: "record"
+      required: true,
+      summary: "d3plusconfig"
     }
   },
   subtitle: {

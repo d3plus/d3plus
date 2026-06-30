@@ -59,7 +59,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "array.&lt;any&gt;"
+        summary: "array.&lt;unknown&gt;"
       }
     },
     gridConfig: {

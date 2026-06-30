@@ -132,7 +132,9 @@ export const argTypes = assign(
       }
     },
     select: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "The SVG container element as a d3 selector or DOM element.",
       table: {
         defaultValue: {
@@ -141,7 +143,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "any"
+        summary: "string | htmlelement | svgelement | null"
       }
     },
     shapeConfig: {
