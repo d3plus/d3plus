@@ -61,6 +61,35 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    endpoint: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     endpointConfig: {
       control: {},
       description: "Configuration object for each endpoint.",
@@ -85,6 +114,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function | null"
+      }
+    },
+    length: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     lineConfig: {
@@ -128,6 +170,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "string"
+      }
+    },
+    orient: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     parent: {
@@ -194,6 +249,32 @@ export const argTypes = assign(
       },
       type: {
         required: true,
+        summary: "function"
+      }
+    },
+    x: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    y: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
         summary: "function"
       }
     }

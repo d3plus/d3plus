@@ -33,6 +33,48 @@ export const argTypes = {
       summary: "array.&lt;datapoint&gt;"
     }
   },
+  duration: {
+    control: {
+      type: "number"
+    },
+    defaultValue: 600,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "600"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  height: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  id: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
   locale: {
     control: {
       type: "object"
@@ -63,6 +105,19 @@ export const argTypes = {
       summary: "string"
     }
   },
+  opacity: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
   parent: {
     control: {},
     description: "Parent config used by the wrapper.",
@@ -76,6 +131,19 @@ export const argTypes = {
       summary: "unknown"
     }
   },
+  pointerEvents: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
   render: {
     control: {},
     description: "Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.",
@@ -87,6 +155,22 @@ export const argTypes = {
     type: {
       required: false,
       summary: "function"
+    }
+  },
+  renderMode: {
+    control: {
+      type: "text"
+    },
+    defaultValue: "full",
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "full"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
     }
   },
   select: {
@@ -127,6 +211,58 @@ export const argTypes = {
     },
     type: {
       required: true,
+      summary: "function"
+    }
+  },
+  url: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  width: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  x: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  y: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
       summary: "function"
     }
   }

@@ -22,6 +22,22 @@ export const argTypes = assign(
    */
   
   {
+    align: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "middle",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     axisConfig: {
       control: {},
       description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
@@ -33,6 +49,150 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    bucketAxis: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    bucketFormat: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    bucketJoiner: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    buckets: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    centered: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    color: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [
+        "#54478C",
+        "#2C699A",
+        "#0DB39E",
+        "#83E377",
+        "#EFEA5A"
+      ],
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "[\"#54478C\",\"#2C699A\",\"#0DB39E\",\"#83E377\",\"#EFEA5A\"]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array"
+      }
+    },
+    colorMax: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "#2b8a3e",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "#2b8a3e"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    colorMid: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "#f8f9fa",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "#f8f9fa"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    colorMin: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "#c92a2a",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "#c92a2a"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
       }
     },
     config: {
@@ -60,6 +220,51 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    domain: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    height: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 200,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "200"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     labelConfig: {
@@ -133,6 +338,22 @@ export const argTypes = assign(
         summary: "string | object"
       }
     },
+    midpoint: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     on: {
       control: {
         type: "text"
@@ -146,6 +367,38 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "string"
+      }
+    },
+    orient: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "bottom",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "bottom"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    padding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     parent: {
@@ -187,6 +440,22 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    scale: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "linear",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "linear"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     select: {
       control: {
         type: "text"
@@ -215,6 +484,22 @@ export const argTypes = assign(
         summary: "d3plusconfig"
       }
     },
+    size: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 10,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "10"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     translate: {
       control: {},
       description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
@@ -226,6 +511,35 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function"
+      }
+    },
+    value: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    width: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     }
   }

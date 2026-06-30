@@ -22,6 +22,19 @@ export const argTypes = assign(
    */
   
   {
+    arrow: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     arrowStyle: {
       control: {},
       description: "CSS styles applied to the arrow element.",
@@ -35,6 +48,32 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    background: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    body: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     bodyStyle: {
       control: {},
       description: "CSS styles applied to the body element.",
@@ -46,6 +85,48 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    border: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    borderRadius: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    className: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "d3plus-tooltip",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "d3plus-tooltip"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
       }
     },
     config: {
@@ -75,6 +156,19 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
+    footer: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     footerStyle: {
       control: {},
       description: "CSS styles applied to the footer element.",
@@ -86,6 +180,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    height: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    id: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     locale: {
@@ -103,6 +223,45 @@ export const argTypes = assign(
         summary: "string | object"
       }
     },
+    maxWidth: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    minWidth: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    offset: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     on: {
       control: {
         type: "text"
@@ -118,6 +277,19 @@ export const argTypes = assign(
         summary: "string"
       }
     },
+    padding: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     parent: {
       control: {},
       description: "Parent element that scopes the tooltip's portal. Default (unset) uses\nthe global `<div id=\"d3plus-portal\">` appended to `<body>`. When set,\ntooltips mount inside a `.d3plus-tooltip-portal` child of the given\nelement instead — so multiple charts on a page don't fight over the\nglobal portal, and tooltips destroy cleanly when the chart goes away.\n\nViz auto-sets this when rendering: chart.tooltipClass.parent(chart._select.node().parentNode).",
@@ -129,6 +301,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "htmlelement | null | undefined"
+      }
+    },
+    pointerEvents: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     position: {
@@ -172,6 +357,22 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    tbody: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [],
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "[]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array"
+      }
+    },
     tbodyStyle: {
       control: {},
       description: "CSS styles applied to the table body element.",
@@ -198,6 +399,22 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    thead: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [],
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "[]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array"
+      }
+    },
     theadStyle: {
       control: {},
       description: "CSS styles applied to the table head element.",
@@ -209,6 +426,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    title: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     titleStyle: {
@@ -260,6 +490,19 @@ export const argTypes = assign(
       },
       type: {
         required: true,
+        summary: "function"
+      }
+    },
+    width: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
         summary: "function"
       }
     }

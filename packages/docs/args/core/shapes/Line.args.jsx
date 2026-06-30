@@ -61,6 +61,19 @@ export const argTypes = assign(
         summary: "partial"
       }
     },
+    curve: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     data: {
       control: {},
       description: "The data array used to create shapes. A shape will be drawn for each object in the array.",
@@ -72,6 +85,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    defined: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     hover: {

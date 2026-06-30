@@ -22,6 +22,22 @@ export const argTypes = assign(
    */
   
   {
+    align: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "middle",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     barConfig: {
       control: {},
       description: "Axis line style.",
@@ -62,6 +78,54 @@ export const argTypes = assign(
         summary: "array.&lt;unknown&gt;"
       }
     },
+    domain: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [
+        0,
+        10
+      ],
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "[0,10]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    grid: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     gridConfig: {
       control: {},
       description: "Grid config of the axis.",
@@ -73,6 +137,67 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    gridLog: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    gridSize: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    height: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    labelOffset: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     labelRotation: {
@@ -91,6 +216,19 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
+    labels: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     locale: {
       control: {
         type: "object"
@@ -104,6 +242,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "string | object"
+      }
+    },
+    maxSize: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    minSize: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     on: {
@@ -137,6 +301,54 @@ export const argTypes = assign(
         summary: "string"
       }
     },
+    padding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    paddingInner: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.1,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.1"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    paddingOuter: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.1,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.1"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
@@ -147,6 +359,19 @@ export const argTypes = assign(
       },
       type: {
         required: true,
+        summary: "unknown"
+      }
+    },
+    range: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
         summary: "unknown"
       }
     },
@@ -161,6 +386,118 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    rounding: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "none",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "none"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMaxPrefix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: ""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMaxSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "+",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "+"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMinPrefix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "< ",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "< "
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMinSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: ""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    scale: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "linear",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "linear"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    scalePadding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     select: {
@@ -178,6 +515,22 @@ export const argTypes = assign(
         summary: "string | htmlelement | null | undefined"
       }
     },
+    shape: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "Line",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "Line"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     shapeConfig: {
       control: {},
       description: "Configuration object with key/value pairs applied as method calls on each shape.",
@@ -189,6 +542,90 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "d3plusconfig"
+      }
+    },
+    tickFormat: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    tickSize: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 8,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "8"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    tickSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "normal",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "normal"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    ticks: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    timeLocale: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    title: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     titleConfig: {
@@ -215,6 +652,22 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function"
+      }
+    },
+    width: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     }
   }

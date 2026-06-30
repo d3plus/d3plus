@@ -48,6 +48,22 @@ export const argTypes = {
       summary: "record"
     }
   },
+  ariaHidden: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
   attribution: {
     control: {
       type: "text"
@@ -87,6 +103,22 @@ export const argTypes = {
     type: {
       required: false,
       summary: "record"
+    }
+  },
+  cache: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   },
   color: {
@@ -205,6 +237,35 @@ export const argTypes = {
       summary: "string | array.&lt;datapoint&gt; | object"
     }
   },
+  dataCutoff: {
+    control: {
+      type: "number"
+    },
+    defaultValue: 100,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "100"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  depth: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
   detectResize: {
     control: {
       type: "boolean"
@@ -265,6 +326,19 @@ export const argTypes = {
       summary: "number"
     }
   },
+  discrete: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
   downloadButton: {
     control: {
       type: "boolean"
@@ -308,6 +382,35 @@ export const argTypes = {
       summary: "string"
     }
   },
+  duration: {
+    control: {
+      type: "number"
+    },
+    defaultValue: 600,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "600"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  filter: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
   fontFamily: {
     control: {
       type: "text"
@@ -336,6 +439,19 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | function | array.&lt;string | function&gt;"
+    }
+  },
+  height: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
     }
   },
   hiddenColor: {
@@ -467,6 +583,19 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | function"
+    }
+  },
+  legendSort: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
     }
   },
   legendTooltip: {
@@ -778,6 +907,38 @@ export const argTypes = {
       summary: "boolean | function"
     }
   },
+  svgDesc: {
+    control: {
+      type: "text"
+    },
+    defaultValue: "",
+    description: "",
+    table: {
+      defaultValue: {
+        summary: ""
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  svgTitle: {
+    control: {
+      type: "text"
+    },
+    defaultValue: "",
+    description: "",
+    table: {
+      defaultValue: {
+        summary: ""
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
   threshold: {
     control: {
       type: "number"
@@ -836,6 +997,35 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string | false | function"
+    }
+  },
+  timeFilter: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
+  timeline: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   },
   timelineConfig: {
@@ -1021,6 +1211,35 @@ export const argTypes = {
       summary: "function"
     }
   },
+  width: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
+  zoom: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: false,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "false"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
   zoomBrushHandleSize: {
     control: {
       type: "number"
@@ -1101,6 +1320,38 @@ export const argTypes = {
       summary: "false | record"
     }
   },
+  zoomFactor: {
+    control: {
+      type: "number"
+    },
+    defaultValue: 2,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "2"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
+  zoomMax: {
+    control: {
+      type: "number"
+    },
+    defaultValue: 16,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "16"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number"
+    }
+  },
   zoomPadding: {
     control: {
       type: "number"
@@ -1114,6 +1365,38 @@ export const argTypes = {
     type: {
       required: false,
       summary: "number"
+    }
+  },
+  zoomPan: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  zoomScroll: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   }
 };

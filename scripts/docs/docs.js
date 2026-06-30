@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {pathToFileURL} from "node:url";
 import {Application, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
@@ -36,6 +37,82 @@ function injectChartConfig(readme, defMap) {
     readme = readme.replace(re, block);
   }
   return readme;
+}
+
+/**
+ * Reads the runtime config surface of each class story by instantiating it
+ * from the package's built ESM and calling `instance.config()`.
+ *
+ * Most component/shape/chart config (`width`, `height`, `x`, `domain`, `title`,
+ * `ticks`, …) is installed by `installFluent` at runtime, so TypeDoc can't see
+ * it as a class member and it never reaches the generated argTypes. The
+ * `config()` reflection (BaseClass's `getAllMethods` walk) returns every config
+ * accessor — including keys with no default — so it's the complete, uniform
+ * source. Returns `{ClassName: {key: currentValue}}`; classes that need a real
+ * DOM to construct are skipped (their args fall back to JSDoc-only).
+ */
+async function collectConfigDefaults(folder, stories) {
+  const out = {};
+  const entry = path.resolve(folder, "es/index.js");
+  if (!fs.existsSync(entry)) {
+    log.warn(
+      `${folder}/es/index.js not found — run the build first to include schema-accessor argTypes`,
+    );
+    return out;
+  }
+  // Viz's constructor wires a ResizeObserver; stub it so charts construct in Node.
+  if (typeof globalThis.ResizeObserver === "undefined")
+    globalThis.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  let mod;
+  try {
+    mod = await import(pathToFileURL(entry).href);
+  } catch (e) {
+    log.warn(`could not import ${entry} for schema argTypes: ${e.message}`);
+    return out;
+  }
+  for (const story of stories) {
+    if (story.kind !== "class") continue;
+    const Ctor = mod[story.name];
+    if (typeof Ctor !== "function") continue;
+    try {
+      const inst = new Ctor();
+      // `config()` reflects the whole accessor surface (BaseClass's
+      // getAllMethods walk); a getter may throw if it needs the DOM, so guard.
+      let cfg;
+      try {
+        cfg = inst.config();
+      } catch {
+        cfg = inst.schema;
+      }
+      if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) continue;
+      const schema =
+        inst.schema && typeof inst.schema === "object" && !Array.isArray(inst.schema)
+          ? inst.schema
+          : {};
+      // Keep only genuine installFluent accessors: their getter returns
+      // `this.schema[key]` (same reference). This drops read-only measurement
+      // getters like `outerBounds` and `_`-backed config (already covered by the
+      // JSDoc-method path) that `config()` also surfaces.
+      const surface = {};
+      for (const key of Object.keys(cfg)) {
+        let val;
+        try {
+          val = inst[key]();
+        } catch {
+          continue;
+        }
+        if (val === schema[key]) surface[key] = val;
+      }
+      out[story.name] = surface;
+    } catch {
+      // Class can't be constructed headless — skip; its args stay JSDoc-only.
+    }
+  }
+  return out;
 }
 
 const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -245,6 +322,9 @@ async function generateMarkdown() {
     const publicDocs = buildPublicDocs(reflections, folder);
     const stories = publicDocs.filter(d => !d.memberof);
 
+    // Runtime config surface per class (installFluent accessors TypeDoc misses).
+    const configDefaults = await collectConfigDefaults(folder, stories);
+
     stories.forEach(story => {
       const {meta, name} = story;
       // Storybook stories are for the public chart/component/shape CLASSES and
@@ -273,7 +353,7 @@ async function generateMarkdown() {
         folder,
         `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`,
       );
-      const argsContent = argsStub(story, publicDocs, stories);
+      const argsContent = argsStub(story, publicDocs, stories, configDefaults);
       const argsFolder = path.dirname(argsPath);
       fs.mkdirSync(argsFolder, {recursive: true});
       fs.writeFileSync(argsPath, argsContent);

@@ -177,6 +177,35 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    barPadding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    baseline: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     buffer: {
       control: {
         type: "boolean"
@@ -676,6 +705,19 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    lineLabels: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     lineMarkerConfig: {
       control: {},
       defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
@@ -960,6 +1002,19 @@ export const argTypes = assign(
         summary: "d3plusconfig"
       }
     },
+    shapeSort: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     size: {
       control: {},
       description: "Sets the size of bubbles to the given Number, data key, or function.",
@@ -971,6 +1026,54 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "false | plotaccessorarg"
+      }
+    },
+    sizeMax: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 20,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "20"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    sizeMin: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    sizeScale: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "sqrt",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "sqrt"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
       }
     },
     stackOffset: {
@@ -1003,6 +1106,19 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | function"
+      }
+    },
+    stacked: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     subtitle: {
@@ -1335,6 +1451,32 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    x2Domain: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    x2Sort: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     xConfig: {
       control: {},
       defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
@@ -1348,6 +1490,48 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
+      }
+    },
+    xCutoff: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 150,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "150"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    xDomain: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    xSort: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     y: {
@@ -1394,6 +1578,32 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    y2Domain: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    y2Sort: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     yConfig: {
       control: {},
       defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
@@ -1407,6 +1617,48 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
+      }
+    },
+    yCutoff: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 150,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "150"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    yDomain: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    ySort: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     zoomBrushHandleSize: {

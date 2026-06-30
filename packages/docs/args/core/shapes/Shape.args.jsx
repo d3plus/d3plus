@@ -48,6 +48,22 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    activeOpacity: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.25,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.25"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     activeStyle: {
       control: {},
       description: "The style to apply to active shapes.",
@@ -59,6 +75,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    ariaLabel: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    backgroundImage: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     config: {
@@ -88,6 +130,74 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
+    discrete: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    fill: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    fillOpacity: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    hitArea: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     hover: {
       control: {},
       description: "The hover callback function for highlighting shapes on mouseover.",
@@ -101,6 +211,22 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    hoverOpacity: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     hoverStyle: {
       control: {},
       description: "The style to apply to hovered shapes.",
@@ -112,6 +238,45 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    id: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    label: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    labelBounds: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     labelConfig: {
@@ -157,6 +322,19 @@ export const argTypes = assign(
         summary: "string"
       }
     },
+    opacity: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
@@ -168,6 +346,84 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "unknown"
+      }
+    },
+    pointerEvents: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    role: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    rotate: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    rx: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    ry: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    scale: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     select: {
@@ -198,6 +454,19 @@ export const argTypes = assign(
         summary: "d3plusconfig"
       }
     },
+    shapeRendering: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     sort: {
       control: {},
       description: "A comparator function used to sort shapes for layering order.",
@@ -209,6 +478,97 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function | null"
+      }
+    },
+    stroke: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    strokeDasharray: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    strokeLinecap: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    strokeOpacity: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    strokeWidth: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    textAnchor: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    texture: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     textureDefault: {
@@ -234,6 +594,58 @@ export const argTypes = assign(
       },
       type: {
         required: true,
+        summary: "function"
+      }
+    },
+    vectorEffect: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    verticalAlign: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    x: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    y: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
         summary: "function"
       }
     }

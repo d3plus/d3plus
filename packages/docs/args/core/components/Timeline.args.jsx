@@ -35,6 +35,112 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    brushFilter: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    brushMin: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    brushing: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    buttonAlign: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "middle",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    buttonBehavior: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "auto",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "auto"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    buttonHeight: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 24,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "24"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    buttonPadding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 10,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "10"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     config: {
       control: {},
       description: "Methods that correspond to the key/value pairs and returns this class.",
@@ -85,6 +191,22 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    handleSize: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 6,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "6"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     labelRotation: {
@@ -160,6 +282,22 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
+    playButton: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     playButtonConfig: {
       control: {},
       description: "The config Object for the Rect class used to create the playButton.",
@@ -171,6 +309,22 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    playButtonInterval: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 1000,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "1000"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     render: {
@@ -201,6 +355,19 @@ export const argTypes = assign(
         summary: "string | htmlelement | null | undefined"
       }
     },
+    selection: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
     selectionConfig: {
       control: {},
       description: "Selection style.",
@@ -225,6 +392,22 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    snapping: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     titleConfig: {

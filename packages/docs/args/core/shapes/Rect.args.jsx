@@ -87,6 +87,19 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
+    height: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     hover: {
       control: {},
       description: "The hover callback function for highlighting shapes on mouseover.",
@@ -233,6 +246,19 @@ export const argTypes = assign(
       },
       type: {
         required: true,
+        summary: "function"
+      }
+    },
+    width: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
         summary: "function"
       }
     }

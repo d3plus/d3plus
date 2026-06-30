@@ -35,6 +35,22 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
+    align: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "center",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "center"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     config: {
       control: {},
       description: "Methods that correspond to the key/value pairs and returns this class.",
@@ -62,6 +78,54 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
+    direction: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "row",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "row"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    height: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 200,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "200"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     hover: {
       control: {},
       description: "The hover method for all shapes.",
@@ -73,6 +137,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "unknown"
+      }
+    },
+    id: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    label: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     locale: {
@@ -103,6 +193,22 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "string"
+      }
+    },
+    padding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     },
     parent: {
@@ -146,6 +252,19 @@ export const argTypes = assign(
         summary: "string | htmlelement | svgelement | null"
       }
     },
+    shape: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     shapeConfig: {
       control: {},
       description: "Methods that correspond to the key/value pairs for each shape.",
@@ -157,6 +276,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    title: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
       }
     },
     titleConfig: {
@@ -183,6 +315,38 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function"
+      }
+    },
+    verticalAlign: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "middle",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    width: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     }
   }

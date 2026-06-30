@@ -74,6 +74,19 @@ export const argTypes = assign(
         summary: "partial"
       }
     },
+    d: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     data: {
       control: {},
       description: "The data array used to create shapes. A shape will be drawn for each object in the array.",

@@ -169,6 +169,19 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
+    r: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     select: {
       control: {
         type: "text"

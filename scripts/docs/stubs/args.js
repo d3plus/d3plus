@@ -44,7 +44,7 @@ const hasParent = ({augments}) =>
 const collapseCategory = p =>
   p ? `/${p.split("/").filter(Boolean)[0]}` : "";
 
-export default function (story, allMethods, stories) {
+export default function (story, allMethods, stories, configDefaults = {}) {
   const {kind, name, meta} = story;
   const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
   const [, moduleName, rawFilePath] = regex.exec(meta.path);
@@ -211,6 +211,27 @@ export default function (story, allMethods, stories) {
     return obj;
   }, {});
 
+  // Merge in runtime config-accessor keys. Most component/shape/chart config
+  // (width, height, x, domain, title, ticks, …) is installed by `installFluent`
+  // at runtime, so TypeDoc never sees it as a class member and it's missing
+  // from the JSDoc-derived methods above. `configDefaults` maps each class to
+  // its `config()` surface (BaseClass's getAllMethods reflection). Add only the
+  // keys this class INTRODUCES (absent from its parent's surface) that aren't
+  // already documented JSDoc methods or hidden — parent keys arrive through the
+  // generated `assign(parentArgTypes, …)` import.
+  const ownConfig = configDefaults[name] || {};
+  const parentConfig = (parentClass && configDefaults[parentClass]) || {};
+  const hideRe = disabledMethods.length
+    ? new RegExp(`^(${disabledMethods.join("|")}.*)$`)
+    : null;
+  for (const key of Object.keys(ownConfig)) {
+    const cleanKey = key.replace(/\*/g, "");
+    if (cleanKey in parentConfig) continue;
+    if (formattedMethods[cleanKey]) continue;
+    if (hideRe && hideRe.test(cleanKey)) continue;
+    formattedMethods[cleanKey] = configArgType(ownConfig[key]);
+  }
+
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
     /"([^"^.]+)":/g,
     "$1:",
@@ -259,6 +280,51 @@ ${methodJSON.replace(/^/gm, "  ")}
     : `export const argTypes = ${methodJSON};`
 }
 `;
+}
+
+/**
+ * Builds a Storybook argType from a runtime config value (the current value of
+ * an installFluent accessor). The control + summary are inferred from the
+ * value's type; primitives/arrays carry their default through. Accessors
+ * (functions) and unset values get no editable control but are still listed so
+ * `configify` keeps story-set values and the key shows in the Code view.
+ */
+function configArgType(value) {
+  const t = Array.isArray(value)
+    ? "array"
+    : value === null
+      ? "null"
+      : typeof value;
+  const summary =
+    t === "array"
+      ? "array"
+      : t === "object"
+        ? "record"
+        : t === "undefined" || t === "null"
+          ? "unknown"
+          : t;
+  const arg = {
+    type: {required: false, summary},
+    control: {type: undefined},
+    description: "",
+  };
+  if (t === "number") arg.control.type = "number";
+  else if (t === "string") arg.control.type = "text";
+  else if (t === "boolean") arg.control.type = "boolean";
+  else if (t === "array" || t === "object") arg.control.type = "object";
+
+  if (
+    value !== undefined &&
+    (t === "number" || t === "string" || t === "boolean" || t === "array")
+  ) {
+    arg.defaultValue = value;
+    arg.table = {
+      defaultValue: {summary: t === "array" ? JSON.stringify(value) : String(value)},
+    };
+  } else {
+    arg.table = {defaultValue: {summary: "undefined"}};
+  }
+  return arg;
 }
 
 const JSONstringifyOrder = (obj, space) => {

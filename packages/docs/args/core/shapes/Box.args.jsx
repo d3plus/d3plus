@@ -117,6 +117,32 @@ export const argTypes = assign(
         summary: "string"
       }
     },
+    orient: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    outlier: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     outlierConfig: {
       control: {},
       description: "Configuration object for each outlier point.",
@@ -154,6 +180,19 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    rectWidth: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     select: {
@@ -208,6 +247,51 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "record"
+      }
+    },
+    whiskerMode: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [
+        "tukey",
+        "tukey"
+      ],
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "[\"tukey\",\"tukey\"]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array"
+      }
+    },
+    x: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    y: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     }
   }
