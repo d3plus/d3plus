@@ -376,16 +376,26 @@ export default class Timeline extends Axis {
       return;
     }
 
-    // Stopped → start advancing the selection one tick per interval.
+    // Stopped → start advancing the selection one tick per interval. The
+    // periods to step through are `schema.ticks` in "buttons" mode, but the
+    // resolved `_availableTicks` in "ticks" mode (schema.ticks is unset there) —
+    // mirrors `setupBrush`/`_updateDomain`. Without this the play loop threw on
+    // `schema.ticks.map(...)` for "ticks"-mode timelines (e.g. wide standalone).
     let firstTime = true;
     const nextYear = () => {
+      const periods = (
+        this._buttonBehaviorCurrent === "ticks"
+          ? this._availableTicks
+          : this.schema.ticks
+      ) as (string | number | false | undefined)[];
+      if (!periods || !periods.length) return;
       let selection: unknown[] = (this.schema.selection || [
         this.schema.domain[this.schema.domain.length - 1],
       ]) as unknown[];
       if (!(selection instanceof Array)) selection = [selection];
       selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
       if (selection.length === 1) selection.push(selection[0]);
-      const ticks = this.schema.ticks!.map(Number);
+      const ticks = periods.map(Number);
       const firstIndex = ticks.indexOf(selection[0] as number);
       const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
       if (lastIndex === ticks.length - 1) {
@@ -395,20 +405,14 @@ export default class Timeline extends Axis {
           this._playButtonClass.render();
           this._onPlayToggle?.();
         } else {
-          this.selection([
-            this.schema.ticks![0],
-            this.schema.ticks![lastIndex - firstIndex],
-          ]).render();
+          this.selection([periods[0], periods[lastIndex - firstIndex]]).render();
         }
       } else {
         if (lastIndex + 1 === ticks.length - 1) {
           if (this._playTimer) clearInterval(this._playTimer);
           this._playTimer = false;
         }
-        this.selection([
-          this.schema.ticks![firstIndex + 1],
-          this.schema.ticks![lastIndex + 1],
-        ]).render();
+        this.selection([periods[firstIndex + 1], periods[lastIndex + 1]]).render();
       }
       firstTime = false;
     };
