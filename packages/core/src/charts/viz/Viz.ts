@@ -384,6 +384,25 @@ export default class Viz extends VizBase {
     this._sceneRenderer.drawScene(scene, {duration: drawDuration});
     this._lastSceneRendered = scene;
 
+    // Canvas backend: the compute <svg> (`_select`) is an emptied overlay
+    // sitting on top of the <canvas>. An svg root hit-tests its whole box, so
+    // even empty it swallows the pointer events the canvas needs for
+    // tooltip/hover/legend picking — the symptom being "renders fine, no
+    // tooltips." Make the overlay transparent to pointer events so the canvas
+    // is the sole interaction surface. The only interactive DOM that still
+    // lives in this svg is the timeline's d3-brush (the canvas can't host the
+    // native brush handles), so re-enable events on just that group. On the
+    // SVG backend `_select` IS the scene host, so events must stay enabled.
+    if (this._select) {
+      this._select.style("pointer-events", kind === "canvas" ? "none" : null);
+      if (this._container)
+        this._container.style("pointer-events", kind === "canvas" ? "none" : null);
+      if (kind === "canvas")
+        this._select
+          .select("g.d3plus-viz-timeline")
+          .style("pointer-events", "auto");
+    }
+
     // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
     // the outer svg) must paint above the scene-rendered timeline buttons/ticks
     // so its selection tint + handles sit on top of them (matching v3). The
