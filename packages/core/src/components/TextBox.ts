@@ -524,16 +524,40 @@ export default class TextBox extends BaseClass {
           ? (sel.node() as Element | null)
           : (sel as unknown as Element | null);
       if (node) {
-        const tag = (node.tagName || "").toLowerCase();
-        const isSvg = tag === "svg";
-        const width = isSvg
-          ? Number(node.getAttribute("width")) || 400
-          : (node as HTMLElement).clientWidth || 400;
-        const height = isSvg
-          ? Number(node.getAttribute("height")) || 300
-          : (node as HTMLElement).clientHeight || 300;
+        const root = this.toScene();
+        // `width`/`height`/`x` are per-box accessors, not canvas dimensions, so
+        // size the surface to the laid-out content extent (max box edge) — and
+        // also to the container's rendered box, so it fills a sized container.
+        // `getBoundingClientRect` is used because the React wrapper sets
+        // `width`/`height="100%"`, which `Number("100%")` can't parse (→ NaN,
+        // which previously fell back to a hard-coded 400 and cropped boxes).
+        type Edge = {transform?: {x?: number; y?: number}; width?: number; height?: number};
+        const contentW = root.children.reduce(
+          (m, c) => Math.max(m, ((c as Edge).transform?.x ?? 0) + ((c as Edge).width ?? 0)),
+          0,
+        );
+        const contentH = root.children.reduce(
+          (m, c) => Math.max(m, ((c as Edge).transform?.y ?? 0) + ((c as Edge).height ?? 0)),
+          0,
+        );
+        const rect =
+          typeof node.getBoundingClientRect === "function"
+            ? node.getBoundingClientRect()
+            : null;
+        const boxW =
+          (rect && rect.width) ||
+          Number(node.getAttribute("width")) ||
+          (node as HTMLElement).clientWidth ||
+          0;
+        const boxH =
+          (rect && rect.height) ||
+          Number(node.getAttribute("height")) ||
+          (node as HTMLElement).clientHeight ||
+          0;
+        const width = Math.max(boxW, contentW) || 400;
+        const height = Math.max(boxH, contentH) || 300;
         while (node.firstChild) node.removeChild(node.firstChild);
-        const scene = {root: this.toScene(), width, height};
+        const scene = {root, width, height};
         const renderer = new SvgRenderer();
         renderer.mount({container: node, width, height});
         renderer.drawScene(scene);

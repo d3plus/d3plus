@@ -103,3 +103,43 @@ it("TextBox", async function () {
     "fontResize enlarges the text onto more lines",
   );
 });
+
+it("TextBox sizes its render surface to fit the laid-out content", async function () {
+  this.timeout(60000);
+
+  // Mirrors the @d3plus/react wrapper, whose container svg is sized with
+  // `width`/`height="100%"`. `width`/`x` are per-box accessors (not canvas
+  // dimensions), so the surface must grow to the content extent rather than
+  // fall back to a hard-coded 400 that crops the later boxes.
+  const out = await render(
+    '<svg id="s" width="100%" height="100%"></svg>',
+    () =>
+      new Promise(resolve => {
+        new window.d3plus.TextBox()
+          .select("#s")
+          .data([{text: "One"}, {text: "Two"}, {text: "Three"}])
+          .fontSize(14)
+          .fontResize(false)
+          .height(120)
+          .width(200)
+          .x((d, i) => i * 250)
+          .render(() => {
+            const svg = document.querySelector("#s .d3plus-render-svg");
+            resolve({
+              svgWidth: svg ? Number(svg.getAttribute("width")) : null,
+              boxes: document.querySelectorAll(
+                "#s [id^='d3plus-textBox-']",
+              ).length,
+            });
+          });
+      }),
+  );
+
+  // Boxes sit at x = 0, 250, 500 and are 200 wide, so the content extends to
+  // 700px; the surface must be at least that wide for every box to render.
+  assert.strictEqual(out.boxes, 3, "renders all three boxes");
+  assert.ok(
+    out.svgWidth >= 700,
+    `render surface fits the content extent (got ${out.svgWidth})`,
+  );
+});
