@@ -466,7 +466,13 @@ export const timelineFeature: FeatureModule = {
     timeline
       .config(config)
       .on("brush", (s: Date[]) => {
-        setTimeFilter(viz, s);
+        // Filter on "end", not on every brush move. Re-rendering the whole Viz
+        // mid-drag re-creates the d3-brush (and starts a brush transition),
+        // which fights the active gesture and can make the selection snap back
+        // on release — and it re-lays-out the chart on every pixel of the drag,
+        // which is costly for large data. The brush still tracks the cursor
+        // live; the chart updates when the drag finishes. User `on.brush`
+        // callbacks still fire for custom live behavior.
         if (config.on && config.on.brush) config.on.brush(s);
       })
       .on("end", (s: Date[]) => {
