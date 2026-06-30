@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as \"and\" or \"of\", as well as acronym that should be kept uppercase such as \"CEO\" or \"TVs\".",
+        component: "Capitalizes each significant word of a phrase, normalizing case in both\ndirections: the locale's minor words (articles, short conjunctions/\nprepositions) are forced lowercase in the middle and known acronyms are\nforced uppercase — so \"SOUTH BY SOUTHWEST\" becomes \"South by Southwest\" and\n\"jack smith, ceo\" becomes \"Jack Smith, CEO\". The first and last words are\nalways capitalized. The locale supplies the minor-word and acronym lists\n(e.g. \"le\"/\"de\"/\"par\" for French); pass an explicit rules object for full\ncontrol, including {style: \"sentence\"} to capitalize only the first word.",
       },
     },
   }

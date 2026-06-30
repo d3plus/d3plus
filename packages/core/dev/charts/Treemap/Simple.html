@@ -33,7 +33,7 @@
   <script>
     var tmap = new d3plus.Treemap()
       .data("../../data.json")
-      .depth(0)
+      // .depth(0)
       // .data([
       //   {
       //     group: "Group 3",
@@ -51,6 +51,7 @@
       // .legend(true)
       .sum("value")
       // .select("#viz")
+      .renderer("canvas")
       .render(() => console.log("callback!"));
   </script>
 </html>

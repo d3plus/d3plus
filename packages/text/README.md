@@ -34,7 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`strip`](#strip) | Removes all non ASCII characters from a string. |
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
-| [`titleCase`](#titlecase) | Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowe |
+| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both |
 
 | Variables | Description |
 | --- | --- |
@@ -129,17 +129,25 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 ### titleCase()
 
-> **titleCase**(`str`: `string` \| `undefined`): `string`
+> **titleCase**(`str`: `string` \| `undefined`, `locale?`: `string` \| `TitleCaseRules`): `string`
 
-Defined in: [titleCase.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.ts#L55)
+Defined in: [titleCase.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.ts#L68)
 
-Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
+Capitalizes each significant word of a phrase, normalizing case in both
+directions: the locale's minor words (articles, short conjunctions/
+prepositions) are forced lowercase in the middle and known acronyms are
+forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and
+"jack smith, ceo" becomes "Jack Smith, CEO". The first and last words are
+always capitalized. The locale supplies the minor-word and acronym lists
+(e.g. "le"/"de"/"par" for French); pass an explicit rules object for full
+control, including `{style: "sentence"}` to capitalize only the first word.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` \| *required* | The string to apply the title case logic. |
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `str` | `string` \| *required* | `undefined` | The string to capitalize. |
+| `locale` | `string` \| `TitleCaseRules` | `"en-US"` | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
 
 #### Returns
 

@@ -156,7 +156,7 @@ Parses numbers and strings into valid JavaScript Date objects, supporting years,
 
 > **elem**(`selector`: `string`, `p?`: `ElemParams`): `Selection`
 
-Defined in: [elem.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/elem.ts#L28)
+Defined in: [elem.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/elem.ts#L24)
 
 Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.
 
@@ -349,4 +349,4 @@ Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/main/package
 
 > **D3Selection** = `ReturnType`\<*typeof* `select`\>
 
-Defined in: [D3Selection.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/D3Selection.ts#L12)
+Defined in: [D3Selection.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/D3Selection.ts#L11)

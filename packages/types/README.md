@@ -30,56 +30,25 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Charts | Description |
 | --- | --- |
-| [`applyGeomapLayout`](#applygeomaplayout) |  |
-| [`applyMatrixLayout`](#applymatrixlayout) |  |
-| [`applyNetworkLayout`](#applynetworklayout) |  |
-| [`applyPackLayout`](#applypacklayout) |  |
-| [`applyPieLayout`](#applypielayout) |  |
-| [`applyPriestleyLayout`](#applypriestleylayout) |  |
-| [`applyRadarLayout`](#applyradarlayout) |  |
-| [`applyRadialMatrixLayout`](#applyradialmatrixlayout) |  |
-| [`applyRingsLayout`](#applyringslayout) |  |
-| [`applySankeyLayout`](#applysankeylayout) |  |
-| [`applyTreeLayout`](#applytreelayout) |  |
-| [`applyTreemapLayout`](#applytreemaplayout) |  |
-| [`AreaPlot`](#areaplot) |  |
-| [`backFeature`](#backfeature) | Converts `drawBack.ts` to a FeatureModule. Visible only when there are |
-| [`BarChart`](#barchart) |  |
-| [`BoxWhisker`](#boxwhisker) |  |
-| [`BumpChart`](#bumpchart) |  |
-| [`colorScaleFeature`](#colorscalefeature) | Converts `drawColorScale.ts` to a FeatureModule. |
-| [`Donut`](#donut) |  |
-| [`Geomap`](#geomap) |  |
-| [`geomapDef`](#geomapdef) |  |
-| [`legendFeature`](#legendfeature) | Converts `drawLegend.ts` to a FeatureModule. |
-| [`LinePlot`](#lineplot) |  |
-| [`Matrix`](#matrix) |  |
-| [`matrixDef`](#matrixdef) |  |
-| [`Network`](#network) |  |
-| [`networkDef`](#networkdef) |  |
-| [`Pack`](#pack) |  |
-| [`packDef`](#packdef) |  |
-| [`Pie`](#pie) |  |
-| [`pieDef`](#piedef) |  |
-| [`Priestley`](#priestley) |  |
-| [`priestleyDef`](#priestleydef) |  |
-| [`Radar`](#radar) |  |
-| [`radarDef`](#radardef) |  |
-| [`RadialMatrix`](#radialmatrix) |  |
-| [`radialMatrixDef`](#radialmatrixdef) |  |
-| [`Rings`](#rings) |  |
-| [`ringsDef`](#ringsdef) |  |
-| [`Sankey`](#sankey) |  |
-| [`sankeyDef`](#sankeydef) |  |
-| [`StackedArea`](#stackedarea) |  |
-| [`subtitleFeature`](#subtitlefeature) | Converts `drawSubtitle.ts` to a FeatureModule. Mirrors titleFeature. |
-| [`timelineFeature`](#timelinefeature) | Converts `drawTimeline.ts` to a FeatureModule. |
-| [`titleFeature`](#titlefeature) | Title as a FeatureModule. Uses `_titleClass._textData()` for height |
-| [`totalFeature`](#totalfeature) | Converts `drawTotal.ts` to a FeatureModule. Slightly different from title/ |
-| [`Tree`](#tree) |  |
-| [`treeDef`](#treedef) |  |
-| [`Treemap`](#treemap) |  |
-| [`treemapDef`](#treemapdef) |  |
+| [`AreaPlot`](#areaplot) | Creates an area plot based on an array of data. |
+| [`BarChart`](#barchart) | Creates a bar chart based on an array of data. |
+| [`BoxWhisker`](#boxwhisker) | Creates a simple box and whisker based on an array of data. |
+| [`BumpChart`](#bumpchart) | Creates a bump chart based on an array of data. |
+| [`Donut`](#donut) | Extends the Pie visualization to create a donut chart. |
+| [`Geomap`](#geomap) | Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate  |
+| [`LinePlot`](#lineplot) | Creates a line plot based on an array of data. |
+| [`Matrix`](#matrix) | Creates a simple rows/columns Matrix view of any dataset. |
+| [`Network`](#network) | Creates a network visualization based on a defined set of nodes and edges. |
+| [`Pack`](#pack) | Uses the d3 pack layout to create a Circle Packing chart based on an array of data. |
+| [`Pie`](#pie) | Uses the d3 pie layout to create SVG arcs based on an array of data. |
+| [`Priestley`](#priestley) | Creates a Priestley timeline based on an array of data. |
+| [`Radar`](#radar) | Creates a radar visualization based on an array of data. |
+| [`RadialMatrix`](#radialmatrix) | Creates a radial layout of a rows/columns Matrix of any dataset. |
+| [`Rings`](#rings) | Creates a ring visualization based on a defined set of nodes and edges. |
+| [`Sankey`](#sankey) | Creates a Sankey visualization based on a defined set of nodes and links. |
+| [`StackedArea`](#stackedarea) | Creates a stacked area plot based on an array of data. |
+| [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
+| [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
 
 | Classes | Description |
 | --- | --- |
@@ -121,11 +90,9 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
 | [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
 | [`colorSubtract`](#colorsubtract) | Subtracts one color from another. |
-| [`computeAxisLayout`](#computeaxislayout) |  |
 | [`concat`](#concat) | Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat th |
 | [`configPrep`](#configprep) | Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you m |
 | [`constant`](#constant) | Wraps non-function variables in a simple return function. |
-| [`createFluent`](#createfluent) | Build a fluent instance from a config schema. Every field in the schema |
 | [`date`](#date) | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats. |
 | [`elem`](#elem) | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optiona |
 | [`findLocale`](#findlocale) | Converts a 2-letter language code into a full language-region locale string (e.g., "en" to "en-US"). |
@@ -135,32 +102,23 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
 | [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
 | [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
-| [`installFluent`](#installfluent) | Class-instance variant: mixes generated accessors onto an existing `this`, |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
-| [`measureAxis`](#measureaxis) | The standalone axis layout pass. Accepts any object satisfying the |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points. |
-| [`plotEmit`](#plotemit) | EMIT phase of plotPaint. Takes the `PlotMeasureResult` from |
-| [`plotPaint`](#plotpaint) | Plot paint phase as a free function — orchestrates the axis render + |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
 | [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
 | [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
-| [`renderAxes`](#renderaxes) | Render the production axes and solve the final ranges/offsets. |
-| [`resolveSpec`](#resolvespec) | Snapshot every config key from a viz instance into a frozen spec. |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
-| [`runLayout`](#runlayout) | Runs each feature's `layout` in order, accumulating margin claims so that |
-| [`runStages`](#runstages) | Run a stage pipeline and accumulate the partial outputs into one context. |
-| [`runVizPipeline`](#runvizpipeline) |  |
 | [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
@@ -171,31 +129,24 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWidth`](#textwidth) | Given a text string, returns the predicted pixel width of the string when placed into DOM. |
 | [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
-| [`titleCase`](#titlecase) | Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowe |
+| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both |
 | [`unique`](#unique) | ES5 implementation to reduce an Array of values to unique instances. |
-| [`vizDraw`](#vizdraw) |  |
-| [`vizDrawPure`](#vizdrawpure) |  |
-| [`vizPostThresholdCtx`](#vizpostthresholdctx) |  |
-| [`vizPreDraw`](#vizpredraw) |  |
-| [`vizPreDrawPure`](#vizpredrawpure) |  |
 
 | Variables | Description |
 | --- | --- |
 | [`colorDefaults`](#colordefaults) | A set of default color values used when assigning colors based on data. |
-| [`D3plusContext`](#d3pluscontext) | A React context instance used to provide global config options via a provider (D3plusContext.Provider). |
 | [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false |
 | [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
 | [`formatLocale`](#formatlocale) |  |
 | [`locale`](#locale) |  |
 | [`RESET`](#reset) | String constant used to reset an individual config property. |
+| [`titleCaseLocale`](#titlecaselocale) |  |
 | [`translateLocale`](#translatelocale) |  |
 
 | Interfaces | Description |
 | --- | --- |
 | [`AreaConfig`](#areaconfig) | Area-specific config (curve, defined, dual-edge x/y). |
 | [`AxisConfig`](#axisconfig) |  |
-| [`AxisLayout`](#axislayout) | Pure-function entry point for axis layout. Given a fully configured |
-| [`AxisLayoutResult`](#axislayoutresult) | Result of `measureAxis()`. Holds layout artifacts the paint phase of |
 | [`BarConfig`](#barconfig) | Bar-specific config (Rect + start/end coords). |
 | [`BaseShapeConfig`](#baseshapeconfig) | Common props inherited from `Shape` — every shape subclass accepts |
 | [`BoxConfig`](#boxconfig) | Box-specific config (whisker + median + outliers; subset of Shape). |
@@ -210,29 +161,18 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`MergedDataPoint`](#mergeddatapoint) |  |
 | [`Padding`](#padding) | Padding object with all four sides. |
 | [`PathConfig`](#pathconfig) | Path-specific config (raw SVG path d string or generator). |
-| [`PlotMeasureResult`](#plotmeasureresult) | Result of the MEASURE phase of plotPaint. Captures everything the EMIT |
-| [`PlotPaintContext`](#plotpaintcontext) | Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline |
 | [`RectConfig`](#rectconfig) | Rect-specific config (width + height on top of base). |
-| [`RendererProps`](#rendererprops) | Props accepted by the Renderer component. |
-| [`ShapeLike`](#shapelike) | Structural minimum a Shape (or shape-like component: TextBox, Axis) |
 | [`TimeLocaleDefinition`](#timelocaledefinition) |  |
+| [`TitleCaseRules`](#titlecaserules) |  |
 | [`TooltipConfig`](#tooltipconfig) |  |
 | [`TranslationStrings`](#translationstrings) |  |
-| [`VizContext`](#vizcontext) | The shape of every field vizPreDraw + vizDraw can populate. Currently |
-| [`VizInstance`](#vizinstance) | The structural contract free functions read/write on a chart instance. |
-| [`VizLike`](#vizlike) | Structural minimum a Viz instance must satisfy for these helpers to |
-| [`VizPreDrawResult`](#vizpredrawresult) |  |
-| [`VizRenderer`](#vizrenderer) | A Renderer instance — see @d3plus/render. |
 | [`WhiskerConfig`](#whiskerconfig) | Whisker-specific config. |
 
 | Type Aliases | Description |
 | --- | --- |
 | [`AnyShapeConfig`](#anyshapeconfig) | Union of every shape config — useful for code that composes |
 | [`ConstOrAccessor`](#constoraccessor) | A value that can either be a function (called per-datum) or a literal |
-| [`D3plusComponentProps`](#d3pluscomponentprops) | Props for d3plus React wrapper components (omits the internal constructor prop). |
-| [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization classes. |
 | [`D3Selection`](#d3selection) | D3-style selection (loose — d3-selection's types are too generic to repeat here). |
-| [`ResolvedSpec`](#resolvedspec) | All user-settable configuration keys on a chart, frozen. |
 | [`StringOrAccessor`](#stringoraccessor) | A value that can be a function, a string key (wrapped in `accessor`), |
 
 ## Classes
@@ -359,7 +299,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -383,7 +323,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data"></a>
 
@@ -1334,7 +1274,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -1346,7 +1286,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -1410,7 +1350,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1422,7 +1362,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1444,7 +1384,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -1456,7 +1396,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -1478,7 +1418,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1490,7 +1430,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1582,19 +1522,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -1743,7 +1680,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -1755,7 +1692,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -1775,7 +1712,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -1837,7 +1774,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:81
+Defined in: core/types/src/components/Axis/Axis.d.ts:83
 
 Renders the current Axis to the page.
 
@@ -1859,7 +1796,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1877,7 +1814,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1905,7 +1842,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -1921,7 +1858,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -1947,7 +1884,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -1959,7 +1896,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -1979,7 +1916,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:76
+Defined in: core/types/src/components/Axis/Axis.d.ts:78
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2060,6 +1997,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_group-1"></a> `_group` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:35 |
 | <a id="property-_labelrotation"></a> `_labelRotation` | `boolean` \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint"></a> `_managesOwnScenePaint?` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin"></a> `_margin` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:14 |
 | <a id="property-_outerbounds"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:15 |
 | <a id="property-_position"></a> `_position` | `object` | - | - | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -2069,6 +2007,7 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `any` | - | - | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-1"></a> `_select` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape"></a> `_tickShape?` | `any` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
 | <a id="property-_tickunit"></a> `_tickUnit` | `number` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
@@ -2108,7 +2047,7 @@ Shorthand method for creating an axis where the ticks are drawn below the horizo
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -2124,7 +2063,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -2192,7 +2131,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2208,7 +2147,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2234,7 +2173,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -2250,7 +2189,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -2276,7 +2215,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2292,7 +2231,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2388,19 +2327,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -2553,7 +2489,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -2569,7 +2505,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -2593,7 +2529,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2659,7 +2595,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:81
+Defined in: core/types/src/components/Axis/Axis.d.ts:83
 
 Renders the current Axis to the page.
 
@@ -2685,7 +2621,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2707,7 +2643,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2739,7 +2675,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -2755,7 +2691,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -2781,7 +2717,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -2797,7 +2733,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -2821,7 +2757,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:76
+Defined in: core/types/src/components/Axis/Axis.d.ts:78
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2906,6 +2842,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_group-2"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
 | <a id="property-_labelrotation-1"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale-1"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint-1"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin-1"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:14 |
 | <a id="property-_outerbounds-1"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:15 |
 | <a id="property-_position-1"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -2915,6 +2852,7 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer-1"></a> `_sceneRenderer?` | `any` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer) | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-2"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape-1"></a> `_tickShape?` | `any` | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:26 |
 | <a id="property-_tickunit-1"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:24 |
@@ -2954,7 +2892,7 @@ Shorthand method for creating an axis where the ticks are drawn to the left of t
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -2970,7 +2908,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -3038,7 +2976,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3054,7 +2992,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3080,7 +3018,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -3096,7 +3034,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -3122,7 +3060,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3138,7 +3076,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3234,19 +3172,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -3399,7 +3334,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -3415,7 +3350,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -3439,7 +3374,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3505,7 +3440,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:81
+Defined in: core/types/src/components/Axis/Axis.d.ts:83
 
 Renders the current Axis to the page.
 
@@ -3531,7 +3466,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3553,7 +3488,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3585,7 +3520,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -3601,7 +3536,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -3627,7 +3562,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -3643,7 +3578,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -3667,7 +3602,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:76
+Defined in: core/types/src/components/Axis/Axis.d.ts:78
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3752,6 +3687,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_group-3"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
 | <a id="property-_labelrotation-2"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale-2"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint-2"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin-2"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:14 |
 | <a id="property-_outerbounds-2"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:15 |
 | <a id="property-_position-2"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -3761,6 +3697,7 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer-2"></a> `_sceneRenderer?` | `any` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer) | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-3"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape-2"></a> `_tickShape?` | `any` | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:26 |
 | <a id="property-_tickunit-2"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:24 |
@@ -3800,7 +3737,7 @@ Shorthand method for creating an axis where the ticks are drawn to the right of 
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -3816,7 +3753,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -3884,7 +3821,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3900,7 +3837,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3926,7 +3863,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -3942,7 +3879,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -3968,7 +3905,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3984,7 +3921,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4080,19 +4017,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -4245,7 +4179,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -4261,7 +4195,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -4285,7 +4219,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4351,7 +4285,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:81
+Defined in: core/types/src/components/Axis/Axis.d.ts:83
 
 Renders the current Axis to the page.
 
@@ -4377,7 +4311,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4399,7 +4333,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4431,7 +4365,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -4447,7 +4381,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -4473,7 +4407,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -4489,7 +4423,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -4513,7 +4447,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:76
+Defined in: core/types/src/components/Axis/Axis.d.ts:78
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4598,6 +4532,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_group-4"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
 | <a id="property-_labelrotation-3"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale-3"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint-3"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin-3"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:14 |
 | <a id="property-_outerbounds-3"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:15 |
 | <a id="property-_position-3"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -4607,6 +4542,7 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer-3"></a> `_sceneRenderer?` | `any` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer) | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-4"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape-3"></a> `_tickShape?` | `any` | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:26 |
 | <a id="property-_tickunit-3"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:24 |
@@ -4646,7 +4582,7 @@ Shorthand method for creating an axis where the ticks are drawn above the vertic
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -4662,7 +4598,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -4730,7 +4666,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4746,7 +4682,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4772,7 +4708,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -4788,7 +4724,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -4814,7 +4750,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4830,7 +4766,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4926,19 +4862,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -5091,7 +5024,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -5107,7 +5040,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -5131,7 +5064,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5197,7 +5130,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:81
+Defined in: core/types/src/components/Axis/Axis.d.ts:83
 
 Renders the current Axis to the page.
 
@@ -5223,7 +5156,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5245,7 +5178,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5277,7 +5210,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -5293,7 +5226,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -5319,7 +5252,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -5335,7 +5268,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -5359,7 +5292,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:76
+Defined in: core/types/src/components/Axis/Axis.d.ts:78
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -5444,6 +5377,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_group-5"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
 | <a id="property-_labelrotation-4"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale-4"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint-4"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin-4"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:14 |
 | <a id="property-_outerbounds-4"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:15 |
 | <a id="property-_position-4"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -5453,6 +5387,7 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer-4"></a> `_sceneRenderer?` | `any` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer) | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-5"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape-4"></a> `_tickShape?` | `any` | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:26 |
 | <a id="property-_tickunit-4"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:24 |
@@ -5610,7 +5545,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -5634,7 +5569,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data-6"></a>
 
@@ -7700,7 +7635,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -7724,7 +7659,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data-8"></a>
 
@@ -8463,7 +8398,7 @@ Creates an SVG color scale based on an array of data.
 
 > **axisConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:54
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:55
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -8475,7 +8410,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **axisConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:55
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:56
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -8539,7 +8474,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:59
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:60
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -8551,7 +8486,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **data**(`_`: [`DataPoint`](#datapoint)[]): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:60
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:61
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -8573,7 +8508,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:64
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:65
 
 A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
 
@@ -8585,7 +8520,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:65
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:66
 
 A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
 
@@ -8607,7 +8542,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 
 > **labelMax**(): `string` \| `undefined`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:74
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:75
 
 Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
 
@@ -8619,7 +8554,7 @@ Defines a text label to be displayed off of the end of the maximum point in the 
 
 > **labelMax**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:75
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:76
 
 Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
 
@@ -8641,7 +8576,7 @@ Defines a text label to be displayed off of the end of the maximum point in the 
 
 > **labelMin**(): `string` \| `undefined`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:69
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:70
 
 Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
 
@@ -8653,7 +8588,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 > **labelMin**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:70
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:71
 
 Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
 
@@ -8675,7 +8610,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 > **legendConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:79
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:80
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -8687,7 +8622,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **legendConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:80
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:81
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -8914,7 +8849,7 @@ console.log("data for legend clicked:", d);
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:86
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:87
 
 Returns the outer bounds of the ColorScale content. Must be called after rendering.
 
@@ -8978,7 +8913,7 @@ Parent config used by the wrapper.
 
 > **rectConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:90
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:91
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -8990,7 +8925,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **rectConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:91
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:92
 
 The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
 
@@ -9010,7 +8945,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:36
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:37
 
 Renders the current ColorScale to the page.
 
@@ -9032,7 +8967,7 @@ Renders the current ColorScale to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:95
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:96
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -9044,7 +8979,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement`): `this`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:96
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:97
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -9106,7 +9041,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:50
+Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:51
 
 Produces a backend-agnostic scene graph for this ColorScale with no DOM
 dependency. The discrete variant (jenks/buckets/quantile) delegates to the
@@ -9199,6 +9134,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_legendclass"></a> `_legendClass` | [`Legend`](#legend) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:22 |
 | <a id="property-_outerbounds-5"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:23 |
 | <a id="property-_rectclass"></a> `_rectClass` | [`Rect`](#rect) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:24 |
+| <a id="property-_scenerenderer-5"></a> `_sceneRenderer?` | `any` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:27 |
 | <a id="property-_select-9"></a> `_select` | `Selection` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:13 |
 | <a id="property-_uuid-10"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:10 |
 | <a id="property-ctx-10"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:9 |
@@ -9242,6 +9178,46 @@ image().data([data])(function() { alert("draw complete!"); })
 
 #### Methods
 
+<a id="config-11"></a>
+
+##### config()
+
+###### Call Signature
+
+> **config**(): `Record`\<`string`, `any`\>
+
+Defined in: core/types/src/shapes/Image.d.ts:33
+
+Get/set multiple config values at once. Mirrors the `BaseClass.config()`
+contract used by the other shapes (and relied on by the React wrapper):
+each patch key is routed through its matching fluent accessor (or
+`data`/`select`), with unknown keys stored on `schema` verbatim.
+
+###### Returns
+
+`Record`\<`string`, `any`\>
+
+###### Call Signature
+
+> **config**(`_`: `Record`\<`string`, `any`\>): `this`
+
+Defined in: core/types/src/shapes/Image.d.ts:34
+
+Get/set multiple config values at once. Mirrors the `BaseClass.config()`
+contract used by the other shapes (and relied on by the React wrapper):
+each patch key is routed through its matching fluent accessor (or
+`data`/`select`), with unknown keys stored on `schema` verbatim.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `any`\> |
+
+###### Returns
+
+`this`
+
 <a id="data-10"></a>
 
 ##### data()
@@ -9250,7 +9226,7 @@ image().data([data])(function() { alert("draw complete!"); })
 
 > **data**(): [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/shapes/Image.d.ts:35
+Defined in: core/types/src/shapes/Image.d.ts:43
 
 The data array used to create image shapes. An <image> tag will be drawn for each object in the array.
 
@@ -9262,7 +9238,7 @@ The data array used to create image shapes. An <image> tag will be drawn for eac
 
 > **data**(`_`: [`DataPoint`](#datapoint)[]): `this`
 
-Defined in: core/types/src/shapes/Image.d.ts:36
+Defined in: core/types/src/shapes/Image.d.ts:44
 
 The data array used to create image shapes. An <image> tag will be drawn for each object in the array.
 
@@ -9282,7 +9258,7 @@ The data array used to create image shapes. An <image> tag will be drawn for eac
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: core/types/src/shapes/Image.d.ts:31
+Defined in: core/types/src/shapes/Image.d.ts:39
 
 Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.
 
@@ -9304,7 +9280,7 @@ Renders the current Image to the page. If a *callback* is specified, it will be 
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/shapes/Image.d.ts:48
+Defined in: core/types/src/shapes/Image.d.ts:56
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9316,7 +9292,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: core/types/src/shapes/Image.d.ts:49
+Defined in: core/types/src/shapes/Image.d.ts:57
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9336,7 +9312,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/shapes/Image.d.ts:44
+Defined in: core/types/src/shapes/Image.d.ts:52
 
 Compute-mode scene emission. Mirrors Shape.toScene's shape — a
 keyed GroupNode wrapping per-datum ImageNodes. Used by chart
@@ -9382,7 +9358,7 @@ Creates an SVG legend based on an array of data.
 
 > **active**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:62
+Defined in: core/types/src/components/Legend/Legend.d.ts:63
 
 The active method for all shapes.
 
@@ -9396,7 +9372,7 @@ The active method for all shapes.
 
 `this`
 
-<a id="config-11"></a>
+<a id="config-12"></a>
 
 ##### config()
 
@@ -9446,7 +9422,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:66
+Defined in: core/types/src/components/Legend/Legend.d.ts:67
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -9458,7 +9434,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **data**(`_`: [`DataPoint`](#datapoint)[]): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:67
+Defined in: core/types/src/components/Legend/Legend.d.ts:68
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -9478,7 +9454,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **hover**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:71
+Defined in: core/types/src/components/Legend/Legend.d.ts:72
 
 The hover method for all shapes.
 
@@ -9705,7 +9681,7 @@ console.log("data for legend clicked:", d);
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:77
+Defined in: core/types/src/components/Legend/Legend.d.ts:78
 
 Returns the outer bounds of the legend content. Must be called after rendering.
 
@@ -9767,7 +9743,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:58
+Defined in: core/types/src/components/Legend/Legend.d.ts:59
 
 Renders the current Legend to the page.
 
@@ -9789,7 +9765,7 @@ Renders the current Legend to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:81
+Defined in: core/types/src/components/Legend/Legend.d.ts:82
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9801,7 +9777,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `any`): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:82
+Defined in: core/types/src/components/Legend/Legend.d.ts:83
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9823,7 +9799,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:86
+Defined in: core/types/src/components/Legend/Legend.d.ts:87
 
 Methods that correspond to the key/value pairs for each shape.
 
@@ -9839,7 +9815,7 @@ Methods that correspond to the key/value pairs for each shape.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:87
+Defined in: core/types/src/components/Legend/Legend.d.ts:88
 
 Methods that correspond to the key/value pairs for each shape.
 
@@ -9865,7 +9841,7 @@ Methods that correspond to the key/value pairs for each shape.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:91
+Defined in: core/types/src/components/Legend/Legend.d.ts:92
 
 Title configuration of the legend.
 
@@ -9877,7 +9853,7 @@ Title configuration of the legend.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:92
+Defined in: core/types/src/components/Legend/Legend.d.ts:93
 
 Title configuration of the legend.
 
@@ -9897,7 +9873,7 @@ Title configuration of the legend.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Legend/Legend.d.ts:53
+Defined in: core/types/src/components/Legend/Legend.d.ts:54
 
 Produces a backend-agnostic scene graph for this legend with no DOM dependency:
 the title is composed from its TextBox.toScene(), and each swatch group is
@@ -9976,6 +9952,7 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | core/types/src/components/Legend/Legend.d.ts:13 |
 | <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Legend/Legend.d.ts:14 |
 | <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | core/types/src/components/Legend/Legend.d.ts:17 |
+| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `any` | - | - | core/types/src/components/Legend/Legend.d.ts:25 |
 | <a id="property-_select-11"></a> `_select` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:15 |
 | <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:20 |
 | <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | core/types/src/components/Legend/Legend.d.ts:16 |
@@ -10093,7 +10070,7 @@ The style to apply to active shapes.
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
 
-<a id="config-12"></a>
+<a id="config-13"></a>
 
 ##### config()
 
@@ -10113,7 +10090,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -10137,7 +10114,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data-12"></a>
 
@@ -10974,7 +10951,7 @@ The style to apply to active shapes.
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
 
-<a id="config-13"></a>
+<a id="config-14"></a>
 
 ##### config()
 
@@ -10994,7 +10971,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -11018,7 +10995,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data-13"></a>
 
@@ -11782,7 +11759,7 @@ svg's children get cleared so only the scene output is visible.
 
 ##### \_paint()
 
-> **\_paint**(`pCtx`: [`PlotPaintContext`](#plotpaintcontext)): `this`
+> **\_paint**(`pCtx`: `PlotPaintContext`): `this`
 
 Defined in: core/types/src/charts/Plot/index.d.ts:59
 
@@ -11795,7 +11772,7 @@ scope beyond the explicit context).
 
 | Parameter | Type |
 | ------ | ------ |
-| `pCtx` | [`PlotPaintContext`](#plotpaintcontext) |
+| `pCtx` | `PlotPaintContext` |
 
 ###### Returns
 
@@ -11807,7 +11784,7 @@ scope beyond the explicit context).
 
 > **\_scheduleSceneRepaint**(): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:95
+Defined in: core/types/src/charts/viz/Viz.d.ts:106
 
 Coalesces interaction-driven scene repaints (hover/active dimming) into a
 single paint per animation frame. A fast pointer sweep across a dense
@@ -12298,7 +12275,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:99
+Defined in: core/types/src/charts/viz/Viz.d.ts:110
 
 Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -14266,7 +14243,7 @@ The style to apply to active shapes.
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
 
-<a id="config-14"></a>
+<a id="config-15"></a>
 
 ##### config()
 
@@ -14286,7 +14263,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 ###### Call Signature
 
@@ -14310,7 +14287,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Overrides
 
-[`Shape`](#shape-1).[`config`](#config-15)
+[`Shape`](#shape-1).[`config`](#config-16)
 
 <a id="data-15"></a>
 
@@ -15136,7 +15113,7 @@ The style to apply to active shapes.
 
 `this`
 
-<a id="config-15"></a>
+<a id="config-16"></a>
 
 ##### config()
 
@@ -15847,7 +15824,7 @@ Creates a wrapped text box for each point in an array of data. See [this example
 
 #### Methods
 
-<a id="config-16"></a>
+<a id="config-17"></a>
 
 ##### config()
 
@@ -16414,7 +16391,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:87
 
 Axis line style.
 
@@ -16430,7 +16407,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:86
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Axis line style.
 
@@ -16448,7 +16425,7 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
-<a id="config-17"></a>
+<a id="config-18"></a>
 
 ##### config()
 
@@ -16498,7 +16475,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `any`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:92
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -16514,7 +16491,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `any`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:91
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -16540,7 +16517,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Grid config of the axis.
 
@@ -16556,7 +16533,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:96
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Grid config of the axis.
 
@@ -16582,7 +16559,7 @@ Grid config of the axis.
 
 > **handleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:64
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:80
 
 Handle style.
 
@@ -16594,7 +16571,7 @@ Handle style.
 
 > **handleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:65
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:81
 
 Handle style.
 
@@ -16616,7 +16593,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:100
+Defined in: core/types/src/components/Axis/Axis.d.ts:102
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -16632,7 +16609,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:101
+Defined in: core/types/src/components/Axis/Axis.d.ts:103
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -16728,19 +16705,16 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
-Phase-E: runs the layout pass only — scale construction, tick selection,
-label textWrap, and outerBounds — with **no DOM access**. After it
-returns, `outerBounds()` / `_d3Scale` / `_getPosition()` are populated
-exactly as they would be after a full `render()`, but no `<svg>`, `<g>`,
-tick shapes, or label TextBoxes are created.
-
-This is the v4 path for "how much room will this axis need?" without
-the temp-DOM dance — see `Plot._draw`'s test-axes for the production
-caller. Internally it delegates to the standalone `measureAxis(axis)`
-function in axisLayout.ts; the free function shape means Plot (and
-future callers) can run layout without owning an Axis instance.
+Runs the layout pass only — scale construction, tick selection, label
+textWrap, and outerBounds — with **no DOM access**. After it returns,
+`outerBounds()` / `_d3Scale` / `_getPosition()` are populated exactly as
+they would be after a full `render()`, but no `<svg>`, `<g>`, tick shapes,
+or label TextBoxes are created. Answers "how much room will this axis
+need?" without rendering; Plot uses it to size its test-axes. Delegates to
+the standalone `measureAxis(axis)` in axisLayout.ts, so callers can run
+layout without owning an Axis instance.
 
 ###### Returns
 
@@ -16758,7 +16732,7 @@ future callers) can run layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:69
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:85
 
 Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -16774,7 +16748,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:70
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:86
 
 Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -16796,7 +16770,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:71
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:87
 
 Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -16819,7 +16793,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:72
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:88
 
 Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -16845,7 +16819,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:105
+Defined in: core/types/src/components/Axis/Axis.d.ts:107
 
 The orientation of the shape.
 
@@ -16861,7 +16835,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:106
+Defined in: core/types/src/components/Axis/Axis.d.ts:108
 
 The orientation of the shape.
 
@@ -16885,7 +16859,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -16953,7 +16927,7 @@ Parent config used by the wrapper.
 
 > **playButtonConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:76
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:92
 
 The config Object for the Rect class used to create the playButton.
 
@@ -16965,7 +16939,7 @@ The config Object for the Rect class used to create the playButton.
 
 > **playButtonConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:77
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:93
 
 The config Object for the Rect class used to create the playButton.
 
@@ -16985,7 +16959,7 @@ The config Object for the Rect class used to create the playButton.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:60
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:76
 
 Draws the timeline.
 
@@ -17011,7 +16985,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17033,7 +17007,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17065,7 +17039,7 @@ mounting DOM.
 
 > **selectionConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:81
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:97
 
 Selection style.
 
@@ -17077,7 +17051,7 @@ Selection style.
 
 > **selectionConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:82
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:98
 
 Selection style.
 
@@ -17099,7 +17073,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `any`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Tick style of the axis.
 
@@ -17115,7 +17089,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `any`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Tick style of the axis.
 
@@ -17141,7 +17115,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 Title configuration of the axis.
 
@@ -17157,7 +17131,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:147
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 Title configuration of the axis.
 
@@ -17181,11 +17155,18 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Timeline/Timeline.d.ts:55
+Defined in: core/types/src/components/Timeline/Timeline.d.ts:71
 
-Extends the native Axis scene with the Timeline-specific brush selection
-overlay (snapshotted, since d3-brush manages its DOM directly) and the
-play-button TextBox (native).
+Extends the native Axis scene with the Timeline-specific play-button
+TextBox.
+
+The brush selection + handles are NOT composed here: d3-brush owns its
+own DOM (mounted in `g.brushGroup` and styled by `_brushStyle`), which the
+Viz lifts above the scene so it paints on top of the timeline ticks. That
+DOM brush is the sole brush visual and interaction layer — drawing a
+second copy from the scene only duplicated it at the wrong height (the
+full outer bounds rather than the tick band), so the overlay no longer
+lined up with the timeline.
 
 ###### Returns
 
@@ -17258,8 +17239,8 @@ return d === "Back" ? "Get outta here" : d;
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-_availableticks-5"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_brush"></a> `_brush` | `any` | - | - | core/types/src/components/Timeline/Timeline.d.ts:11 |
-| <a id="property-_brushgroup"></a> `_brushGroup` | `any` | - | - | core/types/src/components/Timeline/Timeline.d.ts:12 |
+| <a id="property-_brush"></a> `_brush` | `any` | - | - | core/types/src/components/Timeline/Timeline.d.ts:12 |
+| <a id="property-_brushgroup"></a> `_brushGroup` | `any` | - | - | core/types/src/components/Timeline/Timeline.d.ts:13 |
 | <a id="property-_buttonbehaviorcurrent"></a> `_buttonBehaviorCurrent` | `string` | - | - | core/types/src/components/Timeline/Timeline.d.ts:7 |
 | <a id="property-_configdefault-17"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:11 |
 | <a id="property-_d3scale-5"></a> `_d3Scale` | `any` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
@@ -17270,9 +17251,11 @@ return d === "Back" ? "Get outta here" : d;
 | <a id="property-_hiddenhandles"></a> `_hiddenHandles` | `boolean` | - | - | core/types/src/components/Timeline/Timeline.d.ts:8 |
 | <a id="property-_labelrotation-5"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:13 |
 | <a id="property-_lastscale-5"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
+| <a id="property-_managesownscenepaint-5"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
 | <a id="property-_margin-5"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:14 |
+| <a id="property-_onplaytoggle"></a> `_onPlayToggle?` | () => `void` | - | - | core/types/src/components/Timeline/Timeline.d.ts:11 |
 | <a id="property-_outerbounds-7"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_paddingleft"></a> `_paddingLeft` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:13 |
+| <a id="property-_paddingleft"></a> `_paddingLeft` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:14 |
 | <a id="property-_playbuttonclass"></a> `_playButtonClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Timeline/Timeline.d.ts:9 |
 | <a id="property-_playtimer"></a> `_playTimer` | `number` \| `false` | - | - | core/types/src/components/Timeline/Timeline.d.ts:10 |
 | <a id="property-_position-5"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:16 |
@@ -17282,9 +17265,10 @@ return d === "Back" ? "Get outta here" : d;
 | `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
 | `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
 | `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
+| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `any` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer) | core/types/src/components/Axis/Axis.d.ts:41 |
 | <a id="property-_select-17"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:11 |
 | <a id="property-_tickshape-5"></a> `_tickShape?` | `any` | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_tickswidth"></a> `_ticksWidth` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:14 |
+| <a id="property-_tickswidth"></a> `_ticksWidth` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:15 |
 | <a id="property-_tickunit-5"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:24 |
 | <a id="property-_titleclass-6"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:25 |
 | <a id="property-_transition-12"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
@@ -17382,7 +17366,7 @@ CSS styles applied to the body element.
 
 `this`
 
-<a id="config-18"></a>
+<a id="config-19"></a>
 
 ##### config()
 
@@ -18164,7 +18148,7 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 | <a id="property-_configdefault-18"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:11 |
 | <a id="property-_data-18"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/Tooltip.d.ts:9 |
 | <a id="property-_parentel"></a> `_parentEl?` | `HTMLElement` | v4: optional per-chart parent element (default: global #d3plus-portal). | - | core/types/src/components/Tooltip.d.ts:11 |
-| <a id="property-_portalel"></a> `_portalEl?` | `HTMLElement` | v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` child of `_parentEl`). Tracked per-instance so that two Tooltips sharing a parent each own a distinct portal — and so `parent()` switches only remove THIS instance's portal, not a sibling Tooltip's. | - | core/types/src/components/Tooltip.d.ts:18 |
+| <a id="property-_portalel"></a> `_portalEl?` | `HTMLElement` | v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to `<body>`). Tracked per-instance so that charts each own a distinct portal — and so `parent()` switches only remove THIS instance's portal, not a sibling Tooltip's. | - | core/types/src/components/Tooltip.d.ts:18 |
 | <a id="property-_tooltiprefs"></a> `_tooltipRefs` | `Record`\<`string`, \{ `arrowDistance`: `number`; `arrowEl`: `HTMLElement`; `arrowHeight`: `number`; `reference`: `VirtualElement` \| `HTMLElement`; `tooltip`: `HTMLElement`; \}\> | - | - | core/types/src/components/Tooltip.d.ts:19 |
 | <a id="property-_uuid-18"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:10 |
 | <a id="property-ctx-18"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:9 |
@@ -18225,7 +18209,7 @@ svg's children get cleared so only the scene output is visible.
 
 > **\_scheduleSceneRepaint**(): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:95
+Defined in: core/types/src/charts/viz/Viz.d.ts:106
 
 Coalesces interaction-driven scene repaints (hover/active dimming) into a
 single paint per animation frame. A fast pointer sweep across a dense
@@ -18542,7 +18526,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:99
+Defined in: core/types/src/charts/viz/Viz.d.ts:110
 
 Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -20054,7 +20038,7 @@ The active highlight state for all sub-shapes in this Whisker.
 
 `void`
 
-<a id="config-19"></a>
+<a id="config-20"></a>
 
 ##### config()
 
@@ -20959,26 +20943,6 @@ Subtracts one color from another.
 
 ***
 
-<a id="computeaxislayout"></a>
-
-### computeAxisLayout()
-
-> **computeAxisLayout**(`axis`: `any`): [`AxisLayout`](#axislayout)
-
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `axis` | `any` |
-
-#### Returns
-
-[`AxisLayout`](#axislayout)
-
-***
-
 <a id="concat"></a>
 
 ### concat()
@@ -21064,41 +21028,6 @@ function() {
 return 42;
 }
 ```
-
-***
-
-<a id="createfluent"></a>
-
-### createFluent()
-
-> **createFluent**\<`C`\>(`schema`: `ConfigField`[], `defaults?`: `Partial`\<`C`\>): `FluentInstance`\<`C`\> & `Record`\<`string`, (`value?`: `unknown`) => `unknown`\>
-
-Defined in: core/types/src/fluent.d.ts:70
-
-Build a fluent instance from a config schema. Every field in the schema
-becomes a `(value?) => value | this` accessor on the returned object,
-identical in shape to d3plus's hand-written `arguments.length`-overloaded
-methods — but generated.
-
-The returned instance also exposes `config()` for getting/setting in one
-shot, matching the `BaseClass.config()` contract.
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-| `C` *extends* `Record`\<`string`, `unknown`\> |
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `schema` | `ConfigField`[] | The config fields the chart supports. |
-| `defaults?` | `Partial`\<`C`\> | Seed values (applied with the schema's coercions). |
-
-#### Returns
-
-`FluentInstance`\<`C`\> & `Record`\<`string`, (`value?`: `unknown`) => `unknown`\>
 
 ***
 
@@ -21305,45 +21234,6 @@ An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-r
 
 ***
 
-<a id="installfluent"></a>
-
-### installFluent()
-
-> **installFluent**(`target`: `any`, `schema`: `ConfigField`[], `defaults?`: `Record`\<`string`, `unknown`\>): `void`
-
-Defined in: core/types/src/fluent.d.ts:93
-
-Class-instance variant: mixes generated accessors onto an existing `this`,
-storing each field as `this.schema.<key>`. A chart class inherits its
-accessor surface from a `ChartDefinition`'s schema, and the rest of the
-chart body reads the same values through `this.schema.<key>`.
-
-Seeds `this.schema.<key>` from `defaults` (with the same coercion) only if
-the field isn't already set — so an `extends Viz` chain that already wrote
-`this.schema.sum = constant(...)` in `Viz`'s constructor is respected.
-
-Methods are installed on the target's **prototype**, once per key (skipped
-if the prototype already owns that method). This is load-bearing for
-`BaseClass.config()` reflection — its `getAllMethods(Object.getPrototypeOf(this))`
-only sees prototype methods, so per-instance methods would be invisible to
-it (causing the React wrapper's hash() to miss user-set values like
-`.padAngle(0.05)`). The methods close over the schema and read/write
-`this.schema.<key>`, so per-instance state is preserved.
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `target` | `any` | Object to install methods on (typically a class instance). |
-| `schema` | `ConfigField`[] | Same field schema `createFluent` consumes. |
-| `defaults?` | `Record`\<`string`, `unknown`\> | Default values (applied to `this.schema.<key>` when unset). |
-
-#### Returns
-
-`void`
-
-***
-
 <a id="inviewport"></a>
 
 ### inViewport()
@@ -21507,32 +21397,6 @@ Loads data from a filepath or URL, converts it to a valid JSON object, and retur
 
 ***
 
-<a id="measureaxis"></a>
-
-### measureAxis()
-
-> **measureAxis**(`axis`: `any`): [`AxisLayoutResult`](#axislayoutresult)
-
-Defined in: core/types/src/components/Axis/axisLayout.d.ts:27
-
-The standalone axis layout pass. Accepts any object satisfying the
-Axis-instance shape (the production `Axis` class is the canonical input).
-Pure compute — no DOM, no rendering. Mutates the input to set
-`_d3Scale`/`_outerBounds`/`_margin`/etc. for callers that read those off
-the instance afterward.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `axis` | `any` |
-
-#### Returns
-
-[`AxisLayoutResult`](#axislayoutresult)
-
-***
-
 <a id="merge"></a>
 
 ### merge()
@@ -21634,66 +21498,6 @@ Transforms a path string into an Array of points.
 #### Returns
 
 `Point`[]
-
-***
-
-<a id="plotemit"></a>
-
-### plotEmit()
-
-> **plotEmit**(`viz`: [`VizInstance`](#vizinstance), `pCtx`: [`PlotPaintContext`](#plotpaintcontext), `mCtx`: [`PlotMeasureResult`](#plotmeasureresult)): `SceneNode`[]
-
-Defined in: core/types/src/charts/features/plotPaint.d.ts:218
-
-EMIT phase of plotPaint. Takes the `PlotMeasureResult` from
-`renderAxes` and produces ALL the scene nodes: background rect,
-connector lines, back/front annotations, the main shape loop, line
-markers, and the deferred axis scenes (drained from the queue).
-Returns the flat `SceneNode[]` array that the caller (`Plot._paint`)
-merges into `_chartScene`.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-| `pCtx` | [`PlotPaintContext`](#plotpaintcontext) |
-| `mCtx` | [`PlotMeasureResult`](#plotmeasureresult) |
-
-#### Returns
-
-`SceneNode`[]
-
-***
-
-<a id="plotpaint"></a>
-
-### plotPaint()
-
-> **plotPaint**(`viz`: [`VizInstance`](#vizinstance), `pCtx`: [`PlotPaintContext`](#plotpaintcontext)): `SceneNode`[]
-
-Defined in: core/types/src/charts/features/plotPaint.d.ts:233
-
-Plot paint phase as a free function — orchestrates the axis render +
-EMIT.
-
-`renderAxes` (in `./axes.js`) renders the production axes, solves the
-final ranges/offsets, and sets `viz._xFunc`/`viz._yFunc`; `plotEmit`
-then produces the scene nodes (background rect → connectors → back
-annotations → shape loop → line markers → front annotations → axis
-scenes). `Plot._paint` is a thin shim that concats the returned nodes
-onto `viz._chartScene`.
-
-#### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) | The Plot instance (or any subclass: BarChart, LinePlot, …). |
-| `pCtx` | [`PlotPaintContext`](#plotpaintcontext) | Cross-phase locals produced by `Plot._draw`. |
-
-#### Returns
-
-`SceneNode`[]
 
 ***
 
@@ -21840,63 +21644,6 @@ Rotates a point around a given origin.
 
 ***
 
-<a id="renderaxes"></a>
-
-### renderAxes()
-
-> **renderAxes**(`viz`: [`VizInstance`](#vizinstance), `pCtx`: [`PlotPaintContext`](#plotpaintcontext)): [`PlotMeasureResult`](#plotmeasureresult)
-
-Defined in: core/types/src/charts/features/axes.d.ts:133
-
-Render the production axes and solve the final ranges/offsets.
-
-Reads `pCtx`, runs each production-mode axis through
-`renderMode("compute").select(null).render()`, computes the final
-`xRange`/`yRange` + offsets, sets `viz._xFunc` / `viz._yFunc` accessors,
-bumps the line labels, and queues axis scenes for the emit phase.
-Returns everything `plotEmit` needs to consume.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-| `pCtx` | [`PlotPaintContext`](#plotpaintcontext) |
-
-#### Returns
-
-[`PlotMeasureResult`](#plotmeasureresult)
-
-***
-
-<a id="resolvespec"></a>
-
-### resolveSpec()
-
-> **resolveSpec**(`viz`: `any`): [`ResolvedSpec`](#resolvedspec)
-
-Defined in: core/types/src/charts/pipeline/resolveSpec.d.ts:50
-
-Snapshot every config key from a viz instance into a frozen spec.
-
-Reads the same keys `BaseClass.config()` reflects — strips the `_`
-prefix from every instance field whose name matches a method on the
-prototype (the v3/v4 config-method-is-also-the-storage-slot pattern).
-Returns a frozen object so consumers can't accidentally mutate it
-upstream of the chart.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | `any` |
-
-#### Returns
-
-[`ResolvedSpec`](#resolvedspec)
-
-***
-
 <a id="rtl"></a>
 
 ### rtl()
@@ -21913,88 +21660,13 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 
 ***
 
-<a id="runlayout"></a>
-
-### runLayout()
-
-> **runLayout**(`ctx`: `VizContext`, `features`: `FeatureModule`[], `baseMargin?`: `Required`\<`MarginClaim`\>): `LayoutResult`
-
-Defined in: core/types/src/charts/features/features.d.ts:104
-
-Runs each feature's `layout` in order, accumulating margin claims so that
-later features see the space already taken by earlier ones. The order of
-`features` is the layout order — this is how implicit `this._margin +=`
-side effects become *explicit* data flow.
-
-Today's order in `Viz._draw` (`drawTitle`, `drawSubtitle`, `drawTotal`,
-`drawBack`, `drawAttribution`, `drawColorScale`, `drawLegend`,
-`drawTimeline`) should be ported verbatim as the default sequence — port
-the math first, then improve.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `ctx` | `VizContext` |
-| `features` | `FeatureModule`[] |
-| `baseMargin?` | `Required`\<`MarginClaim`\> |
-
-#### Returns
-
-`LayoutResult`
-
-***
-
-<a id="runstages"></a>
-
-### runStages()
-
-> **runStages**(`initial`: `VizContext`, `stages`: `TransformStage`[]): `VizContext`
-
-Defined in: core/types/src/charts/pipeline/stages.d.ts:117
-
-Run a stage pipeline and accumulate the partial outputs into one context.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `initial` | `VizContext` |
-| `stages` | `TransformStage`[] |
-
-#### Returns
-
-`VizContext`
-
-***
-
-<a id="runvizpipeline"></a>
-
-### runVizPipeline()
-
-> **runVizPipeline**(`viz`: [`VizInstance`](#vizinstance)): `void`
-
-Defined in: core/types/src/charts/pipeline/runVizPipeline.d.ts:31
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-
-#### Returns
-
-`void`
-
-***
-
 <a id="saveelement"></a>
 
 ### saveElement()
 
 > **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: export/types/src/saveElement.d.ts:25
+Defined in: export/types/src/saveElement.d.ts:36
 
 Downloads an HTML Element as a bitmap PNG image.
 
@@ -22243,17 +21915,25 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 ### titleCase()
 
-> **titleCase**(`str`: `string` \| `undefined`): `string`
+> **titleCase**(`str`: `string` \| `undefined`, `locale?`: `string` \| [`TitleCaseRules`](#titlecaserules)): `string`
 
-Defined in: text/types/src/titleCase.d.ts:5
+Defined in: text/types/src/titleCase.d.ts:14
 
-Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
+Capitalizes each significant word of a phrase, normalizing case in both
+directions: the locale's minor words (articles, short conjunctions/
+prepositions) are forced lowercase in the middle and known acronyms are
+forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and
+"jack smith, ceo" becomes "Jack Smith, CEO". The first and last words are
+always capitalized. The locale supplies the minor-word and acronym lists
+(e.g. "le"/"de"/"par" for French); pass an explicit rules object for full
+control, including `{style: "sentence"}` to capitalize only the first word.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `str` | `string` \| *required* | The string to apply the title case logic. |
+| `str` | `string` \| *required* | The string to capitalize. |
+| `locale?` | `string` \| [`TitleCaseRules`](#titlecaserules) | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
 
 #### Returns
 
@@ -22298,240 +21978,7 @@ unique(["apple", "banana", "apple"]);
 ["apple", "banana"]
 ```
 
-***
-
-<a id="vizdraw"></a>
-
-### vizDraw()
-
-> **vizDraw**(`viz`: [`VizInstance`](#vizinstance)): `void`
-
-Defined in: core/types/src/charts/pipeline/vizDraw.d.ts:25
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-
-#### Returns
-
-`void`
-
-***
-
-<a id="vizdrawpure"></a>
-
-### vizDrawPure()
-
-> **vizDrawPure**(`viz`: [`VizInstance`](#vizinstance), `_prevCtx?`: `Partial`\<[`VizContext`](#vizcontext)\>): `Partial`\<`VizDrawCtx`\>
-
-Defined in: core/types/src/charts/pipeline/vizDrawPure.d.ts:17
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-| `_prevCtx?` | `Partial`\<[`VizContext`](#vizcontext)\> |
-
-#### Returns
-
-`Partial`\<`VizDrawCtx`\>
-
-***
-
-<a id="vizpostthresholdctx"></a>
-
-### vizPostThresholdCtx()
-
-> **vizPostThresholdCtx**(`viz`: [`VizInstance`](#vizinstance), `filteredData`: [`DataPoint`](#datapoint)[], `id`: (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `any`): `object`
-
-Defined in: core/types/src/charts/pipeline/vizPreDrawPure.d.ts:31
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-| `filteredData` | [`DataPoint`](#datapoint)[] |
-| `id` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `any` |
-
-#### Returns
-
-`object`
-
-| Name | Type | Defined in |
-| ------ | ------ | ------ |
-| `hoverOverride?` | `object` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:32 |
-| `hoverOverride.duration` | `number` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:34 |
-| `hoverOverride.hoverOpacity` | `number` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:33 |
-| `hoverOverride.restoreOriginals?` | `boolean` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:36 |
-| `hoverOverride.stashOriginals?` | `boolean` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:35 |
-| `noDataMessage` | `boolean` | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:38 |
-
-***
-
-<a id="vizpredraw"></a>
-
-### vizPreDraw()
-
-> **vizPreDraw**(`viz`: [`VizInstance`](#vizinstance)): `void`
-
-Defined in: core/types/src/charts/pipeline/vizPreDraw.d.ts:22
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-
-#### Returns
-
-`void`
-
-***
-
-<a id="vizpredrawpure"></a>
-
-### vizPreDrawPure()
-
-> **vizPreDrawPure**(`viz`: [`VizInstance`](#vizinstance), `_prevCtx?`: `Partial`\<[`VizContext`](#vizcontext)\>): [`VizPreDrawResult`](#vizpredrawresult)
-
-Defined in: core/types/src/charts/pipeline/vizPreDrawPure.d.ts:30
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `viz` | [`VizInstance`](#vizinstance) |
-| `_prevCtx?` | `Partial`\<[`VizContext`](#vizcontext)\> |
-
-#### Returns
-
-[`VizPreDrawResult`](#vizpredrawresult)
-
 ## Variables
-
-<a id="applygeomaplayout"></a>
-
-### applyGeomapLayout
-
-> `const` **applyGeomapLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Geomap/applyLayout.d.ts:7
-
-***
-
-<a id="applymatrixlayout"></a>
-
-### applyMatrixLayout
-
-> `const` **applyMatrixLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Matrix/applyLayout.d.ts:9
-
-***
-
-<a id="applynetworklayout"></a>
-
-### applyNetworkLayout
-
-> `const` **applyNetworkLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Network/applyLayout.d.ts:10
-
-***
-
-<a id="applypacklayout"></a>
-
-### applyPackLayout
-
-> `const` **applyPackLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Pack/applyLayout.d.ts:15
-
-***
-
-<a id="applypielayout"></a>
-
-### applyPieLayout
-
-> `const` **applyPieLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Pie/applyLayout.d.ts:8
-
-***
-
-<a id="applypriestleylayout"></a>
-
-### applyPriestleyLayout
-
-> `const` **applyPriestleyLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Priestley/applyLayout.d.ts:20
-
-***
-
-<a id="applyradarlayout"></a>
-
-### applyRadarLayout
-
-> `const` **applyRadarLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Radar/applyLayout.d.ts:10
-
-***
-
-<a id="applyradialmatrixlayout"></a>
-
-### applyRadialMatrixLayout
-
-> `const` **applyRadialMatrixLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/RadialMatrix/applyLayout.d.ts:11
-
-***
-
-<a id="applyringslayout"></a>
-
-### applyRingsLayout
-
-> `const` **applyRingsLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Rings/applyLayout.d.ts:8
-
-***
-
-<a id="applysankeylayout"></a>
-
-### applySankeyLayout
-
-> `const` **applySankeyLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Sankey/applyLayout.d.ts:7
-
-***
-
-<a id="applytreelayout"></a>
-
-### applyTreeLayout
-
-> `const` **applyTreeLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Tree/applyLayout.d.ts:11
-
-***
-
-<a id="applytreemaplayout"></a>
-
-### applyTreemapLayout
-
-> `const` **applyTreemapLayout**: `TransformStage`
-
-Defined in: core/types/src/charts/Treemap/applyLayout.d.ts:16
-
-***
 
 <a id="areaplot"></a>
 
@@ -22539,25 +21986,13 @@ Defined in: core/types/src/charts/Treemap/applyLayout.d.ts:16
 
 > `const` **AreaPlot**: () => `any`
 
-Defined in: core/types/src/charts/AreaPlot/index.d.ts:6
+Defined in: core/types/src/charts/AreaPlot/index.d.ts:9
+
+Creates an area plot based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="backfeature"></a>
-
-### backFeature
-
-> `const` **backFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/features.d.ts:117
-
-Converts `drawBack.ts` to a FeatureModule. Visible only when there are
-drill-down history entries; emits a "← Back" TextNode at the chart's
-top-left and claims its line height + padding × 2 from `margin.top`.
 
 ***
 
@@ -22567,7 +22002,9 @@ top-left and claims its line height + padding × 2 from `margin.top`.
 
 > `const` **BarChart**: () => `any`
 
-Defined in: core/types/src/charts/BarChart/index.d.ts:6
+Defined in: core/types/src/charts/BarChart/index.d.ts:9
+
+Creates a bar chart based on an array of data.
 
 #### Returns
 
@@ -22581,7 +22018,9 @@ Defined in: core/types/src/charts/BarChart/index.d.ts:6
 
 > `const` **BoxWhisker**: () => `any`
 
-Defined in: core/types/src/charts/BoxWhisker/index.d.ts:7
+Defined in: core/types/src/charts/BoxWhisker/index.d.ts:10
+
+Creates a simple box and whisker based on an array of data.
 
 #### Returns
 
@@ -22595,7 +22034,9 @@ Defined in: core/types/src/charts/BoxWhisker/index.d.ts:7
 
 > `const` **BumpChart**: () => `any`
 
-Defined in: core/types/src/charts/BumpChart/index.d.ts:7
+Defined in: core/types/src/charts/BumpChart/index.d.ts:10
+
+Creates a bump chart based on an array of data.
 
 #### Returns
 
@@ -22635,41 +22076,15 @@ A set of default color values used when assigning colors based on data.
 
 ***
 
-<a id="colorscalefeature"></a>
-
-### colorScaleFeature
-
-> `const` **colorScaleFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/features.d.ts:135
-
-Converts `drawColorScale.ts` to a FeatureModule.
-
-Visible only when `_colorScale` is truthy and `_colorScalePosition` resolves
-to a side. Renders the chart's `_colorScaleClass` ColorScale instance and
-claims margin along its position side.
-
-***
-
-<a id="d3pluscontext"></a>
-
-### D3plusContext
-
-> `const` **D3plusContext**: `Context`
-
-Defined in: react/types/src/D3plusContext.d.ts:5
-
-A React context instance used to provide global config options via a provider (D3plusContext.Provider).
-
-***
-
 <a id="donut"></a>
 
 ### Donut
 
 > `const` **Donut**: () => `any`
 
-Defined in: core/types/src/charts/Donut/index.d.ts:9
+Defined in: core/types/src/charts/Donut/index.d.ts:12
+
+Extends the Pie visualization to create a donut chart.
 
 #### Returns
 
@@ -22731,40 +22146,13 @@ Defined in: locales/types/src/dictionaries/formatLocale.d.ts:15
 
 > `const` **Geomap**: () => `any`
 
-Defined in: core/types/src/charts/Geomap/index.d.ts:10
+Defined in: core/types/src/charts/Geomap/index.d.ts:13
+
+Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="geomapdef"></a>
-
-### geomapDef
-
-> `const` **geomapDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Geomap/index.d.ts:9
-
-***
-
-<a id="legendfeature"></a>
-
-### legendFeature
-
-> `const` **legendFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/featuresLegend.d.ts:12
-
-Converts `drawLegend.ts` to a FeatureModule.
-
-Layout responsibility: roll filtered data up by paint attributes, configure
-+ render the chart's `_legendClass` Legend instance (compute mode — Legend
-contributes to the scene via its `toScene()` collected on Viz.toScene),
-and return the margin claim corresponding to its outerBounds + padding.
-No panel SceneNode is emitted — Legend is a component, not a panel; the
-scene composition for Legend happens via Viz.toScene's `components` array.
 
 ***
 
@@ -22774,7 +22162,9 @@ scene composition for Legend happens via Viz.toScene's `components` array.
 
 > `const` **LinePlot**: () => `any`
 
-Defined in: core/types/src/charts/LinePlot/index.d.ts:6
+Defined in: core/types/src/charts/LinePlot/index.d.ts:9
+
+Creates a line plot based on an array of data.
 
 #### Returns
 
@@ -22798,21 +22188,13 @@ Defined in: locales/types/src/dictionaries/timeLocale.d.ts:38
 
 > `const` **Matrix**: () => `any`
 
-Defined in: core/types/src/charts/Matrix/index.d.ts:10
+Defined in: core/types/src/charts/Matrix/index.d.ts:13
+
+Creates a simple rows/columns Matrix view of any dataset.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="matrixdef"></a>
-
-### matrixDef
-
-> `const` **matrixDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Matrix/index.d.ts:9
 
 ***
 
@@ -22822,21 +22204,13 @@ Defined in: core/types/src/charts/Matrix/index.d.ts:9
 
 > `const` **Network**: () => `any`
 
-Defined in: core/types/src/charts/Network/index.d.ts:3
+Defined in: core/types/src/charts/Network/index.d.ts:6
+
+Creates a network visualization based on a defined set of nodes and edges.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="networkdef"></a>
-
-### networkDef
-
-> `const` **networkDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Network/index.d.ts:2
 
 ***
 
@@ -22846,21 +22220,13 @@ Defined in: core/types/src/charts/Network/index.d.ts:2
 
 > `const` **Pack**: () => `any`
 
-Defined in: core/types/src/charts/Pack/index.d.ts:11
+Defined in: core/types/src/charts/Pack/index.d.ts:14
+
+Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="packdef"></a>
-
-### packDef
-
-> `const` **packDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Pack/index.d.ts:10
 
 ***
 
@@ -22870,21 +22236,13 @@ Defined in: core/types/src/charts/Pack/index.d.ts:10
 
 > `const` **Pie**: () => `any`
 
-Defined in: core/types/src/charts/Pie/index.d.ts:10
+Defined in: core/types/src/charts/Pie/index.d.ts:13
+
+Uses the d3 pie layout to create SVG arcs based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="piedef"></a>
-
-### pieDef
-
-> `const` **pieDef**: `DataDrivenChartDefinition`
-
-Defined in: core/types/src/charts/Pie/index.d.ts:9
 
 ***
 
@@ -22894,21 +22252,13 @@ Defined in: core/types/src/charts/Pie/index.d.ts:9
 
 > `const` **Priestley**: () => `any`
 
-Defined in: core/types/src/charts/Priestley/index.d.ts:10
+Defined in: core/types/src/charts/Priestley/index.d.ts:13
+
+Creates a Priestley timeline based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="priestleydef"></a>
-
-### priestleyDef
-
-> `const` **priestleyDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Priestley/index.d.ts:9
 
 ***
 
@@ -22918,21 +22268,13 @@ Defined in: core/types/src/charts/Priestley/index.d.ts:9
 
 > `const` **Radar**: () => `any`
 
-Defined in: core/types/src/charts/Radar/index.d.ts:10
+Defined in: core/types/src/charts/Radar/index.d.ts:13
+
+Creates a radar visualization based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="radardef"></a>
-
-### radarDef
-
-> `const` **radarDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Radar/index.d.ts:9
 
 ***
 
@@ -22942,21 +22284,13 @@ Defined in: core/types/src/charts/Radar/index.d.ts:9
 
 > `const` **RadialMatrix**: () => `any`
 
-Defined in: core/types/src/charts/RadialMatrix/index.d.ts:10
+Defined in: core/types/src/charts/RadialMatrix/index.d.ts:13
+
+Creates a radial layout of a rows/columns Matrix of any dataset.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="radialmatrixdef"></a>
-
-### radialMatrixDef
-
-> `const` **radialMatrixDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/RadialMatrix/index.d.ts:9
 
 ***
 
@@ -22978,21 +22312,13 @@ String constant used to reset an individual config property.
 
 > `const` **Rings**: () => `any`
 
-Defined in: core/types/src/charts/Rings/index.d.ts:11
+Defined in: core/types/src/charts/Rings/index.d.ts:14
+
+Creates a ring visualization based on a defined set of nodes and edges.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="ringsdef"></a>
-
-### ringsDef
-
-> `const` **ringsDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Rings/index.d.ts:10
 
 ***
 
@@ -23002,21 +22328,13 @@ Defined in: core/types/src/charts/Rings/index.d.ts:10
 
 > `const` **Sankey**: () => `any`
 
-Defined in: core/types/src/charts/Sankey/index.d.ts:3
+Defined in: core/types/src/charts/Sankey/index.d.ts:6
+
+Creates a Sankey visualization based on a defined set of nodes and links.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="sankeydef"></a>
-
-### sankeyDef
-
-> `const` **sankeyDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Sankey/index.d.ts:2
 
 ***
 
@@ -23026,7 +22344,9 @@ Defined in: core/types/src/charts/Sankey/index.d.ts:2
 
 > `const` **StackedArea**: () => `any`
 
-Defined in: core/types/src/charts/StackedArea/index.d.ts:6
+Defined in: core/types/src/charts/StackedArea/index.d.ts:9
+
+Creates a stacked area plot based on an array of data.
 
 #### Returns
 
@@ -23034,59 +22354,13 @@ Defined in: core/types/src/charts/StackedArea/index.d.ts:6
 
 ***
 
-<a id="subtitlefeature"></a>
+<a id="titlecaselocale"></a>
 
-### subtitleFeature
+### titleCaseLocale
 
-> `const` **subtitleFeature**: `FeatureModule`
+> `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
 
-Defined in: core/types/src/charts/features/features.d.ts:111
-
-Converts `drawSubtitle.ts` to a FeatureModule. Mirrors titleFeature.
-
-***
-
-<a id="timelinefeature"></a>
-
-### timelineFeature
-
-> `const` **timelineFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/features.d.ts:127
-
-Converts `drawTimeline.ts` to a FeatureModule.
-
-Visible only when `_time` is set, `_timeline` is truthy, and there is more
-than one distinct tick. Renders the chart's `_timelineClass` Timeline
-instance (compute mode — scene comes from Timeline.toScene via Viz.toScene's
-components collection) and claims `margin.bottom` from its outerBounds.
-
-***
-
-<a id="titlefeature"></a>
-
-### titleFeature
-
-> `const` **titleFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/features.d.ts:109
-
-Title as a FeatureModule. Uses `_titleClass._textData()` for height
-(pure compute, no DOM) and returns the margin claim explicitly.
-
-***
-
-<a id="totalfeature"></a>
-
-### totalFeature
-
-> `const` **totalFeature**: `FeatureModule`
-
-Defined in: core/types/src/charts/features/features.d.ts:152
-
-Converts `drawTotal.ts` to a FeatureModule. Slightly different from title/
-subtitle: the text comes from `sum()` over the filtered data when `_total`
-is a function, or from `sum(data.map(_size))` when `_total === true`.
+Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:25
 
 ***
 
@@ -23106,21 +22380,13 @@ Defined in: locales/types/src/dictionaries/translateLocale.d.ts:20
 
 > `const` **Tree**: () => `any`
 
-Defined in: core/types/src/charts/Tree/index.d.ts:10
+Defined in: core/types/src/charts/Tree/index.d.ts:13
+
+Uses d3's tree layout to create a tidy tree chart based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="treedef"></a>
-
-### treeDef
-
-> `const` **treeDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Tree/index.d.ts:9
 
 ***
 
@@ -23130,21 +22396,13 @@ Defined in: core/types/src/charts/Tree/index.d.ts:9
 
 > `const` **Treemap**: () => `any`
 
-Defined in: core/types/src/charts/Treemap/index.d.ts:14
+Defined in: core/types/src/charts/Treemap/index.d.ts:17
+
+Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
 #### Returns
 
 `any`
-
-***
-
-<a id="treemapdef"></a>
-
-### treemapDef
-
-> `const` **treemapDef**: `ChartDefinition`
-
-Defined in: core/types/src/charts/Treemap/index.d.ts:13
 
 ## Interfaces
 
@@ -23243,77 +22501,6 @@ Defined in: core/types/src/utils/D3plusConfig.d.ts:6
 
 ***
 
-<a id="axislayout"></a>
-
-### AxisLayout
-
-Defined in: core/types/src/components/Axis/Axis.d.ts:172
-
-Pure-function entry point for axis layout. Given a fully configured
-`Axis` instance, runs the layout pass (no DOM) and returns a fresh result
-bag — bounds, the d3 scale(s), a `getPosition` projector, plus the
-laid-out tick state.
-
-Callers who don't want to manage an Axis instance long-term can build
-one on the fly, call this, and discard:
-
-```ts
-const axis = new AxisBottom()
-  .domain([0, 100])
-  .width(800).height(400)
-  .data(data)
-  .config(userAxisConfig);
-const layout = computeAxisLayout(axis);
-// layout.bounds, layout.getPosition, layout.d3Scale all populated.
-```
-
-This is the "no temp DOM, no test svg" path Plot's `_xTest`/`_yTest`
-consume — see Plot._draw. Internally this is a thin wrapper over
-`axis.measure()` returning a frozen snapshot of the laid-out state.
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-availableticks"></a> `availableTicks` | `unknown`[] | core/types/src/components/Axis/Axis.d.ts:177 |
-| <a id="property-bounds"></a> `bounds` | `Record`\<`string`, `number`\> | core/types/src/components/Axis/Axis.d.ts:173 |
-| <a id="property-d3scale"></a> `d3Scale` | `any` | core/types/src/components/Axis/Axis.d.ts:174 |
-| <a id="property-d3scalenegative"></a> `d3ScaleNegative` | `any` | core/types/src/components/Axis/Axis.d.ts:175 |
-| <a id="property-getposition"></a> `getPosition` | (`d`: `unknown`) => `number` | core/types/src/components/Axis/Axis.d.ts:176 |
-| <a id="property-margin"></a> `margin` | `Record`\<`string`, `number`\> | core/types/src/components/Axis/Axis.d.ts:179 |
-| <a id="property-visibleticks"></a> `visibleTicks` | `unknown`[] | core/types/src/components/Axis/Axis.d.ts:178 |
-
-***
-
-<a id="axislayoutresult"></a>
-
-### AxisLayoutResult
-
-Defined in: core/types/src/components/Axis/axisLayout.d.ts:8
-
-Result of `measureAxis()`. Holds layout artifacts the paint phase of
-`Axis.render()` (and any caller that wants to construct a paint loop)
-needs to consume. Most layout state also mutates onto the input `axis`
-(`_d3Scale`, `_outerBounds`, `_margin`, etc.) so instance methods and
-callers reading those slots stay in sync.
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-bounds-1"></a> `bounds` | `Record`\<`string`, `number`\> | core/types/src/components/Axis/axisLayout.d.ts:18 |
-| <a id="property-hbuff"></a> `hBuff` | `number` | core/types/src/components/Axis/axisLayout.d.ts:14 |
-| <a id="property-labelheight"></a> `labelHeight` | `number` | core/types/src/components/Axis/axisLayout.d.ts:17 |
-| <a id="property-labels-1"></a> `labels` | `any`[] | core/types/src/components/Axis/axisLayout.d.ts:10 |
-| <a id="property-range"></a> `range` | `number`[] | core/types/src/components/Axis/axisLayout.d.ts:11 |
-| <a id="property-textdata"></a> `textData` | `any`[] | core/types/src/components/Axis/axisLayout.d.ts:12 |
-| <a id="property-tickformat-1"></a> `tickFormat` | (`d`: `any`) => `string` | core/types/src/components/Axis/axisLayout.d.ts:13 |
-| <a id="property-tickget"></a> `tickGet` | (`d`: `any`, `i?`: `number`) => `any` | core/types/src/components/Axis/axisLayout.d.ts:16 |
-| <a id="property-ticks-1"></a> `ticks` | `any`[] | core/types/src/components/Axis/axisLayout.d.ts:9 |
-| <a id="property-wbuff"></a> `wBuff` | `number` | core/types/src/components/Axis/axisLayout.d.ts:15 |
-
-***
-
 <a id="barconfig-7"></a>
 
 ### BarConfig
@@ -23339,12 +22526,12 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-activestyle-1"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`RectConfig`](#rectconfig-3).[`activeStyle`](#property-activestyle-6) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-1"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`ariaLabel`](#property-arialabel-6) | core/types/src/shapes/shapeConfig.d.ts:52 |
 | <a id="property-backgroundimage-1"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`RectConfig`](#rectconfig-3).[`backgroundImage`](#property-backgroundimage-6) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-data-1"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`RectConfig`](#rectconfig-3).[`data`](#property-data-10) | core/types/src/shapes/shapeConfig.d.ts:44 |
+| <a id="property-data-1"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`RectConfig`](#rectconfig-3).[`data`](#property-data-9) | core/types/src/shapes/shapeConfig.d.ts:44 |
 | <a id="property-discrete-1"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`RectConfig`](#rectconfig-3).[`discrete`](#property-discrete-7) | core/types/src/shapes/shapeConfig.d.ts:56 |
 | <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | core/types/src/shapes/shapeConfig.d.ts:58 |
 | <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | core/types/src/shapes/shapeConfig.d.ts:60 |
 | <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | core/types/src/shapes/shapeConfig.d.ts:62 |
-| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-3) | core/types/src/shapes/shapeConfig.d.ts:132 |
+| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-2) | core/types/src/shapes/shapeConfig.d.ts:132 |
 | <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | core/types/src/shapes/shapeConfig.d.ts:70 |
 | <a id="property-hover-1"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-6) | core/types/src/shapes/shapeConfig.d.ts:64 |
 | <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | core/types/src/shapes/shapeConfig.d.ts:66 |
@@ -23375,11 +22562,11 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-texturedefault-1"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`RectConfig`](#rectconfig-3).[`textureDefault`](#property-texturedefault-6) | core/types/src/shapes/shapeConfig.d.ts:116 |
 | <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | core/types/src/shapes/shapeConfig.d.ts:118 |
 | <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | core/types/src/shapes/shapeConfig.d.ts:120 |
-| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-3) | core/types/src/shapes/shapeConfig.d.ts:131 |
-| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-11) | core/types/src/shapes/shapeConfig.d.ts:122 |
+| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-9) | core/types/src/shapes/shapeConfig.d.ts:122 |
 | <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:158 |
 | <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:159 |
-| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-11) | core/types/src/shapes/shapeConfig.d.ts:124 |
+| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-9) | core/types/src/shapes/shapeConfig.d.ts:124 |
 | <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:160 |
 | <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:161 |
 
@@ -23699,7 +22886,7 @@ A set of default locale formatters used when assigning suffixes and currency in 
 
 ***
 
-<a id="imageconfig"></a>
+<a id="imageconfig-1"></a>
 
 ### ImageConfig
 
@@ -23908,170 +23095,6 @@ Path-specific config (raw SVG path d string or generator).
 
 ***
 
-<a id="plotmeasureresult"></a>
-
-### PlotMeasureResult
-
-Defined in: core/types/src/charts/features/plotPaint.d.ts:178
-
-Result of the MEASURE phase of plotPaint. Captures everything the EMIT
-phase needs to know that was computed/reassigned during measure:
-  - `x`/`y`: the production-axis accessor closures (reassigned by
-    measure onto `viz._xFunc`/`viz._yFunc`).
-  - `xRange`/`yRange`: recomputed from the production axes' outer
-    bounds.
-  - `xOffsetLeft`/`xOffsetRight`/`yWidth`/`y2Width`/`yBounds`/`y2Bounds`:
-    production-axis bounds (the pCtx values were throwaway test-axis
-    measurements; these are the real ones).
-  - `axisSceneQueue`: deferred axis scenes, populated during measure
-    and drained at the END of emit (so axes layer above shapes).
-  - `yOffset`: half the x-axis bar stroke width — used to nudge
-    annotation and shape y0/y1 baselines so shapes don't visually
-    overlap the axis stroke.
-  - `labelPositions`: map of line-label id → bumped y position
-    (computed from `labelWidths`); read by the line-label
-    `labelBounds` config in emit.
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-axisscenequeue"></a> `axisSceneQueue` | `object`[] | core/types/src/charts/features/plotPaint.d.ts:199 |
-| <a id="property-labelpositions"></a> `labelPositions` | `Record`\<`string`, `number`\> | core/types/src/charts/features/plotPaint.d.ts:208 |
-| <a id="property-x-9"></a> `x` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:179 |
-| <a id="property-xoffsetleft"></a> `xOffsetLeft` | `number` | core/types/src/charts/features/plotPaint.d.ts:183 |
-| <a id="property-xoffsetright"></a> `xOffsetRight` | `number` | core/types/src/charts/features/plotPaint.d.ts:184 |
-| <a id="property-xrange"></a> `xRange` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:181 |
-| <a id="property-y-9"></a> `y` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:180 |
-| <a id="property-y2bounds"></a> `y2Bounds` | `object` | core/types/src/charts/features/plotPaint.d.ts:193 |
-| `y2Bounds.height` | `number` | core/types/src/charts/features/plotPaint.d.ts:195 |
-| `y2Bounds.width` | `number` | core/types/src/charts/features/plotPaint.d.ts:194 |
-| `y2Bounds.x` | `number` | core/types/src/charts/features/plotPaint.d.ts:196 |
-| `y2Bounds.y` | `number` | core/types/src/charts/features/plotPaint.d.ts:197 |
-| <a id="property-y2width"></a> `y2Width` | `number` \| *required* | core/types/src/charts/features/plotPaint.d.ts:186 |
-| <a id="property-ybounds"></a> `yBounds` | `object` | core/types/src/charts/features/plotPaint.d.ts:187 |
-| `yBounds.height` | `number` | core/types/src/charts/features/plotPaint.d.ts:189 |
-| `yBounds.width` | `number` | core/types/src/charts/features/plotPaint.d.ts:188 |
-| `yBounds.x` | `number` | core/types/src/charts/features/plotPaint.d.ts:190 |
-| `yBounds.y` | `number` | core/types/src/charts/features/plotPaint.d.ts:191 |
-| <a id="property-yoffset"></a> `yOffset` | `number` | core/types/src/charts/features/plotPaint.d.ts:207 |
-| <a id="property-yrange"></a> `yRange` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:182 |
-| <a id="property-ywidth"></a> `yWidth` | `number` \| *required* | core/types/src/charts/features/plotPaint.d.ts:185 |
-
-***
-
-<a id="plotpaintcontext"></a>
-
-### PlotPaintContext
-
-Defined in: core/types/src/charts/features/plotPaint.d.ts:83
-
-Cross-phase locals threaded from `Plot._draw` (and its extracted pipeline
-stages) into `plotPaint` — the contract any consumer of `plotPaint` must
-supply.
-
-Grouped by what populates them:
-  - **Data + domain** (formatPlotData / computePlotInitialDomains):
-    `data`, `shapeData`, `axisData`, `domains`, `discreteKeys`,
-    `stackData`, `stackKeys`, `xData/yData/x2Data/y2Data`,
-    `xDomain/yDomain/x2Domain/y2Domain`.
-  - **Accessors + scales** (computePlotScales):
-    `x`, `y`, `x2`, `y2`, `xScale`/`yScale`/`x2Scale`/`y2Scale`,
-    `xConfigScale`/`yConfigScale`/`x2ConfigScale`/`y2ConfigScale`.
-    `x` and `y` are reassigned during paint (`viz._xFunc = x = ...`).
-  - **Axis configs + visibility** (preparePlotAxisLayout):
-    `defaultConfig`, `defaultX2Config`, `defaultY2Config`,
-    `showX`, `showY`, `x2Exists`, `y2Exists`, `xC`, `yC`.
-  - **Axis measurements** (preparePlotAxisLayout + measurePlotLineLabels):
-    `xTicks`/`yTicks`/`x2Ticks`/`y2Ticks`, `labelWidths`, `largestLabel`,
-    `xRangeMax`, `xTest`/`yTest`/`x2Test`/`y2Test` (transient axis
-    instances), `xTestRange`/`x2TestRange`.
-  - **Layout offsets + viewport** (preparePlotAxisLayout):
-    `yBounds`/`yWidth`/`xOffsetLeft`/`y2Bounds`/`y2Width`/`xOffsetRight`
-    (REASSIGNED by paint from production axes), `xHeight`, `x2Height`,
-    `topOffset`, `height`, `width`, `horizontalMargin`, `verticalMargin`.
-  - **Paint plumbing** (Plot._draw): `opp`, `barLabels`,
-    `showLineLabels`, `stackGroup`.
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-axisdata"></a> `axisData` | [`DataPoint`](#datapoint)[] | core/types/src/charts/features/plotPaint.d.ts:86 |
-| <a id="property-barlabels"></a> `barLabels` | `string`[] | core/types/src/charts/features/plotPaint.d.ts:155 |
-| <a id="property-data-9"></a> `data` | [`DataPoint`](#datapoint)[] | core/types/src/charts/features/plotPaint.d.ts:84 |
-| <a id="property-defaultconfig"></a> `defaultConfig` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/plotPaint.d.ts:109 |
-| <a id="property-defaultx2config"></a> `defaultX2Config` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/plotPaint.d.ts:110 |
-| <a id="property-defaulty2config"></a> `defaultY2Config` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/plotPaint.d.ts:111 |
-| <a id="property-discretekeys"></a> `discreteKeys` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:88 |
-| <a id="property-domains"></a> `domains` | `Record`\<`string`, `number`[]\> | core/types/src/charts/features/plotPaint.d.ts:87 |
-| <a id="property-height-2"></a> `height` | `number` | core/types/src/charts/features/plotPaint.d.ts:150 |
-| <a id="property-horizontalmargin"></a> `horizontalMargin` | `number` | core/types/src/charts/features/plotPaint.d.ts:152 |
-| <a id="property-labelwidths"></a> `labelWidths` | `LabelWidth`[] | core/types/src/charts/features/plotPaint.d.ts:122 |
-| <a id="property-largestlabel"></a> `largestLabel` | `number` | core/types/src/charts/features/plotPaint.d.ts:123 |
-| <a id="property-opp"></a> `opp` | `"x"` \| `"y"` \| *required* | core/types/src/charts/features/plotPaint.d.ts:154 |
-| <a id="property-shapedata"></a> `shapeData` | \[`string`, [`DataPoint`](#datapoint)[]\][] | core/types/src/charts/features/plotPaint.d.ts:85 |
-| <a id="property-showlinelabels"></a> `showLineLabels` | `boolean` | core/types/src/charts/features/plotPaint.d.ts:156 |
-| <a id="property-showx"></a> `showX` | `boolean` | core/types/src/charts/features/plotPaint.d.ts:112 |
-| <a id="property-showy"></a> `showY` | `boolean` | core/types/src/charts/features/plotPaint.d.ts:113 |
-| <a id="property-stackdata"></a> `stackData` | `number`[][][] | core/types/src/charts/features/plotPaint.d.ts:89 |
-| <a id="property-stackgroup"></a> `stackGroup` | `unknown` | core/types/src/charts/features/plotPaint.d.ts:157 |
-| <a id="property-stackkeys"></a> `stackKeys` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:90 |
-| <a id="property-topoffset"></a> `topOffset` | `number` | core/types/src/charts/features/plotPaint.d.ts:149 |
-| <a id="property-verticalmargin"></a> `verticalMargin` | `number` | core/types/src/charts/features/plotPaint.d.ts:153 |
-| <a id="property-width-2"></a> `width` | `number` | core/types/src/charts/features/plotPaint.d.ts:151 |
-| <a id="property-x-10"></a> `x` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:99 |
-| <a id="property-x2"></a> `x2` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:101 |
-| <a id="property-x2configscale"></a> `x2ConfigScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:107 |
-| <a id="property-x2data"></a> `x2Data` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:93 |
-| <a id="property-x2domain"></a> `x2Domain` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:97 |
-| <a id="property-x2exists"></a> `x2Exists` | `boolean` | core/types/src/charts/features/plotPaint.d.ts:114 |
-| <a id="property-x2height"></a> `x2Height` | `number` | core/types/src/charts/features/plotPaint.d.ts:148 |
-| <a id="property-x2test"></a> `x2Test` | [`Axis`](#axis) | core/types/src/charts/features/plotPaint.d.ts:127 |
-| <a id="property-x2testrange"></a> `x2TestRange` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:130 |
-| <a id="property-x2ticks"></a> `x2Ticks` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:120 |
-| <a id="property-xc"></a> `xC` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/plotPaint.d.ts:116 |
-| <a id="property-xconfigscale"></a> `xConfigScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:105 |
-| <a id="property-xdata"></a> `xData` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:91 |
-| <a id="property-xdomain"></a> `xDomain` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:95 |
-| <a id="property-xheight"></a> `xHeight` | `number` | core/types/src/charts/features/plotPaint.d.ts:147 |
-| <a id="property-xoffsetleft-1"></a> `xOffsetLeft` | `number` | core/types/src/charts/features/plotPaint.d.ts:145 |
-| <a id="property-xoffsetright-1"></a> `xOffsetRight` | `number` | core/types/src/charts/features/plotPaint.d.ts:146 |
-| <a id="property-xrangemax"></a> `xRangeMax` | `number` | core/types/src/charts/features/plotPaint.d.ts:124 |
-| <a id="property-xscale"></a> `xScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:103 |
-| <a id="property-xtest"></a> `xTest` | [`Axis`](#axis) | core/types/src/charts/features/plotPaint.d.ts:125 |
-| <a id="property-xtestrange"></a> `xTestRange` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:129 |
-| <a id="property-xticks"></a> `xTicks` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:118 |
-| <a id="property-y-10"></a> `y` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:100 |
-| <a id="property-y2"></a> `y2` | `PlotAxisFn` | core/types/src/charts/features/plotPaint.d.ts:102 |
-| <a id="property-y2bounds-1"></a> `y2Bounds` | `object` | core/types/src/charts/features/plotPaint.d.ts:137 |
-| `y2Bounds.height` | `number` | core/types/src/charts/features/plotPaint.d.ts:139 |
-| `y2Bounds.width` | `number` | core/types/src/charts/features/plotPaint.d.ts:138 |
-| `y2Bounds.x` | `number` | core/types/src/charts/features/plotPaint.d.ts:140 |
-| `y2Bounds.y` | `number` | core/types/src/charts/features/plotPaint.d.ts:141 |
-| <a id="property-y2configscale"></a> `y2ConfigScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:108 |
-| <a id="property-y2data"></a> `y2Data` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:94 |
-| <a id="property-y2domain"></a> `y2Domain` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:98 |
-| <a id="property-y2exists"></a> `y2Exists` | `boolean` | core/types/src/charts/features/plotPaint.d.ts:115 |
-| <a id="property-y2test"></a> `y2Test` | [`Axis`](#axis) | core/types/src/charts/features/plotPaint.d.ts:128 |
-| <a id="property-y2ticks"></a> `y2Ticks` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:121 |
-| <a id="property-y2width-1"></a> `y2Width` | `number` \| *required* | core/types/src/charts/features/plotPaint.d.ts:144 |
-| <a id="property-ybounds-1"></a> `yBounds` | `object` | core/types/src/charts/features/plotPaint.d.ts:131 |
-| `yBounds.height` | `number` | core/types/src/charts/features/plotPaint.d.ts:133 |
-| `yBounds.width` | `number` | core/types/src/charts/features/plotPaint.d.ts:132 |
-| `yBounds.x` | `number` | core/types/src/charts/features/plotPaint.d.ts:134 |
-| `yBounds.y` | `number` | core/types/src/charts/features/plotPaint.d.ts:135 |
-| <a id="property-yc"></a> `yC` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/plotPaint.d.ts:117 |
-| <a id="property-yconfigscale"></a> `yConfigScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:106 |
-| <a id="property-ydata"></a> `yData` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:92 |
-| <a id="property-ydomain"></a> `yDomain` | `number`[] | core/types/src/charts/features/plotPaint.d.ts:96 |
-| <a id="property-yscale"></a> `yScale` | `string` | core/types/src/charts/features/plotPaint.d.ts:104 |
-| <a id="property-ytest"></a> `yTest` | [`Axis`](#axis) | core/types/src/charts/features/plotPaint.d.ts:126 |
-| <a id="property-yticks"></a> `yTicks` | `unknown`[] | core/types/src/charts/features/plotPaint.d.ts:119 |
-| <a id="property-ywidth-1"></a> `yWidth` | `number` \| *required* | core/types/src/charts/features/plotPaint.d.ts:143 |
-
-***
-
 <a id="rectconfig-3"></a>
 
 ### RectConfig
@@ -24101,12 +23124,12 @@ Rect-specific config (width + height on top of base).
 | <a id="property-activestyle-6"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-6"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
 | <a id="property-backgroundimage-6"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-data-10"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
+| <a id="property-data-9"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
 | <a id="property-discrete-7"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:56 |
 | <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:58 |
 | <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:60 |
 | <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
-| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:132 |
+| <a id="property-height-2"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:132 |
 | <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:70 |
 | <a id="property-hover-6"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:64 |
 | <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:66 |
@@ -24137,69 +23160,9 @@ Rect-specific config (width + height on top of base).
 | <a id="property-texturedefault-6"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:116 |
 | <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:118 |
 | <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:120 |
-| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:131 |
-| <a id="property-x-11"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:122 |
-| <a id="property-y-11"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:124 |
-
-***
-
-<a id="rendererprops"></a>
-
-### RendererProps
-
-Defined in: react/types/src/Renderer.d.ts:6
-
-Props accepted by the Renderer component.
-
-#### Properties
-
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-callback"></a> `callback?` | () => `void` | A function to be invoked at the end of each render cycle (passed directly to the render method). | react/types/src/Renderer.d.ts:12 |
-| <a id="property-classname"></a> `className?` | `string` | The class attribute value used for the root/wrapper <div> element. | react/types/src/Renderer.d.ts:10 |
-| <a id="property-config"></a> `config?` | [`D3plusConfig`](#d3plusconfig) | An object containing method/value pairs to be passed to the visualization's .config() method. | react/types/src/Renderer.d.ts:8 |
-| <a id="property-constructor"></a> `constructor` | [`D3plusConstructor`](#d3plusconstructor) | The d3plus visualization class to instantiate. | react/types/src/Renderer.d.ts:16 |
-| <a id="property-forceupdate"></a> `forceUpdate?` | `boolean` | When true, the visualization re-renders on every React render cycle instead of only when config changes. | react/types/src/Renderer.d.ts:14 |
-
-***
-
-<a id="shapelike"></a>
-
-### ShapeLike
-
-Defined in: core/types/src/charts/features/emitHelpers.d.ts:38
-
-Structural minimum a Shape (or shape-like component: TextBox, Axis)
-must satisfy for the helpers below to work with it. Captures only the
-members the helpers touch — `render()`, optional `toScene()`, and an
-optional inner `_labelClass` with its own `toScene()`.
-
-Replaces the previous `shape: any` parameter on `collectComputed` and
-`absorbShapeIntoChartScene` — both helpers consume the same surface
-regardless of whether the actual instance is a `Shape` subclass, a
-`TextBox`, an `Axis`, or anything else that exposes these members.
-
-#### Methods
-
-<a id="render-21"></a>
-
-##### render()
-
-> **render**(): `unknown`
-
-Defined in: core/types/src/charts/features/emitHelpers.d.ts:39
-
-###### Returns
-
-`unknown`
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-_labelclass-8"></a> `_labelClass?` | `object` | core/types/src/charts/features/emitHelpers.d.ts:41 |
-| `_labelClass.toScene?` | () => `GroupNode` \| `null` \| *required* | core/types/src/charts/features/emitHelpers.d.ts:42 |
-| <a id="property-toscene"></a> `toScene?` | () => `GroupNode` \| `null` \| *required* | core/types/src/charts/features/emitHelpers.d.ts:40 |
+| <a id="property-width-2"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:122 |
+| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:124 |
 
 ***
 
@@ -24222,6 +23185,22 @@ Defined in: locales/types/src/dictionaries/timeLocale.d.ts:1
 | <a id="property-shortdays"></a> `shortDays` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | locales/types/src/dictionaries/timeLocale.d.ts:8 |
 | <a id="property-shortmonths"></a> `shortMonths` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | locales/types/src/dictionaries/timeLocale.d.ts:23 |
 | <a id="property-time-1"></a> `time` | `string` | locales/types/src/dictionaries/timeLocale.d.ts:4 |
+
+***
+
+<a id="titlecaserules"></a>
+
+### TitleCaseRules
+
+Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:1
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-acronyms"></a> `acronyms?` | `string`[] | Acronyms / initialisms emitted in the given canonical casing (matched case-insensitively, so "ceo" and "CEO" both become "CEO"). Mixed-case forms ("iOS", "GmbH", "PhD") are preserved as written. Plurals ("TVs") are derived automatically — so forms whose plural collides with a real word (e.g. "IDE" → "ides") are intentionally omitted. | locales/types/src/dictionaries/titleCaseLocale.d.ts:23 |
+| <a id="property-lowercase"></a> `lowercase?` | `string`[] | Short function words (articles, conjunctions, prepositions, contractions) kept lowercase in the MIDDLE of a title. Matched case-insensitively and against the punctuation-stripped token, so "v" also covers "v." and "vs" covers "vs.". | locales/types/src/dictionaries/titleCaseLocale.d.ts:15 |
+| <a id="property-style"></a> `style` | `"title"` \| `"sentence"` | "title" capitalizes each significant word, lowercasing the minor words in the middle (the English convention). "sentence" capitalizes only the first word. Acronyms are forced uppercase under both styles; the `lowercase` list is consulted only for "title". | locales/types/src/dictionaries/titleCaseLocale.d.ts:8 |
 
 ***
 
@@ -24272,443 +23251,6 @@ Defined in: locales/types/src/dictionaries/translateLocale.d.ts:1
 
 ***
 
-<a id="vizcontext"></a>
-
-### VizContext
-
-Defined in: core/types/src/charts/pipeline/vizContext.d.ts:31
-
-The shape of every field vizPreDraw + vizDraw can populate. Currently
-permissive (any) for the closure-typed helpers (_id, _ids, _drawLabel,
-_thresholdName, _thresholdData). As subclasses formalize their typed
-contexts, this can tighten.
-
-#### Extends
-
-- `Record`\<`string`, `any`\>
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
-#### Properties
-
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-drawdepth"></a> `drawDepth?` | `number` | Effective draw depth (capped to groupBy.length - 1). | core/types/src/charts/pipeline/vizContext.d.ts:33 |
-| <a id="property-drawlabel"></a> `drawLabel?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`, `depth?`: `number`) => `string` | Human-readable label-per-datum accessor (handles aggregation labels). | core/types/src/charts/pipeline/vizContext.d.ts:39 |
-| <a id="property-filtereddata"></a> `filteredData?` | [`DataPoint`](#datapoint)[] | Data after filter + timeFilter + threshold are applied. | core/types/src/charts/pipeline/vizContext.d.ts:41 |
-| <a id="property-id-8"></a> `id?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `any` | Unique-id-per-datum accessor (depth-scoped). | core/types/src/charts/pipeline/vizContext.d.ts:35 |
-| <a id="property-ids"></a> `ids?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`[] | Array-of-ids-per-datum accessor. | core/types/src/charts/pipeline/vizContext.d.ts:37 |
-| <a id="property-legenddata"></a> `legendData?` | [`DataPoint`](#datapoint)[] | Per-id rank order used by legend + treemap label sorting. | core/types/src/charts/pipeline/vizContext.d.ts:43 |
-| <a id="property-nodatamessage"></a> `noDataMessage?` | `boolean` | Whether a "no data" message should currently be visible. | core/types/src/charts/pipeline/vizContext.d.ts:45 |
-
-***
-
-<a id="vizinstance"></a>
-
-### VizInstance
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:68
-
-The structural contract free functions read/write on a chart instance.
-Class instances satisfy it via their `[key: string]: any` signature;
-chart-specific extensions (TreeViz, PieViz, etc.) add stash slots.
-
-#### Methods
-
-<a id="_draw"></a>
-
-##### \_draw()
-
-> **\_draw**(`callback?`: () => `void`): `void`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:196
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `callback?` | () => `void` |
-
-###### Returns
-
-`void`
-
-<a id="_drawscenetotarget-2"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:197
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-<a id="_predraw"></a>
-
-##### \_preDraw()
-
-> **\_preDraw**(): `void`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:195
-
-###### Returns
-
-`void`
-
-<a id="_schedulescenerepaint-2"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:198
-
-###### Returns
-
-`void`
-
-<a id="_thresholdfunction"></a>
-
-##### \_thresholdFunction()?
-
-> `optional` **\_thresholdFunction**(`data`: [`DataPoint`](#datapoint)[], `tree?`: `any`): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:200
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] |
-| `tree?` | `any` |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-<a id="active-12"></a>
-
-##### active()?
-
-> `optional` **active**(`_?`: `any`): `any`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:203
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `any` |
-
-###### Returns
-
-`any`
-
-<a id="config-20"></a>
-
-##### config()?
-
-> `optional` **config**(`_?`: `any`): `any`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:202
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `any` |
-
-###### Returns
-
-`any`
-
-<a id="hover-12"></a>
-
-##### hover()?
-
-> `optional` **hover**(`_?`: `any`): `any`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:204
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `any` |
-
-###### Returns
-
-`any`
-
-<a id="toscene-21"></a>
-
-##### toScene()?
-
-> `optional` **toScene**(): `any`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:201
-
-###### Returns
-
-`any`
-
-#### Properties
-
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-_active"></a> `_active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | - | core/types/src/charts/viz/vizTypes.d.ts:132 |
-| <a id="property-_aggs"></a> `_aggs` | `Record`\<`string`, (`leaves`: [`DataPoint`](#datapoint)[]) => `unknown`\> | - | core/types/src/charts/viz/vizTypes.d.ts:90 |
-| <a id="property-_annotations"></a> `_annotations?` | `any`[] | - | core/types/src/charts/viz/vizTypes.d.ts:154 |
-| <a id="property-_attribution"></a> `_attribution?` | `string` \| `false` | - | core/types/src/charts/viz/vizTypes.d.ts:180 |
-| <a id="property-_attributionstyle"></a> `_attributionStyle?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:181 |
-| <a id="property-_axisconfig"></a> `_axisConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:117 |
-| <a id="property-_axispersist"></a> `_axisPersist?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:155 |
-| <a id="property-_backclass"></a> `_backClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:169 |
-| <a id="property-_backconfig"></a> `_backConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:114 |
-| <a id="property-_backgroundconfig"></a> `_backgroundConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:110 |
-| <a id="property-_barpadding"></a> `_barPadding?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:152 |
-| <a id="property-_baseline"></a> `_baseline?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:145 |
-| <a id="property-_brushing"></a> `_brushing?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:138 |
-| <a id="property-_buffer"></a> `_buffer?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:163 |
-| <a id="property-_chartscene"></a> `_chartScene?` | `SceneNode`[] | - | core/types/src/charts/viz/vizTypes.d.ts:118 |
-| <a id="property-_charttransform"></a> `_chartTransform?` | `Transform` | - | core/types/src/charts/viz/vizTypes.d.ts:119 |
-| <a id="property-_colorscale-1"></a> `_colorScale?` | `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | - | core/types/src/charts/viz/vizTypes.d.ts:177 |
-| <a id="property-_colorscaleclass"></a> `_colorScaleClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:165 |
-| <a id="property-_colorscaleconfig"></a> `_colorScaleConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:112 |
-| <a id="property-_colorscaleposition"></a> `_colorScalePosition?` | (`config`: `any`) => `string` \| `false` | - | core/types/src/charts/viz/vizTypes.d.ts:176 |
-| <a id="property-_confidence"></a> `_confidence?` | `false` \| \[`number`, `number`\] | - | core/types/src/charts/viz/vizTypes.d.ts:149 |
-| <a id="property-_confidenceconfig"></a> `_confidenceConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:159 |
-| <a id="property-_container"></a> `_container?` | [`D3Selection`](#d3selection) | - | core/types/src/charts/viz/vizTypes.d.ts:184 |
-| <a id="property-_data-20"></a> `_data` | [`DataPoint`](#datapoint)[] | - | core/types/src/charts/viz/vizTypes.d.ts:77 |
-| <a id="property-_datacutoff"></a> `_dataCutoff` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:137 |
-| <a id="property-_depth"></a> `_depth?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:87 |
-| <a id="property-_discrete"></a> `_discrete?` | `"x"` \| `"y"` | - | core/types/src/charts/viz/vizTypes.d.ts:89 |
-| <a id="property-_discretecutoff"></a> `_discreteCutoff?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:162 |
-| <a id="property-_drawdepth"></a> `_drawDepth` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:88 |
-| <a id="property-_drawlabel"></a> `_drawLabel` | (`d`: [`DataPoint`](#datapoint), `i`: `number`, `depth?`: `number`) => `string` | - | core/types/src/charts/viz/vizTypes.d.ts:93 |
-| <a id="property-_duration"></a> `_duration` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:128 |
-| <a id="property-_featurepanels"></a> `_featurePanels?` | `SceneNode`[] | - | core/types/src/charts/viz/vizTypes.d.ts:120 |
-| <a id="property-_filter"></a> `_filter?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:83 |
-| <a id="property-_filtereddata"></a> `_filteredData` | [`DataPoint`](#datapoint)[] | - | core/types/src/charts/viz/vizTypes.d.ts:78 |
-| <a id="property-_focus"></a> `_focus?` | `string` \| `number` | - | core/types/src/charts/viz/vizTypes.d.ts:131 |
-| <a id="property-_formatteddata"></a> `_formattedData?` | [`DataPoint`](#datapoint)[] | - | core/types/src/charts/viz/vizTypes.d.ts:79 |
-| <a id="property-_groupby"></a> `_groupBy` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[] | - | core/types/src/charts/viz/vizTypes.d.ts:86 |
-| <a id="property-_grouppadding"></a> `_groupPadding?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:153 |
-| <a id="property-_height"></a> `_height` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:74 |
-| <a id="property-_hidden"></a> `_hidden` | (`string` \| `number`)[] | - | core/types/src/charts/viz/vizTypes.d.ts:81 |
-| <a id="property-_hover"></a> `_hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | - | core/types/src/charts/viz/vizTypes.d.ts:133 |
-| <a id="property-_hoverdatum"></a> `_hoverDatum?` | [`DataPoint`](#datapoint) \| `null` | - | core/types/src/charts/viz/vizTypes.d.ts:134 |
-| <a id="property-_id"></a> `_id` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` | - | core/types/src/charts/viz/vizTypes.d.ts:91 |
-| <a id="property-_ids"></a> `_ids` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`[] | - | core/types/src/charts/viz/vizTypes.d.ts:92 |
-| <a id="property-_label"></a> `_label?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | - | core/types/src/charts/viz/vizTypes.d.ts:103 |
-| <a id="property-_labelconnectorconfig"></a> `_labelConnectorConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:157 |
-| <a id="property-_labelposition"></a> `_labelPosition?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `"auto"` \| `"inside"` \| `"outside"` | - | core/types/src/charts/viz/vizTypes.d.ts:156 |
-| <a id="property-_legend"></a> `_legend?` | `boolean` \| ((`config`: `any`, `data`: [`DataPoint`](#datapoint)[]) => `boolean`) | - | core/types/src/charts/viz/vizTypes.d.ts:174 |
-| <a id="property-_legendclass-1"></a> `_legendClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:164 |
-| <a id="property-_legendconfig"></a> `_legendConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:111 |
-| <a id="property-_legenddata"></a> `_legendData` | [`DataPoint`](#datapoint)[] | - | core/types/src/charts/viz/vizTypes.d.ts:80 |
-| <a id="property-_legenddepth"></a> `_legendDepth?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:175 |
-| <a id="property-_legendposition"></a> `_legendPosition?` | (`config`: `any`) => `string` \| `false` | - | core/types/src/charts/viz/vizTypes.d.ts:173 |
-| <a id="property-_legendsort"></a> `_legendSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:172 |
-| <a id="property-_linelabels"></a> `_lineLabels?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | - | core/types/src/charts/viz/vizTypes.d.ts:150 |
-| <a id="property-_linemarkerconfig"></a> `_lineMarkerConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:158 |
-| <a id="property-_linemarkers"></a> `_lineMarkers?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:151 |
-| <a id="property-_margin-6"></a> `_margin` | [`Margin`](#margin) | - | core/types/src/charts/viz/vizTypes.d.ts:75 |
-| <a id="property-_messageclass"></a> `_messageClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:170 |
-| <a id="property-_nodatamessage"></a> `_noDataMessage?` | `string` \| `false` \| ((`config`: `any`) => `string`) | - | core/types/src/charts/viz/vizTypes.d.ts:85 |
-| <a id="property-_padding"></a> `_padding` | [`Padding`](#padding) | - | core/types/src/charts/viz/vizTypes.d.ts:76 |
-| <a id="property-_previousannotations"></a> `_previousAnnotations?` | `Record`\<`string`, `string`[]\> | - | core/types/src/charts/viz/vizTypes.d.ts:123 |
-| <a id="property-_previousshapes"></a> `_previousShapes?` | `string`[] | - | core/types/src/charts/viz/vizTypes.d.ts:122 |
-| <a id="property-_renderer"></a> `_renderer?` | `"svg"` \| `"canvas"` | - | core/types/src/charts/viz/vizTypes.d.ts:129 |
-| <a id="property-_rendermode"></a> `_renderMode?` | `"full"` \| `"compute"` | - | core/types/src/charts/viz/vizTypes.d.ts:130 |
-| <a id="property-_rendertiles"></a> `_renderTiles?` | (`transform?`: `any`, `duration?`: `number`) => `void` | - | core/types/src/charts/viz/vizTypes.d.ts:192 |
-| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | [`VizRenderer`](#vizrenderer-1) | - | core/types/src/charts/viz/vizTypes.d.ts:127 |
-| <a id="property-_scenerepaintraf"></a> `_sceneRepaintRAF?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:199 |
-| <a id="property-_scenetarget"></a> `_sceneTarget?` | `Element` | - | core/types/src/charts/viz/vizTypes.d.ts:126 |
-| <a id="property-_select-19"></a> `_select?` | [`D3Selection`](#d3selection) | - | core/types/src/charts/viz/vizTypes.d.ts:125 |
-| <a id="property-_shape"></a> `_shape` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | - | core/types/src/charts/viz/vizTypes.d.ts:98 |
-| <a id="property-_shapes-1"></a> `_shapes?` | `any`[] | - | core/types/src/charts/viz/vizTypes.d.ts:121 |
-| <a id="property-_size"></a> `_size?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:99 |
-| <a id="property-_solo"></a> `_solo` | (`string` \| `number`)[] | - | core/types/src/charts/viz/vizTypes.d.ts:82 |
-| <a id="property-_sort"></a> `_sort?` | ((`a`: `any`, `b`: `any`) => `number`) \| `null` | - | core/types/src/charts/viz/vizTypes.d.ts:102 |
-| <a id="property-_stacked"></a> `_stacked?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:146 |
-| <a id="property-_stackoffset"></a> `_stackOffset?` | (`series`: `any`[], `order`: `any`) => `void` | - | core/types/src/charts/viz/vizTypes.d.ts:147 |
-| <a id="property-_stackorder"></a> `_stackOrder?` | (`series`: `any`[]) => `number`[] | - | core/types/src/charts/viz/vizTypes.d.ts:148 |
-| <a id="property-_subtitle"></a> `_subtitle?` | `string` \| `false` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string` \| `false`) | - | core/types/src/charts/viz/vizTypes.d.ts:179 |
-| <a id="property-_subtitleclass"></a> `_subtitleClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:168 |
-| <a id="property-_subtitleconfig"></a> `_subtitleConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:116 |
-| <a id="property-_sum"></a> `_sum?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:105 |
-| <a id="property-_thresholdname"></a> `_thresholdName?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | - | core/types/src/charts/viz/vizTypes.d.ts:104 |
-| <a id="property-_tilegen"></a> `_tileGen?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:187 |
-| <a id="property-_tilegroup"></a> `_tileGroup?` | [`D3Selection`](#d3selection) | - | core/types/src/charts/viz/vizTypes.d.ts:186 |
-| <a id="property-_time"></a> `_time?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `Date` | - | core/types/src/charts/viz/vizTypes.d.ts:101 |
-| <a id="property-_timefilter"></a> `_timeFilter?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:84 |
-| <a id="property-_timeline"></a> `_timeline?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:182 |
-| <a id="property-_timelineclass"></a> `_timelineClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:166 |
-| <a id="property-_timelineconfig"></a> `_timelineConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:113 |
-| <a id="property-_title"></a> `_title?` | `string` \| `false` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string` \| `false`) | - | core/types/src/charts/viz/vizTypes.d.ts:178 |
-| <a id="property-_titleclass-7"></a> `_titleClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:167 |
-| <a id="property-_titleconfig"></a> `_titleConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:115 |
-| <a id="property-_tooltipclass"></a> `_tooltipClass?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:171 |
-| <a id="property-_total"></a> `_total?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint)[], `i`: `number`) => `number`) | - | core/types/src/charts/viz/vizTypes.d.ts:183 |
-| <a id="property-_userduration"></a> `_userDuration?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:136 |
-| <a id="property-_userhover"></a> `_userHover?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:135 |
-| <a id="property-_uuid-20"></a> `_uuid` | `string` | - | core/types/src/charts/viz/vizTypes.d.ts:194 |
-| <a id="property-_value"></a> `_value?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:100 |
-| <a id="property-_width"></a> `_width` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:73 |
-| <a id="property-_wireplotshapeevents"></a> `_wirePlotShapeEvents?` | (`shape`: `any`, `shapeKey`: `string`, `events`: `string`[]) => `void` | - | core/types/src/charts/viz/vizTypes.d.ts:193 |
-| <a id="property-_x"></a> `_x?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `Date` | - | core/types/src/charts/viz/vizTypes.d.ts:94 |
-| <a id="property-_x2"></a> `_x2?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `Date` | - | core/types/src/charts/viz/vizTypes.d.ts:96 |
-| <a id="property-_x2axis"></a> `_x2Axis?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:141 |
-| <a id="property-_x2config"></a> `_x2Config?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:108 |
-| <a id="property-_xaxis"></a> `_xAxis?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:139 |
-| <a id="property-_xconfig"></a> `_xConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:106 |
-| <a id="property-_xcutoff"></a> `_xCutoff?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:160 |
-| <a id="property-_xfunc"></a> `_xFunc?` | (`d`: `any`, `axis?`: `string`) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:143 |
-| <a id="property-_y"></a> `_y?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `Date` | - | core/types/src/charts/viz/vizTypes.d.ts:95 |
-| <a id="property-_y2"></a> `_y2?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `Date` | - | core/types/src/charts/viz/vizTypes.d.ts:97 |
-| <a id="property-_y2axis"></a> `_y2Axis?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:142 |
-| <a id="property-_y2config"></a> `_y2Config?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:109 |
-| <a id="property-_yaxis"></a> `_yAxis?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:140 |
-| <a id="property-_yconfig"></a> `_yConfig?` | `Record`\<`string`, `any`\> | - | core/types/src/charts/viz/vizTypes.d.ts:107 |
-| <a id="property-_ycutoff"></a> `_yCutoff?` | `number` | - | core/types/src/charts/viz/vizTypes.d.ts:161 |
-| <a id="property-_yfunc"></a> `_yFunc?` | (`d`: `any`, `axis?`: `string`) => `number` | - | core/types/src/charts/viz/vizTypes.d.ts:144 |
-| <a id="property-_zoombehavior"></a> `_zoomBehavior?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:188 |
-| <a id="property-_zoombrush"></a> `_zoomBrush?` | `any` | - | core/types/src/charts/viz/vizTypes.d.ts:189 |
-| <a id="property-_zoomgroup"></a> `_zoomGroup?` | [`D3Selection`](#d3selection) | - | core/types/src/charts/viz/vizTypes.d.ts:185 |
-| <a id="property-_zoomset"></a> `_zoomSet?` | `boolean` | - | core/types/src/charts/viz/vizTypes.d.ts:190 |
-| <a id="property-_zoomtobounds"></a> `_zoomToBounds?` | (`bounds`: `number`[][] \| `null`, `duration?`: `number`) => `void` | - | core/types/src/charts/viz/vizTypes.d.ts:191 |
-| <a id="property-_zoomtransform"></a> `_zoomTransform?` | `Transform` | - | core/types/src/charts/viz/vizTypes.d.ts:124 |
-| <a id="property-ctx-20"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | core/types/src/charts/viz/vizTypes.d.ts:72 |
-| <a id="property-schema-21"></a> `schema` | `Record`\<`string`, `any`\> | User-set config from fluent accessors (`.sum(...)`, `.x(...)`, …). | core/types/src/charts/viz/vizTypes.d.ts:70 |
-
-***
-
-<a id="vizlike"></a>
-
-### VizLike
-
-Defined in: core/types/src/charts/features/emitHelpers.d.ts:51
-
-Structural minimum a Viz instance must satisfy for these helpers to
-work. Each chart subclass has many more fields; the helpers only need
-`_chartScene` (mutated by `absorbShapeIntoChartScene`) and
-`schema.shapeConfig` (read by `shapeConfigFor`'s default-config branch).
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-_chartscene-1"></a> `_chartScene?` | `SceneNode`[] | core/types/src/charts/features/emitHelpers.d.ts:52 |
-| <a id="property-schema-22"></a> `schema` | `Record`\<`string`, `unknown`\> | core/types/src/charts/features/emitHelpers.d.ts:53 |
-
-***
-
-<a id="vizpredrawresult"></a>
-
-### VizPreDrawResult
-
-Defined in: core/types/src/charts/pipeline/vizPreDrawPure.d.ts:24
-
-#### Extends
-
-- `Partial`\<[`VizContext`](#vizcontext)\>
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
-#### Properties
-
-| Property | Type | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_thresholdtree"></a> `_thresholdTree?` | `any` | Internal: d3-array rollup tree, consumed by the shim's threshold step. | - | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:26 |
-| <a id="property-computedtimefilter"></a> `computedTimeFilter?` | `TimeFilterFn` | Internal: synthesized time-filter for the shim to back-assign. | - | core/types/src/charts/pipeline/vizPreDrawPure.d.ts:28 |
-| <a id="property-drawdepth-1"></a> `drawDepth?` | `number` | Effective draw depth (capped to groupBy.length - 1). | [`VizContext`](#vizcontext).[`drawDepth`](#property-drawdepth) | core/types/src/charts/pipeline/vizContext.d.ts:33 |
-| <a id="property-drawlabel-1"></a> `drawLabel?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`, `depth?`: `number`) => `string` | Human-readable label-per-datum accessor (handles aggregation labels). | `Partial.drawLabel` | core/types/src/charts/pipeline/vizContext.d.ts:39 |
-| <a id="property-filtereddata-1"></a> `filteredData?` | [`DataPoint`](#datapoint)[] | Data after filter + timeFilter + threshold are applied. | [`VizContext`](#vizcontext).[`filteredData`](#property-filtereddata) | core/types/src/charts/pipeline/vizContext.d.ts:41 |
-| <a id="property-id-9"></a> `id?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `any` | Unique-id-per-datum accessor (depth-scoped). | `Partial.id` | core/types/src/charts/pipeline/vizContext.d.ts:35 |
-| <a id="property-ids-1"></a> `ids?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`[] | Array-of-ids-per-datum accessor. | `Partial.ids` | core/types/src/charts/pipeline/vizContext.d.ts:37 |
-| <a id="property-legenddata-1"></a> `legendData?` | [`DataPoint`](#datapoint)[] | Per-id rank order used by legend + treemap label sorting. | [`VizContext`](#vizcontext).[`legendData`](#property-legenddata) | core/types/src/charts/pipeline/vizContext.d.ts:43 |
-| <a id="property-nodatamessage-1"></a> `noDataMessage?` | `boolean` | Whether a "no data" message should currently be visible. | [`VizContext`](#vizcontext).[`noDataMessage`](#property-nodatamessage) | core/types/src/charts/pipeline/vizContext.d.ts:45 |
-
-***
-
-<a id="vizrenderer-1"></a>
-
-### VizRenderer
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:52
-
-A Renderer instance — see @d3plus/render.
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
-#### Methods
-
-<a id="destroy-2"></a>
-
-##### destroy()
-
-> **destroy**(): `void`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:59
-
-###### Returns
-
-`void`
-
-<a id="drawscene"></a>
-
-##### drawScene()
-
-> **drawScene**(`scene`: `any`, `opts?`: `any`): `any`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:60
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `scene` | `any` |
-| `opts?` | `any` |
-
-###### Returns
-
-`any`
-
-<a id="target"></a>
-
-##### target()
-
-> **target**(): \{ `container`: `Element`; `height`: `number`; `width`: `number`; \} \| `undefined`
-
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:54
-
-###### Returns
-
-\{ `container`: `Element`; `height`: `number`; `width`: `number`; \} \| `undefined`
-
-#### Properties
-
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-kind"></a> `kind` | `"svg"` \| `"canvas"` | core/types/src/charts/viz/vizTypes.d.ts:53 |
-
-***
-
 <a id="whiskerconfig-2"></a>
 
 ### WhiskerConfig
@@ -24725,15 +23267,15 @@ Whisker-specific config.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-11"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:199 |
+| <a id="property-data-10"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:199 |
 | <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | core/types/src/shapes/shapeConfig.d.ts:201 |
 | <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:202 |
 | <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | core/types/src/shapes/shapeConfig.d.ts:204 |
 | <a id="property-lineconfig"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:205 |
 | <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:206 |
 | <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:207 |
-| <a id="property-x-12"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:208 |
-| <a id="property-y-12"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:209 |
+| <a id="property-x-10"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:208 |
+| <a id="property-y-10"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:209 |
 
 ## Type Aliases
 
@@ -24741,7 +23283,7 @@ Whisker-specific config.
 
 ### AnyShapeConfig
 
-> **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-2) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
+> **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-2) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
 
 Defined in: core/types/src/shapes/shapeConfig.d.ts:217
 
@@ -24767,40 +23309,6 @@ that wraps as `constant(_)`. Mirrors the runtime "const" coerce.
 | Type Parameter | Default type |
 | ------ | ------ |
 | `T` | `any` |
-
-***
-
-<a id="d3pluscomponentprops"></a>
-
-### D3plusComponentProps
-
-> **D3plusComponentProps** = `Omit`\<[`RendererProps`](#rendererprops), `"constructor"`\>
-
-Defined in: react/types/index.d.ts:3
-
-Props for d3plus React wrapper components (omits the internal constructor prop).
-
-***
-
-<a id="d3plusconstructor"></a>
-
-### D3plusConstructor
-
-> **D3plusConstructor** = (...`args`: `any`[]) => `any`
-
-Defined in: react/types/src/Renderer.d.ts:4
-
-Constructor type for d3plus visualization classes.
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| ...`args` | `any`[] |
-
-#### Returns
-
-`any`
 
 ***
 
@@ -24960,27 +23468,6 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:48
 ###### Returns
 
 `any`
-
-***
-
-<a id="resolvedspec"></a>
-
-### ResolvedSpec
-
-> **ResolvedSpec** = `Readonly`\<`Record`\<`string`, `any`\>\>
-
-Defined in: core/types/src/charts/pipeline/resolveSpec.d.ts:40
-
-All user-settable configuration keys on a chart, frozen.
-
-Generated by stripping the `_` prefix from every Viz/Plot/chart-subclass
-instance field that has a matching accessor method. Accessor reflection
-is handled by `BaseClass.config()`; this type is the static shape.
-
-Extends `Record<string, unknown>` for incremental migration — chart
-subclasses add their own fields and the existing `installFluent`-
-installed accessors don't yet have static type info. As schemas gain
-types, this can narrow to per-field unions.
 
 ***
 

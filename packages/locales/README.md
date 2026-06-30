@@ -36,12 +36,14 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`formatLocale`](#formatlocale) |  |
 | [`locale`](#locale) |  |
+| [`titleCaseLocale`](#titlecaselocale) |  |
 | [`translateLocale`](#translatelocale) |  |
 
 | Interfaces | Description |
 | --- | --- |
 | [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
 | [`TimeLocaleDefinition`](#timelocaledefinition) |  |
+| [`TitleCaseRules`](#titlecaserules) |  |
 | [`TranslationStrings`](#translationstrings) |  |
 
 ## Functions
@@ -85,6 +87,16 @@ Defined in: [dictionaries/formatLocale.ts:17](https://github.com/d3plus/d3plus/b
 > `const` **locale**: `Record`\<`string`, [`TimeLocaleDefinition`](#timelocaledefinition)\>
 
 Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L39)
+
+***
+
+<a id="titlecaselocale"></a>
+
+### titleCaseLocale
+
+> `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
+
+Defined in: [dictionaries/titleCaseLocale.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L35)
 
 ***
 
@@ -142,6 +154,22 @@ Defined in: [dictionaries/timeLocale.ts:1](https://github.com/d3plus/d3plus/blob
 | <a id="property-shortdays"></a> `shortDays` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L8) |
 | <a id="property-shortmonths"></a> `shortMonths` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L23) |
 | <a id="property-time"></a> `time` | `string` | [dictionaries/timeLocale.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L4) |
+
+***
+
+<a id="titlecaserules"></a>
+
+### TitleCaseRules
+
+Defined in: [dictionaries/titleCaseLocale.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L1)
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-acronyms"></a> `acronyms?` | `string`[] | Acronyms / initialisms emitted in the given canonical casing (matched case-insensitively, so "ceo" and "CEO" both become "CEO"). Mixed-case forms ("iOS", "GmbH", "PhD") are preserved as written. Plurals ("TVs") are derived automatically — so forms whose plural collides with a real word (e.g. "IDE" → "ides") are intentionally omitted. | [dictionaries/titleCaseLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L23) |
+| <a id="property-lowercase"></a> `lowercase?` | `string`[] | Short function words (articles, conjunctions, prepositions, contractions) kept lowercase in the MIDDLE of a title. Matched case-insensitively and against the punctuation-stripped token, so "v" also covers "v." and "vs" covers "vs.". | [dictionaries/titleCaseLocale.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L15) |
+| <a id="property-style"></a> `style` | `"title"` \| `"sentence"` | "title" capitalizes each significant word, lowercasing the minor words in the middle (the English convention). "sentence" capitalizes only the first word. Acronyms are forced uppercase under both styles; the `lowercase` list is consulted only for "title". | [dictionaries/titleCaseLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L8) |
 
 ***
 
