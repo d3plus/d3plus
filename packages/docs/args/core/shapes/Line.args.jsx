@@ -71,7 +71,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     data: {
@@ -97,7 +97,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "accessorfn"
       }
     },
     hover: {

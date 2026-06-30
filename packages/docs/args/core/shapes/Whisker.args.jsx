@@ -66,7 +66,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "600"
@@ -79,7 +79,7 @@ export const argTypes = assign(
     },
     endpoint: {
       control: {},
-      description: "",
+      description: "End-cap shape name (e.g. \"Rect\").",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -87,7 +87,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     endpointConfig: {
@@ -118,7 +118,7 @@ export const argTypes = assign(
     },
     length: {
       control: {},
-      description: "",
+      description: "Whisker length in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -126,7 +126,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     lineConfig: {
@@ -182,7 +182,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     parent: {
@@ -262,7 +262,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     y: {
@@ -275,7 +275,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     }
   }

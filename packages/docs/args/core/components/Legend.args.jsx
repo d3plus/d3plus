@@ -99,7 +99,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "600"
@@ -115,7 +115,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 200,
-      description: "",
+      description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "200"
@@ -141,7 +141,7 @@ export const argTypes = assign(
     },
     id: {
       control: {},
-      description: "",
+      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -149,12 +149,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "accessorfn"
       }
     },
     label: {
       control: {},
-      description: "",
+      description: "Label text(s) per datum. False/undefined skips.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -162,7 +162,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     locale: {
@@ -279,8 +279,10 @@ export const argTypes = assign(
       }
     },
     title: {
-      control: {},
-      description: "",
+      control: {
+        type: "text"
+      },
+      description: "Chart title or title accessor function.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -288,7 +290,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "string | function"
       }
     },
     titleConfig: {
@@ -322,7 +324,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "middle",
-      description: "",
+      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
       table: {
         defaultValue: {
           summary: "middle"
@@ -330,7 +332,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "constoraccessor"
       }
     },
     width: {
@@ -338,7 +340,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
-      description: "",
+      description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "400"

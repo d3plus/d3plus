@@ -119,7 +119,7 @@ export const argTypes = assign(
     },
     orient: {
       control: {},
-      description: "",
+      description: "Orientation: \"vertical\" or \"horizontal\".",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -127,12 +127,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     outlier: {
       control: {},
-      description: "",
+      description: "Outlier accessor (per-datum predicate).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -140,7 +140,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     outlierConfig: {
@@ -192,7 +192,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     select: {
@@ -257,7 +257,7 @@ export const argTypes = assign(
         "tukey",
         "tukey"
       ],
-      description: "",
+      description: "Whisker mode: single mode string/number or [low, high] pair.",
       table: {
         defaultValue: {
           summary: "[\"tukey\",\"tukey\"]"
@@ -265,7 +265,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array"
+        summary: "string | number | array.&lt;string | number&gt;"
       }
     },
     x: {
@@ -278,7 +278,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     y: {
@@ -291,7 +291,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     }
   }

@@ -59,7 +59,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   },
   id: {
@@ -72,7 +72,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "accessorfn"
     }
   },
   locale: {
@@ -115,7 +115,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   },
   parent: {
@@ -141,7 +141,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   },
   render: {
@@ -159,10 +159,14 @@ export const argTypes = {
   },
   renderMode: {
     control: {
-      type: "text"
+      type: "radio"
     },
     defaultValue: "full",
-    description: "",
+    description: "\"full\" runs the DOM enter/update/exit; \"compute\" skips DOM.",
+    options: [
+      "full",
+      "compute"
+    ],
     table: {
       defaultValue: {
         summary: "full"
@@ -170,7 +174,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string"
+      summary: "\"full\" | \"compute\""
     }
   },
   select: {
@@ -216,7 +220,7 @@ export const argTypes = {
   },
   url: {
     control: {},
-    description: "",
+    description: "URL accessor returning the image src.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -224,7 +228,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "accessorfn"
     }
   },
   width: {
@@ -237,7 +241,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   },
   x: {
@@ -250,7 +254,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   },
   y: {
@@ -263,7 +267,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "function"
+      summary: "constoraccessor"
     }
   }
 };

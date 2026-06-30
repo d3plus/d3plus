@@ -62,7 +62,9 @@ export const argTypes = assign(
       }
     },
     body: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -71,7 +73,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     bodyStyle: {
@@ -183,8 +185,10 @@ export const argTypes = assign(
       }
     },
     height: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -192,12 +196,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number"
       }
     },
     id: {
       control: {},
-      description: "",
+      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -205,7 +209,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "accessorfn"
       }
     },
     locale: {
@@ -305,7 +309,7 @@ export const argTypes = assign(
     },
     pointerEvents: {
       control: {},
-      description: "",
+      description: "SVG `pointer-events` attribute per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -313,7 +317,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     position: {
@@ -370,7 +374,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array"
+        summary: "function | array.&lt;array.&lt;string | function&gt;&gt;"
       }
     },
     tbodyStyle: {
@@ -412,7 +416,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array"
+        summary: "function | array.&lt;array.&lt;string | function&gt;&gt;"
       }
     },
     theadStyle: {
@@ -429,7 +433,9 @@ export const argTypes = assign(
       }
     },
     title: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -438,7 +444,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "string | function"
       }
     },
     titleStyle: {
@@ -494,8 +500,10 @@ export const argTypes = assign(
       }
     },
     width: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -503,7 +511,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number"
       }
     }
   }

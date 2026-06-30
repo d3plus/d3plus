@@ -102,7 +102,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "600"
@@ -173,7 +173,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
-      description: "",
+      description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "400"
@@ -186,7 +186,7 @@ export const argTypes = assign(
     },
     labelOffset: {
       control: {
-        type: "boolean"
+        type: "number"
       },
       defaultValue: false,
       description: "",
@@ -197,7 +197,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "boolean"
+        summary: "number | false"
       }
     },
     labelRotation: {
@@ -217,7 +217,9 @@ export const argTypes = assign(
       }
     },
     labels: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -226,7 +228,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;unknown&gt;"
       }
     },
     locale: {
@@ -245,7 +247,9 @@ export const argTypes = assign(
       }
     },
     maxSize: {
-      control: {},
+      control: {
+        type: "number"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -254,7 +258,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "number"
       }
     },
     minSize: {
@@ -481,7 +485,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "axisscale"
       }
     },
     scalePadding: {
@@ -554,7 +558,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "function"
       }
     },
     tickSize: {
@@ -590,7 +594,9 @@ export const argTypes = assign(
       }
     },
     ticks: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -599,7 +605,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "array.&lt;unknown&gt;"
       }
     },
     timeLocale: {
@@ -616,7 +622,9 @@ export const argTypes = assign(
       }
     },
     title: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "",
       table: {
         defaultValue: {
@@ -625,7 +633,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "string"
       }
     },
     titleConfig: {
@@ -659,7 +667,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
-      description: "",
+      description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "400"

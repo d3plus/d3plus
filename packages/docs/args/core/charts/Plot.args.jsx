@@ -182,7 +182,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "",
+      description: "Padding between bars in pixels.",
       table: {
         defaultValue: {
           summary: "0"
@@ -706,8 +706,10 @@ export const argTypes = assign(
       }
     },
     lineLabels: {
-      control: {},
-      description: "",
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to show labels on line charts.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -715,7 +717,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "boolean"
       }
     },
     lineMarkerConfig: {
@@ -1109,8 +1111,10 @@ export const argTypes = assign(
       }
     },
     stacked: {
-      control: {},
-      description: "",
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to stack series.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1118,7 +1122,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "boolean"
       }
     },
     subtitle: {
@@ -1523,7 +1527,7 @@ export const argTypes = assign(
     },
     xSort: {
       control: {},
-      description: "",
+      description: "Custom sort function for x-axis values.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1531,7 +1535,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "function"
       }
     },
     y: {
@@ -1650,7 +1654,7 @@ export const argTypes = assign(
     },
     ySort: {
       control: {},
-      description: "",
+      description: "Custom sort function for y-axis values.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1658,7 +1662,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "function"
       }
     },
     zoomBrushHandleSize: {

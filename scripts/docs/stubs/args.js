@@ -44,7 +44,13 @@ const hasParent = ({augments}) =>
 const collapseCategory = p =>
   p ? `/${p.split("/").filter(Boolean)[0]}` : "";
 
-export default function (story, allMethods, stories, configDefaults = {}) {
+export default function (
+  story,
+  allMethods,
+  stories,
+  configDefaults = {},
+  interfaceDocs = {},
+) {
   const {kind, name, meta} = story;
   const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
   const [, moduleName, rawFilePath] = regex.exec(meta.path);
@@ -221,6 +227,11 @@ export default function (story, allMethods, stories, configDefaults = {}) {
   // generated `assign(parentArgTypes, …)` import.
   const ownConfig = configDefaults[name] || {};
   const parentConfig = (parentClass && configDefaults[parentClass]) || {};
+  // Prefer this class's own config interface (Axis → AxisConfig) so shared key
+  // names like `title` read the right meaning; fall back to the cross-interface
+  // merge for inherited/universal keys (shape configs, D3plusConfig).
+  const ifaceSpecific = (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
+  const ifaceMerged = interfaceDocs.merged || {};
   const hideRe = disabledMethods.length
     ? new RegExp(`^(${disabledMethods.join("|")}.*)$`)
     : null;
@@ -229,7 +240,8 @@ export default function (story, allMethods, stories, configDefaults = {}) {
     if (cleanKey in parentConfig) continue;
     if (formattedMethods[cleanKey]) continue;
     if (hideRe && hideRe.test(cleanKey)) continue;
-    formattedMethods[cleanKey] = configArgType(ownConfig[key]);
+    const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
+    formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
   }
 
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
@@ -283,13 +295,75 @@ ${methodJSON.replace(/^/gm, "  ")}
 }
 
 /**
- * Builds a Storybook argType from a runtime config value (the current value of
- * an installFluent accessor). The control + summary are inferred from the
- * value's type; primitives/arrays carry their default through. Accessors
- * (functions) and unset values get no editable control but are still listed so
- * `configify` keeps story-set values and the key shows in the Code view.
+ * Attaches the runtime default of an installFluent accessor (primitives +
+ * arrays only — functions/objects aren't editable defaults) to an argType.
  */
-function configArgType(value) {
+function withDefault(arg, value) {
+  const vt = Array.isArray(value) ? "array" : typeof value;
+  if (
+    value !== undefined &&
+    (vt === "number" || vt === "string" || vt === "boolean" || vt === "array")
+  ) {
+    arg.defaultValue = value;
+    arg.table = {
+      defaultValue: {summary: vt === "array" ? JSON.stringify(value) : String(value)},
+    };
+  } else {
+    arg.table = {defaultValue: {summary: "undefined"}};
+  }
+  return arg;
+}
+
+/**
+ * Builds a Storybook argType for an installFluent accessor.
+ *
+ * Prefers the typed config interface (`D3plusConfig`, `AxisConfig`, shape
+ * configs) when it documents the key (`doc.names` + `doc.description`): that
+ * yields a real control + description even when the runtime default is
+ * `undefined` (e.g. Axis `title`/`ticks`), reusing the same name→control
+ * mapping as JSDoc methods (incl. radio/select for string-literal unions).
+ * Otherwise it infers the control purely from the runtime value's type;
+ * functions/unset values get no control but are still listed so `configify`
+ * keeps story-set values and the key shows in the Code view.
+ */
+function configArgType(value, doc) {
+  if (doc && doc.names && doc.names.length) {
+    const types = doc.names.map(t => t.toLowerCase());
+    const arg = {
+      type: {required: false, summary: types.join(" | ")},
+      control: {type: undefined},
+      description: doc.description || "",
+    };
+    if (doc.names.some(isWrappedInQuotes)) {
+      const evals = [undefined, null, true, false].map(String);
+      arg.options = doc.names
+        .map(n =>
+          isWrappedInQuotes(n)
+            ? removeStartEndQuotes(n)
+            : evals.includes(n)
+              ? eval(n)
+              : false,
+        )
+        .filter(Boolean);
+      arg.control.type = arg.options.length < 5 ? "radio" : "select";
+    } else if (types.some(t => t === "object" || t.startsWith("record") || t.startsWith("array") || t.endsWith("[]")))
+      arg.control.type = "object";
+    else if (types.includes("number")) arg.control.type = "number";
+    else if (types.includes("string")) arg.control.type = "text";
+    else if (types.includes("boolean")) arg.control.type = "boolean";
+    // If the interface type didn't resolve to a control (e.g. an unexpanded
+    // type alias like `AxisScale`) but the runtime default is a primitive,
+    // infer the control from the value so it stays editable.
+    if (!arg.control.type) {
+      const vt = Array.isArray(value) ? "array" : typeof value;
+      if (vt === "number") arg.control.type = "number";
+      else if (vt === "string") arg.control.type = "text";
+      else if (vt === "boolean") arg.control.type = "boolean";
+      else if (vt === "array") arg.control.type = "object";
+    }
+    return withDefault(arg, value);
+  }
+
   const t = Array.isArray(value)
     ? "array"
     : value === null
@@ -312,19 +386,7 @@ function configArgType(value) {
   else if (t === "string") arg.control.type = "text";
   else if (t === "boolean") arg.control.type = "boolean";
   else if (t === "array" || t === "object") arg.control.type = "object";
-
-  if (
-    value !== undefined &&
-    (t === "number" || t === "string" || t === "boolean" || t === "array")
-  ) {
-    arg.defaultValue = value;
-    arg.table = {
-      defaultValue: {summary: t === "array" ? JSON.stringify(value) : String(value)},
-    };
-  } else {
-    arg.table = {defaultValue: {summary: "undefined"}};
-  }
-  return arg;
+  return withDefault(arg, value);
 }
 
 const JSONstringifyOrder = (obj, space) => {

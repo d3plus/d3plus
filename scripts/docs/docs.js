@@ -17,7 +17,7 @@ import readmeHeader from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
 import storiesStub from "./stubs/stories.js";
 import {chartDefMap} from "./stubs/chartDefs.js";
-import {buildPublicDocs} from "./typedoc.js";
+import {buildPublicDocs, getCommentText, typeToNames} from "./typedoc.js";
 
 /**
  * Replaces each chart's `> **Name**: VizCtor` line (TypeDoc's view of a
@@ -113,6 +113,47 @@ async function collectConfigDefaults(folder, stories) {
     }
   }
   return out;
+}
+
+/**
+ * Builds type+description lookups from every config interface in the project
+ * (`D3plusConfig`, `AxisConfig`, the shape configs, …). installFluent
+ * accessors have no declared member for TypeDoc to read, so their generated
+ * argTypes borrow the type (→ control) and description from these typed
+ * interfaces — important for keys whose runtime default is `undefined` (e.g.
+ * Axis `title`/`ticks`), which can't be typed from the value alone.
+ *
+ * Returns `{byName, merged}`:
+ *   - `byName[InterfaceName][prop]` lets a class prefer its own config
+ *     interface (e.g. Axis → `AxisConfig`), so `title` reads the axis meaning
+ *     rather than the chart one.
+ *   - `merged[prop]` is the cross-interface fallback (first entry wins; a later
+ *     one carrying a description upgrades it), covering inherited/shared keys.
+ */
+function collectInterfaceDocs(project) {
+  const byName = {};
+  const merged = {};
+  const walk = node => {
+    for (const child of node.children || []) {
+      if (child.kind === ReflectionKind.Interface) {
+        const props = (byName[child.name] = byName[child.name] || {});
+        for (const prop of child.children || []) {
+          if (prop.kind !== ReflectionKind.Property) continue;
+          const entry = {
+            names: typeToNames(prop.type),
+            description: getCommentText(prop.comment),
+          };
+          props[prop.name] = entry;
+          const existing = merged[prop.name];
+          if (!existing || (!existing.description && entry.description))
+            merged[prop.name] = entry;
+        }
+      }
+      walk(child);
+    }
+  };
+  walk(project);
+  return {byName, merged};
 }
 
 const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -324,6 +365,8 @@ async function generateMarkdown() {
 
     // Runtime config surface per class (installFluent accessors TypeDoc misses).
     const configDefaults = await collectConfigDefaults(folder, stories);
+    // Types + descriptions for those accessors, borrowed from the config interfaces.
+    const interfaceDocs = collectInterfaceDocs(project);
 
     stories.forEach(story => {
       const {meta, name} = story;
@@ -353,7 +396,13 @@ async function generateMarkdown() {
         folder,
         `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`,
       );
-      const argsContent = argsStub(story, publicDocs, stories, configDefaults);
+      const argsContent = argsStub(
+        story,
+        publicDocs,
+        stories,
+        configDefaults,
+        interfaceDocs,
+      );
       const argsFolder = path.dirname(argsPath);
       fs.mkdirSync(argsFolder, {recursive: true});
       fs.writeFileSync(argsPath, argsContent);

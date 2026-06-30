@@ -53,7 +53,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.25,
-      description: "",
+      description: "Opacity applied to non-active data points (default ~0.25).",
       table: {
         defaultValue: {
           summary: "0.25"
@@ -79,7 +79,7 @@ export const argTypes = assign(
     },
     ariaLabel: {
       control: {},
-      description: "",
+      description: "ARIA label per datum (accessibility).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -87,12 +87,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     backgroundImage: {
       control: {},
-      description: "",
+      description: "Optional background image per datum (url or accessor returning a url).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -100,7 +100,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     config: {
@@ -131,8 +131,14 @@ export const argTypes = assign(
       }
     },
     discrete: {
-      control: {},
-      description: "",
+      control: {
+        type: "radio"
+      },
+      description: "Discrete-axis key (\"x\" | \"y\") for charts that flip layout per axis.",
+      options: [
+        "x",
+        "y"
+      ],
       table: {
         defaultValue: {
           summary: "undefined"
@@ -140,7 +146,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "\"x\" | \"y\""
       }
     },
     duration: {
@@ -148,7 +154,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "600"
@@ -161,7 +167,7 @@ export const argTypes = assign(
     },
     fill: {
       control: {},
-      description: "",
+      description: "Fill color or accessor returning one.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -169,12 +175,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     fillOpacity: {
       control: {},
-      description: "",
+      description: "Fill opacity (0..1).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -182,12 +188,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     hitArea: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "Hit-area shape: function returning bounds or static bounds.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -195,7 +203,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "record | function"
       }
     },
     hover: {
@@ -216,7 +224,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0.5,
-      description: "",
+      description: "Opacity applied to non-hovered data points.",
       table: {
         defaultValue: {
           summary: "0.5"
@@ -242,7 +250,7 @@ export const argTypes = assign(
     },
     id: {
       control: {},
-      description: "",
+      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -250,12 +258,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "accessorfn"
       }
     },
     label: {
       control: {},
-      description: "",
+      description: "Label text(s) per datum. False/undefined skips.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -263,12 +271,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     labelBounds: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "Label-bounds accessor (where to mount the label).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -276,7 +286,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "record | function"
       }
     },
     labelConfig: {
@@ -324,7 +334,7 @@ export const argTypes = assign(
     },
     opacity: {
       control: {},
-      description: "",
+      description: "Overall opacity (0..1).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -332,7 +342,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     parent: {
@@ -350,7 +360,7 @@ export const argTypes = assign(
     },
     pointerEvents: {
       control: {},
-      description: "",
+      description: "SVG `pointer-events` attribute per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -358,12 +368,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     role: {
       control: {},
-      description: "",
+      description: "ARIA role per datum (accessibility).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -371,12 +381,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     rotate: {
       control: {},
-      description: "",
+      description: "Rotation in degrees per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -384,12 +394,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     rx: {
       control: {},
-      description: "",
+      description: "SVG `rx` (rect rounded-corner x) — applies to Rect/Bar.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -397,12 +407,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     ry: {
       control: {},
-      description: "",
+      description: "SVG `ry` (rect rounded-corner y) — applies to Rect/Bar.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -410,12 +420,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     scale: {
       control: {},
-      description: "",
+      description: "Scale factor (1 = identity).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -423,7 +433,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     select: {
@@ -456,7 +466,7 @@ export const argTypes = assign(
     },
     shapeRendering: {
       control: {},
-      description: "",
+      description: "SVG `shape-rendering` attribute per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -464,7 +474,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     sort: {
@@ -482,7 +492,7 @@ export const argTypes = assign(
     },
     stroke: {
       control: {},
-      description: "",
+      description: "Stroke color.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -490,12 +500,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     strokeDasharray: {
       control: {},
-      description: "",
+      description: "SVG `stroke-dasharray`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -503,12 +513,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     strokeLinecap: {
       control: {},
-      description: "",
+      description: "SVG `stroke-linecap`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -516,12 +526,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     strokeOpacity: {
       control: {},
-      description: "",
+      description: "SVG `stroke-opacity`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -529,12 +539,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     strokeWidth: {
       control: {},
-      description: "",
+      description: "Stroke width in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -542,12 +552,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     textAnchor: {
       control: {},
-      description: "",
+      description: "SVG `text-anchor` for labels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -555,12 +565,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     texture: {
       control: {},
-      description: "",
+      description: "Texture (per textures.js) — name string or full config.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -568,7 +578,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     textureDefault: {
@@ -599,7 +609,7 @@ export const argTypes = assign(
     },
     vectorEffect: {
       control: {},
-      description: "",
+      description: "SVG `vector-effect` (e.g. \"non-scaling-stroke\").",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -607,12 +617,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     verticalAlign: {
       control: {},
-      description: "",
+      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -620,12 +630,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     x: {
       control: {},
-      description: "",
+      description: "X position.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -633,12 +643,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     y: {
       control: {},
-      description: "",
+      description: "Y position.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -646,7 +656,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     }
   }

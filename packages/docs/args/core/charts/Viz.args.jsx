@@ -53,7 +53,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: true,
-    description: "",
+    description: "Hides the SVG from assistive technology when true (`aria-hidden`).",
     table: {
       defaultValue: {
         summary: "true"
@@ -110,7 +110,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: true,
-    description: "",
+    description: "Whether to cache the processed data between renders.",
     table: {
       defaultValue: {
         summary: "true"
@@ -242,7 +242,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 100,
-    description: "",
+    description: "Maximum number of data points to render before downsampling.",
     table: {
       defaultValue: {
         summary: "100"
@@ -254,8 +254,10 @@ export const argTypes = {
     }
   },
   depth: {
-    control: {},
-    description: "",
+    control: {
+      type: "number"
+    },
+    description: "Active depth level for nested groupings.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -263,7 +265,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "number"
     }
   },
   detectResize: {
@@ -327,8 +329,14 @@ export const argTypes = {
     }
   },
   discrete: {
-    control: {},
-    description: "",
+    control: {
+      type: "radio"
+    },
+    description: "Discrete-axis key (\"x\" | \"y\") for charts that flip layout per axis.",
+    options: [
+      "x",
+      "y"
+    ],
     table: {
       defaultValue: {
         summary: "undefined"
@@ -336,7 +344,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "\"x\" | \"y\""
     }
   },
   downloadButton: {
@@ -387,7 +395,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 600,
-    description: "",
+    description: "Animation duration in ms.",
     table: {
       defaultValue: {
         summary: "600"
@@ -400,7 +408,7 @@ export const argTypes = {
   },
   filter: {
     control: {},
-    description: "",
+    description: "Predicate filtering which data points are included, or false to disable.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -408,7 +416,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "false | function"
     }
   },
   fontFamily: {
@@ -442,8 +450,10 @@ export const argTypes = {
     }
   },
   height: {
-    control: {},
-    description: "",
+    control: {
+      type: "number"
+    },
+    description: "Overall height of the visualization in pixels.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -451,7 +461,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "number"
     }
   },
   hiddenColor: {
@@ -587,7 +597,7 @@ export const argTypes = {
   },
   legendSort: {
     control: {},
-    description: "",
+    description: "Custom sort comparator for legend items.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -912,7 +922,7 @@ export const argTypes = {
       type: "text"
     },
     defaultValue: "",
-    description: "",
+    description: "Accessible description applied to the root SVG (`<desc>`).",
     table: {
       defaultValue: {
         summary: ""
@@ -928,7 +938,7 @@ export const argTypes = {
       type: "text"
     },
     defaultValue: "",
-    description: "",
+    description: "Accessible title applied to the root SVG (`<title>`).",
     table: {
       defaultValue: {
         summary: ""
@@ -1001,7 +1011,7 @@ export const argTypes = {
   },
   timeFilter: {
     control: {},
-    description: "",
+    description: "Predicate filtering which time slices are shown, or false to disable.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1009,7 +1019,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "false | function"
     }
   },
   timeline: {
@@ -1017,7 +1027,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: true,
-    description: "",
+    description: "Whether to show the timeline component.",
     table: {
       defaultValue: {
         summary: "true"
@@ -1212,8 +1222,10 @@ export const argTypes = {
     }
   },
   width: {
-    control: {},
-    description: "",
+    control: {
+      type: "number"
+    },
+    description: "Overall width of the visualization in pixels.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1221,7 +1233,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "unknown"
+      summary: "number"
     }
   },
   zoom: {
@@ -1229,7 +1241,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: false,
-    description: "",
+    description: "Set to false to disable zooming on Geomap and Network.",
     table: {
       defaultValue: {
         summary: "false"
@@ -1325,7 +1337,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 2,
-    description: "",
+    description: "Multiplier applied to programmatic zoom steps.",
     table: {
       defaultValue: {
         summary: "2"
@@ -1341,7 +1353,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 16,
-    description: "",
+    description: "Maximum zoom scale factor.",
     table: {
       defaultValue: {
         summary: "16"
@@ -1372,7 +1384,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: true,
-    description: "",
+    description: "Whether panning (drag) is enabled while zoomed.",
     table: {
       defaultValue: {
         summary: "true"
@@ -1388,7 +1400,7 @@ export const argTypes = {
       type: "boolean"
     },
     defaultValue: true,
-    description: "",
+    description: "Whether scroll-wheel zooming is enabled.",
     table: {
       defaultValue: {
         summary: "true"

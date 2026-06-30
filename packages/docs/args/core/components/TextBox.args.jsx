@@ -23,8 +23,10 @@ export const argTypes = assign(
   
   {
     ariaHidden: {
-      control: {},
-      description: "",
+      control: {
+        type: "boolean"
+      },
+      description: "Hides the SVG from assistive technology when true (`aria-hidden`).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -32,7 +34,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "boolean"
       }
     },
     config: {
@@ -82,7 +84,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "0"
@@ -237,8 +239,10 @@ export const argTypes = assign(
       }
     },
     height: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -246,7 +250,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number"
       }
     },
     html: {
@@ -266,7 +270,7 @@ export const argTypes = assign(
     },
     id: {
       control: {},
-      description: "",
+      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -274,7 +278,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "accessorfn"
       }
     },
     lineHeight: {
@@ -374,7 +378,7 @@ export const argTypes = assign(
     },
     pointerEvents: {
       control: {},
-      description: "",
+      description: "SVG `pointer-events` attribute per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -382,7 +386,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     render: {
@@ -400,7 +404,7 @@ export const argTypes = assign(
     },
     rotate: {
       control: {},
-      description: "",
+      description: "Rotation in degrees per datum.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -408,7 +412,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     rotateAnchor: {
@@ -480,7 +484,7 @@ export const argTypes = assign(
     },
     textAnchor: {
       control: {},
-      description: "",
+      description: "SVG `text-anchor` for labels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -488,7 +492,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     translate: {
@@ -506,7 +510,7 @@ export const argTypes = assign(
     },
     verticalAlign: {
       control: {},
-      description: "",
+      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -514,12 +518,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     width: {
-      control: {},
-      description: "",
+      control: {
+        type: "number"
+      },
+      description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -527,12 +533,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "number"
       }
     },
     x: {
       control: {},
-      description: "",
+      description: "X position.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -540,12 +546,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     },
     y: {
       control: {},
-      description: "",
+      description: "Y position.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -553,7 +559,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "constoraccessor"
       }
     }
   }

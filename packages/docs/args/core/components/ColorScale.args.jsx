@@ -240,7 +240,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 600,
-      description: "",
+      description: "Animation duration in ms.",
       table: {
         defaultValue: {
           summary: "600"
@@ -256,7 +256,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 200,
-      description: "",
+      description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "200"
@@ -374,7 +374,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "bottom",
-      description: "",
+      description: "Orientation: \"vertical\" or \"horizontal\".",
       table: {
         defaultValue: {
           summary: "bottom"
@@ -382,7 +382,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "constoraccessor"
       }
     },
     padding: {
@@ -445,7 +445,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "linear",
-      description: "",
+      description: "Scale factor (1 = identity).",
       table: {
         defaultValue: {
           summary: "linear"
@@ -453,7 +453,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "constoraccessor"
       }
     },
     select: {
@@ -486,10 +486,10 @@ export const argTypes = assign(
     },
     size: {
       control: {
-        type: "number"
+        type: "text"
       },
       defaultValue: 10,
-      description: "",
+      description: "Size accessor key.",
       table: {
         defaultValue: {
           summary: "10"
@@ -497,7 +497,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "number"
+        summary: "string"
       }
     },
     translate: {
@@ -515,7 +515,7 @@ export const argTypes = assign(
     },
     value: {
       control: {},
-      description: "",
+      description: "Value accessor for the visualization.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -523,7 +523,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "function"
+        summary: "datapointaccessor"
       }
     },
     width: {
@@ -531,7 +531,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 400,
-      description: "",
+      description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
           summary: "400"
