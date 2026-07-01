@@ -446,6 +446,33 @@ export default class Timeline extends Axis {
   }
 
   /**
+      Whether the current selection already spans every period. Playback has
+      nowhere to advance in that case, so the play button is disabled (greyed
+      out + non-interactive) — see `renderPlayButton`.
+      @private
+*/
+  _isFullRangeSelected(): boolean {
+    const periods = (
+      this._buttonBehaviorCurrent === "ticks"
+        ? this._availableTicks
+        : this.schema.ticks
+    ) as (string | number | false | undefined)[];
+    if (!periods || periods.length < 2) return false;
+    if (this.schema.selection == null) return false;
+    const sel = (
+      this.schema.selection instanceof Array
+        ? this.schema.selection
+        : [this.schema.selection]
+    ) as (string | number | false | undefined)[];
+    const nums = sel.map(date).map(Number);
+    const ticks = periods.map(Number);
+    return (
+      Math.min(...nums) <= Math.min(...ticks) &&
+      Math.max(...nums) >= Math.max(...ticks)
+    );
+  }
+
+  /**
       Extends the native Axis scene with the Timeline-specific play-button
       TextBox.
 

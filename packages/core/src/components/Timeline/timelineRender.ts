@@ -2,6 +2,7 @@ import {extent, max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 
+import {colorDefaults} from "@d3plus/color";
 import {date, elem, textWidth} from "@d3plus/dom";
 import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
@@ -279,12 +280,18 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
       ]
     : [];
 
+  // Disable the button when the whole range is already selected: playback can't
+  // advance a window that covers everything. Keep it visible but greyed out and
+  // non-interactive (the hit rect below).
+  const disabled = tl._isFullRangeSelected();
+
   tl._playButtonClass
     .renderMode("compute")
     .data(playData)
     .select(playButtonGroup.node())
-    .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig))
-    .render();
+    .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig));
+  if (disabled) tl._playButtonClass.config({fontColor: colorDefaults.missing});
+  tl._playButtonClass.render();
 
   // The play button's pixels are composed into the scene (compute mode), but
   // the scene render path mounts no per-node listeners, so a click can't reach
@@ -303,8 +310,12 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
       .attr("width", box.width)
       .attr("height", box.height)
       .attr("fill", "transparent")
-      .attr("cursor", "pointer")
-      .style("pointer-events", "all")
-      .on("click", () => tl._togglePlay());
+      .attr("cursor", disabled ? "default" : "pointer")
+      .style("pointer-events", disabled ? "none" : "all")
+      // `pointer-events: none` already blocks the click when disabled; the
+      // in-handler guard is belt-and-suspenders in case state changed.
+      .on("click", () => {
+        if (!tl._isFullRangeSelected()) tl._togglePlay();
+      });
   }
 }

@@ -442,20 +442,27 @@ export const timelineFeature: FeatureModule = {
           (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
       );
 
-    // Clamp the selection to the full time range (every tick), NOT the
-    // currently-filtered data. During a re-render `viz._filteredData` still
-    // reflects the *previous* selection, so clamping to its (narrower) extent
-    // collapses a freshly-committed range back down to the old one — the
-    // release snap-back the user saw (e.g. [2017,2024] clamped to a stale
-    // [2022,2022]).
-    const dataExtent = extent(ticks) as [Date, Date];
+    // Clamp bound = the full time range (every tick); it never goes stale
+    // mid-render. Clamping to `viz._filteredData`'s extent instead collapsed a
+    // freshly-committed range down to the previous selection — the release
+    // snap-back (e.g. [2017,2024] clamped to a stale [2022,2022]).
+    const fullExtent = extent(ticks) as [Date, Date];
     if (!viz._timelineSelection) {
-      viz._timelineSelection = viz.schema.timelineDefault || dataExtent;
+      // First render only: default to the *filtered* extent, which the
+      // synthesized default timeFilter pins to the latest period (see
+      // vizPreDraw) — the historical default. `timelineDefault` overrides it.
+      const filtered = extent(
+        (viz._filteredData || [])
+          .map(viz.schema.time)
+          .map((d: unknown) => date(d as string | number)) as Date[],
+      ) as [Date, Date];
+      viz._timelineSelection =
+        viz.schema.timelineDefault || (filtered[0] ? filtered : fullExtent);
     } else {
-      if (viz._timelineSelection[0] < dataExtent[0])
-        viz._timelineSelection[0] = dataExtent[0];
-      if (viz._timelineSelection[1] > dataExtent[1])
-        viz._timelineSelection[1] = dataExtent[1];
+      if (viz._timelineSelection[0] < fullExtent[0])
+        viz._timelineSelection[0] = fullExtent[0];
+      if (viz._timelineSelection[1] > fullExtent[1])
+        viz._timelineSelection[1] = fullExtent[1];
     }
     timeline.selection(viz._timelineSelection);
 
