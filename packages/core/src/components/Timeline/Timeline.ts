@@ -75,9 +75,14 @@ export default class Timeline extends Axis {
 */
    
   _brushBrush(event: Record<string, unknown>): void {
+    // Guard on `sourceEvent` (truthy only for real input, not the programmatic
+    // `brush.move` in `_brushEnd`). Do NOT also guard on `sourceEvent.offsetX`:
+    // it's relative to whatever element is under the pointer and can be
+    // 0/undefined mid-drag, which would skip the snap repaint on those frames
+    // and let d3-brush's raw redraw flash through (oscillation). `offsetX` is
+    // no longer read anywhere else, so the guard is pure downside.
     if (
       event.sourceEvent &&
-      (event.sourceEvent as Record<string, unknown>).offsetX &&
       event.selection !== null &&
       (!this.schema.brushing || this.schema.snapping)
     ) {
