@@ -188,10 +188,20 @@ export function setupBrush(
   const offset = tl._outerBounds[y],
     range = tl._d3Scale!.range();
 
+  // In "buttons" mode the scale positions ticks at each button's *midpoint*, so
+  // the raw scale range stops half a button short of either end. Widen the
+  // brushable extent to the full button strip (matching the overlay) so a
+  // handle can reach — and the committed selection can cover — the whole first
+  // and last button, instead of clamping at their midpoints.
+  const [extentMin, extentMax] =
+    tl._buttonBehaviorCurrent === "buttons"
+      ? [tl._paddingLeft, tl._paddingLeft + tl._ticksWidth]
+      : [range[0], range[range.length - 1]];
+
   const brush = (tl._brush = brushX()
     .extent([
-      [range[0], offset],
-      [range[range.length - 1], offset + tl._outerBounds[height]],
+      [extentMin, offset],
+      [extentMax, offset + tl._outerBounds[height]],
     ])
     .filter(tl.schema.brushFilter)
     .handleSize(hiddenHandles ? 0 : tl.schema.handleSize)

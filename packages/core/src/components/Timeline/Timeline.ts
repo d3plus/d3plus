@@ -85,16 +85,41 @@ export default class Timeline extends Axis {
       this._playTimer = false;
       this._playButtonClass.render();
 
-      // Track the (snapped) selection, but do NOT call `brush.move` here.
-      // Moving the brush during the user's active gesture desyncs d3-brush's
-      // internal drag state — the selection oscillates between ticks mid-drag
-      // and snaps back to the original range on release. The brush follows the
-      // cursor freely during the drag; it snaps to ticks once, in `_brushEnd`.
-      this._updateDomain(event);
+      // Live-snap the *visual* to tick boundaries without calling `brush.move`.
+      // d3-brush recomputes its selection from the drag anchor + pointer delta
+      // on every event and overwrites its state, so a mid-gesture `brush.move`
+      // is clobbered on the next pointer move — the selection oscillates and
+      // snaps back on release. Instead, let d3-brush keep tracking the raw
+      // pointer and just repaint the snapped positions (the same ones its own
+      // redraw would produce) over the selection/handle rects. `_brushEnd`
+      // commits the snapped selection once the gesture is over.
+      const domain = this._updateDomain(event);
+      this._snapBrushVisual(this._updateBrushLimit(domain) as number[]);
     }
 
     this._brushStyle();
     if (this.schema.on.brush) (this.schema.on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
+  }
+
+  /**
+      Repaints the brush selection/handle rects at the given pixel limits,
+      matching d3-brush's own `redraw` geometry. Used to show live tick
+      snapping during a drag without moving the brush (which would desync the
+      active gesture). See `_brushBrush`.
+      @private
+*/
+  _snapBrushVisual(limit: number[]): void {
+    const handleSize = this._hiddenHandles ? 0 : this.schema.handleSize;
+    this._brushGroup
+      .selectAll(".selection")
+      .attr("x", limit[0])
+      .attr("width", limit[1] - limit[0]);
+    this._brushGroup
+      .selectAll<SVGGElement, {type: string}>(".handle")
+      .attr("x", (d: {type: string}) =>
+        (d.type[d.type.length - 1] === "e" ? limit[1] : limit[0]) -
+        handleSize / 2,
+      );
   }
 
   /**
