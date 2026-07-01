@@ -87,15 +87,15 @@ export default class Timeline extends Axis {
         this._playButtonClass.render();
       }
 
-      // Track the snapped selection for `on.brush` consumers, but let d3-brush
-      // render the brush freely during the drag and snap once, on release
-      // (`_brushEnd`). Repainting a snapped selection over d3-brush on every
-      // brush event (a live visual snap) is unstable: it races d3-brush's own
-      // redraw, and reconciling the raw gesture state against the snapped paint
-      // on release makes the selection oscillate mid-drag (1↔2 buttons) and
-      // collapse to a single button on release. A one-shot snap on click/press
-      // (`_brushStart`) is safe because it doesn't race a per-frame redraw.
-      this._updateDomain(event);
+      // Live snap-while-dragging: repaint the selection/handle rects at the
+      // snapped tick boundaries as the pointer moves. Note this paints over
+      // d3-brush's own per-frame redraw of the raw pointer position; the
+      // snap-back on release was a separate bug (the timelineFeature clamp,
+      // fixed elsewhere), but this per-frame repaint is still a race. If the
+      // mid-drag 1↔2-button oscillation resurfaces, drop the `_snapBrushVisual`
+      // line and the brush falls back to snapping only on release (`_brushEnd`).
+      const domain = this._updateDomain(event);
+      this._snapBrushVisual(this._updateBrushLimit(domain) as number[]);
     }
 
     this._brushStyle();
@@ -105,10 +105,9 @@ export default class Timeline extends Axis {
   /**
       Repaints the brush selection/handle rects at the given pixel limits,
       matching d3-brush's own `redraw` geometry. Used for the one-shot snap on
-      click/press (`_brushStart`) so the target button is shown immediately.
-      Not used per-frame during a drag: repainting over d3-brush every brush
-      event races its own redraw and destabilizes the gesture — drags snap on
-      release (`_brushEnd`) instead.
+      click/press (`_brushStart`) and the live snap-while-dragging in
+      `_brushBrush`. The drag case repaints over d3-brush's own per-frame redraw
+      of the raw pointer position — see `_brushBrush` for the trade-off.
       @private
 */
   _snapBrushVisual(limit: number[]): void {
