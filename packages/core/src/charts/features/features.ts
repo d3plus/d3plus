@@ -429,7 +429,6 @@ export const timelineFeature: FeatureModule = {
 
     if (!timelinePossible) return {panel: null, margin: {}};
 
-    const data: DataPoint[] = viz._filteredData || [];
     const timeline = viz._timelineClass
       .renderMode("compute")
       .domain(extent(ticks) as [Date, Date])
@@ -443,11 +442,13 @@ export const timelineFeature: FeatureModule = {
           (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
       );
 
-    const dataExtent = extent(
-      data
-        .map(viz.schema.time)
-        .map((d: unknown) => date(d as string | number)) as Date[],
-    ) as [Date, Date];
+    // Clamp the selection to the full time range (every tick), NOT the
+    // currently-filtered data. During a re-render `viz._filteredData` still
+    // reflects the *previous* selection, so clamping to its (narrower) extent
+    // collapses a freshly-committed range back down to the old one — the
+    // release snap-back the user saw (e.g. [2017,2024] clamped to a stale
+    // [2022,2022]).
+    const dataExtent = extent(ticks) as [Date, Date];
     if (!viz._timelineSelection) {
       viz._timelineSelection = viz.schema.timelineDefault || dataExtent;
     } else {
