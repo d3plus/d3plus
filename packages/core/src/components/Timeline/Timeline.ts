@@ -75,31 +75,27 @@ export default class Timeline extends Axis {
 */
    
   _brushBrush(event: Record<string, unknown>): void {
-    // Guard on `sourceEvent` (truthy only for real input, not the programmatic
-    // `brush.move` in `_brushEnd`). Do NOT also guard on `sourceEvent.offsetX`:
-    // it's relative to whatever element is under the pointer and can be
-    // 0/undefined mid-drag, which would skip the snap repaint on those frames
-    // and let d3-brush's raw redraw flash through (oscillation). `offsetX` is
-    // no longer read anywhere else, so the guard is pure downside.
     if (
       event.sourceEvent &&
       event.selection !== null &&
       (!this.schema.brushing || this.schema.snapping)
     ) {
-      if (this._playTimer) clearInterval(this._playTimer);
-      this._playTimer = false;
-      this._playButtonClass.render();
+      // Grabbing the brush cancels playback — once, not every frame.
+      if (this._playTimer) {
+        clearInterval(this._playTimer);
+        this._playTimer = false;
+        this._playButtonClass.render();
+      }
 
-      // Live-snap the *visual* to tick boundaries without calling `brush.move`.
-      // d3-brush recomputes its selection from the drag anchor + pointer delta
-      // on every event and overwrites its state, so a mid-gesture `brush.move`
-      // is clobbered on the next pointer move — the selection oscillates and
-      // snaps back on release. Instead, let d3-brush keep tracking the raw
-      // pointer and just repaint the snapped positions (the same ones its own
-      // redraw would produce) over the selection/handle rects. `_brushEnd`
-      // commits the snapped selection once the gesture is over.
-      const domain = this._updateDomain(event);
-      this._snapBrushVisual(this._updateBrushLimit(domain) as number[]);
+      // Track the snapped selection for `on.brush` consumers, but let d3-brush
+      // render the brush freely during the drag and snap once, on release
+      // (`_brushEnd`). Repainting a snapped selection over d3-brush on every
+      // brush event (a live visual snap) is unstable: it races d3-brush's own
+      // redraw, and reconciling the raw gesture state against the snapped paint
+      // on release makes the selection oscillate mid-drag (1↔2 buttons) and
+      // collapse to a single button on release. A one-shot snap on click/press
+      // (`_brushStart`) is safe because it doesn't race a per-frame redraw.
+      this._updateDomain(event);
     }
 
     this._brushStyle();
@@ -108,9 +104,11 @@ export default class Timeline extends Axis {
 
   /**
       Repaints the brush selection/handle rects at the given pixel limits,
-      matching d3-brush's own `redraw` geometry. Used to show live tick
-      snapping during a drag without moving the brush (which would desync the
-      active gesture). See `_brushBrush`.
+      matching d3-brush's own `redraw` geometry. Used for the one-shot snap on
+      click/press (`_brushStart`) so the target button is shown immediately.
+      Not used per-frame during a drag: repainting over d3-brush every brush
+      event races its own redraw and destabilizes the gesture — drags snap on
+      release (`_brushEnd`) instead.
       @private
 */
   _snapBrushVisual(limit: number[]): void {
