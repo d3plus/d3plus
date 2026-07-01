@@ -149,12 +149,19 @@ export default class Timeline extends Axis {
    
   _brushStart(event: Record<string, unknown>): void {
     if (event.sourceEvent !== null && (!this.schema.brushing || this.schema.snapping)) {
-      // Interacting with the brush cancels playback. Don't `brush.move` here:
-      // snapping the just-started gesture desyncs d3-brush (see `_brushBrush`);
-      // the selection is resolved + snapped on release in `_brushEnd`.
+      // Interacting with the brush cancels playback.
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
       this._playButtonClass.render();
+
+      // Snap the visual immediately so clicking/pressing a button shows its
+      // target selection right away, not only on release. Visual only (no
+      // `brush.move`) so d3-brush's just-started gesture isn't desynced — see
+      // `_brushBrush`; the selection is committed on `_brushEnd`.
+      if (event.selection !== null)
+        this._snapBrushVisual(
+          this._updateBrushLimit(this._updateDomain(event)) as number[],
+        );
     }
 
     this._brushStyle();
@@ -253,27 +260,6 @@ export default class Timeline extends Axis {
     if (this._buttonBehaviorCurrent === "ticks")
       domain = domain.map(d => this._d3Scale!.invert!(d as number));
     domain = domain.map(Number);
-
-    if (
-      event.type === "brush" &&
-      this.schema.brushing &&
-      this._buttonBehaviorCurrent === "buttons"
-    ) {
-      const diffs = (event.selection as number[]).map((d: number) =>
-        Math.abs(d - ((event.sourceEvent as Record<string, unknown>).offsetX as number)),
-      );
-
-      const sel = event.selection as number[];
-      const offsetX = (event.sourceEvent as Record<string, unknown>).offsetX as number;
-      domain =
-        diffs[1] <= diffs[0]
-          ? [sel[0], offsetX].sort(
-              (a: number, b: number) => a - b,
-            )
-          : [offsetX, sel[1]].sort(
-              (a: number, b: number) => a - b,
-            );
-    }
 
     const ticks =
       this._buttonBehaviorCurrent === "ticks"
@@ -404,6 +390,16 @@ export default class Timeline extends Axis {
     // resolved `_availableTicks` in "ticks" mode (schema.ticks is unset there) —
     // mirrors `setupBrush`/`_updateDomain`. Without this the play loop threw on
     // `schema.ticks.map(...)` for "ticks"-mode timelines (e.g. wide standalone).
+    // Advance the selection AND notify listeners. `render()` alone only redraws
+    // the timeline's own brush; the "end" callback is what the parent Viz wires
+    // to its time filter (see timelineFeature), so without firing it the visible
+    // data never changes as playback steps. Mirrors what a brush drag commits.
+    const advance = (sel: unknown[]): void => {
+      this.selection(sel).render();
+      if (this.schema.on.end)
+        (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
+    };
+
     let firstTime = true;
     const nextYear = () => {
       const periods = (
@@ -428,14 +424,14 @@ export default class Timeline extends Axis {
           this._playButtonClass.render();
           this._onPlayToggle?.();
         } else {
-          this.selection([periods[0], periods[lastIndex - firstIndex]]).render();
+          advance([periods[0], periods[lastIndex - firstIndex]]);
         }
       } else {
         if (lastIndex + 1 === ticks.length - 1) {
           if (this._playTimer) clearInterval(this._playTimer);
           this._playTimer = false;
         }
-        this.selection([periods[firstIndex + 1], periods[lastIndex + 1]]).render();
+        advance([periods[firstIndex + 1], periods[lastIndex + 1]]);
       }
       firstTime = false;
     };
