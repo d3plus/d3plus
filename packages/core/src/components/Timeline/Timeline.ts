@@ -85,11 +85,12 @@ export default class Timeline extends Axis {
       this._playTimer = false;
       this._playButtonClass.render();
 
-      const domain = this._updateDomain(event);
-      this._brushGroup.call(
-        this._brush.move,
-        this._updateBrushLimit(domain) as [number, number],
-      );
+      // Track the (snapped) selection, but do NOT call `brush.move` here.
+      // Moving the brush during the user's active gesture desyncs d3-brush's
+      // internal drag state — the selection oscillates between ticks mid-drag
+      // and snaps back to the original range on release. The brush follows the
+      // cursor freely during the drag; it snaps to ticks once, in `_brushEnd`.
+      this._updateDomain(event);
     }
 
     this._brushStyle();
@@ -123,15 +124,12 @@ export default class Timeline extends Axis {
    
   _brushStart(event: Record<string, unknown>): void {
     if (event.sourceEvent !== null && (!this.schema.brushing || this.schema.snapping)) {
+      // Interacting with the brush cancels playback. Don't `brush.move` here:
+      // snapping the just-started gesture desyncs d3-brush (see `_brushBrush`);
+      // the selection is resolved + snapped on release in `_brushEnd`.
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
       this._playButtonClass.render();
-
-      const domain = this._updateDomain(event);
-      this._brushGroup.call(
-        this._brush.move,
-        this._updateBrushLimit(domain) as [number, number],
-      );
     }
 
     this._brushStyle();
