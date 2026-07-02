@@ -272,8 +272,12 @@ function scaleNetworkNodes(
   const xOldSize = xDomain[1] - xDomain[0];
   const yOldSize = yDomain[1] - yDomain[0];
 
+  // Reserve a few px around each node so the hover/active stroke (which grows
+  // the outline up to ~3×) isn't clipped by the container edge — a node sitting
+  // flush against the bottom/side would otherwise lose a pixel or two of stroke.
+  const strokePad = 3;
   nodes.forEach(n => {
-    const size = r(n.r);
+    const size = r(n.r) + strokePad;
     const nx = n.x ?? 0;
     const ny = n.y ?? 0;
     if (xDomain[0] > x.invert(nx - size)) xDomain[0] = x.invert(nx - size);

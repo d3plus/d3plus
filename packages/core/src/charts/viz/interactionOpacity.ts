@@ -79,9 +79,13 @@ function dimSettings(viz: VizInstance): {
     typeof viz._highlight === "function" ? (viz._highlight as Predicate) : null;
   if (!hover && !active && !highlight) return null;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
-  const hoverOpacity = typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
+  let hoverOpacity = typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
   const activeOpacity = typeof sc.activeOpacity === "number" ? sc.activeOpacity : 0.25;
   const gray = !hover && !active;
+  // A colorScale bucket hover must dim the non-matching marks to read as a
+  // highlight, even on charts (Geomap) that set hoverOpacity:1 to keep a plain
+  // shape hover from dimming the map. Fall back to the default dim there.
+  if (hover && viz._hoverBucket && hoverOpacity >= 1) hoverOpacity = 0.5;
   return {
     predicate: (hover ?? active ?? highlight) as Predicate,
     dimOpacity: hover ? hoverOpacity : active ? activeOpacity : 1,

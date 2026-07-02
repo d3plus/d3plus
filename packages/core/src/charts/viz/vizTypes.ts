@@ -176,6 +176,8 @@ export interface VizInstance {
   _focus?: string | number | undefined;
   _active?: ((d: DataPoint, i?: number) => boolean) | false;
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** True while the current hover came from a colorScale bucket swatch. */
+  _hoverBucket?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;

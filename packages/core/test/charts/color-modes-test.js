@@ -72,6 +72,19 @@ it("hover/active thicken + darken the matched mark's stroke (v3 parity)", () => 
   assert.strictEqual(both[0].paint.strokeWidth, 3, "active node keeps active stroke while hovered");
 });
 
+it("colorScale bucket hover dims non-matching marks even at hoverOpacity:1", () => {
+  const nodes = () => [
+    {type: "path", datum: {v: 1}, paint: {fill: "#aaaaaa", opacity: 1}},
+    {type: "path", datum: {v: 2}, paint: {fill: "#bbbbbb", opacity: 1}},
+  ];
+  // Geomap sets hoverOpacity:1 so a plain shape hover doesn't dim the map...
+  const plain = applyInteractionOpacity(nodes(), {_hover: d => d.v === 1, schema: {shapeConfig: {hoverOpacity: 1}}});
+  assert.strictEqual(plain[1].paint.opacity, 1, "plain hover at hoverOpacity:1 does not dim");
+  // ...but a colorScale bucket hover still highlights (dims non-matching to 0.5).
+  const bucket = applyInteractionOpacity(nodes(), {_hover: d => d.v === 1, _hoverBucket: true, schema: {shapeConfig: {hoverOpacity: 1}}});
+  assert.strictEqual(bucket[1].paint.opacity, 0.5, "bucket hover dims non-matching despite hoverOpacity:1");
+});
+
 it("no highlight/hover/active is a no-op (same array back)", () => {
   const nodes = [{datum: {group: "A"}, paint: {fill: "#4c6ef5"}}];
   const viz = {schema: {shapeConfig: {}}};
