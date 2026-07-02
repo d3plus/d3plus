@@ -348,40 +348,35 @@ const featureData = [
   {region: "South", quarter: "Q4", revenue: 33}
 ];
 
-// Custom render: `renderer` is not a control, so merge it into config directly.
-export const RenderingToCanvas = (args) =>
-  <BarChart config={{...configify(args, argTypes), renderer: "canvas"}} />;
+export const RenderingToCanvas = Template.bind({});
 RenderingToCanvas.args = {
   data: featureData,
   groupBy: "region",
   x: "quarter",
-  y: "revenue"
+  y: "revenue",
+  renderer: "canvas"
 };
 RenderingToCanvas.parameters = {
   controls: {include: ["renderer"]},
   docs: {description: {story: "Set `renderer: \"canvas\"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default."}}
 };
 
-// Custom render: `on` is not a control, so merge the handlers into config directly.
-export const ClickAndHoverEvents = (args) =>
-  <BarChart config={{
-    ...configify(args, argTypes),
-    on: {
-      "click.shape": funcify(
-        d => console.log("clicked bar:", d),
-        'd => console.log("clicked bar:", d)'
-      ),
-      "mouseenter.shape": funcify(
-        d => console.log("hovered bar:", d),
-        'd => console.log("hovered bar:", d)'
-      )
-    }
-  }} />;
+export const ClickAndHoverEvents = Template.bind({});
 ClickAndHoverEvents.args = {
   data: featureData,
   groupBy: "region",
   x: "quarter",
-  y: "revenue"
+  y: "revenue",
+  on: {
+    "click.shape": funcify(
+      d => console.log("clicked bar:", d),
+      'd => console.log("clicked bar:", d)'
+    ),
+    "mouseenter.shape": funcify(
+      d => console.log("hovered bar:", d),
+      'd => console.log("hovered bar:", d)'
+    )
+  }
 };
 ClickAndHoverEvents.parameters = {
   controls: {include: ["on"]},
@@ -418,14 +413,13 @@ DownloadButton.parameters = {
   docs: {description: {story: "Enable a built-in download button with `downloadButton: true`. `downloadConfig.type` accepts `\"png\"`, `\"jpg\"`, or `\"svg\"`."}}
 };
 
-// Custom render: `locale` is not a control, so merge it into config directly.
-export const Localized = (args) =>
-  <BarChart config={{...configify(args, argTypes), locale: "ar-SA"}} />;
+export const Localized = Template.bind({});
 Localized.args = {
-  data: featureData,
+  data: featureData.map(d => ({...d, revenue: d.revenue * 1000000})),
   groupBy: "region",
   x: "quarter",
-  y: "revenue"
+  y: "revenue",
+  locale: "ar-SA"
 };
 Localized.parameters = {
   controls: {include: ["locale"]},

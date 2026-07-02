@@ -187,9 +187,7 @@ RemovingOceanAndTiles.args = {
 };
 RemovingOceanAndTiles.parameters = {controls: {include: ["ocean", "tiles"]}};
 
-// Custom render: `renderer` is not a control, so merge it into config directly.
-export const RenderingToCanvas = (args) =>
-  <Geomap config={{...configify(args, argTypes), renderer: "canvas"}} />;
+export const RenderingToCanvas = Template.bind({});
 RenderingToCanvas.args = {
   data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
   groupBy: "State ID",
@@ -204,6 +202,7 @@ RenderingToCanvas.args = {
   },
   ocean: "transparent",
   projection: "geoAlbersUsa",
+  renderer: "canvas",
   tiles: false,
   topojson: "https://datausa.io/topojson/State.json"
 };
