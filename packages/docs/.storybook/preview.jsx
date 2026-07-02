@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from "react";
+import React, {useContext} from "react";
 import {
   Anchor,
   Canvas,
@@ -12,9 +12,32 @@ import {
 import theme from "./theme.js";
 import stringify from "../helpers/stringify.js";
 
+// Strips the react-docgen `_args_*` suffix Storybook appends to display names.
+const componentName = component => {
+  const displayName = component?.__docgenInfo?.displayName;
+  return displayName ? displayName.replace(/_args_[A-z]+/g, "") : null;
+};
+
+// Rebuilds the "Show code" snippet for a chart story from its LIVE args.
+// Storybook re-runs this transform with the current args on every control
+// change (the reactive dynamic-source path), so the code block stays in sync
+// with the rendered chart instead of freezing at the story's initial args.
+// Utility-function demos set an explicit `docs.source.code`, which Storybook
+// prefers over this transform, so they keep their hand-written snippet. Stories
+// with no docgen'd component (MDX pages) fall through to the original code.
+const configSourceTransform = (code, {args, component}) => {
+  const compName = componentName(component);
+  if (!compName || args == null) return code;
+  const stringifiedArgs = stringify(args);
+  return `import {${compName}} from "@d3plus/react";
+${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "@d3plus/format";\n` : ""}
+<${component.name} config={${stringifiedArgs}} />`;
+};
+
 const preview = {
   parameters: {
     docs: {
+      source: {type: "dynamic", transform: configSourceTransform},
       page: () => {
         const {componentStories} = useContext(DocsContext);
         const stories = componentStories();
@@ -31,18 +54,7 @@ const preview = {
               // every component/args lookup so these stories render their live
               // example instead of throwing, and skip the synthesized import
               // snippet and the "methods" link, which only apply to chart classes.
-              const displayName = component?.__docgenInfo?.displayName;
-              const compName = displayName
-                ? displayName.replace(/_args_[A-z]+/g, "")
-                : null;
-              const stringifiedArgs =
-                moduleExport.args != null ? stringify(moduleExport.args) : null;
-              const code = useMemo(() => {
-                if (!compName || !stringifiedArgs) return null;
-                return `import {${compName}} from "@d3plus/react";
-${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "@d3plus/format";\n` : ""}
-<${component.name} config={${stringifiedArgs}} />`;
-              }, [compName, stringifiedArgs]);
+              const compName = componentName(component);
               return (
                 <Anchor storyId={story.id}>
                   <Heading>{story.name}</Heading>
@@ -57,7 +69,6 @@ ${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from
                         ? {height: `${moduleExport.args?.height || 350}px`}
                         : undefined
                     }
-                    source={code ? {code, language: "jsx"} : undefined}
                     sourceState="shown"
                   />
                   {story.parameters.controls ? (
