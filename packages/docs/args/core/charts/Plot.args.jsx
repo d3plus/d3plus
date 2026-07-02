@@ -563,6 +563,19 @@ export const argTypes = assign(
         summary: "number | function"
       }
     },
+    highlight: {
+      control: {},
+      description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | function"
+      }
+    },
     hover: {
       control: {},
       description: "The hover callback function for highlighting shapes on mouseover.",

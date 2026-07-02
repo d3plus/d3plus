@@ -12,7 +12,7 @@ import Shape, {type ShapeAes} from "./Shape.js";
 
 /** Circle's own fluent accessor schema, layered on top of Shape's. */
 const circleSchema: ConfigField[] = [
-  {key: "r", coerce: "const", default: accessor("r")},
+  {key: "r", coerce: "accessor", default: accessor("r")},
 ];
 
 /**

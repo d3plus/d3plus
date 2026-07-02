@@ -234,7 +234,6 @@ const charts = [
 const fingerprintFn = builderSrc =>
   new Promise((resolve, reject) => {
     try {
-      // eslint-disable-next-line no-new-func
       const build = new Function("lib", `return (${builderSrc})(lib);`);
       const viz = build(window.d3plus).duration(0).select("#viz");
       viz.render(() => {

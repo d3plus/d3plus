@@ -12,8 +12,8 @@ import Shape, {type ShapeAes} from "./Shape.js";
 
 /** Bar's own fluent accessor schema, layered on top of Shape's. */
 const barSchema: ConfigField[] = [
-  {key: "height", coerce: "const", default: constant(10)},
-  {key: "width", coerce: "const", default: constant(10)},
+  {key: "height", coerce: "accessor", default: constant(10)},
+  {key: "width", coerce: "accessor", default: constant(10)},
 ];
 
 /**

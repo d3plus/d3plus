@@ -91,7 +91,7 @@ ChangingNoDataColor.args = {
   groupBy: "PUMA ID",
   colorScale: "Total Population",
   projection: "geoAlbersUsa",
-  topojson: "https://datausa.io/topojson/Puma.json",
+  topojson: "https://datausa.io/topojson/PUMA.json",
   topojsonFill: "#ffcccc"
 }
 ChangingNoDataColor.parameters = {controls: {include: ["topojsonFill"]}};
@@ -139,8 +139,8 @@ DisableZooming.args = {
 };
 DisableZooming.parameters = {controls: {include: ["zoom"]}};
 
-export const HiddingTheColorScale = Template.bind({});
-HiddingTheColorScale.args = {
+export const HidingTheColorScale = Template.bind({});
+HidingTheColorScale.args = {
   data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
   groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
@@ -148,7 +148,7 @@ HiddingTheColorScale.args = {
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/State.json"
 };
-HiddingTheColorScale.parameters = {controls: {include: ["colorScalePosition"]}};
+HidingTheColorScale.parameters = {controls: {include: ["colorScalePosition"]}};
 
 export const OverridingColorscaleBehavior = Template.bind({});
 OverridingColorscaleBehavior.args = {

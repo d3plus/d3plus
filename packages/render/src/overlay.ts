@@ -71,7 +71,18 @@ export function applyOverlayToElement(
     for (const k of Object.keys(o.style))
       (el.style as unknown as Record<string, string>)[k] = String(o.style[k]);
   }
-  if (el.innerHTML !== o.html) el.innerHTML = o.html;
+  // Dedupe against the html WE last wrote, not the live innerHTML: an `onMount`
+  // consumer (e.g. the zoom controls) mutates the realized DOM — adding inline
+  // styles, classes, listeners to the child elements — which changes
+  // `el.innerHTML`. Comparing against live innerHTML would then see a diff on
+  // the next draw and rewrite it back to `o.html`, wiping those mutations (and
+  // `onMount` only fires once, so they'd never be reapplied). Tracking the
+  // last-written string rewrites only when the desired html actually changes.
+  const elx = el as HTMLElement & {__d3plusHTML?: string};
+  if (elx.__d3plusHTML !== o.html) {
+    el.innerHTML = o.html;
+    elx.__d3plusHTML = o.html;
+  }
   applyDeclarativeEvents(el, o.events);
 }
 

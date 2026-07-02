@@ -99,6 +99,25 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
+
+    // Single-period selection: keep the lone handle under the pointer during the
+    // drag. `_brushStyle` parks it at the selection midpoint (correct at rest,
+    // where the selection is one tick), but mid-drag the midpoint trails the
+    // cursor at half speed — so pin it to the pointer here. Visual only; the
+    // committed period still snaps to the nearest tick on release.
+    if (
+      event.sourceEvent &&
+      !this.schema.brushing &&
+      this._buttonBehaviorCurrent !== "buttons"
+    ) {
+      const p = pointers(event, this._select.node());
+      if (p.length)
+        this._brushGroup
+          .selectAll<SVGGElement, {type: string}>(".handle")
+          .filter((d: {type: string}) => d.type === "e")
+          .attr("x", (p[0][0] as number) - this.schema.handleSize / 2);
+    }
+
     if (this.schema.on.brush) (this.schema.on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
   }
 
@@ -137,10 +156,20 @@ export default class Timeline extends Axis {
 
     this._brushStyle();
 
-    if (this.schema.brushing || !this.schema.snapping)
-      this._brushGroup
-        .transition(this._transition)
-        .call(this._brush.move, this._updateBrushLimit(domain));
+    // Snap the brush visual to the committed selection on release. A range
+    // (brushing:true) eases to its tick-snapped bounds. A single period
+    // (brushing:false) snaps INSTANTLY: an eased move would start from
+    // d3-brush's internal drag bounds (the anchored edge), so the lone handle
+    // would jump back to where the drag began and then animate to the release
+    // point. Jumping straight to the period avoids that.
+    // A range (brushing:true) eases to its tick-snapped bounds. A single period
+    // (brushing:false) snaps with a zero-duration transition: an eased move
+    // would animate from d3-brush's internal drag bounds (the anchored edge), so
+    // the lone handle would jump back to where the drag began and slide to the
+    // release point; duration 0 applies the final period on the first frame.
+    const move = this._brushGroup.transition(this._transition);
+    if (!this.schema.brushing) move.duration(0);
+    move.call(this._brush.move, this._updateBrushLimit(domain));
 
     if (this.schema.on.end) (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
   }
@@ -192,12 +221,31 @@ export default class Timeline extends Axis {
       .selectAll(".selection")
       .call(attrize, this.schema.selectionConfig)
       .attr("transform", "translate(0,-1)")
-      .attr("height", timelineHeight + 2);
+      .attr("height", timelineHeight + 2)
+      // For a single-period selection (brushing:false, ticks mode) hide the
+      // range fill: the handle marks the period, and a filled bar reads as a
+      // range — and would grow while dragging. Buttons mode keeps the fill as
+      // the selected-button highlight, so this only applies where handles show.
+      .style("display", () =>
+        !this.schema.brushing && !this._hiddenHandles ? "none" : null,
+      );
 
     const brushHandle = this._brushGroup
       .selectAll<SVGGElement, {type: string}>(".handle")
       .call(attrize, this.schema.handleConfig)
-      .attr("display", this._hiddenHandles ? "none" : "block")
+      // Set via inline `style` (not the `display` attribute): d3-brush manages
+      // the handles' `display` attribute on every redraw, and a presentation
+      // attribute also loses to author CSS — an inline style wins both.
+      .style("display", (d: {type: string}) =>
+        // With `brushing: false` the timeline selects a single period, so show
+        // just one handle (the east edge) — it reads as a single marker rather
+        // than the two handles of a resizable range. `_hiddenHandles` still
+        // hides both in buttons mode, where the selected button carries the
+        // selection instead.
+        this._hiddenHandles || (!this.schema.brushing && d.type === "w")
+          ? "none"
+          : null,
+      )
       .attr("transform", (d: {type: string}) =>
         this._buttonBehaviorCurrent === "buttons"
           ? `translate(${d.type === "w" ? -this.schema.handleSize / 2 : 0},-1)`
@@ -209,6 +257,18 @@ export default class Timeline extends Axis {
           ? this.schema.buttonHeight + 2
           : timelineHeight + this.schema.handleSize,
       );
+
+    // Single-period selection (brushing:false, ticks mode): center the lone
+    // handle on the selection midpoint so it tracks the pointer in both drag
+    // directions. d3-brush pins each handle to a range edge, which would leave
+    // the visible handle stuck at the anchored edge when dragging the other way.
+    if (!this.schema.brushing && this._buttonBehaviorCurrent !== "buttons") {
+      const sx = +(brushSelection.attr("x") as string) || 0;
+      const sw = +(brushSelection.attr("width") as string) || 0;
+      brushHandle
+        .filter((d: {type: string}) => d.type === "e")
+        .attr("x", sx + sw / 2 - this.schema.handleSize / 2);
+    }
 
     this._brushGroup
       .selectAll(".overlay")

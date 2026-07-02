@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Based on the color provided, this function will return a \"white\" or \"black\" color that is suitable for text placed on top of that provided color.",
+        component: "Based on the color provided, this function will return a \"white\" or \"black\" color that is suitable for text placed on top of that provided color. The choice maximizes the WCAG 2.x contrast ratio against the background, so the more legible of the two text tokens always wins.",
       },
     },
   }

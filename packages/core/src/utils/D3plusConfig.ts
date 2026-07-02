@@ -254,6 +254,8 @@ export interface D3plusConfig {
   baseline?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
+  colorOrdinal?: boolean;
   /** Color scale key or custom color function. */
   colorScale?: string | ((d: number) => string);
   /** Configuration for the color scale component. */
@@ -308,6 +310,8 @@ export interface D3plusConfig {
   height?: number;
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /** Persistently emphasizes matching marks (keep color) and grays the rest. */
+  highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
   /** Whether to show the legend. */

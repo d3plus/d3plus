@@ -149,6 +149,11 @@ export const ringsDef: ChartDefinition = {
       });
     };
     viz.schema.on["click.shape"] = (d: DataPoint) => {
+      // Clear the hover/tooltip before re-centering: the clicked node's shapes
+      // move out from under the pointer, so a lingering tooltip would hang over
+      // unrelated content (the shared click.shape drill handler does the same).
+      viz.hover?.(false);
+      viz._tooltipClass?.data([]).render();
       viz.schema.center = d.id;
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};

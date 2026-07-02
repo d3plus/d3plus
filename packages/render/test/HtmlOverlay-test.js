@@ -180,3 +180,47 @@ it("Inherited group transforms offset the overlay's mount position", () => {
 
   renderer.destroy();
 });
+
+it("HtmlOverlay preserves onMount DOM mutations across re-draws (same html)", () => {
+  // Regression: the zoom controls apply their base styles to the child buttons
+  // in `onMount`. That mutates the realized DOM, so the overlay's innerHTML no
+  // longer equals the html string. A naive `el.innerHTML !== html` check then
+  // rewrites (and wipes) those styles on the next draw — and onMount, firing
+  // once, never reapplies them. The buttons must keep their onMount styling.
+  for (const Renderer of [SvgRenderer, CanvasRenderer]) {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const renderer = new Renderer();
+    renderer.mount({container, width: 200, height: 100});
+
+    let mounts = 0;
+    const overlay = {
+      type: "htmlOverlay",
+      key: "o",
+      x: 0,
+      y: 0,
+      html: '<button class="zoom-in">+</button>',
+      onMount: host => {
+        mounts++;
+        host.querySelector(".zoom-in").style.background = "rgb(1, 2, 3)";
+      },
+    };
+
+    renderer.drawScene(scene([overlay]));
+    assert.strictEqual(
+      container.querySelector(".zoom-in").style.background,
+      "rgb(1, 2, 3)",
+      `${Renderer.name}: onMount styled the button`,
+    );
+
+    renderer.drawScene(scene([overlay])); // identical html → must not rewrite
+    assert.strictEqual(
+      container.querySelector(".zoom-in").style.background,
+      "rgb(1, 2, 3)",
+      `${Renderer.name}: onMount style survives re-draw`,
+    );
+    assert.strictEqual(mounts, 1, `${Renderer.name}: onMount fired exactly once`);
+
+    renderer.destroy();
+  }
+});

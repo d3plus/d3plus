@@ -136,6 +136,22 @@ export const argTypes = {
       summary: "string | false | function"
     }
   },
+  colorOrdinal: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: false,
+    description: "Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues.",
+    table: {
+      defaultValue: {
+        summary: "false"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
   colorScale: {
     control: {
       type: "text"
@@ -492,6 +508,19 @@ export const argTypes = {
     type: {
       required: false,
       summary: "number | function"
+    }
+  },
+  highlight: {
+    control: {},
+    description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | function"
     }
   },
   hover: {

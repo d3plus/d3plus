@@ -2,7 +2,7 @@ import {deviation, extent, min, quantile, range} from "d3-array";
 import {interpolateRgb} from "d3-interpolate";
 import {scaleLinear, scaleThreshold} from "d3-scale";
 
-import {colorLighter} from "@d3plus/color";
+import {colorLighter, colorRamp} from "@d3plus/color";
 import {unique} from "@d3plus/data";
 import {ckmeans} from "@d3plus/math";
 
@@ -129,9 +129,8 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
       );
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
-      colors = range(0, numBuckets, 1)
-        .map((i: number) => colorLighter(cs.schema.colorMax, i / numBuckets))
-        .reverse();
+      // Single-hue light→dark ramp, stepped in OKLab (see @d3plus/color).
+      colors = colorRamp(cs.schema.colorMax, numBuckets);
     }
   }
 
@@ -205,18 +204,15 @@ function resolveNonDivergingLinear(
   const {allValues, domain, negative, positive, diverging, numBuckets} = ctx;
   let {colors} = ctx;
   if (!colors) {
+    // Single-hue ramp of the relevant pole, stepped in OKLab (light→dark).
+    // Negative-only scales read dark→light, so the ramp is reversed.
+    const base = negative ? cs.schema.colorMin : cs.schema.colorMax;
     if (cs.schema.scale === "buckets" || cs.schema.scale === "quantile") {
-      colors = range(0, numBuckets, 1).map((i: number) =>
-        colorLighter(
-          negative ? cs.schema.colorMin : cs.schema.colorMax,
-          i / numBuckets,
-        ),
-      );
-      if (positive) colors = colors.reverse();
+      const ramp = colorRamp(base, numBuckets);
+      colors = positive ? ramp : ramp.slice().reverse();
     } else {
-      colors = negative
-        ? [cs.schema.colorMin, colorLighter(cs.schema.colorMin, 0.8)]
-        : [colorLighter(cs.schema.colorMax, 0.8), cs.schema.colorMax];
+      const two = colorRamp(base, 2);
+      colors = negative ? two.slice().reverse() : two;
     }
   }
   if (!buckets) {
@@ -351,10 +347,8 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
       : cs.schema.color;
 
   if (colors && !(colors instanceof Array)) {
-    const single = colors;
-    colors = range(0, numBuckets, 1)
-      .map((i: number) => colorLighter(single, (i + 1) / numBuckets))
-      .reverse();
+    // A single hue expands to a light→dark ramp, stepped in OKLab.
+    colors = colorRamp(colors, numBuckets);
   }
 
   const ctx: ScaleContext = {

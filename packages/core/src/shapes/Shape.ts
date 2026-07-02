@@ -66,7 +66,7 @@ const shapeSchema: ConfigField[] = [
   {key: "hoverOpacity", coerce: "identity", default: 0.5},
   {
     key: "id",
-    coerce: "identity",
+    coerce: "accessor",
     default: (d: DataPoint, i?: number) => (d.id !== void 0 ? d.id : i!),
   },
   {key: "label", coerce: "const", default: constant(false)},
@@ -89,8 +89,12 @@ const shapeSchema: ConfigField[] = [
   {key: "texture", coerce: "const", default: constant(false)},
   {key: "vectorEffect", coerce: "const", default: constant("non-scaling-stroke")},
   {key: "verticalAlign", coerce: "const", default: constant("top")},
-  {key: "x", coerce: "const", default: accessor("x", 0)},
-  {key: "y", coerce: "const", default: accessor("y", 0)},
+  // "accessor" (not "const"): a string names a data key (`.x("year")`), a
+  // number is a constant (`.x(50)`), and a function passes through — so a
+  // standalone shape given string accessors (as the pipeline never does, but
+  // direct users do) reads the field instead of treating "x" as the literal.
+  {key: "x", coerce: "accessor", default: accessor("x", 0)},
+  {key: "y", coerce: "accessor", default: accessor("y", 0)},
 ];
 
 /**

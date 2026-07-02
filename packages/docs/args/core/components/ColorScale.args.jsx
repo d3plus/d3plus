@@ -126,36 +126,27 @@ export const argTypes = assign(
       }
     },
     color: {
-      control: {
-        type: "object"
-      },
-      defaultValue: [
-        "#54478C",
-        "#2C699A",
-        "#0DB39E",
-        "#83E377",
-        "#EFEA5A"
-      ],
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "[\"#54478C\",\"#2C699A\",\"#0DB39E\",\"#83E377\",\"#EFEA5A\"]"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "array"
+        summary: "unknown"
       }
     },
     colorMax: {
       control: {
         type: "text"
       },
-      defaultValue: "#2b8a3e",
+      defaultValue: "#1c7ed6",
       description: "",
       table: {
         defaultValue: {
-          summary: "#2b8a3e"
+          summary: "#1c7ed6"
         }
       },
       type: {

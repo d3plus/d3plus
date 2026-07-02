@@ -79,6 +79,7 @@ class LRU {
 const vizSchema = [
   {key: "ariaHidden", coerce: "identity" as const},
   {key: "cache", coerce: "identity" as const},
+  {key: "colorOrdinal", coerce: "identity" as const, default: false},
   {key: "dataCutoff", coerce: "identity" as const},
   {key: "depth", coerce: "identity" as const},
   {key: "discrete", coerce: "identity" as const},
@@ -335,10 +336,13 @@ function initShapeDefaults(viz: Viz): void {
       }
       const c = viz.schema.color(d, i);
       if (color(c)) return c;
-      return colorAssign(
-        typeof c === "string" ? c : JSON.stringify(c),
-        viz._colorDefaults,
-      );
+      const key = typeof c === "string" ? c : JSON.stringify(c);
+      // Ordinal color mode: an ordered discrete field takes a single-hue
+      // light→dark ramp (built in vizPreDraw) instead of nominal categorical
+      // hues, so the color itself carries the ordering.
+      if (viz.schema.colorOrdinal && viz._ordinalColorScale)
+        return viz._ordinalColorScale(key);
+      return colorAssign(key, viz._colorDefaults);
     },
     labelConfig: {
       fontColor: (d: DataPoint, i: number) => {

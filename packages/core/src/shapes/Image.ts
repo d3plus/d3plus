@@ -12,13 +12,13 @@ import type {ConfigField} from "../fluent.js";
 /** Image's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const imageSchema: ConfigField[] = [
   {key: "duration", coerce: "identity", default: 600},
-  {key: "height", coerce: "const", default: accessor("height")},
+  {key: "height", coerce: "accessor", default: accessor("height")},
   {key: "id", coerce: "identity", default: accessor("id")},
   {key: "opacity", coerce: "const", default: constant(1)},
   {key: "pointerEvents", coerce: "const", default: constant("auto")},
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "url", coerce: "identity", default: accessor("url")},
-  {key: "width", coerce: "const", default: accessor("width")},
+  {key: "width", coerce: "accessor", default: accessor("width")},
   {key: "x", coerce: "const", default: accessor("x", 0)},
   {key: "y", coerce: "const", default: accessor("y", 0)},
 ];

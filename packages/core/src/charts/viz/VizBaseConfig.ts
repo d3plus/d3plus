@@ -398,6 +398,24 @@ Defaults to an empty array (`[]`).
   }
 
   /**
+      Persistently emphasizes the data points matching the given predicate: the
+      matching marks keep their color while every other mark is de-emphasized to
+      a neutral gray (the "emphasis" form — highlight one series, gray the rest).
+      Unlike `hover`/`active` (transient, opacity-based), `highlight` is a
+      standing state that survives pointer movement. Pass `false` to clear it.
+*/
+  highlight(
+    _?: ((d: DataPoint, i: number) => boolean) | false,
+  ): this | ((d: DataPoint, i: number) => boolean) | false | undefined {
+    if (!arguments.length) return this._highlight;
+    this._highlight = _;
+    // Scene-rendered charts express de-emphasis via the scene's
+    // interaction-opacity pass, so repaint to apply/clear the gray treatment.
+    if (this._sceneRenderer) this._scheduleSceneRepaint();
+    return this;
+  }
+
+  /**
       Accessor function or string key for the label of each data point.
 */
   label(

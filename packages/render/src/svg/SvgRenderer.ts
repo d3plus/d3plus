@@ -37,9 +37,22 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
     join with d3-transition. This is the parity target — the same mechanism the
     existing Shape classes use, generalized to consume scene nodes.
 */
+/**
+    Per-renderer instance counter. `<defs>` ids (gradients, clipPaths) must be
+    unique across the whole document, not just within one renderer: multiple
+    charts on a page each mount their own `<svg>` + `<defs>`, but a `url(#id)`
+    fill resolves to the FIRST matching id in the document. Without a
+    per-instance prefix every renderer's first gradient is `d3plus-gradient-1`,
+    so every chart borrows the first chart's gradient (e.g. a diverging scale
+    rendering the page's first sequential-blue gradient).
+*/
+let rendererInstanceSeq = 0;
+
 export default class SvgRenderer implements Renderer {
   readonly kind = "svg" as const;
 
+  /** Unique per-instance prefix for this renderer's document-scoped def ids. */
+  private _uid = ++rendererInstanceSeq;
   private _target?: RenderTarget;
   private _svg?: SVGSVGElement;
   private _root?: SVGGElement;
@@ -182,7 +195,7 @@ export default class SvgRenderer implements Renderer {
     const g = parseGradient(fill);
     const defs = this._ensureDefs();
     if (!g || !defs) return "none";
-    const id = `d3plus-gradient-${++this._gradientSeq}`;
+    const id = `d3plus-gradient-${this._uid}-${++this._gradientSeq}`;
     const lg = document.createElementNS(SVG_NS, "linearGradient");
     lg.setAttribute("id", id);
     lg.setAttribute("x1", String(g.from[0]));
@@ -371,7 +384,7 @@ export default class SvgRenderer implements Renderer {
     const keyStr = String(node.key);
     let id = this._clipIds.get(keyStr);
     if (!id) {
-      id = `d3plus-clip-${++this._clipSeq}`;
+      id = `d3plus-clip-${this._uid}-${++this._clipSeq}`;
       this._clipIds.set(keyStr, id);
     }
     let clipPath = this._defs.querySelector<SVGClipPathElement>(`#${id}`);

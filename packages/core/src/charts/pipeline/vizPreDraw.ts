@@ -21,6 +21,7 @@
 */
 
 import {vizPostThresholdCtx, vizPreDrawPure} from "./vizPreDrawPure.js";
+import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 export function vizPreDraw(viz: Viz): void {
@@ -49,6 +50,10 @@ export function vizPreDraw(viz: Viz): void {
     filteredData = viz._thresholdFunction!(filteredData, ctx._thresholdTree);
   }
   viz._filteredData = filteredData;
+
+  // 3b. Ordinal color mode: build the single-hue ramp scale from the distinct
+  // values of the drawn data (a no-op when colorOrdinal is off).
+  configureOrdinalColor(viz);
 
   // 4. hover/duration override + noDataMessage flag — computed against
   // the post-threshold filteredData.

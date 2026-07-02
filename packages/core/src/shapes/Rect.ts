@@ -10,8 +10,8 @@ import Shape, {type ShapeAes} from "./Shape.js";
 
 /** Rect's own fluent accessor schema, layered on top of Shape's. */
 const rectSchema: ConfigField[] = [
-  {key: "height", coerce: "const", default: accessor("height")},
-  {key: "width", coerce: "const", default: accessor("width")},
+  {key: "height", coerce: "accessor", default: accessor("height")},
+  {key: "width", coerce: "accessor", default: accessor("width")},
 ];
 
 /**

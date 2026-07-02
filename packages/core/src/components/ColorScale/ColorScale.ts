@@ -35,12 +35,13 @@ const colorScaleSchema: ConfigField[] = [
     default: (a: string, b: string): string => (a !== b ? `${a} - ${b}` : `${a}`),
   },
   {key: "centered", coerce: "identity", default: true},
-  {
-    key: "color",
-    coerce: "identity",
-    default: ["#54478C", "#2C699A", "#0DB39E", "#83E377", "#EFEA5A"],
-  },
-  {key: "colorMax", coerce: "identity", default: colorDefaults.on},
+  // No default palette: an unset `color` falls through to the single-hue
+  // (colorMax / colorMin) ramp or the diverging (min↔mid↔max) construction,
+  // so magnitude reads as one hue getting darker rather than a multi-hue ramp.
+  {key: "color", coerce: "identity"},
+  // Blue high pole (and default sequential hue), gray "nothing" midpoint, red
+  // low pole — warm/cool poles that stay distinct under color-vision deficiency.
+  {key: "colorMax", coerce: "identity", default: colorDefaults.sequential},
   {key: "colorMid", coerce: "identity", default: colorDefaults.light},
   {key: "colorMin", coerce: "identity", default: colorDefaults.off},
   {key: "domain", coerce: "identity"},

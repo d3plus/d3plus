@@ -425,3 +425,43 @@ Localized.parameters = {
   controls: {include: ["locale"]},
   docs: {description: {story: "Pass a `locale` (here `\"ar-SA\"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`."}}
 };
+
+export const HighlightingASeries = Template.bind({});
+HighlightingASeries.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  highlight: funcify(d => d.region === "North", 'd => d.region === "North"')
+};
+HighlightingASeries.parameters = {
+  controls: {include: ["highlight"]},
+  docs: {description: {story: "`highlight` keeps the matching marks in color and de-emphasizes the rest to a neutral gray — the \"emphasis\" pattern for pointing at one series without hiding the others. Unlike `hover`/`active` (transient, opacity-based) it is a standing state, so it persists until cleared with `false`."}}
+};
+
+// An ordered discrete field (size tiers) — the color should read as the order.
+const tierData = [
+  {tier: "XS", sales: 12},
+  {tier: "S",  sales: 28},
+  {tier: "M",  sales: 45},
+  {tier: "L",  sales: 33},
+  {tier: "XL", sales: 19}
+];
+
+export const OrdinalColor = Template.bind({});
+OrdinalColor.args = {
+  data: tierData,
+  groupBy: "tier",
+  x: "tier",
+  y: "sales",
+  color: "tier",
+  colorOrdinal: true,
+  xSort: funcify(
+    (a, b) => ["XS", "S", "M", "L", "XL"].indexOf(a.tier) - ["XS", "S", "M", "L", "XL"].indexOf(b.tier),
+    `(a, b) => ["XS","S","M","L","XL"].indexOf(a.tier) - ["XS","S","M","L","XL"].indexOf(b.tier)`
+  )
+};
+OrdinalColor.parameters = {
+  controls: {include: ["colorOrdinal"]},
+  docs: {description: {story: "Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark."}}
+};

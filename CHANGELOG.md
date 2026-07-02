@@ -19,6 +19,7 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 - **Canvas backend.** Every visualization accepts `.renderer("svg" | "canvas")`
   (default `"svg"`). The Canvas backend paints dense, high-shape-count charts more
   efficiently and supports pointer hit-testing via `Path2D`.
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#rendering-to-canvas)
 - **`Viz.destroy()`** disconnects the `ResizeObserver` and removes the body
   `touchstart` listener, preventing leaks when a chart is torn down. The React
   wrapper calls it automatically on unmount.
@@ -32,8 +33,28 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   advanced consumers building custom charts. The root `@d3plus/core` entry stays
   curated to the stable public API; the `internal` surface is not semver-stable.
 - Share-of-total percentages in Pie and Donut tooltips.
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-pie--d3plus#basic-example)
 - Sankey link enter/exit animations (stroke-width grows from zero).
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#basic-example)
 - Visual-regression, pipeline-parity, and v3↔v4 chart-compare test harnesses.
+- **`colorValidate`** (`@d3plus/color`) — validates a palette against the
+  checks that can be computed from color alone: OKLCH lightness band, chroma
+  floor, colorblind (Machado-2009 protan/deutan/tritan ΔE) separation, and WCAG
+  contrast vs the surface; plus an ordinal-ramp mode. The default categorical
+  palette is now gated against it.
+  [Example ↗](https://d3plus.org/?path=/docs/color-colorvalidate--d3plus#default-palette)
+- **`colorRamp`** (`@d3plus/color`) — builds an even single-hue light→dark ramp
+  in OKLab (holds the hue, so the pale end keeps its identity instead of drifting
+  to white). Continuous color scales now step through it.
+  [Example ↗](https://d3plus.org/?path=/docs/color-colorramp--d3plus#basic-example)
+- **`highlight(predicate)`** — a standing emphasis: the matching marks keep their
+  color while every other mark is de-emphasized to a neutral gray (highlight one
+  series, gray the rest). Unlike `hover`/`active` it survives pointer movement.
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#highlighting-a-series)
+- **`colorOrdinal(true)`** — treats a discrete color field as *ordered*, coloring
+  it with a single-hue light→dark ramp instead of nominal categorical hues.
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#ordinal-color)
+- OKLab/OKLCH conversions and a WCAG `contrastRatio` helper back the above.
 
 ### Changed
 
@@ -49,6 +70,22 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 - `@d3plus/data` grouping now builds on `d3-array` (`groups`/`rollups`); the
   deprecated `d3-collection` dependency has been removed. `nest()` / `nestGroups()`
   remain exported.
+- **Default color palette re-stepped for colorblind safety.** The eight primary
+  categorical slots are new open-color steps chosen to sit inside the OKLCH
+  lightness band, clear the chroma floor, and stay distinct under protanopia and
+  deuteranopia (the slot order — the CVD-safety mechanism — is unchanged). Marks
+  shift hue slightly as a result.
+  [Example ↗](https://d3plus.org/?path=/docs/color-colorvalidate--d3plus#default-palette)
+- **Continuous color scales default to a single blue hue** (magnitude reads as
+  one hue getting darker) and diverging scales default to blue↔gray↔red (warm/cool
+  poles that stay distinct under CVD), replacing the previous multi-hue ramp and
+  red↔green diverging. `on`/`off` (green/red) still color boolean data.
+  [Example ↗](https://d3plus.org/?path=/docs/core-components-colorscale--d3plus#linear-scale)
+- **`colorContrast` now picks text color by WCAG contrast**, not the YIQ
+  approximation — it returns whichever of the two text tokens has the higher
+  contrast ratio against the background (so e.g. bright greens/teals correctly get
+  dark text).
+  [Example ↗](https://d3plus.org/?path=/docs/color-colorcontrast--d3plus#basic-example)
 
 ### Fixed
 
@@ -62,6 +99,7 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
 - Geomap renders on the Canvas backend: the ocean now paints into the scene
   (onto the canvas) rather than into the overlaying compute `<svg>`, which had
   hidden the geography.
+  [Example ↗](https://d3plus.org/?path=/docs/core-charts-geomap--d3plus#rendering-to-canvas)
 - Canvas backend paints **texture/pattern fills** at parity with SVG. A
   `pattern:<json>` token is rasterized to an offscreen tile and tiled as a
   repeating `CanvasPattern` (the texture's solid color is used for the first
