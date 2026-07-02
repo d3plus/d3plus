@@ -59,6 +59,37 @@ BubbleChart.args = {
 };
 BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}};
 
+export const MotionTrails = Template.bind({});
+MotionTrails.args = {
+  data: [
+    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
+    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
+    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
+    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
+    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
+    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
+    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
+    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+  ],
+  groupBy: "id",
+  time: "year",
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y",
+  renderer: "canvas",
+  shapeConfig: {Circle: {trail: true}}
+};
+MotionTrails.parameters = {
+  controls: {include: ["renderer", "shapeConfig"]},
+  docs: {description: {story: "Press **play** on the timeline: each point streaks a capsule trail from its previous year's position as it animates to the next, pointing back where it came from and fading as it arrives. Enable with `shapeConfig.Circle.trail: true`; the streak matches the point's diameter. Motion trails render on the **Canvas** backend (`renderer: \"canvas\"`)."}}
+};
+
 export const ShapeBackgroundImages = Template.bind({});
 ShapeBackgroundImages.args = {
   data: "https://oec.world/api/gdp/eci?Year=2019&x=OEC.ECI&y=NY.GDP.MKTP.CD",

@@ -98,3 +98,40 @@ it("interpolateScene fades entering nodes and drops exiting nodes at t=1", () =>
   const end = interp(1);
   assert.deepStrictEqual(end.root.children.map(c => c.key), ["new"], "exiting node dropped at t=1");
 });
+
+it("interpolateScene streaks a motion trail behind a moving trailed point", () => {
+  const circle = extra => ({
+    type: "circle", key: "p", cx: 0, cy: 0, r: 5,
+    paint: {fill: "#ff0000"}, transform: {x: 10, y: 10}, ...extra,
+  });
+  const prev = {width: 200, height: 200, root: {type: "group", key: "root", children: [circle()]}};
+  const next = {
+    width: 200, height: 200,
+    root: {type: "group", key: "root", children: [circle({trail: true, transform: {x: 110, y: 90}})]},
+  };
+  const interp = interpolateScene(prev, next);
+
+  const mid = interp(0.5);
+  const trail = mid.root.children.find(c => c.key === "p__trail");
+  assert.ok(trail, "trail node emitted mid-move");
+  assert.strictEqual(trail.type, "line", "trail is a line");
+  // Streaks from the previous position to the current (half-way) position.
+  assert.deepStrictEqual(trail.points, [[10, 10], [60, 50]], "trail spans prev → current");
+  assert.strictEqual(trail.paint.strokeWidth, 10, "trail width = point diameter (2r)");
+  assert.strictEqual(trail.paint.strokeLinecap, "round", "round cap = capsule");
+  assert.strictEqual(trail.paint.stroke, "#ff0000", "trail takes the point's fill");
+  assert.ok(trail.paint.opacity > 0 && trail.paint.opacity < 0.4, "trail fading");
+  // Trail paints beneath its point.
+  const trailIdx = mid.root.children.findIndex(c => c.key === "p__trail");
+  const pointIdx = mid.root.children.findIndex(c => c.key === "p");
+  assert.ok(trailIdx < pointIdx, "trail is behind the point");
+
+  assert.ok(!interp(1).root.children.some(c => c.key === "p__trail"), "no trail at rest (t=1)");
+
+  // A point that doesn't opt in gets no trail.
+  const noOpt = interpolateScene(
+    {width: 200, height: 200, root: {type: "group", key: "root", children: [circle()]}},
+    {width: 200, height: 200, root: {type: "group", key: "root", children: [circle({transform: {x: 110, y: 90}})]}},
+  );
+  assert.ok(!noOpt(0.5).root.children.some(c => c.key === "p__trail"), "no trail without trail:true");
+});

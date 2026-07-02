@@ -13,6 +13,9 @@ import Shape, {type ShapeAes} from "./Shape.js";
 /** Circle's own fluent accessor schema, layered on top of Shape's. */
 const circleSchema: ConfigField[] = [
   {key: "r", coerce: "accessor", default: accessor("r")},
+  // Motion-trail toggle: when true, the animate layer streaks a capsule behind
+  // each point as it moves between frames (Timeline play). Canvas backend only.
+  {key: "trail", coerce: "identity", default: false},
 ];
 
 /**
@@ -58,7 +61,13 @@ export default class Circle extends Shape {
       @private
 */
   _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
-    return {type: "circle", cx: 0, cy: 0, r: Number(this.schema.r(d, i))};
+    return {
+      type: "circle",
+      cx: 0,
+      cy: 0,
+      r: Number(this.schema.r(d, i)),
+      ...(this.schema.trail ? {trail: true} : {}),
+    };
   }
 
   /**

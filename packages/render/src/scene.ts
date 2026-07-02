@@ -188,6 +188,13 @@ export interface NodeBase {
   aria?: AriaSpec;
   /** Z-order within the parent group; stable sort key replacing DOM append order. */
   z?: number;
+  /**
+      Hint for the animate layer to draw a motion trail (a capsule streak from
+      the mark's previous position to its current one) as it moves between
+      frames — e.g. points sliding year-to-year on Timeline play. Currently
+      honored for point (circle) marks on the Canvas backend.
+  */
+  trail?: boolean;
 }
 
 export interface RectNode extends NodeBase {

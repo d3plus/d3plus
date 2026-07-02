@@ -1,6 +1,40 @@
-import type {GroupNode, Scene, SceneNode} from "../scene.js";
+import type {CircleNode, GroupNode, Scene, SceneNode} from "../scene.js";
 import {collapse, interpolateNode} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
+
+/** Peak opacity of a motion trail (fades to 0 as the mark reaches its target). */
+const TRAIL_OPACITY = 0.4;
+
+/**
+    Builds a motion-trail interpolator for a point mark that opts in via
+    `node.trail` and moves between frames: a capsule streak (round-capped line
+    the width of the mark's diameter) from the mark's previous position to its
+    current interpolated position, fading out as it arrives. Returns null when
+    the mark barely moves or lacks a usable radius/color. Point positions live
+    in the node transform (circles are origin-centered), so the streak is drawn
+    in the parent's coordinate space with no transform of its own.
+*/
+function trailInterp(a: SceneNode, b: SceneNode): Interp<SceneNode> | null {
+  const ax = a.transform?.x ?? 0, ay = a.transform?.y ?? 0;
+  const bx = b.transform?.x ?? 0, by = b.transform?.y ?? 0;
+  if (Math.hypot(bx - ax, by - ay) < 1) return null;
+  const r = (b as CircleNode).r || (a as CircleNode).r || 0;
+  const stroke = b.paint?.fill ?? a.paint?.fill;
+  if (!r || typeof stroke !== "string") return null;
+  return t =>
+    ({
+      type: "line",
+      key: `${b.key}__trail`,
+      interactive: false,
+      points: [[ax, ay], [ax + (bx - ax) * t, ay + (by - ay) * t]],
+      paint: {
+        stroke,
+        strokeWidth: r * 2,
+        strokeLinecap: "round",
+        opacity: TRAIL_OPACITY * (1 - t),
+      },
+    }) as SceneNode;
+}
 
 /**
     @interface GroupDiff
@@ -48,9 +82,14 @@ function interpolateChildren(
   ): Interp<SceneNode> => t =>
     ({...(nodeInterp(t) as GroupNode), children: childInterp(t)}) as SceneNode;
 
+  const trails: Interp<SceneNode>[] = [];
   const updaters: Interp<SceneNode>[] = update.map(([a, b]) => {
     if (a.type === "group" && b.type === "group") {
       return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children));
+    }
+    if (b.type === "circle" && b.trail && a.type === "circle") {
+      const trail = trailInterp(a, b);
+      if (trail) trails.push(trail);
     }
     return interpolateNode(a, b);
   });
@@ -73,6 +112,8 @@ function interpolateChildren(
 
   return t => {
     const out: SceneNode[] = [];
+    // Trails first so they paint beneath the marks that cast them.
+    if (t < 1) for (const tr of trails) out.push(tr(t));
     for (const u of updaters) out.push(u(t));
     for (const e of enters) out.push(e(t));
     if (t < 1) for (const x of exits) out.push(x(t));
