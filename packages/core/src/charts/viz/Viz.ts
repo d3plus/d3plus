@@ -342,6 +342,13 @@ export default class Viz extends VizBase {
       this._sceneRenderer.kind !== kind ||
       containerChanged
     ) {
+      // Tear down the outgoing renderer before mounting a fresh one. It owns
+      // its own DOM (canvas/svg + overlay host), pointer listeners, and
+      // transition timers; without this, switching kind (svg<->canvas) or
+      // container orphans that DOM in the user's element, stacking the old
+      // mode's output behind the new one and accumulating on every switch.
+      if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function")
+        this._sceneRenderer.destroy();
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
       this._sceneRenderer.mount({container: mountTarget, width: w, height: h});
