@@ -85,6 +85,9 @@ export function solidFill(fill?: string): string | undefined {
 function gradientBox(
   node: SceneNode,
 ): {x: number; y: number; w: number; h: number} | null {
+  // A node may carry its own box (e.g. a trail cone path, which Canvas can't
+  // measure from `d`); prefer it.
+  if (node.gradientBounds) return node.gradientBounds;
   if (node.type === "rect")
     return {x: node.x, y: node.y, w: node.width, h: node.height};
   if (node.type === "circle")

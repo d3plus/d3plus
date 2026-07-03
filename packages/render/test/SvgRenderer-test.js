@@ -105,3 +105,31 @@ it("SvgRenderer nests group nodes", () => {
 
   renderer.destroy();
 });
+
+it("SvgRenderer sweeps a motion trail for a moving trailed point on transition", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 200});
+  const circle = extra => ({
+    type: "circle", key: "p", cx: 0, cy: 0, r: 5,
+    paint: {fill: "#ff0000"}, transform: {x: 10, y: 10}, trail: true, ...extra,
+  });
+
+  // First draw establishes the point's position; nothing to trail from yet.
+  renderer.drawScene(scene([circle()]));
+  assert.ok(!document.querySelector(".d3plus-trail"), "no trail on the first draw");
+
+  // Move it with a transition → a trail <path> is created beneath the point,
+  // filled with the fade gradient (its `d`/opacity are then tweened per frame).
+  // The path is created synchronously, so assert before cancelling the
+  // transition (cancel avoids an async transform tick after JSDOM teardown).
+  const handle = renderer.drawScene(scene([circle({transform: {x: 120, y: 90}})]), {duration: 400});
+  const trail = document.querySelector(".d3plus-trail");
+  assert.ok(trail, "trail path created for the moving point");
+  assert.strictEqual(trail.tagName.toLowerCase(), "path", "trail is a path");
+  assert.ok((trail.getAttribute("fill") || "").startsWith("url(#"), "trail filled by a gradient");
+  const point = document.querySelector('[data-key="p"]');
+  assert.strictEqual(trail.nextElementSibling, point, "trail sits just beneath the point");
+
+  handle.cancel();
+  renderer.destroy();
+});

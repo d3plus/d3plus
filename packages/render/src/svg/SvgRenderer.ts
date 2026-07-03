@@ -3,7 +3,8 @@ import {transition, type Transition} from "d3-transition";
 import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
-import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {coneGeometry, trailGradient, trailOpacity, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
+import type {CircleNode, GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -47,6 +48,43 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
     rendering the page's first sequential-blue gradient).
 */
 let rendererInstanceSeq = 0;
+
+/**
+    Attaches a motion-trail cone to a moving trailed circle for the life of its
+    transition — SVG parity with the Canvas `interpolateScene` trail. A sibling
+    `<path>` is inserted just before the point (so it paints beneath it), filled
+    with the fade-to-transparent gradient; its cone `d` and opacity are tweened
+    each frame from the previous position to the current one, and it's removed
+    when the transition ends or is interrupted. The reconcile join excludes
+    `.d3plus-trail`, so a stray one can never break the keyed diff.
+*/
+function attachSvgTrail(
+  el: Element,
+  tsel: Transition<Element, unknown, null, undefined>,
+  prev: {x: number; y: number; r: number},
+  node: CircleNode,
+  resolveFill: (f?: string) => string | null,
+): void {
+  const cx = node.transform?.x ?? 0, cy = node.transform?.y ?? 0, cR = node.r ?? 0;
+  const color = node.paint?.fill, parent = el.parentNode;
+  if (
+    typeof color !== "string" || !parent ||
+    Math.hypot(cx - prev.x, cy - prev.y) < TRAIL_MIN_DISTANCE
+  ) return;
+  const stale = el.previousElementSibling;
+  if (stale && stale.classList.contains("d3plus-trail")) stale.remove();
+  const tp = document.createElementNS(SVG_NS, "path");
+  tp.setAttribute("class", "d3plus-trail");
+  tp.setAttribute("pointer-events", "none");
+  tp.setAttribute("fill", resolveFill(trailGradient(cx - prev.x, cy - prev.y, color)) ?? "none");
+  parent.insertBefore(tp, el);
+  tsel.tween("d3plus-trail", () => (tt: number) => {
+    const hx = prev.x + (cx - prev.x) * tt, hy = prev.y + (cy - prev.y) * tt;
+    tp.setAttribute("d", coneGeometry(prev.x, prev.y, prev.r, hx, hy, prev.r + (cR - prev.r) * tt).d);
+    tp.setAttribute("opacity", String(trailOpacity(tt)));
+  });
+  tsel.on("end.d3plus-trail interrupt.d3plus-trail", () => tp.remove());
+}
 
 export default class SvgRenderer implements Renderer {
   readonly kind = "svg" as const;
@@ -276,7 +314,10 @@ export default class SvgRenderer implements Renderer {
       ? [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
       : svgChildren;
     const sel = parent
-      .selectChildren<Element, SceneNode>("*")
+      // Exclude transient motion-trail paths: they're created/removed inside a
+      // circle's transition, not part of the keyed scene data, so they must not
+      // enter the join (a stray one would break the key function).
+      .selectChildren<Element, SceneNode>("*:not(.d3plus-trail)")
       .data(ordered, (d: SceneNode) => d.key);
     const resolveFill = (f?: string): string | null => this._resolveFill(f);
 
@@ -316,9 +357,16 @@ export default class SvgRenderer implements Renderer {
       // instead of snapping. `__d3plusTextPrev__` is the node this element drew
       // last time; comparing font sizes detects a resize. (The layout/tspans
       // are already at the new size — the tween scales the painted glyphs.)
-      const stash = this as Element & {__d3plusTextPrev__?: TextNode};
+      // `__d3plusTrailPrev__` similarly remembers a trailed point's last
+      // position so its motion trail can sweep from there on the next move.
+      const stash = this as Element & {
+        __d3plusTextPrev__?: TextNode;
+        __d3plusTrailPrev__?: {x: number; y: number; r: number};
+      };
       const prevText =
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
+      const trailPrev =
+        duration && d.type === "circle" && d.trail ? stash.__d3plusTrailPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
         const tsel = s.transition(t);
@@ -334,8 +382,17 @@ export default class SvgRenderer implements Renderer {
           // scale (old/new → 1) about the box center.
           tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
         }
+        // Sweep a motion-trail cone from the point's previous position to its
+        // current one, beneath the point (parity with the Canvas backend).
+        if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d as CircleNode, resolveFill);
       } else applyGeometry(s, d, false, resolveFill);
       if (d.type === "text") stash.__d3plusTextPrev__ = d;
+      if (d.type === "circle" && d.trail)
+        stash.__d3plusTrailPrev__ = {
+          x: (d as CircleNode).transform?.x ?? 0,
+          y: (d as CircleNode).transform?.y ?? 0,
+          r: (d as CircleNode).r ?? 0,
+        };
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
         self._reconcile(s, (d as GroupNode).children, duration, t);

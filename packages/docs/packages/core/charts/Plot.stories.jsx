@@ -82,12 +82,11 @@ MotionTrails.args = {
   sizeMin: 24,
   x: "x",
   y: "y",
-  renderer: "canvas",
   shapeConfig: {Circle: {trail: true}}
 };
 MotionTrails.parameters = {
   controls: {include: ["renderer", "shapeConfig"]},
-  docs: {description: {story: "Press **play** on the timeline: each point streaks a capsule trail from its previous year's position as it animates to the next, pointing back where it came from and fading as it arrives. Enable with `shapeConfig.Circle.trail: true`; the streak matches the point's diameter. Motion trails render on the **Canvas** backend (`renderer: \"canvas\"`)."}}
+  docs: {description: {story: "Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. Enable with `shapeConfig.Circle.trail: true`. Works on both the SVG and Canvas backends — toggle `renderer` to compare."}}
 };
 
 export const ShapeBackgroundImages = Template.bind({});

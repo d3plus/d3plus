@@ -189,12 +189,19 @@ export interface NodeBase {
   /** Z-order within the parent group; stable sort key replacing DOM append order. */
   z?: number;
   /**
-      Hint for the animate layer to draw a motion trail (a capsule streak from
-      the mark's previous position to its current one) as it moves between
-      frames — e.g. points sliding year-to-year on Timeline play. Currently
-      honored for point (circle) marks on the Canvas backend.
+      Hint for the animate layer to draw a motion trail (a tapering cone that
+      fades from the mark's color at its current position to transparent at its
+      previous one) as it moves between frames — e.g. points sliding
+      year-to-year on Timeline play. Honored for point (circle) marks.
   */
   trail?: boolean;
+  /**
+      Explicit bounding box for an objectBoundingBox gradient fill on a node the
+      Canvas backend can't measure geometrically (a `path`). The SVG backend
+      derives the box from the element automatically; Canvas reads this instead
+      of parsing `d`. Used by motion-trail cones.
+  */
+  gradientBounds?: {x: number; y: number; w: number; h: number};
 }
 
 export interface RectNode extends NodeBase {

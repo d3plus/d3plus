@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import {collapse, cubicInOut, interpolateNode, interpolateScene} from "../es/index.js";
+import {collapse, cubicInOut, interpolateNode, interpolateScene, parseGradient} from "../es/index.js";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");
@@ -114,13 +114,19 @@ it("interpolateScene streaks a motion trail behind a moving trailed point", () =
   const mid = interp(0.5);
   const trail = mid.root.children.find(c => c.key === "p__trail");
   assert.ok(trail, "trail node emitted mid-move");
-  assert.strictEqual(trail.type, "line", "trail is a line");
-  // Streaks from the previous position to the current (half-way) position.
-  assert.deepStrictEqual(trail.points, [[10, 10], [60, 50]], "trail spans prev → current");
-  assert.strictEqual(trail.paint.strokeWidth, 10, "trail width = point diameter (2r)");
-  assert.strictEqual(trail.paint.strokeLinecap, "round", "round cap = capsule");
-  assert.strictEqual(trail.paint.stroke, "#ff0000", "trail takes the point's fill");
-  assert.ok(trail.paint.opacity > 0 && trail.paint.opacity < 0.4, "trail fading");
+  assert.strictEqual(trail.type, "path", "trail is a cone path");
+  assert.ok(typeof trail.d === "string" && trail.d.startsWith("M"), "trail has a path d");
+  assert.ok(trail.gradientBounds, "trail carries its gradient bounds for Canvas");
+  // Fill is a gradient fading transparent (tail) → the point's color (head).
+  assert.ok(trail.paint.fill.startsWith("gradient:"), "trail fill is a gradient");
+  const grad = parseGradient(trail.paint.fill);
+  assert.strictEqual(grad.stops.length, 2, "two stops");
+  assert.strictEqual(grad.stops[1].color, "#ff0000", "head stop = point color");
+  assert.ok(/, ?0\)$/.test(grad.stops[0].color), "tail stop is transparent");
+  // Moving down-right, tail sits at the top-left bbox corner, head bottom-right.
+  assert.deepStrictEqual(grad.from, [0, 0], "gradient from = tail corner");
+  assert.deepStrictEqual(grad.to, [1, 1], "gradient to = head corner");
+  assert.ok(trail.paint.opacity > 0 && trail.paint.opacity < 0.6, "trail fading");
   // Trail paints beneath its point.
   const trailIdx = mid.root.children.findIndex(c => c.key === "p__trail");
   const pointIdx = mid.root.children.findIndex(c => c.key === "p");
