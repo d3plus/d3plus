@@ -81,12 +81,41 @@ MotionTrails.args = {
   sizeMax: 40,
   sizeMin: 24,
   x: "x",
-  y: "y",
-  shapeConfig: {Circle: {trail: true}}
+  y: "y"
 };
 MotionTrails.parameters = {
   controls: {include: ["renderer", "shapeConfig"]},
-  docs: {description: {story: "Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. Enable with `shapeConfig.Circle.trail: true`. Works on both the SVG and Canvas backends — toggle `renderer` to compare."}}
+  docs: {description: {story: "Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. **On by default** for scatter points — opt out with `shapeConfig.Circle.trail: false`. Works on both the SVG and Canvas backends — toggle `renderer` to compare."}}
+};
+
+export const SquareMotionTrails = Template.bind({});
+SquareMotionTrails.args = {
+  data: [
+    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
+    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
+    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
+    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
+    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
+    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
+    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
+    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+  ],
+  groupBy: "id",
+  time: "year",
+  shape: "Rect",
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y"
+};
+SquareMotionTrails.parameters = {
+  controls: {include: ["renderer", "shape"]},
+  docs: {description: {story: "Trails aren't circle-only: `Rect` marks trail too, and the cone is sized to the square's silhouette *perpendicular to travel* — so a square moving diagonally reaches corner-to-corner rather than edge-to-edge, matching what the eye sees. Also on by default for scatter squares; opt out with `shapeConfig.Rect.trail: false`."}}
 };
 
 export const ShapeBackgroundImages = Template.bind({});

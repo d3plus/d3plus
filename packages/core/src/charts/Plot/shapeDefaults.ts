@@ -234,7 +234,7 @@ export function plotShapeDefaults(this: VizInstance) {
     Circle: {
       r: defaultSize.bind(this),
       // Scatter/bubble points leave a motion trail when they move between
-      // frames (Timeline play). Only affects Circle marks, so Bar/Line/Area
+      // frames (Timeline play). Only affects Circle/Rect marks, so Bar/Line/Area
       // plots are unaffected; opt out per chart with shapeConfig.Circle.trail.
       trail: true,
     },
@@ -242,6 +242,10 @@ export function plotShapeDefaults(this: VizInstance) {
     Rect: {
       height: (d: DataPoint) => defaultSize.bind(this)(d) * 2,
       width: (d: DataPoint) => defaultSize.bind(this)(d) * 2,
+      // Square scatter marks trail like Circle points do; the cone is sized to
+      // the square's silhouette perpendicular to travel (corner-to-corner at
+      // 45°). Opt out per chart with shapeConfig.Rect.trail: false.
+      trail: true,
     },
   };
 }

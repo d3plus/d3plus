@@ -3,8 +3,9 @@ import {transition, type Transition} from "d3-transition";
 import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
-import {coneGeometry, trailGradient, trailOpacity, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
-import type {CircleNode, GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {coneAt, trailGradient, trailOpacity, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
+import type {TrailParts} from "../animate/trail.js";
+import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -50,37 +51,38 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
 let rendererInstanceSeq = 0;
 
 /**
-    Attaches a motion-trail cone to a moving trailed circle for the life of its
+    Attaches a motion-trail cone to a moving trailed mark for the life of its
     transition — SVG parity with the Canvas `interpolateScene` trail. A sibling
-    `<path>` is inserted just before the point (so it paints beneath it), filled
+    `<path>` is inserted just before the mark (so it paints beneath it), filled
     with the fade-to-transparent gradient; its cone `d` and opacity are tweened
-    each frame from the previous position to the current one, and it's removed
-    when the transition ends or is interrupted. The reconcile join excludes
-    `.d3plus-trail`, so a stray one can never break the keyed diff.
+    each frame from the previous position/size to the current one, and it's
+    removed when the transition ends or is interrupted. The reconcile join
+    excludes `.d3plus-trail`, so a stray one can never break the keyed diff.
 */
 function attachSvgTrail(
   el: Element,
   tsel: Transition<Element, unknown, null, undefined>,
-  prev: {x: number; y: number; r: number},
-  node: CircleNode,
+  prev: TrailParts,
+  node: SceneNode,
   resolveFill: (f?: string) => string | null,
 ): void {
-  const cx = node.transform?.x ?? 0, cy = node.transform?.y ?? 0, cR = node.r ?? 0;
-  const color = node.paint?.fill, parent = el.parentNode;
+  const curr = trailPartsFromNode(node), parent = el.parentNode;
+  if (!curr || prev.shape !== curr.shape || !parent) return;
+  const color = curr.color ?? prev.color;
   if (
-    typeof color !== "string" || !parent ||
-    Math.hypot(cx - prev.x, cy - prev.y) < TRAIL_MIN_DISTANCE
+    typeof color !== "string" ||
+    Math.hypot(curr.x - prev.x, curr.y - prev.y) < TRAIL_MIN_DISTANCE
   ) return;
   const stale = el.previousElementSibling;
   if (stale && stale.classList.contains("d3plus-trail")) stale.remove();
   const tp = document.createElementNS(SVG_NS, "path");
   tp.setAttribute("class", "d3plus-trail");
   tp.setAttribute("pointer-events", "none");
-  tp.setAttribute("fill", resolveFill(trailGradient(cx - prev.x, cy - prev.y, color)) ?? "none");
+  tp.setAttribute("fill", resolveFill(trailGradient(curr.x - prev.x, curr.y - prev.y, color)) ?? "none");
   parent.insertBefore(tp, el);
+  const A: [number, number] = [prev.x, prev.y], B: [number, number] = [curr.x, curr.y];
   tsel.tween("d3plus-trail", () => (tt: number) => {
-    const hx = prev.x + (cx - prev.x) * tt, hy = prev.y + (cy - prev.y) * tt;
-    tp.setAttribute("d", coneGeometry(prev.x, prev.y, prev.r, hx, hy, prev.r + (cR - prev.r) * tt).d);
+    tp.setAttribute("d", coneAt(curr.shape, A, prev.dims, B, curr.dims, curr.rotate, tt).d);
     tp.setAttribute("opacity", String(trailOpacity(tt)));
   });
   tsel.on("end.d3plus-trail interrupt.d3plus-trail", () => tp.remove());
@@ -361,12 +363,13 @@ export default class SvgRenderer implements Renderer {
       // position so its motion trail can sweep from there on the next move.
       const stash = this as Element & {
         __d3plusTextPrev__?: TextNode;
-        __d3plusTrailPrev__?: {x: number; y: number; r: number};
+        __d3plusTrailPrev__?: TrailParts;
       };
+      const canTrail = d.trail && (d.type === "circle" || d.type === "rect");
       const prevText =
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       const trailPrev =
-        duration && d.type === "circle" && d.trail ? stash.__d3plusTrailPrev__ : undefined;
+        duration && canTrail ? stash.__d3plusTrailPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
         const tsel = s.transition(t);
@@ -382,17 +385,15 @@ export default class SvgRenderer implements Renderer {
           // scale (old/new → 1) about the box center.
           tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
         }
-        // Sweep a motion-trail cone from the point's previous position to its
-        // current one, beneath the point (parity with the Canvas backend).
-        if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d as CircleNode, resolveFill);
+        // Sweep a motion-trail cone from the mark's previous position to its
+        // current one, beneath the mark (parity with the Canvas backend).
+        if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
       } else applyGeometry(s, d, false, resolveFill);
       if (d.type === "text") stash.__d3plusTextPrev__ = d;
-      if (d.type === "circle" && d.trail)
-        stash.__d3plusTrailPrev__ = {
-          x: (d as CircleNode).transform?.x ?? 0,
-          y: (d as CircleNode).transform?.y ?? 0,
-          r: (d as CircleNode).r ?? 0,
-        };
+      if (canTrail) {
+        const parts = trailPartsFromNode(d);
+        if (parts) stash.__d3plusTrailPrev__ = parts;
+      }
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
         self._reconcile(s, (d as GroupNode).children, duration, t);

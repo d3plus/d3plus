@@ -13,8 +13,9 @@ import Shape, {type ShapeAes} from "./Shape.js";
 /** Circle's own fluent accessor schema, layered on top of Shape's. */
 const circleSchema: ConfigField[] = [
   {key: "r", coerce: "accessor", default: accessor("r")},
-  // Motion-trail toggle: when true, the animate layer streaks a capsule behind
-  // each point as it moves between frames (Timeline play). Canvas backend only.
+  // Motion-trail toggle: when true, the animate layer sweeps a tapering cone
+  // behind each point as it moves between frames (Timeline play), on both the
+  // SVG and Canvas backends.
   {key: "trail", coerce: "identity", default: false},
 ];
 

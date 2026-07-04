@@ -11,6 +11,11 @@ import Shape, {type ShapeAes} from "./Shape.js";
 /** Rect's own fluent accessor schema, layered on top of Shape's. */
 const rectSchema: ConfigField[] = [
   {key: "height", coerce: "accessor", default: accessor("height")},
+  // Motion-trail toggle: when true, the animate layer sweeps a tapering cone
+  // behind each rect as it moves between frames (Timeline play), sized to the
+  // rect's silhouette perpendicular to travel — so a square at 45° trails
+  // corner-to-corner. On both the SVG and Canvas backends.
+  {key: "trail", coerce: "identity", default: false},
   {key: "width", coerce: "accessor", default: accessor("width")},
 ];
 
@@ -54,6 +59,7 @@ export default class Rect extends Shape {
       height: h,
       ...(rx == null ? {} : {rx: Number(rx)}),
       ...(ry == null ? {} : {ry: Number(ry)}),
+      ...(this.schema.trail ? {trail: true} : {}),
     };
   }
 

@@ -141,3 +141,37 @@ it("interpolateScene streaks a motion trail behind a moving trailed point", () =
   );
   assert.ok(!noOpt(0.5).root.children.some(c => c.key === "p__trail"), "no trail without trail:true");
 });
+
+it("interpolateScene sizes a rect's trail to its silhouette perpendicular to travel", () => {
+  // A 20×20 square (half-extent 10). Move it and read the cone's tail chord.
+  const square = extra => ({
+    type: "rect", key: "r", x: -10, y: -10, width: 20, height: 20,
+    paint: {fill: "#1c7ed6"}, transform: {x: 0, y: 0}, ...extra,
+  });
+  const coneFor = (dx, dy) => {
+    const interp = interpolateScene(
+      {width: 300, height: 300, root: {type: "group", key: "root", children: [square()]}},
+      {width: 300, height: 300, root: {type: "group", key: "root",
+        children: [square({trail: true, transform: {x: dx, y: dy}})]}},
+    );
+    const trail = interp(0.5).root.children.find(c => c.key === "r__trail");
+    assert.ok(trail && trail.type === "path", "rect emits a cone path trail");
+    // d = "M t1 L h1 L h2 L t2 Z" — tail chord is the first & last points.
+    const pts = trail.d.split(/[MLZ]/).filter(s => s.trim()).map(s => s.split(",").map(Number));
+    return Math.hypot(pts[0][0] - pts[3][0], pts[0][1] - pts[3][1]);
+  };
+
+  // Axis-aligned travel presents the square's side (width 20).
+  assert.ok(Math.abs(coneFor(120, 0) - 20) < 1e-6, "horizontal move → side width (20)");
+  assert.ok(Math.abs(coneFor(0, 120) - 20) < 1e-6, "vertical move → side width (20)");
+  // A 45° move presents the corner-to-corner diagonal (20·√2 ≈ 28.28).
+  assert.ok(Math.abs(coneFor(120, 120) - 20 * Math.SQRT2) < 1e-6, "45° move → diagonal width (20√2)");
+
+  // A rect without trail:true gets no cone.
+  const noOpt = interpolateScene(
+    {width: 300, height: 300, root: {type: "group", key: "root", children: [square()]}},
+    {width: 300, height: 300, root: {type: "group", key: "root",
+      children: [square({transform: {x: 120, y: 120}})]}},
+  );
+  assert.ok(!noOpt(0.5).root.children.some(c => c.key === "r__trail"), "no rect trail without trail:true");
+});

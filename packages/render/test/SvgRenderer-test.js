@@ -133,3 +133,26 @@ it("SvgRenderer sweeps a motion trail for a moving trailed point on transition",
   handle.cancel();
   renderer.destroy();
 });
+
+it("SvgRenderer sweeps a motion trail for a moving trailed rect on transition", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 200});
+  const square = extra => ({
+    type: "rect", key: "r", x: -6, y: -6, width: 12, height: 12,
+    paint: {fill: "#1c7ed6"}, transform: {x: 10, y: 10}, trail: true, ...extra,
+  });
+
+  renderer.drawScene(scene([square()]));
+  assert.ok(!document.querySelector(".d3plus-trail"), "no trail on the first draw");
+
+  const handle = renderer.drawScene(scene([square({transform: {x: 120, y: 120}})]), {duration: 400});
+  const trail = document.querySelector(".d3plus-trail");
+  assert.ok(trail, "trail path created for the moving square");
+  assert.strictEqual(trail.tagName.toLowerCase(), "path", "trail is a path");
+  assert.ok((trail.getAttribute("fill") || "").startsWith("url(#"), "trail filled by a gradient");
+  const mark = document.querySelector('[data-key="r"]');
+  assert.strictEqual(trail.nextElementSibling, mark, "trail sits just beneath the square");
+
+  handle.cancel();
+  renderer.destroy();
+});

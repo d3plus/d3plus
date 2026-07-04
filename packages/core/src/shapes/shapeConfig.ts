@@ -158,11 +158,15 @@ export interface BaseShapeConfig {
 export interface RectConfig extends BaseShapeConfig {
   width?: ConstOrAccessor<number>;
   height?: ConstOrAccessor<number>;
+  /** Sweep a tapering motion trail behind the rect as it moves between frames. */
+  trail?: boolean;
 }
 
 /** Circle-specific config (radius). */
 export interface CircleConfig extends BaseShapeConfig {
   r?: ConstOrAccessor<number>;
+  /** Sweep a tapering motion trail behind the point as it moves between frames. */
+  trail?: boolean;
 }
 
 /** Line-specific config (curve + defined). */

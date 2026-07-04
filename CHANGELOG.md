@@ -36,6 +36,15 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   [Example ↗](https://d3plus.org/?path=/docs/core-charts-pie--d3plus#basic-example)
 - Sankey link enter/exit animations (stroke-width grows from zero).
   [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#basic-example)
+- **Motion trails.** Points that move between frames (Timeline play) sweep a
+  tapering "cone" from their previous position to the current one, fading from
+  the mark's color at the head to transparent at the tail. Each end is sized to
+  the mark's silhouette perpendicular to travel — a circle by its radius, a
+  square corner-to-corner when it moves off-axis. On by default for scatter
+  `Circle`/`Rect` marks and Geomap points (opt out with
+  `shapeConfig.Circle.trail: false`); parity across the SVG and Canvas backends.
+  [Circles ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#motion-trails)
+  · [Squares ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#square-motion-trails)
 - Visual-regression, pipeline-parity, and v3↔v4 chart-compare test harnesses.
 - **`colorValidate`** (`@d3plus/color`) — validates a palette against the
   checks that can be computed from color alone: OKLCH lightness band, chroma

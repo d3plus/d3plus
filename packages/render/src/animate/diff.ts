@@ -1,24 +1,27 @@
-import type {CircleNode, GroupNode, Scene, SceneNode} from "../scene.js";
+import type {GroupNode, Scene, SceneNode} from "../scene.js";
 import {collapse, interpolateNode} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
-import {trailNode, TRAIL_MIN_DISTANCE} from "./trail.js";
+import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
 
 /**
-    Reads a motion-trail spec off a moving update-pair of trailed circle nodes,
-    or null when it doesn't move enough or lacks a usable radius/color. Point
-    positions live in the node transform (circles are origin-centered), so the
-    trail is drawn in the parent's coordinate space. See `./trail.ts` for the
+    Reads a motion-trail spec off a moving update-pair of trailed mark nodes,
+    or null when it doesn't move enough, changes shape, or lacks a usable color.
+    Point positions live in the node transform (marks are origin-centered), so
+    the trail is drawn in the parent's coordinate space. See `./trail.ts` for the
     cone geometry the two backends share.
 */
 function trailSpec(a: SceneNode, b: SceneNode): TrailSpec | null {
-  const ax = a.transform?.x ?? 0, ay = a.transform?.y ?? 0;
-  const bx = b.transform?.x ?? 0, by = b.transform?.y ?? 0;
-  if (Math.hypot(bx - ax, by - ay) < TRAIL_MIN_DISTANCE) return null;
-  const color = b.paint?.fill ?? a.paint?.fill;
-  const bR = (b as CircleNode).r, aR = (a as CircleNode).r;
-  if (typeof color !== "string" || (!bR && !aR)) return null;
-  return {key: b.key, ax, ay, aR: aR || bR, bx, by, bR: bR || aR, color};
+  const pa = trailPartsFromNode(a), pb = trailPartsFromNode(b);
+  if (!pa || !pb || pa.shape !== pb.shape) return null;
+  if (Math.hypot(pb.x - pa.x, pb.y - pa.y) < TRAIL_MIN_DISTANCE) return null;
+  const color = pb.color ?? pa.color;
+  if (typeof color !== "string") return null;
+  return {
+    key: b.key, shape: pb.shape, color,
+    A: [pa.x, pa.y], B: [pb.x, pb.y],
+    aDims: pa.dims, bDims: pb.dims, rotate: pb.rotate,
+  };
 }
 
 /**
@@ -72,7 +75,7 @@ function interpolateChildren(
     if (a.type === "group" && b.type === "group") {
       return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children));
     }
-    if (b.type === "circle" && b.trail && a.type === "circle") {
+    if (b.trail && (b.type === "circle" || b.type === "rect")) {
       const spec = trailSpec(a, b);
       if (spec) trailSpecs.push(spec);
     }
