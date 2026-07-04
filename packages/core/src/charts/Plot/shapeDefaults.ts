@@ -233,6 +233,10 @@ export function plotShapeDefaults(this: VizInstance) {
     Bar: barConfig(),
     Circle: {
       r: defaultSize.bind(this),
+      // Scatter/bubble points leave a motion trail when they move between
+      // frames (Timeline play). Only affects Circle marks, so Bar/Line/Area
+      // plots are unaffected; opt out per chart with shapeConfig.Circle.trail.
+      trail: true,
     },
     Line: lineConfig(this),
     Rect: {

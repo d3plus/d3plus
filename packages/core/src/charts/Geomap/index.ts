@@ -425,6 +425,9 @@ export const geomapDef: ChartDefinition = {
           },
           strokeWidth: 1,
         },
+        // Coordinate points (Circles) leave a motion trail when they move
+        // between frames (e.g. Timeline play); opt out with Circle.trail: false.
+        Circle: {trail: true},
       }),
     },
   ],
