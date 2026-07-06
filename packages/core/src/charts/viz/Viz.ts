@@ -1,6 +1,6 @@
 import {select} from "d3-selection";
 
-import {getSize} from "@d3plus/dom";
+import {date, getSize} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
 import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
@@ -390,10 +390,13 @@ export default class Viz extends VizBase {
       this._transitionEndsAt = Date.now() + drawDuration + 30;
     // Order persistent motion trails in time by the current timeline period, so
     // they grow only as playback moves forward and rewind when it steps back.
-    // Absent a timeline this is undefined and trails don't accumulate.
+    // Normalize to milliseconds via `date()` — the selection mixes Date objects
+    // (brush/initial) and raw period numbers (playback), which compare on wildly
+    // different scales otherwise, scrambling the forward/backward test. Absent a
+    // timeline this is undefined and trails don't accumulate.
     const sel = this._timelineSelection;
     const sequence = Array.isArray(sel) && sel.length
-      ? Math.max(...sel.map(v => Number(v)))
+      ? Math.max(...sel.map(v => Number(date(Number(v)))))
       : undefined;
     this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence});
     this._lastSceneRendered = scene;
