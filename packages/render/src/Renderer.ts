@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 
+import type {TrailCatchup} from "./animate/trailLog.js";
 import type {Scene, SceneNode} from "./scene.js";
 
 /**
@@ -33,6 +34,13 @@ export interface DrawOptions {
       the trail forward, a lower one rewinds it. Omit when there's no timeline.
   */
   sequence?: number;
+  /**
+      Positions of trailed marks at the intermediate periods a multi-period
+      forward jump skipped, in ascending order, so a persistent trail bends
+      through them instead of drawing one coarse straight segment. Committed
+      before `sequence`.
+  */
+  trailCatchup?: TrailCatchup[];
 }
 
 /**

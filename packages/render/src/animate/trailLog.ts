@@ -232,19 +232,50 @@ export function isPersistTrail(node: SceneNode): boolean {
 */
 export function commitTrailScene(log: TrailLog, scene: Scene, seq?: number): boolean {
   const seen = new Set<string | number>();
+  forEachTrailNode(scene, n => {
+    const parts = trailPartsFromNode(n);
+    if (parts) {
+      log.commit(n.key, parts, n.trailPersist as number | boolean, seq);
+      seen.add(n.key);
+    }
+  });
+  log.prune(seen);
+  return seq != null && seen.size > 0;
+}
+
+/** Visits every trailed-persist circle/rect node in a scene (depth-first). */
+function forEachTrailNode(scene: Scene, fn: (n: SceneNode) => void): void {
   const visit = (nodes: SceneNode[]): void => {
     for (const n of nodes) {
-      if (isPersistTrail(n) && (n.type === "circle" || n.type === "rect")) {
-        const parts = trailPartsFromNode(n);
-        if (parts) {
-          log.commit(n.key, parts, n.trailPersist as number | boolean, seq);
-          seen.add(n.key);
-        }
-      }
+      if (isPersistTrail(n) && (n.type === "circle" || n.type === "rect")) fn(n);
       if (n.type === "group") visit((n as {children: SceneNode[]}).children);
     }
   };
   visit(scene.root.children);
-  log.prune(seen);
-  return seq != null && seen.size > 0;
+}
+
+/** A skipped intermediate period and the trailed marks' positions there. */
+export interface TrailCatchup {
+  sequence: number;
+  positions: {key: string | number; x: number; y: number}[];
+}
+
+/**
+    Commit the trailed marks' positions at the intermediate periods a multi-period
+    forward jump skipped, so the trail bends through them instead of drawing one
+    coarse straight segment. Shape/size/color come from the current scene node;
+    the caller supplies only the positions. Run BEFORE commitTrailScene so the
+    catch-up periods land in ascending time order, ahead of the destination.
+*/
+export function commitTrailCatchups(log: TrailLog, scene: Scene, catchups: TrailCatchup[]): void {
+  if (!catchups.length) return;
+  const byKey = new Map<string | number, SceneNode>();
+  forEachTrailNode(scene, n => byKey.set(n.key, n));
+  for (const {sequence, positions} of catchups) {
+    for (const {key, x, y} of positions) {
+      const node = byKey.get(key);
+      const base = node && trailPartsFromNode(node);
+      if (base) log.commit(key, {...base, x, y}, node.trailPersist as number | boolean, sequence);
+    }
+  }
 }

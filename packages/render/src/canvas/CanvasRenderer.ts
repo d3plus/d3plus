@@ -1,6 +1,6 @@
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
-import {commitTrailScene, TrailLog} from "../animate/trailLog.js";
+import {commitTrailCatchups, commitTrailScene, TrailLog} from "../animate/trailLog.js";
 import type {LineNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -141,6 +141,7 @@ export default class CanvasRenderer implements Renderer {
     // not per frame), so committed segments accumulate and stale keys are pruned.
     // The log is threaded into the interp only when a persistent trail exists, so
     // the common (no-persist) path keeps its fast direct paint / trail-free diff.
+    if (opts?.trailCatchup) commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
     const trailLog = commitTrailScene(this._trailLog, scene, opts?.sequence) ? this._trailLog : undefined;
 
     if (!duration) {

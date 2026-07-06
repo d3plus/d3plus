@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import {collapse, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, parseGradient, TrailLog} from "../es/index.js";
+import {collapse, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, parseGradient, TrailLog} from "../es/index.js";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");
@@ -278,4 +278,20 @@ it("persistent trails grow forward in time, cap, and rewind on scrub-back", () =
   assert.strictEqual(committed.length, 1, "coarse segment truncated to a single segment");
   assert.strictEqual(animating, null, "no leftover retract");
   assert.deepStrictEqual(committed[0].B, [40, 60], "truncated segment ends at the revealed position, reconnecting the mark");
+
+  // Instant multi-step forward: a jump that skips a period supplies that period's
+  // real position as a catch-up, so the trail bends through it (committed) and
+  // only the final leg animates — rather than one coarse straight segment.
+  const fwd = new TrailLog();
+  const f = (x, y) => scene(x, y, true);
+  commitTrailScene(fwd, f(0, 0), 2020); // drawn at 2020
+  const dest = f(100, 100); // jump to 2022; 2021's real pos (40,60) is off the straight line
+  commitTrailCatchups(fwd, dest, [{sequence: 2021, positions: [{key: "p", x: 40, y: 60}]}]);
+  commitTrailScene(fwd, dest, 2022);
+  const fseg = fwd.segments("p");
+  assert.strictEqual(fseg.committed.length, 1, "skipped period committed as an intermediate segment");
+  assert.deepStrictEqual(fseg.committed[0].B, [40, 60], "trail bends through the skipped period's real position");
+  assert.ok(fseg.animating, "the final leg animates");
+  assert.deepStrictEqual(fseg.animating.seg.A, [40, 60], "final leg starts at the skipped position (bent, not straight)");
+  assert.deepStrictEqual(fseg.animating.seg.B, [100, 100], "final leg ends at the destination");
 });

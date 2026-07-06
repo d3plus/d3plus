@@ -187,6 +187,8 @@ export interface VizInstance {
   _brushing?: boolean;
   /** Timeline brush selection (timeline feature). */
   _timelineSelection?: (Date | number)[] | false;
+  /** The last drawn timeline value (ms), to detect multi-period trail jumps. */
+  _trailSeq?: number;
   /** The user-set data, retained to detect changes across `.data()` calls. */
   _userData?: DataPoint[] | string;
   /** Drill-down history stack (back button). */

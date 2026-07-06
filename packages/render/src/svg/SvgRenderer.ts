@@ -5,7 +5,7 @@ import textures from "textures";
 import {collapse} from "../animate/interpolate.js";
 import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
-import {commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
+import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
 import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
@@ -157,6 +157,7 @@ export default class SvgRenderer implements Renderer {
     // reconcile node), so committed segments accumulate and stale keys prune.
     // Persistence is active only with a single-period timeline sequence; without
     // one (range/brushing selection, or no timeline) trails fall back to ephemeral.
+    if (opts?.trailCatchup) commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
     this._trailActive = commitTrailScene(this._trailLog, scene, opts?.sequence);
 
     if (scene.meta?.background)

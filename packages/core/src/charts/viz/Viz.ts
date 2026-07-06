@@ -1,6 +1,8 @@
 import {select} from "d3-selection";
 
 import {date, getSize} from "@d3plus/dom";
+
+import {computeTrailCatchup} from "./trailCatchup.js";
 import type {DataPoint} from "@d3plus/data";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
 import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
@@ -403,7 +405,15 @@ export default class Viz extends VizBase {
     const sequence = !brushing && Array.isArray(sel) && sel.length
       ? Math.max(...sel.map(v => Number(date(Number(v)))))
       : undefined;
-    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence});
+    // A forward jump that skips periods (manual click, not single-step play) draws
+    // one coarse segment; compute the marks' real positions at the skipped periods
+    // so the trail bends through them (see render commitTrailCatchups).
+    const trailCatchup =
+      sequence !== undefined && this._trailSeq !== undefined && sequence > this._trailSeq
+        ? computeTrailCatchup(this as unknown as VizInstance, scene, this._trailSeq, sequence)
+        : undefined;
+    if (sequence !== undefined) this._trailSeq = sequence;
+    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence, trailCatchup});
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay

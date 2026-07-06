@@ -45,8 +45,10 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   `shapeConfig.Circle.trail: false`); parity across the SVG and Canvas backends.
   `shapeConfig.Circle.trailPersist` keeps past moves visible too — a number of
   step-segments, or `true` for a long fading snail-trail. Persistent trails
-  follow the timeline's direction (growing forward, retracting on scrub-back)
-  and draw as a single shape so overlapping turns don't darken. Setting
+  follow the timeline's direction (growing forward, retracting on scrub-back) —
+  a multi-period jump traces through the skipped periods rather than cutting a
+  straight line — and draw as a single shape so overlapping turns don't darken.
+  Setting
   `trailPersist` automatically switches the chart to a single-period timeline
   (`brushing: false`) and fixed axes (`axisPersist: true`) — the two conditions a
   persistent trail needs to stay coherent — so it works with the one option.
