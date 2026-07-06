@@ -30,43 +30,71 @@ export interface TrailSeg {
   color: string;
 }
 
+/** The segment mid-transition: growing forward (dir +1) or retracting back (dir -1). */
+interface Anim {
+  seg: TrailSeg;
+  dir: 1 | -1;
+}
+
 interface Entry {
   lastPos: Pt;
   lastDims: number[];
   color: string;
-  animating: TrailSeg | null;
+  /** The timeline value at the last commit; null until the first sequenced draw. */
+  lastSeq: number | null;
+  /** Committed forward segments, oldest → newest. */
   committed: TrailSeg[];
+  animating: Anim | null;
 }
 
 export class TrailLog {
   private map = new Map<string | number, Entry>();
 
   /**
-      Fold a mark's current geometry into its history. The first call seeds the
-      position; each later call that clears `TRAIL_MIN_DISTANCE` commits the move
-      that was animating and starts a new one, then drops fully-faded segments.
+      Fold a mark's current geometry into its history, keyed by the timeline value
+      `seq`. Trails only grow as time moves FORWARD (`seq` increases): each forward
+      step commits the segment that was growing and starts the new one. Moving
+      BACKWARD retracts instead — the most recent segment animates away and is
+      dropped, rewinding the trail without drawing new history. Without a `seq`
+      (no timeline) nothing accumulates; a repaint at the same `seq` (e.g. a resize
+      or hover) just tracks the current position.
   */
-  commit(key: string | number, parts: TrailParts, persist: number | boolean): void {
+  commit(key: string | number, parts: TrailParts, persist: number | boolean, seq?: number): void {
     const pos: Pt = [parts.x, parts.y];
-    const color = parts.color ?? "#000000";
+    const dims = parts.dims, color = parts.color ?? "#000000";
     const e = this.map.get(key);
     if (!e) {
-      this.map.set(key, {lastPos: pos, lastDims: parts.dims, color, animating: null, committed: []});
+      this.map.set(key, {lastPos: pos, lastDims: dims, color, lastSeq: seq ?? null, committed: [], animating: null});
       return;
     }
-    if (Math.hypot(pos[0] - e.lastPos[0], pos[1] - e.lastPos[1]) < TRAIL_MIN_DISTANCE) return;
-    if (e.animating) e.committed.unshift(e.animating);
-    e.animating = {
-      A: e.lastPos, B: pos, aDims: e.lastDims, bDims: parts.dims,
-      shape: parts.shape, rotate: parts.rotate, color,
-    };
-    e.lastPos = pos;
-    e.lastDims = parts.dims;
     e.color = color;
-    // committed[i]'s head sits i+1 steps behind the animating head, so keep only
-    // while it hasn't faded out (i + 1 < fade length).
-    const keep = Math.max(0, persistFadeLength(persist) - 1);
-    if (e.committed.length > keep) e.committed.length = keep;
+    // Persistence is a timeline feature — with no sequence, or before the first
+    // one, or on a same-time repaint, just keep the current position in sync.
+    if (seq == null || e.lastSeq == null || seq === e.lastSeq) {
+      e.lastPos = pos;
+      e.lastDims = dims;
+      if (e.lastSeq == null && seq != null) e.lastSeq = seq;
+      return;
+    }
+    const moved = Math.hypot(pos[0] - e.lastPos[0], pos[1] - e.lastPos[1]) >= TRAIL_MIN_DISTANCE;
+    if (seq > e.lastSeq) {
+      // Forward: the segment that was growing has arrived — commit it; a retract
+      // that was in flight is discarded. Start growing the new move.
+      if (e.animating?.dir === 1) e.committed.push(e.animating.seg);
+      e.animating = moved
+        ? {seg: {A: e.lastPos, B: pos, aDims: e.lastDims, bDims: dims, shape: parts.shape, rotate: parts.rotate, color}, dir: 1}
+        : null;
+      const keep = Math.max(0, persistFadeLength(persist) - 1);
+      if (e.committed.length > keep) e.committed.splice(0, e.committed.length - keep);
+    } else {
+      // Backward: retract the newest segment (the one just grown, else pop the
+      // stack). It animates away over this transition and is then gone.
+      const retract = e.animating?.dir === 1 ? e.animating.seg : e.committed.pop() ?? null;
+      e.animating = retract ? {seg: retract, dir: -1} : null;
+    }
+    e.lastPos = pos;
+    e.lastDims = dims;
+    e.lastSeq = seq;
   }
 
   /** Drop history for keys no longer present, so the log tracks the live marks. */
@@ -74,25 +102,25 @@ export class TrailLog {
     for (const key of this.map.keys()) if (!seen.has(key)) this.map.delete(key);
   }
 
-  /** The live segments for a mark: the animating one (or null) and older ones. */
-  segments(key: string | number): {animating: TrailSeg | null; committed: TrailSeg[]} {
+  /** The live segments for a mark: the animating one (or null) and committed ones. */
+  segments(key: string | number): {animating: Anim | null; committed: TrailSeg[]} {
     const e = this.map.get(key);
     return e ? {animating: e.animating, committed: e.committed} : {animating: null, committed: []};
   }
 }
 
 /**
-    A mark's persistent-trail segments at progress `t`, ordered oldest → newest
-    (paint order) with the step-distance of each end from the head. The animating
-    segment's head follows the mark (`t`); committed segments are fully drawn.
+    A mark's persistent-trail segments, ordered oldest → newest (paint order).
+    Committed segments are fully drawn; the animating one carries its direction so
+    the caller can grow it forward (dir +1) or retract it backward (dir -1).
 */
 export function persistRenderSegs(
   log: TrailLog, key: string | number,
-): {seg: TrailSeg; animating: boolean}[] {
+): {seg: TrailSeg; animating: boolean; dir: number}[] {
   const {animating, committed} = log.segments(key);
-  const out: {seg: TrailSeg; animating: boolean}[] = [];
-  for (let i = committed.length - 1; i >= 0; i--) out.push({seg: committed[i], animating: false});
-  if (animating) out.push({seg: animating, animating: true});
+  const out: {seg: TrailSeg; animating: boolean; dir: number}[] = [];
+  for (const seg of committed) out.push({seg, animating: false, dir: 1});
+  if (animating) out.push({seg: animating.seg, animating: true, dir: animating.dir});
   return out;
 }
 
@@ -108,16 +136,20 @@ export function persistTrailPath(
 ): {d: string; box: {x: number; y: number; w: number; h: number}; dx: number; dy: number; color: string} | null {
   const segs = persistRenderSegs(log, key);
   if (!segs.length) return null;
+  // A growing segment sweeps its head out (t); a retracting one draws in reverse
+  // (1 - t), so scrubbing back pulls the newest segment away over the transition.
+  const param = (animating: boolean, dir: number): number => (animating ? (dir > 0 ? t : 1 - t) : 1);
   let d = "", minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const {seg, animating} of segs) {
-    const c = coneAt(seg.shape, seg.A, seg.aDims, seg.B, seg.bDims, seg.rotate, animating ? t : 1);
+  for (const {seg, animating, dir} of segs) {
+    const c = coneAt(seg.shape, seg.A, seg.aDims, seg.B, seg.bDims, seg.rotate, param(animating, dir));
     d += c.d;
     minX = Math.min(minX, c.box.x); minY = Math.min(minY, c.box.y);
     maxX = Math.max(maxX, c.box.x + c.box.w); maxY = Math.max(maxY, c.box.y + c.box.h);
   }
   const first = segs[0].seg, tail = segs[segs.length - 1], last = tail.seg;
-  const hx = tail.animating ? last.A[0] + (last.B[0] - last.A[0]) * t : last.B[0];
-  const hy = tail.animating ? last.A[1] + (last.B[1] - last.A[1]) * t : last.B[1];
+  const u = param(tail.animating, tail.dir);
+  const hx = last.A[0] + (last.B[0] - last.A[0]) * u;
+  const hy = last.A[1] + (last.B[1] - last.A[1]) * u;
   return {
     d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1},
     dx: hx - first.A[0], dy: hy - first.A[1], color: last.color,
@@ -152,18 +184,19 @@ export function isPersistTrail(node: SceneNode): boolean {
 }
 
 /**
-    Fold every trailed-persist node in a scene into the log (once per draw),
-    pruning stale keys. Returns whether any persistent-trail node was present, so
-    a backend can skip the trail-injection path entirely on the common case.
+    Fold every trailed-persist node in a scene into the log (once per draw) at the
+    timeline value `seq`, pruning stale keys. Returns whether any persistent-trail
+    node was present, so a backend can skip the trail-injection path on the common
+    case. `seq` orders the trail in time: forward grows it, backward rewinds it.
 */
-export function commitTrailScene(log: TrailLog, scene: Scene): boolean {
+export function commitTrailScene(log: TrailLog, scene: Scene, seq?: number): boolean {
   const seen = new Set<string | number>();
   const visit = (nodes: SceneNode[]): void => {
     for (const n of nodes) {
       if (isPersistTrail(n) && (n.type === "circle" || n.type === "rect")) {
         const parts = trailPartsFromNode(n);
         if (parts) {
-          log.commit(n.key, parts, n.trailPersist as number | boolean);
+          log.commit(n.key, parts, n.trailPersist as number | boolean, seq);
           seen.add(n.key);
         }
       }

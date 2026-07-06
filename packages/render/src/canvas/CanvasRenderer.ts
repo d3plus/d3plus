@@ -141,7 +141,7 @@ export default class CanvasRenderer implements Renderer {
     // not per frame), so committed segments accumulate and stale keys are pruned.
     // The log is threaded into the interp only when a persistent trail exists, so
     // the common (no-persist) path keeps its fast direct paint / trail-free diff.
-    const trailLog = commitTrailScene(this._trailLog, scene) ? this._trailLog : undefined;
+    const trailLog = commitTrailScene(this._trailLog, scene, opts?.sequence) ? this._trailLog : undefined;
 
     if (!duration) {
       // With persistent trails, paint the resting frame (t=1) through the interp

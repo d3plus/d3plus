@@ -388,7 +388,14 @@ export default class Viz extends VizBase {
     // buffer so events re-enable just after the paint completes.
     if (drawDuration > 0)
       this._transitionEndsAt = Date.now() + drawDuration + 30;
-    this._sceneRenderer.drawScene(scene, {duration: drawDuration});
+    // Order persistent motion trails in time by the current timeline period, so
+    // they grow only as playback moves forward and rewind when it steps back.
+    // Absent a timeline this is undefined and trails don't accumulate.
+    const sel = this._timelineSelection;
+    const sequence = Array.isArray(sel) && sel.length
+      ? Math.max(...sel.map(v => Number(v)))
+      : undefined;
+    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence});
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay

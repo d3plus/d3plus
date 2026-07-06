@@ -151,7 +151,7 @@ export default class SvgRenderer implements Renderer {
     if (sceneChanged) this._indexDirty = true;
     // Fold this draw into each persistent-trail mark's history once (not per
     // reconcile node), so committed segments accumulate and stale keys prune.
-    commitTrailScene(this._trailLog, scene);
+    commitTrailScene(this._trailLog, scene, opts?.sequence);
 
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;

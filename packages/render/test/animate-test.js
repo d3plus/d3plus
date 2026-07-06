@@ -187,12 +187,12 @@ it("interpolateScene sizes a rect's trail to its silhouette perpendicular to tra
   assert.ok(!noOpt(0.5).root.children.some(c => c.key === "r__trail"), "no rect trail without trail:true");
 });
 
-it("interpolateScene accumulates a persistent trail across moves and keeps it at rest", () => {
-  const scene = (x, y) => ({
+it("persistent trails grow forward in time, cap, and rewind on scrub-back", () => {
+  const scene = (x, y, persist) => ({
     width: 300, height: 300,
     root: {type: "group", key: "root", children: [{
       type: "circle", key: "p", cx: 0, cy: 0, r: 6, paint: {fill: "#1c7ed6"},
-      transform: {x, y}, trail: true, trailPersist: 2,
+      transform: {x, y}, trail: true, trailPersist: persist,
     }]},
   });
   // The trail is one node per mark (a single fill, so overlaps don't double);
@@ -202,28 +202,55 @@ it("interpolateScene accumulates a persistent trail across moves and keeps it at
     const n = trailOf(frame);
     return n ? (n.d.match(/M/g) || []).length : 0;
   };
-  const log = new TrailLog();
-  const s0 = scene(10, 10), s1 = scene(110, 60), s2 = scene(60, 150), s3 = scene(160, 200), s4 = scene(40, 250);
 
-  // First draw seeds the position; a persistent trail needs a move to appear.
-  commitTrailScene(log, s0);
+  // --- Forward accumulation + persist cap (trailPersist: 2) ---
+  const log = new TrailLog();
+  const s = (x, y) => scene(x, y, 2);
+  const s0 = s(10, 10), s1 = s(110, 60), s2 = s(60, 150), s3 = s(160, 200), s4 = s(40, 250);
+
+  // First (seeding) draw at seq 0: a trail needs a forward move to appear.
+  commitTrailScene(log, s0, 0);
   assert.strictEqual(segCount(interpolateScene(s0, s0, log)(1)), 0, "no trail before moving");
 
-  // First move → one segment, and — unlike the ephemeral trail — it stays at rest.
-  commitTrailScene(log, s1);
+  // Forward move (seq 1) → one segment that — unlike the ephemeral trail — stays at rest.
+  commitTrailScene(log, s1, 1);
   const mid1 = interpolateScene(s0, s1, log)(0.5);
   const node = trailOf(mid1);
   assert.ok(node && node.type === "path", "one trail path emitted");
   assert.ok(node.paint.fill.startsWith("gradient:"), "trail filled by a single gradient");
-  assert.strictEqual(segCount(mid1), 1, "one segment mid first move");
+  assert.strictEqual(segCount(mid1), 1, "one segment after first forward move");
   assert.strictEqual(segCount(interpolateScene(s0, s1, log)(1)), 1, "segment persists at rest (t=1)");
 
-  // Second move → the first segment commits, the new one animates: two subpaths.
-  commitTrailScene(log, s2);
-  assert.strictEqual(segCount(interpolateScene(s1, s2, log)(0.5)), 2, "two segments after second move");
+  commitTrailScene(log, s2, 2);
+  assert.strictEqual(segCount(interpolateScene(s1, s2, log)(0.5)), 2, "two segments after second forward move");
 
-  // trailPersist: 2 caps the window — after several more moves it never exceeds 2.
-  commitTrailScene(log, s3);
-  commitTrailScene(log, s4);
+  // trailPersist: 2 caps the window — after more forward moves it never exceeds 2.
+  commitTrailScene(log, s3, 3);
+  commitTrailScene(log, s4, 4);
   assert.strictEqual(segCount(interpolateScene(s3, s4, log)(1)), 2, "older segments drop past the persist length");
+
+  // --- Direction: playing newest → oldest draws no trail ---
+  const back = new TrailLog();
+  const b0 = s(10, 10), b1 = s(110, 60), b2 = s(60, 150);
+  commitTrailScene(back, b0, 5);         // seed at the newest period
+  commitTrailScene(back, b1, 4);         // step backward in time
+  commitTrailScene(back, b2, 3);         // and again
+  assert.strictEqual(segCount(interpolateScene(b1, b2, back)(1)), 0, "backward playback from the start leaves no trail");
+
+  // --- Rewind: after building forward, a backward step retracts, not appends ---
+  const rw = new TrailLog();
+  const p = (x, y) => scene(x, y, true); // long persist, so nothing caps
+  const r0 = p(0, 0), r1 = p(50, 0), r2 = p(50, 50), r3 = p(100, 50);
+  commitTrailScene(rw, r0, 0);
+  commitTrailScene(rw, r1, 1);
+  commitTrailScene(rw, r2, 2);
+  commitTrailScene(rw, r3, 3);
+  assert.strictEqual(segCount(interpolateScene(r2, r3, rw)(1)), 3, "three forward segments");
+  // Step back to seq 2: the newest segment retracts (still drawn while animating),
+  // but no NEW segment is added — the count doesn't grow.
+  commitTrailScene(rw, r2, 2);
+  assert.strictEqual(segCount(interpolateScene(r3, r2, rw)(0.5)), 3, "backward retracts the newest, doesn't append");
+  // Step back again: the retracted one is dropped and the next retracts → two remain.
+  commitTrailScene(rw, r1, 1);
+  assert.strictEqual(segCount(interpolateScene(r2, r1, rw)(0.5)), 2, "rewinding drops segments as it goes back");
 });

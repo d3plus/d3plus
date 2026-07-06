@@ -27,6 +27,12 @@ export interface DrawOptions {
   /** Called on each committed frame (Canvas) or transition tick (SVG). */
   onFrame?: (t: number) => void;
   onEnd?: () => void;
+  /**
+      Monotonic timeline value for this draw (e.g. the current period). Orders
+      persistent motion trails in time: a higher value than the last draw grows
+      the trail forward, a lower one rewinds it. Omit when there's no timeline.
+  */
+  sequence?: number;
 }
 
 /**

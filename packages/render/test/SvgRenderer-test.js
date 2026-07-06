@@ -172,16 +172,17 @@ it("SvgRenderer accumulates persistent trail paths across moves and keeps them a
     return p ? (p.getAttribute("d").match(/M/g) || []).length : 0;
   };
 
-  renderer.drawScene(scene([circle()]));
+  // Persistent trails are ordered in time by `sequence`; forward steps grow them.
+  renderer.drawScene(scene([circle()]), {sequence: 0});
   assert.strictEqual(paths().length, 0, "no persistent trail before moving");
 
-  const h1 = renderer.drawScene(scene([circle({transform: {x: 120, y: 80}})]), {duration: 400});
+  const h1 = renderer.drawScene(scene([circle({transform: {x: 120, y: 80}})]), {duration: 400, sequence: 1});
   assert.strictEqual(paths().length, 1, "one trail path after the first move");
   assert.strictEqual(segCount(), 1, "one segment after the first move");
   assert.ok((paths()[0].getAttribute("fill") || "").startsWith("url(#"), "trail filled by a gradient");
   h1.cancel();
 
-  const h2 = renderer.drawScene(scene([circle({transform: {x: 60, y: 150}})]), {duration: 400});
+  const h2 = renderer.drawScene(scene([circle({transform: {x: 60, y: 150}})]), {duration: 400, sequence: 2});
   assert.strictEqual(paths().length, 1, "still a single trail path");
   assert.strictEqual(segCount(), 2, "two segments after the second move");
   h2.cancel();
