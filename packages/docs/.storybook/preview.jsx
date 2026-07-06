@@ -58,6 +58,10 @@ const preview = {
               return (
                 <Anchor storyId={story.id}>
                   <Heading>{story.name}</Heading>
+                  {/* Per-story prose (`parameters.docs.description.story`).
+                      Bare <Description/> resolves the component-level text, so
+                      the story's own description needs an explicit `of`. */}
+                  <Description of={moduleExport} />
                   <Canvas
                     of={moduleExport}
                     withToolbar={false}

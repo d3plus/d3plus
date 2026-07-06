@@ -39,7 +39,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position."}}};
 
 export const LineLabels = Template.bind({});
 LineLabels.args = {
@@ -59,7 +59,7 @@ LineLabels.args = {
   x: "x",
   y: "y"
 };
-LineLabels.parameters = {controls: {include: ["lineLabels"]}};
+LineLabels.parameters = {controls: {include: ["lineLabels"]}, docs: {description: {story: "Set `lineLabels: true` to print each series name at the **end of its line**, letting you trace a color straight to its label without consulting a legend."}}};
 
 export const CustomLineLabels = Template.bind({});
 CustomLineLabels.args = {
@@ -98,7 +98,7 @@ CustomLineLabels.args = {
   x: "x",
   y: "y"
 };
-CustomLineLabels.parameters = {controls: {include: ["shapeConfig"]}};
+CustomLineLabels.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Override the default series-name label via `shapeConfig.Line.label` — here a function returns each line's final `y` value, so the tip of every line reports its latest number."}}};
 
 export const SecondaryYAxis = Template.bind({});
 SecondaryYAxis.args = {
@@ -179,7 +179,7 @@ SecondaryYAxis.args = {
     )
   }
 };
-SecondaryYAxis.parameters = {controls: {include: ["y2", "y2Config"]}};
+SecondaryYAxis.parameters = {controls: {include: ["y2", "y2Config"]}, docs: {description: {story: "Plot a second metric against a right-hand axis with `y2`; because growth lives on a different scale than trade value, `y2Config.tickFormat` renders it as a percentage independent of the left axis."}}};
 
 export const LineVertexMarkers = Template.bind({});
 LineVertexMarkers.args = {
@@ -202,7 +202,7 @@ LineVertexMarkers.args = {
   x: "x",
   y: "y"
 };
-LineVertexMarkers.parameters = {controls: {include: ["lineMarkers", "lineMarkersConfig"]}};
+LineVertexMarkers.parameters = {controls: {include: ["lineMarkers", "lineMarkersConfig"]}, docs: {description: {story: "Enable `lineMarkers: true` to draw a circle at every data point, sized here to radius 6 via `lineMarkerConfig.r` so individual observations stand out."}}};
 
 export const ChangingVertexMarkerStyle = Template.bind({});
 ChangingVertexMarkerStyle.args = {
@@ -226,7 +226,7 @@ ChangingVertexMarkerStyle.args = {
   x: "x",
   y: "y"
 };
-ChangingVertexMarkerStyle.parameters = {controls: {include: ["lineMarkerConfig"]}};
+ChangingVertexMarkerStyle.parameters = {controls: {include: ["lineMarkerConfig"]}, docs: {description: {story: "Pass functions to `lineMarkerConfig` (`r` and `opacity`) to style markers per datum — here only each line's final point (`x === 6`) is drawn large and fully opaque to spotlight the endpoints."}}};
 
 export const ChangingSplining = Template.bind({});
 ChangingSplining.args = {
@@ -251,7 +251,7 @@ ChangingSplining.args = {
   x: "year",
   y: "price"
 };
-ChangingSplining.parameters = {controls: {include: ["shapeConfig"]}};
+ChangingSplining.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Set `shapeConfig.Line.curve` to `\"catmullRom\"` to interpolate a smooth spline through the points instead of connecting them with straight segments."}}};
 
 export const ChangingStrokeWidth = Template.bind({});
 ChangingStrokeWidth.args = {
@@ -272,7 +272,7 @@ ChangingStrokeWidth.args = {
   x: "x",
   y: "y"
 };
-ChangingStrokeWidth.parameters = {controls: {include: ["shapeConfig"]}};
+ChangingStrokeWidth.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Thicken every line with `shapeConfig.Line.strokeWidth` when you want the trend to read boldly at a glance."}}};
 
 export const ConfidenceIntervals = Template.bind({});
 ConfidenceIntervals.args = {
@@ -301,7 +301,7 @@ ConfidenceIntervals.args = {
   x: "year",
   y: "amount"
 };
-ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}};
+ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent."}}};
 
 export const DashedLines = Template.bind({});
 DashedLines.args = {
@@ -343,7 +343,7 @@ DashedLines.args = {
   x: "year",
   y: "price"
 };
-DashedLines.parameters = {controls: {include: ["shapeConfig"]}};
+DashedLines.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a different dash pattern per series from `shapeConfig.Line.strokeDasharray` to distinguish lines by stroke style rather than color alone."}}};
 
 export const CustomLineColors = Template.bind({});
 CustomLineColors.args = {
@@ -386,7 +386,7 @@ CustomLineColors.args = {
   x: "year",
   y: "price"
 };
-CustomLineColors.parameters = {controls: {include: ["shapeConfig"]}};
+CustomLineColors.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a color per series from `shapeConfig.Line.stroke` to override the automatic palette with your own meaningful hues."}}};
 
 export const SortingLines = Template.bind({});
 SortingLines.args = {
@@ -416,7 +416,7 @@ SortingLines.args = {
   x: "year",
   y: "price"
 };
-SortingLines.parameters = {controls: {include: ["shapeConfig"]}};
+SortingLines.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "With thick, round-capped strokes the lines overlap, so `shapeConfig.sort` sets the draw order — here forcing *apple* to render on top of the others."}}};
 
 export const DottedLinePredictions = Template.bind({});
 DottedLinePredictions.args = {
@@ -547,7 +547,7 @@ DottedLinePredictions.args = {
   x: "Year",
   y: "Trade Value"
 };
-DottedLinePredictions.parameters = {controls: {include: ["shapeConfig"]}};
+DottedLinePredictions.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Group by `[\"Type\", \"Flow\"]` and key `shapeConfig.Line.strokeDasharray` off `Type` so each flow's forecast continues as a dashed line while its observed history stays solid."}}};
 
 export const QuarterlyData = Template.bind({});
 QuarterlyData.args = {
@@ -561,4 +561,4 @@ QuarterlyData.args = {
     title: "Billions of SAR"
   }
 };
-QuarterlyData.parameters = {controls: {include: ["time"]}};
+QuarterlyData.parameters = {controls: {include: ["time"]}, docs: {description: {story: "Point `data` at a remote URL to load records directly, and set `time` (and `x`) to the `Quarter` field so d3plus parses the quarterly periods into an ordered time axis."}}};

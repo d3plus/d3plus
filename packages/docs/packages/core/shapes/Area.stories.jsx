@@ -35,4 +35,4 @@ BasicExample.args = {
   ],
   fill: "#3a7ca5", fillOpacity: 0.5
 };
-BasicExample.parameters = {controls: {include: ["curve"]}};
+BasicExample.parameters = {controls: {include: ["curve"]}, docs: {description: {story: "The six points share one `id`, so they join into a single filled area; `fillOpacity` renders it as a translucent band, and the `curve` control changes how the vertices are interpolated."}}};

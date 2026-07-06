@@ -38,14 +38,19 @@ export const BasicExample = () => (
     {bases.map(base => <Swatches key={base} colors={colorRamp(base, 6)} />)}
   </div>
 );
-BasicExample.parameters = sourceSnippet(
-  "color",
-  "colorRamp",
-  bases.map(base => ({
-    call: `colorRamp(${JSON.stringify(base)}, 6)`,
-    result: JSON.stringify(colorRamp(base, 6)),
-  })),
-);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet(
+      "color",
+      "colorRamp",
+      bases.map(base => ({
+        call: `colorRamp(${JSON.stringify(base)}, 6)`,
+        result: JSON.stringify(colorRamp(base, 6)),
+      })),
+    ).docs,
+    description: {story: "Builds a six-step ramp from each of three base hues, returned lightest to darkest with the base color itself as the final step; the tint end holds its hue instead of washing out to white."},
+  },
+};
 
 export const OrdinalRamp = () => (
   <div style={{display: "flex", flexDirection: "column", gap: 8, fontFamily: "sans-serif"}}>

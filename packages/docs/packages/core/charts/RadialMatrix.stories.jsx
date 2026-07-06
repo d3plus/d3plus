@@ -33,7 +33,7 @@ BasicExample.args = {
   row: "Exporter Continent",
   colorScale: "Trade Value"
 };
-BasicExample.parameters = {controls: {include: ["column", "row"]}};
+BasicExample.parameters = {controls: {include: ["column", "row"]}, docs: {description: {story: "The row × column grid wrapped into a polar layout: `row` values become concentric rings and `column` values become angular segments, each cell shaded by `colorScale`."}}};
 
 export const WithColorScale = Template.bind({});
 WithColorScale.args = {
@@ -52,4 +52,4 @@ WithColorScale.args = {
   colorScaleConfig: {scale: "jenks"},
   colorScalePosition: "right"
 };
-WithColorScale.parameters = {controls: {include: ["colorScale", "colorScaleConfig"]}};
+WithColorScale.parameters = {controls: {include: ["colorScale", "colorScaleConfig"]}, docs: {description: {story: "Applies a `colorScaleConfig` `scale: \"jenks\"` natural-breaks classification, so cell colors group by data clusters rather than an even linear ramp."}}};

@@ -37,7 +37,7 @@ BasicExample.args = {
   groupBy: "Type",
   value: "Percentage"
 };
-BasicExample.parameters = {controls: {include: ["value"]}};
+BasicExample.parameters = {controls: {include: ["value"]}, docs: {description: {story: "Each slice's angle is proportional to its `value` (Percentage), with one arc per `groupBy` category."}}};
 
 export const PaddedSlices = Template.bind({});
 PaddedSlices.args = {
@@ -49,7 +49,7 @@ PaddedSlices.args = {
   value: "value",
   padPixel: 4
 };
-PaddedSlices.parameters = {controls: {include: ["padPixel", "padAngle"]}};
+PaddedSlices.parameters = {controls: {include: ["padPixel", "padAngle"]}, docs: {description: {story: "`padPixel: 4` inserts a 4px gap between slices (converted to an angle from the radius); `padAngle` sets the same spacing directly in radians."}}};
 
 export const DrillDownOnClick = Template.bind({});
 DrillDownOnClick.args = {

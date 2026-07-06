@@ -33,4 +33,9 @@ const call = `merge(${stringify(input)})`;
 const result = stringify(merge(input));
 
 export const BasicExample = () => <FunctionExample input={call} output={result} />;
-BasicExample.parameters = sourceSnippet("data", "merge", [{call, result}]);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet("data", "merge", [{call, result}]).docs,
+    description: {story: "Collapses the two objects into one, applying the default aggregations: numeric `value` fields are summed to `30`, the differing `id` strings collect into an array, and the shared `group: \"A\"` collapses to a single value."},
+  },
+};

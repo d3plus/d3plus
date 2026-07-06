@@ -34,4 +34,4 @@ BasicExample.args = {
   ],
   x: "x", y: "y", r: "r", fill: "fill"
 };
-BasicExample.parameters = {controls: {include: ["r"]}};
+BasicExample.parameters = {controls: {include: ["r"]}, docs: {description: {story: "Three circles positioned by `x`/`y`, each sized by its data-bound `r` and filled from a per-datum `fill`."}}};

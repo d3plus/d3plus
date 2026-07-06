@@ -32,4 +32,4 @@ BasicExample.args = {
   height: 120,
   title: "Axis"
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title", "grid"]}};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title", "grid"]}, docs: {description: {story: "A linear `[0, 100]` domain is spread across the 600px width with auto-generated ticks and a title; the base class defaults to `bottom` orientation."}}};

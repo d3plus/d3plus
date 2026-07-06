@@ -33,4 +33,4 @@ BasicExample.args = {
   ],
   x: "x", y: "y"
 };
-BasicExample.parameters = {controls: {include: ["orient"]}};
+BasicExample.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "Points are grouped by their shared `x`, and each group's raw `y` values are reduced to a box-and-whisker summary of quartiles and whiskers; `orient` switches between vertical and horizontal boxes."}}};

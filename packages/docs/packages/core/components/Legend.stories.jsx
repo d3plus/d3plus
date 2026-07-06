@@ -46,7 +46,7 @@ BasicExample.args = {
   height: 100,
   width: 500,
 };
-BasicExample.parameters = {controls: {include: ["shape", "title"]}};
+BasicExample.parameters = {controls: {include: ["shape", "title"]}, docs: {description: {story: "Each datum becomes a labeled entry drawn with `Rect` markers whose `fill` is read per datum from `shapeConfig`; `label` sets the entry text and `title` the heading above them."}}};
 export const CircleMarkers = Template.bind({});
 CircleMarkers.args = {
   data: [
@@ -62,4 +62,4 @@ CircleMarkers.args = {
   height: 100,
   width: 500
 };
-CircleMarkers.parameters = {controls: {include: ["shape", "title"]}};
+CircleMarkers.parameters = {controls: {include: ["shape", "title"]}, docs: {description: {story: "Setting `shape` to `Circle` marks each entry with a filled dot sized by `shapeConfig.r` instead of a rectangle."}}};

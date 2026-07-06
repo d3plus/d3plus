@@ -30,4 +30,4 @@ BasicExample.args = {
   data: [{id: "a", x: 300, y: 160}],
   x: "x", y: "y", length: 90, orient: "vertical"
 };
-BasicExample.parameters = {controls: {include: ["orient", "length", "endpoint"]}};
+BasicExample.parameters = {controls: {include: ["orient", "length", "endpoint"]}, docs: {description: {story: "A single whisker drawn from `x`/`y`, extended `length` pixels in the `orient` direction and capped with an endpoint marker."}}};

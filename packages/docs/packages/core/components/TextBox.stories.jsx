@@ -40,7 +40,7 @@ BasicExample.args = {
   width: 200,
   x: (d, i) => i * (200 + 50)
 };
-BasicExample.parameters = {controls: {include: ["fontSize", "lineHeight", "width"]}};
+BasicExample.parameters = {controls: {include: ["fontSize", "lineHeight", "width"]}, docs: {description: {story: "Wraps three strings inside 200px-wide boxes: inline `<i>`, `<u>`, and `<b>` tags render as styled SVG, while the Chinese and Burmese lines show wrapping still works for scripts that don't separate words with spaces."}}};
 
 
 

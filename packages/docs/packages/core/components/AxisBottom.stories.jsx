@@ -32,4 +32,4 @@ BasicExample.args = {
   height: 120,
   title: "Bottom Axis"
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "A horizontal `[0, 100]` domain across the 600px width with ticks and labels below the path, the usual placement for a chart's x-axis."}}};

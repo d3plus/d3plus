@@ -38,7 +38,7 @@ BasicExample.args = {
     {source: "eta", target: "gamma"}
   ]
 };
-BasicExample.parameters = {controls: {include: ["center", "links"]}};
+BasicExample.parameters = {controls: {include: ["center", "links"]}, docs: {description: {story: "`center` names the focal node by id; the rest of the nodes are inferred from the `links`, with the center's direct connections forming the inner ring and the others radiating outward."}}};
 
 export const LargerNetwork = Template.bind({});
 LargerNetwork.args = {

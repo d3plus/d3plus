@@ -38,7 +38,7 @@ BasicExample.args = {
     {source: "eta", target: "gamma"}
   ]
 };
-BasicExample.parameters = {controls: {include: ["center", "links"]}};
+BasicExample.parameters = {controls: {include: ["center", "links"]}, docs: {description: {story: "Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them."}}};
 
 export const DataDrivenLinkWidth = Template.bind({});
 DataDrivenLinkWidth.args = {
@@ -69,4 +69,4 @@ NodeSpacing.args = {
   nodeWidth: 30,
   nodePadding: 40
 };
-NodeSpacing.parameters = {controls: {include: ["nodeWidth", "nodePadding"]}};
+NodeSpacing.parameters = {controls: {include: ["nodeWidth", "nodePadding"]}, docs: {description: {story: "`nodeWidth` sets how thick each node bar is drawn and `nodePadding` the vertical gap between nodes in a column—raise `nodePadding` to spread crowded columns apart."}}};

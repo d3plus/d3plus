@@ -33,7 +33,7 @@ BasicExample.args = {
   row: "Exporter Continent",
   colorScale: "Trade Value"
 };
-BasicExample.parameters = {controls: {include: ["column", "row"]}};
+BasicExample.parameters = {controls: {include: ["column", "row"]}, docs: {description: {story: "Draws a cell at every `row` × `column` intersection (exporter vs. importer continent); `groupBy` supplies both dimensions and `colorScale` shades each cell by Trade Value."}}};
 
 export const WithColorScale = Template.bind({});
 WithColorScale.args = {
@@ -49,4 +49,4 @@ WithColorScale.args = {
   colorScaleConfig: {scale: "jenks"},
   colorScalePosition: "right"
 };
-WithColorScale.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "colorScalePosition"]}};
+WithColorScale.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "colorScalePosition"]}, docs: {description: {story: "Shades cells with a `colorScaleConfig` `scale: \"jenks\"` (natural-breaks) classification and moves the legend to the right via `colorScalePosition`."}}};

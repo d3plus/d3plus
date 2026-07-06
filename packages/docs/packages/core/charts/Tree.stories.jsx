@@ -36,7 +36,7 @@ BasicExample.args = {
   ],
   groupBy: ["parent", "id"]
 };
-BasicExample.parameters = {controls: {include: ["groupBy"]}};
+BasicExample.parameters = {controls: {include: ["groupBy"]}, docs: {description: {story: "The two-level `groupBy` (`parent` then `id`) defines the hierarchy that the tidy-tree layout arranges top-down, one row per depth."}}};
 
 export const HorizontalOrientation = Template.bind({});
 HorizontalOrientation.args = {
@@ -50,7 +50,7 @@ HorizontalOrientation.args = {
   groupBy: ["parent", "id"],
   orient: "horizontal"
 };
-HorizontalOrientation.parameters = {controls: {include: ["orient"]}};
+HorizontalOrientation.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "Set `orient` to `\"horizontal\"` to grow the tree left-to-right instead of top-down—handy for deep hierarchies or long node labels."}}};
 
 export const ChangingShapes = Template.bind({});
 ChangingShapes.args = {
@@ -64,4 +64,4 @@ ChangingShapes.args = {
   groupBy: ["parent", "id"],
   shape: funcify(d => d.parent === "Group 1" ? "Rect" : "Circle", 'd => d.parent === "Group 1" ? "Rect" : "Circle"')
 };
-ChangingShapes.parameters = {controls: {include: ["shape"]}};
+ChangingShapes.parameters = {controls: {include: ["shape"]}, docs: {description: {story: "A `shape` accessor returns `Rect` for one branch and `Circle` for the rest, letting node shape encode a categorical attribute."}}};

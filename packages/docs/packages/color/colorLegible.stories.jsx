@@ -35,11 +35,16 @@ export const BasicExample = () => (
     ))}
   </div>
 );
-BasicExample.parameters = sourceSnippet(
-  "color",
-  "colorLegible",
-  colors.map(c => ({
-    call: `colorLegible(${JSON.stringify(c)})`,
-    result: JSON.stringify(colorLegible(c)),
-  })),
-);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet(
+      "color",
+      "colorLegible",
+      colors.map(c => ({
+        call: `colorLegible(${JSON.stringify(c)})`,
+        result: JSON.stringify(colorLegible(c)),
+      })),
+    ).docs,
+    description: {story: "Each pale input is darkened (its lightness capped, saturation clamped) to a deeper shade of the same hue that stays readable as text on a white background."},
+  },
+};

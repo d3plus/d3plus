@@ -50,6 +50,7 @@ BasicExample.args = {
   x: "year",
   y: "rank"
 };
+BasicExample.parameters = {docs: {description: {story: "Each `groupBy` series traces its `rank` (`y`) across the `discrete` `x` years, and lines swap vertical position wherever ranks change."}}};
 
 export const ExpandedRanking = Template.bind({});
 ExpandedRanking.args = {

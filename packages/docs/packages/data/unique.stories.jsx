@@ -29,4 +29,9 @@ const call = `unique([${arr.join(", ")}])`;
 const result = `[${unique(arr).join(", ")}]`;
 
 export const BasicExample = () => <FunctionExample input={call} output={result} />;
-BasicExample.parameters = sourceSnippet("data", "unique", [{call, result}]);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet("data", "unique", [{call, result}]).docs,
+    description: {story: "Reduces `[1, 2, 2, 3, 3, 3, 4]` to `[1, 2, 3, 4]`, keeping the first occurrence of each value and dropping later duplicates."},
+  },
+};

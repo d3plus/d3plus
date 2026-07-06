@@ -42,7 +42,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "The simplest scatter plot: each row becomes a point positioned by its `x` and `y` values, with `groupBy` giving every id its own color."}}};
 
 export const BubbleChart = Template.bind({});
 BubbleChart.args = {
@@ -58,7 +58,7 @@ BubbleChart.args = {
   x: "x",
   y: "y"
 };
-BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}};
+BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}, docs: {description: {story: "Map a third variable to point radius with `size`, turning the scatter into a bubble chart; `sizeMin` and `sizeMax` clamp the radius range so extreme values stay legible."}}};
 
 export const TimelineMotionTrails = Template.bind({});
 TimelineMotionTrails.args = {
@@ -146,41 +146,39 @@ ShapeBackgroundImages.args = {
   x: "ECI",
   y: "Measure"
 };
-ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}};
+ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}, docs: {description: {story: "Render each circle as an image by setting `shapeConfig.Circle.backgroundImage` to a per-datum URL (and blanking the `label`) — here country icons stand in for the bubbles on a GDP-versus-complexity plot."}}};
 
 export const TrendlineUsingAnnotations = Template.bind()
 TrendlineUsingAnnotations.args = {
-  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Adult%20Obesity,Diabetes%20Prevalence&Year=2025",
-  dataFormat: funcify(
-    resp => resp.data.filter(d => d["State ID"] !== "04000US72"),
-    'resp => resp.data.filter(d => d["State ID"] !== "04000US72")'
-  ),
-  groupBy: "State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&include=State+County:04000US06&drilldowns=County,Year&measures=Premature%20Death,Diabetes%20Prevalence&Year=2025",
+  groupBy: "County",
   annotations: [
     {
-      // x is "Diabetes Prevalence" (~0.07–0.14) and y is "Adult Obesity"
-      // (~0.25–0.42), both proportions — so annotation coordinates must use
-      // the same units to overlay the scatter.
+      // x is "Diabetes Prevalence" (a proportion, ~0.07–0.15) and y is
+      // "Premature Death" (years of potential life lost per 100,000, ~4,000–
+      // 27,000) — so annotation coordinates must use those same units to
+      // overlay the scatter. Trend rises across the diabetes range; Baseline is
+      // flat near the county median (~8,000).
       data: [
         {
           "id": "Trend",
-          "x": 0.07,
-          "y": 0.28
+          "x": 0.075,
+          "y": 6000
         },
         {
           "id": "Trend",
-          "x": 0.14,
-          "y": 0.4
+          "x": 0.15,
+          "y": 14000
         },
         {
           "id": "Baseline",
-          "x": 0.07,
-          "y": 0.34
+          "x": 0.075,
+          "y": 8000
         },
         {
           "id": "Baseline",
-          "x": 0.14,
-          "y": 0.34
+          "x": 0.15,
+          "y": 8000
         }
       ],
       shape: "Line",
@@ -193,9 +191,9 @@ TrendlineUsingAnnotations.args = {
     }
   ],
   x: "Diabetes Prevalence",
-  y: "Adult Obesity"
+  y: "Premature Death"
 };
-TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}};
+TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Draw reference lines over the data with `annotations`: each entry brings its own `data` and a `Line` shape, plotted in the same `x`/`y` units as the marks — here a sloped trend and a flat baseline."}}};
 
 export const MultipleShapes = Template.bind({});
 MultipleShapes.args = {
@@ -216,7 +214,7 @@ MultipleShapes.args = {
   x: "value",
   y: "weight"
 };
-MultipleShapes.parameters = {controls: {include: ["shape"]}};
+MultipleShapes.parameters = {controls: {include: ["shape"]}, docs: {description: {story: "Pass a function to `shape` to choose a mark type per datum — some points draw as `Rect`, the rest as `Circle` — letting one plot encode a category through shape."}}};
 
 export const SortingShapes = Template.bind({});
 SortingShapes.args = {
@@ -246,4 +244,4 @@ SortingShapes.args = {
   x: "time",
   y: "value"
 };
-SortingShapes.parameters = {controls: {include: ["shapeSort"]}};
+SortingShapes.parameters = {controls: {include: ["shapeSort"]}, docs: {description: {story: "When a plot mixes shape types, `shapeSort` sets the order they are drawn — the comparator here renders `Line` marks before `Circle`s so the points sit on top of the connecting line."}}};

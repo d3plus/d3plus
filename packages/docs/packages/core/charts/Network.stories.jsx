@@ -44,7 +44,7 @@ BasicExample.args = {
     {source: 5, target: 0}
   ]
 };
-BasicExample.parameters = {controls: {include: ["nodes", "links"]}};
+BasicExample.parameters = {controls: {include: ["nodes", "links"]}, docs: {description: {story: "Each node supplies its own `x`/`y` coordinates, so d3plus places nodes exactly rather than solving a layout for them."}}};
 
 export const ForceDirectedLayout = Template.bind({});
 ForceDirectedLayout.args = {
@@ -70,7 +70,7 @@ ForceDirectedLayout.args = {
     "d => d.weight"
   )
 };
-ForceDirectedLayout.parameters = {controls: {include: ["nodes", "links"]}};
+ForceDirectedLayout.parameters = {controls: {include: ["nodes", "links"]}, docs: {description: {story: "Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout."}}};
 
 export const DataDrivenLinkSize = Template.bind({});
 DataDrivenLinkSize.args = {
@@ -96,4 +96,4 @@ DataDrivenLinkSize.args = {
     "d => d.weight"
   )
 };
-DataDrivenLinkSize.parameters = {controls: {include: ["linkSize"]}};
+DataDrivenLinkSize.parameters = {controls: {include: ["linkSize"]}, docs: {description: {story: "`linkSize` takes an accessor returning each link's `weight`, which d3plus runs through a linear scale to set stroke thickness—heavier links render thicker."}}};

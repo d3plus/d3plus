@@ -34,4 +34,4 @@ BasicExample.args = {
   ],
   x: "x", y: "y", width: "width", height: "height", fill: "fill"
 };
-BasicExample.parameters = {controls: {include: ["width", "height"]}};
+BasicExample.parameters = {controls: {include: ["width", "height"]}, docs: {description: {story: "Three rectangles centered on their `x`/`y` with data-bound `width`/`height` and a per-datum `fill`."}}};

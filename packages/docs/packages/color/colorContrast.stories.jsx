@@ -34,11 +34,16 @@ export const BasicExample = () => (
     ))}
   </div>
 );
-BasicExample.parameters = sourceSnippet(
-  "color",
-  "colorContrast",
-  backgrounds.map(bg => ({
-    call: `colorContrast(${JSON.stringify(bg)})`,
-    result: JSON.stringify(colorContrast(bg)),
-  })),
-);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet(
+      "color",
+      "colorContrast",
+      backgrounds.map(bg => ({
+        call: `colorContrast(${JSON.stringify(bg)})`,
+        result: JSON.stringify(colorContrast(bg)),
+      })),
+    ).docs,
+    description: {story: "For each background swatch, the higher-contrast of the two text tokens is returned — the dark token over the pale `#f8f9fa` and `#ffeb3b` fills, the light token over the darker ones."},
+  },
+};

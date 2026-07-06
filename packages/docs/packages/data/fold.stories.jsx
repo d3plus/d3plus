@@ -35,4 +35,9 @@ const call = `fold(${inputStr})`;
 const result = stringify(fold(input));
 
 export const BasicExample = () => <FunctionExample input={call} output={result} />;
-BasicExample.parameters = sourceSnippet("data", "fold", [{call, result}]);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet("data", "fold", [{call, result}]).docs,
+    description: {story: "Zips the flat `headers` array against each row of `data`, emitting one object per row keyed by header — the first row becomes `{year: 2020, apples: 5, bananas: 8}`."},
+  },
+};

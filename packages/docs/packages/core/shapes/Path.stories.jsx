@@ -34,4 +34,4 @@ BasicExample.args = {
   ],
   fill: "none", stroke: "#cc4b4b", strokeWidth: 4
 };
-BasicExample.parameters = {controls: {include: ["d"]}};
+BasicExample.parameters = {controls: {include: ["d"]}, docs: {description: {story: "The `d` accessor reads a raw SVG path string from each datum; with `fill: none` and a `stroke`, the cubic-Bezier path renders as an open curved stroke."}}};

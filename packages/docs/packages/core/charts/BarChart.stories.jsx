@@ -41,7 +41,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "A minimal grouped bar chart: the two series in `groupBy` share each `x` position and sit side by side, with each bar's height read from `y`."}}};
 
 export const SortingBars = Template.bind({});
 SortingBars.args = {
@@ -62,7 +62,7 @@ SortingBars.args = {
     `(a, b) => a["ID Travel Time"] - b["ID Travel Time"]`
   )
 };
-SortingBars.parameters = {controls: {include: ["xSort"]}};
+SortingBars.parameters = {controls: {include: ["xSort"]}, docs: {description: {story: "The discrete `x` axis sorts alphabetically by default; pass an `xSort` comparator to order the bars by a different field — here the travel-time buckets follow their numeric `\"ID Travel Time\"` instead of their labels."}}};
 
 export const CustomBarPadding = Template.bind({});
 CustomBarPadding.args = {
@@ -80,7 +80,7 @@ CustomBarPadding.args = {
   x: "x",
   y: "y"
 }
-CustomBarPadding.parameters = {controls: {include: ["barPadding", "groupPadding"]}};
+CustomBarPadding.parameters = {controls: {include: ["barPadding", "groupPadding"]}, docs: {description: {story: "`barPadding` sets the pixel gap between bars within a group, while `groupPadding` sets the gap between adjacent groups — raise the latter to visually separate each `x` cluster."}}};
 
 export const StackedBars = Template.bind({});
 StackedBars.args = {
@@ -97,7 +97,7 @@ StackedBars.args = {
   x: "x",
   y: "y"
 };
-StackedBars.parameters = {controls: {include: ["stacked"]}};
+StackedBars.parameters = {controls: {include: ["stacked"]}, docs: {description: {story: "Set `stacked: true` to stack the series into one bar per `x` position rather than grouping them side by side, emphasizing the combined total over per-series comparison."}}};
 
 export const HorizontalBars = Template.bind({});
 HorizontalBars.args = {
@@ -115,7 +115,7 @@ HorizontalBars.args = {
   x: "y",
   y: "x"
 };
-HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}};
+HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "Run the bars horizontally by setting `discrete: \"y\"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous."}}};
 
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
@@ -139,7 +139,7 @@ TexturedBars.args = {
   x: "x",
   y: "y"
 };
-TexturedBars.parameters = {controls: {include: ["shapeConfig"]}};
+TexturedBars.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Overlay a repeating pattern on the bars via `shapeConfig.texture` (here `\"nylon\"`), with `textureDefault` tuning its size and stroke — useful for keeping series distinguishable in print or grayscale."}}};
 
 export const PopulationPyramid = Template.bind({});
 PopulationPyramid.args = {
@@ -336,7 +336,7 @@ PopulationPyramid.args = {
   y: "Age range",
   yConfig: {barConfig: {stroke: "transparent"}, ticks: []}
 };
-PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}};
+PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}, docs: {description: {story: "A population pyramid: age ranges run up the discrete `y` axis while the `x` accessor negates the female `Population` so the sexes mirror around zero, and `xConfig.tickFormat` restores absolute labels. Use it to read a population's age-and-sex structure at a glance."}}};
 const featureData = [
   {region: "North", quarter: "Q1", revenue: 35},
   {region: "North", quarter: "Q2", revenue: 50},
@@ -397,7 +397,7 @@ CustomTooltip.args = {
     ]
   }
 };
-CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}};
+CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}, docs: {description: {story: "Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting."}}};
 
 export const DownloadButton = Template.bind({});
 DownloadButton.args = {

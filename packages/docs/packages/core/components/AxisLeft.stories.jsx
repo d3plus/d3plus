@@ -32,4 +32,4 @@ BasicExample.args = {
   height: 400,
   title: "Left Axis"
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "The `[0, 100]` domain runs down the 400px height with its ticks and labels on the left of the path, the placement for a left-edge y-axis."}}};

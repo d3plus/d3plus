@@ -34,4 +34,4 @@ BasicExample.args = {
   ],
   id: "id", x: "x", y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "Points sharing the same `id` connect into one continuous line, with `x`/`y` placing each vertex."}}};

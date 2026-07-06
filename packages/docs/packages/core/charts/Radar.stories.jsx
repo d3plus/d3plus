@@ -45,7 +45,7 @@ BasicExample.args = {
   metric: "axis",
   value: "number"
 };
-BasicExample.parameters = {controls: {include: ["metric", "value"]}};
+BasicExample.parameters = {controls: {include: ["metric", "value"]}, docs: {description: {story: "`metric` names the field that becomes each spoke of the web while `value` sets how far along a spoke each point reaches; the two `groupBy` ids draw as separate polygons."}}};
 
 export const MultipleSeries = Template.bind({});
 MultipleSeries.args = {

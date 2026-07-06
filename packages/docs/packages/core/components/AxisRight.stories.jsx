@@ -32,4 +32,4 @@ BasicExample.args = {
   height: 400,
   title: "Right Axis"
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "The same vertical `[0, 100]` domain over 400px, but with ticks and labels drawn to the right, positioning it as a right-edge y-axis."}}};

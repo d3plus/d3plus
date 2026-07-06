@@ -56,10 +56,15 @@ export const DefaultPalette = () => {
   const palette = colorDefaults.scale.range().slice(0, 8);
   return <Report palette={palette} result={colorValidate(palette)} />;
 };
-DefaultPalette.parameters = sourceSnippet("color", "colorValidate, colorDefaults", [{
-  call: "colorValidate(colorDefaults.scale.range().slice(0, 8))",
-  result: JSON.stringify(colorValidate(colorDefaults.scale.range().slice(0, 8)), null, 2),
-}]);
+DefaultPalette.parameters = {
+  docs: {
+    ...sourceSnippet("color", "colorValidate, colorDefaults", [{
+      call: "colorValidate(colorDefaults.scale.range().slice(0, 8))",
+      result: JSON.stringify(colorValidate(colorDefaults.scale.range().slice(0, 8)), null, 2),
+    }]).docs,
+    description: {story: "Runs the categorical accessibility checks against the first eight swatches of the built-in `colorDefaults.scale`, reporting each check's pass/warn/fail state and whether the palette clears every hard requirement."},
+  },
+};
 
 export const OrdinalRamp = () => {
   const palette = colorRamp(colorDefaults.sequential, 5, {ordinal: true});

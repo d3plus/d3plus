@@ -34,4 +34,4 @@ BasicExample.args = {
   ],
   x: "x", y: "y", width: "width", height: "height", fill: "fill"
 };
-BasicExample.parameters = {controls: {include: ["width", "height"]}};
+BasicExample.parameters = {controls: {include: ["width", "height"]}, docs: {description: {story: "Each datum draws one bar sized by its data-bound `width` and `height` and colored from a per-datum `fill`, positioned by `x`/`y`."}}};

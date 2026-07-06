@@ -86,7 +86,12 @@ const basicRows = [
   ["a tale of two cities"],
 ];
 export const BasicExample = () => <Examples rows={basicRows} />;
-BasicExample.parameters = sourceParams(basicRows);
+BasicExample.parameters = {
+  docs: {
+    ...sourceParams(basicRows).docs,
+    description: {story: "Capitalizes each word of a plain phrase; the minor word `of` stays lowercase in the middle, while `the` and `a` are capitalized here because they lead the string."},
+  },
+};
 
 // Case is normalized in BOTH directions: an all-caps ("shouting") string is
 // lowered to title case, a lowercase acronym is raised — and minor words stay
@@ -98,7 +103,12 @@ const caseRows = [
   ["what are you looking for"],
 ];
 export const CaseNormalization = () => <Examples rows={caseRows} />;
-CaseNormalization.parameters = sourceParams(caseRows);
+CaseNormalization.parameters = {
+  docs: {
+    ...sourceParams(caseRows).docs,
+    description: {story: "Case is fixed in both directions: the all-caps `SOUTH BY SOUTHWEST` is lowered to `South by Southwest`, the lowercase `ceo` is raised to `CEO`, and a trailing minor word like `for` is capitalized because it ends the phrase."},
+  },
+};
 
 // Known acronyms are forced uppercase regardless of input case, including
 // mixed-case forms like "iOS" and "SaaS", and plurals like "TVs".
@@ -109,7 +119,12 @@ const acronymRows = [
   ["html, css, and sql basics"],
 ];
 export const Acronyms = () => <Examples rows={acronymRows} />;
-Acronyms.parameters = sourceParams(acronymRows);
+Acronyms.parameters = {
+  docs: {
+    ...sourceParams(acronymRows).docs,
+    description: {story: "Recognized acronyms are forced to their canonical casing no matter how they were typed — `ceo`→`CEO`, `gdp`→`GDP`, `sql`→`SQL` — including mixed-case forms like `iOS` and `SaaS`."},
+  },
+};
 
 // Pass a locale to title-case with that language's minor-word and acronym
 // lists — note "y"/"el", "de"/"la", "über"/"das" stay lowercase mid-title.
@@ -120,4 +135,9 @@ const localizedRows = [
   ["la storia di roma", "it-IT"],
 ];
 export const Localized = () => <Examples rows={localizedRows} />;
-Localized.parameters = sourceParams(localizedRows);
+Localized.parameters = {
+  docs: {
+    ...sourceParams(localizedRows).docs,
+    description: {story: "Passing a locale (`es-ES`, `fr-FR`, `de-DE`, `it-IT`) swaps in that language's minor-word list, so words such as `y`, `de`, `la`, `über`, and `di` stay lowercase mid-title."},
+  },
+};

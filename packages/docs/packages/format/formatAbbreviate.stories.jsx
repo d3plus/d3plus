@@ -40,11 +40,16 @@ export const BasicExample = () => (
     </tbody>
   </table>
 );
-BasicExample.parameters = sourceSnippet(
-  "format",
-  "formatAbbreviate",
-  values.map(v => ({
-    call: `formatAbbreviate(${v})`,
-    result: JSON.stringify(formatAbbreviate(v)),
-  })),
-);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet(
+      "format",
+      "formatAbbreviate",
+      values.map(v => ({
+        call: `formatAbbreviate(${v})`,
+        result: JSON.stringify(formatAbbreviate(v)),
+      })),
+    ).docs,
+    description: {story: "Rounds each number to about three significant digits and appends an SI-style suffix, so `1234` reads as `1.23k`, `1234567` as `1.23M`, and `1234567890` as `1.23B`, while a small fraction like `0.0042` is left unabbreviated."},
+  },
+};
