@@ -17,7 +17,8 @@ const rectSchema: ConfigField[] = [
   // corner-to-corner. On both the SVG and Canvas backends.
   {key: "trail", coerce: "identity", default: false},
   // Persistent-trail length (see Circle): 0 = ephemeral, a number keeps that
-  // many past segments, `true` keeps a long fading tail. Requires `trail: true`.
+  // many past segments, `true` keeps a long fading tail. Requires `trail: true`
+  // + a single-period timeline; pair with `axisPersist: true` for stable axes.
   {key: "trailPersist", coerce: "identity", default: 0},
   {key: "width", coerce: "accessor", default: accessor("width")},
 ];

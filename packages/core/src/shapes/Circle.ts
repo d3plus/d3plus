@@ -19,7 +19,9 @@ const circleSchema: ConfigField[] = [
   {key: "trail", coerce: "identity", default: false},
   // Persistent-trail length: 0 keeps the ephemeral single-move trail; a positive
   // number keeps that many past step-segments (fading older ones out); `true`
-  // keeps a long slowly-fading tail. Requires `trail: true`.
+  // keeps a long slowly-fading tail. Requires `trail: true`, and a single-period
+  // timeline (`timelineConfig.brushing: false`); pair with `axisPersist: true` so
+  // the axes stay fixed across periods and committed segments don't drift.
   {key: "trailPersist", coerce: "identity", default: 0},
 ];
 
