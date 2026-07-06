@@ -264,4 +264,18 @@ it("persistent trails grow forward in time, cap, and rewind on scrub-back", () =
   assert.strictEqual(segCount(interpolateScene(r2, r3, jump)(1)), 3, "three forward segments before the jump");
   commitTrailScene(jump, r1, 1); // jump back two periods at once
   assert.strictEqual(segCount(interpolateScene(r3, r1, jump)(0.5)), 2, "a two-step jump back drops both later segments, not one");
+
+  // Coarse forward jump then a single step back: the jump made ONE segment
+  // spanning the skipped period; stepping back into it must truncate that
+  // segment to the now-revealed position (reconnecting to the mark), not retract
+  // the whole jump and detach.
+  const coarse = new TrailLog();
+  const g0 = p(0, 0), g2 = p(100, 100), g1 = p(40, 60); // g1 is off the g0→g2 line
+  commitTrailScene(coarse, g0, 0);
+  commitTrailScene(coarse, g2, 2); // jump forward two periods → one coarse segment
+  commitTrailScene(coarse, g1, 1); // step back one period; mark revealed at (40,60)
+  const {committed, animating} = coarse.segments("p");
+  assert.strictEqual(committed.length, 1, "coarse segment truncated to a single segment");
+  assert.strictEqual(animating, null, "no leftover retract");
+  assert.deepStrictEqual(committed[0].B, [40, 60], "truncated segment ends at the revealed position, reconnecting the mark");
 });

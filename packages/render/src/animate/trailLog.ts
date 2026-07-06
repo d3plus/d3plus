@@ -31,7 +31,10 @@ export interface TrailSeg {
   shape: TrailShape;
   rotate: number;
   color: string;
-  /** The timeline value this segment arrived at (its newer end), for rewind. */
+  /** The timeline value at the older end (A), so a step-back can detect a
+      coarse segment that straddles the target period and truncate it. */
+  aSeq: number;
+  /** The timeline value this segment arrived at (its newer end, B), for rewind. */
   seq: number;
 }
 
@@ -87,26 +90,35 @@ export class TrailLog {
       // that was in flight is discarded. Start growing the new move.
       if (e.animating?.dir === 1) e.committed.push(e.animating.seg);
       e.animating = moved
-        ? {seg: {A: e.lastPos, B: pos, aDims: e.lastDims, bDims: dims, shape: parts.shape, rotate: parts.rotate, color, seq}, dir: 1}
+        ? {seg: {A: e.lastPos, B: pos, aDims: e.lastDims, bDims: dims, shape: parts.shape, rotate: parts.rotate, color, aSeq: e.lastSeq, seq}, dir: 1}
         : null;
       const keep = Math.max(0, persistFadeLength(persist) - 1);
       if (e.committed.length > keep) e.committed.splice(0, e.committed.length - keep);
     } else {
-      // Backward to `seq`: every segment that arrived after it is now in the
-      // future and must go — not just the newest (a multi-period jump back drops
-      // them all). Discard an in-flight forward segment, drop committed segments
-      // beyond `seq` (committed is ascending by seq), and retract the one that
-      // sits just after `seq` so the rewind lands exactly on it.
+      // Backward to `seq`, with the mark now revealed at `pos`. Sort every
+      // segment (committed + any in-flight forward one) against the new period:
+      //   - ends at/before `seq`  → still valid, keep.
+      //   - starts at/after `seq` → entirely in the future, drop (retract nearest).
+      //   - straddles `seq`       → a coarse multi-period forward jump; truncate
+      //     it to end at `pos`, so a single step back reconnects to the mark
+      //     instead of retracting the whole jump and detaching.
       const forwardInFlight = e.animating?.dir === 1 ? e.animating.seg : null;
       e.animating = null;
-      const removed: TrailSeg[] = [];
-      while (e.committed.length && e.committed[e.committed.length - 1].seq > seq) {
-        removed.unshift(e.committed.pop() as TrailSeg);
+      const all = forwardInFlight ? [...e.committed, forwardInFlight] : e.committed;
+      e.committed = [];
+      const future: TrailSeg[] = [];
+      let spanning: TrailSeg | null = null;
+      for (const s of all) {
+        if (s.seq <= seq) e.committed.push(s);
+        else if (s.aSeq >= seq) future.push(s);
+        else spanning = s;
       }
-      if (forwardInFlight) removed.push(forwardInFlight);
-      // `removed[0]` is the segment nearest `seq`; retract it (the rest, farther
-      // in the future, are simply gone — a single transition can't sequence them).
-      if (removed.length) e.animating = {seg: removed[0], dir: -1};
+      if (spanning) {
+        e.committed.push({...spanning, B: pos, bDims: dims, seq});
+      } else if (future.length) {
+        future.sort((a, b) => a.seq - b.seq);
+        e.animating = {seg: future[0], dir: -1};
+      }
     }
     e.lastPos = pos;
     e.lastDims = dims;
