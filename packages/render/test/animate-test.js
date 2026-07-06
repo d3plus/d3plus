@@ -195,29 +195,35 @@ it("interpolateScene accumulates a persistent trail across moves and keeps it at
       transform: {x, y}, trail: true, trailPersist: 2,
     }]},
   });
-  const trailsOf = frame => frame.root.children.filter(c => String(c.key).startsWith("p__trail"));
+  // The trail is one node per mark (a single fill, so overlaps don't double);
+  // each segment is a subpath, so count the "M" commands in its `d`.
+  const trailOf = frame => frame.root.children.find(c => String(c.key) === "p__trail");
+  const segCount = frame => {
+    const n = trailOf(frame);
+    return n ? (n.d.match(/M/g) || []).length : 0;
+  };
   const log = new TrailLog();
   const s0 = scene(10, 10), s1 = scene(110, 60), s2 = scene(60, 150), s3 = scene(160, 200), s4 = scene(40, 250);
 
   // First draw seeds the position; a persistent trail needs a move to appear.
   commitTrailScene(log, s0);
-  assert.strictEqual(trailsOf(interpolateScene(s0, s0, log)(1)).length, 0, "no trail before moving");
+  assert.strictEqual(segCount(interpolateScene(s0, s0, log)(1)), 0, "no trail before moving");
 
   // First move → one segment, and — unlike the ephemeral trail — it stays at rest.
   commitTrailScene(log, s1);
   const mid1 = interpolateScene(s0, s1, log)(0.5);
-  const t1 = trailsOf(mid1);
-  assert.strictEqual(t1.length, 1, "one segment mid first move");
-  assert.strictEqual(t1[0].type, "path", "trail segment is a path");
-  assert.ok(t1[0].paint.fill.startsWith("gradient:"), "segment filled by a gradient");
-  assert.strictEqual(trailsOf(interpolateScene(s0, s1, log)(1)).length, 1, "segment persists at rest (t=1)");
+  const node = trailOf(mid1);
+  assert.ok(node && node.type === "path", "one trail path emitted");
+  assert.ok(node.paint.fill.startsWith("gradient:"), "trail filled by a single gradient");
+  assert.strictEqual(segCount(mid1), 1, "one segment mid first move");
+  assert.strictEqual(segCount(interpolateScene(s0, s1, log)(1)), 1, "segment persists at rest (t=1)");
 
-  // Second move → the first segment commits, the new one animates: two segments.
+  // Second move → the first segment commits, the new one animates: two subpaths.
   commitTrailScene(log, s2);
-  assert.strictEqual(trailsOf(interpolateScene(s1, s2, log)(0.5)).length, 2, "two segments after second move");
+  assert.strictEqual(segCount(interpolateScene(s1, s2, log)(0.5)), 2, "two segments after second move");
 
   // trailPersist: 2 caps the window — after several more moves it never exceeds 2.
   commitTrailScene(log, s3);
   commitTrailScene(log, s4);
-  assert.strictEqual(trailsOf(interpolateScene(s3, s4, log)(1)).length, 2, "older segments drop past the persist length");
+  assert.strictEqual(segCount(interpolateScene(s3, s4, log)(1)), 2, "older segments drop past the persist length");
 });

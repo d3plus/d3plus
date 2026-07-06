@@ -88,39 +88,61 @@ export class TrailLog {
 */
 export function persistRenderSegs(
   log: TrailLog, key: string | number,
-): {seg: TrailSeg; pHead: number; pTail: number; animating: boolean}[] {
+): {seg: TrailSeg; animating: boolean}[] {
   const {animating, committed} = log.segments(key);
-  const out: {seg: TrailSeg; pHead: number; pTail: number; animating: boolean}[] = [];
-  for (let i = committed.length - 1; i >= 0; i--) {
-    out.push({seg: committed[i], pHead: i + 1, pTail: i + 2, animating: false});
-  }
-  if (animating) out.push({seg: animating, pHead: 0, pTail: 1, animating: true});
+  const out: {seg: TrailSeg; animating: boolean}[] = [];
+  for (let i = committed.length - 1; i >= 0; i--) out.push({seg: committed[i], animating: false});
+  if (animating) out.push({seg: animating, animating: true});
   return out;
 }
 
-/** The gradient fill for one persistent segment (its endpoint alphas by age). */
-export function persistSegFill(seg: TrailSeg, pHead: number, pTail: number, persist: number | boolean): string {
-  return trailGradient(
-    seg.B[0] - seg.A[0], seg.B[1] - seg.A[1], seg.color,
-    persistAlpha(pTail, persist), persistAlpha(pHead, persist),
-  );
+/**
+    A mark's whole persistent trail at progress `t` as ONE path (the cone of every
+    segment concatenated) plus its bbox and overall tail→head direction. Painting
+    the trail as a single fill is what keeps overlapping segments from compositing
+    twice (the double-dark at turns); the direction drives a single gradient that
+    fades from transparent at the oldest tail to the mark's color at the head.
+*/
+export function persistTrailPath(
+  log: TrailLog, key: string | number, t: number,
+): {d: string; box: {x: number; y: number; w: number; h: number}; dx: number; dy: number; color: string} | null {
+  const segs = persistRenderSegs(log, key);
+  if (!segs.length) return null;
+  let d = "", minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const {seg, animating} of segs) {
+    const c = coneAt(seg.shape, seg.A, seg.aDims, seg.B, seg.bDims, seg.rotate, animating ? t : 1);
+    d += c.d;
+    minX = Math.min(minX, c.box.x); minY = Math.min(minY, c.box.y);
+    maxX = Math.max(maxX, c.box.x + c.box.w); maxY = Math.max(maxY, c.box.y + c.box.h);
+  }
+  const first = segs[0].seg, tail = segs[segs.length - 1], last = tail.seg;
+  const hx = tail.animating ? last.A[0] + (last.B[0] - last.A[0]) * t : last.B[0];
+  const hy = tail.animating ? last.A[1] + (last.B[1] - last.A[1]) * t : last.B[1];
+  return {
+    d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1},
+    dx: hx - first.A[0], dy: hy - first.A[1], color: last.color,
+  };
 }
 
-/** Builds a mark's persistent-trail scene nodes (Canvas backend) at progress `t`. */
-export function persistTrailNodes(
+/** The gradient fill for a mark's persistent trail (transparent tail → colored head). */
+export function persistTrailFill(dx: number, dy: number, color: string, persist: number | boolean): string {
+  return trailGradient(dx, dy, color, 0, persistAlpha(0, persist));
+}
+
+/** Builds a mark's persistent-trail scene node (Canvas backend) at progress `t`. */
+export function persistTrailNode(
   log: TrailLog, key: string | number, persist: number | boolean, t: number,
-): SceneNode[] {
-  return persistRenderSegs(log, key).map(({seg, pHead, pTail, animating}) => {
-    const {d, box} = coneAt(seg.shape, seg.A, seg.aDims, seg.B, seg.bDims, seg.rotate, animating ? t : 1);
-    return {
-      type: "path",
-      key: `${key}__trail${animating ? 0 : pHead}`,
-      interactive: false,
-      d,
-      gradientBounds: box,
-      paint: {fill: persistSegFill(seg, pHead, pTail, persist), opacity: 1},
-    } as unknown as SceneNode;
-  });
+): SceneNode | null {
+  const p = persistTrailPath(log, key, t);
+  if (!p) return null;
+  return {
+    type: "path",
+    key: `${key}__trail`,
+    interactive: false,
+    d: p.d,
+    gradientBounds: p.box,
+    paint: {fill: persistTrailFill(p.dx, p.dy, p.color, persist), opacity: 1},
+  } as unknown as SceneNode;
 }
 
 /** Whether a node opts into a persistent trail (a positive count or `true`). */

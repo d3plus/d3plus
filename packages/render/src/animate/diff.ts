@@ -3,7 +3,7 @@ import {collapse, interpolateNode} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
 import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
-import {isPersistTrail, persistTrailNodes} from "./trailLog.js";
+import {isPersistTrail, persistTrailNode} from "./trailLog.js";
 import type {TrailLog} from "./trailLog.js";
 
 /**
@@ -117,7 +117,10 @@ function interpolateChildren(
         if (n) out.push(n);
       }
     }
-    if (log) for (const p of persist) out.push(...persistTrailNodes(log, p.key, p.persist, t));
+    if (log) for (const p of persist) {
+      const n = persistTrailNode(log, p.key, p.persist, t);
+      if (n) out.push(n);
+    }
     for (const u of updaters) out.push(u(t));
     for (const e of enters) out.push(e(t));
     if (t < 1) for (const x of exits) out.push(x(t));

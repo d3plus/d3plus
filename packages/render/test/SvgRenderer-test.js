@@ -164,21 +164,26 @@ it("SvgRenderer accumulates persistent trail paths across moves and keeps them a
     type: "circle", key: "p", cx: 0, cy: 0, r: 6, paint: {fill: "#1c7ed6"},
     transform: {x: 10, y: 10}, trail: true, trailPersist: 3, ...extra,
   });
-  const segs = () => document.querySelectorAll('.d3plus-trail-persist[data-tkey="p"]').length;
+  // One path per mark (a single fill), so segments are subpaths in its `d` —
+  // count the "M" commands. Unlike the ephemeral trail it isn't removed on end.
+  const paths = () => document.querySelectorAll('.d3plus-trail-persist[data-tkey="p"]');
+  const segCount = () => {
+    const p = paths()[0];
+    return p ? (p.getAttribute("d").match(/M/g) || []).length : 0;
+  };
 
   renderer.drawScene(scene([circle()]));
-  assert.strictEqual(segs(), 0, "no persistent trail before moving");
+  assert.strictEqual(paths().length, 0, "no persistent trail before moving");
 
-  // Each move adds a segment; unlike the ephemeral trail these are not removed
-  // on transition end, so they accumulate (capped by trailPersist).
   const h1 = renderer.drawScene(scene([circle({transform: {x: 120, y: 80}})]), {duration: 400});
-  assert.strictEqual(segs(), 1, "one segment after the first move");
+  assert.strictEqual(paths().length, 1, "one trail path after the first move");
+  assert.strictEqual(segCount(), 1, "one segment after the first move");
+  assert.ok((paths()[0].getAttribute("fill") || "").startsWith("url(#"), "trail filled by a gradient");
   h1.cancel();
 
   const h2 = renderer.drawScene(scene([circle({transform: {x: 60, y: 150}})]), {duration: 400});
-  assert.strictEqual(segs(), 2, "two segments after the second move");
-  const seg = document.querySelector('.d3plus-trail-persist[data-tkey="p"]');
-  assert.ok((seg.getAttribute("fill") || "").startsWith("url(#"), "segment filled by a gradient");
+  assert.strictEqual(paths().length, 1, "still a single trail path");
+  assert.strictEqual(segCount(), 2, "two segments after the second move");
   h2.cancel();
 
   renderer.destroy();

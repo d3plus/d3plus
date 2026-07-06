@@ -2,7 +2,7 @@ import type {Transition} from "d3-transition";
 
 import {coneAt, trailGradient, trailOpacity, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
-import {persistRenderSegs, persistSegFill} from "../animate/trailLog.js";
+import {persistTrailFill, persistTrailPath} from "../animate/trailLog.js";
 import type {TrailLog} from "../animate/trailLog.js";
 import type {SceneNode} from "../scene.js";
 import {SVG_NS} from "./svgNodeAttrs.js";
@@ -59,11 +59,13 @@ export function removePersistTrail(parent: Element, key: string | number): void 
 }
 
 /**
-    Renders a mark's persistent motion trail beneath it (SVG parity with Canvas):
-    the committed history as static cone paths plus the current move as a tweened
-    one. Each draw clears this mark's prior trail paths and rebuilds from the log
-    so aged segments drop and turns stay continuous. Paths carry `d3plus-trail`
-    (kept out of the keyed join) plus `d3plus-trail-persist` + `data-tkey`.
+    Renders a mark's persistent motion trail beneath it (SVG parity with Canvas)
+    as a SINGLE path — every segment's cone concatenated into one `d`, filled with
+    one tail→head gradient — so overlapping segments don't composite twice at
+    turns. Each draw clears this mark's prior trail path and rebuilds from the log
+    (aged segments drop); the current move tweens the combined `d`. The path
+    carries `d3plus-trail` (kept out of the keyed join) plus `d3plus-trail-persist`
+    + `data-tkey`.
 */
 export function attachPersistTrail(
   el: Element,
@@ -76,17 +78,17 @@ export function attachPersistTrail(
   const parent = el.parentNode as Element | null;
   if (!parent) return;
   removePersistTrail(parent, node.key);
-  for (const {seg, pHead, pTail, animating} of persistRenderSegs(log, node.key)) {
-    const tp = document.createElementNS(SVG_NS, "path");
-    tp.setAttribute("class", "d3plus-trail d3plus-trail-persist");
-    tp.setAttribute("data-tkey", String(node.key));
-    tp.setAttribute("pointer-events", "none");
-    tp.setAttribute("fill", resolveFill(persistSegFill(seg, pHead, pTail, persist)) ?? "none");
-    parent.insertBefore(tp, el);
-    const at = (u: number): string => coneAt(seg.shape, seg.A, seg.aDims, seg.B, seg.bDims, seg.rotate, u).d;
-    if (animating && tsel) {
-      tp.setAttribute("d", at(0));
-      tsel.tween("d3plus-trail-persist", () => (tt: number) => tp.setAttribute("d", at(tt)));
-    } else tp.setAttribute("d", at(1));
-  }
+  const target = persistTrailPath(log, node.key, 1);
+  if (!target) return;
+  const tp = document.createElementNS(SVG_NS, "path");
+  tp.setAttribute("class", "d3plus-trail d3plus-trail-persist");
+  tp.setAttribute("data-tkey", String(node.key));
+  tp.setAttribute("pointer-events", "none");
+  tp.setAttribute("fill", resolveFill(persistTrailFill(target.dx, target.dy, target.color, persist)) ?? "none");
+  parent.insertBefore(tp, el);
+  if (tsel) {
+    const at = (u: number): string => persistTrailPath(log, node.key, u)?.d ?? "";
+    tp.setAttribute("d", at(0));
+    tsel.tween("d3plus-trail-persist", () => (tt: number) => tp.setAttribute("d", at(tt)));
+  } else tp.setAttribute("d", target.d);
 }
