@@ -19,9 +19,9 @@ const circleSchema: ConfigField[] = [
   {key: "trail", coerce: "identity", default: false},
   // Persistent-trail length: 0 keeps the ephemeral single-move trail; a positive
   // number keeps that many past step-segments (fading older ones out); `true`
-  // keeps a long slowly-fading tail. Requires `trail: true`, and a single-period
-  // timeline (`timelineConfig.brushing: false`); pair with `axisPersist: true` so
-  // the axes stay fixed across periods and committed segments don't drift.
+  // keeps a long slowly-fading tail. Requires `trail: true`. Setting it also
+  // makes the chart use a single-period timeline + fixed axes automatically
+  // (see vizPreDraw) — the conditions a persistent trail needs to stay coherent.
   {key: "trailPersist", coerce: "identity", default: 0},
 ];
 

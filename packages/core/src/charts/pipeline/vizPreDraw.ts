@@ -24,6 +24,13 @@ import {vizPostThresholdCtx, vizPreDrawPure} from "./vizPreDrawPure.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
+/** Whether the shapeConfig enables a persistent trail (a positive count or `true`). */
+function hasPersistentTrail(sc: Record<string, unknown> | undefined): boolean {
+  const on = (v: unknown): boolean => v === true || (typeof v === "number" && v > 0);
+  const shape = (k: string): unknown => (sc?.[k] as {trailPersist?: unknown} | undefined)?.trailPersist;
+  return !!sc && (on(sc.trailPersist) || on(shape("Circle")) || on(shape("Rect")));
+}
+
 export function vizPreDraw(viz: Viz): void {
   const ctx = vizPreDrawPure(viz);
 
@@ -33,6 +40,15 @@ export function vizPreDraw(viz: Viz): void {
   if (ctx.ids) viz._ids = ctx.ids;
   if (ctx.drawLabel) viz._drawLabel = ctx.drawLabel;
   if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
+
+  // 1b. A persistent trail only stays coherent with fixed axes (so committed
+  // segments don't drift as the domain shifts) and a single-period timeline (so
+  // the forward/backward step logic has one current time). Turn both on
+  // automatically when `trailPersist` is set, so callers don't have to know.
+  if (hasPersistentTrail(viz.schema.shapeConfig as Record<string, unknown>)) {
+    (viz as {_axisPersist?: boolean})._axisPersist = true;
+    viz.schema.timelineConfig = {...(viz.schema.timelineConfig || {}), brushing: false};
+  }
 
   // 2. computedTimeFilter — surfaced on the ctx for downstream consumers
   // (rollupAndFilter etc.) but NOT back-assigned to `viz.schema.timeFilter`.
