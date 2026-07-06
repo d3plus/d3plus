@@ -4,7 +4,7 @@ import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, isObject} from "@d3plus/dom";
+import {assign, getSize, isObject} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import {SvgRenderer} from "@d3plus/render";
@@ -559,12 +559,17 @@ export default class Shape extends BaseClass {
       if (node) {
         const tag = (node.tagName || "").toLowerCase();
         const isSvg = tag === "svg";
-        const width = isSvg
-          ? Number(node.getAttribute("width")) || 400
-          : (node as HTMLElement).clientWidth || 400;
-        const height = isSvg
-          ? Number(node.getAttribute("height")) || 300
-          : (node as HTMLElement).clientHeight || 300;
+        // Explicit numeric size first: an <svg>'s width/height attribute, or a
+        // non-svg container's client box.
+        const rawW = isSvg ? Number(node.getAttribute("width")) : (node as HTMLElement).clientWidth;
+        const rawH = isSvg ? Number(node.getAttribute("height")) : (node as HTMLElement).clientHeight;
+        // When that isn't a usable number — e.g. width="100%" (Number → NaN)
+        // or a 0-size box — measure the container's real rendered size,
+        // walking up to the first constrained ancestor. Only fall back to the
+        // static 400x300 when nothing is measurable (e.g. no layout in jsdom).
+        const [measuredW, measuredH] = rawW && rawH ? [rawW, rawH] : getSize(node as HTMLElement);
+        const width = rawW || measuredW || 400;
+        const height = rawH || measuredH || 300;
         // Combine the shape's scene + label children. toScene() deliberately
         // omits labels (collectComputed is the canonical aggregator for the
         // chart pipeline); for the standalone render() path we add them here
