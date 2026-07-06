@@ -61,9 +61,16 @@ export interface Transform {
 */
 export interface SceneGradient {
   type: "linear";
-  /** Start point in objectBoundingBox units (0–1). */
+  /**
+      Coordinate space for `from`/`to`. Default (omitted) is objectBoundingBox
+      (0–1, scaled to the node's bounds). `"userSpaceOnUse"` treats them as
+      absolute scene coordinates — used by motion trails so the gradient stays
+      put as the path's bounding box grows, instead of remapping (and snapping).
+  */
+  units?: "userSpaceOnUse";
+  /** Start point — objectBoundingBox units (0–1), or absolute for userSpaceOnUse. */
   from: [number, number];
-  /** End point in objectBoundingBox units (0–1). */
+  /** End point — objectBoundingBox units (0–1), or absolute for userSpaceOnUse. */
   to: [number, number];
   /** Color stops; `offset` in 0–1, sorted ascending. */
   stops: {offset: number; color: string}[];

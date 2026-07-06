@@ -6,7 +6,7 @@ import {collapse} from "../animate/interpolate.js";
 import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
 import {commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
-import {attachPersistTrail, attachSvgTrail, removePersistTrail} from "./svgTrail.js";
+import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
@@ -77,6 +77,8 @@ export default class SvgRenderer implements Renderer {
   /** Cache of `gradient:<json>` token → `url(#id)`, materialized in <defs>. */
   private _gradientDefs = new Map<string, string>();
   private _gradientSeq = 0;
+  /** Reused per-mark userSpaceOnUse gradients for persistent trails. */
+  private _trailGrads = new TrailGradients(() => this._ensureDefs(), () => this._uid);
   private _handlers = new Set<(event: SceneEvent) => void>();
   private _domListeners: Record<string, (e: Event) => void> = {};
   private _listening = false;
@@ -211,6 +213,10 @@ export default class SvgRenderer implements Renderer {
     const id = `d3plus-gradient-${this._uid}-${++this._gradientSeq}`;
     const lg = document.createElementNS(SVG_NS, "linearGradient");
     lg.setAttribute("id", id);
+    // userSpaceOnUse anchors the gradient to absolute scene coords (motion
+    // trails), so it stays put as the path's box grows; the default is
+    // objectBoundingBox (from/to in 0–1, relative to the painted node).
+    if (g.units === "userSpaceOnUse") lg.setAttribute("gradientUnits", "userSpaceOnUse");
     lg.setAttribute("x1", String(g.from[0]));
     lg.setAttribute("y1", String(g.from[1]));
     lg.setAttribute("x2", String(g.to[0]));
@@ -307,9 +313,10 @@ export default class SvgRenderer implements Renderer {
       if (d && d.type === "group") {
         self._releaseGroupClip(String((d as GroupNode).key));
       }
-      // Drop any persistent-trail paths the exiting mark left behind (its log
-      // entry is already pruned by commitTrailScene).
+      // Drop any persistent-trail paths + gradient the exiting mark left behind
+      // (its log entry is already pruned by commitTrailScene).
       if (d && this.parentNode) removePersistTrail(this.parentNode as Element, d.key);
+      if (d) self._trailGrads.remove(d.key);
     });
     if (duration) exit.transition(t).attr("opacity", 0).remove();
     else exit.remove();
@@ -365,13 +372,13 @@ export default class SvgRenderer implements Renderer {
         // Sweep a motion-trail cone from the mark's previous position to its
         // current one, beneath the mark (parity with the Canvas backend). A
         // persistent trail draws its whole history from the log instead.
-        if (persistTrail) attachPersistTrail(this, tsel, self._trailLog, d, d.trailPersist as number | boolean, resolveFill);
+        if (persistTrail) attachPersistTrail(this, tsel, self._trailLog, d, f => self._trailGrads.apply(d.key, f));
         else if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
       } else {
         applyGeometry(s, d, false, resolveFill);
         // Redraw the persistent trail on non-animated repaints (e.g. hover) so
         // it doesn't vanish; static geometry, no tween.
-        if (persistTrail) attachPersistTrail(this, null, self._trailLog, d, d.trailPersist as number | boolean, resolveFill);
+        if (persistTrail) attachPersistTrail(this, null, self._trailLog, d, f => self._trailGrads.apply(d.key, f));
       }
       if (d.type === "text") stash.__d3plusTextPrev__ = d;
       if (canTrail && !persistTrail) {
@@ -629,6 +636,7 @@ export default class SvgRenderer implements Renderer {
     this._index = new Map();
     this._textureDefs = new Map();
     this._gradientDefs.clear();
+    this._trailGrads.clear();
     this._gradientSeq = 0;
     this._target = undefined;
   }

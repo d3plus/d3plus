@@ -115,6 +115,13 @@ function canvasFillStyle(
 ): string | CanvasGradient | CanvasPattern {
   if (fill.startsWith("gradient:")) {
     const g = parseGradient(fill);
+    // userSpaceOnUse: from/to are absolute scene coordinates (no box scaling).
+    if (g && g.units === "userSpaceOnUse") {
+      const grad = ctx.createLinearGradient(g.from[0], g.from[1], g.to[0], g.to[1]);
+      for (const {offset, color} of g.stops)
+        grad.addColorStop(Math.max(0, Math.min(1, offset)), color);
+      return grad;
+    }
     const box = g && gradientBox(node);
     if (g && box) {
       const grad = ctx.createLinearGradient(

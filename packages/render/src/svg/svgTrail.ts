@@ -4,6 +4,7 @@ import {coneAt, trailGradient, trailOpacity, trailPartsFromNode, TRAIL_MIN_DISTA
 import type {TrailParts} from "../animate/trail.js";
 import {persistTrailFill, persistTrailPath} from "../animate/trailLog.js";
 import type {TrailLog} from "../animate/trailLog.js";
+import {parseGradient} from "../scene.js";
 import type {SceneNode} from "../scene.js";
 import {SVG_NS} from "./svgNodeAttrs.js";
 
@@ -72,8 +73,7 @@ export function attachPersistTrail(
   tsel: Transition<Element, unknown, null, undefined> | null,
   log: TrailLog,
   node: SceneNode,
-  persist: number | boolean,
-  resolveFill: (f?: string) => string | null,
+  trailGrad: (fill: string) => string,
 ): void {
   const parent = el.parentNode as Element | null;
   if (!parent) return;
@@ -84,11 +84,80 @@ export function attachPersistTrail(
   tp.setAttribute("class", "d3plus-trail d3plus-trail-persist");
   tp.setAttribute("data-tkey", String(node.key));
   tp.setAttribute("pointer-events", "none");
-  tp.setAttribute("fill", resolveFill(persistTrailFill(target.dx, target.dy, target.color, persist)) ?? "none");
+  // Stable fill url; the gradient element's absolute endpoints are updated in
+  // place each frame (below) so it tracks the head without snapping or leaking.
+  tp.setAttribute("fill", trailGrad(persistTrailFill(target.tail, target.head, target.color)));
   parent.insertBefore(tp, el);
+  const frame = (u: number): void => {
+    const p = persistTrailPath(log, node.key, u);
+    if (!p) return;
+    tp.setAttribute("d", p.d);
+    trailGrad(persistTrailFill(p.tail, p.head, p.color));
+  };
   if (tsel) {
-    const at = (u: number): string => persistTrailPath(log, node.key, u)?.d ?? "";
-    tp.setAttribute("d", at(0));
-    tsel.tween("d3plus-trail-persist", () => (tt: number) => tp.setAttribute("d", at(tt)));
+    frame(0);
+    tsel.tween("d3plus-trail-persist", () => (tt: number) => frame(tt));
   } else tp.setAttribute("d", target.d);
+}
+
+/**
+    Reused per-mark userSpaceOnUse gradients for persistent trails. A trail's
+    gradient endpoints follow its head every frame, so routing it through the
+    renderer's cached def path would leak a new <linearGradient> per frame.
+    Instead each mark keeps ONE element, updated in place from the parsed spec,
+    freed when the mark exits. `defs`/`uid` are getters so it binds lazily to the
+    renderer's (possibly not-yet-mounted) state.
+*/
+export class TrailGradients {
+  private map = new Map<string | number, {el: SVGLinearGradientElement; url: string}>();
+  private seq = 0;
+
+  constructor(
+    private defs: () => SVGDefsElement | undefined,
+    private uid: () => number,
+  ) {}
+
+  /** Create/update this mark's gradient from a `gradient:<json>` token; returns its url. */
+  apply(key: string | number, fill: string): string {
+    const spec = parseGradient(fill);
+    const defs = this.defs();
+    if (!spec || !defs) return "none";
+    let entry = this.map.get(key);
+    if (!entry) {
+      const el = document.createElementNS(SVG_NS, "linearGradient");
+      el.setAttribute("id", `d3plus-trailgrad-${this.uid()}-${++this.seq}`);
+      el.setAttribute("gradientUnits", "userSpaceOnUse");
+      el.append(document.createElementNS(SVG_NS, "stop"), document.createElementNS(SVG_NS, "stop"));
+      defs.appendChild(el);
+      entry = {el, url: `url(#${el.getAttribute("id")})`};
+      this.map.set(key, entry);
+    }
+    const {el} = entry;
+    el.setAttribute("x1", String(spec.from[0]));
+    el.setAttribute("y1", String(spec.from[1]));
+    el.setAttribute("x2", String(spec.to[0]));
+    el.setAttribute("y2", String(spec.to[1]));
+    spec.stops.forEach((s, i) => {
+      const stop = el.children[i];
+      if (stop) {
+        stop.setAttribute("offset", String(s.offset));
+        stop.setAttribute("stop-color", s.color);
+      }
+    });
+    return entry.url;
+  }
+
+  /** Remove a mark's gradient element (on exit). */
+  remove(key: string | number): void {
+    const entry = this.map.get(key);
+    if (entry) {
+      entry.el.remove();
+      this.map.delete(key);
+    }
+  }
+
+  /** Forget all gradients (elements go with the torn-down <defs>). */
+  clear(): void {
+    this.map.clear();
+  }
 }

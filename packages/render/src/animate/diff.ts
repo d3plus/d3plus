@@ -118,7 +118,7 @@ function interpolateChildren(
       }
     }
     if (log) for (const p of persist) {
-      const n = persistTrailNode(log, p.key, p.persist, t);
+      const n = persistTrailNode(log, p.key, t);
       if (n) out.push(n);
     }
     for (const u of updaters) out.push(u(t));

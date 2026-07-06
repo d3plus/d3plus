@@ -1,5 +1,8 @@
+import {rgb} from "d3-color";
+
+import {gradientToken} from "../scene.js";
 import type {Scene, SceneNode} from "../scene.js";
-import {coneAt, persistAlpha, persistFadeLength, trailGradient, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
+import {coneAt, persistAlpha, persistFadeLength, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {Pt, TrailParts, TrailShape} from "./trail.js";
 
 /**
@@ -126,14 +129,15 @@ export function persistRenderSegs(
 
 /**
     A mark's whole persistent trail at progress `t` as ONE path (the cone of every
-    segment concatenated) plus its bbox and overall tail→head direction. Painting
-    the trail as a single fill is what keeps overlapping segments from compositing
-    twice (the double-dark at turns); the direction drives a single gradient that
-    fades from transparent at the oldest tail to the mark's color at the head.
+    segment concatenated) plus its bbox and the absolute tail/head points. Painting
+    the trail as a single fill keeps overlapping segments from compositing twice
+    (the double-dark at turns); the tail/head anchor a userSpaceOnUse gradient that
+    fades from transparent at the oldest tail to the mark's color at the head — in
+    absolute coords, so it doesn't remap (and snap) as the path's box grows.
 */
 export function persistTrailPath(
   log: TrailLog, key: string | number, t: number,
-): {d: string; box: {x: number; y: number; w: number; h: number}; dx: number; dy: number; color: string} | null {
+): {d: string; box: {x: number; y: number; w: number; h: number}; tail: Pt; head: Pt; color: string} | null {
   const segs = persistRenderSegs(log, key);
   if (!segs.length) return null;
   // A growing segment sweeps its head out (t); a retracting one draws in reverse
@@ -148,22 +152,31 @@ export function persistTrailPath(
   }
   const first = segs[0].seg, tail = segs[segs.length - 1], last = tail.seg;
   const u = param(tail.animating, tail.dir);
-  const hx = last.A[0] + (last.B[0] - last.A[0]) * u;
-  const hy = last.A[1] + (last.B[1] - last.A[1]) * u;
-  return {
-    d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1},
-    dx: hx - first.A[0], dy: hy - first.A[1], color: last.color,
-  };
+  const head: Pt = [last.A[0] + (last.B[0] - last.A[0]) * u, last.A[1] + (last.B[1] - last.A[1]) * u];
+  return {d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1}, tail: first.A, head, color: last.color};
 }
 
-/** The gradient fill for a mark's persistent trail (transparent tail → colored head). */
-export function persistTrailFill(dx: number, dy: number, color: string, persist: number | boolean): string {
-  return trailGradient(dx, dy, color, 0, persistAlpha(0, persist));
+/**
+    The userSpaceOnUse gradient fill for a persistent trail: transparent at the
+    absolute `tail` point, the mark's color at the `head`. Absolute coords keep it
+    stable as the path grows (no bbox remap), so it doesn't snap between steps.
+*/
+export function persistTrailFill(tail: Pt, head: Pt, color: string): string {
+  const c = rgb(color);
+  const at = (a: number): string =>
+    a >= 1 ? color : Number.isNaN(c.r) ? (a <= 0 ? "transparent" : color) : `rgba(${c.r},${c.g},${c.b},${a})`;
+  return gradientToken({
+    type: "linear",
+    units: "userSpaceOnUse",
+    from: tail,
+    to: head,
+    stops: [{offset: 0, color: at(0)}, {offset: 1, color: at(persistAlpha(0, true))}],
+  });
 }
 
 /** Builds a mark's persistent-trail scene node (Canvas backend) at progress `t`. */
 export function persistTrailNode(
-  log: TrailLog, key: string | number, persist: number | boolean, t: number,
+  log: TrailLog, key: string | number, t: number,
 ): SceneNode | null {
   const p = persistTrailPath(log, key, t);
   if (!p) return null;
@@ -173,7 +186,7 @@ export function persistTrailNode(
     interactive: false,
     d: p.d,
     gradientBounds: p.box,
-    paint: {fill: persistTrailFill(p.dx, p.dy, p.color, persist), opacity: 1},
+    paint: {fill: persistTrailFill(p.tail, p.head, p.color), opacity: 1},
   } as unknown as SceneNode;
 }
 
