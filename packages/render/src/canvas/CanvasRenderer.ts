@@ -139,12 +139,15 @@ export default class CanvasRenderer implements Renderer {
     const prev = this._scene;
     // Fold this draw into each persistent-trail mark's history (once per draw,
     // not per frame), so committed segments accumulate and stale keys are pruned.
-    commitTrailScene(this._trailLog, scene);
+    // The log is threaded into the interp only when a persistent trail exists, so
+    // the common (no-persist) path keeps its fast direct paint / trail-free diff.
+    const trailLog = commitTrailScene(this._trailLog, scene) ? this._trailLog : undefined;
 
     if (!duration) {
-      // Paint the resting frame (t=1) through the interp so persistent trails
-      // stay drawn on non-animated repaints (e.g. hover); store the raw scene.
-      this._paint(interpolateScene(prev, scene, this._trailLog)(1));
+      // With persistent trails, paint the resting frame (t=1) through the interp
+      // so they stay drawn on non-animated repaints (e.g. hover); otherwise paint
+      // the raw scene directly. Either way store the raw scene as `prev`.
+      this._paint(trailLog ? interpolateScene(prev, scene, trailLog)(1) : scene);
       this._scene = scene;
       this._reconcileOverlays(scene);
       opts?.onEnd?.();
@@ -155,7 +158,7 @@ export default class CanvasRenderer implements Renderer {
     this._reconcileOverlays(scene);
 
     const ease = opts?.ease ?? cubicInOut;
-    const interp = interpolateScene(prev, scene, this._trailLog);
+    const interp = interpolateScene(prev, scene, trailLog);
     const start = now();
     let cancelled = false;
 

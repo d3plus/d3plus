@@ -129,8 +129,12 @@ export function isPersistTrail(node: SceneNode): boolean {
   return p === true || (typeof p === "number" && p > 0);
 }
 
-/** Fold every trailed-persist node in a scene into the log (once per draw), pruning stale keys. */
-export function commitTrailScene(log: TrailLog, scene: Scene): void {
+/**
+    Fold every trailed-persist node in a scene into the log (once per draw),
+    pruning stale keys. Returns whether any persistent-trail node was present, so
+    a backend can skip the trail-injection path entirely on the common case.
+*/
+export function commitTrailScene(log: TrailLog, scene: Scene): boolean {
   const seen = new Set<string | number>();
   const visit = (nodes: SceneNode[]): void => {
     for (const n of nodes) {
@@ -146,4 +150,5 @@ export function commitTrailScene(log: TrailLog, scene: Scene): void {
   };
   visit(scene.root.children);
   log.prune(seen);
+  return seen.size > 0;
 }
