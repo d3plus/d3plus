@@ -47,6 +47,36 @@ it("Timeline brushing:false snaps the brush visual to a single period on release
   assert.ok(moved, "brush.move called on release to snap the visual to one period");
 });
 
+it("Timeline playback advances no faster than the transition duration", function () {
+  // Capture the delay the play loop hands to setInterval (scheduled before any
+  // side effects, so we read it without running playback). When the parent
+  // Viz's `duration` exceeds `playButtonInterval`, the cadence widens to it so
+  // each step's transition finishes instead of being interrupted mid-flight.
+  const captureInterval = tl => {
+    const realSet = globalThis.setInterval;
+    let delay;
+    // Capture the delay, then bail out of _togglePlay before its immediate
+    // nextYear() advance/render runs — we only care about the scheduled cadence.
+    globalThis.setInterval = (_fn, ms) => { delay = ms; throw new Error("stop"); };
+    try {
+      tl._togglePlay();
+    } catch {
+      /* expected: the stub aborts _togglePlay once the interval is captured */
+    } finally {
+      globalThis.setInterval = realSet;
+    }
+    return delay;
+  };
+
+  // The cadence is read straight off the schema (playButtonInterval + duration),
+  // so no render is needed — construct, set both, toggle play.
+  const slow = new Timeline().playButtonInterval(1000).duration(2000);
+  assert.strictEqual(captureInterval(slow), 2000, "cadence widens to duration when it is the larger");
+
+  const fast = new Timeline().playButtonInterval(1000).duration(600);
+  assert.strictEqual(captureInterval(fast), 1000, "playButtonInterval governs when it is the larger");
+});
+
 it("Timeline brushing:false shows a single handle, not a resizable range", function* () {
   // Force ticks mode (jsdom measures text at 0 width, which would otherwise
   // resolve to buttons mode where both handles are hidden).

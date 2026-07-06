@@ -498,7 +498,15 @@ export default class Timeline extends Axis {
       }
       firstTime = false;
     };
-    this._playTimer = setInterval(nextYear, this.schema.playButtonInterval);
+    // Advance no faster than a transition can finish. The parent Viz animates
+    // each step over its `duration` (wired onto the timeline in timelineFeature);
+    // if the play interval were shorter, every step would interrupt the previous
+    // transition mid-flight — shapes never settle, motion trails never complete,
+    // and raising `duration` past the interval would have no visible effect. So
+    // the effective cadence is the larger of `playButtonInterval` and `duration`.
+    const stepDuration = Number(this.schema.duration) || 0;
+    const interval = Math.max(this.schema.playButtonInterval, stepDuration);
+    this._playTimer = setInterval(nextYear, interval);
     nextYear();
     // Reflect the now-playing state immediately, even when the selection was
     // already at the final tick (nextYear made no move, so no brush re-render).
