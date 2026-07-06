@@ -28,9 +28,9 @@ const Template = (args) => <Box config={configify(args, argTypes)} />;
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
-    {x: 180, y: 30}, {x: 180, y: 45}, {x: 180, y: 60}, {x: 180, y: 75}, {x: 180, y: 95}, {x: 180, y: 120},
-    {x: 420, y: 50}, {x: 420, y: 70}, {x: 420, y: 90}, {x: 420, y: 110}, {x: 420, y: 140}, {x: 420, y: 175}
+    {x: "A", y: 40}, {x: "A", y: 55}, {x: "A", y: 70}, {x: "A", y: 85}, {x: "A", y: 110}, {x: "A", y: 140},
+    {x: "B", y: 90}, {x: "B", y: 120}, {x: "B", y: 150}, {x: "B", y: 175}, {x: "B", y: 210}, {x: "B", y: 240}
   ],
-  x: "x", y: "y"
+  x: funcify(d => d.x === "A" ? 130 : 270, 'd => d.x === "A" ? 130 : 270'), y: "y"
 };
-BasicExample.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "Points are grouped by their shared `x`, and each group's raw `y` values are reduced to a box-and-whisker summary of quartiles and whiskers; `orient` switches between vertical and horizontal boxes."}}};
+BasicExample.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "Points are grouped by their shared `x` category (\"A\" and \"B\"), which the `x` accessor maps to a horizontal pixel position, and each group's raw `y` values are reduced to a box-and-whisker summary of quartiles and whiskers; `orient` switches between vertical and horizontal boxes."}}};
