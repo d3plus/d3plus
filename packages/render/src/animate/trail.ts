@@ -58,13 +58,19 @@ export interface TrailSpec {
 type Pt = [number, number];
 interface Cone {d: string; box: {x: number; y: number; w: number; h: number}}
 
-/** A closed SVG path through the points, plus their bounding box. */
-function pathBox(pts: Pt[]): Cone {
-  const d = `M${pts.map(p => `${p[0]},${p[1]}`).join("L")}Z`;
+const fmt = (p: Pt): string => `${p[0]},${p[1]}`;
+
+/** Bounding box of a point set. */
+function bbox(pts: Pt[]): {x: number; y: number; w: number; h: number} {
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
   const minY = Math.min(...ys), maxY = Math.max(...ys);
-  return {d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1}};
+  return {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1};
+}
+
+/** A closed straight-edged SVG path through the points, plus their bounding box. */
+function pathBox(pts: Pt[]): Cone {
+  return {d: `M${pts.map(fmt).join("L")}Z`, box: bbox(pts)};
 }
 
 /** The four world-space corners of a rect centered at (cx,cy), rotated `rotate`°. */
@@ -95,9 +101,11 @@ function convexHull(points: Pt[]): Pt[] {
     The cone path + bbox at transition progress `t` — the mark's swept silhouette
     from its previous size at the tail to its current interpolated size at the head.
 
-    A circle's silhouette edges are the two lines tangent to both ends, which are
-    always perpendicular offsets through each center at any angle — a four-point
-    quad. A rect's exact swept silhouette is the convex hull of its corners at
+    A circle's silhouette edges are the two lines tangent to both ends, always
+    perpendicular offsets through each center at any angle; the tail is closed
+    with a semicircle of the previous radius, so the trail reads as a comet
+    emerging from the mark's old outline (the head stays open — the mark covers
+    it). A rect's exact swept silhouette is the convex hull of its corners at
     both ends, so every edge runs true corner-to-corner rather than as a plain
     trapezoid — correct at any travel angle, not only 0/45/90°.
 */
@@ -109,11 +117,17 @@ export function coneAt(
   const hDims = aDims.map((v, i) => lerp(v, bDims[i], t));
   if (shape === "circle") {
     const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
-    const px = -dy / len, py = dx / len, aR = aDims[0], hR = hDims[0];
-    return pathBox([
-      [A[0] + px * aR, A[1] + py * aR], [hx + px * hR, hy + py * hR],
-      [hx - px * hR, hy - py * hR], [A[0] - px * aR, A[1] - py * aR],
-    ]);
+    const px = -dy / len, py = dx / len, mx = dx / len, my = dy / len;
+    const aR = aDims[0], hR = hDims[0];
+    const tp: Pt = [A[0] + px * aR, A[1] + py * aR];
+    const hp: Pt = [hx + px * hR, hy + py * hR];
+    const hm: Pt = [hx - px * hR, hy - py * hR];
+    const tm: Pt = [A[0] - px * aR, A[1] - py * aR];
+    // Sweep-flag 0 bows the arc behind A (away from the head); it spans the
+    // tail chord tm→tp, so the trail's back is a true half of the old circle.
+    const d = `M${fmt(tp)}L${fmt(hp)}L${fmt(hm)}L${fmt(tm)}A${aR},${aR} 0 0 0 ${fmt(tp)}Z`;
+    const back: Pt = [A[0] - mx * aR, A[1] - my * aR];
+    return {d, box: bbox([tp, hp, hm, tm, back])};
   }
   return pathBox(convexHull([
     ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),

@@ -116,6 +116,10 @@ it("interpolateScene streaks a motion trail behind a moving trailed point", () =
   assert.ok(trail, "trail node emitted mid-move");
   assert.strictEqual(trail.type, "path", "trail is a cone path");
   assert.ok(typeof trail.d === "string" && trail.d.startsWith("M"), "trail has a path d");
+  // The tail is closed with a semicircle of the previous radius (an arc command),
+  // so its bbox reaches behind A (10,10) — up-left of the tail chord.
+  assert.ok(/A5,5 /.test(trail.d), "tail closed by a radius-5 arc");
+  assert.ok(trail.gradientBounds.x < 6.9, "bbox extends behind the tail for the round cap");
   assert.ok(trail.gradientBounds, "trail carries its gradient bounds for Canvas");
   // Fill is a gradient fading transparent (tail) → the point's color (head).
   assert.ok(trail.paint.fill.startsWith("gradient:"), "trail fill is a gradient");
