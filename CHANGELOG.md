@@ -45,8 +45,9 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   `shapeConfig.Circle.trail: false`); parity across the SVG and Canvas backends.
   `shapeConfig.Circle.trailPersist` keeps past moves visible too — a number of
   step-segments, or `true` for a long fading snail-trail. Persistent trails
-  follow the timeline's direction (growing forward, retracting on scrub-back)
-  and draw as a single shape so overlapping turns don't darken.
+  follow the timeline's direction (growing forward, retracting on scrub-back),
+  draw as a single shape so overlapping turns don't darken, and require a
+  single-period timeline (`timelineConfig.brushing: false`).
   [Circles ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#motion-trails)
   · [Squares ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#square-motion-trails)
   · [Persistent ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#persistent-motion-trails)
