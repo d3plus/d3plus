@@ -45,20 +45,19 @@ BasicExample.parameters = {controls: {include: ["fontSize", "lineHeight", "width
 export const FontResize = Template.bind({});
 FontResize.args = {
   data: [
-    {text: "Scale"},
-    {text: "Scale"},
-    {text: "Scale"}
+    {text: "Big"},
+    {text: "A medium-length caption"},
+    {text: "A much longer passage of text that has to shrink down so every word still fits inside the very same box"}
   ],
   fontResize: true,
-  fontMax: 72,
+  fontMax: 96,
   fontMin: 6,
-  height: (d, i) => [40, 80, 130][i],
+  height: 180,
   text: d => d.text,
-  width: (d, i) => [150, 230, 320][i],
-  x: 20,
-  y: (d, i) => [10, 60, 150][i]
+  width: 200,
+  x: (d, i) => i * (200 + 50)
 };
-FontResize.parameters = {controls: {include: ["fontResize", "fontMax"]}, docs: {description: {story: "With `fontResize: true` the text grows to fill its box (bounded by `fontMin`/`fontMax`) instead of holding a fixed `fontSize` — the same word is drawn larger in each larger box. Toggle `fontResize` off in the controls to see every box snap back to one size."}}};
+FontResize.parameters = {controls: {include: ["fontResize", "fontMax"]}, docs: {description: {story: "Three equally-sized boxes hold text of very different lengths. With `fontResize: true` each string is scaled between `fontMin` and `fontMax` to fill its box — the single word is sized way up while the long passage shrinks to fit. Toggle `fontResize` off in the controls to see them all snap back to one fixed size."}}};
 
 
 
