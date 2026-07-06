@@ -9,11 +9,12 @@ import type {CircleNode, RectNode, SceneNode} from "../scene.js";
     to its current interpolated position (the head), filled with a gradient that
     fades from the mark's color at the head to transparent at the tail.
 
-    The cone's width at each end is the mark's silhouette width *perpendicular to
-    the direction of travel* — not a fixed radius. So a square sliding at 45°
-    presents its corner-to-corner diagonal, matching what the eye sees, while a
-    circle is the same radius at any angle. The Canvas backend rebuilds the cone
-    each frame via interpolateScene; the SVG backend tweens the same path `d`.
+    The cone traces the mark's *swept silhouette* — the outline the shape carves
+    as it moves — not a fixed-width streak. For a rect that's the convex hull of
+    its corners at both ends, so a square sliding on a diagonal tapers corner to
+    corner, matching what the eye sees; a circle keeps its radius at any angle.
+    The Canvas backend rebuilds the cone each frame via interpolateScene; the SVG
+    backend tweens the same path `d`.
 */
 
 const DEG = Math.PI / 180;
@@ -54,53 +55,70 @@ export interface TrailSpec {
   color: string;
 }
 
-/**
-    Half-width of a mark's silhouette along the perpendicular direction (px, py).
-    A circle is isotropic (its radius); a rect projects its half-extents onto the
-    perpendicular after rotating it into the rect's own frame, so the width grows
-    toward the diagonal as the rect turns relative to its motion.
-*/
-function perpHalf(shape: TrailShape, dims: number[], px: number, py: number, rotate: number): number {
-  if (shape === "circle") return dims[0];
-  const th = rotate * DEG, c = Math.cos(th), s = Math.sin(th);
-  const lx = px * c + py * s, ly = -px * s + py * c; // p rotated into the rect's local frame
-  return dims[0] * Math.abs(lx) + dims[1] * Math.abs(ly);
-}
+type Pt = [number, number];
+interface Cone {d: string; box: {x: number; y: number; w: number; h: number}}
 
-/** A tapered quad from the tail chord (half-width aHalf at A) to the head chord (hHalf at H). */
-function coneGeometry(
-  ax: number, ay: number, aHalf: number, hx: number, hy: number, hHalf: number,
-): {d: string; box: {x: number; y: number; w: number; h: number}} {
-  const dx = hx - ax, dy = hy - ay;
-  const len = Math.hypot(dx, dy) || 1;
-  const px = -dy / len, py = dx / len;
-  const t1x = ax + px * aHalf, t1y = ay + py * aHalf;
-  const t2x = ax - px * aHalf, t2y = ay - py * aHalf;
-  const h1x = hx + px * hHalf, h1y = hy + py * hHalf;
-  const h2x = hx - px * hHalf, h2y = hy - py * hHalf;
-  const d = `M${t1x},${t1y}L${h1x},${h1y}L${h2x},${h2y}L${t2x},${t2y}Z`;
-  const xs = [t1x, t2x, h1x, h2x], ys = [t1y, t2y, h1y, h2y];
+/** A closed SVG path through the points, plus their bounding box. */
+function pathBox(pts: Pt[]): Cone {
+  const d = `M${pts.map(p => `${p[0]},${p[1]}`).join("L")}Z`;
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
   const minY = Math.min(...ys), maxY = Math.max(...ys);
   return {d, box: {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1}};
 }
 
+/** The four world-space corners of a rect centered at (cx,cy), rotated `rotate`°. */
+function rectCorners(cx: number, cy: number, hw: number, hh: number, rotate: number): Pt[] {
+  const th = rotate * DEG, c = Math.cos(th), s = Math.sin(th);
+  return ([[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]] as Pt[]).map(
+    ([x, y]) => [cx + x * c - y * s, cy + x * s + y * c] as Pt,
+  );
+}
+
+/** Convex hull (monotone chain, CCW) of a small point set; drops collinear points. */
+function convexHull(points: Pt[]): Pt[] {
+  const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (seq: Pt[]): Pt[] => {
+    const h: Pt[] = [];
+    for (const p of seq) {
+      while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop();
+      h.push(p);
+    }
+    h.pop();
+    return h;
+  };
+  return half(pts).concat(half(pts.slice().reverse()));
+}
+
 /**
-    The cone path + bbox at transition progress `t`, sized to the mark's
-    silhouette perpendicular to travel at each end (tail at the previous size,
-    head at the current interpolated size).
+    The cone path + bbox at transition progress `t` — the mark's swept silhouette
+    from its previous size at the tail to its current interpolated size at the head.
+
+    A circle's silhouette edges are the two lines tangent to both ends, which are
+    always perpendicular offsets through each center at any angle — a four-point
+    quad. A rect's exact swept silhouette is the convex hull of its corners at
+    both ends, so every edge runs true corner-to-corner rather than as a plain
+    trapezoid — correct at any travel angle, not only 0/45/90°.
 */
 export function coneAt(
   shape: TrailShape, A: [number, number], aDims: number[],
   B: [number, number], bDims: number[], rotate: number, t: number,
-): {d: string; box: {x: number; y: number; w: number; h: number}} {
+): Cone {
   const hx = lerp(A[0], B[0], t), hy = lerp(A[1], B[1], t);
-  const headDims = aDims.map((v, i) => lerp(v, bDims[i], t));
-  const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
-  const px = -dy / len, py = dx / len;
-  const aHalf = perpHalf(shape, aDims, px, py, rotate);
-  const hHalf = perpHalf(shape, headDims, px, py, rotate);
-  return coneGeometry(A[0], A[1], aHalf, hx, hy, hHalf);
+  const hDims = aDims.map((v, i) => lerp(v, bDims[i], t));
+  if (shape === "circle") {
+    const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
+    const px = -dy / len, py = dx / len, aR = aDims[0], hR = hDims[0];
+    return pathBox([
+      [A[0] + px * aR, A[1] + py * aR], [hx + px * hR, hy + py * hR],
+      [hx - px * hR, hy - py * hR], [A[0] - px * aR, A[1] - py * aR],
+    ]);
+  }
+  return pathBox(convexHull([
+    ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),
+    ...rectCorners(hx, hy, hDims[0], hDims[1], rotate),
+  ]));
 }
 
 /**

@@ -148,24 +148,31 @@ it("interpolateScene sizes a rect's trail to its silhouette perpendicular to tra
     type: "rect", key: "r", x: -10, y: -10, width: 20, height: 20,
     paint: {fill: "#1c7ed6"}, transform: {x: 0, y: 0}, ...extra,
   });
-  const coneFor = (dx, dy) => {
+  // The swept-hull width perpendicular to travel: project every polygon vertex
+  // onto the motion perpendicular and take the extent. Robust to the hull's
+  // vertex count/order (a rectangle for axis-aligned moves, a hexagon otherwise).
+  const perpWidth = (dx, dy) => {
     const interp = interpolateScene(
       {width: 300, height: 300, root: {type: "group", key: "root", children: [square()]}},
       {width: 300, height: 300, root: {type: "group", key: "root",
         children: [square({trail: true, transform: {x: dx, y: dy}})]}},
     );
     const trail = interp(0.5).root.children.find(c => c.key === "r__trail");
-    assert.ok(trail && trail.type === "path", "rect emits a cone path trail");
-    // d = "M t1 L h1 L h2 L t2 Z" — tail chord is the first & last points.
+    assert.ok(trail && trail.type === "path", "rect emits a swept-hull path trail");
     const pts = trail.d.split(/[MLZ]/).filter(s => s.trim()).map(s => s.split(",").map(Number));
-    return Math.hypot(pts[0][0] - pts[3][0], pts[0][1] - pts[3][1]);
+    const len = Math.hypot(dx, dy), px = -dy / len, py = dx / len;
+    const proj = pts.map(p => p[0] * px + p[1] * py);
+    return Math.max(...proj) - Math.min(...proj);
   };
 
   // Axis-aligned travel presents the square's side (width 20).
-  assert.ok(Math.abs(coneFor(120, 0) - 20) < 1e-6, "horizontal move → side width (20)");
-  assert.ok(Math.abs(coneFor(0, 120) - 20) < 1e-6, "vertical move → side width (20)");
+  assert.ok(Math.abs(perpWidth(120, 0) - 20) < 1e-6, "horizontal move → side width (20)");
+  assert.ok(Math.abs(perpWidth(0, 120) - 20) < 1e-6, "vertical move → side width (20)");
   // A 45° move presents the corner-to-corner diagonal (20·√2 ≈ 28.28).
-  assert.ok(Math.abs(coneFor(120, 120) - 20 * Math.SQRT2) < 1e-6, "45° move → diagonal width (20√2)");
+  assert.ok(Math.abs(perpWidth(120, 120) - 20 * Math.SQRT2) < 1e-6, "45° move → diagonal width (20√2)");
+  // An oblique angle sits between the two — wider than the side, under the diagonal.
+  const oblique = perpWidth(160, 120);
+  assert.ok(oblique > 20 && oblique < 20 * Math.SQRT2, "30-ish° move → between side and diagonal");
 
   // A rect without trail:true gets no cone.
   const noOpt = interpolateScene(

@@ -6,6 +6,7 @@ import React from "react";
 import {argTypes, Plot} from "../../../args/core/charts/Plot.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
+import { transform } from "topojson-client";
 
 export default {
   title: "Core/Charts/Plot",
@@ -59,8 +60,8 @@ BubbleChart.args = {
 };
 BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}};
 
-export const MotionTrails = Template.bind({});
-MotionTrails.args = {
+export const TimelineMotionTrails = Template.bind({});
+TimelineMotionTrails.args = {
   data: [
     {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
     {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
@@ -75,16 +76,22 @@ MotionTrails.args = {
     {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
     {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
   ],
+  duration: 2000,
   groupBy: "id",
   time: "year",
+  shapeConfig: {
+    trail: true
+  },
   size: "value",
   sizeMax: 40,
   sizeMin: 24,
+  timelineConfig: {
+  },
   x: "x",
   y: "y"
 };
-MotionTrails.parameters = {
-  controls: {include: ["renderer", "shapeConfig"]},
+TimelineMotionTrails.parameters = {
+  controls: {include: ["duration", "shapeConfig"]},
   docs: {description: {story: "Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. **On by default** for scatter points — opt out with `shapeConfig.Circle.trail: false`. Works on both the SVG and Canvas backends — toggle `renderer` to compare."}}
 };
 
