@@ -185,9 +185,12 @@ export function isPersistTrail(node: SceneNode): boolean {
 
 /**
     Fold every trailed-persist node in a scene into the log (once per draw) at the
-    timeline value `seq`, pruning stale keys. Returns whether any persistent-trail
-    node was present, so a backend can skip the trail-injection path on the common
-    case. `seq` orders the trail in time: forward grows it, backward rewinds it.
+    timeline value `seq`, pruning stale keys. Returns whether persistent trails
+    are ACTIVE this draw — true only when a `seq` is supplied (a single-period
+    timeline; the caller withholds it for range/brushing selections, which have
+    no single current time) and at least one persist node is present. When false,
+    a backend falls back to the plain ephemeral trail. `seq` orders the trail in
+    time: forward grows it, backward rewinds it.
 */
 export function commitTrailScene(log: TrailLog, scene: Scene, seq?: number): boolean {
   const seen = new Set<string | number>();
@@ -205,5 +208,5 @@ export function commitTrailScene(log: TrailLog, scene: Scene, seq?: number): boo
   };
   visit(scene.root.children);
   log.prune(seen);
-  return seen.size > 0;
+  return seq != null && seen.size > 0;
 }

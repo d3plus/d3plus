@@ -390,12 +390,17 @@ export default class Viz extends VizBase {
       this._transitionEndsAt = Date.now() + drawDuration + 30;
     // Order persistent motion trails in time by the current timeline period, so
     // they grow only as playback moves forward and rewind when it steps back.
+    // Only when the timeline selects a single period (`brushing: false`): a range
+    // selection has no single "current time", which would scramble the step
+    // logic, so we withhold the sequence and trails fall back to ephemeral.
     // Normalize to milliseconds via `date()` — the selection mixes Date objects
     // (brush/initial) and raw period numbers (playback), which compare on wildly
-    // different scales otherwise, scrambling the forward/backward test. Absent a
-    // timeline this is undefined and trails don't accumulate.
+    // different scales otherwise, scrambling the forward/backward test.
     const sel = this._timelineSelection;
-    const sequence = Array.isArray(sel) && sel.length
+    const brushing = this._timelineClass
+      ? (this._timelineClass.schema as {brushing?: boolean}).brushing !== false
+      : true;
+    const sequence = !brushing && Array.isArray(sel) && sel.length
       ? Math.max(...sel.map(v => Number(date(Number(v)))))
       : undefined;
     this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence});

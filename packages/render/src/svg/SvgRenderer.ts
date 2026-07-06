@@ -62,6 +62,8 @@ export default class SvgRenderer implements Renderer {
   private _root?: SVGGElement;
   /** Per-mark position history for persistent motion trails. */
   private _trailLog = new TrailLog();
+  /** Whether persistent trails are active this draw (single-period timeline). */
+  private _trailActive = false;
   /** Lazy <defs> for clipPaths / patterns. Created on first use. */
   private _defs?: SVGDefsElement;
   /** Stable id counter so each GroupNode clip gets a unique <clipPath>. */
@@ -151,7 +153,9 @@ export default class SvgRenderer implements Renderer {
     if (sceneChanged) this._indexDirty = true;
     // Fold this draw into each persistent-trail mark's history once (not per
     // reconcile node), so committed segments accumulate and stale keys prune.
-    commitTrailScene(this._trailLog, scene, opts?.sequence);
+    // Persistence is active only with a single-period timeline sequence; without
+    // one (range/brushing selection, or no timeline) trails fall back to ephemeral.
+    this._trailActive = commitTrailScene(this._trailLog, scene, opts?.sequence);
 
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
@@ -338,7 +342,7 @@ export default class SvgRenderer implements Renderer {
         __d3plusTrailPrev__?: TrailParts;
       };
       const canTrail = d.trail && (d.type === "circle" || d.type === "rect");
-      const persistTrail = canTrail && isPersistTrail(d);
+      const persistTrail = canTrail && isPersistTrail(d) && self._trailActive;
       const prevText =
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       const trailPrev =

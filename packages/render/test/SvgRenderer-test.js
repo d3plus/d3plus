@@ -189,3 +189,22 @@ it("SvgRenderer accumulates persistent trail paths across moves and keeps them a
 
   renderer.destroy();
 });
+
+it("SvgRenderer falls back to an ephemeral trail when no sequence is supplied", () => {
+  // Without a sequence (a range/brushing selection, or no timeline) a persistent
+  // trail can't be time-ordered, so it degrades to the plain ephemeral trail.
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 200});
+  const circle = extra => ({
+    type: "circle", key: "p", cx: 0, cy: 0, r: 6, paint: {fill: "#1c7ed6"},
+    transform: {x: 10, y: 10}, trail: true, trailPersist: true, ...extra,
+  });
+
+  renderer.drawScene(scene([circle()]));
+  const h = renderer.drawScene(scene([circle({transform: {x: 120, y: 80}})]), {duration: 400});
+  assert.strictEqual(document.querySelectorAll(".d3plus-trail-persist").length, 0, "no persistent trail without a sequence");
+  assert.ok(document.querySelector(".d3plus-trail"), "an ephemeral trail is drawn instead");
+  h.cancel();
+
+  renderer.destroy();
+});
