@@ -31,6 +31,8 @@ export interface TrailSeg {
   shape: TrailShape;
   rotate: number;
   color: string;
+  /** The timeline value this segment arrived at (its newer end), for rewind. */
+  seq: number;
 }
 
 /** The segment mid-transition: growing forward (dir +1) or retracting back (dir -1). */
@@ -85,15 +87,26 @@ export class TrailLog {
       // that was in flight is discarded. Start growing the new move.
       if (e.animating?.dir === 1) e.committed.push(e.animating.seg);
       e.animating = moved
-        ? {seg: {A: e.lastPos, B: pos, aDims: e.lastDims, bDims: dims, shape: parts.shape, rotate: parts.rotate, color}, dir: 1}
+        ? {seg: {A: e.lastPos, B: pos, aDims: e.lastDims, bDims: dims, shape: parts.shape, rotate: parts.rotate, color, seq}, dir: 1}
         : null;
       const keep = Math.max(0, persistFadeLength(persist) - 1);
       if (e.committed.length > keep) e.committed.splice(0, e.committed.length - keep);
     } else {
-      // Backward: retract the newest segment (the one just grown, else pop the
-      // stack). It animates away over this transition and is then gone.
-      const retract = e.animating?.dir === 1 ? e.animating.seg : e.committed.pop() ?? null;
-      e.animating = retract ? {seg: retract, dir: -1} : null;
+      // Backward to `seq`: every segment that arrived after it is now in the
+      // future and must go — not just the newest (a multi-period jump back drops
+      // them all). Discard an in-flight forward segment, drop committed segments
+      // beyond `seq` (committed is ascending by seq), and retract the one that
+      // sits just after `seq` so the rewind lands exactly on it.
+      const forwardInFlight = e.animating?.dir === 1 ? e.animating.seg : null;
+      e.animating = null;
+      const removed: TrailSeg[] = [];
+      while (e.committed.length && e.committed[e.committed.length - 1].seq > seq) {
+        removed.unshift(e.committed.pop() as TrailSeg);
+      }
+      if (forwardInFlight) removed.push(forwardInFlight);
+      // `removed[0]` is the segment nearest `seq`; retract it (the rest, farther
+      // in the future, are simply gone — a single transition can't sequence them).
+      if (removed.length) e.animating = {seg: removed[0], dir: -1};
     }
     e.lastPos = pos;
     e.lastDims = dims;

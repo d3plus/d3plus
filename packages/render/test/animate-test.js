@@ -253,4 +253,15 @@ it("persistent trails grow forward in time, cap, and rewind on scrub-back", () =
   // Step back again: the retracted one is dropped and the next retracts → two remain.
   commitTrailScene(rw, r1, 1);
   assert.strictEqual(segCount(interpolateScene(r2, r1, rw)(0.5)), 2, "rewinding drops segments as it goes back");
+
+  // Multi-step back: jump straight from seq 3 to seq 1 in one commit — every
+  // segment after seq 1 must drop, not just the newest.
+  const jump = new TrailLog();
+  commitTrailScene(jump, r0, 0);
+  commitTrailScene(jump, r1, 1);
+  commitTrailScene(jump, r2, 2);
+  commitTrailScene(jump, r3, 3);
+  assert.strictEqual(segCount(interpolateScene(r2, r3, jump)(1)), 3, "three forward segments before the jump");
+  commitTrailScene(jump, r1, 1); // jump back two periods at once
+  assert.strictEqual(segCount(interpolateScene(r3, r1, jump)(0.5)), 2, "a two-step jump back drops both later segments, not one");
 });
