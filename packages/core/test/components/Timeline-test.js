@@ -47,11 +47,11 @@ it("Timeline brushing:false snaps the brush visual to a single period on release
   assert.ok(moved, "brush.move called on release to snap the visual to one period");
 });
 
-it("Timeline playback advances no faster than the transition duration", function () {
+it("Timeline playback steps once per transition duration", function () {
   // Capture the delay the play loop hands to setInterval (scheduled before any
-  // side effects, so we read it without running playback). When the parent
-  // Viz's `duration` exceeds `playButtonInterval`, the cadence widens to it so
-  // each step's transition finishes instead of being interrupted mid-flight.
+  // side effects, so we read it without running playback). Playback speed IS the
+  // parent Viz's `duration`, so each step's transition finishes as the next
+  // begins; `playButtonInterval` is only the fallback when `duration` is 0.
   const captureInterval = tl => {
     const realSet = globalThis.setInterval;
     let delay;
@@ -71,10 +71,13 @@ it("Timeline playback advances no faster than the transition duration", function
   // The cadence is read straight off the schema (playButtonInterval + duration),
   // so no render is needed — construct, set both, toggle play.
   const slow = new Timeline().playButtonInterval(1000).duration(2000);
-  assert.strictEqual(captureInterval(slow), 2000, "cadence widens to duration when it is the larger");
+  assert.strictEqual(captureInterval(slow), 2000, "cadence follows a longer duration");
 
   const fast = new Timeline().playButtonInterval(1000).duration(600);
-  assert.strictEqual(captureInterval(fast), 1000, "playButtonInterval governs when it is the larger");
+  assert.strictEqual(captureInterval(fast), 600, "duration overrides playButtonInterval, even when shorter");
+
+  const noAnim = new Timeline().playButtonInterval(1000).duration(0);
+  assert.strictEqual(captureInterval(noAnim), 1000, "playButtonInterval is the fallback when duration is 0");
 });
 
 it("Timeline brushing:false shows a single handle, not a resizable range", function* () {

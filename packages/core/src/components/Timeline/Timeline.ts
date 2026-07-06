@@ -498,14 +498,14 @@ export default class Timeline extends Axis {
       }
       firstTime = false;
     };
-    // Advance no faster than a transition can finish. The parent Viz animates
-    // each step over its `duration` (wired onto the timeline in timelineFeature);
-    // if the play interval were shorter, every step would interrupt the previous
-    // transition mid-flight — shapes never settle, motion trails never complete,
-    // and raising `duration` past the interval would have no visible effect. So
-    // the effective cadence is the larger of `playButtonInterval` and `duration`.
+    // Advance once per transition so playback speed IS the transition duration:
+    // the parent Viz animates each step over its `duration` (wired onto the
+    // timeline in timelineFeature), and stepping at exactly that rate means a
+    // step's transition finishes just as the next begins — continuous motion,
+    // no interruption. `duration` overrides `playButtonInterval`, which is the
+    // fallback cadence only when there's no animation (`duration` 0).
     const stepDuration = Number(this.schema.duration) || 0;
-    const interval = Math.max(this.schema.playButtonInterval, stepDuration);
+    const interval = stepDuration > 0 ? stepDuration : this.schema.playButtonInterval;
     this._playTimer = setInterval(nextYear, interval);
     nextYear();
     // Reflect the now-playing state immediately, even when the selection was

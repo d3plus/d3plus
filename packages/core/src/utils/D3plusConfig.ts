@@ -198,7 +198,11 @@ export interface TimelineConfig {
       which cycles through the available periods at a rate set by `playButtonInterval`.
   */
   playButton?: boolean;
-  /** The interval, in milliseconds, used when cycling through periods via the play button. */
+  /**
+      The interval, in milliseconds, between periods when cycling via the play
+      button. Used only when the chart's `duration` is 0 (no transition);
+      otherwise playback steps once per `duration` so each step animates in full.
+  */
   playButtonInterval?: number;
   /** The current selection. Defaults to the most recent period in the timeline. */
   selection?: (Date | number)[] | Date | number | false;
