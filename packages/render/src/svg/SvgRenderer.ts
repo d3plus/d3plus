@@ -3,8 +3,10 @@ import {transition, type Transition} from "d3-transition";
 import textures from "textures";
 
 import {collapse} from "../animate/interpolate.js";
-import {coneAt, trailGradient, trailOpacity, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
+import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
+import {commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
+import {attachPersistTrail, attachSvgTrail, removePersistTrail} from "./svgTrail.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
@@ -50,44 +52,6 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
 */
 let rendererInstanceSeq = 0;
 
-/**
-    Attaches a motion-trail cone to a moving trailed mark for the life of its
-    transition — SVG parity with the Canvas `interpolateScene` trail. A sibling
-    `<path>` is inserted just before the mark (so it paints beneath it), filled
-    with the fade-to-transparent gradient; its cone `d` and opacity are tweened
-    each frame from the previous position/size to the current one, and it's
-    removed when the transition ends or is interrupted. The reconcile join
-    excludes `.d3plus-trail`, so a stray one can never break the keyed diff.
-*/
-function attachSvgTrail(
-  el: Element,
-  tsel: Transition<Element, unknown, null, undefined>,
-  prev: TrailParts,
-  node: SceneNode,
-  resolveFill: (f?: string) => string | null,
-): void {
-  const curr = trailPartsFromNode(node), parent = el.parentNode;
-  if (!curr || prev.shape !== curr.shape || !parent) return;
-  const color = curr.color ?? prev.color;
-  if (
-    typeof color !== "string" ||
-    Math.hypot(curr.x - prev.x, curr.y - prev.y) < TRAIL_MIN_DISTANCE
-  ) return;
-  const stale = el.previousElementSibling;
-  if (stale && stale.classList.contains("d3plus-trail")) stale.remove();
-  const tp = document.createElementNS(SVG_NS, "path");
-  tp.setAttribute("class", "d3plus-trail");
-  tp.setAttribute("pointer-events", "none");
-  tp.setAttribute("fill", resolveFill(trailGradient(curr.x - prev.x, curr.y - prev.y, color)) ?? "none");
-  parent.insertBefore(tp, el);
-  const A: [number, number] = [prev.x, prev.y], B: [number, number] = [curr.x, curr.y];
-  tsel.tween("d3plus-trail", () => (tt: number) => {
-    tp.setAttribute("d", coneAt(curr.shape, A, prev.dims, B, curr.dims, curr.rotate, tt).d);
-    tp.setAttribute("opacity", String(trailOpacity(tt)));
-  });
-  tsel.on("end.d3plus-trail interrupt.d3plus-trail", () => tp.remove());
-}
-
 export default class SvgRenderer implements Renderer {
   readonly kind = "svg" as const;
 
@@ -96,6 +60,8 @@ export default class SvgRenderer implements Renderer {
   private _target?: RenderTarget;
   private _svg?: SVGSVGElement;
   private _root?: SVGGElement;
+  /** Per-mark position history for persistent motion trails. */
+  private _trailLog = new TrailLog();
   /** Lazy <defs> for clipPaths / patterns. Created on first use. */
   private _defs?: SVGDefsElement;
   /** Stable id counter so each GroupNode clip gets a unique <clipPath>. */
@@ -183,6 +149,9 @@ export default class SvgRenderer implements Renderer {
     const sceneChanged = this._scene !== scene;
     this._scene = scene;
     if (sceneChanged) this._indexDirty = true;
+    // Fold this draw into each persistent-trail mark's history once (not per
+    // reconcile node), so committed segments accumulate and stale keys prune.
+    commitTrailScene(this._trailLog, scene);
 
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
@@ -330,10 +299,13 @@ export default class SvgRenderer implements Renderer {
     // this exit cleanup, removed clipped groups leak <clipPath>
     // elements + _clipIds entries indefinitely.
     const self = this;
-    exit.each(function (d: SceneNode) {
+    exit.each(function (this: Element, d: SceneNode) {
       if (d && d.type === "group") {
         self._releaseGroupClip(String((d as GroupNode).key));
       }
+      // Drop any persistent-trail paths the exiting mark left behind (its log
+      // entry is already pruned by commitTrailScene).
+      if (d && this.parentNode) removePersistTrail(this.parentNode as Element, d.key);
     });
     if (duration) exit.transition(t).attr("opacity", 0).remove();
     else exit.remove();
@@ -366,10 +338,11 @@ export default class SvgRenderer implements Renderer {
         __d3plusTrailPrev__?: TrailParts;
       };
       const canTrail = d.trail && (d.type === "circle" || d.type === "rect");
+      const persistTrail = canTrail && isPersistTrail(d);
       const prevText =
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       const trailPrev =
-        duration && canTrail ? stash.__d3plusTrailPrev__ : undefined;
+        duration && canTrail && !persistTrail ? stash.__d3plusTrailPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
         const tsel = s.transition(t);
@@ -386,11 +359,18 @@ export default class SvgRenderer implements Renderer {
           tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
         }
         // Sweep a motion-trail cone from the mark's previous position to its
-        // current one, beneath the mark (parity with the Canvas backend).
-        if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
-      } else applyGeometry(s, d, false, resolveFill);
+        // current one, beneath the mark (parity with the Canvas backend). A
+        // persistent trail draws its whole history from the log instead.
+        if (persistTrail) attachPersistTrail(this, tsel, self._trailLog, d, d.trailPersist as number | boolean, resolveFill);
+        else if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
+      } else {
+        applyGeometry(s, d, false, resolveFill);
+        // Redraw the persistent trail on non-animated repaints (e.g. hover) so
+        // it doesn't vanish; static geometry, no tween.
+        if (persistTrail) attachPersistTrail(this, null, self._trailLog, d, d.trailPersist as number | boolean, resolveFill);
+      }
       if (d.type === "text") stash.__d3plusTextPrev__ = d;
-      if (canTrail) {
+      if (canTrail && !persistTrail) {
         const parts = trailPartsFromNode(d);
         if (parts) stash.__d3plusTrailPrev__ = parts;
       }

@@ -156,3 +156,30 @@ it("SvgRenderer sweeps a motion trail for a moving trailed rect on transition", 
   handle.cancel();
   renderer.destroy();
 });
+
+it("SvgRenderer accumulates persistent trail paths across moves and keeps them at rest", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 200});
+  const circle = extra => ({
+    type: "circle", key: "p", cx: 0, cy: 0, r: 6, paint: {fill: "#1c7ed6"},
+    transform: {x: 10, y: 10}, trail: true, trailPersist: 3, ...extra,
+  });
+  const segs = () => document.querySelectorAll('.d3plus-trail-persist[data-tkey="p"]').length;
+
+  renderer.drawScene(scene([circle()]));
+  assert.strictEqual(segs(), 0, "no persistent trail before moving");
+
+  // Each move adds a segment; unlike the ephemeral trail these are not removed
+  // on transition end, so they accumulate (capped by trailPersist).
+  const h1 = renderer.drawScene(scene([circle({transform: {x: 120, y: 80}})]), {duration: 400});
+  assert.strictEqual(segs(), 1, "one segment after the first move");
+  h1.cancel();
+
+  const h2 = renderer.drawScene(scene([circle({transform: {x: 60, y: 150}})]), {duration: 400});
+  assert.strictEqual(segs(), 2, "two segments after the second move");
+  const seg = document.querySelector('.d3plus-trail-persist[data-tkey="p"]');
+  assert.ok((seg.getAttribute("fill") || "").startsWith("url(#"), "segment filled by a gradient");
+  h2.cancel();
+
+  renderer.destroy();
+});

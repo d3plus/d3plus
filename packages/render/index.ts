@@ -52,3 +52,4 @@ export {collapse, cubicInOut, interpolateNode} from "./src/animate/interpolate.j
 export type {Interp} from "./src/animate/interpolate.js";
 export {diffChildren, interpolateScene} from "./src/animate/diff.js";
 export type {GroupDiff} from "./src/animate/diff.js";
+export {commitTrailScene, isPersistTrail, persistTrailNodes, TrailLog} from "./src/animate/trailLog.js";

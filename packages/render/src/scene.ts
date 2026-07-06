@@ -192,9 +192,18 @@ export interface NodeBase {
       Hint for the animate layer to draw a motion trail (a tapering cone that
       fades from the mark's color at its current position to transparent at its
       previous one) as it moves between frames — e.g. points sliding
-      year-to-year on Timeline play. Honored for point (circle) marks.
+      year-to-year on Timeline play. Honored for point (circle) and rect marks.
   */
   trail?: boolean;
+  /**
+      How many past moves the trail keeps visible (a persistent trail). `0`/unset
+      is the default ephemeral trail (only the current move, fading out on
+      arrival). A number keeps that many step-segments, fading older ones to
+      transparent; `true` keeps a long slowly-fading tail. The animate layer
+      chains each segment's cone geometry and gradient so the path curves and
+      fades continuously through the mark's history.
+  */
+  trailPersist?: number | boolean;
   /**
       Explicit bounding box for an objectBoundingBox gradient fill on a node the
       Canvas backend can't measure geometrically (a `path`). The SVG backend

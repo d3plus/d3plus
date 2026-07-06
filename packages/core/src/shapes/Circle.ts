@@ -17,6 +17,10 @@ const circleSchema: ConfigField[] = [
   // behind each point as it moves between frames (Timeline play), on both the
   // SVG and Canvas backends.
   {key: "trail", coerce: "identity", default: false},
+  // Persistent-trail length: 0 keeps the ephemeral single-move trail; a positive
+  // number keeps that many past step-segments (fading older ones out); `true`
+  // keeps a long slowly-fading tail. Requires `trail: true`.
+  {key: "trailPersist", coerce: "identity", default: 0},
 ];
 
 /**
@@ -68,6 +72,7 @@ export default class Circle extends Shape {
       cy: 0,
       r: Number(this.schema.r(d, i)),
       ...(this.schema.trail ? {trail: true} : {}),
+      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
     };
   }
 

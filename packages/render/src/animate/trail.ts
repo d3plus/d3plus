@@ -28,6 +28,22 @@ export function trailOpacity(t: number): number {
   return TRAIL_MAX * (1 - t);
 }
 
+/** Fade length, in step-segments, for a persistent trail (`true` = a long tail). */
+const TRAIL_PERSIST_FOREVER = 30;
+export function persistFadeLength(persist: number | boolean): number {
+  return persist === true ? TRAIL_PERSIST_FOREVER : Math.max(1, Math.floor(Number(persist) || 0));
+}
+
+/**
+    Alpha (0…TRAIL_MAX) at a point `p` step-segments behind the animating head of
+    a persistent trail: full at the head, fading linearly to transparent at the
+    fade length. Because it depends only on `p`, adjacent segments that share a
+    turn vertex agree there, so the fade reads continuous across the bend.
+*/
+export function persistAlpha(p: number, persist: number | boolean): number {
+  return TRAIL_MAX * Math.max(0, 1 - p / persistFadeLength(persist));
+}
+
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 export type TrailShape = "circle" | "rect";
@@ -55,7 +71,7 @@ export interface TrailSpec {
   color: string;
 }
 
-type Pt = [number, number];
+export type Pt = [number, number];
 interface Cone {d: string; box: {x: number; y: number; w: number; h: number}}
 
 const fmt = (p: Pt): string => `${p[0]},${p[1]}`;
@@ -136,20 +152,28 @@ export function coneAt(
 }
 
 /**
-    The trail's fill: a gradient (objectBoundingBox units) fading from transparent
-    at the tail to the mark's color at the head. For a straight move the tail/head
-    sit at opposite bbox corners, so the endpoints depend only on the travel
-    direction's signs and stay constant across the transition.
+    The trail's fill: a gradient (objectBoundingBox units) along the travel
+    direction, from `tailAlpha` of the mark's color at the tail to `headAlpha` at
+    the head (defaults: transparent → opaque, the ephemeral trail). For a straight
+    move the tail/head sit at opposite bbox corners, so the endpoints depend only
+    on the travel direction's signs and stay constant across the transition.
+    Persistent trails pass per-segment alphas so the whole path fades continuously.
 */
-export function trailGradient(dx: number, dy: number, color: string): string {
+export function trailGradient(
+  dx: number, dy: number, color: string, tailAlpha = 0, headAlpha = 1,
+): string {
   const fx = dx >= 0 ? 0 : 1, fy = dy >= 0 ? 0 : 1;
   const c = rgb(color);
-  const clear = Number.isNaN(c.r) ? "transparent" : `rgba(${c.r},${c.g},${c.b},0)`;
+  const at = (a: number): string => {
+    if (a >= 1) return color; // fully opaque → the raw color token
+    if (Number.isNaN(c.r)) return a <= 0 ? "transparent" : color;
+    return `rgba(${c.r},${c.g},${c.b},${a})`;
+  };
   return gradientToken({
     type: "linear",
     from: [fx, fy],
     to: [1 - fx, 1 - fy],
-    stops: [{offset: 0, color: clear}, {offset: 1, color}],
+    stops: [{offset: 0, color: at(tailAlpha)}, {offset: 1, color: at(headAlpha)}],
   });
 }
 

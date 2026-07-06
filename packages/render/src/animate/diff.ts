@@ -3,6 +3,8 @@ import {collapse, interpolateNode} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
 import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
+import {isPersistTrail, persistTrailNodes} from "./trailLog.js";
+import type {TrailLog} from "./trailLog.js";
 
 /**
     Reads a motion-trail spec off a moving update-pair of trailed mark nodes,
@@ -61,6 +63,7 @@ export function diffChildren(prev: SceneNode[], next: SceneNode[]): GroupDiff {
 function interpolateChildren(
   prev: SceneNode[],
   next: SceneNode[],
+  log?: TrailLog,
 ): Interp<SceneNode[]> {
   const {enter, update, exit} = diffChildren(prev, next);
 
@@ -71,13 +74,19 @@ function interpolateChildren(
     ({...(nodeInterp(t) as GroupNode), children: childInterp(t)}) as SceneNode;
 
   const trailSpecs: TrailSpec[] = [];
+  const persist: {key: string | number; persist: number | boolean}[] = [];
   const updaters: Interp<SceneNode>[] = update.map(([a, b]) => {
     if (a.type === "group" && b.type === "group") {
-      return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children));
+      return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children, log));
     }
     if (b.trail && (b.type === "circle" || b.type === "rect")) {
-      const spec = trailSpec(a, b);
-      if (spec) trailSpecs.push(spec);
+      // A persistent trail draws its whole history from the log; the plain
+      // ephemeral trail draws only this move and fades out on arrival.
+      if (log && isPersistTrail(b)) persist.push({key: b.key, persist: b.trailPersist as number | boolean});
+      else {
+        const spec = trailSpec(a, b);
+        if (spec) trailSpecs.push(spec);
+      }
     }
     return interpolateNode(a, b);
   });
@@ -100,13 +109,15 @@ function interpolateChildren(
 
   return t => {
     const out: SceneNode[] = [];
-    // Trails first so they paint beneath the marks that cast them.
+    // Trails first so they paint beneath the marks that cast them. Ephemeral
+    // trails show only while moving; persistent trails stay drawn at rest too.
     if (t < 1) {
       for (const spec of trailSpecs) {
         const n = trailNode(spec, t);
         if (n) out.push(n);
       }
     }
+    if (log) for (const p of persist) out.push(...persistTrailNodes(log, p.key, p.persist, t));
     for (const u of updaters) out.push(u(t));
     for (const e of enters) out.push(e(t));
     if (t < 1) for (const x of exits) out.push(x(t));
@@ -121,7 +132,7 @@ function interpolateChildren(
     @param prev The previously drawn scene, or null for the first frame.
     @param next The target scene.
 */
-export function interpolateScene(prev: Scene | null, next: Scene): Interp<Scene> {
-  const rootInterp = interpolateChildren(prev ? prev.root.children : [], next.root.children);
+export function interpolateScene(prev: Scene | null, next: Scene, log?: TrailLog): Interp<Scene> {
+  const rootInterp = interpolateChildren(prev ? prev.root.children : [], next.root.children, log);
   return t => ({...next, root: {...next.root, children: rootInterp(t)}});
 }

@@ -76,7 +76,7 @@ TimelineMotionTrails.args = {
     {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
     {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
   ],
-  duration: 2000,
+  // duration: 2000,
   groupBy: "id",
   time: "year",
   shapeConfig: {
@@ -123,6 +123,36 @@ SquareMotionTrails.args = {
 SquareMotionTrails.parameters = {
   controls: {include: ["renderer", "shape"]},
   docs: {description: {story: "Trails aren't circle-only: `Rect` marks trail too, and the cone is sized to the square's silhouette *perpendicular to travel* — so a square moving diagonally reaches corner-to-corner rather than edge-to-edge, matching what the eye sees. Also on by default for scatter squares; opt out with `shapeConfig.Rect.trail: false`."}}
+};
+
+export const PersistentMotionTrails = Template.bind({});
+PersistentMotionTrails.args = {
+  data: [
+    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
+    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
+    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
+    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
+    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
+    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
+    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
+    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+  ],
+  groupBy: "id",
+  time: "year",
+  shapeConfig: {Circle: {trailPersist: true}},
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y"
+};
+PersistentMotionTrails.parameters = {
+  controls: {include: ["renderer", "shapeConfig"]},
+  docs: {description: {story: "By default a trail shows only the current move and fades on arrival. Set `shapeConfig.Circle.trailPersist` to keep past moves too: a **number** keeps that many step-segments (fading older ones out), and **`true`** leaves a long slowly-fading tail — a snail-trail of the whole path. Segments chain their cone geometry and gradient at each turn, so the trail curves and fades continuously through every year visited. Press **play** to watch each point draw its history."}}
 };
 
 export const ShapeBackgroundImages = Template.bind({});

@@ -16,6 +16,9 @@ const rectSchema: ConfigField[] = [
   // rect's silhouette perpendicular to travel — so a square at 45° trails
   // corner-to-corner. On both the SVG and Canvas backends.
   {key: "trail", coerce: "identity", default: false},
+  // Persistent-trail length (see Circle): 0 = ephemeral, a number keeps that
+  // many past segments, `true` keeps a long fading tail. Requires `trail: true`.
+  {key: "trailPersist", coerce: "identity", default: 0},
   {key: "width", coerce: "accessor", default: accessor("width")},
 ];
 
@@ -60,6 +63,7 @@ export default class Rect extends Shape {
       ...(rx == null ? {} : {rx: Number(rx)}),
       ...(ry == null ? {} : {ry: Number(ry)}),
       ...(this.schema.trail ? {trail: true} : {}),
+      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
     };
   }
 

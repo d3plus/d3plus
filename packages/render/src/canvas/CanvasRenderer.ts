@@ -1,5 +1,6 @@
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
+import {commitTrailScene, TrailLog} from "../animate/trailLog.js";
 import type {LineNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {
   applyOverlayToElement,
@@ -64,6 +65,8 @@ export default class CanvasRenderer implements Renderer {
   private _width = 0;
   private _height = 0;
   private _scene: Scene | null = null;
+  /** Per-mark position history for persistent motion trails. */
+  private _trailLog = new TrailLog();
   private _pickIndex: PickEntry[] = [];
   private _images = new Map<string, HTMLImageElement>();
   // Token → tiled CanvasPattern (rasterized from the texture's SVG tile), plus
@@ -134,9 +137,14 @@ export default class CanvasRenderer implements Renderer {
 
     const duration = opts?.duration ?? 0;
     const prev = this._scene;
+    // Fold this draw into each persistent-trail mark's history (once per draw,
+    // not per frame), so committed segments accumulate and stale keys are pruned.
+    commitTrailScene(this._trailLog, scene);
 
     if (!duration) {
-      this._paint(scene);
+      // Paint the resting frame (t=1) through the interp so persistent trails
+      // stay drawn on non-animated repaints (e.g. hover); store the raw scene.
+      this._paint(interpolateScene(prev, scene, this._trailLog)(1));
       this._scene = scene;
       this._reconcileOverlays(scene);
       opts?.onEnd?.();
@@ -147,7 +155,7 @@ export default class CanvasRenderer implements Renderer {
     this._reconcileOverlays(scene);
 
     const ease = opts?.ease ?? cubicInOut;
-    const interp = interpolateScene(prev, scene);
+    const interp = interpolateScene(prev, scene, this._trailLog);
     const start = now();
     let cancelled = false;
 
@@ -163,7 +171,9 @@ export default class CanvasRenderer implements Renderer {
           this._frame = raf(tick) as unknown as number;
         } else {
           this._scene = scene;
-          this._paint(scene);
+          // Paint the final interp frame (not the raw scene) so persistent
+          // trails remain drawn at rest; `frame` here is interp at t === 1.
+          this._paint(frame);
           this._cancelAnim = null;
           opts?.onEnd?.();
           resolve();
