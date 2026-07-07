@@ -68,7 +68,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
   // `_renderTiles` is a per-instance method that mutates the tile group.
   viz._renderTiles = function(
     this: VizInstance,
-    transform: ReturnType<typeof zoomTransform> = zoomTransform(this._container!.node()),
+    transform: ReturnType<typeof zoomTransform> = zoomTransform((this._zoomEventTarget || this._container)!.node()),
     duration: number = 0,
   ): void {
     let tileData: number[][] & {scale?: number; translate?: number[]} =
@@ -109,6 +109,20 @@ function setupGeomapDraw(viz: VizInstance): void {
   // Wrap _draw to ensure DOM zoom group + zoom wiring.
   const supDraw = viz._draw.bind(viz);
   viz._draw = function(callback?: () => void) {
+    // SVG backend: the geography paints into the scene <svg>, which sits above
+    // the imperative geomap <svg> that d3-zoom binds to by default — so wheel/
+    // dblclick/pan over a shape never reach that target; only the transparent
+    // ocean falls through. Bind zoom to the outer <svg> instead: it's an
+    // ancestor of both, so it receives events over the geography (bubbling up
+    // from the scene svg) and the ocean (from the geomap svg). Setting the
+    // target before the wrapped draw lets `zoomEvents` bind it directly (with
+    // its zoomScroll/zoomPan disabling); clear any stale handler on the geomap
+    // svg so an ocean event isn't zoomed twice. (Canvas keeps its own target —
+    // the <canvas>, set in `_drawSceneToTarget`.)
+    if (viz._renderer !== "canvas" && viz._select) {
+      viz._zoomEventTarget = viz._select;
+      if (viz._container) viz._container.on(".zoom", null);
+    }
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
     ensureZoomDom(viz, {
@@ -328,6 +342,16 @@ export const geomapDef: ChartDefinition = {
 
   // Geomap positions in absolute projection coordinates — no chart transform.
   chartTransform: () => undefined,
+
+  // Clip the geography to the map rectangle — the same box as the ocean rect and
+  // the imperative inner <svg> viewport — so projected paths and points can't
+  // spill past it (e.g. under the legend/timeline) when a `fitObject`/zoom pushes
+  // features outside the fitted extent. The clip lives on the untransformed
+  // chart-cells group, so it stays fixed while pan/zoom moves the map beneath it.
+  chartClip: (viz: VizInstance) => {
+    const {width, height} = chartBounds(viz);
+    return {type: "rect", x: viz._margin.left, y: viz._margin.top, width, height};
+  },
 
   setup: (viz: VizInstance) => {
     const v = viz as VizInstance & GeomapFluent;

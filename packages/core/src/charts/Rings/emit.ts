@@ -83,6 +83,9 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         const d = values[i];
         const datum = (d.data ?? d) as DataPoint;
         const paint = paintFromShapeConfig(merged, datum, d.i ?? i);
+        // Nodes are data shapes: keep their stroke a constant screen width as the
+        // diagram zooms (the edges above deliberately scale with the zoom).
+        if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
         const rotate = nodeCfg.rotate ? nodeCfg.rotate(d) : 0;
         const transform = rotate ? {x: d.x, y: d.y, rotate} : {x: d.x, y: d.y};
         if (shapeKind === "Circle") {

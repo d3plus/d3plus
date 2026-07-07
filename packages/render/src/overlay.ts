@@ -92,19 +92,33 @@ export function applyOverlayToElement(
     already have one so the absolutely-positioned host layers correctly.
 */
 export function createOverlayHost(target: RenderTarget): HTMLDivElement {
-  // Promote the container to a positioned ancestor so absolutely-
-  // positioned overlays anchor correctly. Read the COMPUTED style (not
-  // just inline) — a container with `position: absolute` from a CSS
-  // class has `style.position === ""` but `getComputedStyle().position
-  // === "absolute"`. Without this we'd silently override the host
-  // page's CSS-driven positioning.
-  if (target.container instanceof HTMLElement) {
+  // The overlay host is an HTML <div>, which only lays out inside HTML flow: a
+  // <div> nested directly inside an <svg> (as happens when the render target IS
+  // an svg) gets a 0×0 box, so its contents — zoom-control buttons, HTML
+  // annotations — render present-but-invisible. Resolve the mount to the nearest
+  // HTMLElement: the target itself when it's HTML, otherwise its closest HTML
+  // ancestor. The svg fills that ancestor's top-left box, so overlay
+  // coordinates still line up with the scene.
+  let mount: HTMLElement | null =
+    target.container instanceof HTMLElement ? target.container : null;
+  if (!mount) {
+    let el: Element | null = target.container;
+    while (el && !(el instanceof HTMLElement)) el = el.parentElement;
+    mount = el instanceof HTMLElement ? el : null;
+  }
+  const container: Element = mount ?? target.container;
+  // Promote the mount to a positioned ancestor so absolutely-positioned
+  // overlays anchor correctly. Read the COMPUTED style (not just inline) — a
+  // container with `position: absolute` from a CSS class has
+  // `style.position === ""` but `getComputedStyle().position === "absolute"`.
+  // Without this we'd silently override the host page's CSS-driven positioning.
+  if (mount) {
     const computed =
       typeof getComputedStyle === "function"
-        ? getComputedStyle(target.container).position
+        ? getComputedStyle(mount).position
         : "";
     if (computed === "static" || computed === "") {
-      target.container.style.position = "relative";
+      mount.style.position = "relative";
     }
   }
   const host = document.createElement("div");
@@ -115,7 +129,7 @@ export function createOverlayHost(target: RenderTarget): HTMLDivElement {
   host.style.width = "100%";
   host.style.height = "100%";
   host.style.pointerEvents = "none";
-  target.container.appendChild(host);
+  container.appendChild(host);
   return host;
 }
 

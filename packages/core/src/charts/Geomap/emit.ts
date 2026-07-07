@@ -56,7 +56,10 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         key: `geomap-path-${d.id}`,
         d: c.pathFn(d),
         datum,
-        paint,
+        // Topojson geography is a data shape: keep its border stroke a constant
+        // screen width as the map zooms (v3 parity), rather than scaling with
+        // the zoom transform. Honors an explicit shapeConfig.vectorEffect.
+        paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
       } as SceneNode);
     }
   }
@@ -67,14 +70,25 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     for (let i = 0; i < points.length; i++) {
       const d = points[i];
       const paint = paintFromShapeConfig(circleConfig, d, i);
+      // Origin-centered geometry with the projected position in `transform`,
+      // matching how Shape-emitted Circle marks are placed (cx/cy = 0, group
+      // transform positions the mark). The motion-trail layer reads a mark's
+      // position off `transform.x/y`, so points must follow this convention to
+      // trail when they move between timeline frames (`Circle.trail`, on by
+      // default for Geomap points).
       out.push({
         type: "circle",
         key: `geomap-point-${viz._id(d, i)}`,
-        cx: c.pointX(d, i),
-        cy: c.pointY(d, i),
+        cx: 0,
+        cy: 0,
         r: c.pointR(d, i),
+        transform: {x: c.pointX(d, i), y: c.pointY(d, i)},
         datum: d,
-        paint,
+        // Coordinate points are data shapes: hold their stroke at a constant
+        // screen width through zoom (v3 parity), like the topojson borders.
+        paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
+        ...(circleConfig.trail ? {trail: true} : {}),
+        ...(circleConfig.trailPersist ? {trailPersist: circleConfig.trailPersist} : {}),
       } as SceneNode);
     }
   }

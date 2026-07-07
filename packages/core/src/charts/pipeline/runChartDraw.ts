@@ -96,4 +96,5 @@ export function runChartDraw(
   viz._chartTransform = transformFn
     ? transformFn(viz)
     : marginOriginTransform(viz);
+  viz._chartClip = def.chartClip ? def.chartClip(viz) : undefined;
 }

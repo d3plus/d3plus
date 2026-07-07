@@ -144,13 +144,21 @@ function canvasFillStyle(
   return solidFill(fill) ?? "none";
 }
 
-/** Fills and/or strokes the context's current path (or a Path2D) per the node's paint. */
+/**
+    Fills and/or strokes the context's current path (or a Path2D) per the node's
+    paint. `cssScale` is the node's on-screen scale relative to CSS pixels (the
+    accumulated transform scale with the device-pixel-ratio base divided out) —
+    used to honor `vector-effect: non-scaling-stroke`, which holds a stroke at a
+    constant screen width regardless of an ancestor zoom/scale. It's 1 when
+    nothing above the node scales, so unzoomed output is unchanged.
+*/
 export function paint(
   ctx: Ctx,
   node: SceneNode,
   alpha: number,
   path?: Path2D,
   resolvePattern?: PatternResolver,
+  cssScale = 1,
 ): void {
   const p = node.paint || {};
   if (p.fill && p.fill !== "none") {
@@ -162,7 +170,10 @@ export function paint(
   if (p.stroke && p.stroke !== "none" && (p.strokeWidth ?? 0) > 0) {
     ctx.globalAlpha = alpha * (p.strokeOpacity ?? 1);
     ctx.strokeStyle = p.stroke;
-    ctx.lineWidth = p.strokeWidth as number;
+    ctx.lineWidth =
+      p.vectorEffect === "non-scaling-stroke" && cssScale
+        ? (p.strokeWidth as number) / cssScale
+        : (p.strokeWidth as number);
     ctx.setLineDash(p.strokeDasharray ?? []);
     if (p.strokeLinecap) ctx.lineCap = p.strokeLinecap;
     if (path) ctx.stroke(path);

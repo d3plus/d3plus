@@ -386,13 +386,23 @@ Defaults to an empty array (`[]`).
 
       this._shapes.forEach((s: {hover: (...args: unknown[]) => unknown}) => s.hover(hoverFunction));
       if (this.schema.legend) this._legendClass.hover(hoverFunction);
-      // Scene-rendered charts emit into `_chartScene` (not `_shapes`), so the
-      // forEach above is a no-op for them. Repaint so the scene's
-      // interaction-opacity pass re-reads `_hover` and dims the non-matching
-      // nodes (or restores them when `_` is `false`). Coalesced to one paint
-      // per frame so a fast pointer sweep doesn't saturate the main thread.
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
     }
+
+    // Scene-rendered charts emit into `_chartScene` (not `_shapes`), so the
+    // forEach above is a no-op for them. Repaint so the scene's
+    // interaction-opacity pass re-reads `_hover` and dims the non-matching
+    // nodes (or restores them when `_` is `false`). Also repaint for a
+    // colorScale-bucket hover even when per-shape dimming is off
+    // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
+    // same pass, so without a repaint the map would never re-compose. Coalesced
+    // to one paint per frame so a fast pointer sweep doesn't saturate the main
+    // thread.
+    if (
+      this._sceneRenderer &&
+      _ !== undefined &&
+      (this.schema.shapeConfig.hoverOpacity !== 1 || this._hoverBucket)
+    )
+      this._scheduleSceneRepaint();
 
     return this;
   }

@@ -107,6 +107,9 @@ export default class Viz extends VizBase {
         type: "group",
         key: "viz-chart-cells",
         ...(this._chartTransform ? {transform: this._chartTransform} : {}),
+        // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
+        // while the viz-zoom child transform pans/scales content beneath it.
+        ...(this._chartClip ? {clip: this._chartClip} : {}),
         children: zoomNode,
       });
     }

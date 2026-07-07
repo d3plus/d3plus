@@ -248,16 +248,24 @@ export default class CanvasRenderer implements Renderer {
     if (node.interactive !== false && node.type !== "group")
       this._pickIndex.push({node, inverse: invert(localAbs)});
 
+    // On-screen scale relative to CSS px: the accumulated transform's scale with
+    // the device-pixel-ratio base divided out (i.e. the ancestor zoom/scale).
+    // Passed to `paint` so `vector-effect: non-scaling-stroke` can keep a stroke
+    // a constant screen width as the content zooms (SVG-backend parity).
+    const cssScale =
+      (Math.sqrt(Math.abs(localAbs[0] * localAbs[3] - localAbs[1] * localAbs[2])) || this._ratio) /
+      this._ratio;
+
     switch (node.type) {
       case "rect":
       case "circle":
       case "line":
       case "area":
         pathFor(ctx, node);
-        paint(ctx, node, a, undefined, this._patternResolver);
+        paint(ctx, node, a, undefined, this._patternResolver, cssScale);
         break;
       case "path":
-        paint(ctx, node, a, new Path2D(node.d), this._patternResolver);
+        paint(ctx, node, a, new Path2D(node.d), this._patternResolver, cssScale);
         break;
       case "image":
         this._drawImage(ctx, node, a);

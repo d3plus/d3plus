@@ -24,7 +24,7 @@
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode, Transform} from "@d3plus/render";
+import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import type {
   Axis,
@@ -160,6 +160,7 @@ export interface VizInstance {
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
   _chartTransform?: Transform;
+  _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];
   _shapes?: Shape[];
   _previousShapes?: string[];

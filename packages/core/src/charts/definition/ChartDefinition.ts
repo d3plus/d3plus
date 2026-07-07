@@ -44,6 +44,14 @@ interface ChartDefinitionBase {
   */
   chartTransform?: (viz: VizInstance) => import("@d3plus/render").Transform | undefined;
   /**
+      Optional fixed clip region for the chart-cells group (a window in absolute
+      scene coordinates that the chart content is clipped to). Geomap uses this to
+      contain projected geography within the map rectangle so it can't spill under
+      the legend/timeline; the clip stays put while pan/zoom moves content beneath
+      it. Only meaningful for charts whose `chartTransform` is undefined.
+  */
+  chartClip?: (viz: VizInstance) => import("@d3plus/render").ClipShape | undefined;
+  /**
       Imperative per-instance setup hook — runs once after `applyDefinition`
       seeds the chart. Use for event handler overrides and shadowed methods
       that don't fit the declarative `fields`/`ctx` surface.

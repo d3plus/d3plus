@@ -69,6 +69,10 @@ export const networkEmit: ChartEmit = ({viz}) => {
         const d = values[i];
         const datum = (d.data ?? d) as DataPoint;
         const paint = paintFromShapeConfig(merged, datum, d.i ?? i);
+        // Nodes are data shapes: keep their stroke a constant screen width as the
+        // network zooms (the links above deliberately scale with the zoom, so
+        // heavier connections read as heavier when zoomed in).
+        if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
         if (shapeKind === "Circle") {
           out.push({
             type: "circle",

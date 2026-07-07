@@ -124,7 +124,14 @@ export const zoomFeature: FeatureModule = {
           },
           ".zoom-brush": {
             click: (e: Event) => {
-              const btn = e.currentTarget as HTMLElement;
+              // The overlay dispatches clicks via delegation, so `e.currentTarget`
+              // is the host wrapper that encloses all four buttons — not the
+              // clicked button. Styling/toggling the wrapper would paint the
+              // active background around the whole control stack and offset it by
+              // the base margin/border. Resolve the actual button from the event
+              // target, the same way the dispatcher matches (`target.closest`).
+              const btn = (e.target as Element).closest(".zoom-brush") as HTMLElement | null;
+              if (!btn) return;
               const willBrush = !isBrushing(that);
               const isActive = btn.classList.toggle("active", willBrush);
               applyStyleObj(
@@ -182,7 +189,7 @@ export const zoomFeature: FeatureModule = {
 
     zoomEvents.bind(viz)();
     if (viz._renderTiles)
-      viz._renderTiles(zoomTransform(viz._container.node()), 0);
+      viz._renderTiles(zoomTransform((viz._zoomEventTarget || viz._container).node()), 0);
 
     return {panel, margin: {}};
   },
@@ -274,7 +281,7 @@ function zoomed(
   }
 
   if (this._renderTiles)
-    this._renderTiles(zoomTransform(this._container.node()), duration);
+    this._renderTiles(zoomTransform((this._zoomEventTarget || this._container).node()), duration);
 }
 
 /**

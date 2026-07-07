@@ -83,7 +83,7 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
         });
 
         viz._focus = id;
-        const t = zoomTransform(viz._container!.node());
+        const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
         xDomain = xDomain.map(d => d * t.k + t.x);
         yDomain = yDomain.map(d => d * t.k + t.y);
         viz._zoomToBounds!([
@@ -132,7 +132,7 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
         });
 
         viz._focus = ids as unknown as string;
-        const t = zoomTransform(viz._container!.node());
+        const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
         xDomain = xDomain.map(d => d * t.k + t.x);
         yDomain = yDomain.map(d => d * t.k + t.y);
         viz._zoomToBounds!([
@@ -288,6 +288,19 @@ export const networkDef: ChartDefinition = {
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);
     v._draw = function(callback?: () => void) {
+      // SVG backend: nodes/edges paint into the scene <svg> that sits above the
+      // imperative network <svg> d3-zoom binds to by default, so wheel/dblclick/
+      // pan over a node never reach that target. Bind zoom to the outer <svg>
+      // (an ancestor of both), which receives events over the nodes (bubbling up
+      // from the scene svg) and the empty background (from the network svg).
+      // Setting it before the wrapped draw lets `zoomEvents` bind this target
+      // with its zoomScroll/zoomPan disabling; clear the network svg's handlers
+      // so an event over the background isn't zoomed twice. (Canvas keeps the
+      // default target.)
+      if (viz._renderer !== "canvas" && viz._select) {
+        viz._zoomEventTarget = viz._select;
+        if (viz._container) viz._container.on(".zoom", null);
+      }
       const result = supDraw(callback);
       const {width, height} = chartBounds(viz);
       ensureZoomDom(viz, {kind: "network", width, height, duration: viz.schema.duration});

@@ -97,16 +97,19 @@ export function paintFromShapeConfig(
   stroke?: string;
   strokeWidth?: number;
   opacity?: number;
+  vectorEffect?: "none" | "non-scaling-stroke";
 } {
   const fill = resolveAccessor<unknown>(sc.fill, d, i);
   const stroke = resolveAccessor<string>(sc.stroke, d, i);
   const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d, i);
   const opacity = resolveAccessor<number>(sc.opacity, d, i);
+  const ve = resolveAccessor<string>(sc.vectorEffect, d, i);
   return {
     fill: typeof fill === "string" ? fill : undefined,
     stroke,
     strokeWidth,
     opacity,
+    vectorEffect: ve === "none" || ve === "non-scaling-stroke" ? ve : undefined,
   };
 }
 
