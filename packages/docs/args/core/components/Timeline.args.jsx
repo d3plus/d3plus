@@ -328,7 +328,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 1000,
-      description: "The interval, in milliseconds, used when cycling through periods via the play button.",
+      description: "The interval, in milliseconds, between periods when cycling via the play\nbutton. Used only when the chart's `duration` is 0 (no transition);\notherwise playback steps once per `duration` so each step animates in full.",
       table: {
         defaultValue: {
           summary: "1000"

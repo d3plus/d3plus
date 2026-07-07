@@ -236,6 +236,38 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    trail: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "Sweep a tapering motion trail behind the point as it moves between frames.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    trailPersist: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0,
+      description: "Steps of trail history to keep (number), or `true` for a long fading tail.",
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | boolean"
+      }
+    },
     translate: {
       control: {},
       description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",

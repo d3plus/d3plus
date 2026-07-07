@@ -16,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "element"
+      summary: "basetype | undefined"
     }
   }
 };

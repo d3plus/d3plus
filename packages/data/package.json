@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/data",
-  "version": "3.1.6",
+  "version": "4.0.0",
   "description": "JavaScript data loading, manipulation, and analysis functions.",
   "license": "MIT",
   "type": "module",

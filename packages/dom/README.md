@@ -108,7 +108,7 @@ Applies each key/value in an object as an attr.
 
 ### backgroundColor()
 
-> **backgroundColor**(`elem`: `Element`): `string`
+> **backgroundColor**(`elem`: `BaseType` \| `undefined`): `string`
 
 Defined in: [backgroundColor.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/backgroundColor.ts#L7)
 
@@ -120,7 +120,7 @@ to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `elem` | `Element` | The DOM element to check. |
+| `elem` | `BaseType` \| *required* | The DOM element to check. |
 
 #### Returns
 

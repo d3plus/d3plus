@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/text",
-  "version": "3.1.6",
+  "version": "4.0.0",
   "description": "A smart SVG text box with line wrapping and automatic font size scaling.",
   "license": "MIT",
   "type": "module",

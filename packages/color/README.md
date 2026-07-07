@@ -179,7 +179,7 @@ Similar to d3.color.brighter, except that this also reduces saturation so that c
 
 > **colorRamp**(`base`: `string`, `n`: `number`, `options?`: [`ColorRampOptions`](#colorrampoptions)): `string`[]
 
-Defined in: ramp.ts:30
+Defined in: [ramp.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L30)
 
 Builds an `n`-step single-hue ramp from a pale tint to the given base color,
 stepped evenly in OKLab so each step looks equally far from the next.
@@ -237,7 +237,7 @@ Subtracts one color from another.
 
 > **colorValidate**(`palette`: `string`[], `options?`: [`ColorValidateOptions`](#colorvalidateoptions)): [`ColorValidation`](#colorvalidation)
 
-Defined in: validate.ts:256
+Defined in: [validate.ts:256](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L256)
 
 Validates a chart color palette against the computable accessibility checks.
 
@@ -301,7 +301,7 @@ are a lighter second ring of the same hues, for high-cardinality fallback
 
 ### ColorCheck
 
-Defined in: validate.ts:95
+Defined in: [validate.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L95)
 
 One computed check in a palette validation report.
 
@@ -309,9 +309,9 @@ One computed check in a palette validation report.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-detail"></a> `detail` | `string` | validate.ts:98 |
-| <a id="property-name"></a> `name` | `string` | validate.ts:96 |
-| <a id="property-state"></a> `state` | [`CheckState`](#checkstate) | validate.ts:97 |
+| <a id="property-detail"></a> `detail` | `string` | [validate.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L98) |
+| <a id="property-name"></a> `name` | `string` | [validate.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L96) |
+| <a id="property-state"></a> `state` | [`CheckState`](#checkstate) | [validate.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L97) |
 
 ***
 
@@ -339,7 +339,7 @@ Defined in: [defaults.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/
 
 ### ColorRampOptions
 
-Defined in: ramp.ts:4
+Defined in: [ramp.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L4)
 
 Options for [colorRamp](#colorramp).
 
@@ -347,7 +347,7 @@ Options for [colorRamp](#colorramp).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-ordinal"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | ramp.ts:12 |
+| <a id="property-ordinal"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | [ramp.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L12) |
 
 ***
 
@@ -355,7 +355,7 @@ Options for [colorRamp](#colorramp).
 
 ### ColorValidateOptions
 
-Defined in: validate.ts:108
+Defined in: [validate.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L108)
 
 Options for [colorValidate](#colorvalidate).
 
@@ -363,10 +363,10 @@ Options for [colorValidate](#colorvalidate).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-mode"></a> `mode?` | `"light"` \| `"dark"` | Surface mode — sets the lightness band and default surface. | validate.ts:110 |
-| <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Validate as an ordered one-hue ramp instead of a categorical palette. | validate.ts:116 |
-| <a id="property-pairs"></a> `pairs?` | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | validate.ts:114 |
-| <a id="property-surface"></a> `surface?` | `string` | Chart surface color the marks are drawn on. | validate.ts:112 |
+| <a id="property-mode"></a> `mode?` | `"light"` \| `"dark"` | Surface mode — sets the lightness band and default surface. | [validate.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L110) |
+| <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Validate as an ordered one-hue ramp instead of a categorical palette. | [validate.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L116) |
+| <a id="property-pairs"></a> `pairs?` | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | [validate.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L114) |
+| <a id="property-surface"></a> `surface?` | `string` | Chart surface color the marks are drawn on. | [validate.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L112) |
 
 ***
 
@@ -374,7 +374,7 @@ Options for [colorValidate](#colorvalidate).
 
 ### ColorValidation
 
-Defined in: validate.ts:102
+Defined in: [validate.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L102)
 
 The result of validating a palette. `ok` is true when no check hard-fails.
 
@@ -382,8 +382,8 @@ The result of validating a palette. `ok` is true when no check hard-fails.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-checks"></a> `checks` | [`ColorCheck`](#colorcheck)[] | validate.ts:104 |
-| <a id="property-ok"></a> `ok` | `boolean` | validate.ts:103 |
+| <a id="property-checks"></a> `checks` | [`ColorCheck`](#colorcheck)[] | [validate.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L104) |
+| <a id="property-ok"></a> `ok` | `boolean` | [validate.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L103) |
 
 ## Type Aliases
 
@@ -393,6 +393,6 @@ The result of validating a palette. `ok` is true when no check hard-fails.
 
 > **CheckState** = `"pass"` \| `"warn"` \| `"fail"`
 
-Defined in: validate.ts:92
+Defined in: [validate.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L92)
 
 The state of a single check. `warn` passes but obligates secondary encoding.

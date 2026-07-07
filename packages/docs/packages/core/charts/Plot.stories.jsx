@@ -6,7 +6,6 @@ import React from "react";
 import {argTypes, Plot} from "../../../args/core/charts/Plot.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
-import { transform } from "topojson-client";
 
 export default {
   title: "Core/Charts/Plot",
