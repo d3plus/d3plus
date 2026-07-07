@@ -84,6 +84,15 @@ export type ShapeEmitter = (ctx: ShapeEmitContext, key: string) => SceneNode[];
 function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown> {
   const {viz, opp, x, y, stackData, domains, stackKeyIndex, discreteKeyIndex} = ctx;
   const inner: Record<string, unknown> = Object.assign({}, ctx.shapeConfig);
+  // Bubble plots: when a `size` accessor is set, default to layering circles
+  // largest-behind so smaller marks stay visible under bigger ones. This is a
+  // default — `finishShape` applies the user's `shapeConfig` afterwards, so an
+  // explicit `sort` (or `sort: null` to disable) still wins.
+  if (key === "Circle" && viz._size) {
+    const size = viz._size;
+    inner.sort = (a: DataPoint, b: DataPoint) =>
+      (Number(size(b)) || 0) - (Number(size(a)) || 0);
+  }
   if (viz.schema.stacked && ["Area", "Bar"].includes(key)) {
     const scale = opp === "x" ? x : y;
     inner[`${opp}`] = inner[`${opp}0`] = (d: PlotDatum) => {

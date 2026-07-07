@@ -101,6 +101,12 @@ export default function configPrep(
       if ({}.hasOwnProperty.call(obj, key)) {
         if (key === "on")
           parseEvents(newObj, obj[key] as unknown as Record<string, DataAccessor>);
+        else if (key === "sort")
+          // `sort` is a two-argument layering comparator, not a per-datum
+          // accessor — pass it through untouched so `wrapFunction` doesn't
+          // rewrite it into a single-datum call (which would feed the index
+          // as its second argument).
+          newObj[key] = obj[key];
         else if (typeof obj[key] === "function") {
           newObj[key] = wrapFunction(obj[key] as DataAccessor);
         } else if (obj[key] instanceof Array) {

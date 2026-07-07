@@ -52,6 +52,7 @@ export interface ShapeAes {
 
 
 import Image from "./Image.js";
+import {emitBackgroundImages, sortRanks} from "./sceneSort.js";
 
 /** Shape's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const shapeSchema: ConfigField[] = [
@@ -424,6 +425,15 @@ export default class Shape extends BaseClass {
     // resolves to a non-false `backgroundImage(d, i)` becomes an
     // ImageNode positioned at the shape's geometry.
     const imageData: DataPoint[] = [];
+    // A `sort` comparator becomes per-datum `z` ranks rather than a reorder of
+    // `data`: the render backends sort each group's children ascending by `z`
+    // (stably), so a lower rank paints first (behind) and a higher rank paints
+    // last (on top) — the same back-to-front meaning `.sort()` has always had,
+    // without disturbing the keyed data-join order that drives transitions.
+    const rank = sortRanks(
+      data,
+      this.schema.sort as ((a: DataPoint, b: DataPoint) => number) | null,
+    );
     data.forEach((d, i) => {
       const geom = this._sceneGeometry(d, i);
       if (!geom) return;
@@ -436,7 +446,9 @@ export default class Shape extends BaseClass {
         const ha = hitAreaNode(
           this.schema.hitArea, d, i, this._aes(d, i), key, datum, this._name, transform,
         );
-        if (ha) children.push(ha);
+        // Share the datum's rank so the hit area stays paired just behind its
+        // own geometry (equal `z`, kept in push order by the stable sort).
+        if (ha) children.push(rank ? ({...ha, z: rank[i]} as SceneNode) : ha);
       }
 
       children.push({
@@ -451,6 +463,7 @@ export default class Shape extends BaseClass {
           role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
           label: strOrUndef(this._nestWrapper(this.schema.ariaLabel)(d, i)),
         },
+        ...(rank ? {z: rank[i]} : {}),
       } as unknown as SceneNode);
       // backgroundImage: collect a per-datum image when the accessor
       // returns a truthy URL. The image is sized to the shape's
@@ -488,20 +501,10 @@ export default class Shape extends BaseClass {
     // Emit background images AFTER shape children so they paint above the
     // shape's fill — matches the DOM order where the <image> was
     // appended as a sibling of the shape.
-    if (imageData.length) {
-      this._backgroundImageClass
-        .data(imageData)
-        .id((d: DataPoint) => `${(d as Record<string, unknown>).id}`)
-        .url((d: DataPoint) => (d as Record<string, unknown>).url as string)
-        .x((d: DataPoint) => (d as Record<string, unknown>).x as number)
-        .y((d: DataPoint) => (d as Record<string, unknown>).y as number)
-        .width((d: DataPoint) => (d as Record<string, unknown>).width as number)
-        .height((d: DataPoint) => (d as Record<string, unknown>).height as number)
-        .renderMode("compute");
-      const imgScene = this._backgroundImageClass.toScene();
-      if (imgScene && Array.isArray(imgScene.children))
-        children.push(...imgScene.children);
-    }
+    if (imageData.length)
+      children.push(
+        ...emitBackgroundImages(this._backgroundImageClass, imageData, rank, data.length),
+      );
     // NOTE: Labels are NOT pushed here. The canonical aggregation point is
     // `emitHelpers.collectComputed(shape)`, which appends `shape.toScene()`
     // AND `shape._labelClass.toScene()` independently. Pushing labels here
