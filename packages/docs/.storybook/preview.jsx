@@ -106,7 +106,7 @@ const preview = {
         order: [
           "Introduction",
           "Guides",
-          ["Migration (v3 → v4)", "Configuration", "Rendering", "Data", "Interactivity", "Theming", "Accessibility"],
+          ["Migration (v3 → v4)", "Configuration", "Rendering", "Data", "Interactivity", "Animation", "Theming", "Color", "Accessibility", "TypeScript"],
           "Core",
           "*",
         ],

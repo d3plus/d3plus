@@ -1,0 +1,53 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/TypeScript" />
+
+# TypeScript
+
+D3plus is written in TypeScript and ships type declarations with every package.
+The chart pipeline is fully typed, so editors autocomplete config keys and flag
+mistakes as you write them.
+
+## One import for all types
+
+The `@d3plus/types` package re-exports every d3plus type from a single entry,
+which is convenient for typing config objects and function parameters:
+
+```ts
+import type {Treemap} from "@d3plus/types";
+
+const config: Treemap = {
+  data: [{id: "alpha", value: 29}],
+  groupBy: "id",
+  size: "value"
+};
+```
+
+## React types
+
+React component types live in a **separate entry** so non-React projects don't
+pull in React as a dependency:
+
+```ts
+import type {D3plusComponentProps} from "@d3plus/types/react";
+```
+
+## Typing config directly
+
+You don't need `@d3plus/types` to get types — each package is typed on its own, so
+importing a chart class from `@d3plus/core` or `@d3plus/react` already types its
+`config`:
+
+```ts
+import {Treemap} from "@d3plus/core";
+
+new Treemap().config({groupBy: "id", size: "value"}); // config is type-checked
+```
+
+## Advanced: the internal pipeline
+
+Most users only need the public API. If you're building custom charts on top of
+the v4 pipeline, `@d3plus/core/internal` exposes the layout stages,
+`ChartDefinition`s, feature modules, and helpers like `runVizPipeline` and
+`installFluent`. This surface is **not** semver-stable — the curated
+`@d3plus/core` entry is the stable public API.

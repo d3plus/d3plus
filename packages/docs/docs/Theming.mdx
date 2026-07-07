@@ -21,6 +21,12 @@ Override per datum with the `color` accessor or via `shapeConfig.fill`:
 }} />
 ```
 
+The default palette is designed for colorblind safety — its slots stay distinct
+under protanopia and deuteranopia and sit within a controlled lightness/chroma
+band. To color an *ordered* categorical field with a single-hue light→dark ramp
+instead of nominal hues, set `colorOrdinal: true`. See **Guides → Color** for the
+full color system, including how to validate your own palette.
+
 ## Color scales
 
 To encode a continuous measure as color, set `colorScale` to a numeric accessor
@@ -34,6 +40,10 @@ strategy:
   colorScalePosition: "right"           // "top" | "bottom" | "left" | "right" | false
 }} />
 ```
+
+By default a continuous scale steps through a single blue hue (darker = larger)
+and a diverging scale runs blue↔gray↔red; override either by passing a `color`
+array to `colorScaleConfig`.
 
 ## Textures (non-color encoding)
 

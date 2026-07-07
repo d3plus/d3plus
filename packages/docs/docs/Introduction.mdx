@@ -14,7 +14,7 @@ import HomeChart from "./HomeChart.jsx";
 
 # Data visualization made easy.
 
-An open-source TypeScript library that extends [D3](https://d3js.org/) to create beautiful, interactive SVG visualizations with minimal configuration. Tooltips, color assignments, label placements, and more — all handled automatically.
+An open-source TypeScript library that extends [D3](https://d3js.org/) to create beautiful, interactive visualizations with minimal configuration. Tooltips, color assignments, label placements, and more — all handled automatically.
 
 </div>
 
@@ -58,7 +58,8 @@ Explore each chart type in the **Core > Charts** section of the sidebar.
 D3plus v4 compiles each visualization to a serializable scene graph painted by a
 pluggable backend. **SVG** is the default; an opt-in **Canvas** backend
 (`renderer: "canvas"`) handles dense, high-shape-count charts. The public API is
-unchanged for typical usage.
+unchanged for typical usage. v4 also brings motion trails for animated points, a
+colorblind-safe default palette, and full TypeScript types.
 
 See the **Guides** in the sidebar to get oriented:
 
@@ -66,8 +67,12 @@ See the **Guides** in the sidebar to get oriented:
 - **Configuration** — the config object, accessors, `RESET`, shared defaults
 - **Rendering** — SVG vs. Canvas backends and lifecycle
 - **Data** — accessors, loading from a URL, and `@d3plus/data` transforms
-- **Interactivity** — tooltips, events, legend, timeline, zoom
+- **Interactivity** — tooltips, events, legend, highlight, timeline, zoom
+- **Animation** — transitions and motion trails
 - **Theming** — colors, color scales, textures, fonts, localization
+- **Color** — the colorblind-safe palette and color utilities
+- **Accessibility** — ARIA, contrast, textures, and WCAG conformance
+- **TypeScript** — typing config objects with `@d3plus/types`
 
 
 ## Getting Started (React)

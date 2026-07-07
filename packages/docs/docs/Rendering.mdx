@@ -26,8 +26,9 @@ new d3plus.BarChart().data(data).x("x").y("y").renderer("canvas").render();
 | **`"canvas"`** | Dense, high-shape-count charts where paint performance matters. | Pointer hit-testing is supported via `Path2D`. Output is a raster. |
 
 Both backends consume the same scene graph and support the same configuration,
-tooltips, and pointer events — so you can switch between them without changing
-any other code.
+tooltips, and pointer events — including texture/pattern and gradient fills, which
+the Canvas backend paints at parity with SVG — so you can switch between them
+without changing any other code.
 
 ## Lifecycle and cleanup
 

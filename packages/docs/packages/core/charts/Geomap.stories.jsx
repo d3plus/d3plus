@@ -210,3 +210,49 @@ RenderingToCanvas.parameters = {
   controls: {include: ["renderer"]},
   docs: {description: {story: "The same choropleth painted with the Canvas backend (`renderer: \"canvas\"`). Geography, color scale, tooltips, and zoom all work; SVG remains the default."}}
 };
+
+export const PointMotionTrails = Template.bind({});
+PointMotionTrails.args = {
+  data: [
+    {id: "Ana",  day: 1, lon: -38, lat: 11},
+    {id: "Ana",  day: 2, lon: -47, lat: 14},
+    {id: "Ana",  day: 3, lon: -56, lat: 17},
+    {id: "Ana",  day: 4, lon: -65, lat: 21},
+    {id: "Ana",  day: 5, lon: -73, lat: 25},
+    {id: "Ana",  day: 6, lon: -81, lat: 29},
+    {id: "Bill", day: 1, lon: -30, lat: 9},
+    {id: "Bill", day: 2, lon: -39, lat: 13},
+    {id: "Bill", day: 3, lon: -47, lat: 18},
+    {id: "Bill", day: 4, lon: -54, lat: 24},
+    {id: "Bill", day: 5, lon: -61, lat: 30},
+    {id: "Bill", day: 6, lon: -69, lat: 36}
+  ],
+  groupBy: "id",
+  time: "day",
+  point: funcify(
+    d => [d.lon, d.lat],
+    "d => [d.lon, d.lat]"
+  ),
+  pointSize: 8,
+  projection: "geoMercator",
+  topojson: "https://oec.world/topojson/world-50m.json",
+  topojsonFilter: funcify(
+    d => d.id !== "ata",
+    "d => d.id !== 'ata'"
+  ),
+  fitObject: {
+    type: "Topology",
+    objects: {
+      bounds: {
+        type: "GeometryCollection",
+        geometries: [
+          {type: "MultiPoint", coordinates: [[-95, 5], [-12, 46]]}
+        ]
+      }
+    }
+  }
+};
+PointMotionTrails.parameters = {
+  controls: {include: ["renderer", "time"]},
+  docs: {description: {story: "Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends."}}
+};

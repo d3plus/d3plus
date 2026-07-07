@@ -50,6 +50,24 @@ the chart mid-draw. Code that only reads the **final** rendered SVG (after
 built on `d3-array` (`groups`/`rollups`). The `nest()` and `nestGroups()` exports
 remain available.
 
+## Visual changes to expect
+
+The public API is unchanged, but a few color defaults were updated for colorblind
+safety — so an unchanged chart can look slightly different in v4:
+
+- **The categorical palette was re-stepped** to stay distinct under protanopia and
+  deuteranopia. The slot order is unchanged, but marks shift hue slightly.
+- **Continuous color scales default to a single blue hue** (magnitude reads as one
+  hue getting darker) and **diverging scales default to blue↔gray↔red**, replacing
+  v3's multi-hue and red↔green ramps.
+- **`colorContrast` now picks label text color by WCAG contrast ratio** rather than
+  a YIQ brightness approximation, so some automatic label colors change (e.g.
+  bright greens and teals now correctly get dark text).
+
+These are all overridable — set `color`, `colorScaleConfig.color`, or the
+`colorContrast` tokens to restore any specific v3 appearance. See
+**Guides → Color**.
+
 ## What's new in v4
 
 ### Pick a rendering backend
@@ -78,6 +96,26 @@ import type {Treemap} from "@d3plus/types";
 // don't pull in React:
 import type {D3plusComponentProps} from "@d3plus/types/react";
 ```
+
+### Motion trails
+
+Points that move between timeline frames sweep a tapering motion trail from their
+previous position to the current one — on by default for scatter and Geomap
+points. `shapeConfig.Circle.trailPersist` keeps past moves visible as a fading
+path. See **Guides → Animation**.
+
+### Highlight a series
+
+`highlight(predicate)` applies a standing emphasis — matching marks keep their
+color while the rest are de-emphasized to gray, and it survives pointer movement
+(unlike hover). See **Guides → Interactivity**.
+
+### New color utilities
+
+`@d3plus/color` adds `colorRamp` (even single-hue OKLab ramps), `colorValidate`
+(check a palette for OKLCH lightness, chroma, colorblind separation, and WCAG
+contrast), and the `colorOrdinal` chart config for ordered categorical data. See
+**Guides → Color**.
 
 ## Need help?
 
