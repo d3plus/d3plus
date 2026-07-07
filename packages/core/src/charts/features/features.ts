@@ -654,7 +654,7 @@ export const attributionFeature: FeatureModule = {
     attr.exit().remove();
 
     attr = attr
-      .merge(attrEnter)
+      .merge(attrEnter as never)
       .style("position", "absolute")
       .html(viz.schema.attribution)
       .style("right", `${viz._margin.right}px`)

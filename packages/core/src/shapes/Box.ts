@@ -314,7 +314,7 @@ export default class Box extends BaseClass {
     // Shape.render() honors it as long as renderMode is "compute".
     const mountInner = (parent: string): D3Selection["node"] | null => {
       if (compute) return null as unknown as D3Selection["node"];
-      return elem(parent, {parent: this._select}).node();
+      return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
     };
 
     const outlierData: DataPoint[] = [];

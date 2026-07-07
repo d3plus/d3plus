@@ -73,7 +73,7 @@ export default class Whisker extends BaseClass {
     }
     const mountInner = (parent: string): D3Selection["node"] | null => {
       if (compute) return null as unknown as D3Selection["node"];
-      return elem(parent, {parent: this._select}).node();
+      return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
     };
 
     const lineData: DataPoint[] = [];

@@ -16,7 +16,7 @@ import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, Scene} from "@d3plus/render";
 
 interface SceneComponent {
-  _select?: {node: () => Element | null};
+  _select?: {node: () => import("d3-selection").BaseType | null};
   _sceneRenderer?: SvgRenderer;
   schema: {width?: number; height?: number};
   toScene: () => GroupNode;
@@ -24,9 +24,10 @@ interface SceneComponent {
 
 export function paintComponentScene(instance: SceneComponent): void {
   const sel = instance._select;
-  const container =
+  const node =
     sel && typeof sel.node === "function" ? sel.node() : null;
-  if (!container) return;
+  if (!(node instanceof Element)) return;
+  const container: Element = node;
 
   const width = instance.schema.width ?? 400;
   const height = instance.schema.height ?? 200;

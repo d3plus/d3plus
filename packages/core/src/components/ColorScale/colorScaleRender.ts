@@ -304,7 +304,7 @@ function renderGradientLabels(
   cs._labelClass
     .config(labelConfig as D3plusConfig)
     .data(labelData as unknown as DataPoint[])
-    .select(groups.labelGroup.node())
+    .select(groups.labelGroup.node() as unknown as HTMLElement)
     .x(((d: DataPoint) =>
       (d as unknown as string) === cs._labelMax
         ? (rectConfig.x as number) + (rectConfig.width as number) / 2 + cs.schema.padding

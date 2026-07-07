@@ -131,7 +131,7 @@ function resolvePortal(that: Tooltip): D3Selection {
     document.body.appendChild(host);
     that._portalEl = host;
   }
-  return select(host);
+  return select(host) as unknown as D3Selection;
 }
 
 /**
@@ -149,22 +149,22 @@ function divElement(
     .attr("class", `d3plus-tooltip-${cat}`)
     .attr(
       "id",
-      (d: DataPoint, i: number) =>
-        `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`,
+      ((d: DataPoint, i: number) =>
+        `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`) as never,
     );
 
   const div = update
     .select(`.d3plus-tooltip-${cat}`)
     .html(
-      (d: DataPoint, i: number) =>
+      ((d: DataPoint, i: number) =>
         (
           that.schema as Record<
             string,
             (d: DataPoint, i: number) => unknown
           >
-        )[cat](d, i) as string,
+        )[cat](d, i) as string) as never,
     )
-    .style("display", (d: DataPoint, i: number) => {
+    .style("display", ((d: DataPoint, i: number) => {
       const val = (
         that.schema as Record<
           string,
@@ -173,7 +173,7 @@ function divElement(
       )[cat](d, i);
       const visible = val !== false && val !== undefined && val !== null;
       return visible ? "block" : "none";
-    });
+    }) as never);
 
   stylize(
     div,
@@ -261,8 +261,8 @@ function bindTooltips(
   enter
     .attr(
       "id",
-      (d: DataPoint, i: number) =>
-        `d3plus-tooltip-${d ? that.schema.id(d, i) : ""}`,
+      ((d: DataPoint, i: number) =>
+        `d3plus-tooltip-${d ? that.schema.id(d, i) : ""}`) as never,
     )
     .style("visibility", "hidden")
     .call(box => boxStyles(that, box as never))
@@ -281,7 +281,7 @@ function bindTooltips(
 
       that._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
       positionTooltip(reference, tooltip, arrowEl, that.schema.offset(d, i), arrowDistance, arrowHeight);
-    });
+    } as never);
 
   update
     .each(function (this: unknown, d: DataPoint, i: number) {
@@ -295,7 +295,7 @@ function bindTooltips(
           : position as HTMLElement;
         positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that.schema.offset(d, i), ref.arrowDistance, ref.arrowHeight);
       }
-    })
+    } as never)
     .call(box => boxStyles(that, box as never));
 
   tooltips
@@ -402,11 +402,11 @@ export default class Tooltip extends BaseClass {
     const portal = resolvePortal(this);
     const tooltips = portal
       .selectAll(`.${this.schema.className}`)
-      .data(this._data, this.schema.id);
+      .data(this._data, this.schema.id) as unknown as D3Selection;
 
-    const enter = tooltips.enter().append("div").attr("class", this.schema.className);
+    const enter = tooltips.enter().append("div").attr("class", this.schema.className) as unknown as D3Selection;
 
-    const update = tooltips.merge(enter as never);
+    const update = tooltips.merge(enter as never) as unknown as D3Selection;
     stylize(update, this.schema.tooltipStyle);
 
     /**

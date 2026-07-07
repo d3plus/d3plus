@@ -169,7 +169,7 @@ export default class Timeline extends Axis {
     // release point; duration 0 applies the final period on the first frame.
     const move = this._brushGroup.transition(this._transition);
     if (!this.schema.brushing) move.duration(0);
-    move.call(this._brush.move, this._updateBrushLimit(domain));
+    move.call(this._brush.move as never, this._updateBrushLimit(domain));
 
     if (this.schema.on.end) (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
   }
@@ -603,7 +603,7 @@ export default class Timeline extends Axis {
       if (this._group) {
         const parent = this._select.node();
         const group = this._group.node();
-        if (parent && group && group.parentNode === parent) parent.appendChild(group);
+        if (parent instanceof Element && group instanceof Element && group.parentNode === parent) parent.appendChild(group);
       }
     }
 

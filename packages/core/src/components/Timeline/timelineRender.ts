@@ -25,8 +25,9 @@ import type Timeline from "./Timeline.js";
 */
 export function paintTimelineScene(tl: Timeline, root: GroupNode): void {
   const sel = tl._select;
-  const container = sel && typeof sel.node === "function" ? sel.node() : null;
-  if (!container) return;
+  const node = sel && typeof sel.node === "function" ? sel.node() : null;
+  if (!(node instanceof Element)) return;
+  const container: Element = node;
   const width = (tl.schema.width as number) ?? 400;
   const height = (tl.schema.height as number) ?? 100;
   const ref = tl as unknown as {_sceneRenderer?: SvgRenderer};
@@ -241,10 +242,10 @@ export function setupBrush(
 
   tl._brushGroup = elem("g.brushGroup", {parent: tl._group});
   tl._brushGroup
-    .call(brush)
+    .call(brush as never)
     .transition(tl._transition)
     .call(
-      brush.move,
+      brush.move as never,
       tl._buttonBehaviorCurrent === "ticks"
         ? tl._updateBrushLimit(selection)
         : selection,
