@@ -45,3 +45,11 @@ it("falls back to white when no background is set", () => {
   document.body.appendChild(div);
   assert.strictEqual(backgroundColor(div), "rgb(255, 255, 255)");
 });
+
+it("falls back to white for a null or non-Element node", () => {
+  // A d3 selection's `.node()` can be null or a non-Element (Document, Window);
+  // the accessor narrows to Element and returns white for anything else.
+  assert.strictEqual(backgroundColor(null), "rgb(255, 255, 255)");
+  assert.strictEqual(backgroundColor(undefined), "rgb(255, 255, 255)");
+  assert.strictEqual(backgroundColor(document), "rgb(255, 255, 255)");
+});
