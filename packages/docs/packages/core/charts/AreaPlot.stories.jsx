@@ -44,6 +44,11 @@ export const BasicExample = {
       router: {
         pathname: "/core/charts/AreaPlot"
       }
+    },
+    docs: {
+      description: {
+        story: "A single-series area chart: `groupBy` defines the series and the region fills from the baseline up to each `y` value."
+      }
     }
   },
   render: Template
@@ -71,4 +76,4 @@ ChangingAreaOpacity.args = {
     }
   }
 };
-ChangingAreaOpacity.parameters = {controls: {include: ["shapeConfig"]}};
+ChangingAreaOpacity.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Set `shapeConfig.Area.fillOpacity` to 0.5 so that where the two series overlap you can still see both areas through each other rather than one occluding the other."}}};

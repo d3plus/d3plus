@@ -167,6 +167,9 @@ importers:
       '@d3plus/math':
         specifier: workspace:*
         version: link:../math
+      '@d3plus/render':
+        specifier: workspace:*
+        version: link:../render
       '@d3plus/text':
         specifier: workspace:*
         version: link:../text
@@ -401,6 +404,33 @@ importers:
         specifier: ^6.2.5
         version: 6.4.1(@types/node@25.5.2)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3)
 
+  packages/render:
+    dependencies:
+      '@d3plus/data':
+        specifier: workspace:*
+        version: link:../data
+      d3-color:
+        specifier: ^3.1.0
+        version: 3.1.0
+      d3-interpolate:
+        specifier: ^3.0.1
+        version: 3.0.1
+      d3-interpolate-path:
+        specifier: ^2.3.0
+        version: 2.3.0
+      d3-selection:
+        specifier: ^3.0.0
+        version: 3.0.0
+      d3-shape:
+        specifier: ^3.2.0
+        version: 3.2.0
+      d3-transition:
+        specifier: ^3.0.1
+        version: 3.0.1(d3-selection@3.0.0)
+      textures:
+        specifier: ^1.2.3
+        version: 1.2.3
+
   packages/text:
     dependencies:
       '@chenglou/pretext':
@@ -409,6 +439,9 @@ importers:
       '@d3plus/dom':
         specifier: workspace:*
         version: link:../dom
+      '@d3plus/locales':
+        specifier: workspace:*
+        version: link:../locales
       d3-selection:
         specifier: ^3.0.0
         version: 3.0.0

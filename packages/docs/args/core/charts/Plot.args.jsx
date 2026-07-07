@@ -23,6 +23,49 @@ export const argTypes = assign(
    */
   
   {
+    _drawSceneToTarget: {
+      control: {
+        type: "number"
+      },
+      description: "Renders this chart through the @d3plus/render pluggable backends. Called\nautomatically by `render()`. The compute pass draws into `this._select`\n(an auto-created svg INSIDE the user's target div) — that svg is the\noff-stage detached compute svg. SvgRenderer mounts to the user's target\ndiv (the parent), as a sibling to the detached compute svg. The compute\nsvg's children get cleared so only the scene output is visible.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    _paint: {
+      control: {},
+      description: "Paint phase: production axis rendering, shape buffer setup, and shape\nemission with event handlers. Receives all cross-phase locals from\n_draw via `pCtx` (so this method has zero coupling to _draw's local\nscope beyond the explicit context).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "plotpaintcontext"
+      }
+    },
+    _wirePlotShapeEvents: {
+      control: {
+        type: "object"
+      },
+      description: "Wires user-registered `on()` event handlers onto a freshly-configured\nshape instance. Splits the registered events into three buckets:\nglobal (`\"click\"`), shape-scoped (`\"click.shape\"`), and\nshape-class-scoped (`\"click.Bar\"` etc.). All three forward into\n`this.schema.on[event](d.data, d.i, x, event)`. Extracted from\nPlot._paint so the chart-level event wiring is in one place.\n\nOn the scene path (SvgRenderer/CanvasRenderer) these d3-selection\nbindings don't fire — compute-mode shapes mount no per-shape DOM.\nPointer events are instead routed by `Viz._drawSceneToTarget`'s\nrenderer bridge: it hit-tests via `Renderer.pick`, reads the picked\nnode's stamped `shapeType`, and dispatches the matching global,\n`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three\nbuckets this method wires, so SVG and Canvas behave identically.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "object"
+      }
+    },
     active: {
       control: {},
       description: "The active callback function for highlighting shapes.",
@@ -51,31 +94,16 @@ export const argTypes = assign(
     },
     annotations: {
       control: {},
-      defaultValue: "[  ]",
+      defaultValue: "unknown",
       description: "Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the \"shape\", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).\n\nAdditionally, each config object can also contain an optional \"layer\" key, which defines whether the annotations will be displayed in \"front\" or in \"back\" of the primary visualization shapes. This value defaults to \"back\" if not present.",
       table: {
         defaultValue: {
-          summary: "[  ]"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    ariaHidden: {
-      control: {
-        type: "boolean"
-      },
-      description: "The \"aria-hidden\" attribute of the containing SVG element. The default value is \"false\", but if you need to hide the SVG from screen readers set this property to \"true\".",
-      table: {
-        defaultValue: {
-          summary: "undefined"
+          summary: "unknown"
         }
       },
       type: {
         required: false,
-        summary: "boolean"
+        summary: "unknown"
       }
     },
     attribution: {
@@ -107,17 +135,19 @@ export const argTypes = assign(
       }
     },
     axisPersist: {
-      control: {},
-      defaultValue: false,
+      control: {
+        type: "boolean"
+      },
+      defaultValue: "unknown",
       description: "Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).",
       table: {
         defaultValue: {
-          summary: false
+          summary: "unknown"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "boolean"
       }
     },
     backConfig: {
@@ -143,26 +173,30 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     barPadding: {
-      control: {},
+      control: {
+        type: "number"
+      },
       defaultValue: 0,
-      description: "The pixel space between each bar in a group of bars.",
+      description: "Padding between bars in pixels.",
       table: {
         defaultValue: {
-          summary: 0
+          summary: "0"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "number"
       }
     },
     baseline: {
-      control: {},
+      control: {
+        type: "number"
+      },
       description: "The baseline for the x/y plot.",
       table: {
         defaultValue: {
@@ -170,12 +204,14 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "number"
       }
     },
     buffer: {
-      control: {},
+      control: {
+        type: "boolean"
+      },
       defaultValue: "assign({}, defaultBuffers, {Bar: false, Line: false})",
       description: "Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).",
       table: {
@@ -184,23 +220,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    cache: {
-      control: {
-        type: "boolean"
-      },
-      description: "Enables a lru cache that stores up to 5 previously loaded files/URLs. Helpful when constantly writing over the data array with a URL in the render function of a react component.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
         required: false,
-        summary: "boolean"
+        summary: "boolean | record"
       }
     },
     color: {
@@ -300,23 +321,36 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "unknown"
       }
     },
     confidenceConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
+      defaultValue: "{fill: (d, i) => {\n  const c = typeof this.schema.shapeConfig.Line.stroke === \"function\" ? this.schema.shapeConfig.Line.stroke(d, i) : this.schema.shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
       description: "Configuration object for shapes rendered as confidence intervals.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
+          detail: "{fill: (d, i) => {\n  const c = typeof this.schema.shapeConfig.Line.stroke === \"function\" ? this.schema.shapeConfig.Line.stroke(d, i) : this.schema.shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
           summary: "function"
         }
       },
       type: {
+        required: false,
+        summary: "record"
+      }
+    },
+    config: {
+      control: {},
+      description: "Methods that correspond to the key/value pairs and returns this class.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
         required: true,
-        summary: "any"
+        summary: "d3plusconfig"
       }
     },
     data: {
@@ -332,36 +366,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | array.&lt;datapoint&gt; | object"
-      }
-    },
-    dataCutoff: {
-      control: {
-        type: "number"
-      },
-      description: "If the number of visible data points exceeds this number, the default hover behavior will be disabled (helpful for very large visualizations bogging down the DOM with opacity updates).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    depth: {
-      control: {
-        type: "number"
-      },
-      description: "The current depth of the visualization. The value should correspond with an index in the [groupBy](#groupBy) array.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
       }
     },
     detectResize: {
@@ -424,33 +428,20 @@ export const argTypes = assign(
         summary: "number"
       }
     },
-    discrete: {
+    discreteCutoff: {
       control: {
-        type: "text"
+        type: "number"
       },
-      description: "If *value* is specified, sets the discrete accessor to the specified method name (usually an axis) and returns the current class instance.",
+      defaultValue: "unknown",
+      description: "When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
       table: {
         defaultValue: {
-          summary: "undefined"
+          summary: "unknown"
         }
       },
       type: {
         required: false,
-        summary: "string"
-      }
-    },
-    discreteCutoff: {
-      control: {},
-      defaultValue: 100,
-      description: "When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
-      table: {
-        defaultValue: {
-          summary: 100
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
+        summary: "number"
       }
     },
     downloadButton: {
@@ -496,34 +487,6 @@ export const argTypes = assign(
         summary: "string"
       }
     },
-    duration: {
-      control: {
-        type: "number"
-      },
-      description: "The animation duration in milliseconds.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    filter: {
-      control: {},
-      description: "A filter function applied to the data before drawing.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | function"
-      }
-    },
     fontFamily: {
       control: {
         type: "text"
@@ -555,27 +518,14 @@ export const argTypes = assign(
       }
     },
     groupPadding: {
-      control: {},
-      defaultValue: 5,
-      description: "The pixel space between groups of bars.",
-      table: {
-        defaultValue: {
-          summary: 5
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    height: {
       control: {
         type: "number"
       },
-      description: "The overall height of the visualization in pixels.",
+      defaultValue: "unknown",
+      description: "The pixel space between groups of bars.",
       table: {
         defaultValue: {
-          summary: "undefined"
+          summary: "unknown"
         }
       },
       type: {
@@ -611,6 +561,19 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number | function"
+      }
+    },
+    highlight: {
+      control: {},
+      description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | function"
       }
     },
     hover: {
@@ -651,12 +614,14 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     labelPosition: {
-      control: {},
+      control: {
+        type: "text"
+      },
       defaultValue: "auto",
       description: "The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values \"outside\" or \"inside\" can be set for Bar shapes, whose \"auto\" default will calculate the best position dynamically based on the available space.",
       table: {
@@ -665,8 +630,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "string | function"
       }
     },
     legend: {
@@ -742,19 +707,6 @@ export const argTypes = assign(
         summary: "string | function"
       }
     },
-    legendSort: {
-      control: {},
-      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) used to sort the legend.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
     legendTooltip: {
       control: {},
       description: "Configuration object for the legend tooltip.",
@@ -769,16 +721,18 @@ export const argTypes = assign(
       }
     },
     lineLabels: {
-      control: {},
-      description: "Draws labels on the right side of any Line shapes that are drawn on the plot.",
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to show labels on line charts.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "boolean"
       }
     },
     lineMarkerConfig: {
@@ -792,22 +746,24 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     lineMarkers: {
-      control: {},
-      defaultValue: false,
+      control: {
+        type: "boolean"
+      },
+      defaultValue: "unknown",
       description: "Draws circle markers on each vertex of a Line.",
       table: {
         defaultValue: {
-          summary: false
+          summary: "unknown"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "boolean"
       }
     },
     loadingHTML: {
@@ -838,6 +794,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
       }
     },
     messageMask: {
@@ -898,6 +869,34 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
     render: {
       control: {},
       description: "Draws the visualization given the specified configuration.",
@@ -909,6 +908,57 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    renderMode: {
+      control: {
+        type: "radio"
+      },
+      description: "\"full\" runs the DOM enter/update/exit for every shape; \"compute\"\nskips DOM work and only populates the scene data (`_textData`,\n`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by\n`renderScene` callers; users can also opt-in.",
+      options: [
+        "full",
+        "compute"
+      ],
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "\"full\" | \"compute\""
+      }
+    },
+    renderScene: {
+      control: {},
+      description: "Public entry point that renders this chart through the @d3plus/render\npluggable backends. The compute pass happens via render() (in an svg\nauto-created inside the target div); SvgRenderer/CanvasRenderer paints\nthe scene to the target. Returns `{renderer, scene}` so callers can\ninteract with the renderer (e.g. for picking) or read the scene data.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "element"
+      }
+    },
+    renderer: {
+      control: {
+        type: "radio"
+      },
+      description: "Selects which @d3plus/render backend paints the visible output.\n`\"svg\"` = SvgRenderer (default), `\"canvas\"` = CanvasRenderer.\nBoolean arguments both normalize to `\"svg\"`.",
+      options: [
+        "svg",
+        "canvas"
+      ],
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "boolean | \"svg\" | \"canvas\""
       }
     },
     scrollContainer: {
@@ -945,11 +995,10 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      defaultValue: "Circle",
       description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
       table: {
         defaultValue: {
-          summary: "Circle"
+          summary: "undefined"
         }
       },
       type: {
@@ -959,32 +1008,28 @@ export const argTypes = assign(
     },
     shapeConfig: {
       control: {},
-      defaultValue: "assign(this._shapeConfig, {Area: {label: (d, i) => (this._stacked ? this._drawLabel(d, i) : false), labelBounds: (d, i, aes) => {\n  let r = largestRect(aes.points, {\n      angle: range(-20, 20, 5)\n  });\n  if (!r || r.height < 20 || r.width < 50) r = largestRect(aes.points, {\n      angle: range(-80, 80, 5)\n  });\n  if (!r) return null;\n  const x = min(aes.points, (d: any)=>d[0]) as unknown as number;\n  const y = max(aes.points.filter((d: any)=>d[0] === x), (d: any)=>d[1]) as unknown as number;\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - x,\n      y: r.cy - r.height / 2 - y\n  };\n}, labelConfig: {fontMin: 6, fontResize: true, padding: 10}}, ariaLabel: (d, i) => {\n  let ariaLabelStr = \"\";\n  if (d.nested) ariaLabelStr = `${this._drawLabel(d.data, d.i)}`;\n  else {\n      ariaLabelStr = `${this._drawLabel(d, i)}`;\n      if (this._x(d, i) !== undefined) ariaLabelStr += `, x: ${this._x(d, i)}`;\n      if (this._y(d, i) !== undefined) ariaLabelStr += `, y: ${this._y(d, i)}`;\n      if (this._x2(d, i) !== undefined) ariaLabelStr += `, x2: ${this._x2(d, i)}`;\n      if (this._y2(d, i) !== undefined) ariaLabelStr += `, y2: ${this._y2(d, i)}`;\n  }\n  return `${ariaLabelStr}.`;\n}, Bar: {labelBounds(, , , ) {\n{\n  const padding = 1;\n  const width = this._discrete === \"y\" ? \"width\" : \"height\";\n  const height = this._discrete === \"y\" ? \"height\" : \"width\";\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const range = (this as any)[`_${nonDiscrete}Axis`]._d3Scale.range();\n  const space = Math.abs(range[1] - range[0]);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  if (outside.bind(this)(d, i)) {\n      return {\n          [width]: space - s[width],\n          [height]: s[height],\n          x: invert ? -s.width / 2 : negative ? -space : s.width + padding,\n          y: invert ? negative ? s.height + padding : -space : -s.height / 2 + 1\n      };\n  }\n  return {\n      [width]: s[width],\n      [height]: s[height],\n      x: invert ? -s.width / 2 : negative ? this._stacked ? padding - s.width : padding - s.width : -padding,\n      y: invert ? negative ? this._stacked ? padding : padding : -s.height + padding : -s.height / 2 + padding\n  };\n}\n}, labelConfig: {fontMax: 16, fontMin: 6, fontResize: true, fontColor(, , ) {\n{\n  if (outside.bind(this)(d, i)) {\n      const bg: string = this._backgroundConfig.fill === \"transparent\" ? backgroundColor(this._select.node()) : this._backgroundConfig.fill;\n      return colorContrast(bg);\n  }\n  return colorContrast(typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill);\n}\n}, fontStroke(, , ) {\n{\n  if (outside.bind(this)(d, i)) {\n      const bg: string = this._backgroundConfig.fill === \"transparent\" ? backgroundColor(this._select.node()) : this._backgroundConfig.fill;\n      return colorContrast(bg);\n  }\n  return \"transparent\";\n}\n}, fontStrokeWidth(, , ) {\n{\n  return outside.bind(this)(d, i) ? 0.1 : 0;\n}\n}, padding: 3, textAnchor(, , ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete: string = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  const anchor = invert ? \"middle\" : outside.bind(this)(d, i) ? negative ? \"end\" : \"start\" : negative ? \"start\" : \"end\";\n  return rtl() ? anchor === \"start\" ? \"end\" : anchor === \"end\" ? \"start\" : anchor : anchor;\n}\n}, verticalAlign(, , ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete: string = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  return invert ? outside.bind(this)(d, i) ? negative ? \"top\" : \"bottom\" : negative ? \"bottom\" : \"top\" : \"middle\";\n}\n}}}, Circle: {r: defaultSize.bind(this)}, Line: {curve: () => this._discrete ? `monotone${this._discrete.charAt(0).toUpperCase()}` : linear, fill: none, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return colorLegible(c);\n}, fontResize: false, padding: 5, textAnchor: start, verticalAlign: middle}, strokeWidth: 2}, Rect: {height: (d) => defaultSize.bind(this)(d) * 2, width: (d) => defaultSize.bind(this)(d) * 2}})",
       description: "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          detail: "assign(this._shapeConfig, {Area: {label: (d, i) => (this._stacked ? this._drawLabel(d, i) : false), labelBounds: (d, i, aes) => {\n  let r = largestRect(aes.points, {\n      angle: range(-20, 20, 5)\n  });\n  if (!r || r.height < 20 || r.width < 50) r = largestRect(aes.points, {\n      angle: range(-80, 80, 5)\n  });\n  if (!r) return null;\n  const x = min(aes.points, (d: any)=>d[0]) as unknown as number;\n  const y = max(aes.points.filter((d: any)=>d[0] === x), (d: any)=>d[1]) as unknown as number;\n  return {\n      angle: r.angle,\n      width: r.width,\n      height: r.height,\n      x: r.cx - r.width / 2 - x,\n      y: r.cy - r.height / 2 - y\n  };\n}, labelConfig: {fontMin: 6, fontResize: true, padding: 10}}, ariaLabel: (d, i) => {\n  let ariaLabelStr = \"\";\n  if (d.nested) ariaLabelStr = `${this._drawLabel(d.data, d.i)}`;\n  else {\n      ariaLabelStr = `${this._drawLabel(d, i)}`;\n      if (this._x(d, i) !== undefined) ariaLabelStr += `, x: ${this._x(d, i)}`;\n      if (this._y(d, i) !== undefined) ariaLabelStr += `, y: ${this._y(d, i)}`;\n      if (this._x2(d, i) !== undefined) ariaLabelStr += `, x2: ${this._x2(d, i)}`;\n      if (this._y2(d, i) !== undefined) ariaLabelStr += `, y2: ${this._y2(d, i)}`;\n  }\n  return `${ariaLabelStr}.`;\n}, Bar: {labelBounds(, , , ) {\n{\n  const padding = 1;\n  const width = this._discrete === \"y\" ? \"width\" : \"height\";\n  const height = this._discrete === \"y\" ? \"height\" : \"width\";\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete = this._discrete.replace(this._discrete.charAt(0), other);\n  const range = (this as any)[`_${nonDiscrete}Axis`]._d3Scale.range();\n  const space = Math.abs(range[1] - range[0]);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  if (outside.bind(this)(d, i)) {\n      return {\n          [width]: space - s[width],\n          [height]: s[height],\n          x: invert ? -s.width / 2 : negative ? -space : s.width + padding,\n          y: invert ? negative ? s.height + padding : -space : -s.height / 2 + 1\n      };\n  }\n  return {\n      [width]: s[width],\n      [height]: s[height],\n      x: invert ? -s.width / 2 : negative ? this._stacked ? padding - s.width : padding - s.width : -padding,\n      y: invert ? negative ? this._stacked ? padding : padding : -s.height + padding : -s.height / 2 + padding\n  };\n}\n}, labelConfig: {fontMax: 16, fontMin: 6, fontResize: true, fontColor(, , ) {\n{\n  if (outside.bind(this)(d, i)) {\n      const bg: string = this._backgroundConfig.fill === \"transparent\" ? backgroundColor(this._select.node()) : this._backgroundConfig.fill;\n      return colorContrast(bg);\n  }\n  return colorContrast(typeof this._shapeConfig.fill === \"function\" ? this._shapeConfig.fill(d, i) : this._shapeConfig.fill);\n}\n}, fontStroke(, , ) {\n{\n  if (outside.bind(this)(d, i)) {\n      const bg: string = this._backgroundConfig.fill === \"transparent\" ? backgroundColor(this._select.node()) : this._backgroundConfig.fill;\n      return colorContrast(bg);\n  }\n  return \"transparent\";\n}\n}, fontStrokeWidth(, , ) {\n{\n  return outside.bind(this)(d, i) ? 0.1 : 0;\n}\n}, padding: 3, textAnchor(, , ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete: string = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  const anchor = invert ? \"middle\" : outside.bind(this)(d, i) ? negative ? \"end\" : \"start\" : negative ? \"start\" : \"end\";\n  return rtl() ? anchor === \"start\" ? \"end\" : anchor === \"end\" ? \"start\" : anchor : anchor;\n}\n}, verticalAlign(, , ) {\n{\n  const other = this._discrete.charAt(0) === \"x\" ? \"y\" : \"x\";\n  const invert = other === \"y\";\n  const nonDiscrete: string = this._discrete.replace(this._discrete.charAt(0), other);\n  const negative = (this as any)[`_${nonDiscrete}`](d, i) < 0;\n  return invert ? outside.bind(this)(d, i) ? negative ? \"top\" : \"bottom\" : negative ? \"bottom\" : \"top\" : \"middle\";\n}\n}}}, Circle: {r: defaultSize.bind(this)}, Line: {curve: () => this._discrete ? `monotone${this._discrete.charAt(0).toUpperCase()}` : linear, fill: none, labelConfig: {fontColor: (d, i) => {\n  const c = typeof this._shapeConfig.Line.stroke === \"function\" ? this._shapeConfig.Line.stroke(d, i) : this._shapeConfig.Line.stroke;\n  return colorLegible(c);\n}, fontResize: false, padding: 5, textAnchor: start, verticalAlign: middle}, strokeWidth: 2}, Rect: {height: (d) => defaultSize.bind(this)(d) * 2, width: (d) => defaultSize.bind(this)(d) * 2}})",
-          summary: "function"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    shapeSort: {
-      control: {},
-      defaultValue: "(a, b) => this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b)",
-      description: "A JavaScript [sort comparator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape Class (ie. \"Circle\", \"Line\", etc) as it's comparator arguments. Shapes are drawn in groups based on their type, so you are defining the layering order for all shapes of said type.",
-      table: {
-        defaultValue: {
-          detail: "(a, b) => this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b)",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
         required: true,
-        summary: "any"
+        summary: "d3plusconfig"
+      }
+    },
+    shapeSort: {
+      control: {},
+      description: "A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)\nthat receives each shape class (e.g. \"Circle\", \"Line\") as its arguments.\nShapes are drawn in groups by type, so this defines the layering order for\nall shapes of a given type.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     size: {
@@ -996,54 +1041,62 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "false | plotaccessorarg"
       }
     },
     sizeMax: {
-      control: {},
+      control: {
+        type: "number"
+      },
       defaultValue: 20,
-      description: "Sets the size scale maximum to the specified number.",
+      description: "",
       table: {
         defaultValue: {
-          summary: 20
+          summary: "20"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "number"
       }
     },
     sizeMin: {
-      control: {},
+      control: {
+        type: "number"
+      },
       defaultValue: 5,
-      description: "Sets the size scale minimum to the specified number.",
+      description: "",
       table: {
         defaultValue: {
-          summary: 5
+          summary: "5"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "number"
       }
     },
     sizeScale: {
-      control: {},
+      control: {
+        type: "text"
+      },
       defaultValue: "sqrt",
-      description: "Sets the size scale to the specified string.",
+      description: "",
       table: {
         defaultValue: {
           summary: "sqrt"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "string"
       }
     },
     stackOffset: {
-      control: {},
+      control: {
+        type: "text"
+      },
       defaultValue: "stackOffsetDiverging",
       description: "Sets the stack offset. If *value* is not specified, returns the current stack offset function.",
       table: {
@@ -1052,12 +1105,14 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "string | function"
       }
     },
     stackOrder: {
-      control: {},
+      control: {
+        type: "text"
+      },
       defaultValue: "stackOrderDescending",
       description: "Sets the stack order. If *value* is not specified, returns the current stack order function.",
       table: {
@@ -1066,21 +1121,23 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "string | function"
       }
     },
     stacked: {
-      control: {},
-      description: "If *value* is specified, toggles shape stacking. If *value* is not specified, returns the current stack value.",
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to stack series.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "boolean"
       }
     },
     subtitle: {
@@ -1124,36 +1181,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean | function"
-      }
-    },
-    svgDesc: {
-      control: {
-        type: "text"
-      },
-      description: "The description text for the SVG `<desc>` element, used for accessibility.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    svgTitle: {
-      control: {
-        type: "text"
-      },
-      description: "The title text for the SVG `<title>` element, used for accessibility.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
       }
     },
     threshold: {
@@ -1216,42 +1243,12 @@ export const argTypes = assign(
         summary: "string | false | function"
       }
     },
-    timeFilter: {
-      control: {},
-      description: "A filter function that limits which time periods are shown.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | function"
-      }
-    },
-    timeline: {
-      control: {
-        type: "boolean"
-      },
-      description: "Whether to display the timeline.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
     timelineConfig: {
       control: {},
-      defaultValue: "assign(this._timelineConfig, {brushMin: () => this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1})",
       description: "Configuration object for the timeline.",
       table: {
         defaultValue: {
-          detail: "assign(this._timelineConfig, {brushMin: () => this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1})",
-          summary: "function"
+          summary: "undefined"
         }
       },
       type: {
@@ -1416,19 +1413,17 @@ export const argTypes = assign(
         summary: "boolean | function"
       }
     },
-    width: {
-      control: {
-        type: "number"
-      },
-      description: "The overall width of the visualization in pixels.",
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: false,
-        summary: "number"
+        required: true,
+        summary: "function"
       }
     },
     x: {
@@ -1442,8 +1437,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "plotaccessorarg"
       }
     },
     x2: {
@@ -1457,8 +1452,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "plotaccessorarg"
       }
     },
     x2Config: {
@@ -1471,89 +1466,95 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     x2Domain: {
-      control: {},
-      description: "The x2 domain as an array. If either value is undefined, it will be calculated from the data.",
+      control: {
+        type: "object"
+      },
+      description: "The x2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "array.&lt;number | date&gt;"
       }
     },
     x2Sort: {
       control: {},
-      description: "Defines a custom sorting comparitor function to be used for discrete x2 axes.",
+      description: "Defines a custom sorting comparator function for discrete x2 axes.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "function"
       }
     },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
           summary: "function"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     xCutoff: {
-      control: {},
+      control: {
+        type: "number"
+      },
       defaultValue: 150,
-      description: "When the width of the chart is less than or equal to this pixel value, and the x-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
+      description: "",
       table: {
         defaultValue: {
-          summary: 150
+          summary: "150"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "number"
       }
     },
     xDomain: {
-      control: {},
-      description: "The x domain as an array. If either value is undefined, it will be calculated from the data.",
+      control: {
+        type: "object"
+      },
+      description: "The x domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "array.&lt;number | date&gt;"
       }
     },
     xSort: {
       control: {},
-      description: "Defines a custom sorting comparitor function to be used for discrete x axes.",
+      description: "Custom sort function for x-axis values.",
       table: {
         defaultValue: {
           summary: "undefined"
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "function"
       }
     },
     y: {
@@ -1567,8 +1568,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "plotaccessorarg"
       }
     },
     y2: {
@@ -1582,8 +1583,8 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "plotaccessorarg"
       }
     },
     y2Config: {
@@ -1596,96 +1597,15 @@ export const argTypes = assign(
         }
       },
       type: {
-        required: true,
-        summary: "any"
+        required: false,
+        summary: "record"
       }
     },
     y2Domain: {
-      control: {},
-      description: "The y2 domain as an array. If either value is undefined, it will be calculated from the data.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    y2Sort: {
-      control: {},
-      description: "Defines a custom sorting comparitor function to be used for discrete y2 axes.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    yConfig: {
-      control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
-      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
-      table: {
-        defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this._discrete && this._discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
-          summary: "function"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    yCutoff: {
-      control: {},
-      defaultValue: 150,
-      description: "When the height of the chart is less than or equal to this pixel value, and the y-axis is not the discrete axis, it will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
-      table: {
-        defaultValue: {
-          summary: 150
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    yDomain: {
-      control: {},
-      description: "The y domain as an array. If either value is undefined, it will be calculated from the data.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    ySort: {
-      control: {},
-      description: "Defines a custom sorting comparitor function to be used for discrete y axes.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "any"
-      }
-    },
-    zoom: {
       control: {
-        type: "boolean"
+        type: "object"
       },
-      description: "Toggles the ability to zoom/pan the visualization. Certain parameters for zooming are required to be hooked up on a visualization by visualization basis.",
+      description: "The y2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1693,7 +1613,79 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "boolean"
+        summary: "array.&lt;number | date&gt;"
+      }
+    },
+    y2Sort: {
+      control: {},
+      description: "Defines a custom sorting comparator function for discrete y2 axes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    yConfig: {
+      control: {},
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
+      table: {
+        defaultValue: {
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          summary: "function"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
+    yCutoff: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 150,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "150"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    yDomain: {
+      control: {
+        type: "object"
+      },
+      description: "The y domain as an array. If either value is undefined, it is calculated from the data.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;number | date&gt;"
+      }
+    },
+    ySort: {
+      control: {},
+      description: "Custom sort function for y-axis values.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
       }
     },
     zoomBrushHandleSize: {
@@ -1776,36 +1768,6 @@ export const argTypes = assign(
         summary: "false | record"
       }
     },
-    zoomFactor: {
-      control: {
-        type: "number"
-      },
-      description: "The multiplier that is used in with the control buttons when zooming in and out.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    zoomMax: {
-      control: {
-        type: "number"
-      },
-      description: "The max zoom scale.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
     zoomPadding: {
       control: {
         type: "number"
@@ -1819,36 +1781,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
-      }
-    },
-    zoomPan: {
-      control: {
-        type: "boolean"
-      },
-      description: "Toggles panning.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    zoomScroll: {
-      control: {
-        type: "boolean"
-      },
-      description: "Toggles scroll zooming.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
       }
     }
   }

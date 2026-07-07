@@ -1,6 +1,6 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module clickLegend
@@ -15,7 +15,7 @@ export default function (
   event: MouseEvent,
 ): void {
   this._select.style("cursor", "auto");
-  if (this._tooltip(d, i)) this._tooltipClass.data([]).render();
+  if (this.schema.tooltip(d, i)) this._tooltipClass.data([]).render();
 
   let id = this._id(d, i);
   if (!(id instanceof Array)) id = [id];
@@ -29,7 +29,7 @@ export default function (
     }),
   ).length;
 
-  const inverted = this._legendFilterInvert.bind(this)();
+  const inverted = this.schema.legendFilterInvert.bind(this)();
 
   if (inverted) {
     if (event.shiftKey) {

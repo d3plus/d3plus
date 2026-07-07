@@ -1,9 +1,10 @@
 /**
  * @d3plus/types — Unified TypeScript type definitions for the d3plus library.
  *
- * Re-exports all types from @d3plus/core and unique types from other packages.
- * For React component types, use the "@d3plus/react" package directly or
- * import from "@d3plus/types/react" to avoid name collisions with core classes.
+ * Re-exports all types from @d3plus/core and unique types from the other
+ * vanilla-JS packages. React component types live in a separate entry,
+ * "@d3plus/types/react", so non-React consumers don't pull @d3plus/react
+ * (and React itself) into their dependency graph.
  */
 
 export * from "@d3plus/core";
@@ -16,7 +17,6 @@ export * from "@d3plus/locales";
 export * from "@d3plus/math";
 export * from "@d3plus/text";
 
-// Re-export only the types unique to @d3plus/react (not the component functions
-// which share names with @d3plus/core classes).
-export type { D3plusComponentProps, D3plusConstructor, RendererProps } from "@d3plus/react";
-export { D3plusContext } from "@d3plus/react";
+// @d3plus/core and @d3plus/dom both export a `D3Selection` type; the core
+// definition is canonical for consumers of this unified package.
+export type {D3Selection} from "@d3plus/core";

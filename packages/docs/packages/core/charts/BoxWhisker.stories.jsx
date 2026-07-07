@@ -50,6 +50,7 @@ BasicExample.args = {
   x: "id",
   y: "value"
 };
+BasicExample.parameters = {docs: {description: {story: "One box per category summarizes its distribution: the box spans the interquartile range with a line at the median, and the whiskers reach out toward the extent of the values."}}};
 
 export const ShowingOutliers = Template.bind({});
 ShowingOutliers.args = {
@@ -86,6 +87,7 @@ ShowingOutliers.args = {
   x: "id",
   y: "value"
 };
+ShowingOutliers.parameters = {docs: {description: {story: "With the default Tukey whiskers, values beyond 1.5× the interquartile range fall outside the whiskers and are plotted as individual outlier points — no extra config required; this data carries several extreme highs and lows to trigger them."}}};
 
 export const ChangingEndpointShapes = Template.bind({});
 ChangingEndpointShapes.args = {
@@ -119,7 +121,7 @@ ChangingEndpointShapes.args = {
   x: "id",
   y: "value"
 };
-ChangingEndpointShapes.parameters = {controls: {include: ["shapeConfig"]}};
+ChangingEndpointShapes.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Change the cap drawn at each whisker's end through `shapeConfig.whiskerConfig.endpoint` — here a function gives the `alpha` group `Rect` caps and `beta` `Circle` caps."}}};
 
 export const ChangingOutlierStyles = Template.bind({});
 ChangingOutlierStyles.args = {
@@ -169,7 +171,7 @@ ChangingOutlierStyles.args = {
   x: "id",
   y: "value"
 };
-ChangingOutlierStyles.parameters = {controls: {include: ["shapeConfig"]}};
+ChangingOutlierStyles.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Restyle the outlier marks with `shapeConfig.outlier`, which picks `Circle` versus `Rect` per group, and `outlierConfig`, which sets a `fill` per shape — red circles for `alpha`, green rects for `beta`."}}};
 
 export const HorizontalChart = Template.bind({});
 HorizontalChart.args = {
@@ -201,4 +203,4 @@ HorizontalChart.args = {
   x: "value",
   y: "id"
 };
-HorizontalChart.parameters = {controls: {include: ["discrete", "shapeConfig"]}};
+HorizontalChart.parameters = {controls: {include: ["discrete", "shapeConfig"]}, docs: {description: {story: "Lay the boxes out horizontally by setting `discrete: \"y\"` together with `shapeConfig.Box.orient: \"horizontal\"`, so categories stack down the `y` axis and each distribution spreads along `x`."}}};

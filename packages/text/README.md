@@ -34,7 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`strip`](#strip) | Removes all non ASCII characters from a string. |
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
-| [`titleCase`](#titlecase) | Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowe |
+| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both |
 
 | Variables | Description |
 | --- | --- |
@@ -48,7 +48,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **fontFamilyStringify**(`family`: `string` \| `string`[]): `string`
 
-Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/fontFamily.ts#L18)
+Defined in: [fontFamily.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.ts#L18)
 
 Converts an Array of font-family names into a CSS font-family string.
 
@@ -70,7 +70,7 @@ Converts an Array of font-family names into a CSS font-family string.
 
 > **strip**(`value`: `string`, `spacer?`: `string`): `string`
 
-Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/strip.ts#L33)
+Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.ts#L33)
 
 Removes all non ASCII characters from a string.
 
@@ -93,7 +93,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/textSplit.ts#L43)
+Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L43)
 
 Splits a given sentence into an array of words.
 
@@ -115,7 +115,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:56](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/textWrap.ts#L56)
+Defined in: [textWrap.ts:168](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L168)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -129,17 +129,25 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 ### titleCase()
 
-> **titleCase**(`str`: `string` \| `undefined`): `string`
+> **titleCase**(`str`: `string` \| `undefined`, `locale?`: `string` \| `TitleCaseRules`): `string`
 
-Defined in: [titleCase.ts:55](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/titleCase.ts#L55)
+Defined in: [titleCase.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/text/src/titleCase.ts#L68)
 
-Capitalizes the first letter of each word in a phrase/sentence, accounting for words in English that should be kept lowercase such as "and" or "of", as well as acronym that should be kept uppercase such as "CEO" or "TVs".
+Capitalizes each significant word of a phrase, normalizing case in both
+directions: the locale's minor words (articles, short conjunctions/
+prepositions) are forced lowercase in the middle and known acronyms are
+forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and
+"jack smith, ceo" becomes "Jack Smith, CEO". The first and last words are
+always capitalized. The locale supplies the minor-word and acronym lists
+(e.g. "le"/"de"/"par" for French); pass an explicit rules object for full
+control, including `{style: "sentence"}` to capitalize only the first word.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` \| *required* | The string to apply the title case logic. |
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `str` | `string` \| *required* | `undefined` | The string to capitalize. |
+| `locale` | `string` \| `TitleCaseRules` | `"en-US"` | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
 
 #### Returns
 
@@ -153,7 +161,7 @@ Capitalizes the first letter of each word in a phrase/sentence, accounting for w
 
 > `const` **fontFamily**: `string`[]
 
-Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/text/src/fontFamily.ts#L5)
+Defined in: [fontFamily.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/text/src/fontFamily.ts#L5)
 
 The default fallback font list used for all text labels as an Array of Strings.
 

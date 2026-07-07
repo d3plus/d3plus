@@ -41,7 +41,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "A minimal grouped bar chart: the two series in `groupBy` share each `x` position and sit side by side, with each bar's height read from `y`."}}};
 
 export const SortingBars = Template.bind({});
 SortingBars.args = {
@@ -62,7 +62,7 @@ SortingBars.args = {
     `(a, b) => a["ID Travel Time"] - b["ID Travel Time"]`
   )
 };
-SortingBars.parameters = {controls: {include: ["xSort"]}};
+SortingBars.parameters = {controls: {include: ["xSort"]}, docs: {description: {story: "The discrete `x` axis sorts alphabetically by default; pass an `xSort` comparator to order the bars by a different field — here the travel-time buckets follow their numeric `\"ID Travel Time\"` instead of their labels."}}};
 
 export const CustomBarPadding = Template.bind({});
 CustomBarPadding.args = {
@@ -80,7 +80,7 @@ CustomBarPadding.args = {
   x: "x",
   y: "y"
 }
-CustomBarPadding.parameters = {controls: {include: ["barPadding", "groupPadding"]}};
+CustomBarPadding.parameters = {controls: {include: ["barPadding", "groupPadding"]}, docs: {description: {story: "`barPadding` sets the pixel gap between bars within a group, while `groupPadding` sets the gap between adjacent groups — raise the latter to visually separate each `x` cluster."}}};
 
 export const StackedBars = Template.bind({});
 StackedBars.args = {
@@ -97,7 +97,7 @@ StackedBars.args = {
   x: "x",
   y: "y"
 };
-StackedBars.parameters = {controls: {include: ["stacked"]}};
+StackedBars.parameters = {controls: {include: ["stacked"]}, docs: {description: {story: "Set `stacked: true` to stack the series into one bar per `x` position rather than grouping them side by side, emphasizing the combined total over per-series comparison."}}};
 
 export const HorizontalBars = Template.bind({});
 HorizontalBars.args = {
@@ -115,7 +115,7 @@ HorizontalBars.args = {
   x: "y",
   y: "x"
 };
-HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}};
+HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "Run the bars horizontally by setting `discrete: \"y\"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous."}}};
 
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
@@ -139,7 +139,7 @@ TexturedBars.args = {
   x: "x",
   y: "y"
 };
-TexturedBars.parameters = {controls: {include: ["shapeConfig"]}};
+TexturedBars.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Overlay a repeating pattern on the bars via `shapeConfig.texture` (here `\"nylon\"`), with `textureDefault` tuning its size and stroke — useful for keeping series distinguishable in print or grayscale."}}};
 
 export const PopulationPyramid = Template.bind({});
 PopulationPyramid.args = {
@@ -336,4 +336,132 @@ PopulationPyramid.args = {
   y: "Age range",
   yConfig: {barConfig: {stroke: "transparent"}, ticks: []}
 };
-PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}};
+PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}, docs: {description: {story: "A population pyramid: age ranges run up the discrete `y` axis while the `x` accessor negates the female `Population` so the sexes mirror around zero, and `xConfig.tickFormat` restores absolute labels. Use it to read a population's age-and-sex structure at a glance."}}};
+const featureData = [
+  {region: "North", quarter: "Q1", revenue: 35},
+  {region: "North", quarter: "Q2", revenue: 50},
+  {region: "North", quarter: "Q3", revenue: 42},
+  {region: "North", quarter: "Q4", revenue: 47},
+  {region: "South", quarter: "Q1", revenue: 20},
+  {region: "South", quarter: "Q2", revenue: 30},
+  {region: "South", quarter: "Q3", revenue: 38},
+  {region: "South", quarter: "Q4", revenue: 33}
+];
+
+export const RenderingToCanvas = Template.bind({});
+RenderingToCanvas.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  renderer: "canvas"
+};
+RenderingToCanvas.parameters = {
+  controls: {include: ["renderer"]},
+  docs: {description: {story: "Set `renderer: \"canvas\"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default."}}
+};
+
+export const ClickAndHoverEvents = Template.bind({});
+ClickAndHoverEvents.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  on: {
+    "click.shape": funcify(
+      d => console.log("clicked bar:", d),
+      'd => console.log("clicked bar:", d)'
+    ),
+    "mouseenter.shape": funcify(
+      d => console.log("hovered bar:", d),
+      'd => console.log("hovered bar:", d)'
+    )
+  }
+};
+ClickAndHoverEvents.parameters = {
+  controls: {include: ["on"]},
+  docs: {description: {story: "Register pointer handlers via `on`. Open the browser console, then click or hover a bar. Event names mirror d3-selection; the `.shape` namespace scopes the handler to data marks (use `.legend` for legend entries, or a shape class like `.Bar`). The handler receives the datum."}}
+};
+
+export const CustomTooltip = Template.bind({});
+CustomTooltip.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  tooltipConfig: {
+    title: funcify(d => `${d.region} — ${d.quarter}`, "d => `${d.region} — ${d.quarter}`"),
+    tbody: [
+      ["Region", funcify(d => d.region, "d => d.region")],
+      ["Revenue", funcify(d => `$${d.revenue}M`, "d => `$${d.revenue}M`")]
+    ]
+  }
+};
+CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}, docs: {description: {story: "Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting."}}};
+
+export const DownloadButton = Template.bind({});
+DownloadButton.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  downloadButton: true,
+  downloadConfig: {type: "png"}
+};
+DownloadButton.parameters = {
+  controls: {include: ["downloadButton", "downloadConfig", "downloadPosition"]},
+  docs: {description: {story: "Enable a built-in download button with `downloadButton: true`. `downloadConfig.type` accepts `\"png\"`, `\"jpg\"`, or `\"svg\"`."}}
+};
+
+export const Localized = Template.bind({});
+Localized.args = {
+  data: featureData.map(d => ({...d, revenue: d.revenue * 1000000})),
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  locale: "ar-SA"
+};
+Localized.parameters = {
+  controls: {include: ["locale"]},
+  docs: {description: {story: "Pass a `locale` (here `\"ar-SA\"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`."}}
+};
+
+export const HighlightingASeries = Template.bind({});
+HighlightingASeries.args = {
+  data: featureData,
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue",
+  highlight: funcify(d => d.region === "North", 'd => d.region === "North"')
+};
+HighlightingASeries.parameters = {
+  controls: {include: ["highlight"]},
+  docs: {description: {story: "`highlight` keeps the matching marks in color and de-emphasizes the rest to a neutral gray — the \"emphasis\" pattern for pointing at one series without hiding the others. Unlike `hover`/`active` (transient, opacity-based) it is a standing state, so it persists until cleared with `false`."}}
+};
+
+// An ordered discrete field (size tiers) — the color should read as the order.
+const tierData = [
+  {tier: "XS", sales: 12},
+  {tier: "S",  sales: 28},
+  {tier: "M",  sales: 45},
+  {tier: "L",  sales: 33},
+  {tier: "XL", sales: 19}
+];
+
+export const OrdinalColor = Template.bind({});
+OrdinalColor.args = {
+  data: tierData,
+  groupBy: "tier",
+  x: "tier",
+  y: "sales",
+  color: "tier",
+  colorOrdinal: true,
+  xSort: funcify(
+    (a, b) => ["XS", "S", "M", "L", "XL"].indexOf(a.tier) - ["XS", "S", "M", "L", "XL"].indexOf(b.tier),
+    `(a, b) => ["XS","S","M","L","XL"].indexOf(a.tier) - ["XS","S","M","L","XL"].indexOf(b.tier)`
+  )
+};
+OrdinalColor.parameters = {
+  controls: {include: ["colorOrdinal"]},
+  docs: {description: {story: "Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark."}}
+};

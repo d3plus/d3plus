@@ -1,5 +1,7 @@
 import {scaleLog} from "d3-scale";
 
+import type {D3Scale} from "../../utils/index.js";
+
 const floor10 = (v: number): number =>
   Math.pow(10, Math.floor(Math.log10(Math.abs(v)))) *
   Math.pow(-1, v < 0 ? 1 : 0);
@@ -12,8 +14,7 @@ const ceil10 = (v: number): number =>
     @private
 */
 export default function (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axis: any,
+  axis: D3Scale,
   scale: string,
   value: number,
   size: number,
@@ -55,7 +56,7 @@ export default function (
     let tempAxis = axis.copy();
     let diverging = false;
     if (scale === "log") {
-      let d = axis.domain().slice(),
+      let d = axis.domain().slice() as number[],
         r = axis.range().slice();
       if (invert) {
         d = d.reverse();
@@ -71,7 +72,7 @@ export default function (
         d = (index === 0 ? [d[0], 1e-6] : [1e-6, d[1]]).map(Math.abs);
         r = index === 0 ? [r[0], r[0] + zero] : [r[0] + zero, r[1]];
       }
-      tempAxis = scaleLog().domain(d).range(r);
+      tempAxis = scaleLog().domain(d).range(r) as unknown as D3Scale;
     }
 
     let outside = false;
@@ -102,13 +103,13 @@ export default function (
         i++;
       }
     } else if (index === 0) {
-      const v = axis.invert(axis(value) + (size + mod) * (invert ? 1 : -1));
+      const v = axis.invert!(axis(value) + (size + mod) * (invert ? 1 : -1));
       if (v < domain[index]) {
         domain[index] = v;
         axis.domain(invert ? domain.slice().reverse() : domain);
       }
     } else if (index === 1) {
-      const v = axis.invert(axis(value) + (size + mod) * (invert ? -1 : 1));
+      const v = axis.invert!(axis(value) + (size + mod) * (invert ? -1 : 1));
       if (v > domain[index]) {
         domain[index] = v;
         axis.domain(invert ? domain.slice().reverse() : domain);

@@ -52,7 +52,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **addToQueue**(`this`: `VizContext`, `_`: `string` \| [`DataPoint`](#datapoint)[] \| `Record`\<`string`, `unknown`\>, `f`: `DataFormatter` \| `undefined`, `key`: `string`): `void`
 
-Defined in: [addToQueue.ts:26](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/addToQueue.ts#L26)
+Defined in: [addToQueue.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/data/src/addToQueue.ts#L27)
 
 Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualizations that fold in additional data sources, like the nodes and links of Network or the topojson of Geomap.
 
@@ -77,7 +77,7 @@ Adds the provided value to the internal queue to be loaded, if necessary. This i
 
 > **concat**(`arrayOfArrays`: ([`DataPoint`](#datapoint)[] \| `Record`\<`string`, [`DataPoint`](#datapoint)[]\>)[], `data?`: `string`): [`DataPoint`](#datapoint)[]
 
-Defined in: [concat.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/concat.ts#L8)
+Defined in: [concat.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/data/src/concat.ts#L8)
 
 Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat the array under given key data. If the key doesn't exists in object item, a warning message is lauched to the console. You need to implement DataFormat callback to concat the arrays manually.
 
@@ -100,7 +100,7 @@ Reduce and concat all the elements included in arrayOfArrays if they are arrays.
 
 > **fold**(`json`: `FoldableJSON`, `data?`: `string`, `headers?`: `string`): [`DataPoint`](#datapoint)[]
 
-Defined in: [fold.ts:13](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/fold.ts#L13)
+Defined in: [fold.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/data/src/fold.ts#L13)
 
 Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects.
 
@@ -124,7 +124,7 @@ Given a JSON object where the data values and headers have been split into separ
 
 > **isData**(`dataItem`: `unknown`): `boolean`
 
-Defined in: [isData.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/isData.ts#L5)
+Defined in: [isData.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/isData.ts#L5)
 
 Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or an Object with "url" and "headers" keys.
 
@@ -146,7 +146,7 @@ Returns true/false whether the argument provided to the function should be loade
 
 > **load**(`this`: `VizContext`, `path`: `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[], `formatter?`: `DataFormatter`, `key?`: `string`, `callback?`: (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void`): `void`
 
-Defined in: [load.ts:33](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/load.ts#L33)
+Defined in: [load.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/data/src/load.ts#L129)
 
 Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
 
@@ -172,7 +172,7 @@ Loads data from a filepath or URL, converts it to a valid JSON object, and retur
 
 > **merge**(`objects`: [`DataPoint`](#datapoint)[], `aggs?`: `Record`\<`string`, `AggregationFunction`\>): [`MergedDataPoint`](#mergeddatapoint)
 
-Defined in: [merge.ts:30](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/merge.ts#L30)
+Defined in: [merge.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/data/src/merge.ts#L30)
 
 Combines an Array of Objects together and returns a new Object.
 
@@ -208,7 +208,7 @@ merge([
 
 > **nestGroups**(`data`: [`DataPoint`](#datapoint)[], `fns`: `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: [nest.ts:33](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/nest.ts#L33)
+Defined in: [nest.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/data/src/nest.ts#L33)
 
 Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
 
@@ -231,7 +231,7 @@ Recursively groups data by each key function, producing {key, values} objects co
 
 > **unique**\<`T`\>(`arr`: `T`[], `accessor?`: (`d`: `T`) => `unknown`): `T`[]
 
-Defined in: [unique.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/unique.ts#L10)
+Defined in: [unique.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/data/src/unique.ts#L10)
 
 ES5 implementation to reduce an Array of values to unique instances.
 
@@ -268,7 +268,7 @@ unique(["apple", "banana", "apple"]);
 
 ### DataPoint
 
-Defined in: [DataPoint.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/DataPoint.ts#L5)
+Defined in: [DataPoint.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/DataPoint.ts#L5)
 
 DataPoint
 Represents a single data point object used throughout d3plus visualizations.
@@ -283,7 +283,7 @@ Represents a single data point object used throughout d3plus visualizations.
 
 ### MergedDataPoint
 
-Defined in: [merge.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/data/src/merge.ts#L9)
+Defined in: [merge.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/data/src/merge.ts#L9)
 
 #### Indexable
 

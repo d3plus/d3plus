@@ -37,4 +37,33 @@ BasicExample.args = {
   groupBy: "Type",
   value: "Percentage"
 };
-BasicExample.parameters = {controls: {include: ["value"]}};
+BasicExample.parameters = {controls: {include: ["value"]}, docs: {description: {story: "Each slice's angle is proportional to its `value` (Percentage), with one arc per `groupBy` category."}}};
+
+export const PaddedSlices = Template.bind({});
+PaddedSlices.args = {
+  data: [
+    {id: "Apple", value: 30}, {id: "Banana", value: 22}, {id: "Cherry", value: 18},
+    {id: "Date", value: 15}, {id: "Elderberry", value: 10}
+  ],
+  groupBy: "id",
+  value: "value",
+  padPixel: 4
+};
+PaddedSlices.parameters = {controls: {include: ["padPixel", "padAngle"]}, docs: {description: {story: "`padPixel: 4` inserts a 4px gap between slices (converted to an angle from the radius); `padAngle` sets the same spacing directly in radians."}}};
+
+export const DrillDownOnClick = Template.bind({});
+DrillDownOnClick.args = {
+  data: [
+    {category: "Fruit", id: "Apple", value: 30}, {category: "Fruit", id: "Banana", value: 22},
+    {category: "Fruit", id: "Cherry", value: 18},
+    {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
+    {category: "Vegetable", id: "Kale", value: 8}
+  ],
+  depth: 0,
+  groupBy: ["category", "id"],
+  value: "value"
+};
+DrillDownOnClick.parameters = {
+  controls: {include: ["depth", "groupBy"]},
+  docs: {description: {story: "A hierarchical `groupBy` ([\"category\", \"id\"]) renders the top level first; click a slice to drill into its children. A back button appears automatically to return."}}
+};

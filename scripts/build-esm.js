@@ -26,7 +26,13 @@ function collectFiles(dir, pattern) {
 
 const srcPattern = isReact ? /\.(ts|tsx)$/ : /\.ts$/;
 const srcFiles = fs.existsSync("src") ? collectFiles("src", srcPattern) : [];
-const files = srcFiles.concat([`index.${ext}`]);
+// Every root-level entry file (index, plus any subpath entries like
+// `internal.ts` / `react.ts`) is transpiled; nested sources live under src/.
+const rootFiles = fs
+  .readdirSync(".", {withFileTypes: true})
+  .filter(e => e.isFile() && srcPattern.test(e.name) && !e.name.endsWith(".d.ts"))
+  .map(e => e.name);
+const files = srcFiles.concat(rootFiles);
 
 files.forEach(file => {
   log.timer(`transpiling /es/${file}`);

@@ -4,26 +4,40 @@ import {select} from "d3-selection";
 import type {DataPoint} from "@d3plus/data";
 import {assign, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import type {GroupNode, SceneNode} from "@d3plus/render";
+
+import {accessor, BaseClass, configPrep} from "../utils/index.js";
+import type {D3plusConfig} from "../utils/index.js";
+import type {VizContext} from "../utils/configPrep.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
 import Line from "./Line.js";
 import Rect from "./Rect.js";
+import type {WhiskerConfig} from "./shapeConfig.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
+
+/** Whisker's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const whiskerSchema: ConfigField[] = [
+  {key: "duration", coerce: "identity", default: 600},
+  {key: "endpoint", coerce: "const", default: accessor("endpoint", "Rect")},
+  {key: "length", coerce: "const", default: accessor("length", 25)},
+  {key: "orient", coerce: "const", default: accessor("orient", "top")},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "x", coerce: "const", default: accessor("x", 0)},
+  {key: "y", coerce: "const", default: accessor("y", 0)},
+];
 
 /**
     Creates SVG whisker based on an array of data.
 */
 export default class Whisker extends BaseClass {
-  _endpoint: AccessorFn;
-  _endpointConfig: Record<string, unknown>;
-  _length: AccessorFn;
-  _lineConfig: Record<string, unknown>;
-  _orient: AccessorFn;
-  _x: AccessorFn;
-  _y: AccessorFn;
+  // installFluent generates the config accessors (length, orient, x, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _data!: DataPoint[];
   _select!: D3Selection;
   _line!: Line;
@@ -35,18 +49,9 @@ export default class Whisker extends BaseClass {
 */
   constructor() {
     super();
-
-    this._endpoint = accessor("endpoint", "Rect");
-    this._endpointConfig = {
-      Circle: {
-        r: accessor("r", 5),
-      },
-    };
-    this._length = accessor("length", 25);
-    this._lineConfig = {};
-    this._orient = accessor("orient", "top");
-    this._x = accessor("x", 0);
-    this._y = accessor("y", 0);
+    installFluent(this, whiskerSchema);
+    this.schema.endpointConfig = {Circle: {r: accessor("r", 5)}};
+    this.schema.lineConfig = {};
     this._whiskerEndpoint = [];
   }
 
@@ -55,7 +60,8 @@ export default class Whisker extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: () => void): this {
-    if (this._select === void 0) {
+    const compute = this.schema.renderMode === "compute";
+    if (this._select === void 0 && !compute) {
       this.select(
         select("body")
           .append("svg")
@@ -65,20 +71,24 @@ export default class Whisker extends BaseClass {
           .node(),
       );
     }
+    const mountInner = (parent: string): D3Selection["node"] | null => {
+      if (compute) return null as unknown as D3Selection["node"];
+      return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
+    };
 
     const lineData: DataPoint[] = [];
     this._data.forEach((d: DataPoint, i: number) => {
-      const orient = this._orient(d, i) as string;
-      const x = this._x(d, i) as number;
-      const y = this._y(d, i) as number;
+      const orient = this.schema.orient(d, i) as string;
+      const x = this.schema.x(d, i) as number;
+      const y = this.schema.y(d, i) as number;
 
       let endpointX = x;
-      if (orient === "left") endpointX -= this._length(d, i) as number;
-      else if (orient === "right") endpointX += this._length(d, i) as number;
+      if (orient === "left") endpointX -= this.schema.length(d, i) as number;
+      else if (orient === "right") endpointX += this.schema.length(d, i) as number;
 
       let endpointY = y;
-      if (orient === "top") endpointY -= this._length(d, i) as number;
-      else if (orient === "bottom") endpointY += this._length(d, i) as number;
+      if (orient === "top") endpointY -= this.schema.length(d, i) as number;
+      else if (orient === "bottom") endpointY += this.schema.length(d, i) as number;
 
       lineData.push({
         __d3plus__: true,
@@ -98,29 +108,31 @@ export default class Whisker extends BaseClass {
       } as unknown as DataPoint);
     });
 
-    // Draw whisker line.
+    // Draw whisker line. Don't pass `callback` to the inner Line —
+    // doing so would fire the caller's done-callback after the LINE
+    // finished but BEFORE endpoint shapes (below) are rendered.
     this._line = new Line()
       .data(lineData)
-      .select(elem("g.d3plus-Whisker", {parent: this._select}).node())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._lineConfig, "shape")!)
-      .render(callback);
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Whisker") as never)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.lineConfig, "shape")!)
+      .render();
 
     const whiskerData = this._data.map((d: DataPoint, i: number) => {
       const dataObj: DataPoint = {} as DataPoint;
       (dataObj as Record<string, unknown>).__d3plus__ = true;
       (dataObj as Record<string, unknown>).data = d;
       (dataObj as Record<string, unknown>).i = i;
-      (dataObj as Record<string, unknown>).endpoint = this._endpoint(d, i);
-      (dataObj as Record<string, unknown>).length = this._length(d, i);
-      (dataObj as Record<string, unknown>).orient = this._orient(d, i);
+      (dataObj as Record<string, unknown>).endpoint = this.schema.endpoint(d, i);
+      (dataObj as Record<string, unknown>).length = this.schema.length(d, i);
+      (dataObj as Record<string, unknown>).orient = this.schema.orient(d, i);
 
-      let endpointX = this._x(d, i) as number;
+      let endpointX = this.schema.x(d, i) as number;
       if (dataObj.orient === "left") endpointX -= dataObj.length as number;
       else if (dataObj.orient === "right")
         endpointX += dataObj.length as number;
 
-      let endpointY = this._y(d, i) as number;
+      let endpointY = this.schema.y(d, i) as number;
       if (dataObj.orient === "top") endpointY -= dataObj.length as number;
       else if (dataObj.orient === "bottom")
         endpointY += dataObj.length as number;
@@ -138,25 +150,43 @@ export default class Whisker extends BaseClass {
         this._whiskerEndpoint.push(
           new shapes[shapeName as string]()
             .data(values)
-            .select(
-              elem(`g.d3plus-Whisker-Endpoint-${shapeName}`, {
-                parent: this._select,
-              }).node(),
-            )
+            .renderMode(compute ? "compute" : "full")
+            .select(mountInner(`g.d3plus-Whisker-Endpoint-${shapeName}`) as never)
             .config({
               height: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 5 : 20,
               width: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 20 : 5,
             })
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .config(configPrep.bind(this as any)(this._endpointConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as unknown as VizContext)(this.schema.endpointConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
     );
 
+    // Fire the user's done-callback only after endpoints render. The inner
+    // shapes don't share one transition queue, so schedule against
+    // `duration + 100`.
+    if (callback) setTimeout(callback, this.schema.duration + 100);
+
     return this;
+  }
+
+  /**
+      Compute-mode scene aggregation, mirroring Box.toScene(). Returns a
+      GroupNode containing the inner Line's scene children plus each
+      endpoint shape's scene children.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+    const push = (shape: {toScene?: () => GroupNode | null | undefined} | undefined): void => {
+      const g = shape && typeof shape.toScene === "function" ? shape.toScene() : null;
+      if (g && Array.isArray(g.children)) children.push(...g.children);
+    };
+    push(this._line);
+    if (Array.isArray(this._whiskerEndpoint))
+      for (const ep of this._whiskerEndpoint) push(ep);
+    return {type: "group", key: "d3plus-Whisker-scene", children};
   }
 
   /**
@@ -180,25 +210,14 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      The endpoint shape type for each whisker.
-*/
-  endpoint(): AccessorFn;
-  endpoint(_: AccessorFn | string): this;
-  endpoint(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._endpoint = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._endpoint;
-  }
-
-  /**
       Configuration object for each endpoint.
 */
   endpointConfig(): Record<string, unknown>;
   endpointConfig(_: Record<string, unknown>): this;
   endpointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._endpointConfig = assign(this._endpointConfig, _!)), this)
-      : this._endpointConfig;
+      ? ((this.schema.endpointConfig = assign(this.schema.endpointConfig, _!)), this)
+      : this.schema.endpointConfig;
   }
 
   /**
@@ -213,36 +232,14 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-      Length accessor for whisker.
-*/
-  length(): AccessorFn;
-  length(_: AccessorFn | number): this;
-  length(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._length = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._length;
-  }
-
-  /**
       Configuration object for the line shape.
 */
   lineConfig(): Record<string, unknown>;
   lineConfig(_: Record<string, unknown>): this;
   lineConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._lineConfig = assign(this._lineConfig, _!)), this)
-      : this._lineConfig;
-  }
-
-  /**
-      The orientation of the whisker shape.
-*/
-  orient(): AccessorFn;
-  orient(_: AccessorFn | string): this;
-  orient(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._orient;
+      ? ((this.schema.lineConfig = assign(this.schema.lineConfig, _!)), this)
+      : this.schema.lineConfig;
   }
 
   /**
@@ -257,34 +254,15 @@ export default class Whisker extends BaseClass {
   }
 
   /**
-    The x position accessor for each whisker.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each whisker.
-
-@example
-function(d) {
-  return d.y;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._y;
+      Narrowed `.config()` for Whisker. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): WhiskerConfig;
+  config(_: Partial<WhiskerConfig>): this;
+  config(_?: Partial<WhiskerConfig>): WhiskerConfig | this {
+    if (!arguments.length) return super.config() as WhiskerConfig;
+    super.config(_ as D3plusConfig);
+    return this;
   }
 }

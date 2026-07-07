@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/addon-docs/blocks';
 
-<Meta title="Accessibility" />
+<Meta title="Guides/Accessibility" />
 
 # Accessibility
 
@@ -12,7 +12,7 @@ The `@d3plus/color` package includes utilities that help ensure text and visual 
 
 ### colorContrast
 
-The `colorContrast` function determines whether to use a light or dark text color for any given background. It uses a YIQ color space calculation to evaluate perceived brightness and returns the appropriate contrasting color. This is applied automatically throughout D3plus when rendering text labels on colored shapes.
+The `colorContrast` function determines whether to use a light or dark text color for any given background. It returns whichever of the two text colors has the higher WCAG 2.x contrast ratio against the background, so the more legible option always wins (for example, bright greens and teals correctly receive dark text). This is applied automatically throughout D3plus when rendering text labels on colored shapes.
 
 ```js
 import { colorContrast } from "@d3plus/color";
@@ -32,6 +32,20 @@ colorLegible("#aaddff"); // returns a darkened, legible variant
 ```
 
 These utilities support compliance with **WCAG 1.4.3** (Contrast Minimum) for text elements within visualizations.
+
+### Colorblind-safe default palette
+
+D3plus's default categorical palette is designed — and automatically validated — for colorblind accessibility. Its eight primary slots sit within a controlled OKLCH lightness band, clear a chroma floor, and stay distinguishable under protanopia, deuteranopia, and tritanopia (Machado-2009 simulation), while maintaining WCAG contrast against the chart surface.
+
+### colorValidate
+
+The `colorValidate` function checks any palette against those same criteria — OKLCH lightness band, chroma floor, colorblind (protan/deutan/tritan ΔE) separation, and WCAG contrast — so you can verify a custom palette is accessible before shipping it. It also supports an ordinal-ramp mode for sequential scales.
+
+```js
+import { colorValidate } from "@d3plus/color";
+
+colorValidate(["#4269d0", "#efb118", "#ff725c"]); // pass / warn / fail report
+```
 
 ## Texture Patterns
 
@@ -199,9 +213,9 @@ The following table summarizes how D3plus addresses the WCAG success criteria mo
 | **1.1.1** | Non-text Content | Supported | All shapes include `aria-label` attributes. Optional `svgTitle` and `svgDesc` provide chart-level text alternatives. Inline data table available via `ariaHidden: false`. |
 | **1.3.1** | Info and Relationships | Supported | ARIA roles (`img`, `presentation`, `table`, `row`, `cell`, `columnheader`) convey structure programmatically. |
 | **1.3.2** | Meaningful Sequence | Supported | DOM order follows a logical sequence: title, description, legend, axes, then data elements. |
-| **1.4.1** | Use of Color | Supported | Color is the default differentiator for data series. Built-in texture and pattern fills (lines, circles, crosses, waves, and more) can be applied via `shapeConfig` to provide a non-color visual channel. See [Texture Patterns](#texture-patterns) below. |
+| **1.4.1** | Use of Color | Supported | The default palette is colorblind-safe (validated for protan/deutan/tritan separation). Color is the primary differentiator for data series, and built-in texture and pattern fills (lines, circles, crosses, waves, and more) can be applied via `shapeConfig` as a non-color visual channel. See [Texture Patterns](#texture-patterns) below. |
 | **1.4.3** | Contrast (Minimum) | Supported | `colorContrast` automatically selects light or dark text for labels based on background color. `colorLegible` ensures text colors meet readability thresholds. |
-| **1.4.11** | Non-text Contrast | Partial | Default color palettes provide adequate contrast between adjacent elements in most configurations, but contrast ratios are not programmatically enforced for all cases. |
+| **1.4.11** | Non-text Contrast | Partial | The default categorical palette is programmatically validated (`colorValidate`) for colorblind separation and contrast against the chart surface, and `colorValidate` is exposed for checking custom palettes. Contrast between arbitrary user-supplied colors is still not automatically enforced. |
 
 ### Operable
 

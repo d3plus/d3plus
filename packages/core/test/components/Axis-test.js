@@ -31,3 +31,16 @@ it("Axis", () => {
     "rounding still expands a normal domain outward",
   );
 });
+
+it("standalone Axis mounts a single <svg>", () => {
+  // A plain Axis paints through paintComponentScene, whose renderer creates the
+  // <svg>; the standalone fallback must mount into a <div>, not its own <svg>,
+  // or the two nest. (Timeline manages its own paint and keeps the <svg> — see
+  // Timeline-test.)
+  new Axis().domain([0, 10]).render();
+  assert.strictEqual(
+    document.getElementsByTagName("svg").length,
+    1,
+    "exactly one <svg> (no nested renderer svg)",
+  );
+});

@@ -18,25 +18,49 @@ const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split("/")
 const activeBuilds = new Map();
 
 // Connected browser tabs listening for live-reload events (Server-Sent Events).
+// Each entry: {res, path} — `path` is the URL the tab is showing, so the
+// HTML-only reload signal can skip tabs viewing unrelated pages.
 const reloadClients = new Set();
 
 /**
-    Tells every connected dev page to reload itself.
+    Tells every connected dev page to reload itself. Pass `htmlPath` to
+    target ONLY tabs viewing that exact HTML file (used when an .html /
+    .css file changes — no point reloading unrelated tabs). Omit to
+    broadcast (used when the UMD bundle rebuilds — every tab loads it).
     @private
 */
-function triggerReload() {
-  for (const res of reloadClients) res.write("data: reload\n\n");
+function triggerReload(htmlPath) {
+  for (const c of reloadClients) {
+    if (htmlPath && c.path !== htmlPath) continue;
+    c.res.write("data: reload\n\n");
+  }
 }
 
 // Snippet injected into served HTML so pages reconnect and reload on rebuild.
+// `?p=<pathname>` lets the server scope HTML/CSS reloads to just the
+// matching tab. `visibilitychange` closes the SSE while the tab is hidden
+// — Chrome enforces a 6-connection-per-host limit on HTTP/1.1, so 6+
+// open tabs each holding an SSE would block new requests for tab loads.
+// Closing while hidden frees the slot; the connection re-opens when the
+// tab is visible again (or before the user navigates away).
 const liveReloadSnippet = `
 <script>
 (function () {
+  var es = null;
   var connect = function () {
-    var es = new EventSource("/__livereload");
+    if (es || document.hidden) return;
+    es = new EventSource("/__livereload?p=" + encodeURIComponent(location.pathname));
     es.onmessage = function () { location.reload(); };
-    es.onerror = function () { es.close(); setTimeout(connect, 1000); };
+    es.onerror = function () { es && es.close(); es = null; setTimeout(connect, 1000); };
   };
+  var disconnect = function () {
+    if (es) { es.close(); es = null; }
+  };
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) disconnect();
+    else connect();
+  });
+  window.addEventListener("pagehide", disconnect);
   connect();
 })();
 </script>`;
@@ -136,16 +160,26 @@ if (name === "react") {
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url);
 
-    // live-reload event stream: held open, written to on each rebuild
-    if (url === "/__livereload") {
+    // live-reload event stream: held open, written to on each rebuild.
+    // The `?p=...` query is the tab's pathname so HTML/CSS-change
+    // reloads can be scoped to the matching tab(s) only.
+    if (url.startsWith("/__livereload")) {
+      const qIdx = url.indexOf("?");
+      const path = qIdx >= 0
+        ? new URLSearchParams(url.slice(qIdx + 1)).get("p") || null
+        : null;
       res.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        // Tell intermediaries (and proxies in dev setups) that this
+        // response isn't compressible.
+        "X-Accel-Buffering": "no",
       });
       res.write("retry: 1000\n\n");
-      reloadClients.add(res);
-      req.on("close", () => reloadClients.delete(res));
+      const client = {res, path};
+      reloadClients.add(client);
+      req.on("close", () => reloadClients.delete(client));
       return;
     }
 
@@ -200,24 +234,45 @@ if (name === "react") {
     res.end("Not found");
   });
 
-  // reload the browser whenever a dev page (HTML/CSS) is edited directly
+  // reload the browser whenever a dev page (HTML/CSS) is edited directly.
+  // Only the tab(s) viewing that exact path (or the CSS-importing page)
+  // get the reload signal, so editing dev/charts/Treemap/Simple.html
+  // doesn't unnecessarily reload every other open chart dev page.
   chokidar
     .watch("dev", {
       ignoreInitial: true,
-      // only filter files (let directories through so they get traversed)
       ignored: (path, stats) =>
         path.includes("/umd/") ||
         (stats?.isFile() && !/\.(html|css)$/.test(path)),
     })
     .on("all", (event, path) => {
       log.update(`change detected in ${path}`);
-      triggerReload();
+      // Normalize disk path → URL path. Files live under `dev/`; the URL
+      // is the path relative to dev/. CSS changes don't carry a clean
+      // "which HTML page imports this" hint so they still broadcast.
+      const isCss = path.endsWith(".css");
+      if (isCss) {
+        triggerReload();
+      } else {
+        const rel = path.replace(/^dev/, "");
+        triggerReload(rel);
+      }
       log.timer("watching for changes...");
     });
 
   server.listen(port, () => {
     log.done();
-    // reload the browser whenever the UMD bundle finishes rebuilding
-    rollup({deps: true, watch: true, env: "development", log, onBuild: triggerReload});
+    // bump the maxConnections + keep-alive so multiple open dev tabs
+    // (each holding an EventSource) don't exhaust the per-host
+    // connection budget. Chrome limits HTTP/1.1 to 6 connections per
+    // host; we can't lift that browser-side, but keep-alive timeouts
+    // long enough that pending requests resolve before SSE eats the
+    // budget helps. The server itself has unlimited maxConnections by
+    // default but some sysctl defaults clamp inbound listen backlogs.
+    server.keepAliveTimeout = 60_000;
+    server.headersTimeout = 65_000;
+    // reload the browser whenever the UMD bundle finishes rebuilding —
+    // every tab loads the UMD, so this stays a broadcast.
+    rollup({deps: true, watch: true, env: "development", log, onBuild: () => triggerReload()});
   });
 }

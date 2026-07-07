@@ -25,3 +25,14 @@ const Template = (args) => <Area config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  // The default accessors read the `x`/`y`/`id` keys directly, so the data
+  // keys are chosen to match them. `fill`/`fillOpacity` take constant values.
+  data: [
+    {id: "a", x: 40, y: 80}, {id: "a", x: 160, y: 180}, {id: "a", x: 280, y: 110},
+    {id: "a", x: 400, y: 200}, {id: "a", x: 520, y: 90}, {id: "a", x: 640, y: 160}
+  ],
+  fill: "#3a7ca5", fillOpacity: 0.5
+};
+BasicExample.parameters = {controls: {include: ["curve"]}, docs: {description: {story: "The six points share one `id`, so they join into a single filled area; `fillOpacity` renders it as a translucent band, and the `curve` control changes how the vertices are interpolated."}}};

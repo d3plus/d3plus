@@ -25,3 +25,13 @@ const Template = (args) => <Circle config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {id: "a", x: 80,  y: 150, r: 55, fill: "#5d6d7e"},
+    {id: "b", x: 210, y: 150, r: 75, fill: "#cc4b4b"},
+    {id: "c", x: 335, y: 150, r: 45, fill: "#3a7ca5"}
+  ],
+  x: "x", y: "y", r: "r", fill: "fill"
+};
+BasicExample.parameters = {controls: {include: ["r"]}, docs: {description: {story: "Three circles positioned by `x`/`y`, each sized by its data-bound `r` and filled from a per-datum `fill`."}}};

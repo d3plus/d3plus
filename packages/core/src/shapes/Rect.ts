@@ -1,79 +1,71 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
-import {accessor, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {accessor} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
+import type {RectConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** Rect's own fluent accessor schema, layered on top of Shape's. */
+const rectSchema: ConfigField[] = [
+  {key: "height", coerce: "accessor", default: accessor("height")},
+  // Motion-trail toggle: when true, the animate layer sweeps a tapering cone
+  // behind each rect as it moves between frames (Timeline play), sized to the
+  // rect's silhouette perpendicular to travel — so a square at 45° trails
+  // corner-to-corner. On both the SVG and Canvas backends.
+  {key: "trail", coerce: "identity", default: false},
+  // Persistent-trail length (see Circle): 0 = ephemeral, a number keeps that
+  // many past segments, `true` keeps a long fading tail. Requires `trail: true`;
+  // setting it auto-switches the chart to a single-period timeline + fixed axes.
+  {key: "trailPersist", coerce: "identity", default: 0},
+  {key: "width", coerce: "accessor", default: accessor("width")},
+];
 
 /**
     Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
 */
 export default class Rect extends Shape {
-  _height: AccessorFn;
-  declare _labelBounds:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown> | null | false)
-    | null;
-  declare _name: string;
-  _width: AccessorFn;
-
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
 */
   constructor() {
     super("rect");
-    this._height = accessor("height");
-    this._labelBounds = (
-      _d: DataPoint,
-      _i: number,
-      s: ShapeAes,
-    ) => ({
+    installFluent(this, rectSchema);
+    this._name = "Rect";
+    this.schema.labelBounds = (_d: DataPoint, _i: number, s: ShapeAes) => ({
       width: s.width,
       height: s.height,
       x: -(s.width as number) / 2,
       y: -(s.height as number) / 2,
     });
-    this._name = "Rect";
-    this._width = accessor("width");
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the rectangles.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the rect geometry for a data point, matching _applyPosition: the
+      rect is centered on the transform origin (x/y = -size/2).
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    let enter: D3Selection = this._enter
-      .attr("width", 0)
-      .attr("height", 0)
-      .attr("x", 0)
-      .attr("y", 0)
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter = enter.transition(this._transition) as unknown as D3Selection;
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("width", 0)
-        .attr("height", 0)
-        .attr("x", 0)
-        .attr("y", 0);
-    }
-
-    enter.call(this._applyPosition.bind(this));
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    const w = Number(this.schema.width(d, i));
+    const h = Number(this.schema.height(d, i));
+    const rx = this._styleVal(this.schema.rx, d, i);
+    const ry = this._styleVal(this.schema.ry, d, i);
+    return {
+      type: "rect",
+      x: -w / 2,
+      y: -h / 2,
+      width: w,
+      height: h,
+      ...(rx == null ? {} : {rx: Number(rx)}),
+      ...(ry == null ? {} : {ry: Number(ry)}),
+      ...(this.schema.trail ? {trail: true} : {}),
+      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
+    };
   }
 
   /**
@@ -83,8 +75,8 @@ export default class Rect extends Shape {
 */
   _aes(d: DataPoint, i: number): ShapeAes {
     return {
-      width: this._width(d, i) as number,
-      height: this._height(d, i) as number,
+      width: this.schema.width(d, i) as number,
+      height: this.schema.height(d, i) as number,
     };
   }
 
@@ -93,49 +85,29 @@ export default class Rect extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
-      .attr("width", (d: DataPoint, i: number) => this._width(d, i))
-      .attr("height", (d: DataPoint, i: number) => this._height(d, i))
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
+      .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
+      .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
       .attr(
         "x",
-        (d: DataPoint, i: number) => -(this._width(d, i) as number) / 2,
+        (d: DataPoint, i: number) => -(this.schema.width(d, i) as number) / 2,
       )
       .attr(
         "y",
-        (d: DataPoint, i: number) => -(this._height(d, i) as number) / 2,
+        (d: DataPoint, i: number) => -(this.schema.height(d, i) as number) / 2,
       );
   }
 
   /**
-      The height accessor for each rectangle.
-
-@example
-function(d) {
-  return d.height;
-}
-*/
-  height(): AccessorFn;
-  height(_: AccessorFn | number): this;
-  height(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._height;
-  }
-
-  /**
-      The width accessor for each rectangle.
-
-@example
-function(d) {
-  return d.width;
-}
-*/
-  width(): AccessorFn;
-  width(_: AccessorFn | number): this;
-  width(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._width;
+      Narrowed `.config()` for Rect. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): RectConfig;
+  config(_: Partial<RectConfig>): this;
+  config(_?: Partial<RectConfig>): RectConfig | this {
+    if (!arguments.length) return super.config() as RectConfig;
+    super.config(_!);
+    return this;
   }
 }

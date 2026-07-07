@@ -22,6 +22,323 @@ export const argTypes = assign(
    */
   
   {
+    barConfig: {
+      control: {},
+      description: "Axis line style.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    brushFilter: {
+      control: {},
+      description: "Brush event filter.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    brushMin: {
+      control: {
+        type: "number"
+      },
+      description: "The minimum number of ticks that can be highlighted when using \"ticks\"\n`buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time\nperiods is undesirable.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    brushing: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    buttonAlign: {
+      control: {
+        type: "radio"
+      },
+      defaultValue: "middle",
+      description: "Toggles the horizontal alignment of the button timeline.",
+      options: [
+        "middle",
+        "end",
+        "start"
+      ],
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"middle\" | \"end\" | \"start\""
+      }
+    },
+    buttonBehavior: {
+      control: {
+        type: "radio"
+      },
+      defaultValue: "auto",
+      description: "Toggles the style of the timeline.",
+      options: [
+        "auto",
+        "buttons",
+        "ticks"
+      ],
+      table: {
+        defaultValue: {
+          summary: "auto"
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"auto\" | \"buttons\" | \"ticks\""
+      }
+    },
+    buttonHeight: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 24,
+      description: "Button height.",
+      table: {
+        defaultValue: {
+          summary: "24"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    buttonPadding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 10,
+      description: "Button padding.",
+      table: {
+        defaultValue: {
+          summary: "10"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    config: {
+      control: {},
+      description: "Methods that correspond to the key/value pairs and returns this class.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    data: {
+      control: {},
+      description: "An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;unknown&gt;"
+      }
+    },
+    gridConfig: {
+      control: {},
+      description: "Grid config of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    handleConfig: {
+      control: {},
+      description: "Handle style.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    handleSize: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 6,
+      description: "Handle size.",
+      table: {
+        defaultValue: {
+          summary: "6"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    labelRotation: {
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to rotate horizontal axis labels -90 degrees.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "boolean"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    orient: {
+      control: {
+        type: "text"
+      },
+      description: "The orientation of the shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
+    playButton: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Determines the visibility of the play button to the left of the timeline,\nwhich cycles through the available periods at a rate set by `playButtonInterval`.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    playButtonConfig: {
+      control: {},
+      description: "The config Object for the Rect class used to create the playButton.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    playButtonInterval: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 1000,
+      description: "The interval, in milliseconds, used when cycling through periods via the play button.",
+      table: {
+        defaultValue: {
+          summary: "1000"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     render: {
       control: {},
       description: "Draws the timeline.",
@@ -32,6 +349,104 @@ export const argTypes = assign(
       },
       type: {
         required: false,
+        summary: "function"
+      }
+    },
+    select: {
+      control: {
+        type: "text"
+      },
+      description: "The SVG container element as a d3 selector or DOM element.\n\nPassing `null` or `undefined` deliberately leaves the axis unmounted\n— `renderMode(\"compute\")` plus `select(null)` produces a\nscene-only axis (no detached SVG fallback). This is the formal\ncontract callers in `plotPaint` use to compute axis layout without\nmounting DOM.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | htmlelement | null | undefined"
+      }
+    },
+    selection: {
+      control: {
+        type: "object"
+      },
+      description: "The current selection. Defaults to the most recent period in the timeline.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | false | date | array.&lt;number | date&gt;"
+      }
+    },
+    selectionConfig: {
+      control: {},
+      description: "Selection style.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Tick style of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    snapping: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Toggles the snapping value.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    titleConfig: {
+      control: {},
+      description: "Title configuration of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
         summary: "function"
       }
     }

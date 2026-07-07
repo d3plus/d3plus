@@ -1,9 +1,6 @@
 import {max, min, sum} from "d3-array";
 import {select} from "d3-selection";
 
-// side-effect import: registers .transition() on d3 selections
-import "d3-transition";
-
 import type {DataPoint} from "@d3plus/data";
 import {fontExists, parseSides, rtl as detectRTL, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
@@ -13,8 +10,12 @@ import {
   textSplit,
   textWrap,
 } from "@d3plus/text";
+import {SvgRenderer} from "@d3plus/render";
+import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 const defaultHtmlLookup: Record<string, string> = {
   i: "font-style: italic;",
@@ -23,12 +24,20 @@ const defaultHtmlLookup: Record<string, string> = {
   strong: "font-weight: bold;",
 };
 
+/** A parsed inline run (segment of a wrapped line with optional bold/italic). */
+interface LineRun {
+  text: string;
+  style?: {weight?: number | string; style?: "normal" | "italic"};
+}
+
 /** Internal shape produced by the data reduce in render(). */
 interface TextBoxDatum {
   aH: string;
   data: DataPoint;
   i: number;
   lines: string[];
+  /** Per-line parsed runs when `_html` is configured; null when plain text. */
+  lineRuns: LineRun[][] | null;
   fC: string;
   fStroke: string;
   fSW: number;
@@ -36,6 +45,7 @@ interface TextBoxDatum {
   fO: number;
   fW: number | string;
   id: string;
+  pE: string;
   tA: string;
   vA: string;
   widths: number[];
@@ -48,71 +58,351 @@ interface TextBoxDatum {
   y: number;
 }
 
+/** Parses a "style: foo; …" string from defaultHtmlLookup into TextRun style. */
+function parseStyleString(
+  styleStr: string,
+): {weight?: number | string; style?: "normal" | "italic"} | undefined {
+  const out: {weight?: number | string; style?: "normal" | "italic"} = {};
+  for (const decl of styleStr.split(";")) {
+    const [k, v] = decl.split(":").map(s => s.trim());
+    if (!k || !v) continue;
+    if (k === "font-weight") out.weight = /^\d+$/.test(v) ? Number(v) : v;
+    else if (k === "font-style") out.style = v === "italic" ? "italic" : "normal";
+  }
+  return out.weight === undefined && out.style === undefined ? undefined : out;
+}
+
+/**
+    Walks one wrapped line, applies the regex cleanup (closing dangling
+    open tags, opening trailing closing tags), then splits it into runs by the
+    configured htmlLookup. Returns the new openTag state for the next line so a
+    multi-line bold/italic continues to style subsequent lines.
+*/
+function lineToRuns(
+  raw: string,
+  htmlLookup: Record<string, string>,
+  openTag: string | false,
+): {runs: LineRun[]; openTag: string | false} {
+  // textContent escaping: keep entity escaping in sync with render()
+  // so SVG output stays identical.
+  let cleaned = raw
+    .trimEnd()
+    .replace(/&([^;&]*)/g, (str, a) => (a === "amp" ? str : `&amp;${a}`))
+    .replace(/<([^A-z^/]+)/g, (_str, a) => `&lt;${a}`)
+    .replace(/<$/g, "&lt;")
+    .replace(
+      /(<[^>^/]+>)([^<^>]+)$/g,
+      (_str, a, b) => `${a}${b}${a.replace("<", "</")}`,
+    )
+    .replace(
+      /^([^<^>]+)(<\/[^>]+>)/g,
+      (_str, a, b) => `${b.replace("</", "<")}${a}${b}`,
+    );
+
+  // If we're already inside an open tag from a previous line, prefix this
+  // line with the opening tag so the same tag closes within the line.
+  let nextOpenTag: string | false = openTag;
+  if (nextOpenTag && !cleaned.startsWith("<")) {
+    cleaned = `<${nextOpenTag}>${cleaned}`;
+    if (!cleaned.includes(`</${nextOpenTag}>`)) cleaned += `</${nextOpenTag}>`;
+  }
+
+  const tagRegex = /<([A-z]+)[^>]*>([^<^>]+)<\/[^>]+>/g;
+  const runs: LineRun[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = tagRegex.exec(cleaned)) !== null) {
+    if (m.index > lastIndex) runs.push({text: cleaned.slice(lastIndex, m.index)});
+    const tag = m[1];
+    const inner = m[2];
+    const styleStr = htmlLookup[tag];
+    if (styleStr) {
+      // If the original raw line contains a closing tag, the tag has terminated.
+      if (raw.includes(`</${tag}>`)) nextOpenTag = false;
+      else nextOpenTag = tag;
+      runs.push({text: inner, style: parseStyleString(styleStr)});
+    } else {
+      runs.push({text: inner});
+    }
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < cleaned.length) runs.push({text: cleaned.slice(lastIndex)});
+
+  // If the raw line never opened a tag but we already had openTag set, the
+  // line is fully inside that tag — wrap it.
+  if (!runs.length && cleaned) runs.push({text: cleaned});
+
+  return {runs, openTag: nextOpenTag};
+}
+
+/** Builds the per-line LineRun arrays from wrapped lines, carrying open-tag state. */
+function buildLineRuns(
+  box: TextBox,
+  lineData: string[],
+): LineRun[][] | null {
+  let lineRuns: LineRun[][] | null = null;
+  if (box.schema.html) {
+    const lookup = box.schema.html as Record<string, string>;
+    let openTag: string | false = false;
+    const out: LineRun[][] = [];
+    let hasStyle = false;
+    for (const ln of lineData) {
+      const {runs, openTag: next} = lineToRuns(ln, lookup, openTag);
+      out.push(runs);
+      openTag = next;
+      if (runs.some(r => r.style)) hasStyle = true;
+    }
+    // Only emit runs when at least one line carries a style; otherwise
+    // leave runs unset so the renderer emits a single text node.
+    if (hasStyle) lineRuns = out;
+  }
+  return lineRuns;
+}
+
+/** Pre-scales the font size to fit the box area before wrapping (resize mode). */
+function resizeFontSize(
+  fS: number,
+  w: number,
+  h: number,
+  lH: number,
+  words: string[],
+  style: Record<string, string | number>,
+): number {
+  const sizes = textWidth(words, style) as unknown as number[];
+
+  const areaMod = 1.165 + (w / h) * 0.1,
+    boxArea = w * h,
+    maxWidth = max(sizes) as number,
+    textArea = sum(sizes, (d: number) => d * lH) * areaMod;
+
+  if (maxWidth > w || textArea > boxArea) {
+    const areaRatio = Math.sqrt(boxArea / textArea),
+      widthRatio = w / maxWidth;
+    const sizeRatio = min([areaRatio, widthRatio])!;
+    fS = Math.floor(fS * sizeRatio);
+  }
+
+  const heightMax = Math.floor(h * 0.8);
+  if (fS > heightMax) fS = heightMax;
+  return fS;
+}
+
+/** Assembles the final TextBoxDatum from the resolved layout values. */
+function assembleTextBoxDatum(
+  box: TextBox,
+  d: DataPoint,
+  i: number,
+  layout: {
+    lineData: string[];
+    line: number;
+    fS: number;
+    lH: number;
+    w: number;
+    h: number;
+    vA: string;
+    style: Record<string, string | number>;
+    widths: number[];
+    padding: {top: number; right: number; bottom: number; left: number};
+  },
+): TextBoxDatum {
+  const {lineData, line, fS, lH, w, h, vA, style, widths, padding} = layout;
+  const tH = line * lH;
+  const r = box.schema.rotate(d, i);
+  let yP =
+    r === 0
+      ? vA === "top"
+        ? 0
+        : vA === "middle"
+          ? h / 2 - tH / 2
+          : h - tH
+      : 0;
+  yP -= lH * 0.1;
+
+  // Pre-compute per-line runs from HTML markup, carrying open-tag state
+  // across lines so a multi-line <b> continues to bold subsequent lines.
+  const lineRuns = buildLineRuns(box, lineData);
+
+  return {
+    aH: box.schema.ariaHidden(d, i),
+    data: d,
+    i,
+    lines: lineData,
+    lineRuns,
+    fC: box.schema.fontColor(d, i),
+    fStroke: box.schema.fontStroke(d, i),
+    fSW: box.schema.fontStrokeWidth(d, i),
+    fF: style["font-family"] as string,
+    fO: box.schema.fontOpacity(d, i),
+    fW: style["font-weight"],
+    id: box.schema.id(d, i),
+    pE: box.schema.pointerEvents(d, i),
+    tA: box.schema.textAnchor(d, i),
+    vA: box.schema.verticalAlign(d, i),
+    widths,
+    fS,
+    lH,
+    w,
+    h,
+    r,
+    x: box.schema.x(d, i) + padding.left,
+    y: box.schema.y(d, i) + yP + padding.top,
+  };
+}
+
+/**
+    Computes the laid-out text box for a single data point, or null when the
+    text is undefined or wraps to no visible lines.
+*/
+function computeTextBoxDatum(
+  box: TextBox,
+  d: DataPoint,
+  i: number,
+): TextBoxDatum | null {
+  const that = box;
+  let t = box.schema.text(d, i);
+  if (t === void 0) return null;
+  t = `${t}`.trim();
+
+  const resize = box.schema.fontResize(d, i);
+  const lHRatio = box.schema.lineHeight(d, i) / box.schema.fontSize(d, i);
+
+  let fS = resize ? box.schema.fontMax(d, i) : box.schema.fontSize(d, i),
+    lH = resize ? fS * lHRatio : box.schema.lineHeight(d, i),
+    line = 1,
+    lineData: string[] = [],
+    wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
+
+  const style: Record<string, string | number> = {
+    "font-family": fontExists(box.schema.fontFamily(d, i)) as string,
+    "font-size": fS,
+    "font-weight": box.schema.fontWeight(d, i),
+    "line-height": lH,
+  };
+
+  const padding = parseSides(box.schema.padding(d, i));
+
+  const h = box.schema.height(d, i) - (padding.top + padding.bottom),
+    w = box.schema.width(d, i) - (padding.left + padding.right);
+
+  const wrapper = textWrap()
+    .fontFamily(style["font-family"] as string)
+    .fontSize(fS)
+    .fontWeight(style["font-weight"])
+    .lineHeight(lH)
+    .maxLines(box.schema.maxLines(d, i))
+    .height(h)
+    .overflow(box.schema.overflow(d, i))
+    .width(w)
+    .split(box.schema.split);
+
+  const fMax = box.schema.fontMax(d, i),
+    fMin = box.schema.fontMin(d, i),
+    vA = box.schema.verticalAlign(d, i),
+    words = box.schema.split(t, i);
+
+  /**
+    Figures out the lineData to be used for wrapping.
+    @private
+*/
+  function checkSize(): void {
+    const truncate = () => {
+      if (line < 1) lineData = [that.schema.ellipsis("", line)];
+      else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
+    };
+
+    // Constraint the font size
+    fS = max([fS, fMin])!;
+    fS = min([fS, fMax])!;
+
+    if (resize) {
+      lH = fS * lHRatio;
+      wrapper.fontSize(fS).lineHeight(lH);
+      style["font-size"] = fS;
+      style["line-height"] = lH;
+    }
+
+    wrapResults = wrapper(t!);
+    lineData = wrapResults.lines.filter((l: string) => l !== "");
+    line = lineData.length;
+
+    if (wrapResults.truncated) {
+      if (resize) {
+        fS--;
+        if (fS < fMin) {
+          fS = fMin;
+          truncate();
+          return;
+        } else checkSize();
+      } else truncate();
+    }
+  }
+
+  if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
+    if (resize) fS = resizeFontSize(fS, w, h, lH, words, style);
+    checkSize();
+  }
+
+  if (!lineData.length) return null;
+
+  return assembleTextBoxDatum(box, d, i, {
+    lineData,
+    line,
+    fS,
+    lH,
+    w,
+    h,
+    vA,
+    style,
+    widths: wrapResults.widths,
+    padding,
+  });
+}
+
+/** TextBox's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const textBoxSchema: ConfigField[] = [
+  {key: "ariaHidden", coerce: "const", default: constant("false")},
+  {key: "delay", coerce: "identity", default: 0},
+  {key: "duration", coerce: "identity", default: 0},
+  {key: "ellipsis", coerce: "const", default: (text: string, line: number) => line ? `${text.replace(/\.|,$/g, "")}...` : ""},
+  {key: "fontColor", coerce: "const", default: constant("black")},
+  {key: "fontFamily", coerce: "const", default: constant(fontFamily)},
+  {key: "fontMax", coerce: "const", default: constant(50)},
+  {key: "fontMin", coerce: "const", default: constant(8)},
+  {key: "fontOpacity", coerce: "const", default: constant(1)},
+  {key: "fontResize", coerce: "const", default: constant(false)},
+  {key: "fontSize", coerce: "const", default: constant(10)},
+  {key: "fontStroke", coerce: "const", default: constant("transparent")},
+  {key: "fontStrokeWidth", coerce: "const", default: constant(0)},
+  {key: "fontWeight", coerce: "const", default: constant(400)},
+  {key: "height", coerce: "const", default: accessor("height", 200)},
+  {key: "id", coerce: "const", default: (d: DataPoint, i: number) => (d.id as string) || `${i}`},
+  {key: "lineHeight", coerce: "const"},
+  {key: "maxLines", coerce: "const", default: constant(null)},
+  {key: "overflow", coerce: "const", default: constant(false)},
+  {key: "padding", coerce: "const", default: constant(0)},
+  {key: "pointerEvents", coerce: "const", default: constant("auto")},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "rotate", coerce: "const", default: constant(0)},
+  {key: "rotateAnchor", coerce: "const", default: (d: TextBoxDatum) => [d.w / 2, d.h / 2]},
+  {key: "split", coerce: "identity", default: textSplit},
+  {key: "text", coerce: "const", default: accessor("text")},
+  {key: "textAnchor", coerce: "const", default: constant("start")},
+  {key: "verticalAlign", coerce: "const", default: constant("top")},
+  {key: "width", coerce: "const", default: accessor("width", 200)},
+  {key: "x", coerce: "const", default: accessor("x", 0)},
+  {key: "y", coerce: "const", default: accessor("y", 0)},
+];
+
 /**
     Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
 */
 export default class TextBox extends BaseClass {
+  // installFluent generates the config accessors (text, fontSize, x, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _select!: D3Selection;
-
   _data!: DataPoint[];
-
-  _ariaHidden: (d: DataPoint, i?: number) => string;
-  _delay: number;
-  _duration: number;
-  _ellipsis: (text: string, line: number) => string;
-
-  _fontColor: (d: DataPoint, i?: number) => string;
-
-  _fontFamily: (d: DataPoint, i?: number) => string;
-
-  _fontMax: (d: DataPoint, i?: number) => number;
-
-  _fontMin: (d: DataPoint, i?: number) => number;
-
-  _fontOpacity: (d: DataPoint, i?: number) => number;
-
-  _fontResize: (d: DataPoint, i?: number) => boolean;
-
-  _fontSize: (d: DataPoint, i?: number) => number;
-
-  _fontStroke: (d: DataPoint, i?: number) => string;
-
-  _fontStrokeWidth: (d: DataPoint, i?: number) => number;
-
-  _fontWeight: (d: DataPoint, i?: number) => number | string;
-
-  _height: (d: DataPoint, i?: number) => number;
-
-  _html: Record<string, string> | false;
-  _id: (d: DataPoint, i: number) => string;
-  _lineHeight: (d: DataPoint, i?: number) => number;
-
-  _maxLines: (d: DataPoint, i?: number) => number | null;
-
-  _on: Record<string, (...args: unknown[]) => unknown>;
-
-  _overflow: (d: DataPoint, i?: number) => boolean;
-
-  _padding: (d: DataPoint, i?: number) => number | string;
-
-  _pointerEvents: (d: DataPoint, i?: number) => string;
-
-  _rotate: (d: DataPoint, i?: number) => number;
-  _rotateAnchor: (d: TextBoxDatum, i?: number) => [number, number];
-
-  _split: (text: string, i?: number) => string[];
-
-  _text: (d: DataPoint, i?: number) => string | undefined;
-
-  _textAnchor: (d: DataPoint, i?: number) => string;
-
-  _verticalAlign: (d: DataPoint, i?: number) => string;
-
-  _width: (d: DataPoint, i?: number) => number;
-
-  _x: (d: DataPoint, i?: number) => number;
-
-  _y: (d: DataPoint, i?: number) => number;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -120,59 +410,88 @@ export default class TextBox extends BaseClass {
 */
   constructor() {
     super();
+    installFluent(this, textBoxSchema);
+    this.schema.lineHeight = (d: DataPoint, i?: number) => this.schema.fontSize(d, i) * 1.2;
+    this.schema.html = defaultHtmlLookup;
+  }
 
-    this._ariaHidden = constant("false");
-    this._delay = 0;
-    this._duration = 0;
-    this._ellipsis = (text: string, line: number) =>
-      line ? `${text.replace(/\.|,$/g, "")}...` : "";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontColor = constant("black") as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontFamily = constant(fontFamily) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontMax = constant(50) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontMin = constant(8) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontOpacity = constant(1) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontResize = constant(false) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontSize = constant(10) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontStroke = constant("transparent") as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontStrokeWidth = constant(0) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._fontWeight = constant(400) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._height = accessor("height", 200) as any;
-    this._html = defaultHtmlLookup;
-    this._id = (d: DataPoint, i: number) => (d.id as string) || `${i}`;
-    this._lineHeight = (d: DataPoint, i?: number) => this._fontSize(d, i) * 1.2;
-    this._maxLines = constant(null);
-    this._on = {};
-    this._overflow = constant(false);
-    this._padding = constant(0);
-    this._pointerEvents = constant("auto");
-    this._rotate = constant(0);
-    this._rotateAnchor = (d: TextBoxDatum) => {
-      return [d.w / 2, d.h / 2];
-    };
-    this._split = textSplit;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._text = accessor("text") as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._textAnchor = constant("start") as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._verticalAlign = constant("top") as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._width = accessor("width", 200) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._x = accessor("x", 0) as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._y = accessor("y", 0) as any;
+  /**
+      Computes the laid-out text boxes (wrapping, font sizing, per-box position)
+      for the current data. Shared by render() and toScene() so both produce
+      identical layout.
+      @private
+*/
+  _textData(): TextBoxDatum[] {
+    return this._data.reduce((arr: TextBoxDatum[], d: DataPoint, i: number) => {
+      const datum = computeTextBoxDatum(this, d, i);
+      if (datum) arr.push(datum);
+      return arr;
+    }, []);
+  }
+
+  /**
+      Produces a backend-agnostic scene graph for the text boxes, reusing the same
+      layout (_textData) and per-line positioning render() applies to the DOM.
+*/
+  toScene(): GroupNode {
+    const rtl = detectRTL();
+    const children: SceneNode[] = this._textData().map(d => {
+      const anchor = d.tA === "middle" ? "middle" : d.tA === "end" ? "end" : "start";
+      const lineX =
+        d.tA === "middle"
+          ? d.w / 2
+          : rtl
+            ? d.tA === "start"
+              ? d.w
+              : 0
+            : d.tA === "end"
+              ? d.w
+              : 2 * Math.sin((Math.PI * d.r) / 180);
+      const lines = d.lines.map((text, i) => {
+        const y =
+          d.r === 0 || d.vA === "top"
+            ? (i + 1) * d.lH - (d.lH - d.fS)
+            : d.vA === "middle"
+              ? (d.h + d.fS) / 2 - (d.lH - d.fS) + (i - d.lines.length / 2 + 0.5) * d.lH
+              : d.h - 2 * (d.lH - d.fS) - (d.lines.length - (i + 1)) * d.lH + 2 * Math.cos((Math.PI * d.r) / 180);
+        const width = d.widths ? d.widths[i] ?? 0 : 0;
+        const runs = d.lineRuns ? d.lineRuns[i] : undefined;
+        return runs ? {text, x: lineX, y, width, runs} : {text, x: lineX, y, width};
+      });
+      const rotateAnchor = this.schema.rotateAnchor(d, d.i);
+      const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
+      const interactive = d.pE !== "none";
+      return {
+        type: "text",
+        key: d.id,
+        id: `d3plus-textBox-${strip(d.id)}`,
+        datum: d.data,
+        index: d.i,
+        x: 0,
+        y: 0,
+        width: d.w,
+        height: d.h,
+        lines,
+        font: {
+          family: d.fF,
+          size: d.fS,
+          weight: d.fW,
+          anchor,
+          baseline: "alphabetic",
+          dir: rtl ? "rtl" : "ltr",
+        },
+        paint: {
+          fill: d.fC,
+          opacity: d.fO,
+          ...(d.fStroke && d.fStroke !== "transparent" ? {stroke: d.fStroke} : {}),
+          ...(d.fSW ? {strokeWidth: d.fSW} : {}),
+        },
+        transform: {x: d.x, y: d.y, rotate: d.r, rotateAnchor},
+        aria: ariaHidden ? {hidden: true} : undefined,
+        interactive,
+      } as SceneNode;
+    });
+    return {type: "group", key: "textBox-group", children};
   }
 
   /**
@@ -180,354 +499,74 @@ export default class TextBox extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   render(callback?: (...args: unknown[]) => unknown): this {
-    if (this._select === void 0)
-      this.select(
-        select("body")
-          .append("svg")
-          .style("width", `${window.innerWidth}px`)
-          .style("height", `${window.innerHeight}px`)
-          .node() as unknown as HTMLElement,
-      );
-
-    const that = this;
-
-    const boxes = this._select.selectAll(".d3plus-textBox").data(
-      this._data.reduce((arr: TextBoxDatum[], d: DataPoint, i: number) => {
-        let t = this._text(d, i);
-        if (t === void 0) return arr;
-        t = `${t}`.trim();
-
-        const resize = this._fontResize(d, i);
-        const lHRatio = this._lineHeight(d, i) / this._fontSize(d, i);
-
-        let fS = resize ? this._fontMax(d, i) : this._fontSize(d, i),
-          lH = resize ? fS * lHRatio : this._lineHeight(d, i),
-          line = 1,
-          lineData: string[] = [],
-          sizes: number[],
-          wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const style: Record<string, any> = {
-          "font-family": fontExists(this._fontFamily(d, i)),
-          "font-size": fS,
-          "font-weight": this._fontWeight(d, i),
-          "line-height": lH,
-        };
-
-        const padding = parseSides(this._padding(d, i));
-
-        const h = this._height(d, i) - (padding.top + padding.bottom),
-          w = this._width(d, i) - (padding.left + padding.right);
-
-        const wrapper = textWrap()
-          .fontFamily(style["font-family"])
-          .fontSize(fS)
-          .fontWeight(style["font-weight"])
-          .lineHeight(lH)
-          .maxLines(this._maxLines(d, i))
-          .height(h)
-          .overflow(this._overflow(d, i))
-          .width(w)
-          .split(this._split);
-
-        const fMax = this._fontMax(d, i),
-          fMin = this._fontMin(d, i),
-          vA = this._verticalAlign(d, i),
-          words = this._split(t, i);
-
-        /**
-          Figures out the lineData to be used for wrapping.
-          @private
-*/
-        function checkSize(): void {
-          const truncate = () => {
-            if (line < 1) lineData = [that._ellipsis("", line)];
-            else lineData[line - 1] = that._ellipsis(lineData[line - 1], line);
-          };
-
-          // Constraint the font size
-          fS = max([fS, fMin])!;
-          fS = min([fS, fMax])!;
-
-          if (resize) {
-            lH = fS * lHRatio;
-            wrapper.fontSize(fS).lineHeight(lH);
-            style["font-size"] = fS;
-            style["line-height"] = lH;
-          }
-
-          wrapResults = wrapper(t!);
-          lineData = wrapResults.lines.filter((l: string) => l !== "");
-          line = lineData.length;
-
-          if (wrapResults.truncated) {
-            if (resize) {
-              fS--;
-              if (fS < fMin) {
-                fS = fMin;
-                truncate();
-                return;
-              } else checkSize();
-            } else truncate();
-          }
-        }
-
-        if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
-          if (resize) {
-            sizes = textWidth(words, style) as number[];
-
-            const areaMod = 1.165 + (w / h) * 0.1,
-              boxArea = w * h,
-              maxWidth = max(sizes) as number,
-              textArea = sum(sizes, (d: number) => d * lH) * areaMod;
-
-            if (maxWidth > w || textArea > boxArea) {
-              const areaRatio = Math.sqrt(boxArea / textArea),
-                widthRatio = w / maxWidth;
-              const sizeRatio = min([areaRatio, widthRatio])!;
-              fS = Math.floor(fS * sizeRatio);
-            }
-
-            const heightMax = Math.floor(h * 0.8);
-            if (fS > heightMax) fS = heightMax;
-          }
-
-          checkSize();
-        }
-
-        if (lineData.length) {
-          const tH = line * lH;
-          const r = this._rotate(d, i);
-          let yP =
-            r === 0
-              ? vA === "top"
-                ? 0
-                : vA === "middle"
-                  ? h / 2 - tH / 2
-                  : h - tH
-              : 0;
-          yP -= lH * 0.1;
-
-          arr.push({
-            aH: this._ariaHidden(d, i),
-            data: d,
-            i,
-            lines: lineData,
-            fC: this._fontColor(d, i),
-            fStroke: this._fontStroke(d, i),
-            fSW: this._fontStrokeWidth(d, i),
-            fF: style["font-family"] as string,
-            fO: this._fontOpacity(d, i),
-            fW: style["font-weight"],
-            id: this._id(d, i),
-            tA: this._textAnchor(d, i),
-            vA: this._verticalAlign(d, i),
-            widths: wrapResults.widths,
-            fS,
-            lH,
-            w,
-            h,
-            r,
-            x: this._x(d, i) + padding.left,
-            y: this._y(d, i) + yP + padding.top,
-          });
-        }
-
-        return arr;
-
-      }, []),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (d: unknown) => this._id((d as TextBoxDatum).data, (d as TextBoxDatum).i),
-    );
-
-    const t = this._select.transition().duration(this._duration);
-
-    if (this._duration === 0) {
-      boxes.exit().remove();
-    } else {
-      boxes.exit().transition().delay(this._duration).remove();
-
-      boxes
-        .exit()
-        .selectAll("text")
-        .transition(t)
-        .attr("opacity", 0)
-        .style("opacity", 0);
+    if (this.schema.renderMode === "compute") {
+      // A Viz pipeline (or parent shape) is driving this TextBox — it will
+      // compose the scene itself, so we only need _textData to be reachable.
+      if (callback) setTimeout(callback, 0);
+      return this;
     }
 
-    /**
-     * Applies translate and rotate to a text element.
-     * @param {D3Selection} text
-     * @private
-*/
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function rotate(text: any): void {
-      text.attr("transform", (d: TextBoxDatum, i: number) => {
-        const rotateAnchor = that._rotateAnchor(d, i);
-        return `translate(${d.x}, ${d.y}) rotate(${d.r}, ${rotateAnchor[0]}, ${rotateAnchor[1]})`;
-      });
+    // Standalone use: route toScene() through SvgRenderer. Mirrors Shape.render
+    // so `new TextBox().render()` works without a d3-selection body.
+    if (this._select === undefined && typeof document !== "undefined") {
+      const svgNode = select("body")
+        .append("svg")
+        .style("width", `${window.innerWidth}px`)
+        .style("height", `${window.innerHeight}px`)
+        .node() as unknown as HTMLElement;
+      this.select(svgNode);
     }
 
-    const update = boxes
-      .enter()
-      .append("g")
-      .attr("class", "d3plus-textBox")
-      .attr("id", (d: TextBoxDatum) => `d3plus-textBox-${strip(d.id)}`)
-      .call(rotate)
-      .merge(boxes as never);
+    if (this._select) {
+      const sel = this._select;
+      const node: Element | null =
+        sel && typeof sel.node === "function"
+          ? (sel.node() as Element | null)
+          : (sel as unknown as Element | null);
+      if (node) {
+        const root = this.toScene();
+        // `width`/`height`/`x` are per-box accessors, not canvas dimensions, so
+        // size the surface to the laid-out content extent (max box edge) — and
+        // also to the container's rendered box, so it fills a sized container.
+        // `getBoundingClientRect` is used because the React wrapper sets
+        // `width`/`height="100%"`, which `Number("100%")` can't parse (→ NaN,
+        // which previously fell back to a hard-coded 400 and cropped boxes).
+        type Edge = {transform?: {x?: number; y?: number}; width?: number; height?: number};
+        const contentW = root.children.reduce(
+          (m, c) => Math.max(m, ((c as Edge).transform?.x ?? 0) + ((c as Edge).width ?? 0)),
+          0,
+        );
+        const contentH = root.children.reduce(
+          (m, c) => Math.max(m, ((c as Edge).transform?.y ?? 0) + ((c as Edge).height ?? 0)),
+          0,
+        );
+        const rect =
+          typeof node.getBoundingClientRect === "function"
+            ? node.getBoundingClientRect()
+            : null;
+        const boxW =
+          (rect && rect.width) ||
+          Number(node.getAttribute("width")) ||
+          (node as HTMLElement).clientWidth ||
+          0;
+        const boxH =
+          (rect && rect.height) ||
+          Number(node.getAttribute("height")) ||
+          (node as HTMLElement).clientHeight ||
+          0;
+        const width = Math.max(boxW, contentW) || 400;
+        const height = Math.max(boxH, contentH) || 300;
+        while (node.firstChild) node.removeChild(node.firstChild);
+        const scene = {root, width, height};
+        const renderer = new SvgRenderer();
+        renderer.mount({container: node, width, height});
+        renderer.drawScene(scene);
+        (this as unknown as {_sceneRenderer?: SvgRenderer})._sceneRenderer = renderer;
+      }
+    }
 
-    const rtl = detectRTL();
-
-    update
-      .order()
-      .style("pointer-events", (d: TextBoxDatum) => this._pointerEvents(d.data, d.i))
-      .each(function (this: SVGElement, d: TextBoxDatum) {
-        /**
-            Sets the inner text content of each <text> element.
-            @private
-*/
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function textContent(text: any): void {
-          let tag: string | false = false;
-
-          text[that._html ? "html" : "text"]((t: string) => {
-            let cleaned = t.trimEnd()
-              .replace(/&([^;&]*)/g, (str: string, a: string) =>
-                a === "amp" ? str : `&amp;${a}`,
-              ) // replaces all non-HTML ampersands with escaped entity
-              .replace(/<([^A-z^/]+)/g, (_str: string, a: string) => `&lt;${a}`)
-              .replace(/<$/g, "&lt;") // replaces all non-HTML left angle brackets with escaped entity
-              .replace(
-                /(<[^>^/]+>)([^<^>]+)$/g,
-                (_str: string, a: string, b: string) =>
-                  `${a}${b}${a.replace("<", "</")}`,
-              ) // ands end tag to lines before mid-HTML break
-              .replace(
-                /^([^<^>]+)(<\/[^>]+>)/g,
-                (_str: string, a: string, b: string) =>
-                  `${b.replace("</", "<")}${a}${b}`,
-              ); // ands start tag to lines after mid-HTML break
-
-            const tagRegex = new RegExp(/<([A-z]+)[^>]*>([^<^>]+)<\/[^>]+>/g);
-            if (cleaned.match(tagRegex)) {
-              const htmlLookup = that._html as Record<string, string>;
-              cleaned = cleaned.replace(
-                tagRegex,
-                (_str: string, a: string, b: string) => {
-                  tag = htmlLookup[a] ? a : false;
-                  if (tag) {
-                    const style = htmlLookup[tag];
-                    if (t.includes(`</${tag}>`)) tag = false;
-                    return `<tspan style="${style}">${b}</tspan>`;
-                  }
-                  return b;
-                },
-              );
-            } else if (tag && tag.length) {
-              const htmlLookup = that._html as Record<string, string>;
-              cleaned = `<tspan style="${htmlLookup[tag]}">${cleaned}</tspan>`;
-            }
-
-            return cleaned;
-          });
-        }
-
-        /**
-            Styles to apply to each <text> element.
-            @private
-*/
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function textStyle(text: any): void {
-          text
-            .attr("aria-hidden", d.aH)
-            .attr("dir", rtl ? "rtl" : "ltr")
-            .attr("fill", d.fC)
-            .attr("stroke", d.fStroke)
-            .attr("stroke-width", d.fSW)
-            .attr("text-anchor", d.tA)
-            .attr("font-family", d.fF)
-            .style("font-family", d.fF)
-            .attr("font-size", `${d.fS}px`)
-            .style("font-size", `${d.fS}px`)
-            .attr("font-weight", d.fW)
-            .style("font-weight", d.fW)
-            .attr(
-              "x",
-              `${d.tA === "middle" ? d.w / 2 : rtl ? (d.tA === "start" ? d.w : 0) : d.tA === "end" ? d.w : 2 * Math.sin((Math.PI * d.r) / 180)}px`,
-            )
-            .attr("y", (_t: unknown, i: number) =>
-              d.r === 0 || d.vA === "top"
-                ? `${(i + 1) * d.lH - (d.lH - d.fS)}px`
-                : d.vA === "middle"
-                  ? `${(d.h + d.fS) / 2 - (d.lH - d.fS) + (i - d.lines.length / 2 + 0.5) * d.lH}px`
-                  : `${d.h - 2 * (d.lH - d.fS) - (d.lines.length - (i + 1)) * d.lH + 2 * Math.cos((Math.PI * d.r) / 180)}px`,
-            );
-        }
-
-        const texts = select(this).selectAll("text").data(d.lines);
-
-        if (that._duration === 0) {
-          texts.call(textContent).call(textStyle);
-
-          texts.exit().remove();
-
-          texts
-            .enter()
-            .append("text")
-            .attr("dominant-baseline", "alphabetic")
-            .style("baseline-shift", "0%")
-            .attr("unicode-bidi", "bidi-override")
-            .call(textContent)
-            .call(textStyle)
-            .attr("opacity", d.fO)
-            .style("opacity", d.fO);
-        } else {
-          texts.call(textContent).transition(t).call(textStyle);
-
-          texts.exit().transition(t).attr("opacity", 0).remove();
-
-          texts
-            .enter()
-            .append("text")
-            .attr("dominant-baseline", "alphabetic")
-            .style("baseline-shift", "0%")
-            .attr("opacity", 0)
-            .style("opacity", 0)
-            .call(textContent)
-            .call(textStyle)
-            .merge(texts as never)
-            .transition(t)
-            .delay(that._delay)
-            .call(textStyle)
-            .attr("opacity", d.fO)
-            .style("opacity", d.fO);
-        }
-      })
-      .transition(t)
-      .call(rotate);
-
-    const events = Object.keys(this._on),
-      on = events.reduce((obj: Record<string, (...args: unknown[]) => unknown>, e: string) => {
-        obj[e] = (...args: unknown[]) => this._on[e]((args[0] as TextBoxDatum).data, args[1]);
-        return obj;
-      }, {});
-    for (let e = 0; e < events.length; e++) update.on(events[e], on[events[e]]);
-
-    if (callback) setTimeout(callback, this._duration + 100);
-
+    if (callback) setTimeout(callback, 0);
     return this;
-  }
-
-  /**
-      The aria-hidden attribute.
-*/
-  ariaHidden(): (d: DataPoint, i?: number) => string;
-  ariaHidden(_: string | ((d: DataPoint, i?: number) => string)): this;
-  ariaHidden(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return _ !== undefined
-      ? ((this._ariaHidden = typeof _ === "function" ? _ : constant(_)), this)
-      : this._ariaHidden;
   }
 
   /**
@@ -540,276 +579,16 @@ export default class TextBox extends BaseClass {
   }
 
   /**
-      The animation delay in milliseconds.
-*/
-  delay(): number;
-  delay(_: number): this;
-  delay(_?: number): number | this {
-    return arguments.length ? ((this._delay = _!), this) : this._delay;
-  }
-
-  /**
-      The animation duration in milliseconds.
-*/
-  duration(): number;
-  duration(_: number): this;
-  duration(_?: number): number | this {
-    return arguments.length ? ((this._duration = _!), this) : this._duration;
-  }
-
-  /**
-      The function that handles truncated lines. It should return the new value for the line, and is passed 2 arguments: the String of text for the line in question, and the number of the line. By default, an ellipsis is added to the end of any line except if it is the first word that cannot fit (in that case, an empty string is returned).
-
-@example <caption>default accessor</caption>
-function(text, line) {
-  return line ? text.replace(/\.|,$/g, "") + "..." : "";
-}
-*/
-  ellipsis(): (text: string, line: number) => string;
-  ellipsis(_: ((text: string, line: number) => string) | string): this;
-  ellipsis(_?: ((text: string, line: number) => string) | string): unknown {
-    return arguments.length
-      ? ((this._ellipsis = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._ellipsis;
-  }
-
-  /**
-      The font color as an accessor function or static string. Inferred from the [DOM selection](#textBox.select) by default.
-*/
-  fontColor(): (d: DataPoint, i?: number) => string;
-  fontColor(_: string | ((d: DataPoint, i?: number) => string)): this;
-  fontColor(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._fontColor = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontColor;
-  }
-
-  /**
-      Defines the font-family to be used. The value passed can be either a *String* name of a font, a comma-separated list of font-family fallbacks, an *Array* of fallbacks, or a *Function* that returns either a *String* or an *Array*. If supplying multiple fallback fonts, the [fontExists](#fontExists) function will be used to determine the first available font on the client's machine.
-*/
-  fontFamily(): (d: DataPoint, i?: number) => string;
-  fontFamily(_: string | ((d: DataPoint, i?: number) => string)): this;
-  fontFamily(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._fontFamily = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontFamily;
-  }
-
-  /**
-      The maximum font size in pixels, used when [dynamically resizing fonts](#textBox.fontResize).
-*/
-  fontMax(): (d: DataPoint, i?: number) => number;
-  fontMax(_: number | ((d: DataPoint, i?: number) => number)): this;
-  fontMax(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._fontMax = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontMax;
-  }
-
-  /**
-      The minimum font size in pixels, used when [dynamically resizing fonts](#textBox.fontResize).
-*/
-  fontMin(): (d: DataPoint, i?: number) => number;
-  fontMin(_: number | ((d: DataPoint, i?: number) => number)): this;
-  fontMin(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._fontMin = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontMin;
-  }
-
-  /**
-      The font opacity as an accessor function or static number between 0 and 1.
-*/
-  fontOpacity(): (d: DataPoint, i?: number) => number;
-  fontOpacity(_: number | ((d: DataPoint, i?: number) => number)): this;
-  fontOpacity(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._fontOpacity = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontOpacity;
-  }
-
-  /**
-      Toggles font resizing, which can either be defined as a static boolean for all data points, or an accessor function that returns a boolean. See [this example](http://d3plus.org/examples/d3plus-text/resizing-text/) for a side-by-side comparison.
-*/
-  fontResize(): (d: DataPoint, i?: number) => boolean;
-  fontResize(_: boolean | ((d: DataPoint, i?: number) => boolean)): this;
-  fontResize(_?: boolean | ((d: DataPoint, i?: number) => boolean)): unknown {
-    return arguments.length
-      ? ((this._fontResize = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontResize;
-  }
-
-  /**
-      The font size in pixels. Inferred from the [DOM selection](#textBox.select) by default.
-*/
-  fontSize(): (d: DataPoint, i?: number) => number;
-  fontSize(_: number | ((d: DataPoint, i?: number) => number)): this;
-  fontSize(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._fontSize = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontSize;
-  }
-
-  /**
-      The font stroke color for the rendered text.
-*/
-  fontStroke(): (d: DataPoint, i?: number) => string;
-  fontStroke(_: string | ((d: DataPoint, i?: number) => string)): this;
-  fontStroke(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._fontStroke = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontStroke;
-  }
-
-  /**
-      The font stroke width for the rendered text.
-*/
-  fontStrokeWidth(): (d: DataPoint, i?: number) => number;
-  fontStrokeWidth(_: number | ((d: DataPoint, i?: number) => number)): this;
-  fontStrokeWidth(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._fontStrokeWidth = typeof _ === "function" ? _ : constant(_!)),
-        this)
-      : this._fontStrokeWidth;
-  }
-
-  /**
-      The font weight. Inferred from the [DOM selection](#textBox.select) by default.
-*/
-  fontWeight(): (d: DataPoint, i?: number) => number | string;
-  fontWeight(_: number | string | ((d: DataPoint, i?: number) => number | string)): this;
-  fontWeight(_?: number | string | ((d: DataPoint, i?: number) => number | string)): unknown {
-    return arguments.length
-      ? ((this._fontWeight = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._fontWeight;
-  }
-
-  /**
-      The height for each text box.
-
-@example <caption>default accessor</caption>
-function(d) {
-  return d.height || 200;
-}
-*/
-  height(): (d: DataPoint, i?: number) => number;
-  height(_: number | ((d: DataPoint, i?: number) => number)): this;
-  height(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._height;
-  }
-
-  /**
       Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles
 */
   html(): Record<string, string> | false;
   html(_: Record<string, string> | boolean): this;
   html(_?: Record<string, string> | boolean): unknown {
     return arguments.length
-      ? ((this._html =
+      ? ((this.schema.html =
           typeof _ === "boolean" ? (_ ? defaultHtmlLookup : false) : _!),
         this)
-      : this._html;
-  }
-
-  /**
-      The unique id for each text box.
-
-@example <caption>default accessor</caption>
-function(d, i) {
-  return d.id || i + "";
-}
-*/
-  id(): (d: DataPoint, i: number) => string;
-  id(_: string | ((d: DataPoint, i: number) => string)): this;
-  id(_?: string | ((d: DataPoint, i: number) => string)): unknown {
-    return arguments.length
-      ? ((this._id = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._id;
-  }
-
-  /**
-      The line height, which is 1.2 times the [font size](#textBox.fontSize) by default.
-*/
-  lineHeight(): (d: DataPoint, i?: number) => number;
-  lineHeight(_: ((d: DataPoint, i?: number) => number) | number): this;
-  lineHeight(_?: ((d: DataPoint, i?: number) => number) | number): unknown {
-    return arguments.length
-      ? ((this._lineHeight = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._lineHeight;
-  }
-
-  /**
-      Restricts the maximum number of lines to wrap onto, which is null (unlimited) by default.
-*/
-  maxLines(): (d: DataPoint, i?: number) => number | null;
-  maxLines(_: number | null | ((d: DataPoint, i?: number) => number | null)): this;
-  maxLines(_?: number | null | ((d: DataPoint, i?: number) => number | null)): unknown {
-    return arguments.length
-      ? ((this._maxLines = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._maxLines;
-  }
-
-  /**
-      Whether text is allowed to overflow its bounding box.
-*/
-  overflow(): (d: DataPoint, i?: number) => boolean;
-  overflow(_: boolean | ((d: DataPoint, i?: number) => boolean)): this;
-  overflow(_?: boolean | ((d: DataPoint, i?: number) => boolean)): unknown {
-    return arguments.length
-      ? ((this._overflow = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._overflow;
-  }
-
-  /**
-      The padding as a CSS shorthand string or number. Defaults to 0.
-*/
-  padding(): (d: DataPoint, i?: number) => number | string;
-  padding(_: number | string | ((d: DataPoint, i?: number) => number | string)): this;
-  padding(_?: number | string | ((d: DataPoint, i?: number) => number | string)): unknown {
-    return arguments.length
-      ? ((this._padding = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._padding;
-  }
-
-  /**
-      The pointer-events CSS property for each text box.
-*/
-  pointerEvents(): (d: DataPoint, i?: number) => string;
-  pointerEvents(_: string | ((d: DataPoint, i?: number) => string)): this;
-  pointerEvents(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._pointerEvents = typeof _ === "function" ? _ : constant(_!)),
-        this)
-      : this._pointerEvents;
-  }
-
-  /**
-      The rotation angle in degrees for each text box.
-*/
-  rotate(): (d: DataPoint, i?: number) => number;
-  rotate(_: number | ((d: DataPoint, i?: number) => number)): this;
-  rotate(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._rotate = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._rotate;
-  }
-
-  /**
-      The anchor point around which to rotate the text box.
-*/
-  rotateAnchor(): (d: DataPoint, i?: number) => [number, number];
-  rotateAnchor(
-    _: ((d: DataPoint, i?: number) => [number, number]) | [number, number],
-  ): this;
-  rotateAnchor(
-    _?: ((d: DataPoint, i?: number) => [number, number]) | [number, number],
-  ): unknown {
-    return arguments.length
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? ((this._rotateAnchor = (typeof _ === "function" ? _ : constant(_!)) as any), this)
-      : this._rotateAnchor;
+      : this.schema.html;
   }
 
   /**
@@ -821,101 +600,5 @@ function(d, i) {
     return arguments.length
       ? ((this._select = select(_ as never) as unknown as D3Selection), this)
       : this._select;
-  }
-
-  /**
-      The word split function, which when passed a string is expected to return that string split into an array of words.
-*/
-  split(): (text: string, i?: number) => string[];
-  split(_: (text: string, i?: number) => string[]): this;
-  split(_?: (text: string, i?: number) => string[]): unknown {
-    return arguments.length ? ((this._split = _!), this) : this._split;
-  }
-
-  /**
-      The text content for each box.
-
-@example <caption>default accessor</caption>
-function(d) {
-  return d.text;
-}
-*/
-  text(): (d: DataPoint, i?: number) => string | undefined;
-  text(_: string | ((d: DataPoint, i?: number) => string | undefined)): this;
-  text(_?: string | ((d: DataPoint, i?: number) => string | undefined)): unknown {
-    return arguments.length
-      ? ((this._text = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._text;
-  }
-
-  /**
-      The horizontal text anchor, analagous to the SVG [text-anchor](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor) property.
-*/
-  textAnchor(): (d: DataPoint, i?: number) => string;
-  textAnchor(_: string | ((d: DataPoint, i?: number) => string)): this;
-  textAnchor(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._textAnchor = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._textAnchor;
-  }
-
-  /**
-      The vertical alignment. Accepts `"top"`, `"middle"`, and `"bottom"`.
-*/
-  verticalAlign(): (d: DataPoint, i?: number) => string;
-  verticalAlign(_: string | ((d: DataPoint, i?: number) => string)): this;
-  verticalAlign(_?: string | ((d: DataPoint, i?: number) => string)): unknown {
-    return arguments.length
-      ? ((this._verticalAlign = typeof _ === "function" ? _ : constant(_!)),
-        this)
-      : this._verticalAlign;
-  }
-
-  /**
-      The width for each text box.
-
-@example <caption>default accessor</caption>
-function(d) {
-  return d.width || 200;
-}
-*/
-  width(): (d: DataPoint, i?: number) => number;
-  width(_: number | ((d: DataPoint, i?: number) => number)): this;
-  width(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._width;
-  }
-
-  /**
-      The x position for each text box. The number given should correspond to the left side of the textBox.
-
-@example <caption>default accessor</caption>
-function(d) {
-  return d.x || 0;
-}
-*/
-  x(): (d: DataPoint, i?: number) => number;
-  x(_: number | ((d: DataPoint, i?: number) => number)): this;
-  x(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._x = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._x;
-  }
-
-  /**
-      The y position for each text box. The number given should correspond to the top side of the textBox.
-
-@example <caption>default accessor</caption>
-function(d) {
-  return d.y || 0;
-}
-*/
-  y(): (d: DataPoint, i?: number) => number;
-  y(_: number | ((d: DataPoint, i?: number) => number)): this;
-  y(_?: number | ((d: DataPoint, i?: number) => number)): unknown {
-    return arguments.length
-      ? ((this._y = typeof _ === "function" ? _ : constant(_!)), this)
-      : this._y;
   }
 }

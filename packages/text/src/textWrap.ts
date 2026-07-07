@@ -50,6 +50,118 @@ export interface TextWrapGenerator {
   width(value: number): TextWrapGenerator;
 }
 
+interface WrapConfig {
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: number | string;
+  height: number;
+  lineHeight: number;
+  maxLines: number | null;
+  overflow: boolean;
+  split: (sentence: string) => string[];
+  width: number;
+}
+
+/**
+    Breaks a single sentence into wrapped lines using the resolved style config.
+    @private
+*/
+function wrapSentence(phrase: unknown, config: WrapConfig): TextWrapResult {
+  const {
+    fontFamily,
+    fontSize,
+    fontWeight,
+    height,
+    lineHeight,
+    maxLines,
+    overflow,
+    split,
+    width,
+  } = config;
+
+  const sentence = stringify(phrase);
+  const words = split(sentence);
+
+  const style: Record<string, string | number> = {
+    "font-family": fontFamily,
+    "font-size": fontSize,
+    "font-weight": fontWeight,
+    "line-height": lineHeight,
+  };
+
+  let line = 1,
+    textProg = "",
+    truncated = false,
+    widthProg = 0;
+
+  const lineData: string[] = [],
+    // The running width each line consumed while wrapping. This is the sum
+    // of the per-word widths the break logic actually compared against
+    // `width`, which can differ from re-measuring the finished line as a
+    // single string (e.g. a soft hyphen counts toward the break decision but
+    // is stripped from the rendered line, and trailing spaces measure as 0).
+    lineWidths: number[] = [],
+    sizes = textWidth(words, style);
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const wordWidth = sizes[words.indexOf(word)];
+
+    // newline if breaking character or not enough width
+    if (textProg.slice(-1) === "\n" || widthProg + wordWidth > width) {
+      if (!i && !overflow) {
+        truncated = true;
+        break;
+      }
+      if (lineData.length >= line) {
+        let lineText = lineData[line - 1].trimEnd();
+        // Convert trailing soft hyphen to visible hyphen at line breaks
+        if (lineText.endsWith(softHyphen))
+          lineText = lineText.slice(0, -1) + "-";
+        lineData[line - 1] = lineText;
+      }
+      line++;
+      if (
+        lineHeight * line > height ||
+        (wordWidth > width && !overflow) ||
+        (maxLines && line > maxLines)
+      ) {
+        truncated = true;
+        break;
+      }
+      widthProg = 0;
+      lineData.push(word);
+    } else if (!i) lineData[0] = word;
+    else {
+      // Strip soft hyphen when syllables stay on the same line
+      if (lineData[line - 1].endsWith(softHyphen)) {
+        lineData[line - 1] = lineData[line - 1].slice(0, -1);
+      }
+      lineData[line - 1] += word;
+    }
+
+    textProg += word;
+    widthProg += wordWidth;
+    lineWidths[line - 1] = widthProg;
+  }
+
+  // Clean remaining soft hyphens from all lines
+  const lines = lineData.map(l => l.replaceAll(softHyphen, ""));
+
+  // Report each line's width as at least the width the break logic consumed,
+  // so that re-wrapping the same text at the reported width is stable (a
+  // consumer that sizes a box to `max(widths)` won't trigger another break).
+  const lineWidthsVisible = textWidth(lines, style) as number[];
+
+  return {
+    lines,
+    sentence,
+    truncated,
+    widths: lineWidthsVisible.map((w, i) => Math.max(w, lineWidths[i] || 0)),
+    words,
+  };
+}
+
 /**
     Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 */
@@ -69,90 +181,18 @@ export default function (): TextWrapGenerator {
       @private
 */
   function textWrap(phrase: unknown): TextWrapResult {
-    const sentence = stringify(phrase);
-
     if (lineHeight === void 0) lineHeight = Math.ceil(fontSize * 1.4);
-
-    const words = split(sentence);
-
-    const style: Record<string, string | number> = {
-      "font-family": fontFamily,
-      "font-size": fontSize,
-      "font-weight": fontWeight,
-      "line-height": lineHeight,
-    };
-
-    let line = 1,
-      textProg = "",
-      truncated = false,
-      widthProg = 0;
-
-    const lineData: string[] = [],
-      // The running width each line consumed while wrapping. This is the sum
-      // of the per-word widths the break logic actually compared against
-      // `width`, which can differ from re-measuring the finished line as a
-      // single string (e.g. a soft hyphen counts toward the break decision but
-      // is stripped from the rendered line, and trailing spaces measure as 0).
-      lineWidths: number[] = [],
-      sizes = textWidth(words, style);
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const wordWidth = sizes[words.indexOf(word)];
-
-      // newline if breaking character or not enough width
-      if (textProg.slice(-1) === "\n" || widthProg + wordWidth > width) {
-        if (!i && !overflow) {
-          truncated = true;
-          break;
-        }
-        if (lineData.length >= line) {
-          let lineText = lineData[line - 1].trimEnd();
-          // Convert trailing soft hyphen to visible hyphen at line breaks
-          if (lineText.endsWith(softHyphen))
-            lineText = lineText.slice(0, -1) + "-";
-          lineData[line - 1] = lineText;
-        }
-        line++;
-        if (
-          lineHeight * line > height ||
-          (wordWidth > width && !overflow) ||
-          (maxLines && line > maxLines)
-        ) {
-          truncated = true;
-          break;
-        }
-        widthProg = 0;
-        lineData.push(word);
-      } else if (!i) lineData[0] = word;
-      else {
-        // Strip soft hyphen when syllables stay on the same line
-        if (lineData[line - 1].endsWith(softHyphen)) {
-          lineData[line - 1] = lineData[line - 1].slice(0, -1);
-        }
-        lineData[line - 1] += word;
-      }
-
-      textProg += word;
-      widthProg += wordWidth;
-      lineWidths[line - 1] = widthProg;
-    }
-
-    // Clean remaining soft hyphens from all lines
-    const lines = lineData.map(l => l.replaceAll(softHyphen, ""));
-
-    // Report each line's width as at least the width the break logic consumed,
-    // so that re-wrapping the same text at the reported width is stable (a
-    // consumer that sizes a box to `max(widths)` won't trigger another break).
-    const lineWidthsVisible = textWidth(lines, style) as number[];
-
-    return {
-      lines,
-      sentence,
-      truncated,
-      widths: lineWidthsVisible.map((w, i) => Math.max(w, lineWidths[i] || 0)),
-      words,
-    };
+    return wrapSentence(phrase, {
+      fontFamily,
+      fontSize,
+      fontWeight,
+      height,
+      lineHeight,
+      maxLines,
+      overflow,
+      split,
+      width,
+    });
   }
 
   /**

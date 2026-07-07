@@ -37,7 +37,7 @@ BasicExample.args = {
   groupBy: "id",
   sum: "value"
 };
-BasicExample.parameters = {controls: {include: ["sum"]}};
+BasicExample.parameters = {controls: {include: ["sum"]}, docs: {description: {story: "Each rectangle's area is proportional to its `sum` of the `value` field, giving one tile per `groupBy` id."}}};
 
 export const NestedData = Template.bind({});
 NestedData.args = {
@@ -51,7 +51,7 @@ NestedData.args = {
   groupBy: ["parent", "id"],
   sum: "value"
 };
-NestedData.parameters = {controls: {include: ["groupBy"]}};
+NestedData.parameters = {controls: {include: ["groupBy"]}, docs: {description: {story: "A two-level `groupBy` ([\"parent\", \"id\"]) nests child rectangles inside their parent groups, so each group occupies its own region of the layout."}}};
 
 export const ChangingTilingMethod = Template.bind({});
 ChangingTilingMethod.args = {
@@ -67,15 +67,15 @@ ChangingTilingMethod.args = {
   sum: "Number of Food Stores",
   tile: "slice"
 };
-ChangingTilingMethod.parameters = {controls: {include: ["tile"]}};
+ChangingTilingMethod.parameters = {controls: {include: ["tile"]}, docs: {description: {story: "`tile: \"slice\"` arranges children as parallel strips instead of the default squarified layout that favors square-ish tiles; use it when preserving order along one axis matters more than aspect ratio."}}};
 
 export const SmallDataThreshold = Template.bind({});
 SmallDataThreshold.args = {
-  colorScale: "Population",
+  colorScale: "Total Population",
   data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=pums_5&drilldowns=State&measures=Total%20Population&Year=2023",
   groupBy: "State",
-  sum: "Population",
+  sum: "Total Population",
   threshold: 0.0025,
   thresholdName: "States"
 };
-SmallDataThreshold.parameters = {controls: {include: ["threshold", "thresholdName"]}};
+SmallDataThreshold.parameters = {controls: {include: ["threshold", "thresholdName"]}, docs: {description: {story: "`threshold: 0.0025` merges every state below 0.25% of the total sum into one catch-all rectangle labeled by `thresholdName` (\"States\"), keeping tiny slivers from cluttering the layout."}}};

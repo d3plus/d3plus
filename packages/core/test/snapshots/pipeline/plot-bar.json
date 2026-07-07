@@ -1,0 +1,111 @@
+{
+  "formatted": [
+    {
+      "id": "Alpha_Q1",
+      "x": "Q1",
+      "y": 35,
+      "shape": "Bar",
+      "discrete": "Q1_time_Alpha",
+      "group": "time_Alpha"
+    },
+    {
+      "id": "Alpha_Q2",
+      "x": "Q2",
+      "y": 50,
+      "shape": "Bar",
+      "discrete": "Q2_time_Alpha",
+      "group": "time_Alpha"
+    },
+    {
+      "id": "Beta_Q1",
+      "x": "Q1",
+      "y": 20,
+      "shape": "Bar",
+      "discrete": "Q1_time_Beta",
+      "group": "time_Beta"
+    },
+    {
+      "id": "Beta_Q2",
+      "x": "Q2",
+      "y": 30,
+      "shape": "Bar",
+      "discrete": "Q2_time_Beta",
+      "group": "time_Beta"
+    }
+  ],
+  "axisValues": {
+    "xData": [
+      "Q1",
+      "Q2"
+    ],
+    "x2Data": [],
+    "yData": [
+      20,
+      30,
+      35,
+      50
+    ],
+    "y2Data": []
+  },
+  "initialDomains": {
+    "x": [
+      "Q1",
+      "Q2"
+    ],
+    "x2": [],
+    "y": [
+      0,
+      50
+    ],
+    "y2": [
+      null,
+      null
+    ]
+  },
+  "scales": {
+    "x": {
+      "domain": [
+        "Q1",
+        "Q2"
+      ],
+      "range": [
+        0,
+        400
+      ]
+    },
+    "y": {
+      "domain": [
+        50,
+        0
+      ],
+      "range": [
+        0,
+        300
+      ]
+    },
+    "x2": {
+      "domain": [],
+      "range": [
+        null,
+        null
+      ]
+    },
+    "y2": {
+      "domain": [
+        null,
+        null
+      ],
+      "range": [
+        0,
+        300
+      ]
+    }
+  },
+  "configScales": {
+    "xConfigScale": "point",
+    "yConfigScale": "linear",
+    "x2ConfigScale": "point",
+    "y2ConfigScale": "linear"
+  },
+  "opp": "y"
+}

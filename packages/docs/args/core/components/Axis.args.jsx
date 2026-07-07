@@ -22,6 +22,371 @@ export const argTypes = assign(
    */
   
   {
+    align: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "middle",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "middle"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    barConfig: {
+      control: {},
+      description: "Axis line style.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    config: {
+      control: {},
+      description: "Methods that correspond to the key/value pairs and returns this class.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    data: {
+      control: {},
+      defaultValue: "[  ]",
+      description: "An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.",
+      table: {
+        defaultValue: {
+          summary: "[  ]"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;unknown&gt;"
+      }
+    },
+    domain: {
+      control: {
+        type: "object"
+      },
+      defaultValue: [
+        0,
+        10
+      ],
+      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
+      table: {
+        defaultValue: {
+          summary: "[0,10]"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;number&gt;"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "Animation duration in ms.",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    grid: {
+      control: {
+        type: "object"
+      },
+      description: "Grid values of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;unknown&gt;"
+      }
+    },
+    gridConfig: {
+      control: {},
+      description: "Grid config of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    gridLog: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    gridSize: {
+      control: {
+        type: "number"
+      },
+      description: "Grid size of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    height: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "Overall height of the visualization in pixels.",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    labelOffset: {
+      control: {
+        type: "number"
+      },
+      defaultValue: false,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | false"
+      }
+    },
+    labelRotation: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "Whether to rotate horizontal axis labels -90 degrees.",
+      table: {
+        defaultValue: {
+          summary: false
+        }
+      },
+      type: {
+        required: true,
+        summary: "boolean"
+      }
+    },
+    labels: {
+      control: {
+        type: "object"
+      },
+      description: "Visible tick labels of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;unknown&gt;"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    maxSize: {
+      control: {
+        type: "number"
+      },
+      description: "Maximum size allowed for the space that contains the axis tick labels and title.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    minSize: {
+      control: {
+        type: "number"
+      },
+      description: "Minimum size alloted for the space that contains the axis tick labels and title.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    orient: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "bottom",
+      description: "The orientation of the shape.",
+      table: {
+        defaultValue: {
+          summary: "bottom"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    padding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 5,
+      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
+      table: {
+        defaultValue: {
+          summary: "5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | number | function"
+      }
+    },
+    paddingInner: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.1,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.1"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    paddingOuter: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.1,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.1"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
+    range: {
+      control: {
+        type: "object"
+      },
+      description: "Scale range (in pixels) of the axis. The given array must have 2 values,\nbut one may be `undefined` to allow the default behavior for that value.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;number | undefined&gt;"
+      }
+    },
     render: {
       control: {},
       description: "Renders the current Axis to the page.",
@@ -33,6 +398,294 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    rounding: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "none",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "none"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMaxPrefix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: ""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMaxSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "+",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "+"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMinPrefix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "< ",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "< "
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    roundingInsideMinSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: ""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    scale: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "linear",
+      description: "Scale of the axis.",
+      table: {
+        defaultValue: {
+          summary: "linear"
+        }
+      },
+      type: {
+        required: false,
+        summary: "axisscale"
+      }
+    },
+    scalePadding: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    select: {
+      control: {
+        type: "text"
+      },
+      description: "The SVG container element as a d3 selector or DOM element.\n\nPassing `null` or `undefined` deliberately leaves the axis unmounted\n— `renderMode(\"compute\")` plus `select(null)` produces a\nscene-only axis (no detached SVG fallback). This is the formal\ncontract callers in `plotPaint` use to compute axis layout without\nmounting DOM.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | htmlelement | null | undefined"
+      }
+    },
+    shape: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "Line",
+      description: "The shape type used for each legend entry.",
+      table: {
+        defaultValue: {
+          summary: "Line"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    tickFormat: {
+      control: {},
+      description: "Tick formatter.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    tickSize: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 8,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "8"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    tickSuffix: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "normal",
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "normal"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    ticks: {
+      control: {
+        type: "object"
+      },
+      description: "Tick values of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "array.&lt;unknown&gt;"
+      }
+    },
+    timeLocale: {
+      control: {
+        type: "object"
+      },
+      description: "Defines a custom locale object to be used in time scales. Must include\n`dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and\n`shortMonths` (see\n[d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
+    title: {
+      control: {
+        type: "text"
+      },
+      description: "Title of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    titleConfig: {
+      control: {},
+      description: "Title configuration of the axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function"
+      }
+    },
+    width: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 400,
+      description: "Overall width of the visualization in pixels.",
+      table: {
+        defaultValue: {
+          summary: "400"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
       }
     }
   }

@@ -85,7 +85,7 @@ export default class Message {
       .append("div")
       .attr("class", "d3plus-Mask")
       .style("opacity", 1)
-      .merge(this.mask) as unknown as D3Selection;
+      .merge(this.mask as never) as unknown as D3Selection;
 
     this.mask.exit().call(this.exit.bind(this), duration);
 
@@ -108,7 +108,7 @@ export default class Message {
         .append("div")
         .attr("class", "d3plus-Message")
         .style("opacity", 1)
-        .merge(this.elem) as unknown as D3Selection
+        .merge(this.elem as never) as unknown as D3Selection
     ).html(String);
 
     stylize(this.elem, style as Record<string, string | number | boolean | null>);

@@ -1,0 +1,94 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Data" />
+
+# Data
+
+Every D3plus visualization is driven by an **array of objects**. You tell the
+chart how to read each object with accessor config keys, and D3plus handles
+grouping, aggregation, color assignment, and layout.
+
+## Accessors
+
+The common accessors across charts:
+
+| Key | Role |
+|---|---|
+| `groupBy` | The property (or array of properties for nesting) that defines each series/group. |
+| `x`, `y` | Positional accessors for plot-based charts. |
+| `value` / `size` | The magnitude accessor for Treemap, Pie, Pack, etc. |
+| `time` | Enables the timeline and time-filtering (see **Guides → Interactivity**). |
+| `id` | Unique identifier for a datum (defaults to `groupBy`). |
+
+```jsx
+<BarChart config={{
+  data: [
+    {region: "North", quarter: "Q1", revenue: 35},
+    {region: "North", quarter: "Q2", revenue: 50},
+    {region: "South", quarter: "Q1", revenue: 20},
+    {region: "South", quarter: "Q2", revenue: 30}
+  ],
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue"
+}} />
+```
+
+### Nesting with an array
+
+Pass an array to `groupBy` to build a hierarchy. The first key is the top level;
+deeper keys drive drill-down and nested layouts:
+
+```jsx
+<Treemap config={{data, groupBy: ["sector", "company"], size: "value"}} />
+```
+
+## Loading from a URL
+
+`data` accepts a URL string. D3plus fetches JSON (or CSV/TSV by extension) and
+renders when it arrives:
+
+```jsx
+<LinePlot config={{
+  data: "https://example.com/api/data.json",
+  groupBy: "series",
+  x: "year",
+  y: "value"
+}} />
+```
+
+Use `dataFormat` to reshape a non-standard response before the chart reads it:
+
+```jsx
+<LinePlot config={{
+  data: "https://example.com/api/data.json",
+  dataFormat: json => json.results,
+  groupBy: "series", x: "year", y: "value"
+}} />
+```
+
+## Transforming data with `@d3plus/data`
+
+The `@d3plus/data` package exposes the helpers D3plus uses internally — handy
+for preparing data before it reaches a chart:
+
+```js
+import {fold, nest, merge, concat, unique} from "@d3plus/data";
+```
+
+| Function | Purpose |
+|---|---|
+| `fold` | Combine a columnar `{headers, data}` response (separate header and value arrays) into an array of objects. |
+| `nest` / `nestGroups` | Group rows into a `{key, values}` hierarchy. |
+| `merge` | Combine an array of objects into one aggregated record. |
+| `concat` | Flatten/append arrays of data. |
+| `unique` | De-duplicate values, optionally by accessor. |
+
+```js
+// columnar response → array of objects
+fold({
+  headers: ["year", "apples", "bananas"],
+  data: [[2020, 5, 8], [2021, 7, 6]]
+});
+// → [{year: 2020, apples: 5, bananas: 8}, {year: 2021, apples: 7, bananas: 6}]
+```

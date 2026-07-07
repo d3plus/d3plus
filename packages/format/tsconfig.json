@@ -3,8 +3,7 @@
   "compilerOptions": {
     "declarationDir": "./types",
     "outDir": "./types",
-    "rootDir": ".",
-    "baseUrl": "."
+    "rootDir": "."
   },
   "include": ["index.ts", "src/**/*.ts", "../../externals.d.ts"]
 }

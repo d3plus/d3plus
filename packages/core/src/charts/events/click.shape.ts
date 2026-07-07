@@ -1,5 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module clickShape
@@ -15,19 +15,19 @@ export default function (
 ): void {
   event.stopPropagation();
 
-  if (this._drawDepth < this._groupBy.length - 1) {
+  if (this._drawDepth < this.schema.groupBy.length - 1) {
     this._select.style("cursor", "auto");
 
-    const filterGroup = this._groupBy[this._drawDepth],
+    const filterGroup = this.schema.groupBy[this._drawDepth],
       filterId = filterGroup(d, i);
 
     this.hover(false);
-    if (this._tooltip(d, i)) this._tooltipClass.data([]).render();
+    if (this.schema.tooltip(d, i)) this._tooltipClass.data([]).render();
 
-    const oldFilter = this._filter;
+    const oldFilter = this.schema.filter;
 
     this._history.push({
-      depth: this._depth,
+      depth: this.schema.depth,
       filter: oldFilter,
     });
 

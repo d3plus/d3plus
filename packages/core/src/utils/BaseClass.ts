@@ -53,7 +53,11 @@ function getAllMethods(obj: object): string[] {
   return props.filter(
     e =>
       e.indexOf("_") !== 0 &&
-      !["config", "constructor", "parent", "render"].includes(e),
+      // Side-effect/lifecycle methods excluded from config reflection: invoking
+      // them as no-arg getters would run real work. `measure` runs the full
+      // axis-layout pass; `destroy` tears down the scene renderer (which defeats
+      // keyed reconcile and forces a full remount on the next draw).
+      !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
   );
 }
 
@@ -61,23 +65,36 @@ function getAllMethods(obj: object): string[] {
     Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 */
 export default class BaseClass {
-  _locale: string;
-  _on: Record<string, (...args: unknown[]) => unknown>;
-  _parent: Record<string, unknown>;
-  _translate: (d: string, locale?: string) => string;
+  /**
+      Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is
+      deliberate and load-bearing: `installFluent` coerces accessor/const
+      fields into functions, so call sites invoke `schema.fill(d, i)` and
+      index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes
+      the pre-coercion user input). Typing it as a coerced `ResolvedSchema`
+      interface is the only way to drop the `any`; until then it stays.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema: Record<string, any>;
+  /** Chart-internal scratch (d3 layout instances, computed derived state). */
+  ctx: Record<string, unknown>;
+
   _uuid: string;
   _configDefault?: D3plusConfig;
-  _shapeConfig?: D3plusConfig;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
       @private
 */
   constructor() {
-    this._locale = "en-US";
-    this._on = {};
-    this._parent = {};
-    this._translate = (d: string, locale: string = this._locale): string => {
+    this.schema = {};
+    this.ctx = {};
+    this.schema.locale = "en-US";
+    this.schema.on = {};
+    this.schema.parent = {};
+    this.schema.translate = (
+      d: string,
+      locale: string = this.schema.locale,
+    ): string => {
       const dictionary: TranslationStrings | undefined = dictionaries[locale];
       const key = d as keyof TranslationStrings;
       return dictionary && dictionary[key] ? dictionary[key] : d;
@@ -107,7 +124,7 @@ export default class BaseClass {
             const v = _![k];
             if (v === RESET) {
               if (k === "on")
-                this._on = this._configDefault![k] as typeof this._on;
+                this.schema.on = this._configDefault![k];
               else
                 (this as unknown as Record<string, (v: unknown) => unknown>)[k](
                   this._configDefault![k],
@@ -157,8 +174,8 @@ export default class BaseClass {
   locale(_: string | object): this;
   locale(_?: string | object): string | this {
     return arguments.length
-      ? ((this._locale = findLocale(_ as string)), this)
-      : this._locale;
+      ? ((this.schema.locale = findLocale(_ as string)), this)
+      : this.schema.locale;
   }
 
   /**
@@ -186,21 +203,23 @@ new Plot
     | undefined
     | this {
     return arguments.length === 2
-      ? ((this._on[_ as string] = f!), this)
+      ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
-          ? this._on[_]
-          : ((this._on = Object.assign({}, this._on, _)), this)
-        : this._on;
+          ? this.schema.on[_]
+          : ((this.schema.on = Object.assign({}, this.schema.on, _)), this)
+        : this.schema.on;
   }
 
   /**
       Parent config used by the wrapper.
 */
-  parent(): Record<string, unknown>;
-  parent(_: Record<string, unknown>): this;
-  parent(_?: Record<string, unknown>): Record<string, unknown> | this {
-    return arguments.length ? ((this._parent = _!), this) : this._parent;
+  parent(): unknown;
+  parent(_: unknown): this;
+  parent(_?: unknown): unknown {
+    return arguments.length
+      ? ((this.schema.parent = _!), this)
+      : this.schema.parent;
   }
 
   /**
@@ -216,7 +235,9 @@ new Plot
   translate(
     _?: (d: string, locale?: string) => string,
   ): ((d: string, locale?: string) => string) | this {
-    return arguments.length ? ((this._translate = _!), this) : this._translate;
+    return arguments.length
+      ? ((this.schema.translate = _!), this)
+      : this.schema.translate;
   }
 
   /**
@@ -226,7 +247,11 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this._shapeConfig = assign(this._shapeConfig ?? {}, _!) as D3plusConfig), this)
-      : this._shapeConfig!;
+      ? ((this.schema.shapeConfig = assign(
+          this.schema.shapeConfig ?? {},
+          _!,
+        ) as D3plusConfig),
+        this)
+      : (this.schema.shapeConfig as D3plusConfig);
   }
 }

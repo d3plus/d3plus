@@ -60,5 +60,40 @@ export {
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorScaleConfig,
+  LegendConfig,
+  TextBoxConfig,
+  TimelineConfig,
   TooltipConfig,
 } from "./src/utils/index.js";
+
+export type {
+  AnyShapeConfig,
+  AreaConfig,
+  BarConfig,
+  BaseShapeConfig,
+  BoxConfig,
+  CircleConfig,
+  ConstOrAccessor,
+  ImageConfig,
+  LineConfig,
+  PathConfig,
+  RectConfig,
+  StringOrAccessor,
+  WhiskerConfig,
+} from "./src/shapes/shapeConfig.js";
+
+export type {
+  D3Selection,
+  Margin,
+  Padding,
+} from "./src/charts/viz/vizTypes.js";
+
+// The v4 scene-graph pipeline (layout stages, ChartDefinitions, feature
+// modules, the pure pre-draw/draw functions, fluent generation, axis
+// measurement, …) is not part of the stable public API. It lives in a
+// dedicated entry so it can keep evolving without semver friction:
+//
+//   import {runVizPipeline, treemapDef} from "@d3plus/core/internal";
+//
+// See ./internal.ts.

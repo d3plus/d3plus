@@ -40,7 +40,24 @@ BasicExample.args = {
   width: 200,
   x: (d, i) => i * (200 + 50)
 };
-BasicExample.parameters = {controls: {include: ["fontSize", "lineHeight", "width"]}};
+BasicExample.parameters = {controls: {include: ["fontSize", "lineHeight", "width"]}, docs: {description: {story: "Wraps three strings inside 200px-wide boxes: inline `<i>`, `<u>`, and `<b>` tags render as styled SVG, while the Chinese and Burmese lines show wrapping still works for scripts that don't separate words with spaces."}}};
+
+export const FontResize = Template.bind({});
+FontResize.args = {
+  data: [
+    {text: "Big"},
+    {text: "A medium-length caption"},
+    {text: "A much longer passage of text that has to shrink down so every word still fits inside the very same box"}
+  ],
+  fontResize: true,
+  fontMax: 96,
+  fontMin: 6,
+  height: 180,
+  text: d => d.text,
+  width: 200,
+  x: (d, i) => i * (200 + 50)
+};
+FontResize.parameters = {controls: {include: ["fontResize", "fontMax", "fontMin"]}, docs: {description: {story: "Three equally-sized boxes hold text of very different lengths. With `fontResize: true` each string is scaled between `fontMin` and `fontMax` to fill its box — the single word is sized way up while the long passage shrinks to fit. Toggle `fontResize` off in the controls to see them all snap back to one fixed size."}}};
 
 
 

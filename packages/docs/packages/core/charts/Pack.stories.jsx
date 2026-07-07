@@ -37,4 +37,19 @@ BasicExample.args = {
   groupBy: ["parent", "id"],
   sum: funcify(d => d.value, "d => d.value")
 };
-BasicExample.parameters = {controls: {include: ["sum"]}};
+BasicExample.parameters = {controls: {include: ["sum"]}, docs: {description: {story: "`sum` sizes each leaf circle by its `value`, and the two-level `groupBy` nests those leaves inside one bubble per parent group."}}};
+
+export const NestedGroups = Template.bind({});
+NestedGroups.args = {
+  data: [
+    {group: "A", id: "a1", value: 10}, {group: "A", id: "a2", value: 20}, {group: "A", id: "a3", value: 15},
+    {group: "B", id: "b1", value: 8}, {group: "B", id: "b2", value: 18}, {group: "B", id: "b3", value: 12},
+    {group: "C", id: "c1", value: 22}, {group: "C", id: "c2", value: 9}
+  ],
+  groupBy: ["group", "id"],
+  sum: "value"
+};
+NestedGroups.parameters = {
+  controls: {include: ["groupBy"]},
+  docs: {description: {story: "An array `groupBy` packs leaf circles inside a circle for each parent group."}}
+};

@@ -1,48 +1,52 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import {assign} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {accessor, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import {accessor} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
+import type {CircleConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** Circle's own fluent accessor schema, layered on top of Shape's. */
+const circleSchema: ConfigField[] = [
+  {key: "r", coerce: "accessor", default: accessor("r")},
+  // Motion-trail toggle: when true, the animate layer sweeps a tapering cone
+  // behind each point as it moves between frames (Timeline play), on both the
+  // SVG and Canvas backends.
+  {key: "trail", coerce: "identity", default: false},
+  // Persistent-trail length: 0 keeps the ephemeral single-move trail; a positive
+  // number keeps that many past step-segments (fading older ones out); `true`
+  // keeps a long slowly-fading tail. Requires `trail: true`. Setting it also
+  // makes the chart use a single-period timeline + fixed axes automatically
+  // (see vizPreDraw) — the conditions a persistent trail needs to stay coherent.
+  {key: "trailPersist", coerce: "identity", default: 0},
+];
 
 /**
     Creates SVG circles based on an array of data.
 */
 export default class Circle extends Shape {
-  declare _labelBounds:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown> | null | false)
-    | null;
-  declare _labelConfig: Record<string, unknown>;
-  declare _name: string;
-  _r: AccessorFn;
-
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
 */
   constructor() {
     super("circle");
-    this._labelBounds = (
-      _d: DataPoint,
-      _i: number,
-      s: ShapeAes,
-    ) => ({
+    installFluent(this, circleSchema);
+    this._name = "Circle";
+    this.schema.labelBounds = (_d: DataPoint, _i: number, s: ShapeAes) => ({
       width: (s.r as number) * 1.5,
       height: (s.r as number) * 1.5,
       x: -(s.r as number) * 0.75,
       y: -(s.r as number) * 0.75,
     });
-    this._labelConfig = assign(this._labelConfig, {
+    this.schema.labelConfig = assign(this.schema.labelConfig, {
       textAnchor: "middle",
       verticalAlign: "middle",
     });
-    this._name = "Circle";
-    this._r = accessor("r");
   }
 
   /**
@@ -50,47 +54,28 @@ export default class Circle extends Shape {
       @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
-      .attr("r", (d: DataPoint, i: number) => this._r(d, i))
-      .attr("x", (d: DataPoint, i: number) => -(this._r(d, i) as number) / 2)
-      .attr("y", (d: DataPoint, i: number) => -(this._r(d, i) as number) / 2);
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
+      .attr("r", (d: DataPoint, i: number) => this.schema.r(d, i))
+      .attr("x", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2)
+      .attr("y", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2);
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the circles.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the circle geometry for a data point. The circle is centered on the
+      transform origin (cx/cy = 0); the group transform positions it.
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    const enter = this._enter.call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter
-        .attr("r", 0)
-        .attr("x", 0)
-        .attr("y", 0)
-        .transition(this._transition)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .call(this._applyPosition.bind(this) as any);
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("r", 0)
-        .attr("x", 0)
-        .attr("y", 0);
-    } else {
-      enter.call(this._applyPosition.bind(this));
-    }
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    return {
+      type: "circle",
+      cx: 0,
+      cy: 0,
+      r: Number(this.schema.r(d, i)),
+      ...(this.schema.trail ? {trail: true} : {}),
+      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
+    };
   }
 
   /**
@@ -99,22 +84,19 @@ export default class Circle extends Shape {
       @param index @private
 */
   _aes(d: DataPoint, i: number): ShapeAes {
-    return {r: this._r(d, i) as number};
+    return {r: this.schema.r(d, i) as number};
   }
 
   /**
-      The radius accessor for each circle.
-
-@example
-function(d) {
-  return d.r;
-}
-*/
-  r(): AccessorFn;
-  r(_: AccessorFn | number): this;
-  r(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._r = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._r;
+      Narrowed `.config()` for Circle. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): CircleConfig;
+  config(_: Partial<CircleConfig>): this;
+  config(_?: Partial<CircleConfig>): CircleConfig | this {
+    if (!arguments.length) return super.config() as CircleConfig;
+    super.config(_!);
+    return this;
   }
 }

@@ -9,15 +9,17 @@
     ".": {
       "types": "./types/index.d.ts",
       "default": "./es/index.js"
+    },
+    "./react": {
+      "types": "./types/react.d.ts",
+      "default": "./es/react.js"
     }
   },
-  "browser": "./umd/d3plus-types.full.js",
   "engines": {
     "node": ">=20"
   },
   "sideEffects": false,
   "files": [
-    "umd",
     "es",
     "types"
   ],
@@ -46,7 +48,14 @@
     "@d3plus/format": "workspace:*",
     "@d3plus/locales": "workspace:*",
     "@d3plus/math": "workspace:*",
-    "@d3plus/react": "workspace:*",
     "@d3plus/text": "workspace:*"
+  },
+  "peerDependencies": {
+    "@d3plus/react": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@d3plus/react": {
+      "optional": true
+    }
   }
 }

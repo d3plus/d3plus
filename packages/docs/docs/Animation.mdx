@@ -1,0 +1,75 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Animation" />
+
+# Animation & Motion Trails
+
+D3plus animates changes for you. When a chart's data or configuration updates —
+including when a timeline advances — shapes tween smoothly between states rather
+than snapping. This page covers the animation controls and **motion trails**.
+
+## Transition duration
+
+Every visualization eases between renders over a configurable `duration`
+(milliseconds). Set it to `0` to disable animation:
+
+```jsx
+<BarChart config={{data, groupBy: "region", x: "quarter", y: "revenue", duration: 600}} />
+```
+
+Text animates too: a label whose font-size changes between renders grows or
+shrinks into place instead of jumping.
+
+## Motion trails
+
+When a mark moves between timeline frames (press **play**, or step the timeline),
+it sweeps a **motion trail** — a tapering cone from its previous position to the
+current one, colored with the mark's own color and fading to transparent at the
+tail. Trails make the direction and speed of movement legible, Hans Rosling-style.
+
+Trails are **on by default** for scatter/bubble points and Geomap coordinate
+points, and they work identically on the SVG and Canvas backends.
+
+```jsx
+<Plot config={{
+  data,                    // rows with a group id, a time field, and x/y
+  groupBy: "id",
+  time: "year",
+  x: "x", y: "y",
+  size: "value"
+  // shapeConfig.Circle.trail is true by default
+}} />
+```
+
+- `Circle` and `Rect` marks both trail. A square's cone is sized to its silhouette
+  *perpendicular to travel*, so a diagonal move reaches corner-to-corner rather
+  than edge-to-edge.
+- Opt out per chart with `shapeConfig.Circle.trail: false` (or `Rect.trail`).
+
+See the **Timeline Motion Trails**, **Square Motion Trails**, and **Persistent
+Motion Trails** examples on the [Plot](/?path=/docs/core-charts-plot--docs) page,
+and the point-trail example on the [Geomap](/?path=/docs/core-charts-geomap--docs)
+page.
+
+## Persistent trails
+
+By default a trail shows only the current move and fades on arrival.
+`shapeConfig.Circle.trailPersist` keeps past moves visible too:
+
+```jsx
+<Plot config={{
+  data, groupBy: "id", time: "year", x: "x", y: "y",
+  shapeConfig: {Circle: {trailPersist: true}}
+}} />
+```
+
+- A **number** keeps that many step-segments; **`true`** keeps a long, slowly
+  fading snail-trail.
+- Trails follow the timeline's direction — they grow **forward** and **rewind**
+  (newest segment first) when you step back — and a multi-period jump traces
+  through the skipped periods rather than cutting a straight line.
+- The whole trail draws as a single shape, so overlapping turns don't darken.
+
+Setting `trailPersist` is all you need: it automatically switches the chart to a
+single-period timeline (`brushing: false`) and fixed axes (`axisPersist: true`) —
+the two conditions a persistent trail needs to stay coherent.

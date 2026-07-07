@@ -1,15 +1,14 @@
-import {select} from "d3-selection";
+import {type BaseType, select} from "d3-selection";
 import {transition} from "d3-transition";
 
 /**
     @type D3Selection
-    A permissive D3 selection type that accepts any generic parameterisation.
-    Uses `any` for the parent/datum generics because d3plus utility functions
-    (attrize, stylize, elem) must work with every combination.
+    A permissive D3 selection type that accepts any element/datum combination.
+    The datum is `unknown` and the element is `BaseType` (the widest element
+    type d3-selection allows) so d3plus utility functions (attrize, stylize,
+    elem) work against every selection without committing to a datum shape.
 */
- 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type D3Selection = ReturnType<typeof select<any, any>>;
+export type D3Selection = ReturnType<typeof select<BaseType, unknown>>;
 
 /**
     @type D3Transition

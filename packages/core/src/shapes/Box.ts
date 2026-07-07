@@ -5,36 +5,266 @@ import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
 import {assign, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
+import type {GroupNode, SceneNode} from "@d3plus/render";
+
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
-import type {AccessorFn} from "../utils/index.js";
+import type {D3plusConfig} from "../utils/index.js";
+import type {VizContext} from "../utils/configPrep.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
+import type {BoxConfig} from "./shapeConfig.js";
 import Whisker from "./Whisker.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
+
+// Box's x/y setters wrap every non-function (including numbers) in
+// `accessor(...)`, unlike the "accessor" coerce which would `constant(...)`
+// a non-string — so a custom coerce preserves the exact behavior.
+const toAccessor = (
+  value: unknown,
+): ((d: DataPoint) => DataPoint[keyof DataPoint]) =>
+  typeof value === "function"
+    ? (value as (d: DataPoint) => DataPoint[keyof DataPoint])
+    : accessor(value as string);
+
+/** Box's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const boxSchema: ConfigField[] = [
+  {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
+  {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
+  {key: "rectWidth", coerce: "const", default: constant(50)},
+  {key: "renderMode", coerce: "identity", default: "full"},
+  {
+    key: "whiskerMode",
+    coerce: v => (Array.isArray(v) ? v : [v, v]),
+    default: ["tukey", "tukey"],
+  },
+  {key: "x", coerce: toAccessor, default: accessor("x", 250)},
+  {key: "y", coerce: toAccessor, default: accessor("y", 250)},
+];
+
+/**
+    Resolves the lower/upper whisker limits on `d` from the configured
+    whiskerMode (tukey/extent/quantile) and the sorted group values.
+*/
+function applyWhiskerLimits(
+  d: DataPoint,
+  values: number[],
+  mode: (string | number)[],
+): void {
+  if (mode[0] === "tukey") {
+    (d as Record<string, unknown>).lowerLimit =
+      (d.first as number) -
+      ((d.third as number) - (d.first as number)) * 1.5;
+    if ((d.lowerLimit as number) < min(values)!)
+      (d as Record<string, unknown>).lowerLimit = min(values);
+  } else if (mode[0] === "extent")
+    (d as Record<string, unknown>).lowerLimit = min(values);
+  else if (typeof mode[0] === "number")
+    (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
+
+  if (mode[1] === "tukey") {
+    (d as Record<string, unknown>).upperLimit =
+      (d.third as number) +
+      ((d.third as number) - (d.first as number)) * 1.5;
+    if ((d.upperLimit as number) > max(values)!)
+      (d as Record<string, unknown>).upperLimit = max(values);
+  } else if (mode[1] === "extent")
+    (d as Record<string, unknown>).upperLimit = max(values);
+  else if (typeof mode[1] === "number")
+    (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
+}
+
+/** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
+function collectOutliers(
+  box: Box,
+  d: DataPoint,
+  outlierData: DataPoint[],
+): void {
+  (d.values as unknown as DataPoint[]).forEach(
+    (eachValue: DataPoint, index: number) => {
+      const value =
+        d.orient === "vertical"
+          ? (box.schema.y(eachValue, index) as number)
+          : (box.schema.x(eachValue, index) as number);
+
+      if (
+        value < (d.lowerLimit as number) ||
+        value > (d.upperLimit as number)
+      ) {
+        const dataObj: DataPoint = {} as DataPoint;
+        (dataObj as Record<string, unknown>).__d3plus__ = true;
+        (dataObj as Record<string, unknown>).data = eachValue;
+        (dataObj as Record<string, unknown>).i = index;
+        (dataObj as Record<string, unknown>).outlier = box.schema.outlier(
+          eachValue,
+          index,
+        );
+
+        if (d.orient === "vertical") {
+          (dataObj as Record<string, unknown>).x = d.x;
+          (dataObj as Record<string, unknown>).y = value;
+          outlierData.push(dataObj);
+        } else if (d.orient === "horizontal") {
+          (dataObj as Record<string, unknown>).y = d.y;
+          (dataObj as Record<string, unknown>).x = value;
+          outlierData.push(dataObj);
+        }
+      }
+    },
+  );
+}
+
+/**
+    Computes the box statistics (quartiles, limits, geometry) for a single
+    orientation group and appends any outliers to `outlierData`.
+*/
+function computeBoxGroup(
+  box: Box,
+  key: DataPoint[keyof DataPoint],
+  groupData: DataPoint[],
+  outlierData: DataPoint[],
+): DataPoint {
+  const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
+  (d as Record<string, unknown>).data = merge(
+    d.values as unknown as DataPoint[],
+  );
+  (d as Record<string, unknown>).i = box._data.indexOf(
+    (d.values as unknown as DataPoint[])[0],
+  );
+  (d as Record<string, unknown>).orient = box.schema.orient(
+    d.data as DataPoint,
+    d.i as number,
+  );
+  const values: number[] = (d.values as unknown as DataPoint[]).map(
+    (d as Record<string, unknown>).orient === "vertical"
+      ? box.schema.y
+      : box.schema.x,
+  ) as unknown as number[];
+  values.sort((a: number, b: number) => a - b);
+
+  (d as Record<string, unknown>).first = quantile(values, 0.25);
+  (d as Record<string, unknown>).median = quantile(values, 0.5);
+  (d as Record<string, unknown>).third = quantile(values, 0.75);
+
+  const mode = box.schema.whiskerMode;
+  applyWhiskerLimits(d, values, mode);
+
+  const rectLength = (d.third as number) - (d.first as number);
+
+  // Compute values for vertical orientation.
+  if (d.orient === "vertical") {
+    (d as Record<string, unknown>).height = rectLength;
+    (d as Record<string, unknown>).width = box.schema.rectWidth(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).x = box.schema.x(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
+  } else if (d.orient === "horizontal") {
+    // Compute values for horizontal orientation.
+    (d as Record<string, unknown>).height = box.schema.rectWidth(
+      d.data as DataPoint,
+      d.i as number,
+    );
+    (d as Record<string, unknown>).width = rectLength;
+    (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
+    (d as Record<string, unknown>).y = box.schema.y(
+      d.data as DataPoint,
+      d.i as number,
+    );
+  }
+
+  // Compute data for outliers.
+  collectOutliers(box, d, outlierData);
+
+  (d as Record<string, unknown>).__d3plus__ = true;
+
+  return d;
+}
+
+/**
+    Builds the whisker startpoint coordinates (two per box) from the computed
+    box geometry.
+*/
+function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
+  const whiskerData: DataPoint[] = [];
+  filteredData.forEach((d: DataPoint, i: number) => {
+    const x = d.x;
+    const y = d.y;
+    const topLength = (d.first as number) - (d.lowerLimit as number);
+    const bottomLength = (d.upperLimit as number) - (d.third as number);
+
+    if (d.orient === "vertical") {
+      const topY = (y as number) - (d.height as number) / 2;
+      const bottomY = (y as number) + (d.height as number) / 2;
+      whiskerData.push(
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x,
+          y: topY,
+          length: topLength,
+          orient: "top",
+        } as unknown as DataPoint,
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x,
+          y: bottomY,
+          length: bottomLength,
+          orient: "bottom",
+        } as unknown as DataPoint,
+      );
+    } else if (d.orient === "horizontal") {
+      const topX = (x as number) + (d.width as number) / 2;
+      const bottomX = (x as number) - (d.width as number) / 2;
+      whiskerData.push(
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x: topX,
+          y,
+          length: bottomLength,
+          orient: "right",
+        } as unknown as DataPoint,
+        {
+          __d3plus__: true,
+          data: d,
+          i,
+          x: bottomX,
+          y,
+          length: topLength,
+          orient: "left",
+        } as unknown as DataPoint,
+      );
+    }
+  });
+  return whiskerData;
+}
 
 /**
     Creates SVG box based on an array of data.
 */
 export default class Box extends BaseClass {
-  _medianConfig: Record<string, unknown>;
-  _orient: AccessorFn;
-  _outlier: AccessorFn;
-  _outlierConfig: Record<string, unknown>;
-  _rectConfig: Record<string, unknown>;
-  _rectWidth: AccessorFn;
-  _whiskerConfig: Record<string, unknown>;
-  _whiskerMode: (string | number)[];
-  _x: AccessorFn;
-  _y: AccessorFn;
+  // installFluent generates the config accessors (orient, x, rectWidth, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _data!: DataPoint[];
   _select!: D3Selection;
   _box!: Rect;
   _median!: Rect;
   _whisker!: Whisker;
   _whiskerEndpoint: (Circle | Rect)[];
-  _duration!: number;
 
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
@@ -42,33 +272,25 @@ export default class Box extends BaseClass {
 */
   constructor() {
     super();
-
-    this._medianConfig = {
-      fill: constant("black"),
-    };
-    this._orient = accessor("orient", "vertical");
-    this._outlier = accessor("outlier", "Circle");
-    this._outlierConfig = {
+    installFluent(this, boxSchema);
+    this.schema.medianConfig = {fill: constant("black")};
+    this.schema.outlierConfig = {
       Circle: {
         r: accessor("r", 5),
       },
       Rect: {
         height: (d: DataPoint, i: number) =>
-          this._orient(d, i) === "vertical" ? 5 : 20,
+          this.schema.orient(d, i) === "vertical" ? 5 : 20,
         width: (d: DataPoint, i: number) =>
-          this._orient(d, i) === "vertical" ? 20 : 5,
+          this.schema.orient(d, i) === "vertical" ? 20 : 5,
       },
     };
-    this._rectConfig = {
+    this.schema.rectConfig = {
       fill: constant("white"),
       stroke: constant("black"),
       strokeWidth: constant(1),
     };
-    this._rectWidth = constant(50);
-    this._whiskerConfig = {};
-    this._whiskerMode = ["tukey", "tukey"];
-    this._x = accessor("x", 250);
-    this._y = accessor("y", 250);
+    this.schema.whiskerConfig = {};
     this._whiskerEndpoint = [];
   }
 
@@ -76,7 +298,8 @@ export default class Box extends BaseClass {
       Draws the Box.
 */
   render(): this {
-    if (this._select === void 0) {
+    const compute = this.schema.renderMode === "compute";
+    if (this._select === void 0 && !compute) {
       this.select(
         select("body")
           .append("svg")
@@ -86,133 +309,32 @@ export default class Box extends BaseClass {
           .node(),
       );
     }
+    // Compute-mode helper: mount inner shapes scene-only (no parent
+    // group needed). `select(null)` is the formal "no mount" signal —
+    // Shape.render() honors it as long as renderMode is "compute".
+    const mountInner = (parent: string): D3Selection["node"] | null => {
+      if (compute) return null as unknown as D3Selection["node"];
+      return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
+    };
 
     const outlierData: DataPoint[] = [];
 
     const filteredData = groups(this._data, (d: DataPoint, i: number) =>
-      this._orient(d, i) === "vertical" ? this._x(d, i) : this._y(d, i),
-    ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
-      const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
-      (d as Record<string, unknown>).data = merge(
-        d.values as unknown as DataPoint[],
-      );
-      (d as Record<string, unknown>).i = this._data.indexOf(
-        (d.values as unknown as DataPoint[])[0],
-      );
-      (d as Record<string, unknown>).orient = this._orient(
-        d.data as DataPoint,
-        d.i as number,
-      );
-      const values: number[] = (d.values as unknown as DataPoint[]).map(
-        (d as Record<string, unknown>).orient === "vertical"
-          ? this._y
-          : this._x,
-      ) as unknown as number[];
-      values.sort((a: number, b: number) => a - b);
-
-      (d as Record<string, unknown>).first = quantile(values, 0.25);
-      (d as Record<string, unknown>).median = quantile(values, 0.5);
-      (d as Record<string, unknown>).third = quantile(values, 0.75);
-
-      const mode = this._whiskerMode;
-
-      if (mode[0] === "tukey") {
-        (d as Record<string, unknown>).lowerLimit =
-          (d.first as number) -
-          ((d.third as number) - (d.first as number)) * 1.5;
-        if ((d.lowerLimit as number) < min(values)!)
-          (d as Record<string, unknown>).lowerLimit = min(values);
-      } else if (mode[0] === "extent")
-        (d as Record<string, unknown>).lowerLimit = min(values);
-      else if (typeof mode[0] === "number")
-        (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
-
-      if (mode[1] === "tukey") {
-        (d as Record<string, unknown>).upperLimit =
-          (d.third as number) +
-          ((d.third as number) - (d.first as number)) * 1.5;
-        if ((d.upperLimit as number) > max(values)!)
-          (d as Record<string, unknown>).upperLimit = max(values);
-      } else if (mode[1] === "extent")
-        (d as Record<string, unknown>).upperLimit = max(values);
-      else if (typeof mode[1] === "number")
-        (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
-
-      const rectLength = (d.third as number) - (d.first as number);
-
-      // Compute values for vertical orientation.
-      if (d.orient === "vertical") {
-        (d as Record<string, unknown>).height = rectLength;
-        (d as Record<string, unknown>).width = this._rectWidth(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).x = this._x(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
-      } else if (d.orient === "horizontal") {
-        // Compute values for horizontal orientation.
-        (d as Record<string, unknown>).height = this._rectWidth(
-          d.data as DataPoint,
-          d.i as number,
-        );
-        (d as Record<string, unknown>).width = rectLength;
-        (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-        (d as Record<string, unknown>).y = this._y(
-          d.data as DataPoint,
-          d.i as number,
-        );
-      }
-
-      // Compute data for outliers.
-      (d.values as unknown as DataPoint[]).forEach(
-        (eachValue: DataPoint, index: number) => {
-          const value =
-            d.orient === "vertical"
-              ? (this._y(eachValue, index) as number)
-              : (this._x(eachValue, index) as number);
-
-          if (
-            value < (d.lowerLimit as number) ||
-            value > (d.upperLimit as number)
-          ) {
-            const dataObj: DataPoint = {} as DataPoint;
-            (dataObj as Record<string, unknown>).__d3plus__ = true;
-            (dataObj as Record<string, unknown>).data = eachValue;
-            (dataObj as Record<string, unknown>).i = index;
-            (dataObj as Record<string, unknown>).outlier = this._outlier(
-              eachValue,
-              index,
-            );
-
-            if (d.orient === "vertical") {
-              (dataObj as Record<string, unknown>).x = d.x;
-              (dataObj as Record<string, unknown>).y = value;
-              outlierData.push(dataObj);
-            } else if (d.orient === "horizontal") {
-              (dataObj as Record<string, unknown>).y = d.y;
-              (dataObj as Record<string, unknown>).x = value;
-              outlierData.push(dataObj);
-            }
-          }
-        },
-      );
-
-      (d as Record<string, unknown>).__d3plus__ = true;
-
-      return d;
-    });
+      this.schema.orient(d, i) === "vertical"
+        ? this.schema.x(d, i)
+        : this.schema.y(d, i),
+    ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) =>
+      computeBoxGroup(this, key, groupData, outlierData),
+    );
 
     // Draw box.
     this._box = new Rect()
       .data(filteredData)
       .x((d: DataPoint) => d.x)
       .y((d: DataPoint) => d.y)
-      .select(elem("g.d3plus-Box", {parent: this._select}).node())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._rectConfig, "shape")!)
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box") as never)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.rectConfig, "shape")!)
       .render();
 
     // Draw median.
@@ -222,75 +344,21 @@ export default class Box extends BaseClass {
       .y((d: DataPoint) => (d.orient === "vertical" ? d.median : d.y))
       .height((d: DataPoint) => (d.orient === "vertical" ? 1 : d.height))
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
-      .select(elem("g.d3plus-Box-Median", {parent: this._select}).node())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._medianConfig, "shape")!)
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box-Median") as never)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.medianConfig, "shape")!)
       .render();
 
     // Draw 2 lines using Whisker class.
     // Construct coordinates for whisker startpoints and push it to the whiskerData.
-    const whiskerData: DataPoint[] = [];
-    filteredData.forEach((d: DataPoint, i: number) => {
-      const x = d.x;
-      const y = d.y;
-      const topLength = (d.first as number) - (d.lowerLimit as number);
-      const bottomLength = (d.upperLimit as number) - (d.third as number);
-
-      if (d.orient === "vertical") {
-        const topY = (y as number) - (d.height as number) / 2;
-        const bottomY = (y as number) + (d.height as number) / 2;
-        whiskerData.push(
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x,
-            y: topY,
-            length: topLength,
-            orient: "top",
-          } as unknown as DataPoint,
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x,
-            y: bottomY,
-            length: bottomLength,
-            orient: "bottom",
-          } as unknown as DataPoint,
-        );
-      } else if (d.orient === "horizontal") {
-        const topX = (x as number) + (d.width as number) / 2;
-        const bottomX = (x as number) - (d.width as number) / 2;
-        whiskerData.push(
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x: topX,
-            y,
-            length: bottomLength,
-            orient: "right",
-          } as unknown as DataPoint,
-          {
-            __d3plus__: true,
-            data: d,
-            i,
-            x: bottomX,
-            y,
-            length: topLength,
-            orient: "left",
-          } as unknown as DataPoint,
-        );
-      }
-    });
+    const whiskerData = buildWhiskerData(filteredData);
 
     // Draw whiskers.
     this._whisker = new Whisker()
       .data(whiskerData)
-      .select(elem("g.d3plus-Box-Whisker", {parent: this._select}).node())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .config(configPrep.bind(this as any)(this._whiskerConfig, "shape")!)
+      .renderMode(compute ? "compute" : "full")
+      .select(mountInner("g.d3plus-Box-Whisker") as never)
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.whiskerConfig, "shape")!)
       .render();
 
     // Draw outliers.
@@ -300,19 +368,40 @@ export default class Box extends BaseClass {
         this._whiskerEndpoint.push(
           new shapes[shapeName as string]()
             .data(values)
-            .select(
-              elem(`g.d3plus-Box-Outlier-${shapeName}`, {
-                parent: this._select,
-              }).node(),
-            )
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .config(configPrep.bind(this as any)(this._outlierConfig, "shape", shapeName as string)!)
+            .renderMode(compute ? "compute" : "full")
+            .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
+            .config(configPrep.bind(this as unknown as VizContext)(this.schema.outlierConfig, "shape", shapeName as string)!)
             .render(),
         );
       },
     );
 
     return this;
+  }
+
+  /**
+      Compute-mode scene aggregation. When Box is rendered with
+      `renderMode("compute")`, the inner Rect/Whisker/Circle/etc.
+      shapes are mounted scene-only (no parent <g>); their `toScene()`
+      methods produce GroupNodes that we wrap into a single Box-level
+      group so collectComputed(boxInstance) yields the union.
+  */
+  toScene(): GroupNode {
+    const children: SceneNode[] = [];
+    const push = (shape: {toScene?: () => GroupNode | null | undefined} | undefined): void => {
+      const g = shape && typeof shape.toScene === "function" ? shape.toScene() : null;
+      if (g && Array.isArray(g.children)) children.push(...g.children);
+    };
+    push(this._box);
+    push(this._median);
+    push(this._whisker);
+    if (Array.isArray(this._whiskerEndpoint))
+      for (const ep of this._whiskerEndpoint) push(ep);
+    return {
+      type: "group",
+      key: "d3plus-Box-scene",
+      children,
+    };
   }
 
   /**
@@ -357,30 +446,8 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._medianConfig = assign(this._medianConfig, _!)), this)
-      : this._medianConfig;
-  }
-
-  /**
-      The orientation of the box shape.
-*/
-  orient(): AccessorFn;
-  orient(_: AccessorFn | string): this;
-  orient(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._orient = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._orient;
-  }
-
-  /**
-      Whether to show outlier points.
-*/
-  outlier(): AccessorFn;
-  outlier(_: AccessorFn | string): this;
-  outlier(_?: AccessorFn | string): AccessorFn | this {
-    return arguments.length
-      ? ((this._outlier = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._outlier;
+      ? ((this.schema.medianConfig = assign(this.schema.medianConfig, _!)), this)
+      : this.schema.medianConfig;
   }
 
   /**
@@ -390,8 +457,8 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._outlierConfig = assign(this._outlierConfig, _!)), this)
-      : this._outlierConfig;
+      ? ((this.schema.outlierConfig = assign(this.schema.outlierConfig, _!)), this)
+      : this.schema.outlierConfig;
   }
 
   /**
@@ -401,24 +468,8 @@ export default class Box extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._rectConfig = assign(this._rectConfig, _!)), this)
-      : this._rectConfig;
-  }
-
-  /**
-      The width accessor for each box.
-
-@example
-function(d) {
-  return d.width;
-}
-*/
-  rectWidth(): AccessorFn;
-  rectWidth(_: AccessorFn | number): this;
-  rectWidth(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._rectWidth = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._rectWidth;
+      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      : this.schema.rectConfig;
   }
 
   /**
@@ -439,56 +490,20 @@ function(d) {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this._whiskerConfig = assign(this._whiskerConfig, _!)), this)
-      : this._whiskerConfig;
+      ? ((this.schema.whiskerConfig = assign(this.schema.whiskerConfig, _!)), this)
+      : this.schema.whiskerConfig;
   }
 
   /**
-      Determines the value used for each whisker. Can be passed a single value to apply for both whiskers, or an Array of 2 values for the lower and upper whiskers (in that order). Accepted values are `"tukey"`, `"extent"`, or a Number representing a quantile.
-*/
-  whiskerMode(): (string | number)[];
-  whiskerMode(_: (string | number)[] | string | number): this;
-  whiskerMode(
-    _?: (string | number)[] | string | number,
-  ): (string | number)[] | this {
-    return arguments.length
-      ? ((this._whiskerMode = _ instanceof Array ? _ : [_!, _!]), this)
-      : this._whiskerMode;
-  }
-
-  /**
-      The x position accessor for each box.
-
-@example
-function(d) {
-  return d.x;
-}
-*/
-  x(): AccessorFn;
-  x(_: AccessorFn | number): this;
-  x(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._x =
-          typeof _ === "function" ? _ : accessor(_ as unknown as string)),
-        this)
-      : this._x;
-  }
-
-  /**
-      The y position accessor for each box.
-
-@example
-function(d) {
-  return d.y;
-}
-*/
-  y(): AccessorFn;
-  y(_: AccessorFn | number): this;
-  y(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._y =
-          typeof _ === "function" ? _ : accessor(_ as unknown as string)),
-        this)
-      : this._y;
+      Narrowed `.config()` for Box. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): BoxConfig;
+  config(_: Partial<BoxConfig>): this;
+  config(_?: Partial<BoxConfig>): BoxConfig | this {
+    if (!arguments.length) return super.config() as BoxConfig;
+    super.config(_ as D3plusConfig);
+    return this;
   }
 }

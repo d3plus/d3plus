@@ -25,3 +25,13 @@ const Template = (args) => <Path config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  // The default `d` accessor reads the `path` key from each datum; fill,
+  // stroke and strokeWidth take constant values.
+  data: [
+    {id: "wave", path: "M40,200 C140,80 240,320 340,200 S540,80 640,200"}
+  ],
+  fill: "none", stroke: "#cc4b4b", strokeWidth: 4
+};
+BasicExample.parameters = {controls: {include: ["d"]}, docs: {description: {story: "The `d` accessor reads a raw SVG path string from each datum; with `fill: none` and a `stroke`, the cubic-Bezier path renders as an open curved stroke."}}};

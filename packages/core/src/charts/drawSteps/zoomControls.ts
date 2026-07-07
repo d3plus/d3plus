@@ -1,8 +1,9 @@
-import {select} from "d3-selection";
 import {zoomTransform} from "d3-zoom";
 
-import {attrize, stylize} from "@d3plus/dom";
-import type Viz from "../Viz.js";
+import {attrize} from "@d3plus/dom";
+import {chartBounds} from "../features/chartGeometry.js";
+import type {FeatureLayout, FeatureModule} from "../features/features.js";
+import type Viz from "../viz/Viz.js";
 
 /** Mutable version of ZoomTransform for direct property manipulation. */
 interface MutableTransform {
@@ -11,127 +12,188 @@ interface MutableTransform {
   y: number;
 }
 
-let brushing = false;
+/**
+    Brush mode is per-chart, not global. Previously a module-level
+    `let brushing = false` was shared across all chart instances on the
+    page — toggling brush on chart A silently flipped chart B's state.
+    Now lives on `viz._brushing` and is read/written via helpers.
+*/
+function isBrushing(viz: Viz): boolean {
+  return Boolean(viz._brushing);
+}
+function setBrushing(viz: Viz, value: boolean): void {
+  viz._brushing = value;
+}
 
 /**
-    @name zoomControls
-    Sets up initial zoom events and controls.
-    @private
+    Apply a plain key/value style object to a real DOM element. v4 uses
+    HtmlOverlay nodes for the zoom-control buttons, so the d3-selection
+    `stylize` helper isn't reachable from the scene-graph escape hook.
 */
-export default function (this: Viz): void {
-  if (!this._container || !this._zoomGroup) return;
-
-  const height =
-      this._zoomHeight || this._height - this._margin.top - this._margin.bottom,
-    that = this,
-    width =
-      this._zoomWidth || this._width - this._margin.left - this._margin.right;
-
-  this._zoomBehavior
-    .extent([
-      [0, 0],
-      [width, height],
-    ])
-    .scaleExtent([1, this._zoomMax])
-    .translateExtent([
-      [0, 0],
-      [width, height],
-    ])
-    .on("zoom", (event: {transform: unknown}) =>
-      zoomed.bind(this)(event.transform),
-    );
-
-  this._zoomToBounds = zoomToBounds.bind(this);
-
-  let control: ReturnType<typeof select> = select(
-    this._select.node().parentNode,
-  )
-    .selectAll("div.d3plus-zoom-control")
-    .data(this._zoom ? [0] : []) as unknown as ReturnType<typeof select>;
-  const controlEnter = control
-    .enter()
-    .append("div")
-    .attr("class", "d3plus-zoom-control");
-  control.exit().remove();
-  control = control
-    .merge(controlEnter as unknown as ReturnType<typeof select>)
-    .style("position", "absolute")
-    .style("top", `${this._margin.top}px`)
-    .style("left", `${this._margin.left}px`);
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-in");
-  control
-    .select(".zoom-in")
-    .on("click", zoomMath.bind(this, this._zoomFactor))
-    .html("&#65291;");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-out");
-  control
-    .select(".zoom-out")
-    .on("click", zoomMath.bind(this, 1 / this._zoomFactor))
-    .html("&#65293;");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-reset");
-  control
-    .select(".zoom-reset")
-    .on("click", zoomMath.bind(this, 0))
-    .html("&#8634");
-
-  controlEnter.append("div").attr("class", "zoom-control zoom-brush");
-  control
-    .select(".zoom-brush")
-    .on("click", function (_event: Event) {
-      select(_event.currentTarget as Element)
-        .classed("active", !brushing)
-        .call(
-          stylize,
-          brushing
-            ? that._zoomControlStyle || {}
-            : that._zoomControlStyleActive || {},
-        );
-      zoomEvents.bind(that)(!brushing);
-    })
-    .html("&#164");
-
-  control
-    .selectAll(".zoom-control")
-    .call(stylize, that._zoomControlStyle)
-    .on("mouseenter", function (_event: Event) {
-      select(_event.currentTarget as Element).call(stylize, that._zoomControlStyleHover || {});
-    })
-    .on("mouseleave", function (_event: Event) {
-      const el = select(_event.currentTarget as Element);
-      el.call(
-        stylize,
-        el.classed("active")
-          ? that._zoomControlStyleActive || {}
-          : that._zoomControlStyle || {},
-      );
-    });
-
-  this._zoomBrush
-    .extent([
-      [0, 0],
-      [width, height],
-    ])
-    .filter((event: MouseEvent) => !event.button && event.detail < 2)
-    .handleSize(this._zoomBrushHandleSize)
-    .on("start", brushStart.bind(this))
-    .on("brush", brushBrush.bind(this))
-    .on("end", brushEnd.bind(this));
-
-  const brushGroup = this._container.selectAll("g.brush").data([0]);
-  this._brushGroup = brushGroup
-    .enter()
-    .append("g")
-    .attr("class", "brush")
-    .merge(brushGroup)
-    .call(this._zoomBrush);
-
-  zoomEvents.bind(this)();
-  if (this._renderTiles)
-    this._renderTiles(zoomTransform(this._container.node()), 0);
+function applyStyleObj(
+  el: HTMLElement,
+  styles: Record<string, string | number | undefined | null | false> | false | null | undefined,
+): void {
+  if (!styles) return;
+  for (const k in styles) {
+    const v = styles[k];
+    if (v === undefined || v === null || v === false) continue;
+    (el.style as unknown as Record<string, string>)[k] = String(v);
+  }
 }
+
+/**
+    @name zoomFeature
+    Sets up zoom + brush event behaviors and the zoom-control buttons.
+
+    Runs as a post-draw `FeatureModule`: `runVizPipeline` invokes it via
+    `runLayout` *after* `_draw()` has rendered the chart body and
+    `ensureZoomDom` has mounted `viz._container` / `viz._zoomGroup`. It
+    claims zero margin (positioning itself inside the existing
+    `viz._margin`) and emits no layout panel — instead it does two things
+    the margin-negotiation features don't:
+
+      1. Installs stateful D3 zoom + brush behaviors (`viz._zoomBehavior`,
+         `viz._zoomBrush`) and wires `viz._zoomToBounds`. d3-zoom binds to
+         the SVG element directly via `viz._container.call(zoomBehavior)`.
+      2. Returns the four control buttons (in/out/reset/brush) as an
+         `htmlOverlay` scene-node panel; `runVizPipeline` appends it to
+         `viz._featurePanels`. `onMount` is
+         the scene's interactive-HTML escape hook: it wires the click/hover
+         handlers + applies the user's zoomControl style configs. `onMount`
+         fires ONCE per host element (after innerHTML is written, so the
+         `.zoom-in` / `.zoom-out` querySelectors below resolve), not per
+         draw — the html string is constant, so listeners attached here
+         survive every subsequent draw (renderers only rewrite innerHTML
+         when it differs from the current value).
+*/
+export const zoomFeature: FeatureModule = {
+  name: "zoom",
+  layout: ({viz}) => {
+    if (!viz._container || !viz._zoomGroup) return {panel: null, margin: {}};
+
+    const bounds = chartBounds(viz as never);
+    const height = viz._zoomHeight || bounds.height,
+      that = viz,
+      width = viz._zoomWidth || bounds.width;
+
+    viz._zoomBehavior
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .scaleExtent([1, viz.schema.zoomMax])
+      .translateExtent([
+        [0, 0],
+        [width, height],
+      ])
+      .on("zoom", (event: {transform: unknown}) =>
+        zoomed.bind(viz)(event.transform),
+      );
+
+    viz._zoomToBounds = zoomToBounds.bind(viz);
+
+    let panel: FeatureLayout["panel"] = null;
+    if (viz.schema.zoom) {
+      panel = {
+        type: "htmlOverlay" as const,
+        key: "viz-zoom-controls",
+        x: viz._margin.left,
+        y: viz._margin.top,
+        className: "d3plus-zoom-control",
+        html:
+          '<div class="zoom-control zoom-in">&#65291;</div>' +
+          '<div class="zoom-control zoom-out">&#65293;</div>' +
+          '<div class="zoom-control zoom-reset">&#8634;</div>' +
+          '<div class="zoom-control zoom-brush">&#164;</div>',
+        // Declarative click wiring — clicks bubble, so the renderer's
+        // delegated dispatcher can route them by selector. The four
+        // handlers below are the single source of truth for what each
+        // zoom button does. Hover styles can't be delegated (mouseenter
+        // / mouseleave don't bubble), so they live in onMount below as
+        // a per-button binding.
+        events: {
+          ".zoom-in": {
+            click: () => zoomMath.bind(that)(that.schema.zoomFactor),
+          },
+          ".zoom-out": {
+            click: () => zoomMath.bind(that)(1 / that.schema.zoomFactor),
+          },
+          ".zoom-reset": {
+            click: () => zoomMath.bind(that)(0),
+          },
+          ".zoom-brush": {
+            click: (e: Event) => {
+              // The overlay dispatches clicks via delegation, so `e.currentTarget`
+              // is the host wrapper that encloses all four buttons — not the
+              // clicked button. Styling/toggling the wrapper would paint the
+              // active background around the whole control stack and offset it by
+              // the base margin/border. Resolve the actual button from the event
+              // target, the same way the dispatcher matches (`target.closest`).
+              const btn = (e.target as Element).closest(".zoom-brush") as HTMLElement | null;
+              if (!btn) return;
+              const willBrush = !isBrushing(that);
+              const isActive = btn.classList.toggle("active", willBrush);
+              applyStyleObj(
+                btn,
+                isActive
+                  ? that.schema.zoomControlStyleActive || {}
+                  : that.schema.zoomControlStyle || {},
+              );
+              zoomEvents.bind(that)(willBrush);
+            },
+          },
+        },
+        // onMount fires AFTER innerHTML is written so the querySelectorAll
+        // matches. Applies base styles + binds non-delegable hover events
+        // per button (mouseenter/mouseleave don't bubble through
+        // delegated event listeners).
+        onMount: (host: HTMLElement) => {
+          const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
+          buttons.forEach(btn => {
+            applyStyleObj(btn, that.schema.zoomControlStyle || {});
+            btn.addEventListener("mouseenter", () => {
+              applyStyleObj(btn, that.schema.zoomControlStyleHover || {});
+            });
+            btn.addEventListener("mouseleave", () => {
+              applyStyleObj(
+                btn,
+                btn.classList.contains("active")
+                  ? that.schema.zoomControlStyleActive || {}
+                  : that.schema.zoomControlStyle || {},
+              );
+            });
+          });
+        },
+      };
+    }
+
+    viz._zoomBrush
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .filter((event: MouseEvent) => !event.button && event.detail < 2)
+      .handleSize(viz.schema.zoomBrushHandleSize)
+      .on("start", brushStart.bind(viz))
+      .on("brush", brushBrush.bind(viz))
+      .on("end", brushEnd.bind(viz));
+
+    const brushGroup = viz._container.selectAll("g.brush").data([0]);
+    viz._brushGroup = brushGroup
+      .enter()
+      .append("g")
+      .attr("class", "brush")
+      .merge(brushGroup)
+      .call(viz._zoomBrush);
+
+    zoomEvents.bind(viz)();
+    if (viz._renderTiles)
+      viz._renderTiles(zoomTransform((viz._zoomEventTarget || viz._container).node()), 0);
+
+    return {panel, margin: {}};
+  },
+};
 
 /**
     @name zoomEvents
@@ -139,18 +201,25 @@ export default function (this: Viz): void {
     @private
 */
 function zoomEvents(this: Viz, brush: boolean = false): void {
-  brushing = brush;
+  setBrushing(this, brush);
 
-  if (brushing) this._brushGroup.style("display", "inline");
+  if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
 
-  if (!brushing && this._zoom) {
-    this._container.call(this._zoomBehavior);
-    if (!this._zoomScroll) {
-      this._container.on("wheel.zoom", null);
+  // The element d3-zoom binds its pointer listeners to. Defaults to the compute
+  // `<svg>` container; on the Canvas backend it's the <canvas> (see
+  // `bindCanvasZoom`), because the canvas is the interaction surface there —
+  // the svg is made pointer-events:none so hover events reach the canvas for
+  // tooltip picking.
+  const tgt = this._zoomEventTarget || this._container;
+
+  if (!brush && this.schema.zoom) {
+    tgt.call(this._zoomBehavior);
+    if (!this.schema.zoomScroll) {
+      tgt.on("wheel.zoom", null);
     }
-    if (!this._zoomPan) {
-      this._container
+    if (!this.schema.zoomPan) {
+      tgt
         .on("mousedown.zoom mousemove.zoom", null)
         .on(
           "touchstart.zoom touchmove.zoom touchend.zoom touchcancel.zoom",
@@ -158,7 +227,7 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
         );
     }
   } else {
-    this._container.on(".zoom", null);
+    tgt.on(".zoom", null);
   }
 }
 
@@ -182,8 +251,37 @@ function zoomed(
         .attr("transform", transform);
   }
 
+  // Thread the zoom transform into the scene graph so Network/Geomap
+  // pan/zoom shows up under the scene renderer. The
+  // `_zoomGroup.attr("transform", …)` write above remains for tests and
+  // consumers reading the SVG directly; the scene-side update below is
+  // what users see.
+  const t = transform as {k?: number; x?: number; y?: number} | false | string;
+  if (t && typeof t === "object" && "k" in t) {
+    // Nullish-coalesce rather than `||` so a legitimate zero (a deliberate
+    // collapse-to-zero scale, or pan transform at origin) doesn't get
+    // silently rewritten to the default.
+    this._zoomTransform = {
+      x: t.x ?? 0,
+      y: t.y ?? 0,
+      scale: t.k ?? 1,
+    };
+  } else if (t === false) {
+    this._zoomTransform = undefined;
+  }
+  // Repaint the scene so the new transform takes effect. Pass the
+  // caller's `duration` through — d3-zoom dispatches `"zoom"` events
+  // with duration=0 (per pixel of pan/wheel), so we MUST NOT use the
+  // chart-level `_duration` (default 600 ms) for those: it would queue
+  // a 600 ms transition per event, causing visible lag + setTimeout
+  // accumulation. Programmatic zooms (zoomMath, zoomToBounds) pass an
+  // explicit duration when they want animation.
+  if (this._drawSceneToTarget && this._sceneRenderer) {
+    this._drawSceneToTarget(duration);
+  }
+
   if (this._renderTiles)
-    this._renderTiles(zoomTransform(this._container.node()), duration);
+    this._renderTiles(zoomTransform((this._zoomEventTarget || this._container).node()), duration);
 }
 
 /**
@@ -199,7 +297,9 @@ function zoomMath(this: Viz, factor: number = 0): void {
       .bind(document)()[1]
       .map((d: number) => d / 2),
     scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(this._container.node()) as unknown as MutableTransform;
+    t = zoomTransform(
+      (this._zoomEventTarget || this._container).node(),
+    ) as unknown as MutableTransform;
 
   if (!factor) {
     t.k = scaleExtent[0];
@@ -218,7 +318,7 @@ function zoomMath(this: Viz, factor: number = 0): void {
     }
   }
 
-  zoomed.bind(this)(t, this._duration);
+  zoomed.bind(this)(t, this.schema.duration);
 }
 
 /**
@@ -230,10 +330,12 @@ function zoomMath(this: Viz, factor: number = 0): void {
 function zoomToBounds(
   this: Viz,
   bounds: number[][] | null,
-  duration: number = this._duration,
+  duration: number = this.schema.duration,
 ): void {
   const scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(this._container.node()) as unknown as MutableTransform;
+    t = zoomTransform(
+      (this._zoomEventTarget || this._container).node(),
+    ) as unknown as MutableTransform;
 
   if (bounds) {
     const [width, height] = this._zoomBehavior.translateExtent()[1],
@@ -244,13 +346,13 @@ function zoomToBounds(
 
     let xMod: number, yMod: number;
     if (dx / dy < width / height) {
-      k *= (height - this._zoomPadding * 2) / height;
+      k *= (height - this.schema.zoomPadding * 2) / height;
       xMod = (width - dx * k) / 2 / k;
-      yMod = this._zoomPadding / k;
+      yMod = this.schema.zoomPadding / k;
     } else {
-      k *= (width - this._zoomPadding * 2) / width;
+      k *= (width - this.schema.zoomPadding * 2) / width;
       yMod = (height - dy * k) / 2 / k;
-      xMod = this._zoomPadding / k;
+      xMod = this.schema.zoomPadding / k;
     }
 
     t.x = (t.x - bounds[0][0] + xMod) * ((t.k * k) / t.k);
@@ -304,9 +406,9 @@ function brushStart(this: Viz): void {
 function brushStyle(this: Viz): void {
   this._brushGroup
     .selectAll(".selection")
-    .call(attrize, this._zoomBrushSelectionStyle || {});
+    .call(attrize, this.schema.zoomBrushSelectionStyle || {});
 
   this._brushGroup
     .selectAll(".handle")
-    .call(attrize, this._zoomBrushHandleStyle || {});
+    .call(attrize, this.schema.zoomBrushHandleStyle || {});
 }

@@ -5,8 +5,7 @@
     "allowImportingTsExtensions": true,
     "declarationDir": "./types",
     "outDir": "./types",
-    "rootDir": ".",
-    "baseUrl": "."
+    "rootDir": "."
   },
   "include": ["index.tsx", "src/**/*.tsx", "../../externals.d.ts"]
 }

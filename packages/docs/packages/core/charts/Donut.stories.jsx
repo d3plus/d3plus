@@ -37,5 +37,20 @@ BasicExample.args = {
   groupBy: "Topping",
   value: "Sold"
 };
-BasicExample.parameters = {controls: {include: ["value"]}};
+BasicExample.parameters = {controls: {include: ["value"]}, docs: {description: {story: "Each arc's angle is proportional to its `value` (Sold); the default `innerRadius` leaves the center hole that sets a donut apart from a pie."}}};
   
+
+export const CustomHoleSize = Template.bind({});
+CustomHoleSize.args = {
+  data: [
+    {Topping: "Powdered sugar", Sold: 40},
+    {Topping: "Cinnamon", Sold: 20},
+    {Topping: "Sprinkles", Sold: 25},
+    {Topping: "Fruits", Sold: 30},
+    {Topping: "Cream", Sold: 15}
+  ],
+  groupBy: "Topping",
+  value: "Sold",
+  innerRadius: 120
+};
+CustomHoleSize.parameters = {controls: {include: ["innerRadius"]}, docs: {description: {story: "Raise `innerRadius` (here 120px) to enlarge the center hole, thinning the ring into a narrow band."}}};

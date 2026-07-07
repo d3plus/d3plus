@@ -35,6 +35,74 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    config: {
+      control: {},
+      description: "Narrowed `.config()` for Whisker. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "partial"
+      }
+    },
+    data: {
+      control: {},
+      description: "The data array used to create shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "Animation duration in ms.",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    endpoint: {
+      control: {},
+      description: "End-cap shape name (e.g. \"Rect\").",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    endpointConfig: {
+      control: {},
+      description: "Configuration object for each endpoint.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
     hover: {
       control: {},
       description: "The hover highlight state for all sub-shapes in this Whisker.",
@@ -48,6 +116,88 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    length: {
+      control: {},
+      description: "Whisker length in pixels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    lineConfig: {
+      control: {},
+      description: "Configuration object for the line shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    orient: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
     render: {
       control: {},
       description: "Draws the whisker.",
@@ -59,6 +209,73 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    select: {
+      control: {
+        type: "text"
+      },
+      description: "The SVG container element for this visualization. 3 selector or DOM element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | htmlelement | svgelement | null"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function"
+      }
+    },
+    x: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    y: {
+      control: {},
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
       }
     }
   }

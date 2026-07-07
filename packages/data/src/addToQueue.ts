@@ -15,6 +15,7 @@ type QueueEntry = [
 
 interface VizContext {
   _queue: QueueEntry[];
+  schema?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
@@ -41,7 +42,9 @@ export default function (
     ];
     if (prev) this._queue[this._queue.indexOf(prev)] = d;
     else this._queue.push(d);
-  } else {
+  } else if (`_${key}` in this) {
     this[`_${key}`] = _;
+  } else if (this.schema) {
+    this.schema[key] = _;
   }
 }

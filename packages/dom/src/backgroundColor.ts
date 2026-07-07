@@ -4,8 +4,10 @@
     to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
     @param elem The DOM element to check.
 */
-export default function (elem: Element): string {
-  let node: Element | null = elem;
+export default function (
+  elem: import("d3-selection").BaseType | null | undefined,
+): string {
+  let node: Element | null = elem instanceof Element ? elem : null;
   while (node) {
     const bg = getComputedStyle(node).backgroundColor;
     if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") return bg;

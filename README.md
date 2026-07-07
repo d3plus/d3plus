@@ -70,6 +70,19 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 </script>
 ```
 
+## Rendering
+
+D3plus v4 compiles each visualization to a serializable scene graph that is
+painted by a pluggable backend. **SVG is the default**; an opt-in **Canvas**
+backend paints dense, high-shape-count charts more efficiently:
+
+```js
+new d3plus.BarChart().data(data).renderer("canvas").render();
+```
+
+Upgrading from v3? The public API is unchanged for typical usage — see
+[MIGRATION.md](MIGRATION.md) and [CHANGELOG.md](CHANGELOG.md).
+
 ## Packages
 
 D3plus is a modular monorepo — install only what you need:
@@ -78,6 +91,7 @@ D3plus is a modular monorepo — install only what you need:
 | ---------------------------------------------------------------- | ------------------------------------------------ |
 | [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)     | React component wrappers for all chart types     |
 | [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)       | Charts, components, and shapes (the main engine) |
+| [@d3plus/render](https://www.npmjs.com/package/@d3plus/render)   | Scene-graph renderer; owns the SVG/Canvas backends |
 | [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)     | Color scales, defaults, and utilities            |
 | [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)       | Data loading, filtering, and manipulation        |
 | [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)         | DOM and browser utility functions                |
@@ -97,7 +111,10 @@ import {formatAbbreviate} from "@d3plus/format";
 To get all d3plus types in one import (useful for typing config objects or function parameters):
 
 ```ts
-import type {Treemap, D3plusComponentProps} from "@d3plus/types";
+import type {Treemap} from "@d3plus/types";
+// React component types live in a separate entry, so non-React projects
+// don't pull in React:
+import type {D3plusComponentProps} from "@d3plus/types/react";
 ```
 
 ## Accessibility

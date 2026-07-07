@@ -1,8 +1,8 @@
 import remarkGfm from "remark-gfm";
 import path from "node:path";
 import fs from "node:fs";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import {createRequire} from "node:module";
+import {fileURLToPath} from "node:url";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -56,7 +56,8 @@ export default {
   webpackFinal: async config => {
     if (config.resolve) {
       const packagesDir = path.resolve(__dirname, "../..");
-      const folders = fs.readdirSync(packagesDir, {withFileTypes: true})
+      const folders = fs
+        .readdirSync(packagesDir, {withFileTypes: true})
         .filter(d => d.isDirectory() && d.name !== "docs");
 
       const workspacePackages = folders.reduce((aliases, dirent) => {

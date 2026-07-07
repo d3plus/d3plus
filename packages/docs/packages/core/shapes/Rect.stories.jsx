@@ -25,3 +25,13 @@ const Template = (args) => <Rect config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  data: [
+    {id: "a", x: 75,  y: 150, width: 110, height: 130, fill: "#5d6d7e"},
+    {id: "b", x: 200, y: 150, width: 110, height: 90,  fill: "#cc4b4b"},
+    {id: "c", x: 325, y: 150, width: 110, height: 170, fill: "#3a7ca5"}
+  ],
+  x: "x", y: "y", width: "width", height: "height", fill: "fill"
+};
+BasicExample.parameters = {controls: {include: ["width", "height"]}, docs: {description: {story: "Three rectangles centered on their `x`/`y` with data-bound `width`/`height` and a per-datum `fill`."}}};

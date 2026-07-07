@@ -1,0 +1,32 @@
+{
+  "drawDepth": 0,
+  "closures": {
+    "id": "Alpha",
+    "ids": [
+      "Alpha"
+    ],
+    "drawLabel": "Alpha"
+  },
+  "filteredData": {
+    "length": 5,
+    "ids": [
+      "Alpha",
+      "Beta",
+      "Gamma",
+      "Delta",
+      "Epsilon"
+    ]
+  },
+  "legendData": {
+    "length": 5,
+    "ids": [
+      "Alpha",
+      "Beta",
+      "Gamma",
+      "Delta",
+      "Epsilon"
+    ]
+  },
+  "hasThresholdTree": true,
+  "computedTimeFilter": "undefined"
+}

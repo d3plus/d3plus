@@ -1,5 +1,6 @@
 import {max} from "d3-array";
-import type Plot from "../Plot.js";
+import type Plot from "../Plot/index.js";
+import type {D3Scale} from "../../utils/index.js";
 
 /**
     @module lineBuffer
@@ -19,35 +20,31 @@ export default function (
     y2,
   }: {
     data: Record<string, unknown>[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    x: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    y: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    x2?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    y2?: any;
+    x: D3Scale;
+    y: D3Scale;
+    x2?: D3Scale;
+    y2?: D3Scale;
   },
 ): [unknown, unknown] {
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";
 
-  const s = this._discrete === "x" ? y : x;
+  const s = this.schema.discrete === "x" ? y : x;
 
-  const d = s.domain().slice();
+  const d = s.domain().slice() as number[];
 
-  if (this._discrete === "x") d.reverse();
+  if (this.schema.discrete === "x") d.reverse();
 
   const vals = data.map(
-    (d: Record<string, unknown>) => d[this._discrete === "x" ? yKey : xKey],
+    (d: Record<string, unknown>) => d[this.schema.discrete === "x" ? yKey : xKey],
   ) as number[];
-  const b = s.invert(
-    s(max(vals) as number) + (this._discrete === "x" ? -10 : 10),
+  const b = s.invert!(
+    s(max(vals) as number) + (this.schema.discrete === "x" ? -10 : 10),
   );
 
   if (b > d[1]) d[1] = b;
 
-  if (this._discrete === "x") d.reverse();
+  if (this.schema.discrete === "x") d.reverse();
 
   s.domain(d);
 

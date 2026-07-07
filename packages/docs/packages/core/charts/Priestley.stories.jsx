@@ -36,7 +36,7 @@ BasicExample.args = {
   groupBy: "element",
   start: "birth"
 };
-BasicExample.parameters = {controls: {include: ["end", "start"]}};
+BasicExample.parameters = {controls: {include: ["end", "start"]}, docs: {description: {story: "Each bar spans from its `start` to its `end`, so bar length encodes duration and horizontal position shows when each element existed."}}};
 
 export const GroupingBarsIntoLanes = Template.bind({});
 GroupingBarsIntoLanes.args = {
@@ -47,7 +47,7 @@ GroupingBarsIntoLanes.args = {
     {parent: "Group 1", id: "gamma",   start: 2008, end: 2013},
     {parent: "Group 2", id: "delta",   start: 2004, end: 2007}
   ],
-  end: "death",
+  end: "end",
   groupBy: ["parent", "id"],
   shapeConfig: {
     fill: funcify(
@@ -55,6 +55,6 @@ GroupingBarsIntoLanes.args = {
       `d => d.parent === "Group 1" ? "firebrick" : "cornflowerblue"`
     )
   },
-  start: "birth"
+  start: "start"
 };
-GroupingBarsIntoLanes.parameters = {controls: {include: ["groupBy", "shapeConfig"]}};
+GroupingBarsIntoLanes.parameters = {controls: {include: ["groupBy", "shapeConfig"]}, docs: {description: {story: "Passing `[\"parent\", \"id\"]` to `groupBy` nests the bars into lanes by `parent`; the `shapeConfig.fill` function then colors each bar by its parent group."}}};

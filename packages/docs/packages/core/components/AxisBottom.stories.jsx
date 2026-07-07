@@ -25,3 +25,11 @@ const Template = (args) => <AxisBottom config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+export const BasicExample = Template.bind({});
+BasicExample.args = {
+  domain: [0, 100],
+  width: 600,
+  height: 120,
+  title: "Bottom Axis"
+};
+BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "A horizontal `[0, 100]` domain across the 600px width with ticks and labels below the path, the usual placement for a chart's x-axis."}}};

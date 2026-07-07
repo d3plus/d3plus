@@ -25,6 +25,28 @@ const defaultOptions: Required<Pick<SaveElementOptions, "filename" | "type">> =
   };
 
 /**
+    Resolves the save + render options: applies the `filename`/`type` defaults
+    and renames `renderOptions.background` to `backgroundColor` for backwards
+    compatibility. Pure (no DOM), so the option handling is unit-testable apart
+    from the third-party rasterization.
+*/
+export function resolveSaveOptions(
+  options: SaveElementOptions = {},
+  renderOptions: SaveElementRenderOptions = {},
+): {
+  filename: string;
+  type: "png" | "jpg" | "svg";
+  renderOpts: SaveElementRenderOptions;
+} {
+  const {filename, type} = Object.assign({}, defaultOptions, options);
+  const renderOpts = Object.assign(
+    {backgroundColor: renderOptions.background},
+    renderOptions,
+  );
+  return {filename, type, renderOpts};
+}
+
+/**
     Downloads an HTML Element as a bitmap PNG image.
     @param elem The DOM element or d3 selection to export.
     @param options Additional options to specify.
@@ -39,20 +61,14 @@ export default function (
   renderOptions: SaveElementRenderOptions = {},
 ): void {
   if (!elem) return;
-  const opts = Object.assign({}, defaultOptions, options);
-
-  // rename renderOptions.background to backgroundColor for backwards compatibility
-  const renderOpts = Object.assign(
-    {backgroundColor: renderOptions.background},
-    renderOptions,
-  );
+  const {filename, type, renderOpts} = resolveSaveOptions(options, renderOptions);
 
   function finish(blob: Blob): void {
-    saveAs(blob, `${opts.filename}.${opts.type}`);
-    if (opts.callback) opts.callback();
+    saveAs(blob, `${filename}.${type}`);
+    if (options.callback) options.callback();
   }
 
-  if (opts.type === "svg") {
+  if (type === "svg") {
     toSvg(elem, renderOpts).then((dataUrl: string) => {
       const xhr = new XMLHttpRequest();
       xhr.open("GET", dataUrl);

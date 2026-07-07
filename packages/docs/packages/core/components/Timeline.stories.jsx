@@ -34,4 +34,15 @@ BasicExample.args = {
   playButton: true,
   width: 400
 };
-BasicExample.parameters = {controls: {include: ["domain", "playButton"]}};
+BasicExample.parameters = {controls: {include: ["domain", "playButton"]}, docs: {description: {story: "With `brushing: false`, the timeline selects a single period across the `domain`; enabling `playButton` adds controls to step through the periods automatically."}}};
+export const RangeSelection = Template.bind({});
+RangeSelection.args = {
+  domain: [2000, 2020],
+  brushing: true,
+  height: 100,
+  width: 520
+};
+RangeSelection.parameters = {
+  controls: {include: ["domain", "brushing"]},
+  docs: {description: {story: "With `brushing: true`, viewers can drag to select a time range instead of a single period."}}
+};

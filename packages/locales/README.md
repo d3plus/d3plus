@@ -36,12 +36,14 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`formatLocale`](#formatlocale) |  |
 | [`locale`](#locale) |  |
+| [`titleCaseLocale`](#titlecaselocale) |  |
 | [`translateLocale`](#translatelocale) |  |
 
 | Interfaces | Description |
 | --- | --- |
 | [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
 | [`TimeLocaleDefinition`](#timelocaledefinition) |  |
+| [`TitleCaseRules`](#titlecaserules) |  |
 | [`TranslationStrings`](#translationstrings) |  |
 
 ## Functions
@@ -52,7 +54,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **findLocale**(`locale`: `string`): `string`
 
-Defined in: [findLocale.ts:49](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/findLocale.ts#L49)
+Defined in: [findLocale.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/findLocale.ts#L49)
 
 Converts a 2-letter language code into a full language-region locale string (e.g., "en" to "en-US").
 
@@ -74,7 +76,7 @@ Converts a 2-letter language code into a full language-region locale string (e.g
 
 > `const` **formatLocale**: `Record`\<`string`, [`FormatLocaleDefinition`](#formatlocaledefinition)\>
 
-Defined in: [dictionaries/formatLocale.ts:17](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L17)
+Defined in: [dictionaries/formatLocale.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L17)
 
 ***
 
@@ -84,7 +86,17 @@ Defined in: [dictionaries/formatLocale.ts:17](https://github.com/d3plus/d3plus/b
 
 > `const` **locale**: `Record`\<`string`, [`TimeLocaleDefinition`](#timelocaledefinition)\>
 
-Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L39)
+Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L39)
+
+***
+
+<a id="titlecaselocale"></a>
+
+### titleCaseLocale
+
+> `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
+
+Defined in: [dictionaries/titleCaseLocale.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L35)
 
 ***
 
@@ -94,7 +106,7 @@ Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blo
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: [dictionaries/translateLocale.ts:21](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L21)
+Defined in: [dictionaries/translateLocale.ts:21](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L21)
 
 ## Interfaces
 
@@ -102,7 +114,7 @@ Defined in: [dictionaries/translateLocale.ts:21](https://github.com/d3plus/d3plu
 
 ### FormatLocaleDefinition
 
-Defined in: [dictionaries/formatLocale.ts:6](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L6)
+Defined in: [dictionaries/formatLocale.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L6)
 
 **`Namespace`**
 
@@ -113,13 +125,13 @@ A set of default locale formatters used when assigning suffixes and currency in 
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-currency"></a> `currency` | \[`string`, `string`\] | [dictionaries/formatLocale.ts:14](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L14) |
-| <a id="property-delimiters"></a> `delimiters` | `object` | [dictionaries/formatLocale.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L10) |
-| `delimiters.decimal` | `string` | [dictionaries/formatLocale.ts:12](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L12) |
-| `delimiters.thousands` | `string` | [dictionaries/formatLocale.ts:11](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L11) |
-| <a id="property-grouping"></a> `grouping` | `number`[] | [dictionaries/formatLocale.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L9) |
-| <a id="property-separator"></a> `separator?` | `string` | [dictionaries/formatLocale.ts:7](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L7) |
-| <a id="property-suffixes"></a> `suffixes` | `string`[] | [dictionaries/formatLocale.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/formatLocale.ts#L8) |
+| <a id="property-currency"></a> `currency` | \[`string`, `string`\] | [dictionaries/formatLocale.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L14) |
+| <a id="property-delimiters"></a> `delimiters` | `object` | [dictionaries/formatLocale.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L10) |
+| `delimiters.decimal` | `string` | [dictionaries/formatLocale.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L12) |
+| `delimiters.thousands` | `string` | [dictionaries/formatLocale.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L11) |
+| <a id="property-grouping"></a> `grouping` | `number`[] | [dictionaries/formatLocale.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L9) |
+| <a id="property-separator"></a> `separator?` | `string` | [dictionaries/formatLocale.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L7) |
+| <a id="property-suffixes"></a> `suffixes` | `string`[] | [dictionaries/formatLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/formatLocale.ts#L8) |
 
 ***
 
@@ -127,21 +139,37 @@ A set of default locale formatters used when assigning suffixes and currency in 
 
 ### TimeLocaleDefinition
 
-Defined in: [dictionaries/timeLocale.ts:1](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L1)
+Defined in: [dictionaries/timeLocale.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L1)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-date"></a> `date` | `string` | [dictionaries/timeLocale.ts:3](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L3) |
-| <a id="property-datetime"></a> `dateTime` | `string` | [dictionaries/timeLocale.ts:2](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L2) |
-| <a id="property-days"></a> `days` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:7](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L7) |
-| <a id="property-months"></a> `months` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L9) |
-| <a id="property-periods"></a> `periods` | \[`string`, `string`\] | [dictionaries/timeLocale.ts:6](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L6) |
-| <a id="property-quarter"></a> `quarter` | `string` | [dictionaries/timeLocale.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L5) |
-| <a id="property-shortdays"></a> `shortDays` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L8) |
-| <a id="property-shortmonths"></a> `shortMonths` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:23](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L23) |
-| <a id="property-time"></a> `time` | `string` | [dictionaries/timeLocale.ts:4](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/timeLocale.ts#L4) |
+| <a id="property-date"></a> `date` | `string` | [dictionaries/timeLocale.ts:3](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L3) |
+| <a id="property-datetime"></a> `dateTime` | `string` | [dictionaries/timeLocale.ts:2](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L2) |
+| <a id="property-days"></a> `days` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L7) |
+| <a id="property-months"></a> `months` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L9) |
+| <a id="property-periods"></a> `periods` | \[`string`, `string`\] | [dictionaries/timeLocale.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L6) |
+| <a id="property-quarter"></a> `quarter` | `string` | [dictionaries/timeLocale.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L5) |
+| <a id="property-shortdays"></a> `shortDays` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L8) |
+| <a id="property-shortmonths"></a> `shortMonths` | \[`string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`, `string`\] | [dictionaries/timeLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L23) |
+| <a id="property-time"></a> `time` | `string` | [dictionaries/timeLocale.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L4) |
+
+***
+
+<a id="titlecaserules"></a>
+
+### TitleCaseRules
+
+Defined in: [dictionaries/titleCaseLocale.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L1)
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-acronyms"></a> `acronyms?` | `string`[] | Acronyms / initialisms emitted in the given canonical casing (matched case-insensitively, so "ceo" and "CEO" both become "CEO"). Mixed-case forms ("iOS", "GmbH", "PhD") are preserved as written. Plurals ("TVs") are derived automatically — so forms whose plural collides with a real word (e.g. "IDE" → "ides") are intentionally omitted. | [dictionaries/titleCaseLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L23) |
+| <a id="property-lowercase"></a> `lowercase?` | `string`[] | Short function words (articles, conjunctions, prepositions, contractions) kept lowercase in the MIDDLE of a title. Matched case-insensitively and against the punctuation-stripped token, so "v" also covers "v." and "vs" covers "vs.". | [dictionaries/titleCaseLocale.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L15) |
+| <a id="property-style"></a> `style` | `"title"` \| `"sentence"` | "title" capitalizes each significant word, lowercasing the minor words in the middle (the English convention). "sentence" capitalizes only the first word. Acronyms are forced uppercase under both styles; the `lowercase` list is consulted only for "title". | [dictionaries/titleCaseLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L8) |
 
 ***
 
@@ -149,26 +177,26 @@ Defined in: [dictionaries/timeLocale.ts:1](https://github.com/d3plus/d3plus/blob
 
 ### TranslationStrings
 
-Defined in: [dictionaries/translateLocale.ts:1](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L1)
+Defined in: [dictionaries/translateLocale.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L1)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-and"></a> `and` | `string` | [dictionaries/translateLocale.ts:2](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L2) |
-| <a id="property-back"></a> `Back` | `string` | [dictionaries/translateLocale.ts:3](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L3) |
-| <a id="property-click-to-expand"></a> `Click to Expand` | `string` | [dictionaries/translateLocale.ts:4](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L4) |
-| <a id="property-click-to-hide"></a> `Click to Hide` | `string` | [dictionaries/translateLocale.ts:5](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L5) |
-| <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | [dictionaries/translateLocale.ts:6](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L6) |
-| <a id="property-click-to-show"></a> `Click to Show` | `string` | [dictionaries/translateLocale.ts:7](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L7) |
-| <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | [dictionaries/translateLocale.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L8) |
-| <a id="property-download"></a> `Download` | `string` | [dictionaries/translateLocale.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L9) |
-| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | [dictionaries/translateLocale.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L10) |
-| <a id="property-more"></a> `more` | `string` | [dictionaries/translateLocale.ts:11](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L11) |
-| <a id="property-no-data-available"></a> `No Data Available` | `string` | [dictionaries/translateLocale.ts:12](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L12) |
-| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | [dictionaries/translateLocale.ts:13](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L13) |
-| <a id="property-share"></a> `Share` | `string` | [dictionaries/translateLocale.ts:14](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L14) |
-| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | [dictionaries/translateLocale.ts:15](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L15) |
-| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | [dictionaries/translateLocale.ts:16](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L16) |
-| <a id="property-total"></a> `Total` | `string` | [dictionaries/translateLocale.ts:17](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L17) |
-| <a id="property-values"></a> `Values` | `string` | [dictionaries/translateLocale.ts:18](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/locales/src/dictionaries/translateLocale.ts#L18) |
+| <a id="property-and"></a> `and` | `string` | [dictionaries/translateLocale.ts:2](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L2) |
+| <a id="property-back"></a> `Back` | `string` | [dictionaries/translateLocale.ts:3](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L3) |
+| <a id="property-click-to-expand"></a> `Click to Expand` | `string` | [dictionaries/translateLocale.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L4) |
+| <a id="property-click-to-hide"></a> `Click to Hide` | `string` | [dictionaries/translateLocale.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L5) |
+| <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | [dictionaries/translateLocale.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L6) |
+| <a id="property-click-to-show"></a> `Click to Show` | `string` | [dictionaries/translateLocale.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L7) |
+| <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | [dictionaries/translateLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L8) |
+| <a id="property-download"></a> `Download` | `string` | [dictionaries/translateLocale.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L9) |
+| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | [dictionaries/translateLocale.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L10) |
+| <a id="property-more"></a> `more` | `string` | [dictionaries/translateLocale.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L11) |
+| <a id="property-no-data-available"></a> `No Data Available` | `string` | [dictionaries/translateLocale.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L12) |
+| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | [dictionaries/translateLocale.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L13) |
+| <a id="property-share"></a> `Share` | `string` | [dictionaries/translateLocale.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L14) |
+| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | [dictionaries/translateLocale.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L15) |
+| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | [dictionaries/translateLocale.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L16) |
+| <a id="property-total"></a> `Total` | `string` | [dictionaries/translateLocale.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L17) |
+| <a id="property-values"></a> `Values` | `string` | [dictionaries/translateLocale.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L18) |

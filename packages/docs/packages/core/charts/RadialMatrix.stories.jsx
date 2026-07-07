@@ -33,4 +33,23 @@ BasicExample.args = {
   row: "Exporter Continent",
   colorScale: "Trade Value"
 };
-BasicExample.parameters = {controls: {include: ["column", "row"]}};
+BasicExample.parameters = {controls: {include: ["column", "row"]}, docs: {description: {story: "The row × column grid wrapped into a polar layout: `row` values become concentric rings and `column` values become angular segments, each cell shaded by `colorScale`."}}};
+
+export const WithColorScale = Template.bind({});
+WithColorScale.args = {
+  data: [
+    {row: "Inner", column: "A", value: 10}, {row: "Inner", column: "B", value: 25},
+    {row: "Inner", column: "C", value: 15}, {row: "Inner", column: "D", value: 20},
+    {row: "Middle", column: "A", value: 18}, {row: "Middle", column: "B", value: 22},
+    {row: "Middle", column: "C", value: 28}, {row: "Middle", column: "D", value: 12},
+    {row: "Outer", column: "A", value: 30}, {row: "Outer", column: "B", value: 16},
+    {row: "Outer", column: "C", value: 24}, {row: "Outer", column: "D", value: 8}
+  ],
+  groupBy: ["row", "column"],
+  column: "column",
+  row: "row",
+  colorScale: "value",
+  colorScaleConfig: {scale: "jenks"},
+  colorScalePosition: "right"
+};
+WithColorScale.parameters = {controls: {include: ["colorScale", "colorScaleConfig"]}, docs: {description: {story: "Applies a `colorScaleConfig` `scale: \"jenks\"` natural-breaks classification, so cell colors group by data clusters rather than an even linear ramp."}}};

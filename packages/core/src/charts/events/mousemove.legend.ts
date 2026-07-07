@@ -1,10 +1,10 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import clickLegend from "./click.legend.js";
-import {legendLabel} from "../drawSteps/drawLegend.js";
+import {legendLabel} from "../features/legendLabel.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
-import type Viz from "../Viz.js";
+import type Viz from "../viz/Viz.js";
 
 /**
     @module mouseMoveLegend
@@ -30,32 +30,32 @@ export default function (
     }),
   ).length;
 
-  if (d && this._tooltip(d, i)) {
+  if (d && this.schema.tooltip(d, i)) {
     let id = this._id(d, i);
     if (id instanceof Array) id = id[0];
 
-    const t = this._translate;
+    const t = this.schema.translate;
     const defaultClick = clickLegend.bind(this).toString();
 
     // does the legend have any user-defined click events?
-    const hasUserClick = Object.keys(this._on).some(
+    const hasUserClick = Object.keys(this.schema.on).some(
       (e: string) =>
         // all valid click event keys,
         ["click", "click.legend"].includes(e) &&
         // truthy values (no nulls),
-        this._on[e] &&
+        this.schema.on[e] &&
         // and it is not our default click.legend function
-        this._on[e].toString() !== defaultClick,
+        this.schema.on[e].toString() !== defaultClick,
     );
 
     // does the legend still have our default "click.legend" event?
     // (if the user only sets "click", both functions will fire)
     const hasDefaultClick =
-      this._on["click.legend"] &&
-      this._on["click.legend"].toString() === defaultClick;
+      this.schema.on["click.legend"] &&
+      this.schema.on["click.legend"].toString() === defaultClick;
 
     // can the viz show deeper data?
-    const hasDeeperLevel = this._drawDepth < this._groupBy.length - 1;
+    const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
 
     // only show the hand cursor when the shape has a click event
     this._select.style(
@@ -63,7 +63,7 @@ export default function (
       hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
     );
 
-    const invertedBehavior = this._legendFilterInvert.bind(this)();
+    const invertedBehavior = this.schema.legendFilterInvert.bind(this)();
 
     const solo = this._solo.includes(id);
     const hidden = this._hidden.includes(id);
@@ -88,13 +88,13 @@ export default function (
           : false,
       )
       .title(
-        this._legendConfig.label
+        this.schema.legendConfig.label
           ? this._legendClass.label()
           : legendLabel.bind(this),
       )
       .position(position)
-      .config(configPrep.bind(this as unknown as VizContext)(this._tooltipConfig))
-      .config(configPrep.bind(this as unknown as VizContext)(this._legendTooltip))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.tooltipConfig))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.legendTooltip))
       .render();
   }
 }

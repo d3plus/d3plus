@@ -1,0 +1,104 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Theming" />
+
+# Theming & Styling
+
+D3plus assigns colors, fonts, and label styles automatically, but every visual
+detail is configurable.
+
+## Colors
+
+By default each group gets a distinct color from the `@d3plus/color` palette.
+Override per datum with the `color` accessor or via `shapeConfig.fill`:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  shapeConfig: {
+    fill: d => d.region === "North" ? "#cc0000" : "#0066cc"
+  }
+}} />
+```
+
+The default palette is designed for colorblind safety — its slots stay distinct
+under protanopia and deuteranopia and sit within a controlled lightness/chroma
+band. To color an *ordered* categorical field with a single-hue light→dark ramp
+instead of nominal hues, set `colorOrdinal: true`. See **Guides → Color** for the
+full color system, including how to validate your own palette.
+
+## Color scales
+
+To encode a continuous measure as color, set `colorScale` to a numeric accessor
+and tune it with `colorScaleConfig`. The `scale` option chooses the binning
+strategy:
+
+```jsx
+<Geomap config={{
+  data, groupBy: "id", colorScale: "value",
+  colorScaleConfig: {scale: "jenks"},   // "linear" | "jenks" | "quantile" | "buckets"
+  colorScalePosition: "right"           // "top" | "bottom" | "left" | "right" | false
+}} />
+```
+
+By default a continuous scale steps through a single blue hue (darker = larger)
+and a diverging scale runs blue↔gray↔red; override either by passing a `color`
+array to `colorScaleConfig`.
+
+## Textures (non-color encoding)
+
+Texture fills give a second, color-independent visual channel — useful for
+colorblind viewers or grayscale printing. Apply them through `shapeConfig`:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  shapeConfig: {
+    texture: d => d.region === "North" ? {} : false,
+    textureDefault: "lines"   // lines | circles | crosses | waves | woven | …
+  }
+}} />
+```
+
+See the **Accessibility** page for the full list of texture types.
+
+## Fonts & labels
+
+Set a global typeface with `fontFamily`, and style data labels through the
+per-shape `labelConfig`:
+
+```jsx
+<Treemap config={{
+  data, groupBy: "id", size: "value",
+  fontFamily: "Inter",
+  shapeConfig: {
+    labelConfig: {fontSize: 14, fontColor: "#222"}
+  }
+}} />
+```
+
+Label text color is chosen automatically for contrast against each shape's fill
+(see `colorContrast` on the **Accessibility** page).
+
+## Localization
+
+Pass a `locale` to translate built-in UI text and format numbers/dates for that
+region. `@d3plus/locales` ships dictionaries for several languages, including
+right-to-left scripts:
+
+```jsx
+<BarChart config={{data, groupBy: "region", x: "quarter", y: "revenue", locale: "ar-SA"}} />
+```
+
+## Titles & framing
+
+Add framing text around any chart with `title`, `subtitle`, and `total`:
+
+```jsx
+<Pie config={{
+  data, groupBy: "id", value: "value",
+  title: "Sales by Product",
+  subtitle: "Fiscal Year 2024",
+  total: true
+}} />
+```

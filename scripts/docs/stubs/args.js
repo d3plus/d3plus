@@ -37,10 +37,24 @@ function removeStartEndQuotes(str) {
 const hasParent = ({augments}) =>
   augments && augments.length ? augments[0] : false;
 
-export default function (story, allMethods, stories) {
+// Charts/components live in per-export subfolders (e.g. charts/viz/Viz.ts,
+// components/Axis/Axis.ts), but the Storybook args/stories are organized flat by
+// category. Collapse a source path to its first segment (the category) so the
+// generated paths match the flat layout the stories import.
+const collapseCategory = p =>
+  p ? `/${p.split("/").filter(Boolean)[0]}` : "";
+
+export default function (
+  story,
+  allMethods,
+  stories,
+  configDefaults = {},
+  interfaceDocs = {},
+) {
   const {kind, name, meta} = story;
   const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
-  const [, moduleName, filePath] = regex.exec(meta.path);
+  const [, moduleName, rawFilePath] = regex.exec(meta.path);
+  const filePath = collapseCategory(rawFilePath);
   const parentClass = hasParent(story);
   let overrides = {},
     parentRelativePath;
@@ -48,7 +62,8 @@ export default function (story, allMethods, stories) {
   if (parentClass) {
     const parent = stories.find(d => d.name === parentClass);
     const regex2 = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
-    const [, parentModule, parentPath] = regex2.exec(parent.meta.path);
+    const [, parentModule, rawParentPath] = regex2.exec(parent.meta.path);
+    const parentPath = collapseCategory(rawParentPath);
     parentRelativePath =
       moduleName === parentModule && filePath === parentPath
         ? `.`
@@ -89,19 +104,29 @@ export default function (story, allMethods, stories) {
     statements.forEach(statement => {
       depth = 0;
       let method, value;
-      if (statement.type === "AssignmentExpression") {
-        const {left, right} = statement;
-        method = formatAst(left.property);
-        if (left.object.type !== "ThisExpression")
-          method = `${formatAst(left.object.property)}.${method}`;
-        method = method.replace(/^_/, "");
-        value = right;
-      } else if (statement.type === "CallExpression") {
-        const {callee} = statement;
-        if (callee.type !== "Super") {
-          method = callee.property.value;
-          value = statement;
+      try {
+        if (statement.type === "AssignmentExpression") {
+          const {left, right} = statement;
+          if (left.type !== "MemberExpression") return;
+          method = formatAst(left.property);
+          if (left.object.type !== "ThisExpression" && left.object.property)
+            method = `${formatAst(left.object.property)}.${method}`;
+          method = method.replace(/^_/, "");
+          value = right;
+        } else if (statement.type === "CallExpression") {
+          const {callee} = statement;
+          // Only `this.method(default)`-style calls set arg defaults. Skip
+          // `super(...)` and bare helper calls like `installFluent(...)`,
+          // whose callee is not a member expression (and has no `.property`).
+          if (callee.type === "MemberExpression" && callee.property) {
+            method = callee.property.value;
+            value = statement;
+          }
         }
+      } catch {
+        // Not a recognizable arg-default statement — skip rather than crash
+        // the whole docs build on an unexpected constructor shape.
+        return;
       }
       if (method && parentMethods.includes(method.split(".")[0])) {
         if (method.includes(".")) {
@@ -128,7 +153,11 @@ export default function (story, allMethods, stories) {
               d.params.length &&
               ((overrides.hasOwnProperty(d.name) &&
                 ancestorClasses.includes(d.memberof)) ||
-                d.memberof === name),
+                d.memberof === name ||
+                // BaseClass is the universal root every viz/shape/component
+                // extends; TypeDoc doesn't always flatten its methods (on,
+                // locale, …) into subclasses, so include them explicitly.
+                d.memberof === "BaseClass"),
           )
           .map(d => ({
             ...d.params[0],
@@ -188,6 +217,33 @@ export default function (story, allMethods, stories) {
     return obj;
   }, {});
 
+  // Merge in runtime config-accessor keys. Most component/shape/chart config
+  // (width, height, x, domain, title, ticks, …) is installed by `installFluent`
+  // at runtime, so TypeDoc never sees it as a class member and it's missing
+  // from the JSDoc-derived methods above. `configDefaults` maps each class to
+  // its `config()` surface (BaseClass's getAllMethods reflection). Add only the
+  // keys this class INTRODUCES (absent from its parent's surface) that aren't
+  // already documented JSDoc methods or hidden — parent keys arrive through the
+  // generated `assign(parentArgTypes, …)` import.
+  const ownConfig = configDefaults[name] || {};
+  const parentConfig = (parentClass && configDefaults[parentClass]) || {};
+  // Prefer this class's own config interface (Axis → AxisConfig) so shared key
+  // names like `title` read the right meaning; fall back to the cross-interface
+  // merge for inherited/universal keys (shape configs, D3plusConfig).
+  const ifaceSpecific = (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
+  const ifaceMerged = interfaceDocs.merged || {};
+  const hideRe = disabledMethods.length
+    ? new RegExp(`^(${disabledMethods.join("|")}.*)$`)
+    : null;
+  for (const key of Object.keys(ownConfig)) {
+    const cleanKey = key.replace(/\*/g, "");
+    if (cleanKey in parentConfig) continue;
+    if (formattedMethods[cleanKey]) continue;
+    if (hideRe && hideRe.test(cleanKey)) continue;
+    const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
+    formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
+  }
+
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
     /"([^"^.]+)":/g,
     "$1:",
@@ -236,6 +292,101 @@ ${methodJSON.replace(/^/gm, "  ")}
     : `export const argTypes = ${methodJSON};`
 }
 `;
+}
+
+/**
+ * Attaches the runtime default of an installFluent accessor (primitives +
+ * arrays only — functions/objects aren't editable defaults) to an argType.
+ */
+function withDefault(arg, value) {
+  const vt = Array.isArray(value) ? "array" : typeof value;
+  if (
+    value !== undefined &&
+    (vt === "number" || vt === "string" || vt === "boolean" || vt === "array")
+  ) {
+    arg.defaultValue = value;
+    arg.table = {
+      defaultValue: {summary: vt === "array" ? JSON.stringify(value) : String(value)},
+    };
+  } else {
+    arg.table = {defaultValue: {summary: "undefined"}};
+  }
+  return arg;
+}
+
+/**
+ * Builds a Storybook argType for an installFluent accessor.
+ *
+ * Prefers the typed config interface (`D3plusConfig`, `AxisConfig`, shape
+ * configs) when it documents the key (`doc.names` + `doc.description`): that
+ * yields a real control + description even when the runtime default is
+ * `undefined` (e.g. Axis `title`/`ticks`), reusing the same name→control
+ * mapping as JSDoc methods (incl. radio/select for string-literal unions).
+ * Otherwise it infers the control purely from the runtime value's type;
+ * functions/unset values get no control but are still listed so `configify`
+ * keeps story-set values and the key shows in the Code view.
+ */
+function configArgType(value, doc) {
+  if (doc && doc.names && doc.names.length) {
+    const types = doc.names.map(t => t.toLowerCase());
+    const arg = {
+      type: {required: false, summary: types.join(" | ")},
+      control: {type: undefined},
+      description: doc.description || "",
+    };
+    if (doc.names.some(isWrappedInQuotes)) {
+      const evals = [undefined, null, true, false].map(String);
+      arg.options = doc.names
+        .map(n =>
+          isWrappedInQuotes(n)
+            ? removeStartEndQuotes(n)
+            : evals.includes(n)
+              ? eval(n)
+              : false,
+        )
+        .filter(Boolean);
+      arg.control.type = arg.options.length < 5 ? "radio" : "select";
+    } else if (types.some(t => t === "object" || t.startsWith("record") || t.startsWith("array") || t.endsWith("[]")))
+      arg.control.type = "object";
+    else if (types.includes("number")) arg.control.type = "number";
+    else if (types.includes("string")) arg.control.type = "text";
+    else if (types.includes("boolean")) arg.control.type = "boolean";
+    // If the interface type didn't resolve to a control (e.g. an unexpanded
+    // type alias like `AxisScale`) but the runtime default is a primitive,
+    // infer the control from the value so it stays editable.
+    if (!arg.control.type) {
+      const vt = Array.isArray(value) ? "array" : typeof value;
+      if (vt === "number") arg.control.type = "number";
+      else if (vt === "string") arg.control.type = "text";
+      else if (vt === "boolean") arg.control.type = "boolean";
+      else if (vt === "array") arg.control.type = "object";
+    }
+    return withDefault(arg, value);
+  }
+
+  const t = Array.isArray(value)
+    ? "array"
+    : value === null
+      ? "null"
+      : typeof value;
+  const summary =
+    t === "array"
+      ? "array"
+      : t === "object"
+        ? "record"
+        : t === "undefined" || t === "null"
+          ? "unknown"
+          : t;
+  const arg = {
+    type: {required: false, summary},
+    control: {type: undefined},
+    description: "",
+  };
+  if (t === "number") arg.control.type = "number";
+  else if (t === "string") arg.control.type = "text";
+  else if (t === "boolean") arg.control.type = "boolean";
+  else if (t === "array" || t === "object") arg.control.type = "object";
+  return withDefault(arg, value);
 }
 
 const JSONstringifyOrder = (obj, space) => {

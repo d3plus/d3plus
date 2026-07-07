@@ -1,0 +1,50 @@
+{
+  "length": 5,
+  "nodes": [
+    {
+      "id": "Alpha",
+      "startAngle": 0,
+      "endAngle": 1.984,
+      "padAngle": 0,
+      "value": 30,
+      "share": 0.316,
+      "index": 0
+    },
+    {
+      "id": "Beta",
+      "startAngle": 1.984,
+      "endAngle": 3.439,
+      "padAngle": 0,
+      "value": 22,
+      "share": 0.232,
+      "index": 1
+    },
+    {
+      "id": "Gamma",
+      "startAngle": 3.439,
+      "endAngle": 4.63,
+      "padAngle": 0,
+      "value": 18,
+      "share": 0.189,
+      "index": 2
+    },
+    {
+      "id": "Delta",
+      "startAngle": 4.63,
+      "endAngle": 5.622,
+      "padAngle": 0,
+      "value": 15,
+      "share": 0.158,
+      "index": 3
+    },
+    {
+      "id": "Epsilon",
+      "startAngle": 5.622,
+      "endAngle": 6.283,
+      "padAngle": 0,
+      "value": 10,
+      "share": 0.105,
+      "index": 4
+    }
+  ]
+}

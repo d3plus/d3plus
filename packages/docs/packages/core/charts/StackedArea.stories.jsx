@@ -25,6 +25,8 @@ const Template = (args) => <StackedArea config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import {formatAbbreviate} from "@d3plus/format";
+
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
@@ -39,7 +41,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "Series stack on top of one another, so the total height at each `x` is the sum of all groups while each band shows its individual contribution."}}};
 
 export const HorizontalChart = Template.bind({});
 HorizontalChart.args = {
@@ -56,7 +58,7 @@ HorizontalChart.args = {
   x: "x",
   y: "y"
 };
-HorizontalChart.parameters = {controls: {include: ["discrete"]}};
+HorizontalChart.parameters = {controls: {include: ["discrete"]}, docs: {description: {story: "Switch the discrete axis to `\"y\"` to render the stack horizontally, with the areas extending along `x` instead of building upward."}}};
 
 export const SharePercentages = Template.bind({});
 SharePercentages.args = {
@@ -81,7 +83,7 @@ SharePercentages.args = {
       "d => `${formatAbbreviate(d * 100)}%`")
   }
 };
-SharePercentages.parameters = {controls: {include: ["stackOffset", "yConfig"]}};
+SharePercentages.parameters = {controls: {include: ["stackOffset", "yConfig"]}, docs: {description: {story: "Set `stackOffset: \"expand\"` to normalize every `x` position to 100%, turning the chart into a share-of-total view; `yConfig.tickFormat` then labels the axis as percentages."}}};
 
 export const SortingAreas = Template.bind({});
 SortingAreas.args = {
@@ -104,4 +106,4 @@ SortingAreas.args = {
   x: "x",
   y: "y"
 };
-SortingAreas.parameters = {controls: {include: ["stackOrder"]}};
+SortingAreas.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an explicit array to `stackOrder` to fix the bottom-to-top stacking sequence of the series rather than letting d3plus derive it."}}};

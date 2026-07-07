@@ -21,3 +21,35 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import sourceSnippet from "../../helpers/sourceSnippet.js";
+
+const values = [42, 1234, 1234567, 1234567890, 0.0042];
+
+export const BasicExample = () => (
+  <table style={{borderCollapse: "collapse", fontFamily: "monospace", fontSize: 14}}>
+    <thead>
+      <tr><th style={{textAlign: "right", padding: "4px 16px"}}>input</th><th style={{textAlign: "left", padding: "4px 16px"}}>formatAbbreviate(n)</th></tr>
+    </thead>
+    <tbody>
+      {values.map(v => (
+        <tr key={v}>
+          <td style={{textAlign: "right", padding: "4px 16px"}}>{v}</td>
+          <td style={{padding: "4px 16px", fontWeight: "bold"}}>{formatAbbreviate(v)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet(
+      "format",
+      "formatAbbreviate",
+      values.map(v => ({
+        call: `formatAbbreviate(${v})`,
+        result: JSON.stringify(formatAbbreviate(v)),
+      })),
+    ).docs,
+    description: {story: "Rounds each number to about three significant digits and appends an SI-style suffix, so `1234` reads as `1.23k`, `1234567` as `1.23M`, and `1234567890` as `1.23B`, while a small fraction like `0.0042` is left unabbreviated."},
+  },
+};

@@ -35,9 +35,51 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;"
       }
     },
-    render: {
+    active: {
       control: {},
-      description: "Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.",
+      description: "The active callback function for highlighting shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function | null"
+      }
+    },
+    activeOpacity: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.25,
+      description: "Opacity applied to non-active data points (default ~0.25).",
+      table: {
+        defaultValue: {
+          summary: "0.25"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    activeStyle: {
+      control: {},
+      description: "The style to apply to active shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    ariaLabel: {
+      control: {},
+      description: "ARIA label per datum (accessibility).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -45,7 +87,576 @@ export const argTypes = assign(
       },
       type: {
         required: false,
+        summary: "constoraccessor"
+      }
+    },
+    backgroundImage: {
+      control: {},
+      description: "Optional background image per datum (url or accessor returning a url).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    config: {
+      control: {},
+      description: "Narrowed `.config()` for Shape. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "partial"
+      }
+    },
+    data: {
+      control: {},
+      defaultValue: "[  ]",
+      description: "The data array used to create shapes. A shape will be drawn for each object in the array.",
+      table: {
+        defaultValue: {
+          summary: "[  ]"
+        }
+      },
+      type: {
+        required: true,
+        summary: "array.&lt;datapoint&gt;"
+      }
+    },
+    discrete: {
+      control: {
+        type: "radio"
+      },
+      description: "Discrete-axis key (\"x\" | \"y\") for charts that flip layout per axis.",
+      options: [
+        "x",
+        "y"
+      ],
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"x\" | \"y\""
+      }
+    },
+    duration: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 600,
+      description: "Animation duration in ms.",
+      table: {
+        defaultValue: {
+          summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    fill: {
+      control: {},
+      description: "Fill color or accessor returning one.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    fillOpacity: {
+      control: {},
+      description: "Fill opacity (0..1).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    hitArea: {
+      control: {
+        type: "object"
+      },
+      description: "Hit-area shape: function returning bounds or static bounds.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record | function"
+      }
+    },
+    hover: {
+      control: {},
+      description: "The hover callback function for highlighting shapes on mouseover.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function | null"
+      }
+    },
+    hoverOpacity: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.5,
+      description: "Opacity applied to non-hovered data points.",
+      table: {
+        defaultValue: {
+          summary: "0.5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    hoverStyle: {
+      control: {},
+      description: "The style to apply to hovered shapes.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    id: {
+      control: {},
+      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "accessorfn"
+      }
+    },
+    label: {
+      control: {},
+      description: "Label text(s) per datum. False/undefined skips.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    labelBounds: {
+      control: {
+        type: "object"
+      },
+      description: "Label-bounds accessor (where to mount the label).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record | function"
+      }
+    },
+    labelConfig: {
+      control: {},
+      description: "A pass-through to the config method of the TextBox class used to create a shape's labels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    locale: {
+      control: {
+        type: "object"
+      },
+      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | object"
+      }
+    },
+    on: {
+      control: {
+        type: "text"
+      },
+      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string"
+      }
+    },
+    opacity: {
+      control: {},
+      description: "Overall opacity (0..1).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    parent: {
+      control: {},
+      description: "Parent config used by the wrapper.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "unknown"
+      }
+    },
+    pointerEvents: {
+      control: {},
+      description: "SVG `pointer-events` attribute per datum.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    role: {
+      control: {},
+      description: "ARIA role per datum (accessibility).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    rotate: {
+      control: {},
+      description: "Rotation in degrees per datum.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    rx: {
+      control: {},
+      description: "SVG `rx` (rect rounded-corner x) — applies to Rect/Bar.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    ry: {
+      control: {},
+      description: "SVG `ry` (rect rounded-corner y) — applies to Rect/Bar.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    scale: {
+      control: {},
+      description: "Scale factor (1 = identity).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    select: {
+      control: {
+        type: "text"
+      },
+      description: "The SVG container element as a d3 selector or DOM element.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "string | htmlelement | svgelement | null"
+      }
+    },
+    shapeConfig: {
+      control: {},
+      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "d3plusconfig"
+      }
+    },
+    shapeRendering: {
+      control: {},
+      description: "SVG `shape-rendering` attribute per datum.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    sort: {
+      control: {},
+      description: "A comparator function used to sort shapes for layering order.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "function | null"
+      }
+    },
+    stroke: {
+      control: {},
+      description: "Stroke color.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    strokeDasharray: {
+      control: {},
+      description: "SVG `stroke-dasharray`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    strokeLinecap: {
+      control: {},
+      description: "SVG `stroke-linecap`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    strokeOpacity: {
+      control: {},
+      description: "SVG `stroke-opacity`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    strokeWidth: {
+      control: {},
+      description: "Stroke width in pixels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    textAnchor: {
+      control: {},
+      description: "SVG `text-anchor` for labels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    texture: {
+      control: {},
+      description: "Texture (per textures.js) — name string or full config.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    textureDefault: {
+      control: {},
+      description: "A series of global texture methods to be used for all textures (ie. `{stroke: \"darkorange\", strokeWidth: 2}`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    translate: {
+      control: {},
+      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
         summary: "function"
+      }
+    },
+    vectorEffect: {
+      control: {},
+      description: "SVG `vector-effect` (e.g. \"non-scaling-stroke\").",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    verticalAlign: {
+      control: {},
+      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    x: {
+      control: {},
+      description: "X position.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    y: {
+      control: {},
+      description: "Y position.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
       }
     }
   }

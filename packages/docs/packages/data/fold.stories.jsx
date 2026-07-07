@@ -21,3 +21,23 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import FunctionExample from "../../helpers/FunctionExample.jsx";
+import sourceSnippet from "../../helpers/sourceSnippet.js";
+import stringify from "../../helpers/stringify.js";
+
+const input = {headers: ["year", "apples", "bananas"], data: [[2020, 5, 8], [2021, 7, 6]]};
+// stringify mangles arrays-of-arrays, so hand-format the headers/data matrix.
+const inputStr = `{
+  headers: [${input.headers.map(h => `"${h}"`).join(", ")}],
+  data: [${input.data.map(row => `[${row.join(", ")}]`).join(", ")}]
+}`;
+const call = `fold(${inputStr})`;
+const result = stringify(fold(input));
+
+export const BasicExample = () => <FunctionExample input={call} output={result} />;
+BasicExample.parameters = {
+  docs: {
+    ...sourceSnippet("data", "fold", [{call, result}]).docs,
+    description: {story: "Zips the flat `headers` array against each row of `data`, emitting one object per row keyed by header — the first row becomes `{year: 2020, apples: 5, bananas: 8}`."},
+  },
+};

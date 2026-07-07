@@ -1,0 +1,107 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Interactivity" />
+
+# Interactivity
+
+D3plus charts are interactive out of the box: hovering a shape highlights it and
+shows a tooltip, and a legend lets viewers toggle series. Everything below works
+identically on the SVG and Canvas backends.
+
+## Tooltips
+
+Tooltips are on by default. Turn them off with `tooltip: false`, or customize
+their contents and styling with `tooltipConfig` (a
+[Tooltip](/?path=/docs/core-components-tooltip--docs) configuration):
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  tooltipConfig: {
+    title: d => d.region,
+    tbody: [
+      ["Quarter", d => d.quarter],
+      ["Revenue", d => `$${d.revenue}M`]
+    ]
+  }
+}} />
+```
+
+## Pointer events
+
+Register handlers through the `on` config key. Event names mirror
+[d3-selection](https://github.com/d3/d3-selection#selection_on) and may carry a
+namespace to scope the handler — `.shape` for data marks, `.legend` for legend
+entries:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  on: {
+    "click.shape": d => console.log("clicked", d),
+    "mouseenter.shape": d => console.log("hover", d)
+  }
+}} />
+```
+
+Supported events include `click`, `mouseenter`, `mouseleave`, and `mousemove`.
+The handler receives the datum; `this` is bound to the rendered element.
+
+## Highlighting a series
+
+`highlight` applies a *standing* emphasis: pass a predicate and every matching
+mark keeps its color while the rest fade to a neutral gray. Unlike `hover` or
+`active`, it persists — it doesn't clear when the pointer moves — so it's ideal
+for drawing attention to one series:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  highlight: d => d.region === "North"   // North stays colored; others gray out
+}} />
+```
+
+Pass `false` or `null` to clear the highlight. See the
+[BarChart highlight example](/?path=/docs/core-charts-barchart--docs).
+
+## Legend
+
+A legend is shown automatically for grouped data. Clicking an entry toggles that
+series; hovering highlights it. Control it with `legend` and `legendConfig`:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  legend: true,                 // false to hide
+  legendConfig: {title: "Region"}
+}} />
+```
+
+## Timeline
+
+Adding a `time` accessor enables a timeline beneath the chart. Viewers can scrub
+or play through time periods, and the chart filters to the selected window:
+
+```jsx
+<LinePlot config={{
+  data,                          // rows that include a "year" field
+  groupBy: "series",
+  x: "year", y: "value",
+  time: "year",
+  timelineConfig: {playButton: true}
+}} />
+```
+
+Set `timeline: false` to keep the `time` filtering behavior without rendering the
+timeline control.
+
+When points move between periods as the timeline plays, they leave **motion
+trails** by default, and `trailPersist` can keep the whole path visible. See
+**Guides → Animation**.
+
+## Zoom & pan
+
+Geomap and Network support zoom/pan with on-canvas controls. Toggle and tune
+them with `zoom` and related keys — see the
+[Geomap](/?path=/docs/core-charts-geomap--docs) examples for custom zoom,
+disabling zoom, and zoom limits.

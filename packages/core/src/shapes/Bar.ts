@@ -1,31 +1,25 @@
+import type {BaseType, Selection} from "d3-selection";
+
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
 
+import type {BarConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** Bar's own fluent accessor schema, layered on top of Shape's. */
+const barSchema: ConfigField[] = [
+  {key: "height", coerce: "accessor", default: constant(10)},
+  {key: "width", coerce: "accessor", default: constant(10)},
+];
 
 /**
     Creates SVG areas based on an array of data.
 */
 export default class Bar extends Shape {
-  _height: AccessorFn;
-  declare _labelBounds:
-    | ((
-        d: DataPoint,
-        i: number,
-        aes: ShapeAes,
-      ) => Record<string, unknown> | null | false)
-    | null;
-  declare _name: string;
-  _width: AccessorFn;
-  declare _x: AccessorFn;
-  _x0: AccessorFn;
-  _x1: AccessorFn | null;
-  declare _y: AccessorFn;
-  _y0: AccessorFn;
-  _y1: AccessorFn | null;
-
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private
@@ -33,77 +27,46 @@ export default class Bar extends Shape {
   constructor() {
     super("rect");
 
+    installFluent(this, barSchema);
+
     this._name = "Bar";
-    this._height = constant(10);
-    this._labelBounds = (
-      d: DataPoint,
-      i: number,
-      s: ShapeAes,
-    ) => ({
+    this.schema.labelBounds = (d: DataPoint, i: number, s: ShapeAes) => ({
       width: s.width,
       height: s.height,
-      x: this._x1 !== null ? this._getX(d, i) : -(s.width as number) / 2,
-      y: this._x1 === null ? this._getY(d, i) : -(s.height as number) / 2,
+      x: this.schema.x1 !== null ? this._getX(d, i) : -(s.width as number) / 2,
+      y: this.schema.x1 === null ? this._getY(d, i) : -(s.height as number) / 2,
     });
-    this._width = constant(10);
-    this._x = accessor("x");
-    this._x0 = accessor("x");
-    this._x1 = null;
-    this._y = constant(0);
-    this._y0 = constant(0);
-    this._y1 = accessor("y");
+    // Bar labels are horizontally centered inside their bar (vs. Shape's
+    // "start" default used by Treemap/Pie/etc.). Pre-merged into the
+    // Shape.labelConfig defaults so plotPaint's userConfig override
+    // path doesn't have to know about it.
+    Object.assign(this.schema.labelConfig, {textAnchor: "middle"});
+    this.schema.x = accessor("x");
+    this.schema.x0 = accessor("x");
+    this.schema.x1 = null;
+    this.schema.y = constant(0);
+    this.schema.y0 = constant(0);
+    this.schema.y1 = accessor("y");
   }
 
+  // v4: render() is inherited from Shape — the scene path handles drawing.
+
   /**
-      Draws the bars.
-    @param callback Optional callback invoked after rendering completes.
+      Returns the bar geometry for a data point, matching _applyPosition: width/height
+      from the x/y extents, with the rect centered on the transform origin along the
+      non-measure axis.
+      @private
 */
-  render(callback?: () => void): this {
-    super.render(callback);
-
-    let enter: D3Selection = this._enter
-      .attr("width", (d: DataPoint, i: number) =>
-        this._x1 === null ? this._getWidth(d, i) : 0,
-      )
-      .attr("height", (d: DataPoint, i: number) =>
-        this._x1 !== null ? this._getHeight(d, i) : 0,
-      )
-      .attr("x", (d: DataPoint, i: number) =>
-        this._x1 === null ? -this._getWidth(d, i) / 2 : 0,
-      )
-      .attr("y", (d: DataPoint, i: number) =>
-        this._x1 !== null ? -this._getHeight(d, i) / 2 : 0,
-      )
-      .call(this._applyStyle.bind(this));
-
-    let update: D3Selection = this._update;
-
-    if (this._duration) {
-      enter = enter.transition(this._transition) as unknown as D3Selection;
-      update = update.transition(this._transition) as unknown as D3Selection;
-      this._exit
-        .transition(this._transition)
-        .attr("width", (d: DataPoint, i: number) =>
-          this._x1 === null ? this._getWidth(d, i) : 0,
-        )
-        .attr("height", (d: DataPoint, i: number) =>
-          this._x1 !== null ? this._getHeight(d, i) : 0,
-        )
-        .attr("x", (d: DataPoint, i: number) =>
-          this._x1 === null ? -this._getWidth(d, i) / 2 : 0,
-        )
-        .attr("y", (d: DataPoint, i: number) =>
-          this._x1 !== null ? -this._getHeight(d, i) / 2 : 0,
-        );
-    }
-
-    enter.call(this._applyPosition.bind(this));
-
-    update
-      .call(this._applyStyle.bind(this))
-      .call(this._applyPosition.bind(this));
-
-    return this;
+  _sceneGeometry(d: DataPoint, i: number): Record<string, unknown> {
+    const w = this._getWidth(d, i);
+    const h = this._getHeight(d, i);
+    return {
+      type: "rect",
+      x: this.schema.x1 !== null ? this._getX(d, i) : -w / 2,
+      y: this.schema.x1 === null ? this._getY(d, i) : -h / 2,
+      width: w,
+      height: h,
+    };
   }
 
   /**
@@ -123,15 +86,14 @@ export default class Bar extends Shape {
       @param elem @private
 */
   _applyPosition(elem: D3Selection): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (elem as any)
+    (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
       .attr("width", (d: DataPoint, i: number) => this._getWidth(d, i))
       .attr("height", (d: DataPoint, i: number) => this._getHeight(d, i))
       .attr("x", (d: DataPoint, i: number) =>
-        this._x1 !== null ? this._getX(d, i) : -this._getWidth(d, i) / 2,
+        this.schema.x1 !== null ? this._getX(d, i) : -this._getWidth(d, i) / 2,
       )
       .attr("y", (d: DataPoint, i: number) =>
-        this._x1 === null ? this._getY(d, i) : -this._getHeight(d, i) / 2,
+        this.schema.x1 === null ? this._getY(d, i) : -this._getHeight(d, i) / 2,
       );
   }
 
@@ -141,8 +103,10 @@ export default class Bar extends Shape {
       @private
 */
   _getHeight(d: DataPoint, i: number): number {
-    if (this._x1 !== null) return this._height(d, i) as number;
-    return Math.abs((this._y1!(d, i) as number) - (this._y(d, i) as number));
+    if (this.schema.x1 !== null) return this.schema.height(d, i) as number;
+    return Math.abs(
+      (this.schema.y1(d, i) as number) - (this.schema.y(d, i) as number),
+    );
   }
 
   /**
@@ -151,8 +115,10 @@ export default class Bar extends Shape {
       @private
 */
   _getWidth(d: DataPoint, i: number): number {
-    if (this._x1 === null) return this._width(d, i) as number;
-    return Math.abs((this._x1!(d, i) as number) - (this._x(d, i) as number));
+    if (this.schema.x1 === null) return this.schema.width(d, i) as number;
+    return Math.abs(
+      (this.schema.x1(d, i) as number) - (this.schema.x(d, i) as number),
+    );
   }
 
   /**
@@ -162,9 +128,9 @@ export default class Bar extends Shape {
 */
   _getX(d: DataPoint, i: number): number {
     const w =
-      this._x1 === null
-        ? (this._x(d, i) as number)
-        : (this._x1!(d, i) as number) - (this._x(d, i) as number);
+      this.schema.x1 === null
+        ? (this.schema.x(d, i) as number)
+        : (this.schema.x1(d, i) as number) - (this.schema.x(d, i) as number);
     if (w < 0) return w;
     else return 0;
   }
@@ -176,43 +142,11 @@ export default class Bar extends Shape {
 */
   _getY(d: DataPoint, i: number): number {
     const h =
-      this._x1 !== null
-        ? (this._y(d, i) as number)
-        : (this._y1!(d, i) as number) - (this._y(d, i) as number);
+      this.schema.x1 !== null
+        ? (this.schema.y(d, i) as number)
+        : (this.schema.y1(d, i) as number) - (this.schema.y(d, i) as number);
     if (h < 0) return h;
     else return 0;
-  }
-
-  /**
-      The height accessor for each bar.
-
-@example
-function(d) {
-  return d.height;
-}
-*/
-  height(): AccessorFn;
-  height(_: AccessorFn | number): this;
-  height(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._height = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._height;
-  }
-
-  /**
-      The width accessor for each bar.
-
-@example
-function(d) {
-  return d.width;
-}
-*/
-  width(): AccessorFn;
-  width(_: AccessorFn | number): this;
-  width(_?: AccessorFn | number): AccessorFn | this {
-    return arguments.length
-      ? ((this._width = typeof _ === "function" ? _ : constant(_) as unknown as AccessorFn), this)
-      : this._width;
   }
 
   /**
@@ -221,10 +155,9 @@ function(d) {
   x0(): AccessorFn;
   x0(_: AccessorFn | number): this;
   x0(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._x0;
-    this._x0 =
-      typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn);
-    this._x = this._x0;
+    if (!arguments.length) return this.schema.x0;
+    this.schema.x0 = typeof _ === "function" ? _ : constant(_);
+    this.schema.x = this.schema.x0;
     return this;
   }
 
@@ -235,14 +168,10 @@ function(d) {
   x1(_: AccessorFn | number | null): this;
   x1(_?: AccessorFn | number | null): AccessorFn | null | this {
     return arguments.length
-      ? ((this._x1 =
-          typeof _ === "function"
-            ? _
-            : _ === null
-              ? null
-              : (constant(_) as unknown as AccessorFn)),
+      ? ((this.schema.x1 =
+          typeof _ === "function" ? _ : _ === null ? null : constant(_)),
         this)
-      : this._x1;
+      : this.schema.x1;
   }
 
   /**
@@ -251,10 +180,9 @@ function(d) {
   y0(): AccessorFn;
   y0(_: AccessorFn | number): this;
   y0(_?: AccessorFn | number): AccessorFn | this {
-    if (!arguments.length) return this._y0;
-    this._y0 =
-      typeof _ === "function" ? _ : (constant(_) as unknown as AccessorFn);
-    this._y = this._y0;
+    if (!arguments.length) return this.schema.y0;
+    this.schema.y0 = typeof _ === "function" ? _ : constant(_);
+    this.schema.y = this.schema.y0;
     return this;
   }
 
@@ -265,13 +193,22 @@ function(d) {
   y1(_: AccessorFn | number | null): this;
   y1(_?: AccessorFn | number | null): AccessorFn | null | this {
     return arguments.length
-      ? ((this._y1 =
-          typeof _ === "function"
-            ? _
-            : _ === null
-              ? null
-              : (constant(_) as unknown as AccessorFn)),
+      ? ((this.schema.y1 =
+          typeof _ === "function" ? _ : _ === null ? null : constant(_)),
         this)
-      : this._y1;
+      : this.schema.y1;
+  }
+
+  /**
+      Narrowed `.config()` for Bar. Inherited surface from
+      `BaseClass.config()`; the override exists only to surface per-shape
+      keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
+  */
+  config(): BarConfig;
+  config(_: Partial<BarConfig>): this;
+  config(_?: Partial<BarConfig>): BarConfig | this {
+    if (!arguments.length) return super.config() as BarConfig;
+    super.config(_!);
+    return this;
   }
 }

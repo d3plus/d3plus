@@ -1,0 +1,75 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Color" />
+
+# Color
+
+D3plus assigns colors automatically, and its defaults are tuned for colorblind
+accessibility. This page covers the palette, color scales, and the color
+utilities in `@d3plus/color`.
+
+## The default palette
+
+Categorical series are colored from a built-in palette whose eight primary slots
+are chosen to:
+
+- sit within a controlled **OKLCH lightness** band,
+- clear a **chroma floor** (so no slot is muddy), and
+- stay **distinct under protanopia, deuteranopia, and tritanopia**.
+
+The slot order is the colorblind-safety mechanism, so the earliest series are the
+most distinguishable from one another. Override any assignment with the `color`
+accessor or `shapeConfig.fill`.
+
+## Ordered categories
+
+For a categorical field that is actually *ordered* (low → high, small → large),
+set `colorOrdinal: true` to color it with a single-hue light→dark ramp instead of
+nominal hues:
+
+```jsx
+<BarChart config={{data, groupBy: "grade", x: "grade", y: "count", color: "grade", colorOrdinal: true}} />
+```
+
+## Continuous & diverging scales
+
+To encode a continuous measure, set `colorScale` (see **Guides → Theming** for
+`colorScaleConfig` and positioning). By default a continuous scale steps through a
+single blue hue (darker = larger) and a diverging scale runs blue↔gray↔red — warm
+and cool poles that stay distinct under CVD. Pass a `color` array to
+`colorScaleConfig` to override. Explore the scale types on the
+[ColorScale](/?path=/docs/core-components-colorscale--docs) page.
+
+## colorRamp
+
+`colorRamp` builds an even, single-hue light→dark ramp in OKLab. Because it holds
+the hue, the pale end keeps its identity instead of drifting toward white:
+
+```js
+import { colorRamp } from "@d3plus/color";
+
+colorRamp("#4269d0", 6); // six evenly-spaced steps from light to dark blue
+```
+
+## colorValidate
+
+`colorValidate` checks a palette against the same accessibility criteria the
+default palette is held to — OKLCH lightness band, chroma floor, colorblind
+(protan/deutan/tritan ΔE) separation, and WCAG contrast against the surface — and
+returns a pass / warn / fail report. Use it to verify your own palette:
+
+```js
+import { colorValidate } from "@d3plus/color";
+
+colorValidate(["#4269d0", "#efb118", "#ff725c"]);
+```
+
+See the [colorValidate](/?path=/docs/color-colorvalidate--docs) and
+[colorRamp](/?path=/docs/color-colorramp--docs) examples.
+
+## Text contrast
+
+Label text color is chosen automatically for legibility: `colorContrast` returns
+whichever text token has the higher WCAG contrast ratio against the background,
+and `colorLegible` darkens a color so it stays readable on a light surface. See
+**Guides → Accessibility** for details.

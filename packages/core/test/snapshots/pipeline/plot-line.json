@@ -1,0 +1,132 @@
+{
+  "formatted": [
+    {
+      "id": "S1",
+      "x": 1,
+      "y": 10,
+      "shape": "Line",
+      "discrete": "1",
+      "group": "time_S1"
+    },
+    {
+      "id": "S2",
+      "x": 1,
+      "y": 25,
+      "shape": "Line",
+      "discrete": "1",
+      "group": "time_S2"
+    },
+    {
+      "id": "S1",
+      "x": 2,
+      "y": 22,
+      "shape": "Line",
+      "discrete": "2",
+      "group": "time_S1"
+    },
+    {
+      "id": "S2",
+      "x": 2,
+      "y": 18,
+      "shape": "Line",
+      "discrete": "2",
+      "group": "time_S2"
+    },
+    {
+      "id": "S1",
+      "x": 3,
+      "y": 15,
+      "shape": "Line",
+      "discrete": "3",
+      "group": "time_S1"
+    },
+    {
+      "id": "S2",
+      "x": 3,
+      "y": 32,
+      "shape": "Line",
+      "discrete": "3",
+      "group": "time_S2"
+    }
+  ],
+  "axisValues": {
+    "xData": [
+      1,
+      2,
+      3
+    ],
+    "x2Data": [],
+    "yData": [
+      10,
+      15,
+      18,
+      22,
+      25,
+      32
+    ],
+    "y2Data": []
+  },
+  "initialDomains": {
+    "x": [
+      1,
+      2,
+      3
+    ],
+    "x2": [],
+    "y": [
+      10,
+      32
+    ],
+    "y2": [
+      null,
+      null
+    ]
+  },
+  "scales": {
+    "x": {
+      "domain": [
+        1,
+        2,
+        3
+      ],
+      "range": [
+        0,
+        200
+      ]
+    },
+    "y": {
+      "domain": [
+        32,
+        10
+      ],
+      "range": [
+        0,
+        300
+      ]
+    },
+    "x2": {
+      "domain": [],
+      "range": [
+        null,
+        null
+      ]
+    },
+    "y2": {
+      "domain": [
+        null,
+        null
+      ],
+      "range": [
+        0,
+        300
+      ]
+    }
+  },
+  "configScales": {
+    "xConfigScale": "point",
+    "yConfigScale": "linear",
+    "x2ConfigScale": "point",
+    "y2ConfigScale": "linear"
+  },
+  "opp": "y"
+}

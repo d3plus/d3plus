@@ -4,11 +4,35 @@ import type {VirtualElement} from "@floating-ui/dom";
 
 import {colorContrast, colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {elem, stylize} from "@d3plus/dom";
+import {assign, elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
+import {installFluent} from "../fluent.js";
+import type {ConfigField} from "../fluent.js";
+
+/** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+const tooltipSchema: ConfigField[] = [
+  {key: "arrow", coerce: "const", default: accessor("arrow", "")},
+  {key: "background", coerce: "const", default: constant(colorDefaults.light)},
+  {key: "body", coerce: "const", default: accessor("body", "")},
+  {key: "border", coerce: "const", default: constant("1px solid rgba(0, 0, 0, 0.25)")},
+  {key: "borderRadius", coerce: "const", default: constant("4px")},
+  {key: "className", coerce: "identity", default: "d3plus-tooltip"},
+  {key: "footer", coerce: "const", default: accessor("footer", "")},
+  {key: "height", coerce: "const", default: constant("auto")},
+  {key: "id", coerce: "const", default: (d: DataPoint, i: number) => `${i}`},
+  {key: "offset", coerce: "const", default: constant(5)},
+  {key: "padding", coerce: "const", default: constant("10px")},
+  {key: "pointerEvents", coerce: "const", default: constant("auto")},
+  {key: "tbody", coerce: "identity", default: []},
+  {key: "thead", coerce: "identity", default: []},
+  {key: "title", coerce: "const", default: accessor("title", "")},
+  {key: "maxWidth", coerce: "const", default: constant("300px")},
+  {key: "minWidth", coerce: "const", default: constant("200px")},
+  {key: "width", coerce: "const", default: constant("auto")},
+];
 
 /**
  * Creates a virtual reference element for Floating UI.
@@ -45,6 +69,11 @@ async function positionTooltip(
   arrowHeight: number,
 ) {
   const {x, y, placement, middlewareData} = await computePosition(reference, tooltip, {
+    // `fixed` positions the tooltip against the viewport, so it can overflow
+    // its chart's bounds and `flip`/`shift` keep it inside the viewport
+    // (not the chart container). Pairs with the body-level portal in
+    // `resolvePortal` and `position: fixed` below.
+    strategy: "fixed",
     placement: "top",
     middleware: [
       offset(offsetVal + arrowDistance),
@@ -55,7 +84,7 @@ async function positionTooltip(
   });
 
   Object.assign(tooltip.style, {
-    position: "absolute",
+    position: "fixed",
     left: `${x}px`,
     top: `${y}px`,
     visibility: "visible",
@@ -76,42 +105,227 @@ async function positionTooltip(
 }
 
 /**
+    Resolves the portal selection the tooltips mount into: a per-instance
+    `.d3plus-tooltip-portal` appended to `<body>`, or the global portal div.
+*/
+function resolvePortal(that: Tooltip): D3Selection {
+  // Default behavior — append to body via the global #d3plus-portal —
+  // preserved when parent() isn't set.
+  if (!that._parentEl) return elem("div#d3plus-portal");
+  // Per-instance portal: each Tooltip owns its own `.d3plus-tooltip-portal`.
+  // It's mounted on `<body>` (not inside `_parentEl`) so the tooltip lives at
+  // the viewport level — free to overflow its chart's bounds and immune to
+  // styling/clipping from the chart's container (e.g. a docs page reset).
+  // `_parentEl` (set via parent()) still scopes ownership so multiple charts
+  // on a page each get their own portal rather than fighting over one.
+  let host = that._portalEl ?? null;
+  if (!host || !host.isConnected) {
+    host = document.createElement("div");
+    host.setAttribute("class", "d3plus-tooltip-portal");
+    host.style.position = "fixed";
+    host.style.top = "0";
+    host.style.left = "0";
+    host.style.width = "0";
+    host.style.height = "0";
+    host.style.pointerEvents = "none";
+    document.body.appendChild(host);
+    that._portalEl = host;
+  }
+  return select(host) as unknown as D3Selection;
+}
+
+/**
+    Creates DIV elements with a unique class and styles.
+    @private
+*/
+function divElement(
+  that: Tooltip,
+  enter: D3Selection,
+  update: D3Selection,
+  cat: string,
+): void {
+  enter
+    .append("div")
+    .attr("class", `d3plus-tooltip-${cat}`)
+    .attr(
+      "id",
+      ((d: DataPoint, i: number) =>
+        `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`) as never,
+    );
+
+  const div = update
+    .select(`.d3plus-tooltip-${cat}`)
+    .html(
+      ((d: DataPoint, i: number) =>
+        (
+          that.schema as Record<
+            string,
+            (d: DataPoint, i: number) => unknown
+          >
+        )[cat](d, i) as string) as never,
+    )
+    .style("display", ((d: DataPoint, i: number) => {
+      const val = (
+        that.schema as Record<
+          string,
+          (d: DataPoint, i: number) => unknown
+        >
+      )[cat](d, i);
+      const visible = val !== false && val !== undefined && val !== null;
+      return visible ? "block" : "none";
+    }) as never);
+
+  stylize(
+    div,
+    (that.schema as Record<string, Record<string, string>>)[
+      `${cat}Style`
+    ],
+  );
+}
+
+/**
+    Sets styles for both enter and update.
+    @private
+*/
+function boxStyles(that: Tooltip, box: D3Selection): void {
+  box
+    .style("background", that.schema.background as never)
+    .style("border-radius", that.schema.borderRadius as never)
+    .style("pointer-events", that.schema.pointerEvents as never)
+    .style("padding", that.schema.padding as never)
+    .style("max-width", that.schema.maxWidth as never)
+    .style("min-width", that.schema.minWidth as never)
+    .style("width", that.schema.width as never)
+    .style("height", that.schema.height as never)
+    .style("border", that.schema.border as never);
+}
+
+/**
+    Builds the tooltip table (thead + tbody) from the configured columns/rows.
+    @private
+*/
+function buildTable(
+  that: Tooltip,
+  enter: D3Selection,
+  update: D3Selection,
+  cellContent: (this: HTMLElement, d: unknown) => string,
+): void {
+  const tableEnter = enter
+    .append("table")
+    .attr("class", "d3plus-tooltip-table");
+  const table = update.select(".d3plus-tooltip-table");
+  stylize(table, that.schema.tableStyle);
+
+  tableEnter.append("thead").attr("class", "d3plus-tooltip-thead");
+  const tableHead = update.select(".d3plus-tooltip-thead");
+  stylize(tableHead, that.schema.theadStyle);
+  const theadTr = tableHead.selectAll("tr").data([0]);
+  const theadTrEnter = theadTr.enter().append("tr");
+  theadTr.exit().remove();
+  const theadTrUpdate = theadTr.merge(theadTrEnter as never);
+  stylize(theadTrUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  const th = theadTrUpdate.selectAll("th").data(that.schema.thead);
+  th.enter()
+    .append("th")
+    .merge(th as never)
+    .html(cellContent as never);
+  th.exit().remove();
+
+  tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
+  const tableBody = update.select(".d3plus-tooltip-tbody");
+  stylize(tableBody, that.schema.tbodyStyle);
+  const tr = tableBody.selectAll("tr").data(that.schema.tbody);
+  const trEnter = tr.enter().append("tr");
+  tr.exit().remove();
+  const trUpdate = tr.merge(trEnter as never);
+  stylize(trUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
+  td.enter()
+    .append("td")
+    .merge(td as never)
+    .html(cellContent as never);
+  stylize(td, that.schema.tdStyle);
+}
+
+/**
+    Binds enter/update/exit: assigns ids, positions each tooltip via Floating
+    UI, refreshes positions on update, and cleans up refs on exit.
+    @private
+*/
+function bindTooltips(
+  that: Tooltip,
+  enter: D3Selection,
+  update: D3Selection,
+  tooltips: D3Selection,
+): void {
+  enter
+    .attr(
+      "id",
+      ((d: DataPoint, i: number) =>
+        `d3plus-tooltip-${d ? that.schema.id(d, i) : ""}`) as never,
+    )
+    .style("visibility", "hidden")
+    .call(box => boxStyles(that, box as never))
+    .each(function (this: unknown, d: DataPoint, i: number) {
+      const id = that.schema.id(d, i);
+      const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
+      const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
+      const arrowHeight = arrowEl.offsetHeight;
+      const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
+      arrowEl.style.bottom = `-${arrowHeight / 2}px`;
+
+      const position = that.schema.position(d, i);
+      const reference: VirtualElement | HTMLElement = Array.isArray(position)
+        ? generateReference(position)
+        : position as HTMLElement;
+
+      that._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
+      positionTooltip(reference, tooltip, arrowEl, that.schema.offset(d, i), arrowDistance, arrowHeight);
+    } as never);
+
+  update
+    .each(function (this: unknown, d: DataPoint, i: number) {
+      const id = that.schema.id(d, i);
+      const position = that.schema.position(d, i);
+      const ref = that._tooltipRefs[id];
+
+      if (ref) {
+        ref.reference = Array.isArray(position)
+          ? generateReference(position as number[])
+          : position as HTMLElement;
+        positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that.schema.offset(d, i), ref.arrowDistance, ref.arrowHeight);
+      }
+    } as never)
+    .call(box => boxStyles(that, box as never));
+
+  tooltips
+    .exit()
+    .each(function (this: unknown, d: unknown, i: number) {
+      const id = that.schema.id(d as DataPoint, i);
+      delete that._tooltipRefs[id];
+    })
+    .remove();
+}
+
+/**
     Creates HTML tooltips in the body of a webpage.
 */
 export default class Tooltip extends BaseClass {
-  _arrow: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _arrowStyle: Record<string, string>;
-  _background: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _body: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _bodyStyle: Record<string, string>;
-  _border: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _borderRadius: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _className: string;
+  // installFluent generates the config accessors (arrow, background, …) at
+  // runtime; the index signature lets callers reach them through the type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   _data: DataPoint[];
-  _footer: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _footerStyle: Record<string, string>;
-  _height: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _id: (d: DataPoint, i: number) => string;
-   
-  _offset: (d: DataPoint, i?: number) => number;
-  _padding: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _pointerEvents: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
+  /** v4: optional per-chart parent element (default: global #d3plus-portal). */
+  _parentEl?: HTMLElement;
+  /**
+   * v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to
+   * `<body>`). Tracked per-instance so that charts each own a distinct portal
+   * — and so `parent()` switches only remove THIS instance's portal, not a
+   * sibling Tooltip's.
+   */
+  _portalEl?: HTMLElement;
   _tooltipRefs: Record<string, {reference: VirtualElement | HTMLElement; arrowEl: HTMLElement; tooltip: HTMLElement; arrowHeight: number; arrowDistance: number}>;
-  _position: (d: DataPoint, i?: number) => number[] | HTMLElement;
-  _tableStyle: Record<string, string>;
-  _tbody: unknown[];
-  _tbodyStyle: Record<string, string>;
-  _thead: unknown[];
-  _theadStyle: Record<string, string>;
-  _title: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _titleStyle: Record<string, string>;
-  _tooltipStyle: Record<string, string>;
-   
-  _trStyle: Record<string, unknown>;
-  _tdStyle: Record<string, string>;
-  _maxWidth: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _minWidth: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  _width: (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -119,9 +333,12 @@ export default class Tooltip extends BaseClass {
 */
   constructor() {
     super();
+    installFluent(this, tooltipSchema);
 
-    this._arrow = accessor("arrow", "");
-    this._arrowStyle = {
+    this._data = [];
+    this._tooltipRefs = {};
+
+    this.schema.arrowStyle = {
       content: "",
       background: "inherit",
       border: "inherit",
@@ -131,67 +348,48 @@ export default class Tooltip extends BaseClass {
       transform: "rotate(45deg)",
       width: "10px",
     };
-    this._background = constant(colorDefaults.light);
-    this._body = accessor("body", "");
-    this._bodyStyle = {
+    this.schema.bodyStyle = {
       "font-size": "12px",
       "font-weight": "400",
       "z-index": "1",
     };
-    this._border = constant("1px solid rgba(0, 0, 0, 0.25)");
-    this._borderRadius = constant("4px");
-    this._className = "d3plus-tooltip";
-    this._data = [];
-    this._footer = accessor("footer", "");
-    this._footerStyle = {
+    this.schema.footerStyle = {
       "font-size": "9px",
       "font-weight": "400",
       "margin-top": "5px",
       "z-index": "1",
     };
-    this._height = constant("auto");
-    this._id = (d: DataPoint, i: number) => `${i}`;
-    this._offset = constant(5);
-    this._padding = constant("10px");
-    this._pointerEvents = constant("auto");
-    this._tooltipRefs = {};
-    this._position = (d: DataPoint) => [d.x as number, d.y as number];
-    this._tableStyle = {
+    this.schema.position = (d: DataPoint) => [d.x as number, d.y as number];
+    this.schema.tableStyle = {
       "border-collapse": "collapse",
       "border-spacing": "0",
       width: "100%",
     };
-    this._tbody = [];
-    this._tbodyStyle = {
+    this.schema.tbodyStyle = {
       "font-size": "12px",
       "text-align": "center",
     };
-    this._thead = [];
-    this._theadStyle = {
+    this.schema.theadStyle = {
       "font-size": "12px",
       "font-weight": "600",
       "text-align": "center",
     };
-    this._title = accessor("title", "");
-    this._titleStyle = {
+    this.schema.titleStyle = {
       "font-size": "14px",
       "font-weight": "600",
       "margin-bottom": "5px",
       "text-align": "center"
     };
-    this._tooltipStyle = {
+    this.schema.tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
-      color: ((d: DataPoint, i: number) => colorContrast(this._background(d, i) as string)) as unknown as string,
+      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string)) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
-    this._trStyle = {
+    this.schema.trStyle = {
       "border-top": (d: unknown, i: number) =>
         i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
     };
-    this._tdStyle = {};
-    this._maxWidth = constant("200px");
-    this._minWidth = constant("100px");
-    this._width = constant("auto");
+    this.schema.tdStyle = {};
   }
 
   /**
@@ -201,60 +399,15 @@ export default class Tooltip extends BaseClass {
   render(callback?: (...args: unknown[]) => unknown): this {
     const that = this;
 
-    const portal = elem("div#d3plus-portal");
+    const portal = resolvePortal(this);
     const tooltips = portal
-      .selectAll(`.${this._className}`)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .data(this._data, this._id as any);
+      .selectAll(`.${this.schema.className}`)
+      .data(this._data, this.schema.id) as unknown as D3Selection;
 
-    const enter = tooltips.enter().append("div").attr("class", this._className);
+    const enter = tooltips.enter().append("div").attr("class", this.schema.className) as unknown as D3Selection;
 
-    const update = tooltips.merge(enter as never);
-    stylize(update, this._tooltipStyle);
-
-    /**
-        Creates DIV elements with a unique class and styles.
-        @private
-*/
-    function divElement(cat: string): void {
-      enter
-        .append("div")
-        .attr("class", `d3plus-tooltip-${cat}`)
-        .attr(
-          "id",
-          (d: DataPoint, i: number) =>
-            `d3plus-tooltip-${cat}-${d ? that._id(d, i) : ""}`,
-        );
-
-      const div = update
-        .select(`.d3plus-tooltip-${cat}`)
-        .html(
-          (d: DataPoint, i: number) =>
-            (
-              that as unknown as Record<
-                string,
-                (d: DataPoint, i: number) => unknown
-              >
-            )[`_${cat}`](d, i) as string,
-        )
-        .style("display", (d: DataPoint, i: number) => {
-          const val = (
-            that as unknown as Record<
-              string,
-              (d: DataPoint, i: number) => unknown
-            >
-          )[`_${cat}`](d, i);
-          const visible = val !== false && val !== undefined && val !== null;
-          return visible ? "block" : "none";
-        });
-
-      stylize(
-        div,
-        (that as unknown as Record<string, Record<string, string>>)[
-          `_${cat}Style`
-        ],
-      );
-    }
+    const update = tooltips.merge(enter as never) as unknown as D3Selection;
+    stylize(update, this.schema.tooltipStyle);
 
     /**
         Fetches table contents given functions or values.
@@ -265,117 +418,20 @@ export default class Tooltip extends BaseClass {
         const datum = select(
           this.parentNode!.parentNode! as Element,
         ).datum() as DataPoint;
-        return d(datum, that._data.indexOf(datum)) as string;
+        return d(datum, that._data.indexOf(datum), datum) as string;
       } else return d as string;
     }
 
-    /**
-        Sets styles for both enter and update.
-        @private
-*/
-    function boxStyles(box: D3Selection): void {
-      box
-        .style("background", that._background as never)
-        .style("border-radius", that._borderRadius as never)
-        .style("pointer-events", that._pointerEvents as never)
-        .style("padding", that._padding as never)
-        .style("max-width", that._maxWidth as never)
-        .style("min-width", that._minWidth as never)
-        .style("width", that._width as never)
-        .style("height", that._height as never)
-        .style("border", that._border as never);
-    }
+    divElement(this, enter, update, "title");
+    divElement(this, enter, update, "body");
 
-    divElement("title");
-    divElement("body");
+    buildTable(this, enter, update, cellContent);
 
-    const tableEnter = enter
-      .append("table")
-      .attr("class", "d3plus-tooltip-table");
-    const table = update.select(".d3plus-tooltip-table");
-    stylize(table, this._tableStyle);
+    divElement(this, enter, update, "footer");
 
-    tableEnter.append("thead").attr("class", "d3plus-tooltip-thead");
-    const tableHead = update.select(".d3plus-tooltip-thead");
-    stylize(tableHead, this._theadStyle);
-    const theadTr = tableHead.selectAll("tr").data([0]);
-    const theadTrEnter = theadTr.enter().append("tr");
-    theadTr.exit().remove();
-    const theadTrUpdate = theadTr.merge(theadTrEnter as never);
-    stylize(theadTrUpdate as never, this._trStyle as Record<string, string | number | boolean | null>);
-    const th = theadTrUpdate.selectAll("th").data(this._thead);
-    th.enter()
-      .append("th")
-      .merge(th as never)
-      .html(cellContent as never);
-    th.exit().remove();
+    divElement(this, enter, update, "arrow");
 
-    tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
-    const tableBody = update.select(".d3plus-tooltip-tbody");
-    stylize(tableBody, this._tbodyStyle);
-    const tr = tableBody.selectAll("tr").data(this._tbody);
-    const trEnter = tr.enter().append("tr");
-    tr.exit().remove();
-    const trUpdate = tr.merge(trEnter as never);
-    stylize(trUpdate as never, this._trStyle as Record<string, string | number | boolean | null>);
-    const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
-    td.enter()
-      .append("td")
-      .merge(td as never)
-      .html(cellContent as never);
-    stylize(td, this._tdStyle);
-
-    divElement("footer");
-
-    divElement("arrow");
-
-    enter
-      .attr(
-        "id",
-        (d: DataPoint, i: number) =>
-          `d3plus-tooltip-${d ? this._id(d, i) : ""}`,
-      )
-      .style("visibility", "hidden")
-      .call(boxStyles)
-      .each((d: DataPoint, i: number) => {
-        const id = that._id(d, i);
-        const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
-        const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
-        const arrowHeight = arrowEl.offsetHeight;
-        const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
-        arrowEl.style.bottom = `-${arrowHeight / 2}px`;
-
-        const position = that._position(d, i);
-        const reference: VirtualElement | HTMLElement = Array.isArray(position)
-          ? generateReference(position)
-          : position as HTMLElement;
-
-        this._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
-        positionTooltip(reference, tooltip, arrowEl, that._offset(d, i), arrowDistance, arrowHeight);
-      });
-
-    update
-      .each((d: DataPoint, i: number) => {
-        const id = that._id(d, i);
-        const position = that._position(d, i);
-        const ref = this._tooltipRefs[id];
-
-        if (ref) {
-          ref.reference = Array.isArray(position)
-            ? generateReference(position as number[])
-            : position as HTMLElement;
-          positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that._offset(d, i), ref.arrowDistance, ref.arrowHeight);
-        }
-      })
-      .call(boxStyles);
-
-    tooltips
-      .exit()
-      .each((d: unknown, i: number) => {
-        const id = that._id(d as DataPoint, i);
-        delete this._tooltipRefs[id];
-      })
-      .remove();
+    bindTooltips(this, enter, update, tooltips);
 
     if (callback) setTimeout(callback, 100);
 
@@ -383,139 +439,51 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-   The inner HTML content of the arrow element, empty by default.
-
-@example <caption>default accessor</caption>
-   function value(d) {
-  return d.arrow || "";
-}
-*/
-  arrow(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  arrow(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  arrow(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._arrow = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._arrow;
-  }
-
-  /**
-   CSS styles applied to the arrow element.
-
-@example <caption>default styles</caption>
-   {
-     "content": "",
-     "border-width": "10px",
-     "border-style": "solid",
-     "border-color": "rgba(255, 255, 255, 0.75) transparent transparent transparent",
-     "position": "absolute"
-   }
+      CSS styles applied to the arrow element.
 */
   arrowStyle(): Record<string, string>;
   arrowStyle(_: Record<string, string>): this;
   arrowStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._arrowStyle = Object.assign(this._arrowStyle, _)), this)
-      : this._arrowStyle;
-  }
-
-  /**
-      The background color accessor for each tooltip.
-*/
-  background(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  background(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  background(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._background = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._background;
-  }
-
-  /**
-      The body content accessor for each tooltip.
-
-@example <caption>default accessor</caption>
-function value(d) {
-  return d.body || "";
-}
-*/
-  body(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  body(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  body(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._body = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._body;
+      ? ((this.schema.arrowStyle = assign(this.schema.arrowStyle, _!)), this)
+      : this.schema.arrowStyle;
   }
 
   /**
       CSS styles applied to the body element.
-
-@example <caption>default styles</caption>
-{
-  "font-size": "12px",
-  "font-weight": "400"
-}
 */
   bodyStyle(): Record<string, string>;
   bodyStyle(_: Record<string, string>): this;
   bodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._bodyStyle = Object.assign(this._bodyStyle, _)), this)
-      : this._bodyStyle;
+      ? ((this.schema.bodyStyle = assign(this.schema.bodyStyle, _!)), this)
+      : this.schema.bodyStyle;
   }
 
   /**
-      The border accessor for each tooltip.
-*/
-  border(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  border(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  border(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._border = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._border;
-  }
+      Parent element that scopes the tooltip's portal. Default (unset) uses
+      the global `<div id="d3plus-portal">` appended to `<body>`. When set,
+      tooltips mount inside a `.d3plus-tooltip-portal` child of the given
+      element instead — so multiple charts on a page don't fight over the
+      global portal, and tooltips destroy cleanly when the chart goes away.
 
-  /**
-      The border-radius accessor for each tooltip.
+      Viz auto-sets this when rendering: chart.tooltipClass.parent(chart._select.node().parentNode).
 */
-  borderRadius(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  borderRadius(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  borderRadius(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._borderRadius = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._borderRadius;
-  }
-
-  /**
-      The CSS class name applied to the tooltip container.
-*/
-  className(): string;
-  className(_: string): this;
-  className(_?: string): unknown {
-    return arguments.length ? ((this._className = _!), this) : this._className;
+  parent(): HTMLElement | undefined;
+  parent(_: HTMLElement | null | undefined): this;
+  parent(_?: HTMLElement | null | undefined): unknown {
+    if (!arguments.length) return this._parentEl;
+    const prev = this._parentEl;
+    const next = _ || undefined;
+    if (prev && prev !== next && this._portalEl) {
+      // Switching parents: tear down this Tooltip's own (body-level) portal
+      // so it doesn't sit orphaned. A re-render against the new parent
+      // creates a fresh one. Other Tooltip instances own their own portals.
+      this._portalEl.remove();
+      this._portalEl = undefined;
+    }
+    this._parentEl = next;
+    return this;
   }
 
   /**
@@ -528,123 +496,14 @@ function value(d) {
   }
 
   /**
-      The footer content accessor for each tooltip.
-
-@example <caption>default accessor</caption>
-function value(d) {
-  return d.footer || "";
-}
-*/
-  footer(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  footer(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  footer(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._footer = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._footer;
-  }
-
-  /**
       CSS styles applied to the footer element.
-
-@example <caption>default styles</caption>
-{
-  "font-size": "12px",
-  "font-weight": "400"
-}
 */
   footerStyle(): Record<string, string>;
   footerStyle(_: Record<string, string>): this;
   footerStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._footerStyle = Object.assign(this._footerStyle, _)), this)
-      : this._footerStyle;
-  }
-
-  /**
-      The height accessor for each tooltip.
-*/
-  height(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  height(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  height(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._height = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._height;
-  }
-
-  /**
-      The unique id accessor for each tooltip.
-
-@example <caption>default accessor</caption>
-function value(d, i) {
-  return d.id || "" + i;
-}
-*/
-  id(): (d: DataPoint, i: number) => string;
-  id(_: ((d: DataPoint, i: number) => string) | string): this;
-  id(_?: ((d: DataPoint, i: number) => string) | string): unknown {
-    return arguments.length
-      ? ((this._id = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._id;
-  }
-
-  /**
-      The pixel offset between the tooltip and its anchor point.
-*/
-  offset(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  offset(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | number,
-  ): this;
-  offset(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | number,
-  ): unknown {
-    return arguments.length
-      ? ((this._offset = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._offset;
-  }
-
-  /**
-      The inner padding of each tooltip.
-*/
-  padding(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  padding(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  padding(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._padding = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._padding;
-  }
-
-  /**
-      The pointer-events CSS property for each tooltip.
-*/
-  pointerEvents(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  pointerEvents(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  pointerEvents(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._pointerEvents = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any),
-        this)
-      : this._pointerEvents;
+      ? ((this.schema.footerStyle = assign(this.schema.footerStyle, _!)), this)
+      : this.schema.footerStyle;
   }
 
   /**
@@ -671,7 +530,7 @@ function value(d, i) {
       | string,
   ): unknown {
     return arguments.length
-      ? ((this._position =
+      ? ((this.schema.position =
           typeof _ === "string"
             ? (constant((select(_).node() || [0, 0]) as HTMLElement) as (
                 d: DataPoint,
@@ -684,137 +543,62 @@ function value(d, i) {
                   i?: number,
                 ) => number[] | HTMLElement)),
         this)
-      : this._position;
+      : this.schema.position;
   }
 
   /**
       CSS styles applied to the table element.
-
-@example <caption>default styles</caption>
-{
-  "border-collapse": "collapse",
-  "border-spacing": "0",
-  "width": "100%"
-}
 */
   tableStyle(): Record<string, string>;
   tableStyle(_: Record<string, string>): this;
   tableStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._tableStyle = Object.assign(this._tableStyle, _)), this)
-      : this._tableStyle;
-  }
-
-  /**
-      The table body contents as an array of functions or strings.
-*/
-  tbody(): unknown[];
-  tbody(_: unknown[]): this;
-  tbody(_?: unknown[]): unknown {
-    return arguments.length ? ((this._tbody = _!), this) : this._tbody;
+      ? ((this.schema.tableStyle = assign(this.schema.tableStyle, _!)), this)
+      : this.schema.tableStyle;
   }
 
   /**
       CSS styles applied to the table body element.
-
-@example <caption>default styles</caption>
-{
-  "font-size": "12px",
-  "font-weight": "600",
-  "text-align": "center"
-}
 */
   tbodyStyle(): Record<string, string>;
   tbodyStyle(_: Record<string, string>): this;
   tbodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._tbodyStyle = Object.assign(this._tbodyStyle, _)), this)
-      : this._tbodyStyle;
-  }
-
-  /**
-      The table head contents as an array of functions or strings.
-*/
-  thead(): unknown[];
-  thead(_: unknown[]): this;
-  thead(_?: unknown[]): unknown {
-    return arguments.length ? ((this._thead = _!), this) : this._thead;
+      ? ((this.schema.tbodyStyle = assign(this.schema.tbodyStyle, _!)), this)
+      : this.schema.tbodyStyle;
   }
 
   /**
       CSS styles applied to the table head element.
-
-@example <caption>default styles</caption>
-{
-  "font-size": "12px",
-  "font-weight": "600",
-  "text-align": "center"
-}
 */
   theadStyle(): Record<string, string>;
   theadStyle(_: Record<string, string>): this;
   theadStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._theadStyle = Object.assign(this._theadStyle, _)), this)
-      : this._theadStyle;
-  }
-
-  /**
-      The title content accessor for each tooltip.
-
-@example <caption>default accessor</caption>
-function value(d) {
-  return d.title || "";
-}
-*/
-  title(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  title(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  title(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._title = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._title;
+      ? ((this.schema.theadStyle = assign(this.schema.theadStyle, _!)), this)
+      : this.schema.theadStyle;
   }
 
   /**
       CSS styles applied to the title element.
-
-@example <caption>default styles</caption>
-{
-  "font-size": "14px",
-  "font-weight": "600",
-  "padding-bottom": "5px"
-}
 */
   titleStyle(): Record<string, string>;
   titleStyle(_: Record<string, string>): this;
   titleStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._titleStyle = Object.assign(this._titleStyle, _)), this)
-      : this._titleStyle;
+      ? ((this.schema.titleStyle = assign(this.schema.titleStyle, _!)), this)
+      : this.schema.titleStyle;
   }
 
   /**
       Overall CSS styles applied to the tooltip container.
-
-@example <caption>default styles</caption>
-{
-  "font-family": "'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif",
-  "font-size": "14px",
-  "font-weight": "600",
-  "padding-bottom": "5px"
-}
 */
   tooltipStyle(): Record<string, string>;
   tooltipStyle(_: Record<string, string>): this;
   tooltipStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._tooltipStyle = Object.assign(this._tooltipStyle, _)), this)
-      : this._tooltipStyle;
+      ? ((this.schema.tooltipStyle = assign(this.schema.tooltipStyle, _!)), this)
+      : this.schema.tooltipStyle;
   }
 
   /**
@@ -825,13 +609,12 @@ function value(d) {
     "border-top": "1px solid rgba(0, 0, 0, 0.1)"
   }
 */
-   
   trStyle(): Record<string, unknown>;
   trStyle(_: Record<string, unknown>): this;
   trStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this._trStyle = Object.assign(this._trStyle, _)), this)
-      : this._trStyle;
+      ? ((this.schema.trStyle = assign(this.schema.trStyle, _!)), this)
+      : this.schema.trStyle;
   }
 
   /**
@@ -841,55 +624,7 @@ function value(d) {
   tdStyle(_: Record<string, string>): this;
   tdStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this._tdStyle = Object.assign(this._tdStyle, _)), this)
-      : this._tdStyle;
-  }
-
-  /**
-      The max-width accessor for each tooltip.
-*/
-  maxWidth(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  maxWidth(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  maxWidth(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._maxWidth = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._maxWidth;
-  }
-
-  /**
-      The min-width accessor for each tooltip.
-*/
-  minWidth(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  minWidth(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  minWidth(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._minWidth = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._minWidth;
-  }
-
-  /**
-      The width accessor for each tooltip.
-*/
-  width(): (d: DataPoint, i?: number) => DataPoint[keyof DataPoint];
-  width(
-    _: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): this;
-  width(
-    _?: ((d: DataPoint, i?: number) => DataPoint[keyof DataPoint]) | string,
-  ): unknown {
-    return arguments.length
-      ? ((this._width = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (typeof _ === "function" ? _ : constant(_)) as any), this)
-      : this._width;
+      ? ((this.schema.tdStyle = assign(this.schema.tdStyle, _!)), this)
+      : this.schema.tdStyle;
   }
 }

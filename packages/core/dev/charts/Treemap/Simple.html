@@ -33,22 +33,25 @@
   <script>
     var tmap = new d3plus.Treemap()
       .data("../../data.json")
-      .data([
-        {
-          group: "Group 3",
-          groupNum: 3,
-          item: "Item 7",
-          value: 30,
-        },
-      ])
+      // .depth(0)
+      // .data([
+      //   {
+      //     group: "Group 3",
+      //     groupNum: 3,
+      //     item: "Item 7",
+      //     value: 30,
+      //   },
+      // ])
       .groupBy(["group", "item"])
-      .legendPosition(false)
+      // .groupBy("item")
+      // .legendPosition(false)
       // .fontFamily("Comic Sans MS")
       // .width(600)
       // .height(400)
-      .legend(true)
+      // .legend(true)
       .sum("value")
       // .select("#viz")
+      .renderer("canvas")
       .render(() => console.log("callback!"));
   </script>
 </html>

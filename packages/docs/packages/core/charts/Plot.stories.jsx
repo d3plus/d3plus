@@ -6,6 +6,7 @@ import React from "react";
 import {argTypes, Plot} from "../../../args/core/charts/Plot.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
+import { transform } from "topojson-client";
 
 export default {
   title: "Core/Charts/Plot",
@@ -41,7 +42,7 @@ BasicExample.args = {
   x: "x",
   y: "y"
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}};
+BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "The simplest scatter plot: each row becomes a point positioned by its `x` and `y` values, with `groupBy` giving every id its own color."}}};
 
 export const BubbleChart = Template.bind({});
 BubbleChart.args = {
@@ -57,7 +58,123 @@ BubbleChart.args = {
   x: "x",
   y: "y"
 };
-BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}};
+BubbleChart.parameters = {controls: {include: ["size", "sizeMax", "sizeMin"]}, docs: {description: {story: "Map a third variable to point radius with `size`, turning the scatter into a bubble chart; `sizeMin` and `sizeMax` clamp the radius range so extreme values stay legible."}}};
+
+export const TimelineMotionTrails = Template.bind({});
+TimelineMotionTrails.args = {
+  data: [
+    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
+    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
+    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
+    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
+    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
+    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
+    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
+    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+  ],
+  // duration: 2000,
+  groupBy: "id",
+  time: "year",
+  shapeConfig: {
+    trail: true
+  },
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y"
+};
+TimelineMotionTrails.parameters = {
+  controls: {include: ["duration", "shapeConfig"]},
+  docs: {description: {story: "Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. **On by default** for scatter points — opt out with `shapeConfig.Circle.trail: false`. Works on both the SVG and Canvas backends — toggle `renderer` to compare."}}
+};
+
+export const SquareMotionTrails = Template.bind({});
+SquareMotionTrails.args = {
+  data: [
+    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
+    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
+    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
+    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
+    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
+    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
+    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
+    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+  ],
+  groupBy: "id",
+  time: "year",
+  shape: "Rect",
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y"
+};
+SquareMotionTrails.parameters = {
+  controls: {include: ["renderer", "shape"]},
+  docs: {description: {story: "Trails aren't circle-only: `Rect` marks trail too, and the cone is sized to the square's silhouette *perpendicular to travel* — so a square moving diagonally reaches corner-to-corner rather than edge-to-edge, matching what the eye sees. Also on by default for scatter squares; opt out with `shapeConfig.Rect.trail: false`."}}
+};
+
+export const PersistentMotionTrails = Template.bind({});
+PersistentMotionTrails.args = {
+  // A Hans Rosling-style health-and-wealth dataset: each nation ebbs and flows
+  // year to year but trends from the poor/short-lived bottom-left toward the
+  // rich/long-lived top-right, so every trail sweeps one general direction.
+  data: [
+    {nation: "Meridia", year: 1963, income: 14, lifeExpectancy: 43, population: 25},
+    {nation: "Meridia", year: 1973, income: 17, lifeExpectancy: 46, population: 31},
+    {nation: "Meridia", year: 1983, income: 20, lifeExpectancy: 50, population: 39},
+    {nation: "Meridia", year: 1993, income: 25, lifeExpectancy: 54, population: 48},
+    {nation: "Meridia", year: 2003, income: 33, lifeExpectancy: 60, population: 58},
+    {nation: "Meridia", year: 2013, income: 45, lifeExpectancy: 67, population: 68},
+    {nation: "Meridia", year: 2023, income: 60, lifeExpectancy: 73, population: 77},
+    {nation: "Cauda",   year: 1963, income: 22, lifeExpectancy: 50, population: 20},
+    {nation: "Cauda",   year: 1973, income: 30, lifeExpectancy: 55, population: 24},
+    {nation: "Cauda",   year: 1983, income: 27, lifeExpectancy: 53, population: 28},
+    {nation: "Cauda",   year: 1993, income: 38, lifeExpectancy: 59, population: 33},
+    {nation: "Cauda",   year: 2003, income: 51, lifeExpectancy: 65, population: 39},
+    {nation: "Cauda",   year: 2013, income: 64, lifeExpectancy: 71, population: 45},
+    {nation: "Cauda",   year: 2023, income: 79, lifeExpectancy: 77, population: 49},
+    {nation: "Aouine",  year: 1963, income: 31, lifeExpectancy: 53, population: 40},
+    {nation: "Aouine",  year: 1973, income: 35, lifeExpectancy: 56, population: 46},
+    {nation: "Aouine",  year: 1983, income: 34, lifeExpectancy: 59, population: 52},
+    {nation: "Aouine",  year: 1993, income: 43, lifeExpectancy: 63, population: 58},
+    {nation: "Aouine",  year: 2003, income: 56, lifeExpectancy: 69, population: 63},
+    {nation: "Aouine",  year: 2013, income: 69, lifeExpectancy: 75, population: 67},
+    {nation: "Aouine",  year: 2023, income: 85, lifeExpectancy: 81, population: 70},
+    {nation: "Boreas",  year: 1963, income: 46, lifeExpectancy: 61, population: 90},
+    {nation: "Boreas",  year: 1973, income: 53, lifeExpectancy: 65, population: 101},
+    {nation: "Boreas",  year: 1983, income: 61, lifeExpectancy: 69, population: 110},
+    {nation: "Boreas",  year: 1993, income: 67, lifeExpectancy: 72, population: 118},
+    {nation: "Boreas",  year: 2003, income: 75, lifeExpectancy: 76, population: 125},
+    {nation: "Boreas",  year: 2013, income: 83, lifeExpectancy: 80, population: 130},
+    {nation: "Boreas",  year: 2023, income: 91, lifeExpectancy: 83, population: 133}
+  ],
+  groupBy: "nation",
+  time: "year",
+  // trailPersist alone is enough — it auto-switches the chart to fixed axes
+  // (axisPersist) and a single-period timeline (brushing) internally. Bubbles
+  // layer largest-behind automatically because a `size` accessor is set, so
+  // small nations stay visible on top.
+  shapeConfig: {Circle: {trailPersist: true}},
+  size: "population",
+  sizeMax: 45,
+  sizeMin: 10,
+  x: "income",
+  y: "lifeExpectancy"
+};
+PersistentMotionTrails.parameters = {
+  controls: {include: ["renderer", "shapeConfig"]},
+  docs: {description: {story: "A Hans Rosling-style health-and-wealth view: press **play** and each nation's bubble ebbs and flows but trends from the poor, short-lived bottom-left toward the rich, long-lived top-right, leaving a persistent trail of its path. By default a trail shows only the current move and fades on arrival; `shapeConfig.Circle.trailPersist` keeps past moves too — a **number** keeps that many step-segments, **`true`** a long slowly-fading tail. Trails follow the timeline's direction: they grow **forward** and **rewind** (the newest segment retracting) when you step back. The whole trail draws as one shape, so overlapping turns don't darken. Setting `trailPersist` is all you need — it switches the chart to fixed axes and a single-period timeline internally (the conditions a persistent trail needs)."}}
+};
 
 export const ShapeBackgroundImages = Template.bind({});
 ShapeBackgroundImages.args = {
@@ -80,38 +197,39 @@ ShapeBackgroundImages.args = {
   x: "ECI",
   y: "Measure"
 };
-ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}};
+ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}, docs: {description: {story: "Render each circle as an image by setting `shapeConfig.Circle.backgroundImage` to a per-datum URL (and blanking the `label`) — here country icons stand in for the bubbles on a GDP-versus-complexity plot."}}};
 
 export const TrendlineUsingAnnotations = Template.bind()
 TrendlineUsingAnnotations.args = {
-  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Adult%20Obesity,Diabetes%20Prevalence&Year=2025",
-  dataFormat: funcify(
-    resp => resp.data.filter(d => d["State ID"] !== "04000US72"),
-    'resp => resp.data.filter(d => d["State ID"] !== "04000US72")'
-  ),
-  groupBy: "State",
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&include=State+County:04000US06&drilldowns=County,Year&measures=Premature%20Death,Diabetes%20Prevalence&Year=2025",
+  groupBy: "County",
   annotations: [
     {
+      // x is "Diabetes Prevalence" (a proportion, ~0.07–0.15) and y is
+      // "Premature Death" (years of potential life lost per 100,000, ~4,000–
+      // 27,000) — so annotation coordinates must use those same units to
+      // overlay the scatter. Trend rises across the diabetes range; Baseline is
+      // flat near the county median (~8,000).
       data: [
         {
           "id": "Trend",
-          "x": 16,
-          "y": 0.4
+          "x": 0.075,
+          "y": 6000
         },
         {
           "id": "Trend",
-          "x": 34,
-          "y": 0.25
+          "x": 0.15,
+          "y": 14000
         },
         {
           "id": "Baseline",
-          "x": 16,
-          "y": 0.3
+          "x": 0.075,
+          "y": 8000
         },
         {
           "id": "Baseline",
-          "x": 34,
-          "y": 0.3
+          "x": 0.15,
+          "y": 8000
         }
       ],
       shape: "Line",
@@ -124,9 +242,9 @@ TrendlineUsingAnnotations.args = {
     }
   ],
   x: "Diabetes Prevalence",
-  y: "Adult Obesity"
+  y: "Premature Death"
 };
-TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}};
+TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Draw reference lines over the data with `annotations`: each entry brings its own `data` and a `Line` shape, plotted in the same `x`/`y` units as the marks — here a sloped trend and a flat baseline."}}};
 
 export const MultipleShapes = Template.bind({});
 MultipleShapes.args = {
@@ -147,7 +265,7 @@ MultipleShapes.args = {
   x: "value",
   y: "weight"
 };
-MultipleShapes.parameters = {controls: {include: ["shape"]}};
+MultipleShapes.parameters = {controls: {include: ["shape"]}, docs: {description: {story: "Pass a function to `shape` to choose a mark type per datum — some points draw as `Rect`, the rest as `Circle` — letting one plot encode a category through shape."}}};
 
 export const SortingShapes = Template.bind({});
 SortingShapes.args = {
@@ -177,4 +295,4 @@ SortingShapes.args = {
   x: "time",
   y: "value"
 };
-SortingShapes.parameters = {controls: {include: ["shapeSort"]}};
+SortingShapes.parameters = {controls: {include: ["shapeSort"]}, docs: {description: {story: "When a plot mixes shape types, `shapeSort` sets the order they are drawn — the comparator here renders `Line` marks before `Circle`s so the points sit on top of the connecting line."}}};

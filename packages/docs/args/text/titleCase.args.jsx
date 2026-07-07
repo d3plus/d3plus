@@ -6,11 +6,27 @@ import React from "react";
 
 
 export const argTypes = {
+  locale: {
+    control: {
+      type: "text"
+    },
+    defaultValue: "en-US",
+    description: "A locale code (e.g. \"en-US\", \"fr-FR\") or an explicit rules object. Defaults to \"en-US\".",
+    table: {
+      defaultValue: {
+        summary: "en-US"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string | titlecaserules"
+    }
+  },
   str: {
     control: {
       type: "text"
     },
-    description: "The string to apply the title case logic.",
+    description: "The string to capitalize.",
     table: {
       defaultValue: {
         summary: "undefined"

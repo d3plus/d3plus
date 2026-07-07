@@ -1,0 +1,61 @@
+{
+  "length": 7,
+  "nodes": [
+    {
+      "id": [
+        "alpha",
+        "beta",
+        "gamma"
+      ],
+      "x": 120,
+      "y": 57,
+      "depth": 1,
+      "height": 2
+    },
+    {
+      "id": [
+        "delta",
+        "eta"
+      ],
+      "x": 320,
+      "y": 57,
+      "depth": 1,
+      "height": 2
+    },
+    {
+      "id": "alpha",
+      "x": 40,
+      "y": 250,
+      "depth": 2,
+      "height": 1
+    },
+    {
+      "id": "beta",
+      "x": 120,
+      "y": 250,
+      "depth": 2,
+      "height": 1
+    },
+    {
+      "id": "gamma",
+      "x": 200,
+      "y": 250,
+      "depth": 2,
+      "height": 1
+    },
+    {
+      "id": "delta",
+      "x": 280,
+      "y": 250,
+      "depth": 2,
+      "height": 1
+    },
+    {
+      "id": "eta",
+      "x": 360,
+      "y": 250,
+      "depth": 2,
+      "height": 1
+    }
+  ]
+}

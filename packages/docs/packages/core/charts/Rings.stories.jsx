@@ -38,4 +38,23 @@ BasicExample.args = {
     {source: "eta", target: "gamma"}
   ]
 };
-BasicExample.parameters = {controls: {include: ["center", "links"]}};
+BasicExample.parameters = {controls: {include: ["center", "links"]}, docs: {description: {story: "`center` names the focal node by id; the rest of the nodes are inferred from the `links`, with the center's direct connections forming the inner ring and the others radiating outward."}}};
+
+export const LargerNetwork = Template.bind({});
+LargerNetwork.args = {
+  center: "Hub",
+  nodes: [
+    {id: "Hub"}, {id: "A"}, {id: "B"}, {id: "C"}, {id: "D"}, {id: "E"},
+    {id: "A1"}, {id: "A2"}, {id: "B1"}, {id: "C1"}, {id: "D1"}
+  ],
+  links: [
+    {source: "Hub", target: "A"}, {source: "Hub", target: "B"}, {source: "Hub", target: "C"},
+    {source: "Hub", target: "D"}, {source: "Hub", target: "E"},
+    {source: "A", target: "A1"}, {source: "A", target: "A2"}, {source: "B", target: "B1"},
+    {source: "C", target: "C1"}, {source: "D", target: "D1"}
+  ]
+};
+LargerNetwork.parameters = {
+  controls: {include: ["center"]},
+  docs: {description: {story: "Nodes one hop from the center sit on the inner ring; their neighbors fan out to an outer ring."}}
+};

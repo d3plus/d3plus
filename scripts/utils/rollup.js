@@ -45,8 +45,13 @@ export default async function (opts = {}) {
     plugins.push(nodeResolve());
   }
 
+  // A package may provide a `umd-entry.ts` to bundle a superset of its ESM
+  // entry into the standalone UMD global (e.g. core ships its curated public
+  // API via `index.ts` but exposes the pipeline through the UMD global too).
+  const entry = fs.existsSync("umd-entry.ts") ? "umd-entry.ts" : "index.ts";
+
   const input = {
-    input: "index.ts",
+    input: entry,
     plugins,
     onwarn: () => {},
   };

@@ -1,0 +1,123 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Migration (v3 → v4)" />
+
+# Migrating from v3 to v4
+
+v4 is a ground-up rewrite of how D3plus renders. In v3 each chart mutated the
+DOM directly as it drew; in v4 a chart compiles to a serializable **scene graph**
+that a pluggable backend paints. **SVG is still the default backend and the
+visual output is intended to match v3.**
+
+The good news for most projects: **the public API did not change.** The chart
+classes, the fluent setters (`.data()`, `.groupBy()`, `.x()`, `.y()`, …),
+`.config()`, the `RESET` token, locale handling, and event handlers all behave
+as before. If you use D3plus through its documented API, upgrading is usually
+just a version bump.
+
+## Install
+
+The package names and scope are unchanged from v3:
+
+```sh
+npm install @d3plus/react      # React wrappers
+npm install @d3plus/core       # vanilla JS — charts, components, shapes
+```
+
+## What you may need to change
+
+### 1. React `forceUpdate` is now a prop (breaking)
+
+In v3 you forced a re-render on every cycle by passing it inside `config`. In v4
+it is a first-class prop:
+
+```diff
+- <Treemap config={{forceUpdate: true, data, groupBy: "id"}} />
++ <Treemap forceUpdate config={{data, groupBy: "id"}} />
+```
+
+### 2. Custom render internals
+
+If you subclassed `Viz` and overrode private `_draw`-stage internals, or reached
+into a chart's intermediate DOM / d3-selection during a draw pass, that code must
+move to the new pipeline — drawing now emits scene nodes and no longer mutates
+the chart mid-draw. Code that only reads the **final** rendered SVG (after
+`render()` resolves) is unaffected.
+
+### 3. `d3-collection` removed
+
+`@d3plus/data` no longer depends on the deprecated `d3-collection`; grouping is
+built on `d3-array` (`groups`/`rollups`). The `nest()` and `nestGroups()` exports
+remain available.
+
+## Visual changes to expect
+
+The public API is unchanged, but a few color defaults were updated for colorblind
+safety — so an unchanged chart can look slightly different in v4:
+
+- **The categorical palette was re-stepped** to stay distinct under protanopia and
+  deuteranopia. The slot order is unchanged, but marks shift hue slightly.
+- **Continuous color scales default to a single blue hue** (magnitude reads as one
+  hue getting darker) and **diverging scales default to blue↔gray↔red**, replacing
+  v3's multi-hue and red↔green ramps.
+- **`colorContrast` now picks label text color by WCAG contrast ratio** rather than
+  a YIQ brightness approximation, so some automatic label colors change (e.g.
+  bright greens and teals now correctly get dark text).
+
+These are all overridable — set `color`, `colorScaleConfig.color`, or the
+`colorContrast` tokens to restore any specific v3 appearance. See
+**Guides → Color**.
+
+## What's new in v4
+
+### Pick a rendering backend
+
+Every visualization accepts a backend via the `renderer` config (default
+`"svg"`):
+
+```jsx
+<BarChart config={{data, x: "x", y: "y", renderer: "canvas"}} />
+```
+
+Use **SVG** (the default) for the broadest feature coverage and crisp,
+inspectable output; use **Canvas** for dense, high-shape-count charts where
+paint performance matters. See **Guides → Rendering**.
+
+### Clean teardown
+
+Call `viz.destroy()` when removing a chart to disconnect its `ResizeObserver`
+and event listeners. The React wrapper does this automatically on unmount.
+
+### One import for types
+
+```ts
+import type {Treemap} from "@d3plus/types";
+// React component types live in a separate entry, so non-React projects
+// don't pull in React:
+import type {D3plusComponentProps} from "@d3plus/types/react";
+```
+
+### Motion trails
+
+Points that move between timeline frames sweep a tapering motion trail from their
+previous position to the current one — on by default for scatter and Geomap
+points. `shapeConfig.Circle.trailPersist` keeps past moves visible as a fading
+path. See **Guides → Animation**.
+
+### Highlight a series
+
+`highlight(predicate)` applies a standing emphasis — matching marks keep their
+color while the rest are de-emphasized to gray, and it survives pointer movement
+(unlike hover). See **Guides → Interactivity**.
+
+### New color utilities
+
+`@d3plus/color` adds `colorRamp` (even single-hue OKLab ramps), `colorValidate`
+(check a palette for OKLCH lightness, chroma, colorblind separation, and WCAG
+contrast), and the `colorOrdinal` chart config for ordered categorical data. See
+**Guides → Color**.
+
+## Need help?
+
+If a chart renders differently than it did in v3, please
+[open an issue](https://github.com/d3plus/d3plus/issues) with a reproduction.

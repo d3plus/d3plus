@@ -32,10 +32,12 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
-| [`colorContrast`](#colorcontrast) | A set of default color values used when assigning colors based on data. |
+| [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on to |
 | [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
 | [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
+| [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, |
 | [`colorSubtract`](#colorsubtract) | Subtracts one color from another. |
+| [`colorValidate`](#colorvalidate) | Validates a chart color palette against the computable accessibility checks. |
 
 | Variables | Description |
 | --- | --- |
@@ -43,7 +45,15 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Interfaces | Description |
 | --- | --- |
+| [`ColorCheck`](#colorcheck) | One computed check in a palette validation report. |
 | [`ColorDefaults`](#colordefaults) |  |
+| [`ColorRampOptions`](#colorrampoptions) | Options for colorRamp. |
+| [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate. |
+| [`ColorValidation`](#colorvalidation) | The result of validating a palette. `ok` is true when no check hard-fails. |
+
+| Type Aliases | Description |
+| --- | --- |
+| [`CheckState`](#checkstate) | The state of a single check. `warn` passes but obligates secondary encoding. |
 
 ## Functions
 
@@ -53,7 +63,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 > **colorAdd**(`c1`: `string`, `c2`: `string`, `o1?`: `number`, `o2?`: `number`): `string`
 
-Defined in: [add.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/add.ts#L10)
+Defined in: [add.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/add.ts#L10)
 
 Adds two colors together.
 
@@ -78,7 +88,7 @@ Adds two colors together.
 
 > **colorAssign**(`c`: `string` \| `boolean` \| `null` \| `undefined`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
 
-Defined in: [assign.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/assign.ts#L9)
+Defined in: [assign.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/assign.ts#L9)
 
 Assigns a color to a value using a predefined set of defaults.
 
@@ -101,9 +111,9 @@ Assigns a color to a value using a predefined set of defaults.
 
 > **colorContrast**(`c`: `string`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
 
-Defined in: [contrast.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/contrast.ts#L9)
+Defined in: [contrast.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/contrast.ts#L9)
 
-A set of default color values used when assigning colors based on data.
+Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. The choice maximizes the WCAG 2.x contrast ratio against the background, so the more legible of the two text tokens always wins.
 
 #### Parameters
 
@@ -124,7 +134,7 @@ A set of default color values used when assigning colors based on data.
 
 > **colorLegible**(`c`: `string`): `string`
 
-Defined in: [legible.ts:7](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/legible.ts#L7)
+Defined in: [legible.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/legible.ts#L7)
 
 Darkens a color so that it will appear legible on a white background.
 
@@ -146,7 +156,7 @@ Darkens a color so that it will appear legible on a white background.
 
 > **colorLighter**(`c`: `string`, `i?`: `number`): `string`
 
-Defined in: [lighter.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/lighter.ts#L8)
+Defined in: [lighter.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/lighter.ts#L8)
 
 Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.
 
@@ -163,13 +173,46 @@ Similar to d3.color.brighter, except that this also reduces saturation so that c
 
 ***
 
+<a id="colorramp"></a>
+
+### colorRamp()
+
+> **colorRamp**(`base`: `string`, `n`: `number`, `options?`: [`ColorRampOptions`](#colorrampoptions)): `string`[]
+
+Defined in: ramp.ts:30
+
+Builds an `n`-step single-hue ramp from a pale tint to the given base color,
+stepped evenly in OKLab so each step looks equally far from the next.
+
+This replaces lightening in HSL (which desaturates toward pure white and
+shifts hue, so the pale end loses its identity and can render as white). In
+OKLab the hue is held fixed and lightness/chroma taper together, so the ramp
+reads as one hue getting lighter.
+
+Returned lightest→darkest; the darkest step is the base color itself for a
+continuous ramp.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `base` | `string` | The saturated dark anchor of the ramp — a valid CSS color. |
+| `n` | `number` | How many steps to produce. |
+| `options` | [`ColorRampOptions`](#colorrampoptions) | Ramp shaping options. |
+
+#### Returns
+
+`string`[]
+
+***
+
 <a id="colorsubtract"></a>
 
 ### colorSubtract()
 
 > **colorSubtract**(`c1`: `string`, `c2`: `string`, `o1?`: `number`, `o2?`: `number`): `string`
 
-Defined in: [subtract.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/subtract.ts#L10)
+Defined in: [subtract.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/subtract.ts#L10)
 
 Subtracts one color from another.
 
@@ -186,6 +229,29 @@ Subtracts one color from another.
 
 `string`
 
+***
+
+<a id="colorvalidate"></a>
+
+### colorValidate()
+
+> **colorValidate**(`palette`: `string`[], `options?`: [`ColorValidateOptions`](#colorvalidateoptions)): [`ColorValidation`](#colorvalidation)
+
+Defined in: validate.ts:256
+
+Validates a chart color palette against the computable accessibility checks.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `palette` | `string`[] | An array of CSS color strings, in slot order. |
+| `options` | [`ColorValidateOptions`](#colorvalidateoptions) | Mode, surface, pair scope, and ordinal toggle. |
+
+#### Returns
+
+[`ColorValidation`](#colorvalidation)
+
 ## Variables
 
 <a id="colordefaults-1"></a>
@@ -194,9 +260,19 @@ Subtracts one color from another.
 
 > `const` **colorDefaults**: [`ColorDefaults`](#colordefaults)
 
-Defined in: [defaults.ts:37](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L37)
+Defined in: [defaults.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L49)
 
 A set of default color values used when assigning colors based on data.
+
+The categorical `scale` is CVD-checked: its first eight slots (the identity
+tier) are open-color steps chosen to sit inside the OKLCH lightness band,
+clear the chroma floor, and stay distinguishable under protanopia and
+deuteranopia — validate them with `colorValidate`. The slot order is the
+colorblind-safety mechanism and should not be reshuffled. Slots nine and up
+are a lighter second ring of the same hues, for high-cardinality fallback
+(past ~8 series, prefer grouping the tail into "Other").
+
+`sequential` is the default single-hue anchor for magnitude ramps (blue).
 
 #### Default Value
 
@@ -207,32 +283,116 @@ A set of default color values used when assigning colors based on data.
   missing: "#ced4da",
   off: "#c92a2a",
   on: "#2b8a3e",
+  sequential: "#1c7ed6",
   scale: d3.scaleOrdinal().range([
-    "#364fc7", "#fab005", "#c92a2a",
-    "#2b8a3e", "#fd7e14", "#862e9c",
-    "#15aabf", "#e64980", "#82c91e",
-    "#74c0fc", "#faa2c1", "#c0eb75",
-    "#b197fc", "#c5f6fa", "#ffe8cc",
-    "#d3f9d8", "#f3d9fa", "#ffe3e3"
+    "#4c6ef5", "#e67700", "#e03131",
+    "#2f9e44", "#d9480f", "#ae3ec9",
+    "#1098ad", "#d6336c", "#748ffc",
+    "#ffd43b", "#ff8787", "#69db7c",
+    "#ffa94d", "#da77f2", "#3bc9db",
+    "#f783ac"
   ])
 }
 ```
 
 ## Interfaces
 
-<a id="colordefaults"></a>
+<a id="colorcheck"></a>
 
-### ColorDefaults
+### ColorCheck
 
-Defined in: [defaults.ts:6](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L6)
+Defined in: validate.ts:95
+
+One computed check in a palette validation report.
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-dark"></a> `dark` | `string` | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L7) |
-| <a id="property-light"></a> `light` | `string` | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L8) |
-| <a id="property-missing"></a> `missing` | `string` | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L9) |
-| <a id="property-off"></a> `off` | `string` | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L10) |
-| <a id="property-on"></a> `on` | `string` | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L11) |
-| <a id="property-scale"></a> `scale` | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:12](https://github.com/d3plus/d3plus/blob/8f2709e21b3d3a023dc9796ba539513696f413f7/packages/color/src/defaults.ts#L12) |
+| <a id="property-detail"></a> `detail` | `string` | validate.ts:98 |
+| <a id="property-name"></a> `name` | `string` | validate.ts:96 |
+| <a id="property-state"></a> `state` | [`CheckState`](#checkstate) | validate.ts:97 |
+
+***
+
+<a id="colordefaults"></a>
+
+### ColorDefaults
+
+Defined in: [defaults.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L6)
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-dark"></a> `dark` | `string` | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L7) |
+| <a id="property-light"></a> `light` | `string` | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L8) |
+| <a id="property-missing"></a> `missing` | `string` | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L9) |
+| <a id="property-off"></a> `off` | `string` | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L10) |
+| <a id="property-on"></a> `on` | `string` | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L11) |
+| <a id="property-scale"></a> `scale` | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L12) |
+| <a id="property-sequential"></a> `sequential` | `string` | [defaults.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L13) |
+
+***
+
+<a id="colorrampoptions"></a>
+
+### ColorRampOptions
+
+Defined in: ramp.ts:4
+
+Options for [colorRamp](#colorramp).
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-ordinal"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | ramp.ts:12 |
+
+***
+
+<a id="colorvalidateoptions"></a>
+
+### ColorValidateOptions
+
+Defined in: validate.ts:108
+
+Options for [colorValidate](#colorvalidate).
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-mode"></a> `mode?` | `"light"` \| `"dark"` | Surface mode — sets the lightness band and default surface. | validate.ts:110 |
+| <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Validate as an ordered one-hue ramp instead of a categorical palette. | validate.ts:116 |
+| <a id="property-pairs"></a> `pairs?` | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | validate.ts:114 |
+| <a id="property-surface"></a> `surface?` | `string` | Chart surface color the marks are drawn on. | validate.ts:112 |
+
+***
+
+<a id="colorvalidation"></a>
+
+### ColorValidation
+
+Defined in: validate.ts:102
+
+The result of validating a palette. `ok` is true when no check hard-fails.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-checks"></a> `checks` | [`ColorCheck`](#colorcheck)[] | validate.ts:104 |
+| <a id="property-ok"></a> `ok` | `boolean` | validate.ts:103 |
+
+## Type Aliases
+
+<a id="checkstate"></a>
+
+### CheckState
+
+> **CheckState** = `"pass"` \| `"warn"` \| `"fail"`
+
+Defined in: validate.ts:92
+
+The state of a single check. `warn` passes but obligates secondary encoding.

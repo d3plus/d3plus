@@ -45,6 +45,7 @@
   "dependencies": {
     "@chenglou/pretext": "^0.0.5",
     "@d3plus/dom": "workspace:*",
+    "@d3plus/locales": "workspace:*",
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1",
     "hyphenated": "^1.2.0"

@@ -14,7 +14,7 @@ it("BaseClass", () => {
 
   // config setter applies values
   one.config({locale: "es"});
-  assert.ok(one._locale.startsWith("es"), "config setter applies locale");
+  assert.ok(one.schema.locale.startsWith("es"), "config setter applies locale");
 
   // locale getter/setter
   const inst = new BaseClass();

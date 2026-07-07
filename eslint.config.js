@@ -39,6 +39,18 @@ export default [
       "@typescript-eslint/no-this-alias": "off",
       "@typescript-eslint/no-unused-vars": ["error", {argsIgnorePattern: "^_"}],
       "prefer-const": "warn",
+      "max-lines": ["error", {max: 500, skipBlankLines: true, skipComments: true}],
+      "max-lines-per-function": [
+        "error",
+        {max: 100, skipBlankLines: true, skipComments: true},
+      ],
+    },
+  },
+  {
+    // Translation/data dictionaries are data, not code — exempt from file size.
+    files: ["packages/locales/**/*.ts"],
+    rules: {
+      "max-lines": "off",
     },
   },
   {
@@ -52,7 +64,13 @@ export default [
         window: "readonly",
         document: "readonly",
         navigator: "readonly",
+        process: "readonly",
+        MouseEvent: "readonly",
       },
+    },
+    rules: {
+      "max-lines": "off",
+      "max-lines-per-function": "off",
     },
   },
 ];

@@ -20,8 +20,6 @@ export default function (
   let h: number = (hsl1.h - d) % 360;
   const l: number = hsl1.l - (hsl2.l * o2 - hsl1.l * o1) / 2,
     s: number = hsl1.s - (hsl2.s * o2 - hsl1.s * o1) / 2;
-  // a = o1 - (o2 - o1) / 2;
   if (h < 0) h += 360;
   return hsl(`hsl(${h},${s * 100}%,${l * 100}%)`).toString();
-  // return hsl(`hsl(${h},${s * 100}%,${l * 100}%,${a})`).toString();
 }

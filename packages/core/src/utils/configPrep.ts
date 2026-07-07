@@ -1,5 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
-import { D3plusConfig } from "./D3plusConfig";
+import { D3plusConfig } from "./D3plusConfig.js";
 
 interface D3PlusWrapped {
   __d3plus__?: boolean;
@@ -28,9 +28,12 @@ interface ConfigObject extends D3plusConfig {
 }
 
 export interface VizContext {
-  _shapeConfig: ConfigObject;
-  _duration: number;
-  _on: Record<string, DataAccessor>;
+  schema: {
+    shapeConfig: ConfigObject;
+    duration?: number;
+    on?: Record<string, DataAccessor>;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -42,11 +45,14 @@ export interface VizContext {
 */
 export default function configPrep(
   this: VizContext,
-  config: ConfigObject = this._shapeConfig,
+  config: ConfigObject = this.schema.shapeConfig,
   type: string = "shape",
   nest: string | false = false,
 ): ConfigObject {
-  const newConfig: ConfigObject = {duration: this._duration, on: {}};
+  const newConfig: ConfigObject = {
+    duration: this.schema.duration,
+    on: {},
+  };
 
   const wrapFunction =
     (func: DataAccessor) =>
@@ -95,6 +101,12 @@ export default function configPrep(
       if ({}.hasOwnProperty.call(obj, key)) {
         if (key === "on")
           parseEvents(newObj, obj[key] as unknown as Record<string, DataAccessor>);
+        else if (key === "sort")
+          // `sort` is a two-argument layering comparator, not a per-datum
+          // accessor — pass it through untouched so `wrapFunction` doesn't
+          // rewrite it into a single-datum call (which would feed the index
+          // as its second argument).
+          newObj[key] = obj[key];
         else if (typeof obj[key] === "function") {
           newObj[key] = wrapFunction(obj[key] as DataAccessor);
         } else if (obj[key] instanceof Array) {
@@ -111,7 +123,7 @@ export default function configPrep(
   };
 
   keyEval(newConfig, config);
-  if (this._on) parseEvents(newConfig, this._on as unknown as Record<string, DataAccessor>);
+  if (this.schema.on) parseEvents(newConfig, this.schema.on as unknown as Record<string, DataAccessor>);
   if (nest && config[nest]) {
     keyEval(newConfig, config[nest] as ConfigObject);
     if ((config[nest] as ConfigObject).on)
