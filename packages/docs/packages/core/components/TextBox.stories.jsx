@@ -57,7 +57,7 @@ FontResize.args = {
   width: 200,
   x: (d, i) => i * (200 + 50)
 };
-FontResize.parameters = {controls: {include: ["fontResize", "fontMax"]}, docs: {description: {story: "Three equally-sized boxes hold text of very different lengths. With `fontResize: true` each string is scaled between `fontMin` and `fontMax` to fill its box — the single word is sized way up while the long passage shrinks to fit. Toggle `fontResize` off in the controls to see them all snap back to one fixed size."}}};
+FontResize.parameters = {controls: {include: ["fontResize", "fontMax", "fontMin"]}, docs: {description: {story: "Three equally-sized boxes hold text of very different lengths. With `fontResize: true` each string is scaled between `fontMin` and `fontMax` to fill its box — the single word is sized way up while the long passage shrinks to fit. Toggle `fontResize` off in the controls to see them all snap back to one fixed size."}}};
 
 
 

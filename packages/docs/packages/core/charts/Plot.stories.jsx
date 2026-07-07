@@ -85,8 +85,6 @@ TimelineMotionTrails.args = {
   size: "value",
   sizeMax: 40,
   sizeMin: 24,
-  timelineConfig: {
-  },
   x: "x",
   y: "y"
 };
@@ -127,32 +125,55 @@ SquareMotionTrails.parameters = {
 
 export const PersistentMotionTrails = Template.bind({});
 PersistentMotionTrails.args = {
+  // A Hans Rosling-style health-and-wealth dataset: each nation ebbs and flows
+  // year to year but trends from the poor/short-lived bottom-left toward the
+  // rich/long-lived top-right, so every trail sweeps one general direction.
   data: [
-    {id: "alpha", year: 2019, x: 2,  y: 3,  value: 180},
-    {id: "alpha", year: 2020, x: 5,  y: 8,  value: 180},
-    {id: "alpha", year: 2021, x: 9,  y: 5,  value: 180},
-    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
-    {id: "beta",  year: 2019, x: 11, y: 12, value: 120},
-    {id: "beta",  year: 2020, x: 8,  y: 6,  value: 120},
-    {id: "beta",  year: 2021, x: 4,  y: 9,  value: 120},
-    {id: "beta",  year: 2022, x: 2,  y: 2,  value: 120},
-    {id: "gamma", year: 2019, x: 6,  y: 1,  value: 240},
-    {id: "gamma", year: 2020, x: 3,  y: 10, value: 240},
-    {id: "gamma", year: 2021, x: 10, y: 8,  value: 240},
-    {id: "gamma", year: 2022, x: 7,  y: 4,  value: 240}
+    {nation: "Meridia", year: 1963, income: 14, lifeExpectancy: 43, population: 25},
+    {nation: "Meridia", year: 1973, income: 17, lifeExpectancy: 46, population: 31},
+    {nation: "Meridia", year: 1983, income: 20, lifeExpectancy: 50, population: 39},
+    {nation: "Meridia", year: 1993, income: 25, lifeExpectancy: 54, population: 48},
+    {nation: "Meridia", year: 2003, income: 33, lifeExpectancy: 60, population: 58},
+    {nation: "Meridia", year: 2013, income: 45, lifeExpectancy: 67, population: 68},
+    {nation: "Meridia", year: 2023, income: 60, lifeExpectancy: 73, population: 77},
+    {nation: "Cauda",   year: 1963, income: 22, lifeExpectancy: 50, population: 20},
+    {nation: "Cauda",   year: 1973, income: 30, lifeExpectancy: 55, population: 24},
+    {nation: "Cauda",   year: 1983, income: 27, lifeExpectancy: 53, population: 28},
+    {nation: "Cauda",   year: 1993, income: 38, lifeExpectancy: 59, population: 33},
+    {nation: "Cauda",   year: 2003, income: 51, lifeExpectancy: 65, population: 39},
+    {nation: "Cauda",   year: 2013, income: 64, lifeExpectancy: 71, population: 45},
+    {nation: "Cauda",   year: 2023, income: 79, lifeExpectancy: 77, population: 49},
+    {nation: "Aouine",  year: 1963, income: 31, lifeExpectancy: 53, population: 40},
+    {nation: "Aouine",  year: 1973, income: 35, lifeExpectancy: 56, population: 46},
+    {nation: "Aouine",  year: 1983, income: 34, lifeExpectancy: 59, population: 52},
+    {nation: "Aouine",  year: 1993, income: 43, lifeExpectancy: 63, population: 58},
+    {nation: "Aouine",  year: 2003, income: 56, lifeExpectancy: 69, population: 63},
+    {nation: "Aouine",  year: 2013, income: 69, lifeExpectancy: 75, population: 67},
+    {nation: "Aouine",  year: 2023, income: 85, lifeExpectancy: 81, population: 70},
+    {nation: "Boreas",  year: 1963, income: 46, lifeExpectancy: 61, population: 90},
+    {nation: "Boreas",  year: 1973, income: 53, lifeExpectancy: 65, population: 101},
+    {nation: "Boreas",  year: 1983, income: 61, lifeExpectancy: 69, population: 110},
+    {nation: "Boreas",  year: 1993, income: 67, lifeExpectancy: 72, population: 118},
+    {nation: "Boreas",  year: 2003, income: 75, lifeExpectancy: 76, population: 125},
+    {nation: "Boreas",  year: 2013, income: 83, lifeExpectancy: 80, population: 130},
+    {nation: "Boreas",  year: 2023, income: 91, lifeExpectancy: 83, population: 133}
   ],
-  groupBy: "id",
+  groupBy: "nation",
   time: "year",
+  // trailPersist alone is enough — it auto-switches the chart to fixed axes
+  // (axisPersist) and a single-period timeline (brushing) internally. Bubbles
+  // layer largest-behind automatically because a `size` accessor is set, so
+  // small nations stay visible on top.
   shapeConfig: {Circle: {trailPersist: true}},
-  size: "value",
-  sizeMax: 40,
-  sizeMin: 24,
-  x: "x",
-  y: "y"
+  size: "population",
+  sizeMax: 45,
+  sizeMin: 10,
+  x: "income",
+  y: "lifeExpectancy"
 };
 PersistentMotionTrails.parameters = {
   controls: {include: ["renderer", "shapeConfig"]},
-  docs: {description: {story: "By default a trail shows only the current move and fades on arrival. Set `shapeConfig.Circle.trailPersist` to keep past moves too: a **number** keeps that many step-segments (fading older ones out), and **`true`** leaves a long slowly-fading tail — a snail-trail of the whole path. Segments chain their cone geometry and gradient at each turn, so the trail curves and fades continuously through every year visited. Press **play** to watch each point draw its history."}}
+  docs: {description: {story: "A Hans Rosling-style health-and-wealth view: press **play** and each nation's bubble ebbs and flows but trends from the poor, short-lived bottom-left toward the rich, long-lived top-right, leaving a persistent trail of its path. By default a trail shows only the current move and fades on arrival; `shapeConfig.Circle.trailPersist` keeps past moves too — a **number** keeps that many step-segments, **`true`** a long slowly-fading tail. Trails follow the timeline's direction: they grow **forward** and **rewind** (the newest segment retracting) when you step back. The whole trail draws as one shape, so overlapping turns don't darken. Setting `trailPersist` is all you need — it switches the chart to fixed axes and a single-period timeline internally (the conditions a persistent trail needs)."}}
 };
 
 export const ShapeBackgroundImages = Template.bind({});
