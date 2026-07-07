@@ -3,7 +3,7 @@
 All notable changes to D3plus are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## 4.0.0 — Unreleased
+## 4.0.0
 
 v4 is a ground-up re-architecture of the rendering engine. Charts now compile to
 a serializable **scene graph** that is painted by a pluggable backend, rather than
@@ -74,6 +74,20 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   it with a single-hue light→dark ramp instead of nominal categorical hues.
   [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#ordinal-color)
 - OKLab/OKLCH conversions and a WCAG `contrastRatio` helper back the above.
+- **Locale-aware `titleCase`.** `titleCase(str, locale)` accepts a locale code (or
+  a `TitleCaseRules` object) and normalizes case in *both* directions — it
+  lowercases ALL-CAPS "shouting" input and minor words, force-uppercases known
+  acronyms (with automatic plurals, e.g. `tvs` → `TVs`), and preserves genuine
+  mixed-case (`McDonald`, `iOS`). Per-language rule sets and a `{style: "sentence"}`
+  mode ship as the new `titleCaseLocale` dictionary (and a `TitleCaseRules` type),
+  exported from `@d3plus/locales`.
+  [Example ↗](https://d3plus.org/?path=/docs/text-titlecase--d3plus)
+- **Animated text font-size.** Labels whose font-size changes between renders now
+  ease into the new size, position, and rotation (pivoted on the anchor-aware
+  visual center) instead of snapping — in both the SVG and Canvas backends.
+- **Plot circles auto-layer by size.** When a `size` accessor is set, scatter
+  circles paint largest-behind so smaller marks stay visible on top (override with
+  `shapeConfig.Circle.sort`).
 
 ### Changed
 
@@ -105,25 +119,73 @@ changes. See [MIGRATION.md](MIGRATION.md) for details.
   contrast ratio against the background (so e.g. bright greens/teals correctly get
   dark text).
   [Example ↗](https://d3plus.org/?path=/docs/color-colorcontrast--d3plus#basic-example)
+- **`.sort()` / `shapeConfig.sort` drives paint order.** A sort comparator now
+  stamps a stable per-datum paint depth (`z`) rather than reordering the data
+  array, so mark layering no longer disturbs the data join, layout, or enter/exit
+  animations.
+- **Timeline auto-play cadence follows the transition `duration`.** Each period
+  fully animates before the next advances; `playButtonInterval` is the fallback
+  cadence only when `duration` is `0` (v3 advanced on a fixed interval regardless
+  of the transition).
 
 ### Fixed
 
-- Extensive v3-parity fixes uncovered by the chart-compare harness across
-  BarChart, Pie/Donut, Treemap, Pack, Tree, Sankey, Network, Rings,
-  Matrix/RadialMatrix, Priestley, Geomap, Radar, ColorScale, Legend, axes,
-  gridlines, tooltips, label placement, and enter/exit animations.
-- Canvas backend mounts into the user's container (a `<canvas>` cannot paint
-  inside the off-stage compute `<svg>`), so `.renderer("canvas")` paints instead
-  of silently producing blank output.
-- Geomap renders on the Canvas backend: the ocean now paints into the scene
-  (onto the canvas) rather than into the overlaying compute `<svg>`, which had
-  hidden the geography.
-  [Example ↗](https://d3plus.org/?path=/docs/core-charts-geomap--d3plus#rendering-to-canvas)
-- Canvas backend paints **texture/pattern fills** at parity with SVG. A
-  `pattern:<json>` token is rasterized to an offscreen tile and tiled as a
-  repeating `CanvasPattern` (the texture's solid color is used for the first
-  frame while the tile rasterizes, then the chart repaints). Gradient fills
-  already paint as real `CanvasGradient`s.
+- React charts tween between config/prop changes: the chart instance now persists
+  across updates (`destroy()` runs only on unmount) instead of tearing down and
+  re-entering from scratch on each render.
+
+### Documentation & website
+
+The documentation site (Storybook, published at [d3plus.org](https://d3plus.org))
+was substantially rebuilt:
+
+- Every example now carries a prose description, and the **"Show code" panel is
+  live** — it rebuilds the `<Chart config={…}/>` snippet from the current control
+  values on each change instead of showing a frozen snapshot.
+- Storybook **argTypes are generated from the charts themselves.** The generator
+  instantiates each class and reads its runtime `installFluent`/`config()` accessor
+  surface, enriched with types and descriptions mined from the typed config
+  interfaces — so the full configuration surface (width, domain, ticks, title, …)
+  now appears as interactive controls.
+- The sidebar was reorganized under a **Guides** root (Migration, Configuration,
+  Rendering, Data, Interactivity, Theming, Accessibility) ahead of the Core API.
+- Utility-function docs (`@d3plus/color`, `data`, `format`, `text`) render as
+  side-by-side input → output blocks with a matching, drift-proof code snippet.
+- **New example content:** motion trails (circle / square / persistent), Canvas
+  rendering (BarChart, Geomap), interactivity (events, custom tooltip, download
+  button, RTL locale), `highlight()` and ordinal color, five color-scale types,
+  the CVD-color utilities (`colorRamp`, `colorValidate`), first-time example pages
+  for every shape and axis primitive, and function-call demos for the
+  color/data/format/text utilities.
+
+### Developer & tooling
+
+- **Testing.** New real-Chromium **visual-regression** snapshots (a structural
+  fingerprint per chart, regenerated with `UPDATE_SNAPSHOTS=1`), jsdom
+  **pipeline-parity** snapshots, DOM-vs-scene **render-parity** checks, a full
+  `@d3plus/render` unit suite, and dev harnesses (`chart-compare` for
+  v3 / v4-SVG / v4-Canvas contact sheets, `chart-screenshots`, and
+  `story-render-check`). Playwright/Chromium is now a test dependency, and CI runs
+  a `build:types` declaration-emit typecheck across every package.
+- **Docs generation** was rebuilt for the v4 charts: README config tables and
+  Storybook argTypes are derived from each `ChartDefinition`'s fields, the runtime
+  `installFluent` accessors, and the typed config interfaces (not just JSDoc);
+  README source links pin to `main` so regeneration no longer churns every
+  "Defined in" link.
+- **Build & packaging.** Every root entry file (`index`, `internal`, `react`,
+  `umd-entry`) is transpiled to ESM; `@d3plus/core`'s UMD/CDN global exposes the v4
+  pipeline via a `umd-entry.ts` superset while the typed ESM entry stays curated;
+  the release script syncs all workspace versions so none ship pinned to a stale
+  version; `@d3plus/types` ships types-only (no UMD) with `@d3plus/react` as an
+  optional peer so non-React projects don't pull in React.
+- **Lint.** `max-lines` (500) and `max-lines-per-function` (100) are now enforced
+  (data dictionaries exempt), which drove several oversized modules to be split.
+- **Dev server** live-reload is scoped per tab — editing one chart's dev page
+  reloads only the tabs viewing it, and each tab drops its SSE connection while
+  hidden, so many open dev pages no longer exhaust the browser's per-host
+  connection limit.
+- **Contributor docs** (`AGENTS.md`, `CONTRIBUTING.md`) were rewritten for the v4
+  architecture and the TypeScript / TypeDoc / Storybook toolchain.
 
 ### Breaking changes
 
