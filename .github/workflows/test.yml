@@ -34,11 +34,26 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      # Both Playwright install steps hit the network / apt and flake
+      # intermittently on the runners (install-deps has exited 100 mid-release),
+      # so retry each a few times before failing the job.
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @d3plus/core exec playwright install chromium
+        run: |
+          n=0
+          until pnpm --filter @d3plus/core exec playwright install chromium; do
+            n=$((n + 1))
+            if [ "$n" -ge 3 ]; then echo "playwright install chromium failed after $n attempts"; exit 1; fi
+            echo "playwright install chromium failed (attempt $n); retrying in 15s..."; sleep 15
+          done
       - name: Install Playwright system dependencies
-        run: pnpm --filter @d3plus/core exec playwright install-deps chromium
+        run: |
+          n=0
+          until pnpm --filter @d3plus/core exec playwright install-deps chromium; do
+            n=$((n + 1))
+            if [ "$n" -ge 3 ]; then echo "playwright install-deps chromium failed after $n attempts"; exit 1; fi
+            echo "playwright install-deps chromium failed (attempt $n); retrying in 15s..."; sleep 15
+          done
       - run: pnpm test
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
