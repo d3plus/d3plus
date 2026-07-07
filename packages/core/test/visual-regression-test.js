@@ -291,24 +291,57 @@ const fingerprintFn = builderSrc =>
 const body =
   '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
 
+// Geometry tolerance (px). Rounded bounding boxes drift across platforms —
+// Chromium's layout with the host's default fonts differs between a dev's Mac
+// and Linux CI. Most charts drift <=1px, but text-positioned layouts shift by
+// the label-area width difference (the Matrix grid offsets ~4px). Compare
+// coordinates within a band that absorbs that font-metric drift while still
+// failing real regressions (which move geometry far more, or change structure);
+// shape counts, tags, fills, and text content are matched exactly.
+const GEOM_TOL = 6;
+
 function compare(name, actual) {
   const file = path.join(snapDir, `${name}.json`);
-  const serialized = `${JSON.stringify(actual, null, 2)}\n`;
   if (UPDATE) {
     fs.mkdirSync(snapDir, {recursive: true});
-    fs.writeFileSync(file, serialized);
+    fs.writeFileSync(file, `${JSON.stringify(actual, null, 2)}\n`);
     return;
   }
   assert.ok(
     fs.existsSync(file),
     `no baseline for "${name}" — generate with UPDATE_SNAPSHOTS=1`,
   );
-  const expected = fs.readFileSync(file, "utf8");
-  assert.strictEqual(
-    serialized,
-    expected,
-    `visual snapshot mismatch for "${name}". If intended, regenerate with UPDATE_SNAPSHOTS=1.`,
+  const expected = JSON.parse(fs.readFileSync(file, "utf8"));
+  const hint = " If intended, regenerate with UPDATE_SNAPSHOTS=1.";
+
+  // A changed per-tag count, tspan/label, or text anchor is a structural
+  // regression — match those exactly.
+  assert.deepStrictEqual(
+    actual.counts, expected.counts,
+    `visual snapshot count mismatch for "${name}".${hint}`,
   );
+  assert.deepStrictEqual(
+    actual.texts, expected.texts,
+    `visual snapshot text mismatch for "${name}".${hint}`,
+  );
+
+  // Shapes: same sequence and same tag/fill/stroke; geometry within GEOM_TOL px.
+  assert.strictEqual(
+    actual.shapes.length, expected.shapes.length,
+    `visual snapshot shape-count mismatch for "${name}".${hint}`,
+  );
+  actual.shapes.forEach((a, i) => {
+    const e = expected.shapes[i];
+    assert.strictEqual(a.t, e.t, `shape ${i} tag mismatch for "${name}".${hint}`);
+    assert.strictEqual(a.f, e.f, `shape ${i} fill mismatch for "${name}".${hint}`);
+    assert.strictEqual(a.s, e.s, `shape ${i} stroke mismatch for "${name}".${hint}`);
+    for (const k of ["x", "y", "w", "h"]) {
+      assert.ok(
+        Math.abs(a[k] - e[k]) <= GEOM_TOL,
+        `shape ${i} "${k}" for "${name}" is ${a[k]}, expected ~${e[k]} (>${GEOM_TOL}px drift).${hint}`,
+      );
+    }
+  });
 }
 
 for (const [name, builderSrc] of charts) {
