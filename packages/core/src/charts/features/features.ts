@@ -214,7 +214,7 @@ function textBlockLayout(
   const text = opts.getText(viz);
   if (!text) return {panel: null, margin: {}};
 
-  const usesPadding = (viz.schema[opts.paddingMethod] as () => boolean)();
+  const usesPadding = (viz.schema[opts.paddingMethod] as (viz: VizInstance) => boolean)(viz);
   const padding = usesPadding
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
@@ -411,7 +411,7 @@ export const timelineFeature: FeatureModule = {
         : []
     ) as Date[];
     timelinePossible = timelinePossible && ticks.length > 1;
-    const padding = viz.schema.timelinePadding()
+    const padding = viz.schema.timelinePadding(viz)
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 
@@ -527,7 +527,7 @@ export const colorScaleFeature: FeatureModule = {
     const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)));
     const wide = ["top", "bottom"].includes(position as string);
     const showColorScale = viz.schema.colorScale && position;
-    const padding = viz.schema.colorScalePadding()
+    const padding = viz.schema.colorScalePadding(viz)
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 

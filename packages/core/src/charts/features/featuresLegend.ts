@@ -126,7 +126,7 @@ function renderLegendFeature(
   const config = resolveSpec(viz);
   const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
   const wide = ["top", "bottom"].includes(position as string);
-  const padding = viz.schema.legendPadding()
+  const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
   const transform = {

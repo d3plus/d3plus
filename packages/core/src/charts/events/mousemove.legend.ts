@@ -63,7 +63,7 @@ export default function (
       hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
     );
 
-    const invertedBehavior = this.schema.legendFilterInvert.bind(this)();
+    const invertedBehavior = this.schema.legendFilterInvert.bind(this)(this);
 
     const solo = this._solo.includes(id);
     const hidden = this._hidden.includes(id);

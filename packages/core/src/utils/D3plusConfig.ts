@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 
+import type VizBase from "../charts/viz/VizBase.js";
 import type {AccessorFn} from "./AccessorFn.js";
 
 type Position = "top" | "right" | "bottom" | "left";
@@ -272,8 +273,10 @@ export interface D3plusConfig {
     colorMax?: string;
     scale?: AxisScale;
   };
-  /** Position of the color scale, or false to hide it. */
-  colorScalePosition?: false | Position;
+  /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  colorScalePadding?: boolean | ((viz: VizBase) => boolean);
+  /** Position of the color scale, `false` to hide it, or an accessor returning either. */
+  colorScalePosition?: false | Position | (() => false | Position);
   /** Column key for matrix-style layouts. */
   column?: string;
   /**
@@ -312,21 +315,34 @@ export interface D3plusConfig {
   groupPadding?: number;
   /** Overall height of the visualization in pixels. */
   height?: number;
+  /** Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
+  hiddenColor?: string | ((d: DataPoint, i: number) => string);
+  /** Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
+  hiddenOpacity?: number | ((d: DataPoint, i: number) => number);
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
-  /** Whether to show the legend. */
-  legend?: boolean;
+  /**
+      Controls legend visibility. Pass `false` to hide it, `true` to always
+      show it, or a `(config, data) => boolean` accessor to decide dynamically
+      — the chart defaults use an accessor to auto-hide the legend when it
+      would be redundant.
+  */
+  legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
   /** Configuration for the legend component. */
   legendConfig?: {
     label?: DataPointAccessor<string>;
     shapeConfig?: Record<string, string | number>;
   };
-  /** Position of the legend. */
-  legendPosition?: Position;
+  /** Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. */
+  legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
+  /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  legendPadding?: boolean | ((viz: VizBase) => boolean);
+  /** Position of the legend, or an accessor returning it. */
+  legendPosition?: Position | (() => Position);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
@@ -335,10 +351,12 @@ export interface D3plusConfig {
   lineLabels?: boolean;
   /** Whether to show the loading message. */
   loadingMessage?: boolean;
-  /** Custom HTML content for the loading indicator. */
-  loadingHTML?: string;
+  /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
+  loadingHTML?: string | ((viz: VizBase) => string);
   /** Metric key for the visualization. */
   metric?: string;
+  /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
+  noDataHTML?: string | ((viz: VizBase) => string);
   /** Ocean color for geomaps (any CSS value including 'transparent'). */
   ocean?: string;
   /** Event listeners keyed by event name. */
@@ -379,6 +397,10 @@ export interface D3plusConfig {
   stacked?: boolean;
   /** Custom order for stacked series. */
   stackOrder?: string[];
+  /** Subtitle text, or an accessor returning it. */
+  subtitle?: string | ((data: DataPoint[]) => string);
+  /** Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  subtitlePadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for treemaps and aggregation. */
   sum?: DataPointAccessor<number>;
   /** Accessible description applied to the root SVG (`<desc>`). */
@@ -387,8 +409,8 @@ export interface D3plusConfig {
   svgTitle?: string;
   /** Threshold value for grouping small slices. */
   threshold?: number;
-  /** Label for the threshold group. */
-  thresholdName?: string;
+  /** Label for the threshold group, or a `(datum, index)` accessor. */
+  thresholdName?: string | ((d: DataPoint, i: number) => string);
   /** URL to XYZ map tiles. */
   tileUrl?: string;
   /** Whether to show map tiles. */
@@ -399,12 +421,16 @@ export interface D3plusConfig {
   timeFilter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Whether to show the timeline component. */
   timeline?: boolean;
+  /** Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  timelinePadding?: boolean | ((viz: VizBase) => boolean);
   /** Chart title or title accessor function. */
   title?: string | ((data: DataPoint[]) => string);
   /** CSS style configuration for the title. */
   titleConfig?: Record<string, string | number>;
-  /** Whether to show tooltips. */
-  tooltip?: boolean;
+  /** Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  titlePadding?: boolean | ((viz: VizBase) => boolean);
+  /** Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. */
+  tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
   /** Configuration for the tooltip component. */
   tooltipConfig?: TooltipConfig;
   /** Path or object for the topojson data. */
@@ -413,6 +439,8 @@ export interface D3plusConfig {
   topojsonFill?: string;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
   /** Overall width of the visualization in pixels. */

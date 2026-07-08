@@ -142,8 +142,8 @@ export default class VizBase extends VizBaseConfig {
       Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   subtitlePadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.subtitlePadding = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -266,8 +266,8 @@ export default class VizBase extends VizBaseConfig {
       Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   timelinePadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.timelinePadding = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -298,8 +298,8 @@ export default class VizBase extends VizBaseConfig {
       Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   titlePadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.titlePadding = typeof _ === "function" ? _ : constant(_)), this)
       : this.schema.titlePadding;
@@ -361,8 +361,8 @@ export default class VizBase extends VizBaseConfig {
       Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   totalPadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.totalPadding = typeof _ === "function" ? _ : constant(_)), this)
       : this.schema.totalPadding;

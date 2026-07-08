@@ -6,6 +6,7 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, BaseClass, constant} from "../../utils/index.js";
+import type VizBase from "./VizBase.js";
 
 /**
     First half of the fluent config accessors shared by every Viz chart
@@ -131,8 +132,8 @@ export default class VizBaseConfig extends BaseClass {
       Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   colorScalePadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.colorScalePadding = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -465,8 +466,8 @@ Defaults to an empty array (`[]`).
       Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 */
   legendFilterInvert(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
         this)
@@ -477,8 +478,8 @@ Defaults to an empty array (`[]`).
       Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 */
   legendPadding(
-    _?: boolean | (() => boolean),
-  ): this | boolean | (() => boolean) {
+    _?: boolean | ((viz: VizBase) => boolean),
+  ): this | boolean | ((viz: VizBase) => boolean) {
     return arguments.length
       ? ((this.schema.legendPadding = typeof _ === "function" ? _ : constant(_)),
         this)
