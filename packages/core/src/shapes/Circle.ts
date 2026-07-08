@@ -37,11 +37,19 @@ export default class Circle extends Shape {
     super("circle");
     installFluent(this, circleSchema);
     this._name = "Circle";
+    // Bound the label to the full circle (diameter box) and tag it
+    // `shape: "circle"`, so the label TextBox flows text as circle chords —
+    // lines fill the interior, shorter near the top and bottom and full width
+    // through the middle — rather than being capped to a square inscribed in
+    // the circle. The `shape` hint rides on the bounds (not `labelConfig`) so a
+    // chart that repositions the label with its own `labelBounds` (e.g. Tree's
+    // external node labels) gets ordinary rectangular wrapping.
     this.schema.labelBounds = (_d: DataPoint, _i: number, s: ShapeAes) => ({
-      width: (s.r as number) * 1.5,
-      height: (s.r as number) * 1.5,
-      x: -(s.r as number) * 0.75,
-      y: -(s.r as number) * 0.75,
+      width: (s.r as number) * 2,
+      height: (s.r as number) * 2,
+      x: -(s.r as number),
+      y: -(s.r as number),
+      shape: "circle",
     });
     this.schema.labelConfig = assign(this.schema.labelConfig, {
       textAnchor: "middle",

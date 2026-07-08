@@ -167,11 +167,14 @@ function resizeFontSize(
   lH: number,
   words: string[],
   style: Record<string, string | number>,
+  shape: string,
 ): number {
   const sizes = textWidth(words, style) as unknown as number[];
 
   const areaMod = 1.165 + (w / h) * 0.1,
-    boxArea = w * h,
+    // A circle fills only ~π/4 of its bounding box, so scale the usable area
+    // down to keep the initial font-size guess from overshooting.
+    boxArea = w * h * (shape === "circle" ? Math.PI / 4 : 1),
     maxWidth = max(sizes) as number,
     textArea = sum(sizes, (d: number) => d * lH) * areaMod;
 
@@ -282,7 +285,8 @@ function computeTextBoxDatum(
   const padding = parseSides(box.schema.padding(d, i));
 
   const h = box.schema.height(d, i) - (padding.top + padding.bottom),
-    w = box.schema.width(d, i) - (padding.left + padding.right);
+    w = box.schema.width(d, i) - (padding.left + padding.right),
+    shape = box.schema.shape(d, i) as string;
 
   const wrapper = textWrap()
     .fontFamily(style["font-family"] as string)
@@ -292,6 +296,7 @@ function computeTextBoxDatum(
     .maxLines(box.schema.maxLines(d, i))
     .height(h)
     .overflow(box.schema.overflow(d, i))
+    .shape(shape as "square" | "circle")
     .width(w)
     .split(box.schema.split);
 
@@ -338,7 +343,7 @@ function computeTextBoxDatum(
   }
 
   if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
-    if (resize) fS = resizeFontSize(fS, w, h, lH, words, style);
+    if (resize) fS = resizeFontSize(fS, w, h, lH, words, style, shape);
     checkSize();
   }
 
@@ -384,6 +389,13 @@ const textBoxSchema: ConfigField[] = [
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "rotate", coerce: "const", default: constant(0)},
   {key: "rotateAnchor", coerce: "const", default: (d: TextBoxDatum) => [d.w / 2, d.h / 2]},
+  // Bounding shape for wrapping: "square" (default) fills the full width on
+  // every line; "circle" treats width/height as the diameter and shortens
+  // lines near the top and bottom to keep text inside the circle. Defaults to
+  // the label record's namespaced `__d3plusWrapShape__` (stamped from a shape's
+  // `labelBounds`) so Circle labels wrap to the circle without callers
+  // configuring anything, while a caller's own `shape` data field is ignored.
+  {key: "shape", coerce: "const", default: (d: DataPoint) => (d.__d3plusWrapShape__ as string) ?? "square"},
   {key: "split", coerce: "identity", default: textSplit},
   {key: "text", coerce: "const", default: accessor("text")},
   {key: "textAnchor", coerce: "const", default: constant("start")},

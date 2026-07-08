@@ -123,6 +123,12 @@ export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
           id: `${id(d, i)}_${l}`,
           r,
           rotateAnchor,
+          // Wrapping shape rides on the bounds so it stays paired with them:
+          // a shape whose `labelBounds` returns `shape: "circle"` wraps to the
+          // circle, while a chart that supplies its own rectangular bounds
+          // (no `shape`) wraps normally. Stamped under a namespaced key so it
+          // can't collide with a `shape` field a caller's own data might carry.
+          ...(b.shape ? {__d3plusWrapShape__: b.shape} : {}),
           text: (labels as unknown[])[l],
           width: b.width,
           x: xPos + b.x,
