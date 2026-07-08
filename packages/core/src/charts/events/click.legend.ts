@@ -29,7 +29,7 @@ export default function (
     }),
   ).length;
 
-  const inverted = this.schema.legendFilterInvert.bind(this)();
+  const inverted = this.schema.legendFilterInvert.bind(this)(this);
 
   if (inverted) {
     if (event.shiftKey) {
