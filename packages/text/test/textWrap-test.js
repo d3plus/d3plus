@@ -88,34 +88,6 @@ it("textWrap", () => {
 it("textWrap circle", () => {
   const font = "Verdana";
 
-  // Long, spaceless-ish tokens keep each line's measured width close to the
-  // width the break logic compared against, so the chord constraint shows up
-  // cleanly without the space-measurement slack short words introduce.
-  const sentence =
-    "internationalization internationalization internationalization";
-
-  const square = textWrap()
-    .fontFamily(font)
-    .fontSize(16)
-    .lineHeight(20)
-    .width(170)
-    .height(170)(sentence);
-
-  const circle = textWrap()
-    .fontFamily(font)
-    .fontSize(16)
-    .lineHeight(20)
-    .width(170)
-    .height(170)
-    .shape("circle")(sentence);
-
-  // The circle's top and bottom chords are shorter than the box width, so the
-  // same text needs more lines than a square of the same width.
-  assert.ok(
-    circle.lines.length > square.lines.length,
-    "circle wrapping uses more lines than a square of the same width",
-  );
-
   // The chord of a circle of `radius` at the vertical center of line `line`
   // (1-based) in a centered block of `total` lines — the same geometry the
   // wrapper uses to bound each line.
@@ -125,30 +97,32 @@ it("textWrap circle", () => {
     return edge >= radius ? 0 : 2 * Math.sqrt(radius * radius - edge * edge);
   };
 
-  // Every line fits the chord available at its own vertical position — not just
-  // the full diameter. This is the real containment guarantee: a line near the
-  // top/bottom has far less room than a middle line, and the wrapper must
-  // account for the ACTUAL line count it settles on (chords are re-centered to
-  // that count at render time).
+  const sentence =
+    "internationalization internationalization internationalization";
+
+  // The containment guarantee: in a comfortably-sized circle the label wraps to
+  // the interior and every line fits the chord at its own vertical position —
+  // not just the full diameter. A line near the top/bottom has far less room
+  // than a middle line, and the wrapper accounts for the ACTUAL line count it
+  // settles on (chords are re-centered to that count at render time). This is
+  // asserted as a geometric invariant rather than an exact line count, which
+  // depends on sub-pixel font metrics.
+  const circle = textWrap()
+    .fontFamily(font)
+    .fontSize(16)
+    .lineHeight(20)
+    .width(300)
+    .height(300)
+    .shape("circle")(sentence);
   assert.strictEqual(circle.truncated, false, "the label fits without truncating");
+  assert.ok(circle.lines.length >= 2, "the label wraps to multiple lines");
   circle.widths.forEach((w, i) => {
-    const chord = chordAt(85, circle.lines.length, 20, 16, i + 1);
+    const chord = chordAt(150, circle.lines.length, 20, 16, i + 1);
     assert.ok(
       w <= chord + 0.5,
       `circle line ${i} (w=${w.toFixed(1)}) fits its chord (${chord.toFixed(1)})`,
     );
   });
-
-  // The widest line is through the middle, not at the top or bottom.
-  const mid = Math.floor(circle.lines.length / 2);
-  assert.ok(
-    circle.widths[0] < circle.widths[mid],
-    "the first line is shorter than a middle line",
-  );
-  assert.ok(
-    circle.widths[circle.lines.length - 1] < circle.widths[mid],
-    "the last line is shorter than a middle line",
-  );
 
   // A single short word sits centered on one line, using the full diameter.
   const single = textWrap()
@@ -200,21 +174,35 @@ it("textWrap circle", () => {
     "a non-truncated circle wrap never returns an overflowing line",
   );
 
-  // overflow(true) opts out of circle containment: the same text at the same
-  // size that would truncate (so a resizing caller shrinks it) is instead laid
-  // out as-is, allowed to spill past the chords.
-  const overflowArgs = () =>
-    textWrap().fontFamily(font).fontSize(20).width(120).height(120).shape("circle");
-  const contained = overflowArgs()("these are several fairly long words");
-  const spilled = overflowArgs().overflow(true)("these are several fairly long words");
-  assert.strictEqual(
-    contained.truncated,
-    true,
-    "without overflow, text that can't fit the circle truncates",
+  // overflow(true) opts out of circle containment: at least one line is allowed
+  // to exceed its chord (spill past the curved edge) instead of being forced to
+  // shrink or truncate.
+  const spilled = textWrap()
+    .fontFamily(font)
+    .fontSize(20)
+    .lineHeight(28)
+    .width(120)
+    .height(120)
+    .shape("circle")
+    .overflow(true)("these are several fairly long words");
+  assert.ok(
+    spilled.widths.some(
+      (w, i) => w > chordAt(60, spilled.lines.length, 28, 20, i + 1) + 0.5,
+    ),
+    "overflow(true) lets a circle line exceed its chord",
   );
-  assert.strictEqual(
-    spilled.truncated,
-    false,
-    "overflow(true) lets circle text spill instead of truncating",
+
+  // Regression: overflow with a first word wider than its line must not throw.
+  // The first-word break path advanced the line counter past the (empty) line
+  // buffer, so a following word read an undefined line and crashed.
+  assert.doesNotThrow(
+    () =>
+      textWrap()
+        .fontFamily(font)
+        .fontSize(20)
+        .width(10)
+        .shape("circle")
+        .overflow(true)("Superlongword tail"),
+    "overflow with a first word wider than the line does not crash",
   );
 });

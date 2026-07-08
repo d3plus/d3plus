@@ -122,24 +122,32 @@ function flowWords(
         truncated = true;
         break;
       }
-      if (lineData.length >= line) {
-        let lineText = lineData[line - 1].trimEnd();
-        // Convert trailing soft hyphen to visible hyphen at line breaks
-        if (lineText.endsWith(softHyphen))
-          lineText = lineText.slice(0, -1) + "-";
-        lineData[line - 1] = lineText;
+      if (!i) {
+        // The very first word is wider than its line and overflow is allowed:
+        // keep it on the first line instead of breaking. There is no prior line
+        // to leave, and advancing `line` past the empty `lineData` here would
+        // desync the two so later lines read `lineData[line - 1]` as undefined.
+        lineData[0] = word;
+      } else {
+        if (lineData.length >= line) {
+          let lineText = lineData[line - 1].trimEnd();
+          // Convert trailing soft hyphen to visible hyphen at line breaks
+          if (lineText.endsWith(softHyphen))
+            lineText = lineText.slice(0, -1) + "-";
+          lineData[line - 1] = lineText;
+        }
+        line++;
+        if (
+          lineHeight * line > height ||
+          (wordWidth > lineWidth(line) && !overflow) ||
+          (maxLines && line > maxLines)
+        ) {
+          truncated = true;
+          break;
+        }
+        widthProg = 0;
+        lineData.push(word);
       }
-      line++;
-      if (
-        lineHeight * line > height ||
-        (wordWidth > lineWidth(line) && !overflow) ||
-        (maxLines && line > maxLines)
-      ) {
-        truncated = true;
-        break;
-      }
-      widthProg = 0;
-      lineData.push(word);
     } else if (!i) lineData[0] = word;
     else {
       // Strip soft hyphen when syllables stay on the same line
