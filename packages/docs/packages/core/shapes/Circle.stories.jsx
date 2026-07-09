@@ -35,3 +35,29 @@ BasicExample.args = {
   x: "x", y: "y", r: "r", fill: "fill"
 };
 BasicExample.parameters = {controls: {include: ["r"]}, docs: {description: {story: "Three circles positioned by `x`/`y`, each sized by its data-bound `r` and filled from a per-datum `fill`."}}};
+
+export const TextWrapping = Template.bind({});
+TextWrapping.args = {
+  data: [
+    {
+      id: "big",
+      x: 170,
+      y: 170,
+      r: 150,
+      fill: "#3a7ca5",
+      text: "Data visualization made easy — labels wrap to fill the whole circle, with shorter lines near the top and bottom."
+    },
+    {
+      id: "small",
+      x: 430,
+      y: 170,
+      r: 100,
+      fill: "#cc4b4b",
+      text: "Text follows the curve instead of a boxy square inside the circle."
+    }
+  ],
+  x: "x", y: "y", r: "r",
+  fill: funcify(d => d.fill, "d => d.fill"),
+  label: funcify(d => d.text, "d => d.text")
+};
+TextWrapping.parameters = {controls: {include: ["r"]}, docs: {description: {story: "A `label` on a Circle now wraps to the circle's interior: each line is only as wide as the circle is at that height, so text fills the round shape — widest through the middle, shorter at the top and bottom — and auto-sizes to fit. Previously labels were confined to a square inscribed in the circle, wasting the rounded sides. Just set a `label` accessor; d3plus handles the rest."}}};
