@@ -17,7 +17,7 @@
   },
   "browser": "./umd/d3plus-core.full.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "sideEffects": false,
   "files": [
