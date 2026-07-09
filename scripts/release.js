@@ -37,6 +37,35 @@ function editInEditor(text) {
   return edited;
 }
 
+// Extract the CHANGELOG.md section for `version` — the text between its
+// `## <version>` heading and the next `##` heading (or end of file). The
+// heading matches when its first token equals the version, so `## 4.1.0` and
+// `## 4.1.0 - 2026-07-09` both resolve. Returns null when there is no file or
+// no matching section, so the caller can fall back to the commit list.
+function changelogNotes(version) {
+  let text;
+  try {
+    text = fs.readFileSync("CHANGELOG.md", "utf8");
+  } catch {
+    return null;
+  }
+  const lines = text.split("\n");
+  const isHeading = line => /^##\s+/.test(line);
+  const headingVersion = line => line.replace(/^##\s+/, "").trim().split(/\s+/)[0];
+
+  const start = lines.findIndex(l => isHeading(l) && headingVersion(l) === version);
+  if (start === -1) return null;
+
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    if (isHeading(lines[i])) {
+      end = i;
+      break;
+    }
+  }
+  return lines.slice(start + 1, end).join("\n").trim() || null;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 const token = process.env.GITHUB_TOKEN;
@@ -104,22 +133,30 @@ try {
   }
 
   // ── Release notes ──────────────────────────────────────────────────────
-  log.timer("compiling release notes");
-  let commits = execSync(
-    "git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD",
-    {encoding: "utf8"},
-  );
-  log.done();
+  // Prefer the CHANGELOG.md section for this version; fall back to the commit
+  // list since the previous tag when there is no matching section.
+  let notes = changelogNotes(version);
+  if (notes) {
+    log.timer(`using CHANGELOG.md section for v${version}`);
+    log.done();
+  } else {
+    log.timer("compiling release notes from commit log");
+    notes = execSync(
+      "git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD",
+      {encoding: "utf8"},
+    );
+    log.done();
+  }
 
   let notesConfirmed = false;
   while (!notesConfirmed) {
     console.log("\n── Release notes ──────────────────────────────────────");
-    console.log(commits);
+    console.log(notes);
     console.log("──────────────────────────────────────────────────────\n");
 
     const editChoice = await ask("Accept release notes? [Y/e(dit)] ");
     if (editChoice.trim().toLowerCase() === "e") {
-      commits = editInEditor(commits);
+      notes = editInEditor(notes);
     } else {
       notesConfirmed = true;
     }
@@ -153,7 +190,7 @@ try {
   console.log(`\n── GitHub release ─────────────────────────────────────`);
   console.log(`  Tag:        v${version}`);
   console.log(`  Prerelease: ${prerelease}`);
-  console.log(`  Body:\n${commits}`);
+  console.log(`  Body:\n${notes}`);
   console.log(`──────────────────────────────────────────────────────\n`);
 
   if (!(await confirm("Publish GitHub release?"))) {
@@ -166,7 +203,7 @@ try {
       repo: "d3plus",
       tag_name: `v${version}`,
       name: `v${version}`,
-      body: commits,
+      body: notes,
       prerelease,
     });
     log.done();
