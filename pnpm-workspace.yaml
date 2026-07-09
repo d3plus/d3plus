@@ -1,2 +1,13 @@
 packages:
   - "packages/*"
+publicHoistPattern:
+  - "*eslint*"
+  - "*typescript*"
+  - "*storybook*"
+  - "*webpack*"
+allowBuilds:
+  '@swc/core': true
+  canvas: true
+  core-js-pure: true
+  esbuild: true
+  sharp: true
