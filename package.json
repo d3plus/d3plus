@@ -6,6 +6,9 @@
   "license": "MIT",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "homepage": "https://d3plus.org",
   "repository": {
     "type": "git",
