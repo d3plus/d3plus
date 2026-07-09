@@ -471,6 +471,21 @@ export const argTypes = assign(
         summary: "string | htmlelement"
       }
     },
+    shape: {
+      control: {
+        type: "text"
+      },
+      description: "The shape type used for each legend entry.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
+    },
     shapeConfig: {
       control: {},
       description: "Configuration object with key/value pairs applied as method calls on each shape.",

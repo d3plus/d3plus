@@ -115,7 +115,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:168](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L168)
+Defined in: [textWrap.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L328)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 

@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/locales",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "International localizations for number, date, and UI labels.",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/format",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "JavaScript formatters for localized numbers and dates.",
   "license": "MIT",
   "type": "module",
