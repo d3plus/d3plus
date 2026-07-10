@@ -125,6 +125,7 @@ export const radialMatrixDef: ChartDefinition = {
     },
     {
       key: "label",
+      coerce: "const",
       factory: (viz: VizInstance) => (d: DataPoint, i: number) =>
         `${getProp.bind(viz)("row", d, i)} / ${getProp.bind(viz)("column", d, i)}`,
     },

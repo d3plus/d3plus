@@ -18,7 +18,7 @@ export const areaPlotDef: ChartDefinition = {
   fields: [
     {key: "baseline", default: 0},
     {key: "discrete", default: "x"},
-    {key: "shape", default: constant("Area")},
+    {key: "shape", default: constant("Area"), coerce: "const"},
   ],
 };
 

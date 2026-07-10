@@ -17,7 +17,7 @@ export const linePlotDef: ChartDefinition = {
 
   fields: [
     {key: "discrete", default: "x"},
-    {key: "shape", default: constant("Line")},
+    {key: "shape", default: constant("Line"), coerce: "const"},
   ],
 };
 

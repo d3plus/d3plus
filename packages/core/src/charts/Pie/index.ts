@@ -110,6 +110,7 @@ export const pieDef: DataDrivenChartDefinition = {
     },
     {
       key: "legend",
+      coerce: "const",
       factory: (viz: VizInstance) => {
         const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
         return (config: D3plusConfig, arr: DataPoint[]) => {

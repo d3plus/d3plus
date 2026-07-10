@@ -42,7 +42,7 @@ export const treeDef: ChartDefinition = {
       default: (a: {parent: unknown}, b: {parent: unknown}) =>
         a.parent === b.parent ? 1 : 2,
     },
-    {key: "shape", default: constant("Circle")},
+    {key: "shape", default: constant("Circle"), coerce: "const"},
     {
       key: "shapeConfig",
       merge: true,
