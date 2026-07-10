@@ -164,7 +164,7 @@ export const sankeyDef: ChartDefinition = {
     {key: "nodeSort"},
     {key: "nodeWidth", default: 30},
     {key: "value", default: constant(1)},
-    {key: "shape", default: constant("Rect")},
+    {key: "shape", default: constant("Rect"), coerce: "const"},
     {
       key: "shapeConfig",
       merge: true,

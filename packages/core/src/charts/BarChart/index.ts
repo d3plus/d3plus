@@ -21,9 +21,10 @@ export const barChartDef: ChartDefinition = {
   fields: [
     {key: "baseline", default: 0},
     {key: "discrete", default: "x"},
-    {key: "shape", default: constant("Bar")},
+    {key: "shape", default: constant("Bar"), coerce: "const"},
     {
       key: "legend",
+      coerce: "const",
       factory: (viz: VizInstance) => {
         const base = viz.schema.legend as (
           config: VizInstance,

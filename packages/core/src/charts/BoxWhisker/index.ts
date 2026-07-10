@@ -21,7 +21,7 @@ export const boxWhiskerDef: ChartDefinition = {
 
   fields: [
     {key: "discrete", default: "x"},
-    {key: "shape", default: constant("Box")},
+    {key: "shape", default: constant("Box"), coerce: "const"},
     {
       key: "tooltipConfig",
       merge: true,

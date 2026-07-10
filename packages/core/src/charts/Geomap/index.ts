@@ -383,7 +383,7 @@ export const geomapDef: ChartDefinition = {
     {key: "pointSizeScale", default: "linear"},
     {key: "projection", default: d3Geo.geoMercator()},
     {key: "projectionPadding", default: parseSides(20)},
-    {key: "shape", default: constant("Circle")},
+    {key: "shape", default: constant("Circle"), coerce: "const"},
     {key: "topojson", default: false},
     {key: "topojsonFill", default: constant("#f5f5f3")},
     {

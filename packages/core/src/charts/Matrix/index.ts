@@ -92,6 +92,7 @@ export const matrixDef: ChartDefinition = {
     {key: "columnConfig", merge: true, default: {orient: "top", ...defaultAxisConfig}},
     {
       key: "label",
+      coerce: "const",
       factory: (viz: VizInstance) => (d: DataPoint, i: number) =>
         `${getProp.bind(viz)("row", d, i)} / ${getProp.bind(viz)("column", d, i)}`,
     },

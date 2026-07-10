@@ -190,7 +190,7 @@ export const ringsDef: ChartDefinition = {
     {key: "sizeMax"},
     {key: "sizeMin", default: 5},
     {key: "sizeScale", default: "sqrt"},
-    {key: "shape", default: constant("Circle")},
+    {key: "shape", default: constant("Circle"), coerce: "const"},
     {
       key: "shapeConfig",
       merge: true,

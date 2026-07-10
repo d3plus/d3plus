@@ -43,7 +43,7 @@ export const radarDef: ChartDefinition = {
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
     {key: "outerPadding", default: 100},
-    {key: "shape", default: constant("Path")},
+    {key: "shape", default: constant("Path"), coerce: "const"},
     {
       key: "value",
       default: accessor("value"),
