@@ -1,6 +1,5 @@
 /* eslint no-cond-assign: 0*/
 
-import * as d3Shape from "d3-shape";
 // @ts-ignore
 import pkg from "open-color/open-color.js";
 const {theme: openColor} = pkg;
@@ -49,7 +48,15 @@ const plotSchema = [
 import {plotDef} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
-import {stackOffsetDiverging, stackOrderAscending, stackOrderDescending} from "./stackHelpers.js";
+import {
+  resolveStackOffset,
+  resolveStackOrder,
+  stackOffsetDiverging,
+  stackOrderTotalDescending,
+  type StackOffsetFn,
+  type StackOrderFn,
+  type StackOrderInput,
+} from "./stackHelpers.js";
 import {plotPaint, type PlotPaintContext} from "../features/plotPaint.js";
 import Viz from "../viz/Viz.js";
 
@@ -132,7 +139,7 @@ export default class Plot extends Viz {
     this.schema.sizeMin = 5;
     this.schema.sizeScale = "sqrt";
     this._stackOffset = stackOffsetDiverging;
-    this._stackOrder = stackOrderDescending;
+    this._stackOrder = stackOrderTotalDescending;
     this.schema.timelineConfig = assign(this.schema.timelineConfig, {
       brushMin: () =>
         this._xTime || this._yTime || this._x2Time || this._y2Time ? 2 : 1,
@@ -476,41 +483,36 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      Sets the stack offset. If *value* is not specified, returns the current stack offset function.
+      Sets the vertical offset applied to stacked series. Accepts a named
+      offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
+      or `"wiggle"` — or a custom offset function. Unknown names warn and fall
+      back to `"diverging"`. If *value* is not specified, returns the current
+      stack offset function.
 */
-  stackOffset(
-    _?: string | ((series: number[][], order: number[]) => void),
-  ): this | ((series: number[][], order: number[]) => void) {
+  stackOffset(_?: string | StackOffsetFn): this | StackOffsetFn {
     return arguments.length
-      ? ((this._stackOffset =
-          typeof _ === "function"
-            ? _
-            : (d3Shape as Record<string, unknown>)[
-                `stackOffset${_!.charAt(0).toUpperCase() + _!.slice(1)}`
-              ]),
-        this)
-      : this._stackOffset;
+      ? ((this._stackOffset = resolveStackOffset(_!)), this)
+      : (this._stackOffset as StackOffsetFn);
   }
 
   /**
-      Sets the stack order. If *value* is not specified, returns the current stack order function.
+      Sets the order of stacked series, from the bottom of the stack upward.
+      Accepts:
+      - a named order: `"descending"` (default) / `"ascending"` by summed
+        value, `"key"` / `"keyReverse"` alphabetically by series key,
+        `"none"` / `"data"` for input order, or d3's `"insideOut"`,
+        `"appearance"`, `"reverse"`;
+      - an Array of series keys for an explicit order;
+      - a value accessor, or a `{value, order}` config, to rank series by an
+        aggregate of any data field.
+
+      Unknown named strings warn and fall back to `"descending"`. If *value*
+      is not specified, returns the current stack order.
 */
-  stackOrder(
-    _?: string | ((series: number[][]) => number[]),
-  ): this | ((series: number[][]) => number[]) {
-    if (arguments.length) {
-      if (typeof _ === "string")
-        this._stackOrder =
-          _ === "ascending"
-            ? stackOrderAscending
-            : _ === "descending"
-              ? stackOrderDescending
-              : (d3Shape as Record<string, unknown>)[
-                  `stackOrder${_.charAt(0).toUpperCase() + _.slice(1)}`
-                ];
-      else this._stackOrder = _;
-      return this;
-    } else return this._stackOrder;
+  stackOrder(_?: StackOrderInput): this | StackOrderFn | string[] {
+    return arguments.length
+      ? ((this._stackOrder = resolveStackOrder(_!)), this)
+      : (this._stackOrder as StackOrderFn | string[]);
   }
 
   /**

@@ -465,3 +465,46 @@ OrdinalColor.parameters = {
   controls: {include: ["colorOrdinal"]},
   docs: {description: {story: "Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark."}}
 };
+
+// Three series with clearly different totals, plotted over a numeric year
+// axis (integer x) so the ordering is easy to read.
+const revenueByYear = [
+  {segment: "Enterprise", year: 2021, revenue: 40},
+  {segment: "Enterprise", year: 2022, revenue: 46},
+  {segment: "Enterprise", year: 2023, revenue: 52},
+  {segment: "Retail",     year: 2021, revenue: 25},
+  {segment: "Retail",     year: 2022, revenue: 28},
+  {segment: "Retail",     year: 2023, revenue: 27},
+  {segment: "Online",     year: 2021, revenue:  8},
+  {segment: "Online",     year: 2022, revenue: 14},
+  {segment: "Online",     year: 2023, revenue: 21}
+];
+
+export const StackOrderByValue = Template.bind({});
+StackOrderByValue.args = {
+  data: revenueByYear,
+  groupBy: "segment",
+  stacked: true,
+  stackOrder: "descending",
+  x: "year",
+  y: "revenue"
+};
+StackOrderByValue.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "`stackOrder` accepts named value orders that rank series by their summed total. `\"descending\"` (the default) anchors the largest series — Enterprise — on the baseline with the smallest on top; switch to `\"ascending\"` to flip that and put the largest on top. Unlike the old alphabetical default, this reads by magnitude and works the same whether `x` is a string or a number (see [#527](https://github.com/d3plus/d3plus/issues/527))."}}};
+
+export const StackOrderByField = Template.bind({});
+StackOrderByField.args = {
+  data: [
+    {product: "Widgets", quarter: "Q1", units: 50, profit:  5},
+    {product: "Widgets", quarter: "Q2", units: 60, profit:  6},
+    {product: "Gadgets", quarter: "Q1", units: 20, profit: 40},
+    {product: "Gadgets", quarter: "Q2", units: 25, profit: 50},
+    {product: "Gizmos",  quarter: "Q1", units: 35, profit: 15},
+    {product: "Gizmos",  quarter: "Q2", units: 30, profit: 18}
+  ],
+  groupBy: "product",
+  stacked: true,
+  stackOrder: funcify(d => d.profit, "d => d.profit"),
+  x: "quarter",
+  y: "units"
+};
+StackOrderByField.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: \"profit\", order: \"ascending\"}` to reverse."}}};

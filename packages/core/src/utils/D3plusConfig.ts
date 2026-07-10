@@ -395,8 +395,26 @@ export interface D3plusConfig {
   size?: string;
   /** Whether to stack series. */
   stacked?: boolean;
-  /** Custom order for stacked series. */
-  stackOrder?: string[];
+  /**
+      Vertical offset applied to stacked series. One of `"diverging"`
+      (default — positive and negative values split around zero), `"none"`,
+      `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph),
+      or `"wiggle"` (minimize slope changes); or a custom offset function.
+  */
+  stackOffset?: string | ((series: number[][][], order: number[]) => void);
+  /**
+      Order of stacked series, from the bottom of the stack upward. Accepts a
+      named order (`"descending"` [default] / `"ascending"` by summed value,
+      `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input
+      order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of
+      series keys for an explicit order, a value accessor, or a `{value, order}`
+      config to rank series by an aggregate of any data field.
+  */
+  stackOrder?:
+    | string
+    | string[]
+    | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
+    | ((d: DataPoint) => unknown);
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /** Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. */

@@ -107,3 +107,21 @@ SortingAreas.args = {
   y: "y"
 };
 SortingAreas.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an explicit array to `stackOrder` to fix the bottom-to-top stacking sequence of the series rather than letting d3plus derive it."}}};
+
+const streamData = [4, 5, 6, 7, 8, 9].flatMap(x => [
+  {id: "alpha", x, y: 12 + 8 * Math.sin(x)},
+  {id: "beta",  x, y: 18 + 6 * Math.cos(x)},
+  {id: "gamma", x, y: 10 + 5 * Math.sin(x + 1)},
+  {id: "delta", x, y: 14 + 7 * Math.cos(x + 2)}
+]);
+
+export const Streamgraph = Template.bind({});
+Streamgraph.args = {
+  data: streamData,
+  groupBy: "id",
+  stackOffset: "silhouette",
+  stackOrder: "insideOut",
+  x: "x",
+  y: "y"
+};
+Streamgraph.parameters = {controls: {include: ["stackOrder", "stackOffset"]}, docs: {description: {story: "Combine a named order with a named offset for a streamgraph: `stackOrder: \"insideOut\"` keeps the largest series in the middle and pushes late-rising ones to the edges, while `stackOffset: \"silhouette\"` centers the stack around a free baseline instead of anchoring at zero. `stackOrder` also accepts d3's `\"appearance\"` and `\"reverse\"`; `stackOffset` also accepts `\"wiggle\"` (minimizes slope changes) and `\"expand\"`."}}};

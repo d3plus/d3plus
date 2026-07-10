@@ -134,10 +134,11 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
 
   const order = viz._stackOrder;
 
+  // An explicit key array orders `stackKeys` directly (then d3-stack keeps
+  // that order via `stackOrderNone`); every other order is a comparator that
+  // reranks the series d3-stack builds, so `stackKeys` is left in input order.
   if (Array.isArray(order))
     stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  else if ((order as unknown) === d3Shape.stackOrderNone)
-    stackKeys.sort((a, b) => `${a}`.localeCompare(`${b}`));
 
   // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
   // order/offset/value accessors are cast (`as never`) at the boundary, and
