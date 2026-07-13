@@ -26,7 +26,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: "50",
-    description: "The length of line segments when converting curves line segments. Higher values lower computation time, but will result in curves that are more rigid.",
+    description: "The maximum length of line segments when flattening curves.",
     table: {
       defaultValue: {
         summary: "50"

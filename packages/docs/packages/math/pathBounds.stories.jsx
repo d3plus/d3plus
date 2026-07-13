@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../args/math/path2polygon.args";
-import {path2polygon} from "@d3plus/math";
+import {argTypes} from "../../args/math/pathBounds.args";
+import {pathBounds} from "@d3plus/math";
 
 export default {
-  title: "Math/path2polygon",
+  title: "Math/pathBounds",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "Transforms a path string into an Array of points, with no DOM involved.\nStraight segments contribute their endpoints; curves and arcs are flattened\ninto line segments no longer than segmentLength. Higher segmentLength\nvalues lower computation time but yield more rigid curves.",
+        component: "Computes the exact bounding box of an SVG path string with no DOM involved,\nevaluating the true extrema of each Bézier and arc segment (not a sampled\napproximation). Returns {x, y, width, height}, or a zero-size box at the\norigin for an empty/unparseable path.",
       },
     },
   }

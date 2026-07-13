@@ -33,7 +33,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
-| [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points. |
+| [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
+| [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
 | [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
@@ -146,20 +147,55 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 > **path2polygon**(`path`: `string`, `segmentLength?`: `number`): `Point`[]
 
-Defined in: [path2polygon.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/path2polygon.ts#L8)
+Defined in: [path2polygon.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/path2polygon.ts#L24)
 
-Transforms a path string into an Array of points.
+Transforms a path string into an Array of points, with no DOM involved.
+Straight segments contribute their endpoints; curves and arcs are flattened
+into line segments no longer than `segmentLength`. Higher `segmentLength`
+values lower computation time but yield more rigid curves.
 
 #### Parameters
 
 | Parameter | Type | Default | Description |
 | ------ | ------ | ------ | ------ |
 | `path` | `string` | *required* | An SVG string path, commonly the "d" property of a <path> element. |
-| `segmentLength` | `number` | `50` | The length of line segments when converting curves line segments. Higher values lower computation time, but will result in curves that are more rigid. |
+| `segmentLength` | `number` | `50` | The maximum length of line segments when flattening curves. |
 
 #### Returns
 
 `Point`[]
+
+***
+
+<a id="pathbounds"></a>
+
+### pathBounds()
+
+> **pathBounds**(`d`: `string`): `object`
+
+Defined in: [pathBounds.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L62)
+
+Computes the exact bounding box of an SVG path string with no DOM involved,
+evaluating the true extrema of each Bézier and arc segment (not a sampled
+approximation). Returns `{x, y, width, height}`, or a zero-size box at the
+origin for an empty/unparseable path.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `d` | `string` | An SVG path string (the `d` attribute of a `<path>`). |
+
+#### Returns
+
+`object`
+
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `height` | `number` | [pathBounds.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L66) |
+| `width` | `number` | [pathBounds.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L65) |
+| `x` | `number` | [pathBounds.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L63) |
+| `y` | `number` | [pathBounds.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L64) |
 
 ***
 

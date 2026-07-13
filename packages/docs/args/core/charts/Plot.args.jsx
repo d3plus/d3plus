@@ -1098,7 +1098,7 @@ export const argTypes = assign(
         type: "text"
       },
       defaultValue: "stackOffsetDiverging",
-      description: "Sets the stack offset. If *value* is not specified, returns the current stack offset function.",
+      description: "Sets the vertical offset applied to stacked series. Accepts a named\noffset — `\"diverging\"` (default), `\"none\"`, `\"expand\"`, `\"silhouette\"`,\nor `\"wiggle\"` — or a custom offset function. Unknown names warn and fall\nback to `\"diverging\"`. If *value* is not specified, returns the current\nstack offset function.",
       table: {
         defaultValue: {
           summary: "stackOffsetDiverging"
@@ -1106,23 +1106,21 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "string | stackoffsetfn"
       }
     },
     stackOrder: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "stackOrderDescending",
-      description: "Sets the stack order. If *value* is not specified, returns the current stack order function.",
+      control: {},
+      defaultValue: "stackOrderTotalDescending",
+      description: "Sets the order of stacked series, from the bottom of the stack upward.\nAccepts:\n- a named order: `\"descending\"` (default) / `\"ascending\"` by summed\n  value, `\"key\"` / `\"keyReverse\"` alphabetically by series key,\n  `\"none\"` / `\"data\"` for input order, or d3's `\"insideOut\"`,\n  `\"appearance\"`, `\"reverse\"`;\n- an Array of series keys for an explicit order;\n- a value accessor, or a `{value, order}` config, to rank series by an\n  aggregate of any data field.\n\nUnknown named strings warn and fall back to `\"descending\"`. If *value*\nis not specified, returns the current stack order.",
       table: {
         defaultValue: {
-          summary: "stackOrderDescending"
+          summary: "stackOrderTotalDescending"
         }
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "stackorderinput"
       }
     },
     stacked: {

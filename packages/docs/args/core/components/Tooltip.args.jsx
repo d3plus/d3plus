@@ -350,7 +350,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "string | array.&lt;number&gt; | htmlelement | function"
+        summary: "string | htmlelement | array.&lt;number&gt; | function"
       }
     },
     shapeConfig: {

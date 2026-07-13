@@ -130,7 +130,7 @@ a straight walk. Animation runs one requestAnimationFrame loop over interpolateS
 
 > **destroy**(): `void`
 
-Defined in: [canvas/CanvasRenderer.ts:578](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L578)
+Defined in: [canvas/CanvasRenderer.ts:598](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L598)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -198,7 +198,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [canvas/CanvasRenderer.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L494)
+Defined in: [canvas/CanvasRenderer.ts:514](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L514)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -222,7 +222,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [canvas/CanvasRenderer.ts:431](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L431)
+Defined in: [canvas/CanvasRenderer.ts:451](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L451)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -291,7 +291,7 @@ reaching into the private `_target` slot.
 
 > **toCanvas**(): `HTMLCanvasElement`
 
-Defined in: [canvas/CanvasRenderer.ts:574](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L574)
+Defined in: [canvas/CanvasRenderer.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L594)
 
 Rasterize the current surface to a canvas element.
 
@@ -309,7 +309,7 @@ Rasterize the current surface to a canvas element.
 
 > **toSVGString**(): `string`
 
-Defined in: [canvas/CanvasRenderer.ts:563](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L563)
+Defined in: [canvas/CanvasRenderer.ts:583](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L583)
 
 Re-renders the retained scene through the SVG backend to produce an SVG string.
 
@@ -1252,7 +1252,7 @@ present in both (update, as [previous, next] pairs), and nodes to remove (exit).
 
 ### GroupNode
 
-Defined in: [scene.ts:324](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L324)
+Defined in: [scene.ts:332](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L332)
 
 A transform/clip container; mirrors the nested <g> structure of the SVG output.
 
@@ -1265,8 +1265,8 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-aria-2"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L195) |
-| <a id="property-children"></a> `children` | [`SceneNode`](#scenenode)[] | - | - | [scene.ts:326](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L326) |
-| <a id="property-clip"></a> `clip?` | [`ClipShape`](#clipshape) | - | - | [scene.ts:327](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L327) |
+| <a id="property-children"></a> `children` | [`SceneNode`](#scenenode)[] | - | - | [scene.ts:334](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L334) |
+| <a id="property-clip"></a> `clip?` | [`ClipShape`](#clipshape) | - | - | [scene.ts:335](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L335) |
 | <a id="property-datum-2"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-6) | [scene.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L174) |
 | <a id="property-gradientbounds-2"></a> `gradientBounds?` | `object` | Explicit bounding box for an objectBoundingBox gradient fill on a node the Canvas backend can't measure geometrically (a `path`). The SVG backend derives the box from the element automatically; Canvas reads this instead of parsing `d`. Used by motion-trail cones. | [`NodeBase`](#nodebase).[`gradientBounds`](#property-gradientbounds-6) | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.h` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
@@ -1284,7 +1284,7 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 | <a id="property-trail-2"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L204) |
 | <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L213) |
 | <a id="property-transform-2"></a> `transform?` | [`Transform`](#transform) | - | [`NodeBase`](#nodebase).[`transform`](#property-transform-6) | [scene.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L191) |
-| <a id="property-type-2"></a> `type` | `"group"` | - | - | [scene.ts:325](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L325) |
+| <a id="property-type-2"></a> `type` | `"group"` | - | - | [scene.ts:333](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L333) |
 | <a id="property-z-2"></a> `z?` | `number` | Z-order within the parent group; stable sort key replacing DOM append order. | [`NodeBase`](#nodebase).[`z`](#property-z-6) | [scene.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L197) |
 
 ***
@@ -1293,7 +1293,7 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 
 ### HtmlOverlayNode
 
-Defined in: [scene.ts:349](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L349)
+Defined in: [scene.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L357)
 
 Embedded HTML at an absolute pixel position over the scene. The renderer
 mounts the HTML in a sibling `<div>` (NOT inside the SVG) positioned via
@@ -1322,34 +1322,34 @@ are responsible for idempotent wiring (remove old listeners first).
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-aria-3"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L195) |
-| <a id="property-classname"></a> `className?` | `string` | Optional CSS class names applied to the host <div>. | - | [scene.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L362) |
+| <a id="property-classname"></a> `className?` | `string` | Optional CSS class names applied to the host <div>. | - | [scene.ts:370](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L370) |
 | <a id="property-datum-3"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-6) | [scene.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L174) |
-| <a id="property-events"></a> `events?` | `Record`\<`string`, `Partial`\<`Record`\<`string`, (`e`: `Event`) => `void`\>\>\> | Declarative event wiring — a record of CSS-selector → event-name → handler. The renderer attaches one listener per (selector, event) pair and dispatches by `event.target.closest(selector)` matching. Prefer this over `onMount` for click/hover/keyboard wiring: the declarative form is serializable, survives scene snapshots, and keeps closures off the scene primitive. Example: events: { ".zoom-in": {click: e => viz.zoomIn()}, ".zoom-out": {click: e => viz.zoomOut()}, } | - | [scene.ts:379](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L379) |
+| <a id="property-events"></a> `events?` | `Record`\<`string`, `Partial`\<`Record`\<`string`, (`e`: `Event`) => `void`\>\>\> | Declarative event wiring — a record of CSS-selector → event-name → handler. The renderer attaches one listener per (selector, event) pair and dispatches by `event.target.closest(selector)` matching. Prefer this over `onMount` for click/hover/keyboard wiring: the declarative form is serializable, survives scene snapshots, and keeps closures off the scene primitive. Example: events: { ".zoom-in": {click: e => viz.zoomIn()}, ".zoom-out": {click: e => viz.zoomOut()}, } | - | [scene.ts:387](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L387) |
 | <a id="property-gradientbounds-3"></a> `gradientBounds?` | `object` | Explicit bounding box for an objectBoundingBox gradient fill on a node the Canvas backend can't measure geometrically (a `path`). The SVG backend derives the box from the element automatically; Canvas reads this instead of parsing `d`. Used by motion-trail cones. | [`NodeBase`](#nodebase).[`gradientBounds`](#property-gradientbounds-6) | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.h` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.w` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.x` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.y` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
-| <a id="property-height"></a> `height?` | `number` | Optional explicit height (defaults to content-driven). | - | [scene.ts:358](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L358) |
+| <a id="property-height"></a> `height?` | `number` | Optional explicit height (defaults to content-driven). | - | [scene.ts:366](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L366) |
 | <a id="property-hit-3"></a> `hit?` | [`HitShape`](#hitshape) | - | [`NodeBase`](#nodebase).[`hit`](#property-hit-6) | [scene.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L194) |
-| <a id="property-html"></a> `html` | `string` | Raw HTML (innerHTML) for the overlay. Caller is responsible for sanitization. | - | [scene.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L360) |
+| <a id="property-html"></a> `html` | `string` | Raw HTML (innerHTML) for the overlay. Caller is responsible for sanitization. | - | [scene.ts:368](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L368) |
 | <a id="property-id-3"></a> `id?` | `string` | An explicit DOM id, emitted as the SVG element's `id` attribute. Distinct from `key` (a renderer-only identity for diffing) so callers can address a mounted element from outside the scene graph. | [`NodeBase`](#nodebase).[`id`](#property-id-6) | [scene.ts:172](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L172) |
 | <a id="property-index-3"></a> `index?` | `number` | - | [`NodeBase`](#nodebase).[`index`](#property-index-6) | [scene.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L175) |
 | <a id="property-interactiongroup-3"></a> `interactionGroup?` | `string` | The chart-level interactive component this node belongs to ("legend"), stamped by Viz.toScene so the pointer bridge can route component-scoped handlers on every backend — including Canvas, where there is no per-shape DOM to walk. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`interactionGroup`](#property-interactiongroup-6) | [scene.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L189) |
 | <a id="property-interactive-3"></a> `interactive?` | `boolean` | When false, the node is ignored by hit-testing (= SVG pointer-events: none). | [`NodeBase`](#nodebase).[`interactive`](#property-interactive-6) | [scene.ts:193](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L193) |
 | <a id="property-key-3"></a> `key` | `string` \| `number` | Stable identity for enter/update/exit diffing and tween pairing (= Shape._id). | [`NodeBase`](#nodebase).[`key`](#property-key-6) | [scene.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L166) |
-| <a id="property-onmount"></a> `onMount?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired ONCE after the overlay's host `<div>` is first created — AFTER `innerHTML` / `style` / `dimensions` are written so the consumer can `host.querySelector(...)` inside the callback. Prefer `events` over `onMount` when possible; this is the escape hatch for non-event setup (e.g. instantiating a third-party widget on the host element). | - | [scene.ts:391](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L391) |
-| <a id="property-onupdate"></a> `onUpdate?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired on EVERY draw (including the first). Mirror of `onMount` for state that must reflect each render's data — typically reading `node.html` is enough and you don't need this. Use when listeners must rebind because their closures captured stale-by-design state. | - | [scene.ts:400](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L400) |
+| <a id="property-onmount"></a> `onMount?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired ONCE after the overlay's host `<div>` is first created — AFTER `innerHTML` / `style` / `dimensions` are written so the consumer can `host.querySelector(...)` inside the callback. Prefer `events` over `onMount` when possible; this is the escape hatch for non-event setup (e.g. instantiating a third-party widget on the host element). | - | [scene.ts:399](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L399) |
+| <a id="property-onupdate"></a> `onUpdate?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired on EVERY draw (including the first). Mirror of `onMount` for state that must reflect each render's data — typically reading `node.html` is enough and you don't need this. Use when listeners must rebind because their closures captured stale-by-design state. | - | [scene.ts:408](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L408) |
 | <a id="property-paint-3"></a> `paint?` | [`Paint`](#paint) | - | [`NodeBase`](#nodebase).[`paint`](#property-paint-6) | [scene.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L190) |
 | <a id="property-shapetype-3"></a> `shapeType?` | `string` | The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …), carried so pointer handlers can route shape-class-scoped events (`"click.Bar"`) without reconstructing the source shape. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`shapeType`](#property-shapetype-6) | [scene.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L182) |
-| <a id="property-style-1"></a> `style?` | `Record`\<`string`, `string` \| `number`\> | Optional inline-style key/value record applied to the host <div>. | - | [scene.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L364) |
+| <a id="property-style-1"></a> `style?` | `Record`\<`string`, `string` \| `number`\> | Optional inline-style key/value record applied to the host <div>. | - | [scene.ts:372](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L372) |
 | <a id="property-trail-3"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L204) |
 | <a id="property-trailpersist-3"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L213) |
 | <a id="property-transform-3"></a> `transform?` | [`Transform`](#transform) | - | [`NodeBase`](#nodebase).[`transform`](#property-transform-6) | [scene.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L191) |
-| <a id="property-type-3"></a> `type` | `"htmlOverlay"` | - | - | [scene.ts:350](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L350) |
-| <a id="property-width"></a> `width?` | `number` | Optional explicit width (defaults to content-driven). | - | [scene.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L356) |
-| <a id="property-x"></a> `x` | `number` | Top-left x position in scene coordinates. | - | [scene.ts:352](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L352) |
-| <a id="property-y"></a> `y` | `number` | Top-left y position in scene coordinates. | - | [scene.ts:354](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L354) |
+| <a id="property-type-3"></a> `type` | `"htmlOverlay"` | - | - | [scene.ts:358](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L358) |
+| <a id="property-width"></a> `width?` | `number` | Optional explicit width (defaults to content-driven). | - | [scene.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L364) |
+| <a id="property-x"></a> `x` | `number` | Top-left x position in scene coordinates. | - | [scene.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L360) |
+| <a id="property-y"></a> `y` | `number` | Top-left y position in scene coordinates. | - | [scene.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L362) |
 | <a id="property-z-3"></a> `z?` | `number` | Z-order within the parent group; stable sort key replacing DOM append order. | [`NodeBase`](#nodebase).[`z`](#property-z-6) | [scene.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L197) |
 
 ***
@@ -1387,6 +1387,7 @@ Fields shared by every scene node.
 | <a id="property-interactive-4"></a> `interactive?` | `boolean` | When false, the node is ignored by hit-testing (= SVG pointer-events: none). | [`NodeBase`](#nodebase).[`interactive`](#property-interactive-6) | [scene.ts:193](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L193) |
 | <a id="property-key-4"></a> `key` | `string` \| `number` | Stable identity for enter/update/exit diffing and tween pairing (= Shape._id). | [`NodeBase`](#nodebase).[`key`](#property-key-6) | [scene.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L166) |
 | <a id="property-paint-4"></a> `paint?` | [`Paint`](#paint) | - | [`NodeBase`](#nodebase).[`paint`](#property-paint-6) | [scene.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L190) |
+| <a id="property-preserveaspectratio"></a> `preserveAspectRatio?` | `string` | SVG `preserveAspectRatio` value controlling how the image fits its `width`×`height` box. Passed straight through by the SVG backend; the Canvas backend honors the `meet`/`slice`/`none` mode (slice = CSS `cover`, meet = `contain`, none = stretch). Omitted = the SVG default (`xMidYMid meet`, i.e. contain). | - | [scene.ts:273](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L273) |
 | <a id="property-shapetype-4"></a> `shapeType?` | `string` | The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …), carried so pointer handlers can route shape-class-scoped events (`"click.Bar"`) without reconstructing the source shape. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`shapeType`](#property-shapetype-6) | [scene.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L182) |
 | <a id="property-trail-4"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L204) |
 | <a id="property-trailpersist-4"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L213) |
@@ -1867,7 +1868,7 @@ Describes where a renderer should mount. The container is renderer-agnostic
 
 ### Scene
 
-Defined in: [scene.ts:424](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L424)
+Defined in: [scene.ts:432](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L432)
 
 Scene
 A complete, backend-agnostic description of one frame of a visualization.
@@ -1876,12 +1877,12 @@ A complete, backend-agnostic description of one frame of a visualization.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-height-4"></a> `height` | `number` | - | [scene.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L427) |
-| <a id="property-meta"></a> `meta?` | `object` | - | [scene.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L428) |
-| `meta.background?` | `string` | - | [scene.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L429) |
-| `meta.pixelRatio?` | `number` | Device pixel ratio hint for HiDPI canvas rendering. | [scene.ts:431](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L431) |
-| <a id="property-root"></a> `root` | [`GroupNode`](#groupnode) | - | [scene.ts:425](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L425) |
-| <a id="property-width-4"></a> `width` | `number` | - | [scene.ts:426](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L426) |
+| <a id="property-height-4"></a> `height` | `number` | - | [scene.ts:435](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L435) |
+| <a id="property-meta"></a> `meta?` | `object` | - | [scene.ts:436](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L436) |
+| `meta.background?` | `string` | - | [scene.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L437) |
+| `meta.pixelRatio?` | `number` | Device pixel ratio hint for HiDPI canvas rendering. | [scene.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L439) |
+| <a id="property-root"></a> `root` | [`GroupNode`](#groupnode) | - | [scene.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L433) |
+| <a id="property-width-4"></a> `width` | `number` | - | [scene.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L434) |
 
 ***
 
@@ -1937,7 +1938,7 @@ node's bounding box to build a `CanvasGradient`.
 
 ### TextLine
 
-Defined in: [scene.ts:269](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L269)
+Defined in: [scene.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L277)
 
 A single laid-out line of text within a TextNode.
 
@@ -1945,11 +1946,11 @@ A single laid-out line of text within a TextNode.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-runs"></a> `runs?` | [`TextRun`](#textrun)[] | Optional inline runs with style overrides (bold/italic from HTML markup). | [scene.ts:275](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L275) |
-| <a id="property-text"></a> `text` | `string` | - | [scene.ts:270](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L270) |
-| <a id="property-width-5"></a> `width` | `number` | - | [scene.ts:273](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L273) |
-| <a id="property-x-3"></a> `x` | `number` | - | [scene.ts:271](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L271) |
-| <a id="property-y-3"></a> `y` | `number` | - | [scene.ts:272](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L272) |
+| <a id="property-runs"></a> `runs?` | [`TextRun`](#textrun)[] | Optional inline runs with style overrides (bold/italic from HTML markup). | [scene.ts:283](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L283) |
+| <a id="property-text"></a> `text` | `string` | - | [scene.ts:278](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L278) |
+| <a id="property-width-5"></a> `width` | `number` | - | [scene.ts:281](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L281) |
+| <a id="property-x-3"></a> `x` | `number` | - | [scene.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L279) |
+| <a id="property-y-3"></a> `y` | `number` | - | [scene.ts:280](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L280) |
 
 ***
 
@@ -1957,7 +1958,7 @@ A single laid-out line of text within a TextNode.
 
 ### TextNode
 
-Defined in: [scene.ts:278](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L278)
+Defined in: [scene.ts:286](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L286)
 
 NodeBase
 Fields shared by every scene node.
@@ -1972,29 +1973,29 @@ Fields shared by every scene node.
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-aria-9"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L195) |
 | <a id="property-datum-10"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-6) | [scene.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L174) |
-| <a id="property-font"></a> `font` | [`FontSpec`](#fontspec) | - | - | [scene.ts:284](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L284) |
+| <a id="property-font"></a> `font` | [`FontSpec`](#fontspec) | - | - | [scene.ts:292](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L292) |
 | <a id="property-gradientbounds-9"></a> `gradientBounds?` | `object` | Explicit bounding box for an objectBoundingBox gradient fill on a node the Canvas backend can't measure geometrically (a `path`). The SVG backend derives the box from the element automatically; Canvas reads this instead of parsing `d`. Used by motion-trail cones. | [`NodeBase`](#nodebase).[`gradientBounds`](#property-gradientbounds-6) | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.h` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.w` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.x` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
 | `gradientBounds.y` | `number` | - | - | [scene.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L220) |
-| <a id="property-height-5"></a> `height?` | `number` | - | - | [scene.ts:291](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L291) |
+| <a id="property-height-5"></a> `height?` | `number` | - | - | [scene.ts:299](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L299) |
 | <a id="property-hit-9"></a> `hit?` | [`HitShape`](#hitshape) | - | [`NodeBase`](#nodebase).[`hit`](#property-hit-6) | [scene.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L194) |
 | <a id="property-id-9"></a> `id?` | `string` | An explicit DOM id, emitted as the SVG element's `id` attribute. Distinct from `key` (a renderer-only identity for diffing) so callers can address a mounted element from outside the scene graph. | [`NodeBase`](#nodebase).[`id`](#property-id-6) | [scene.ts:172](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L172) |
 | <a id="property-index-10"></a> `index?` | `number` | - | [`NodeBase`](#nodebase).[`index`](#property-index-6) | [scene.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L175) |
 | <a id="property-interactiongroup-9"></a> `interactionGroup?` | `string` | The chart-level interactive component this node belongs to ("legend"), stamped by Viz.toScene so the pointer bridge can route component-scoped handlers on every backend — including Canvas, where there is no per-shape DOM to walk. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`interactionGroup`](#property-interactiongroup-6) | [scene.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L189) |
 | <a id="property-interactive-9"></a> `interactive?` | `boolean` | When false, the node is ignored by hit-testing (= SVG pointer-events: none). | [`NodeBase`](#nodebase).[`interactive`](#property-interactive-6) | [scene.ts:193](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L193) |
 | <a id="property-key-9"></a> `key` | `string` \| `number` | Stable identity for enter/update/exit diffing and tween pairing (= Shape._id). | [`NodeBase`](#nodebase).[`key`](#property-key-6) | [scene.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L166) |
-| <a id="property-lines"></a> `lines` | [`TextLine`](#textline)[] | Pre-wrapped, pre-positioned lines — backends do not re-measure or re-wrap. | - | [scene.ts:283](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L283) |
+| <a id="property-lines"></a> `lines` | [`TextLine`](#textline)[] | Pre-wrapped, pre-positioned lines — backends do not re-measure or re-wrap. | - | [scene.ts:291](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L291) |
 | <a id="property-paint-9"></a> `paint?` | [`Paint`](#paint) | - | [`NodeBase`](#nodebase).[`paint`](#property-paint-6) | [scene.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L190) |
 | <a id="property-shapetype-9"></a> `shapeType?` | `string` | The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …), carried so pointer handlers can route shape-class-scoped events (`"click.Bar"`) without reconstructing the source shape. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`shapeType`](#property-shapetype-6) | [scene.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L182) |
 | <a id="property-trail-9"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L204) |
 | <a id="property-trailpersist-9"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L213) |
 | <a id="property-transform-9"></a> `transform?` | [`Transform`](#transform) | - | [`NodeBase`](#nodebase).[`transform`](#property-transform-6) | [scene.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L191) |
-| <a id="property-type-10"></a> `type` | `"text"` | - | - | [scene.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L279) |
-| <a id="property-width-6"></a> `width?` | `number` | Layout box width/height (the wrap box the lines were positioned in). Used only as a fallback to center a font-size transition's scale when a node has no laid-out lines. | - | [scene.ts:290](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L290) |
-| <a id="property-x-4"></a> `x` | `number` | - | - | [scene.ts:280](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L280) |
-| <a id="property-y-4"></a> `y` | `number` | - | - | [scene.ts:281](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L281) |
+| <a id="property-type-10"></a> `type` | `"text"` | - | - | [scene.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L287) |
+| <a id="property-width-6"></a> `width?` | `number` | Layout box width/height (the wrap box the lines were positioned in). Used only as a fallback to center a font-size transition's scale when a node has no laid-out lines. | - | [scene.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L298) |
+| <a id="property-x-4"></a> `x` | `number` | - | - | [scene.ts:288](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L288) |
+| <a id="property-y-4"></a> `y` | `number` | - | - | [scene.ts:289](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L289) |
 | <a id="property-z-9"></a> `z?` | `number` | Z-order within the parent group; stable sort key replacing DOM append order. | [`NodeBase`](#nodebase).[`z`](#property-z-6) | [scene.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L197) |
 
 ***
@@ -2152,4 +2153,4 @@ Defined in: [Renderer.ts:71](https://github.com/d3plus/d3plus/blob/main/packages
 
 > **SceneNode** = [`RectNode`](#rectnode) \| [`CircleNode`](#circlenode) \| [`LineNode`](#linenode) \| [`AreaNode`](#areanode) \| [`PathNode`](#pathnode) \| [`ImageNode`](#imagenode) \| [`TextNode`](#textnode) \| [`GroupNode`](#groupnode) \| [`HtmlOverlayNode`](#htmloverlaynode)
 
-Defined in: [scene.ts:409](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L409)
+Defined in: [scene.ts:417](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L417)

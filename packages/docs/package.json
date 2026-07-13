@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/docs",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Documentation and examples for the d3plus visualization library.",
   "license": "MIT",
   "private": true,

@@ -143,7 +143,7 @@ Creates SVG areas based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -159,7 +159,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -185,7 +185,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -201,7 +201,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -273,7 +273,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -289,7 +289,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -315,7 +315,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -331,7 +331,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -357,7 +357,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -373,7 +373,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -399,7 +399,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -415,7 +415,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -688,7 +688,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -712,7 +712,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -728,7 +728,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -796,7 +796,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -812,7 +812,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -838,7 +838,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -854,7 +854,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -878,7 +878,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -1158,23 +1158,22 @@ The y1 (bottom edge) position accessor for the area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Bar`](#bar).[`_transition`](#property-_transition-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Bar`](#bar).[`_transition`](#property-_transition-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -5366,7 +5365,7 @@ Creates SVG areas based on an array of data.
 
 > `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119)
+Defined in: [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123)
 
 ###### Parameters
 
@@ -5390,7 +5389,7 @@ Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -5406,7 +5405,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -5432,7 +5431,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -5448,7 +5447,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -5520,7 +5519,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -5536,7 +5535,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -5562,7 +5561,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -5578,7 +5577,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -5604,7 +5603,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -5620,7 +5619,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -5646,7 +5645,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -5662,7 +5661,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -5935,7 +5934,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -5959,7 +5958,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5975,7 +5974,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6043,7 +6042,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -6059,7 +6058,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -6085,7 +6084,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -6101,7 +6100,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -6125,7 +6124,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -6337,23 +6336,22 @@ The y1 (bottom edge) position accessor for each bar.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-1"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-1"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-1"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-6"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-6"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-1"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-1"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-6"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-1"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-1"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-1"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-1"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-6"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-1"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-1"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-6"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-1"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-6"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-1"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-1"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-6"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-1"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-1"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-1"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-1"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-6"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-1"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-1"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-6"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-1"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-6"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-6"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-6"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -7457,7 +7455,7 @@ Creates SVG circles based on an array of data.
 
 > `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119)
+Defined in: [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123)
 
 ###### Parameters
 
@@ -7481,7 +7479,7 @@ Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -7497,7 +7495,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -7523,7 +7521,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -7539,7 +7537,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -7611,7 +7609,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -7627,7 +7625,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -7653,7 +7651,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -7669,7 +7667,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -7695,7 +7693,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -7711,7 +7709,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -7737,7 +7735,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -7753,7 +7751,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -8026,7 +8024,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -8050,7 +8048,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -8066,7 +8064,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -8134,7 +8132,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -8150,7 +8148,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -8176,7 +8174,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -8192,7 +8190,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -8216,7 +8214,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -8292,23 +8290,22 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-2"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-2"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-2"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-9"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-8"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-2"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-2"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-7"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-2"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-2"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-2"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-2"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-8"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-2"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-2"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-7"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-2"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-8"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-2"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-2"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-7"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-2"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-2"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-2"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-2"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-8"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-2"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-2"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-7"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-2"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-9"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-9"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-9"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -9223,7 +9220,7 @@ Renders the current Image to the page. If a *callback* is specified, it will be 
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Image.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L213)
+Defined in: [shapes/Image.ts:212](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L212)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9235,7 +9232,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Image.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L214)
+Defined in: [shapes/Image.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L213)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -9255,13 +9252,12 @@ The SVG container element as a d3 selector or DOM element.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Image.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L189)
+Defined in: [shapes/Image.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L188)
 
 Compute-mode scene emission. Mirrors Shape.toScene's shape — a
 keyed GroupNode wrapping per-datum ImageNodes. Used by chart
-compositors (Shape._backgroundImageClass, plotPaint) that need
-Image to participate in the scene graph rather than emit
-d3-selection DOM.
+compositors (e.g. plotPaint) that need Image to participate in the
+scene graph rather than emit d3-selection DOM.
 
 ###### Returns
 
@@ -9937,7 +9933,7 @@ Creates SVG lines based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -9953,7 +9949,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -9979,7 +9975,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -9995,7 +9991,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -10067,7 +10063,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10083,7 +10079,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10109,7 +10105,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -10125,7 +10121,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -10151,7 +10147,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -10167,7 +10163,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -10193,7 +10189,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -10209,7 +10205,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -10482,7 +10478,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -10506,7 +10502,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -10522,7 +10518,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -10590,7 +10586,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -10606,7 +10602,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -10632,7 +10628,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -10648,7 +10644,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -10672,7 +10668,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -10748,23 +10744,22 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-3"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-3"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-3"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-12"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-12"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-3"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-3"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-10"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-3"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-4"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-3"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-3"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-10"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-12"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-3"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-3"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-8"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-3"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-12"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-3"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-3"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-10"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-3"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-4"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-3"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-3"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-10"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-12"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-3"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-3"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-8"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-3"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-12"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-12"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-13"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -10795,7 +10790,7 @@ Creates SVG Paths based on an array of data.
 
 > `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119)
+Defined in: [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123)
 
 ###### Parameters
 
@@ -10819,7 +10814,7 @@ Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -10835,7 +10830,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -10861,7 +10856,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -10877,7 +10872,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -10949,7 +10944,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10965,7 +10960,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10991,7 +10986,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -11007,7 +11002,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -11033,7 +11028,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -11049,7 +11044,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -11075,7 +11070,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -11091,7 +11086,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -11364,7 +11359,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -11388,7 +11383,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11404,7 +11399,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11472,7 +11467,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -11488,7 +11483,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -11514,7 +11509,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -11530,7 +11525,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -11554,7 +11549,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -11630,23 +11625,22 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-4"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-4"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-4"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-13"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-13"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-4"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-4"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-11"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-4"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-5"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-4"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-4"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-11"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-13"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-4"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-4"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-9"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-4"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-13"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-4"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-4"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-11"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-4"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-5"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-4"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-4"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-11"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-13"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-4"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-4"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-9"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-4"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-13"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-13"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-14"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -11657,7 +11651,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Plot
 
-Defined in: [charts/Plot/index.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L81)
+Defined in: [charts/Plot/index.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L88)
 
 Creates an x/y plot based on an array of data.
 
@@ -11706,7 +11700,7 @@ svg's children get cleared so only the scene output is visible.
 
 > **\_paint**(`pCtx`: `PlotPaintContext`): [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:318](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L318)
+Defined in: [charts/Plot/index.ts:325](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L325)
 
 Paint phase: production axis rendering, shape buffer setup, and shape
 emission with event handlers. Receives all cross-phase locals from
@@ -11753,7 +11747,7 @@ intermediate paints are wasted — collapse them to one rAF-scheduled draw.
 
 > **\_wirePlotShapeEvents**(`shape`: `object`, `shapeKey`: `string`, `events`: `string`[]): `void`
 
-Defined in: [charts/Plot/index.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L287)
+Defined in: [charts/Plot/index.ts:294](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L294)
 
 Wires user-registered `on()` event handlers onto a freshly-configured
 shape instance. Splits the registered events into three buckets:
@@ -11837,7 +11831,7 @@ Custom aggregation methods for each data key.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: [charts/Plot/index.ts:333](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L333)
+Defined in: [charts/Plot/index.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L340)
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -11907,7 +11901,7 @@ Configuration object for the attribution style.
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L342)
+Defined in: [charts/Plot/index.ts:349](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L349)
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -11951,7 +11945,7 @@ Configuration object for the back button.
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:351](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L351)
+Defined in: [charts/Plot/index.ts:358](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L358)
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -11971,7 +11965,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L360)
+Defined in: [charts/Plot/index.ts:367](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L367)
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -12135,7 +12129,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`number`, `number`\]
 
-Defined in: [charts/Plot/index.ts:388](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L388)
+Defined in: [charts/Plot/index.ts:395](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L395)
 
 The confidence interval as an array of [lower, upper] bounds.
 
@@ -12167,7 +12161,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:405](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L405)
+Defined in: [charts/Plot/index.ts:412](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L412)
 
 Configuration object for shapes rendered as confidence intervals.
 
@@ -12376,7 +12370,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:414](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L414)
+Defined in: [charts/Plot/index.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L421)
 
 When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
@@ -12516,7 +12510,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L423)
+Defined in: [charts/Plot/index.ts:430](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L430)
 
 The pixel space between groups of bars.
 
@@ -12660,7 +12654,7 @@ Accessor function or string key for the label of each data point.
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:432](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L432)
+Defined in: [charts/Plot/index.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L439)
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -12680,7 +12674,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/Plot/index.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L442)
+Defined in: [charts/Plot/index.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L449)
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -12844,7 +12838,7 @@ Configuration object for the legend tooltip.
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L454)
+Defined in: [charts/Plot/index.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L461)
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -12864,7 +12858,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L463)
+Defined in: [charts/Plot/index.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L470)
 
 Draws circle markers on each vertex of a Line.
 
@@ -13539,7 +13533,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L472)
+Defined in: [charts/Plot/index.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L479)
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -13557,41 +13551,56 @@ Sets the size of bubbles to the given Number, data key, or function.
 
 ##### stackOffset()
 
-> **stackOffset**(`_?`: `string` \| ((`series`: `number`[][], `order`: `number`[]) => `void`)): [`Plot`](#plot) \| ((`series`: `number`[][], `order`: `number`[]) => `void`)
+> **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: [charts/Plot/index.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L481)
+Defined in: [charts/Plot/index.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L492)
 
-Sets the stack offset. If *value* is not specified, returns the current stack offset function.
+Sets the vertical offset applied to stacked series. Accepts a named
+offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
+or `"wiggle"` — or a custom offset function. Unknown names warn and fall
+back to `"diverging"`. If *value* is not specified, returns the current
+stack offset function.
 
 ###### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `_?` | `string` \| ((`series`: `number`[][], `order`: `number`[]) => `void`) |
+| `_?` | `string` \| `StackOffsetFn` |
 
 ###### Returns
 
-[`Plot`](#plot) \| ((`series`: `number`[][], `order`: `number`[]) => `void`)
+[`Plot`](#plot) \| `StackOffsetFn`
 
 <a id="stackorder"></a>
 
 ##### stackOrder()
 
-> **stackOrder**(`_?`: `string` \| ((`series`: `number`[][]) => `number`[])): [`Plot`](#plot) \| ((`series`: `number`[][]) => `number`[])
+> **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: [charts/Plot/index.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L498)
+Defined in: [charts/Plot/index.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L512)
 
-Sets the stack order. If *value* is not specified, returns the current stack order function.
+Sets the order of stacked series, from the bottom of the stack upward.
+Accepts:
+- a named order: `"descending"` (default) / `"ascending"` by summed
+  value, `"key"` / `"keyReverse"` alphabetically by series key,
+  `"none"` / `"data"` for input order, or d3's `"insideOut"`,
+  `"appearance"`, `"reverse"`;
+- an Array of series keys for an explicit order;
+- a value accessor, or a `{value, order}` config, to rank series by an
+  aggregate of any data field.
+
+Unknown named strings warn and fall back to `"descending"`. If *value*
+is not specified, returns the current stack order.
 
 ###### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `_?` | `string` \| ((`series`: `number`[][]) => `number`[]) |
+| `_?` | `StackOrderInput` |
 
 ###### Returns
 
-[`Plot`](#plot) \| ((`series`: `number`[][]) => `number`[])
+[`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
 <a id="subtitle"></a>
 
@@ -13959,7 +13968,7 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: [charts/Plot/index.ts:235](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L235)
+Defined in: [charts/Plot/index.ts:242](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L242)
 
 Composes the chart's scene graph: the native shape scenes from Viz.toScene
 (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
@@ -14133,7 +14142,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:519](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L519)
+Defined in: [charts/Plot/index.ts:521](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L521)
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -14153,7 +14162,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:533](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L533)
+Defined in: [charts/Plot/index.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L535)
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -14173,7 +14182,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L556)
+Defined in: [charts/Plot/index.ts:558](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L558)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14193,7 +14202,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L547)
+Defined in: [charts/Plot/index.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L549)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14213,7 +14222,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L565)
+Defined in: [charts/Plot/index.ts:567](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L567)
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -14233,7 +14242,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L579)
+Defined in: [charts/Plot/index.ts:581](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L581)
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -14253,7 +14262,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L608)
+Defined in: [charts/Plot/index.ts:610](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L610)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14273,7 +14282,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:595](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L595)
+Defined in: [charts/Plot/index.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L597)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14492,7 +14501,7 @@ Creates SVG rectangles based on an array of data. See [this example](https://d3p
 
 > `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119)
+Defined in: [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123)
 
 ###### Parameters
 
@@ -14516,7 +14525,7 @@ Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -14532,7 +14541,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -14558,7 +14567,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -14574,7 +14583,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -14646,7 +14655,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -14662,7 +14671,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -14688,7 +14697,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -14704,7 +14713,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -14730,7 +14739,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -14746,7 +14755,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -14772,7 +14781,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -14788,7 +14797,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -15061,7 +15070,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -15085,7 +15094,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -15101,7 +15110,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -15169,7 +15178,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -15185,7 +15194,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -15211,7 +15220,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -15227,7 +15236,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -15251,7 +15260,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -15327,23 +15336,22 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-5"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-5"></a> `_backgroundImageClass` | [`Image`](#image) | - | [`Shape`](#shape-1).[`_backgroundImageClass`](#property-_backgroundimageclass-6) | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-5"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-15"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-14"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-5"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-5"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-12"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-5"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-6"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-5"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-5"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-12"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-14"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-5"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-5"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-10"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-5"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-14"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-5"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-5"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-12"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-5"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-6"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-5"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-5"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-12"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-14"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-5"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-5"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-10"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-5"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-15"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-15"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-16"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -15354,7 +15362,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Shape
 
-Defined in: [shapes/Shape.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L104)
+Defined in: [shapes/Shape.ts:109](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L109)
 
 An abstracted class for generating shapes.
 
@@ -15383,7 +15391,7 @@ An abstracted class for generating shapes.
 
 > `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119)
+Defined in: [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123)
 
 ###### Parameters
 
@@ -15403,7 +15411,7 @@ Defined in: [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L626)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The active callback function for highlighting shapes.
 
@@ -15415,7 +15423,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L627)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The active callback function for highlighting shapes.
 
@@ -15437,7 +15445,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L641)
+Defined in: [shapes/Shape.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L645)
 
 The style to apply to active shapes.
 
@@ -15449,7 +15457,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:642](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L642)
+Defined in: [shapes/Shape.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L646)
 
 The style to apply to active shapes.
 
@@ -15471,7 +15479,7 @@ The style to apply to active shapes.
 
 > **config**(): [`BaseShapeConfig`](#baseshapeconfig)
 
-Defined in: [shapes/Shape.ts:736](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L736)
+Defined in: [shapes/Shape.ts:740](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L740)
 
 Narrowed `.config()` for Shape. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -15489,7 +15497,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **config**(`_`: `Partial`\<[`BaseShapeConfig`](#baseshapeconfig)\>): `this`
 
-Defined in: [shapes/Shape.ts:737](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L737)
+Defined in: [shapes/Shape.ts:741](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L741)
 
 Narrowed `.config()` for Shape. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -15517,7 +15525,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
+Defined in: [shapes/Shape.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L657)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -15529,7 +15537,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
+Defined in: [shapes/Shape.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L658)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -15551,7 +15559,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L662)
+Defined in: [shapes/Shape.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L666)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -15563,7 +15571,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L663)
+Defined in: [shapes/Shape.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L667)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -15585,7 +15593,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
+Defined in: [shapes/Shape.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L680)
 
 The style to apply to hovered shapes.
 
@@ -15597,7 +15605,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:677](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L677)
+Defined in: [shapes/Shape.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L681)
 
 The style to apply to hovered shapes.
 
@@ -15619,7 +15627,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
+Defined in: [shapes/Shape.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L691)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -15631,7 +15639,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L688)
+Defined in: [shapes/Shape.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L692)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -15900,7 +15908,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L518)
+Defined in: [shapes/Shape.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L522)
 
 ###### Parameters
 
@@ -15920,7 +15928,7 @@ Defined in: [shapes/Shape.ts:518](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L698)
+Defined in: [shapes/Shape.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L702)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -15932,7 +15940,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
+Defined in: [shapes/Shape.ts:703](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L703)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -15996,7 +16004,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:709](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L709)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 A comparator function used to sort shapes for layering order.
 
@@ -16008,7 +16016,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L710)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 A comparator function used to sort shapes for layering order.
 
@@ -16030,7 +16038,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L722)
+Defined in: [shapes/Shape.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L726)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -16042,7 +16050,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:723](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L723)
+Defined in: [shapes/Shape.ts:727](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L727)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -16062,7 +16070,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L419)
+Defined in: [shapes/Shape.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L422)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -16134,23 +16142,22 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-6"></a> `_activeGroup` | `Selection` | - | - | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_backgroundimageclass-6"></a> `_backgroundImageClass` | [`Image`](#image) | - | - | [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110) |
+| <a id="property-_activegroup-6"></a> `_activeGroup` | `Selection` | - | - | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
 | <a id="property-_configdefault-16"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L82) |
-| <a id="property-_data-15"></a> `_data` | `DataPoint`[] | - | - | [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111) |
-| <a id="property-_enter-6"></a> `_enter` | `Selection` | - | - | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_exit-6"></a> `_exit` | `Selection` | - | - | [shapes/Shape.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L123) |
-| <a id="property-_group-13"></a> `_group` | `Selection` | - | - | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_hovergroup-6"></a> `_hoverGroup` | `Selection` | - | - | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
-| <a id="property-_labelclass-7"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | [shapes/Shape.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L112) |
-| <a id="property-_name-6"></a> `_name` | `string` | - | - | [shapes/Shape.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L113) |
-| <a id="property-_path-6"></a> `_path` | `Record`\<`string`, `unknown`\> | - | - | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_scenerenderer-13"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | - | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_select-15"></a> `_select` | `Selection` | - | - | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_tagname-6"></a> `_tagName` | `string` | - | - | [shapes/Shape.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L114) |
-| <a id="property-_texturedefs-6"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | - | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
-| <a id="property-_transition-11"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_update-6"></a> `_update` | `Selection` | - | - | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_data-15"></a> `_data` | `DataPoint`[] | - | - | [shapes/Shape.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L115) |
+| <a id="property-_enter-6"></a> `_enter` | `Selection` | - | - | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
+| <a id="property-_exit-6"></a> `_exit` | `Selection` | - | - | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
+| <a id="property-_group-13"></a> `_group` | `Selection` | - | - | [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124) |
+| <a id="property-_hovergroup-6"></a> `_hoverGroup` | `Selection` | - | - | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
+| <a id="property-_labelclass-7"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
+| <a id="property-_name-6"></a> `_name` | `string` | - | - | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
+| <a id="property-_path-6"></a> `_path` | `Record`\<`string`, `unknown`\> | - | - | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
+| <a id="property-_scenerenderer-13"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | - | [shapes/Shape.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L132) |
+| <a id="property-_select-15"></a> `_select` | `Selection` | - | - | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
+| <a id="property-_tagname-6"></a> `_tagName` | `string` | - | - | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
+| <a id="property-_texturedefs-6"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | - | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
+| <a id="property-_transition-11"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
+| <a id="property-_update-6"></a> `_update` | `Selection` | - | - | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
 | <a id="property-_uuid-16"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L81) |
 | <a id="property-ctx-16"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L79) |
 | <a id="property-schema-17"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L77) |
@@ -18094,7 +18101,7 @@ Viz auto-sets this when rendering: chart.tooltipClass.parent(chart._select.node(
 
 ###### Call Signature
 
-> **position**(): (`d`: `DataPoint`, `i?`: `number`) => `number`[] \| `HTMLElement`
+> **position**(): (`d`: `DataPoint`, `i?`: `number`) => `HTMLElement` \| `number`[]
 
 Defined in: [components/Tooltip.ts:517](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L517)
 
@@ -18102,7 +18109,7 @@ The position of each tooltip. Can be an HTMLElement to anchor to, a selection st
 
 ###### Returns
 
-(`d`: `DataPoint`, `i?`: `number`) => `number`[] \| `HTMLElement`
+(`d`: `DataPoint`, `i?`: `number`) => `HTMLElement` \| `number`[]
 
 ###### Example
 
@@ -18114,7 +18121,7 @@ return [d.x, d.y];
 
 ###### Call Signature
 
-> **position**(`_`: `string` \| `number`[] \| `HTMLElement` \| ((`d`: `DataPoint`, `i?`: `number`) => `number`[] \| `HTMLElement`)): `this`
+> **position**(`_`: `string` \| `HTMLElement` \| `number`[] \| ((`d`: `DataPoint`, `i?`: `number`) => `HTMLElement` \| `number`[])): `this`
 
 Defined in: [components/Tooltip.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L518)
 
@@ -18124,7 +18131,7 @@ The position of each tooltip. Can be an HTMLElement to anchor to, a selection st
 
 | Parameter | Type |
 | ------ | ------ |
-| `_` | `string` \| `number`[] \| `HTMLElement` \| ((`d`: `DataPoint`, `i?`: `number`) => `number`[] \| `HTMLElement`) |
+| `_` | `string` \| `HTMLElement` \| `number`[] \| ((`d`: `DataPoint`, `i?`: `number`) => `HTMLElement` \| `number`[]) |
 
 ###### Returns
 
@@ -21528,7 +21535,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `legend` | — |
 
 
-Defined in: [charts/BarChart/index.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L52)
+Defined in: [charts/BarChart/index.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L53)
 
 Creates a bar chart based on an array of data.
 
@@ -21659,7 +21666,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `label` | — |
 
 
-Defined in: [charts/Matrix/index.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L104)
+Defined in: [charts/Matrix/index.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L105)
 
 Creates a simple rows/columns Matrix view of any dataset.
 
@@ -21712,7 +21719,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `on` | — |
 
 
-Defined in: [charts/Pack/index.ts:161](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L161)
+Defined in: [charts/Pack/index.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L162)
 
 Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
 
@@ -21737,7 +21744,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Pie/index.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L127)
+Defined in: [charts/Pie/index.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L128)
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -21808,7 +21815,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `label` | — |
 
 
-Defined in: [charts/RadialMatrix/index.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L137)
+Defined in: [charts/RadialMatrix/index.ts:138](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L138)
 
 Creates a radial layout of a rows/columns Matrix of any dataset.
 
@@ -21945,7 +21952,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Treemap/index.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L182)
+Defined in: [charts/Treemap/index.ts:183](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L183)
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
@@ -21955,7 +21962,7 @@ Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
 ### AreaConfig
 
-Defined in: [shapes/shapeConfig.ts:183](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L183)
+Defined in: [shapes/shapeConfig.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L190)
 
 Area-specific config (curve, defined, dual-edge x/y).
 
@@ -21976,49 +21983,50 @@ Area-specific config (curve, defined, dual-edge x/y).
 | <a id="property-activestyle"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
-| <a id="property-curve"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:184](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L184) |
+| <a id="property-backgroundimagefit"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
+| <a id="property-curve"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L191) |
 | <a id="property-data"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-defined"></a> `defined?` | (`d`: `DataPoint`) => `boolean` | Determines whether a data point is defined (a gap in the area when false). | - | [shapes/shapeConfig.ts:186](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L186) |
-| <a id="property-discrete"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-hitarea"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-vectoreffect"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-x"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-x0"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:187](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L187) |
-| <a id="property-x1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L188) |
-| <a id="property-y"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
-| <a id="property-y0"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L189) |
-| <a id="property-y1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L190) |
+| <a id="property-defined"></a> `defined?` | (`d`: `DataPoint`) => `boolean` | Determines whether a data point is defined (a gap in the area when false). | - | [shapes/shapeConfig.ts:193](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L193) |
+| <a id="property-discrete"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-hitarea"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-vectoreffect"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-x"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-x0"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L194) |
+| <a id="property-x1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L195) |
+| <a id="property-y"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
+| <a id="property-y0"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:196](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L196) |
+| <a id="property-y1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L197) |
 
 ***
 
@@ -22055,7 +22063,7 @@ Defined in: [utils/D3plusConfig.ts:44](https://github.com/d3plus/d3plus/blob/mai
 
 ### BarConfig
 
-Defined in: [shapes/shapeConfig.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L199)
+Defined in: [shapes/shapeConfig.ts:206](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L206)
 
 Bar-specific config (Rect + start/end coords).
 
@@ -22076,51 +22084,52 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-activestyle-1"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`RectConfig`](#rectconfig-3).[`activeStyle`](#property-activestyle-6) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-1"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`ariaLabel`](#property-arialabel-6) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-1"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`RectConfig`](#rectconfig-3).[`backgroundImage`](#property-backgroundimage-6) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
+| <a id="property-backgroundimagefit-1"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`RectConfig`](#rectconfig-3).[`backgroundImageFit`](#property-backgroundimagefit-6) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
 | <a id="property-data-1"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`RectConfig`](#rectconfig-3).[`data`](#property-data-9) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-discrete-1"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`RectConfig`](#rectconfig-3).[`discrete`](#property-discrete-7) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-3) | [shapes/shapeConfig.ts:160](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L160) |
-| <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-1"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-8) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-1"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverStyle`](#property-hoverstyle-6) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-1"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`RectConfig`](#rectconfig-3).[`id`](#property-id-7) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-2"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`RectConfig`](#rectconfig-3).[`label`](#property-label-8) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-1"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`RectConfig`](#rectconfig-3).[`labelBounds`](#property-labelbounds-6) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-1"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`RectConfig`](#rectconfig-3).[`labelConfig`](#property-labelconfig-6) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-1"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`RectConfig`](#rectconfig-3).[`on`](#property-on-7) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-1"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`RectConfig`](#rectconfig-3).[`opacity`](#property-opacity-7) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-1"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`RectConfig`](#rectconfig-3).[`pointerEvents`](#property-pointerevents-7) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode-1"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`RectConfig`](#rectconfig-3).[`renderMode`](#property-rendermode-6) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-1"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`role`](#property-role-6) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-1"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`RectConfig`](#rectconfig-3).[`rotate`](#property-rotate-6) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-1"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`rx`](#property-rx-6) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-1"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`ry`](#property-ry-6) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-2"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`RectConfig`](#rectconfig-3).[`scale`](#property-scale-7) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-1"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`RectConfig`](#rectconfig-3).[`select`](#property-select-8) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-1"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`RectConfig`](#rectconfig-3).[`shapeRendering`](#property-shaperendering-6) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-1"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`RectConfig`](#rectconfig-3).[`sort`](#property-sort-6) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-1"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`RectConfig`](#rectconfig-3).[`stroke`](#property-stroke-6) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-1"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`RectConfig`](#rectconfig-3).[`strokeDasharray`](#property-strokedasharray-6) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-1"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`RectConfig`](#rectconfig-3).[`strokeLinecap`](#property-strokelinecap-6) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-1"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`RectConfig`](#rectconfig-3).[`strokeOpacity`](#property-strokeopacity-6) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-1"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`RectConfig`](#rectconfig-3).[`strokeWidth`](#property-strokewidth-6) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-1"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`RectConfig`](#rectconfig-3).[`textAnchor`](#property-textanchor-6) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-1"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`RectConfig`](#rectconfig-3).[`texture`](#property-texture-6) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-1"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`RectConfig`](#rectconfig-3).[`textureDefault`](#property-texturedefault-6) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-trail"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | [`RectConfig`](#rectconfig-3).[`trail`](#property-trail-2) | [shapes/shapeConfig.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L162) |
-| <a id="property-trailpersist"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | [`RectConfig`](#rectconfig-3).[`trailPersist`](#property-trailpersist-2) | [shapes/shapeConfig.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L164) |
-| <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-3) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
-| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-9) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:200](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L200) |
-| <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:201](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L201) |
-| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-9) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
-| <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:202](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L202) |
-| <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:203](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L203) |
+| <a id="property-discrete-1"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`RectConfig`](#rectconfig-3).[`discrete`](#property-discrete-7) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-3) | [shapes/shapeConfig.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L167) |
+| <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-1"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-8) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-1"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverStyle`](#property-hoverstyle-6) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-1"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`RectConfig`](#rectconfig-3).[`id`](#property-id-7) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-2"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`RectConfig`](#rectconfig-3).[`label`](#property-label-8) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-1"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`RectConfig`](#rectconfig-3).[`labelBounds`](#property-labelbounds-6) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-1"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`RectConfig`](#rectconfig-3).[`labelConfig`](#property-labelconfig-6) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-1"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`RectConfig`](#rectconfig-3).[`on`](#property-on-7) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-1"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`RectConfig`](#rectconfig-3).[`opacity`](#property-opacity-7) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-1"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`RectConfig`](#rectconfig-3).[`pointerEvents`](#property-pointerevents-7) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode-1"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`RectConfig`](#rectconfig-3).[`renderMode`](#property-rendermode-6) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-1"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`role`](#property-role-6) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-1"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`RectConfig`](#rectconfig-3).[`rotate`](#property-rotate-6) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-1"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`rx`](#property-rx-6) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-1"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`ry`](#property-ry-6) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-2"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`RectConfig`](#rectconfig-3).[`scale`](#property-scale-7) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-1"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`RectConfig`](#rectconfig-3).[`select`](#property-select-8) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-1"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`RectConfig`](#rectconfig-3).[`shapeRendering`](#property-shaperendering-6) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-1"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`RectConfig`](#rectconfig-3).[`sort`](#property-sort-6) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-1"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`RectConfig`](#rectconfig-3).[`stroke`](#property-stroke-6) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-1"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`RectConfig`](#rectconfig-3).[`strokeDasharray`](#property-strokedasharray-6) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-1"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`RectConfig`](#rectconfig-3).[`strokeLinecap`](#property-strokelinecap-6) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-1"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`RectConfig`](#rectconfig-3).[`strokeOpacity`](#property-strokeopacity-6) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-1"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`RectConfig`](#rectconfig-3).[`strokeWidth`](#property-strokewidth-6) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-1"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`RectConfig`](#rectconfig-3).[`textAnchor`](#property-textanchor-6) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-1"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`RectConfig`](#rectconfig-3).[`texture`](#property-texture-6) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-1"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`RectConfig`](#rectconfig-3).[`textureDefault`](#property-texturedefault-6) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-trail"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | [`RectConfig`](#rectconfig-3).[`trail`](#property-trail-2) | [shapes/shapeConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L169) |
+| <a id="property-trailpersist"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | [`RectConfig`](#rectconfig-3).[`trailPersist`](#property-trailpersist-2) | [shapes/shapeConfig.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L171) |
+| <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-3) | [shapes/shapeConfig.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L166) |
+| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-9) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:207](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L207) |
+| <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:208](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L208) |
+| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-9) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
+| <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:209](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L209) |
+| <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | [shapes/shapeConfig.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L210) |
 
 ***
 
@@ -22154,43 +22163,44 @@ these via `.config(...)` regardless of geometry.
 | <a id="property-activestyle-2"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-2"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-2"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
+| <a id="property-backgroundimagefit-2"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
 | <a id="property-data-2"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-discrete-2"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-2"></a> `duration?` | `number` | Animation duration in ms. | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-2"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-2"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-hitarea-2"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-2"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-2"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-2"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-2"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-3"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-2"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-2"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-2"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-2"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-2"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode-2"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-2"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-2"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-2"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-2"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-3"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-2"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-2"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-2"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-2"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-2"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-2"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-2"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-2"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-2"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-2"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-2"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-vectoreffect-2"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-2"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-x-2"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-y-2"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-discrete-2"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-2"></a> `duration?` | `number` | Animation duration in ms. | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-2"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-2"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-hitarea-2"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-2"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-2"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-2"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-2"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-3"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-2"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-2"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-2"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-2"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-2"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode-2"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-2"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-2"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-2"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-2"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-3"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-2"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-2"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-2"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-2"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-2"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-2"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-2"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-2"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-2"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-2"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-2"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-vectoreffect-2"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-2"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-x-2"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-y-2"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
 
 ***
 
@@ -22198,7 +22208,7 @@ these via `.config(...)` regardless of geometry.
 
 ### BoxConfig
 
-Defined in: [shapes/shapeConfig.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L223)
+Defined in: [shapes/shapeConfig.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L230)
 
 Box-specific config (whisker + median + outliers; subset of Shape).
 
@@ -22210,18 +22220,18 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-3"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L224) |
-| <a id="property-medianconfig"></a> `medianConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:225](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L225) |
-| <a id="property-orient"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Orientation: "vertical" or "horizontal". | [shapes/shapeConfig.ts:227](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L227) |
-| <a id="property-outlier"></a> `outlier?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Outlier accessor (per-datum predicate). | [shapes/shapeConfig.ts:229](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L229) |
-| <a id="property-outlierconfig"></a> `outlierConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L230) |
-| <a id="property-rectconfig"></a> `rectConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:231](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L231) |
-| <a id="property-rectwidth"></a> `rectWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:232](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L232) |
-| <a id="property-select-3"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:233](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L233) |
-| <a id="property-whiskerconfig"></a> `whiskerConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L234) |
-| <a id="property-whiskermode"></a> `whiskerMode?` | `string` \| `number` \| (`string` \| `number`)[] | Whisker mode: single mode string/number or [low, high] pair. | [shapes/shapeConfig.ts:236](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L236) |
-| <a id="property-x-3"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L237) |
-| <a id="property-y-3"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:238](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L238) |
+| <a id="property-data-3"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:231](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L231) |
+| <a id="property-medianconfig"></a> `medianConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:232](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L232) |
+| <a id="property-orient"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Orientation: "vertical" or "horizontal". | [shapes/shapeConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L234) |
+| <a id="property-outlier"></a> `outlier?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Outlier accessor (per-datum predicate). | [shapes/shapeConfig.ts:236](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L236) |
+| <a id="property-outlierconfig"></a> `outlierConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L237) |
+| <a id="property-rectconfig"></a> `rectConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:238](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L238) |
+| <a id="property-rectwidth"></a> `rectWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:239](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L239) |
+| <a id="property-select-3"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:240](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L240) |
+| <a id="property-whiskerconfig"></a> `whiskerConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:241](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L241) |
+| <a id="property-whiskermode"></a> `whiskerMode?` | `string` \| `number` \| (`string` \| `number`)[] | Whisker mode: single mode string/number or [low, high] pair. | [shapes/shapeConfig.ts:243](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L243) |
+| <a id="property-x-3"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:244](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L244) |
+| <a id="property-y-3"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:245](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L245) |
 
 ***
 
@@ -22229,7 +22239,7 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 
 ### CircleConfig
 
-Defined in: [shapes/shapeConfig.ts:168](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L168)
+Defined in: [shapes/shapeConfig.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L175)
 
 Circle-specific config (radius).
 
@@ -22250,46 +22260,47 @@ Circle-specific config (radius).
 | <a id="property-activestyle-3"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-3"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-3"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
+| <a id="property-backgroundimagefit-3"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
 | <a id="property-data-4"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-discrete-3"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-3"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-3"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-3"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-hitarea-3"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-3"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-3"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-3"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-3"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-4"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-3"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-3"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-3"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-3"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-3"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-r"></a> `r?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L169) |
-| <a id="property-rendermode-3"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-3"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-3"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-3"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-3"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-4"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-4"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-3"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-3"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-3"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-3"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-3"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-3"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-3"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-3"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-3"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-3"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-trail-1"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the point as it moves between frames. | - | [shapes/shapeConfig.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L171) |
-| <a id="property-trailpersist-1"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | [shapes/shapeConfig.ts:173](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L173) |
-| <a id="property-vectoreffect-3"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-3"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-discrete-3"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-3"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-3"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-3"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-hitarea-3"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-3"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-3"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-3"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-3"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-4"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-3"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-3"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-3"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-3"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-3"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-r"></a> `r?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L176) |
+| <a id="property-rendermode-3"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-3"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-3"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-3"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-3"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-4"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-4"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-3"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-3"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-3"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-3"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-3"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-3"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-3"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-3"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-3"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-3"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-trail-1"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the point as it moves between frames. | - | [shapes/shapeConfig.ts:178](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L178) |
+| <a id="property-trailpersist-1"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | [shapes/shapeConfig.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L180) |
+| <a id="property-vectoreffect-3"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-3"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
 
 ***
 
@@ -22391,48 +22402,49 @@ Allows additional custom properties.
 | <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | [utils/D3plusConfig.ts:393](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L393) |
 | <a id="property-size"></a> `size?` | `string` | Size accessor key. | [utils/D3plusConfig.ts:395](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L395) |
 | <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | [utils/D3plusConfig.ts:397](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L397) |
-| <a id="property-stackorder"></a> `stackOrder?` | `string`[] | Custom order for stacked series. | [utils/D3plusConfig.ts:399](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L399) |
-| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Subtitle text, or an accessor returning it. | [utils/D3plusConfig.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L401) |
-| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:403](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L403) |
-| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | [utils/D3plusConfig.ts:405](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L405) |
-| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | [utils/D3plusConfig.ts:407](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L407) |
-| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | [utils/D3plusConfig.ts:409](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L409) |
-| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | [utils/D3plusConfig.ts:411](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L411) |
-| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:413](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L413) |
-| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | [utils/D3plusConfig.ts:417](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L417) |
-| <a id="property-tileurl"></a> `tileUrl?` | `string` | URL to XYZ map tiles. | [utils/D3plusConfig.ts:415](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L415) |
-| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | [utils/D3plusConfig.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L419) |
-| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | [utils/D3plusConfig.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L421) |
-| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | [utils/D3plusConfig.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L423) |
-| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:425](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L425) |
-| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Chart title or title accessor function. | [utils/D3plusConfig.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L427) |
-| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | [utils/D3plusConfig.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L429) |
-| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:431](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L431) |
-| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | [utils/D3plusConfig.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L433) |
-| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | [utils/D3plusConfig.ts:435](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L435) |
-| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | [utils/D3plusConfig.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L437) |
-| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | [utils/D3plusConfig.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L439) |
-| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | [utils/D3plusConfig.ts:441](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L441) |
-| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L443) |
-| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | [utils/D3plusConfig.ts:445](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L445) |
-| <a id="property-width-1"></a> `width?` | `number` | Overall width of the visualization in pixels. | [utils/D3plusConfig.ts:447](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L447) |
-| <a id="property-x-5"></a> `x?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | [utils/D3plusConfig.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L449) |
-| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:455](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L455) |
-| <a id="property-x2sort"></a> `x2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | [utils/D3plusConfig.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L459) |
-| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | [utils/D3plusConfig.ts:451](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L451) |
-| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L453) |
-| <a id="property-xsort"></a> `xSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for x-axis values. | [utils/D3plusConfig.ts:457](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L457) |
-| <a id="property-y-5"></a> `y?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | [utils/D3plusConfig.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L461) |
-| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:467](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L467) |
-| <a id="property-y2sort"></a> `y2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | [utils/D3plusConfig.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L471) |
-| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | [utils/D3plusConfig.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L463) |
-| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L465) |
-| <a id="property-ysort"></a> `ySort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for y-axis values. | [utils/D3plusConfig.ts:469](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L469) |
-| <a id="property-zoom"></a> `zoom?` | `boolean` | Set to false to disable zooming on Geomap and Network. | [utils/D3plusConfig.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L473) |
-| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | [utils/D3plusConfig.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L475) |
-| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. | [utils/D3plusConfig.ts:477](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L477) |
-| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | [utils/D3plusConfig.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L479) |
-| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` | Whether scroll-wheel zooming is enabled. | [utils/D3plusConfig.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L481) |
+| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | [utils/D3plusConfig.ts:404](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L404) |
+| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: `DataPoint`) => `unknown`); \} \| ((`d`: `DataPoint`) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | [utils/D3plusConfig.ts:413](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L413) |
+| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Subtitle text, or an accessor returning it. | [utils/D3plusConfig.ts:419](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L419) |
+| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L421) |
+| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | [utils/D3plusConfig.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L423) |
+| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | [utils/D3plusConfig.ts:425](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L425) |
+| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | [utils/D3plusConfig.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L427) |
+| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | [utils/D3plusConfig.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L429) |
+| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:431](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L431) |
+| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | [utils/D3plusConfig.ts:435](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L435) |
+| <a id="property-tileurl"></a> `tileUrl?` | `string` | URL to XYZ map tiles. | [utils/D3plusConfig.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L433) |
+| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | [utils/D3plusConfig.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L437) |
+| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | [utils/D3plusConfig.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L439) |
+| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | [utils/D3plusConfig.ts:441](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L441) |
+| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L443) |
+| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Chart title or title accessor function. | [utils/D3plusConfig.ts:445](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L445) |
+| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | [utils/D3plusConfig.ts:447](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L447) |
+| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L449) |
+| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | [utils/D3plusConfig.ts:451](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L451) |
+| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | [utils/D3plusConfig.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L453) |
+| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | [utils/D3plusConfig.ts:455](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L455) |
+| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | [utils/D3plusConfig.ts:457](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L457) |
+| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | [utils/D3plusConfig.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L459) |
+| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L461) |
+| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | [utils/D3plusConfig.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L463) |
+| <a id="property-width-1"></a> `width?` | `number` | Overall width of the visualization in pixels. | [utils/D3plusConfig.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L465) |
+| <a id="property-x-5"></a> `x?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | [utils/D3plusConfig.ts:467](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L467) |
+| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L473) |
+| <a id="property-x2sort"></a> `x2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | [utils/D3plusConfig.ts:477](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L477) |
+| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | [utils/D3plusConfig.ts:469](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L469) |
+| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L471) |
+| <a id="property-xsort"></a> `xSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for x-axis values. | [utils/D3plusConfig.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L475) |
+| <a id="property-y-5"></a> `y?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | [utils/D3plusConfig.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L479) |
+| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:485](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L485) |
+| <a id="property-y2sort"></a> `y2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | [utils/D3plusConfig.ts:489](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L489) |
+| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | [utils/D3plusConfig.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L481) |
+| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:483](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L483) |
+| <a id="property-ysort"></a> `ySort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for y-axis values. | [utils/D3plusConfig.ts:487](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L487) |
+| <a id="property-zoom"></a> `zoom?` | `boolean` | Set to false to disable zooming on Geomap and Network. | [utils/D3plusConfig.ts:491](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L491) |
+| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | [utils/D3plusConfig.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L493) |
+| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. | [utils/D3plusConfig.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L495) |
+| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | [utils/D3plusConfig.ts:497](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L497) |
+| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` | Whether scroll-wheel zooming is enabled. | [utils/D3plusConfig.ts:499](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L499) |
 
 ***
 
@@ -22440,7 +22452,7 @@ Allows additional custom properties.
 
 ### ImageConfig
 
-Defined in: [shapes/shapeConfig.ts:207](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L207)
+Defined in: [shapes/shapeConfig.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L214)
 
 Image-specific config (url + dimensions).
 
@@ -22448,17 +22460,17 @@ Image-specific config (url + dimensions).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-6"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:208](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L208) |
-| <a id="property-duration-5"></a> `duration?` | `number` | - | [shapes/shapeConfig.ts:209](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L209) |
-| <a id="property-height-2"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L210) |
-| <a id="property-id-4"></a> `id?` | `AccessorFn` | - | [shapes/shapeConfig.ts:211](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L211) |
-| <a id="property-opacity-4"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:212](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L212) |
-| <a id="property-pointerevents-4"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | [shapes/shapeConfig.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L213) |
-| <a id="property-select-5"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L214) |
-| <a id="property-url"></a> `url?` | `AccessorFn` | URL accessor returning the image src. | [shapes/shapeConfig.ts:216](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L216) |
-| <a id="property-width-2"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:217](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L217) |
-| <a id="property-x-6"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:218](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L218) |
-| <a id="property-y-6"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:219](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L219) |
+| <a id="property-data-6"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L215) |
+| <a id="property-duration-5"></a> `duration?` | `number` | - | [shapes/shapeConfig.ts:216](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L216) |
+| <a id="property-height-2"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:217](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L217) |
+| <a id="property-id-4"></a> `id?` | `AccessorFn` | - | [shapes/shapeConfig.ts:218](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L218) |
+| <a id="property-opacity-4"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:219](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L219) |
+| <a id="property-pointerevents-4"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | [shapes/shapeConfig.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L220) |
+| <a id="property-select-5"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:221](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L221) |
+| <a id="property-url"></a> `url?` | `AccessorFn` | URL accessor returning the image src. | [shapes/shapeConfig.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L223) |
+| <a id="property-width-2"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L224) |
+| <a id="property-x-6"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:225](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L225) |
+| <a id="property-y-6"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:226](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L226) |
 
 ***
 
@@ -22482,7 +22494,7 @@ Defined in: [utils/D3plusConfig.ts:214](https://github.com/d3plus/d3plus/blob/ma
 
 ### LineConfig
 
-Defined in: [shapes/shapeConfig.ts:177](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L177)
+Defined in: [shapes/shapeConfig.ts:184](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L184)
 
 Line-specific config (curve + defined).
 
@@ -22503,45 +22515,46 @@ Line-specific config (curve + defined).
 | <a id="property-activestyle-4"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-4"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-4"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
-| <a id="property-curve-1"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:178](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L178) |
+| <a id="property-backgroundimagefit-4"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
+| <a id="property-curve-1"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:185](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L185) |
 | <a id="property-data-7"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-defined-1"></a> `defined?` | `AccessorFn` | - | - | [shapes/shapeConfig.ts:179](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L179) |
-| <a id="property-discrete-5"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-6"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-4"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-4"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-hitarea-4"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-6"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-4"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-4"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-5"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-6"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-4"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-4"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-5"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-5"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode-4"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-4"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-4"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-4"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-4"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-5"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-6"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-4"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-4"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-4"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-4"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-4"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-4"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-4"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-4"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-4"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-4"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-vectoreffect-4"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-4"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-defined-1"></a> `defined?` | `AccessorFn` | - | - | [shapes/shapeConfig.ts:186](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L186) |
+| <a id="property-discrete-5"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-6"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-4"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-4"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-hitarea-4"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-6"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-4"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-4"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-5"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-6"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-4"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-4"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-5"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-5"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode-4"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-4"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-4"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-4"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-4"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-5"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-6"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-4"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-4"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-4"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-4"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-4"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-4"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-4"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-4"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-4"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-4"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-vectoreffect-4"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-4"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
 
 ***
 
@@ -22587,7 +22600,7 @@ Padding object with all four sides.
 
 ### PathConfig
 
-Defined in: [shapes/shapeConfig.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L194)
+Defined in: [shapes/shapeConfig.ts:201](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L201)
 
 Path-specific config (raw SVG path d string or generator).
 
@@ -22608,44 +22621,45 @@ Path-specific config (raw SVG path d string or generator).
 | <a id="property-activestyle-5"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-5"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-5"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
-| <a id="property-d"></a> `d?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L195) |
+| <a id="property-backgroundimagefit-5"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
+| <a id="property-d"></a> `d?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | [shapes/shapeConfig.ts:202](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L202) |
 | <a id="property-data-8"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-discrete-6"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-7"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-5"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-5"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-hitarea-5"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-7"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-5"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-5"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-6"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-7"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-5"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-5"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-6"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-6"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-6"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode-5"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-5"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-5"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-5"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-5"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-6"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-7"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-5"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-5"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-5"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-5"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-5"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-5"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-5"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-5"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-5"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-5"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-vectoreffect-5"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-5"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-discrete-6"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-7"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-5"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-5"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-hitarea-5"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-7"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-5"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-5"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-6"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-7"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-5"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-5"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-6"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-6"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-6"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode-5"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-5"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-5"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-5"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-5"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-6"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-7"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-5"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-5"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-5"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-5"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-5"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-5"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-5"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-5"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-5"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-5"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-vectoreffect-5"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-5"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
 
 ***
 
@@ -22653,7 +22667,7 @@ Path-specific config (raw SVG path d string or generator).
 
 ### RectConfig
 
-Defined in: [shapes/shapeConfig.ts:158](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L158)
+Defined in: [shapes/shapeConfig.ts:165](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L165)
 
 Rect-specific config (width + height on top of base).
 
@@ -22678,47 +22692,48 @@ Rect-specific config (width + height on top of base).
 | <a id="property-activestyle-6"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | [shapes/shapeConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L56) |
 | <a id="property-arialabel-6"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | [shapes/shapeConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L59) |
 | <a id="property-backgroundimage-6"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | [shapes/shapeConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L61) |
+| <a id="property-backgroundimagefit-6"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | [shapes/shapeConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L68) |
 | <a id="property-data-9"></a> `data?` | `DataPoint`[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | [shapes/shapeConfig.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L49) |
-| <a id="property-discrete-7"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L64) |
-| <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L66) |
-| <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L69) |
-| <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
-| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:160](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L160) |
-| <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
-| <a id="property-hover-8"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L74) |
-| <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
-| <a id="property-hoverstyle-6"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
-| <a id="property-id-7"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L86) |
-| <a id="property-label-8"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
-| <a id="property-labelbounds-6"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L90) |
-| <a id="property-labelconfig-6"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L94) |
-| <a id="property-on-7"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L152) |
-| <a id="property-opacity-7"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
-| <a id="property-pointerevents-7"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L99) |
-| <a id="property-rendermode-6"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
-| <a id="property-role-6"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
-| <a id="property-rotate-6"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
-| <a id="property-rx-6"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
-| <a id="property-ry-6"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
-| <a id="property-scale-7"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L110) |
-| <a id="property-select-8"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
-| <a id="property-shaperendering-6"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L118) |
-| <a id="property-sort-6"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L121) |
-| <a id="property-stroke-6"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L124) |
-| <a id="property-strokedasharray-6"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L126) |
-| <a id="property-strokelinecap-6"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
-| <a id="property-strokeopacity-6"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L130) |
-| <a id="property-strokewidth-6"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L132) |
-| <a id="property-textanchor-6"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
-| <a id="property-texture-6"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
-| <a id="property-texturedefault-6"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
-| <a id="property-trail-2"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | - | [shapes/shapeConfig.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L162) |
-| <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | [shapes/shapeConfig.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L164) |
-| <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
-| <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
-| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
-| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:147](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L147) |
-| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-discrete-7"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | [shapes/shapeConfig.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L71) |
+| <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | [shapes/shapeConfig.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L73) |
+| <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | [shapes/shapeConfig.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L76) |
+| <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | [shapes/shapeConfig.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L78) |
+| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L167) |
+| <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | [shapes/shapeConfig.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L88) |
+| <a id="property-hover-8"></a> `hover?` | ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | [shapes/shapeConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L81) |
+| <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | [shapes/shapeConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L83) |
+| <a id="property-hoverstyle-6"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | [shapes/shapeConfig.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L85) |
+| <a id="property-id-7"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | [shapes/shapeConfig.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L93) |
+| <a id="property-label-8"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | [shapes/shapeConfig.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L95) |
+| <a id="property-labelbounds-6"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: `DataPoint`, `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | [shapes/shapeConfig.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L97) |
+| <a id="property-labelconfig-6"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | [shapes/shapeConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L101) |
+| <a id="property-on-7"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | [shapes/shapeConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L159) |
+| <a id="property-opacity-7"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | [shapes/shapeConfig.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L104) |
+| <a id="property-pointerevents-7"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | [shapes/shapeConfig.ts:106](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L106) |
+| <a id="property-rendermode-6"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | [shapes/shapeConfig.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L120) |
+| <a id="property-role-6"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | [shapes/shapeConfig.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L108) |
+| <a id="property-rotate-6"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | [shapes/shapeConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L111) |
+| <a id="property-rx-6"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | [shapes/shapeConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L113) |
+| <a id="property-ry-6"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | [shapes/shapeConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L115) |
+| <a id="property-scale-7"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | [shapes/shapeConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L117) |
+| <a id="property-select-8"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | [shapes/shapeConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L122) |
+| <a id="property-shaperendering-6"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | [shapes/shapeConfig.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L125) |
+| <a id="property-sort-6"></a> `sort?` | ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | [shapes/shapeConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L128) |
+| <a id="property-stroke-6"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | [shapes/shapeConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L131) |
+| <a id="property-strokedasharray-6"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | [shapes/shapeConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L133) |
+| <a id="property-strokelinecap-6"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | [shapes/shapeConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L135) |
+| <a id="property-strokeopacity-6"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | [shapes/shapeConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L137) |
+| <a id="property-strokewidth-6"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | [shapes/shapeConfig.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L139) |
+| <a id="property-textanchor-6"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | [shapes/shapeConfig.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L142) |
+| <a id="property-texture-6"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | [shapes/shapeConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L144) |
+| <a id="property-texturedefault-6"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | [shapes/shapeConfig.ts:146](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L146) |
+| <a id="property-trail-2"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | - | [shapes/shapeConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L169) |
+| <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | [shapes/shapeConfig.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L171) |
+| <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | [shapes/shapeConfig.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L149) |
+| <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | [shapes/shapeConfig.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L151) |
+| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | [shapes/shapeConfig.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L166) |
+| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | [shapes/shapeConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L154) |
+| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | [shapes/shapeConfig.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L156) |
 
 ***
 
@@ -22812,7 +22827,7 @@ Defined in: [utils/D3plusConfig.ts:82](https://github.com/d3plus/d3plus/blob/mai
 
 ### WhiskerConfig
 
-Defined in: [shapes/shapeConfig.ts:244](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L244)
+Defined in: [shapes/shapeConfig.ts:251](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L251)
 
 Whisker-specific config.
 
@@ -22824,15 +22839,15 @@ Whisker-specific config.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-10"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:245](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L245) |
-| <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | [shapes/shapeConfig.ts:247](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L247) |
-| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:248](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L248) |
-| <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | [shapes/shapeConfig.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L250) |
-| <a id="property-lineconfig"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:251](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L251) |
-| <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | [shapes/shapeConfig.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L252) |
-| <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L253) |
-| <a id="property-x-11"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:254](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L254) |
-| <a id="property-y-11"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:255](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L255) |
+| <a id="property-data-10"></a> `data?` | `DataPoint`[] | - | [shapes/shapeConfig.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L252) |
+| <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | [shapes/shapeConfig.ts:254](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L254) |
+| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:255](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L255) |
+| <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | [shapes/shapeConfig.ts:257](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L257) |
+| <a id="property-lineconfig"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | [shapes/shapeConfig.ts:258](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L258) |
+| <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | [shapes/shapeConfig.ts:259](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L259) |
+| <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | [shapes/shapeConfig.ts:260](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L260) |
+| <a id="property-x-11"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:261](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L261) |
+| <a id="property-y-11"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [shapes/shapeConfig.ts:262](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L262) |
 
 ## Type Aliases
 
@@ -22842,7 +22857,7 @@ Whisker-specific config.
 
 > **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-2) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
 
-Defined in: [shapes/shapeConfig.ts:265](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L265)
+Defined in: [shapes/shapeConfig.ts:272](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L272)
 
 Union of every shape config — useful for code that composes
 transient configs at runtime without knowing the shape ahead of

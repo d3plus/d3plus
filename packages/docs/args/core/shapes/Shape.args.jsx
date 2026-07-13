@@ -103,6 +103,19 @@ export const argTypes = assign(
         summary: "constoraccessor"
       }
     },
+    backgroundImageFit: {
+      control: {},
+      description: "How a `backgroundImage` fits its shape: `\"cover\"` (default) fills the\nshape's bounding box, cropping the overflow and clipping to the outline;\n`\"contain\"` fits the whole image, centered and fully visible, inside the\nshape's largest inscribed rectangle.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
     config: {
       control: {},
       description: "Narrowed `.config()` for Shape. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",
