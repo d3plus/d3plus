@@ -51,14 +51,19 @@ export interface ShapeAes {
 }
 
 
-import Image from "./Image.js";
-import {emitBackgroundImages, sortRanks} from "./sceneSort.js";
+import {
+  backgroundImageLayout,
+  emitBackgroundImages,
+  sortRanks,
+  type BackgroundImageSpec,
+} from "./sceneSort.js";
 
 /** Shape's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const shapeSchema: ConfigField[] = [
   {key: "activeOpacity", coerce: "identity", default: 0.25},
   {key: "ariaLabel", coerce: "const", default: constant("")},
   {key: "backgroundImage", coerce: "const", default: constant(false)},
+  {key: "backgroundImageFit", coerce: "const", default: constant("cover")},
   {key: "discrete", coerce: "identity"},
   {key: "duration", coerce: "identity", default: 600},
   {key: "fill", coerce: "const", default: constant("black")},
@@ -107,7 +112,6 @@ export default class Shape extends BaseClass {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 
-  _backgroundImageClass: Image;
   _data: DataPoint[];
   _labelClass: TextBox;
   _name: string;
@@ -136,7 +140,6 @@ export default class Shape extends BaseClass {
 
     installFluent(this, shapeSchema);
 
-    this._backgroundImageClass = new Image();
     this._data = [];
     this._labelClass = new TextBox();
     this._name = "Shape";
@@ -421,10 +424,10 @@ export default class Shape extends BaseClass {
     if (this._dataFilter)
       data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
     const children: SceneNode[] = [];
-    // Build the backgroundImage data for emission below. Each datum that
-    // resolves to a non-false `backgroundImage(d, i)` becomes an
-    // ImageNode positioned at the shape's geometry.
-    const imageData: DataPoint[] = [];
+    // Collected background images, emitted below (after the geometry) as clipped,
+    // transformed groups. Each datum whose `backgroundImage(d, i)` resolves to a
+    // truthy URL contributes one spec.
+    const bgSpecs: BackgroundImageSpec[] = [];
     // A `sort` comparator becomes per-datum `z` ranks rather than a reorder of
     // `data`: the render backends sort each group's children ascending by `z`
     // (stably), so a lower rank paints first (behind) and a higher rank paints
@@ -465,46 +468,47 @@ export default class Shape extends BaseClass {
         },
         ...(rank ? {z: rank[i]} : {}),
       } as unknown as SceneNode);
-      // backgroundImage: collect a per-datum image when the accessor
-      // returns a truthy URL. The image is sized to the shape's
-      // geometry (preferring width/height fields when present).
+      // backgroundImage: collect a per-datum image (see backgroundImageLayout for
+      // the cover/contain fit). The wrapping group carries the shape transform,
+      // so the image box + clip stay in local space.
       const bg = this._nestWrapper(this.schema.backgroundImage)(d, i) as
         | string
         | false;
       if (bg) {
         const g = geom as Record<string, unknown>;
-        // Shape geometry is origin-centered; its on-screen position lives in
-        // the node transform. The background image is emitted as a flat sibling
-        // (no transform), so bake the shape's translate into the image x/y —
-        // otherwise every image lands at the origin (top-left).
-        const t = this._sceneTransform(d, i) as {x?: number; y?: number};
-        const w = typeof g.width === "number" ? g.width : undefined;
-        const h = typeof g.height === "number" ? g.height : undefined;
-        const cx = typeof g.cx === "number" ? g.cx : (typeof g.x === "number" ? g.x : 0);
-        const cy = typeof g.cy === "number" ? g.cy : (typeof g.y === "number" ? g.y : 0);
-        const r = typeof g.r === "number" ? g.r : undefined;
-        const iw = w ?? (r != null ? r * 2 : 0);
-        const ih = h ?? (r != null ? r * 2 : 0);
-        imageData.push({
-          __d3plus__: true,
-          data: d,
-          i,
-          id: this._nestWrapper(this.schema.id)(d, i),
-          url: bg,
-          x: (t.x ?? 0) + (cx as number) - iw / 2,
-          y: (t.y ?? 0) + (cy as number) - ih / 2,
-          width: iw,
-          height: ih,
-        } as unknown as DataPoint);
+        // Only Area/Line lack a `d`/box and need polygon points; Path/Rect/Circle
+        // derive their layout from `d`/width/r directly.
+        const needsPoints =
+          typeof g.d !== "string" &&
+          typeof g.width !== "number" &&
+          typeof g.r !== "number";
+        const points = needsPoints
+          ? ((this._aes(d, i).points ?? []) as [number, number][])
+          : [];
+        const fit = this._nestWrapper(this.schema.backgroundImageFit)(d, i);
+        const layout = backgroundImageLayout(
+          g, points, fit === "contain" ? "contain" : "cover",
+        );
+        if (layout) {
+          bgSpecs.push({
+            key,
+            index: i,
+            datum,
+            url: bg,
+            box: layout.box,
+            clip: layout.clip,
+            preserveAspectRatio: layout.preserveAspectRatio,
+            opacity: numOrUndef(this._nestWrapper(this.schema.opacity)(d, i)),
+            transform,
+          });
+        }
       }
     });
     // Emit background images AFTER shape children so they paint above the
     // shape's fill — matches the DOM order where the <image> was
     // appended as a sibling of the shape.
-    if (imageData.length)
-      children.push(
-        ...emitBackgroundImages(this._backgroundImageClass, imageData, rank, data.length),
-      );
+    if (bgSpecs.length)
+      children.push(...emitBackgroundImages(bgSpecs, rank, data.length));
     // NOTE: Labels are NOT pushed here. The canonical aggregation point is
     // `emitHelpers.collectComputed(shape)`, which appends `shape.toScene()`
     // AND `shape._labelClass.toScene()` independently. Pushing labels here

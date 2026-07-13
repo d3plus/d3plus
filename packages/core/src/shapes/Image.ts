@@ -182,9 +182,8 @@ export default class Image {
   /**
       Compute-mode scene emission. Mirrors Shape.toScene's shape — a
       keyed GroupNode wrapping per-datum ImageNodes. Used by chart
-      compositors (Shape._backgroundImageClass, plotPaint) that need
-      Image to participate in the scene graph rather than emit
-      d3-selection DOM.
+      compositors (e.g. plotPaint) that need Image to participate in the
+      scene graph rather than emit d3-selection DOM.
   */
   toScene(): GroupNode {
     const children: SceneNode[] = (this._data || []).map(

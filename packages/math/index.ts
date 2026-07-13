@@ -3,6 +3,7 @@ export {default as closest} from "./src/closest.js";
 export {default as largestRect} from "./src/largestRect.js";
 export {default as lineIntersection} from "./src/lineIntersection.js";
 export {default as path2polygon} from "./src/path2polygon.js";
+export {default as pathBounds} from "./src/pathBounds.js";
 export {default as pointDistance} from "./src/pointDistance.js";
 export {default as pointDistanceSquared} from "./src/pointDistanceSquared.js";
 export {default as pointRotate} from "./src/pointRotate.js";
