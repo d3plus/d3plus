@@ -39,12 +39,39 @@ const defaultChartFeatures = [
   totalFeature,
 ];
 
+/**
+    A plotted axis value that can't be turned into a pixel coordinate: a
+    non-finite number (`NaN`/`±Infinity`), `null`, or the empty-array sentinel
+    `merge` yields when a numeric column aggregates to no usable value. Any of
+    these poisons the shape's transform or path `d` downstream — e.g.
+    `translate(NaN,…)` or `…L268.75,NaN` — which the browser rejects. A bare
+    `undefined` is NOT bad: it's how an unused secondary axis (x2/y2) reports
+    "no value on this row".
+*/
+const isBadAxisValue = (v: unknown): boolean =>
+  v === null ||
+  (typeof v === "number" && !Number.isFinite(v)) ||
+  (Array.isArray(v) && v.length === 0);
+
+/**
+    A formatted row is plottable when its x/y — and any *defined* x2/y2 — are
+    real coordinates. Rows failing this are dropped in `formatPlotData` before
+    domains, stacking, and paint ever read `_formattedData`, so a NaN measure
+    no longer widens a domain, stacks as 0, or emits a broken coordinate.
+    Resolves d3plus/d3plus#776.
+*/
+const isPlottableRow = (d: Record<string, unknown>): boolean =>
+  !isBadAxisValue(d.x) &&
+  !isBadAxisValue(d.y) &&
+  (d.x2 === undefined || !isBadAxisValue(d.x2)) &&
+  (d.y2 === undefined || !isBadAxisValue(d.y2));
 
 /**
     `formatPlotData` — first stage of Plot's chart-specific pipeline. Detects
     time axes (sets viz._xTime / _x2Time / _yTime / _y2Time), maps the
     filtered data through `prepData` to produce the per-row PlotDatum shape
-    (x/y/x2/y2 + id + group + shape + lci/hci + discrete), and constructs
+    (x/y/x2/y2 + id + group + shape + lci/hci + discrete), drops rows whose
+    axis values can't be plotted (`isPlottableRow` — see #776), and constructs
     the `_sizeScaleD3` if `_size` is set.
 
     Pure compute. Returns `{formattedData, axisData, x2Exists, y2Exists}`
@@ -107,8 +134,12 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return newD;
   };
 
-  const formattedData = (viz._formattedData = viz._filteredData.map(prepData));
-  const axisData = viz._axisPersist ? viz._data.map(prepData) : formattedData;
+  const formattedData = (viz._formattedData = viz._filteredData
+    .map(prepData)
+    .filter(isPlottableRow));
+  const axisData = viz._axisPersist
+    ? viz._data.map(prepData).filter(isPlottableRow)
+    : formattedData;
 
   if (viz._size) {
     const rExtent = extent(axisData, (d: Record<string, unknown>) =>
