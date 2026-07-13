@@ -59,6 +59,13 @@ export interface BaseShapeConfig {
   ariaLabel?: ConstOrAccessor<string>;
   /** Optional background image per datum (url or accessor returning a url). */
   backgroundImage?: ConstOrAccessor<string>;
+  /**
+      How a `backgroundImage` fits its shape: `"cover"` (default) fills the
+      shape's bounding box, cropping the overflow and clipping to the outline;
+      `"contain"` fits the whole image, centered and fully visible, inside the
+      shape's largest inscribed rectangle.
+  */
+  backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
 
   /** Discrete-axis key ("x" | "y") for charts that flip layout per axis. */
   discrete?: "x" | "y";

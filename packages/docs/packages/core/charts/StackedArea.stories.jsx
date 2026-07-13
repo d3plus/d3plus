@@ -27,6 +27,13 @@ const Template = (args) => <StackedArea config={configify(args, argTypes)} />;
 
 import {formatAbbreviate} from "@d3plus/format";
 
+// Two inline-SVG icons used by the ShapeBackgroundImages example below. The
+// `viewBox` is what preserves each icon's aspect ratio when it is scaled to fit
+// a band (an SVG with no viewBox has no intrinsic aspect ratio, so the browser
+// would stretch it).
+const starIcon = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cpolygon%20points%3D%2250%2C4%2061%2C38%2098%2C38%2068%2C59%2079%2C95%2050%2C73%2021%2C95%2032%2C59%202%2C38%2039%2C38%22%20fill%3D%22%230b6e63%22%2F%3E%3C%2Fsvg%3E";
+const heartIcon = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cpath%20d%3D%22M50%2C88%20C10%2C58%2020%2C18%2050%2C42%20C80%2C18%2090%2C58%2050%2C88%20Z%22%20fill%3D%22%23c0392b%22%2F%3E%3C%2Fsvg%3E";
+
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
@@ -84,6 +91,37 @@ SharePercentages.args = {
   }
 };
 SharePercentages.parameters = {controls: {include: ["stackOffset", "yConfig"]}, docs: {description: {story: "Set `stackOffset: \"expand\"` to normalize every `x` position to 100%, turning the chart into a share-of-total view; `yConfig.tickFormat` then labels the axis as percentages."}}};
+
+export const ShapeBackgroundImages = Template.bind({});
+ShapeBackgroundImages.args = {
+  data: [
+    {id: "alpha", x: 4, y: 12},
+    {id: "alpha", x: 5, y: 28},
+    {id: "alpha", x: 6, y: 20},
+    {id: "beta",  x: 4, y: 22},
+    {id: "beta",  x: 5, y: 14},
+    {id: "beta",  x: 6, y: 24}
+  ],
+  groupBy: "id",
+  x: "x",
+  y: "y",
+  shapeConfig: {
+    Area: {
+      // `backgroundImageFit: "contain"` fits the whole icon inside each band's
+      // largest inscribed rectangle — centered and completely visible. (The
+      // default, "cover", instead fills the band's bounding box and clips to its
+      // outline.) The image's aspect ratio is always preserved.
+      backgroundImageFit: "contain",
+      backgroundImage: funcify(
+        d => (d.id === "alpha" ? starIcon : heartIcon),
+        `const starIcon = "${starIcon}";\n` +
+        `const heartIcon = "${heartIcon}";\n` +
+        `d => d.id === "alpha" ? starIcon : heartIcon`
+      )
+    }
+  }
+};
+ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Set `shapeConfig.Area.backgroundImage` to a per-series URL to place an image on each stacked band. Here `backgroundImageFit: \"contain\"` fits each icon inside the band's largest inscribed rectangle — centered, fully visible, and aspect-preserved. Omit `backgroundImageFit` (or set `\"cover\"`) to instead fill the band's bounding box and clip the image to the band's outline."}}};
 
 export const SortingAreas = Template.bind({});
 SortingAreas.args = {

@@ -265,7 +265,8 @@ export function applyGeometry(
         .attr("x", node.x)
         .attr("y", node.y)
         .attr("width", node.width)
-        .attr("height", node.height);
+        .attr("height", node.height)
+        .attr("preserveAspectRatio", node.preserveAspectRatio ?? null);
       break;
     case "text":
       target.attr("x", node.x).attr("y", node.y);

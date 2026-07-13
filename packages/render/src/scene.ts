@@ -263,6 +263,14 @@ export interface ImageNode extends NodeBase {
   width: number;
   height: number;
   href: string;
+  /**
+      SVG `preserveAspectRatio` value controlling how the image fits its
+      `width`×`height` box. Passed straight through by the SVG backend; the
+      Canvas backend honors the `meet`/`slice`/`none` mode (slice = CSS
+      `cover`, meet = `contain`, none = stretch). Omitted = the SVG default
+      (`xMidYMid meet`, i.e. contain).
+  */
+  preserveAspectRatio?: string;
 }
 
 /** A single laid-out line of text within a TextNode. */

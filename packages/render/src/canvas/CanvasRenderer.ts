@@ -424,7 +424,27 @@ export default class CanvasRenderer implements Renderer {
     }
     if (img.complete && img.naturalWidth) {
       ctx.globalAlpha = alpha;
-      ctx.drawImage(img, node.x, node.y, node.width, node.height);
+      const par = node.preserveAspectRatio;
+      const iw = img.naturalWidth, ih = img.naturalHeight;
+      if (par && par.includes("slice")) {
+        // CSS `cover`: scale the image to fill the box, cropping the overflow
+        // (centered), via drawImage's source-rect crop.
+        const scale = Math.max(node.width / iw, node.height / ih);
+        const sw = node.width / scale, sh = node.height / scale;
+        ctx.drawImage(
+          img, (iw - sw) / 2, (ih - sh) / 2, sw, sh,
+          node.x, node.y, node.width, node.height,
+        );
+      } else if (par && par !== "none" && par.includes("meet")) {
+        // CSS `contain`: fit the whole image inside the box (centered).
+        const scale = Math.min(node.width / iw, node.height / ih);
+        const dw = iw * scale, dh = ih * scale;
+        ctx.drawImage(
+          img, node.x + (node.width - dw) / 2, node.y + (node.height - dh) / 2, dw, dh,
+        );
+      } else {
+        ctx.drawImage(img, node.x, node.y, node.width, node.height);
+      }
     }
   }
 
