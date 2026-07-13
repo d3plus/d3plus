@@ -2,6 +2,29 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.2.0
+
+### Added
+
+- **Value- and field-based stack ordering.** `stackOrder("ascending" | "descending")` now orders stacked series by their summed value (d3-aligned), the most-requested control on stacked charts (#527). You can also order by any data field — pass a value accessor, or a `{value, order}` config — with values aggregated by sum, not just the plotted measure. Explicit `string[]` orders and d3's `"insideOut"`/`"appearance"`/`"reverse"` still work. [Order by value ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#stack-order-by-value) · [Order by field ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#stack-order-by-field) · [Streamgraph ↗](https://d3plus.org/?path=/docs/core-charts-stackedarea--d3plus#streamgraph)
+- **`backgroundImageFit` for shape background images** (`shapeConfig`). `"cover"` (the default) fills the shape's bounding box and clips to its outline; `"contain"` fits the whole image inside the shape's largest inscribed rectangle, centered. Aspect ratio is preserved in both, on both the SVG and Canvas backends. [Path example ↗](https://d3plus.org/?path=/docs/core-shapes-path--d3plus#background-image) · [Stacked area icons ↗](https://d3plus.org/?path=/docs/core-charts-stackedarea--d3plus#shape-background-images)
+- **DOM-free path geometry in `@d3plus/math`.** A new SVG path parser (`pathParse`, handling every command including arcs and glued flags) and `pathBounds` (exact bounds from Bézier/arc extrema, validated to <0.03px against the browser's `getBBox`). `path2polygon` was rewritten to use them, so it no longer depends on the DOM.
+
+### Fixed
+
+- **Shape background images were broken for `Path` (and `Area`/`Line`).** The scene emitter sized and positioned images from `width`/`height`/`cx`/`cy`/`r` fields that path geometry doesn't have, so every image collapsed to 0×0 at the origin; `Rect`/`Bar` images were also offset by half their size. Images are now emitted around each shape's real bounding box and clipped to its actual outline (path, rect, rounded-rect, circle, or area polygon), positioned in the shape's local space. Background-image groups also carry the shape's datum and a paint opacity, so hover dimming, the hover z-raise, and enter/exit fades apply to the image together with its shape, and the image no longer overwrites the shape in the pointer hit-test index. (#757)
+- **Pie labels now work in SSR/Node.** The DOM-free `path2polygon` replaces the old `getTotalLength` path that returned `[]` outside a browser.
+- **`.legend(false)`, `.shape("Circle")`, and `.label("x")` no longer crash.** Charts that declare these in their def `fields` generated a fluent accessor that stored raw primitives, shadowing the hand-written setter's `constant()` wrapping; readers that invoke the value as a function (e.g. `featuresLegend`) then threw on `false.bind`. The colliding fields now coerce as constants, matching the setters.
+- Unknown `stackOrder`/`stackOffset` names now warn and fall back to a sensible default instead of silently resolving to `undefined` and changing or breaking the layout. `"none"`/`"data"` honor input order.
+
+### Developer & tooling
+
+- Upgraded to pnpm v11; workspace configuration moved from `package.json` into `pnpm-workspace.yaml`.
+
+### Breaking changes
+
+- **`stackOrder` `"ascending"`/`"descending"` now order by summed value**, not alphabetically by series key, and the default stack order changed from alphabetical to largest-total-on-baseline (`"descending"`). The old alphabetical behavior is available as `"key"`/`"keyReverse"` — charts relying on the previous default should set `stackOrder("key")`. (#527)
+
 ## 4.1.0
 
 ### Added
