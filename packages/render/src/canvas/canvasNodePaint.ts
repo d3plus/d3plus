@@ -7,6 +7,26 @@ import type {AreaNode, LineNode, SceneNode} from "../scene.js";
 type Ctx = CanvasRenderingContext2D;
 
 /** Issues the current-path commands for a node's geometry into the context. */
+/**
+    Hit-tests a `path` node: its fill region first, then — for a stroked/unfilled
+    path (a Line, or its fat transparent hit area) — the stroke at the node's
+    width. Assumes an identity CTM (as at pick time), so `lineWidth` shares the
+    path's local units.
+*/
+export function pathHit(
+  ctx: Ctx,
+  node: {d: string; paint?: {strokeWidth?: number}},
+  lx: number,
+  ly: number,
+): boolean {
+  const p = new Path2D(node.d);
+  if (ctx.isPointInPath(p, lx, ly)) return true;
+  const sw = node.paint?.strokeWidth;
+  if (!sw) return false;
+  ctx.lineWidth = sw;
+  return ctx.isPointInStroke(p, lx, ly);
+}
+
 export function pathFor(ctx: Ctx, node: SceneNode): void {
   switch (node.type) {
     case "rect":

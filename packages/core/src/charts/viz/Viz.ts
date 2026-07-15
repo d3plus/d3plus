@@ -5,7 +5,7 @@ import {date, getSize} from "@d3plus/dom";
 import {computeTrailCatchup} from "./trailCatchup.js";
 import type {DataPoint} from "@d3plus/data";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
-import type {Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
+import type {PickResult, Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
@@ -457,6 +457,27 @@ export default class Viz extends VizBase {
   }
 
   /**
+      Resolves the `(d, i, x)` a picked scene node reports to interaction
+      handlers (tooltip, click, user `on` handlers). `pick.datum` is the raw
+      scene datum; for a Plot shape that's the wrapped record `{data, i}`, which
+      handlers expect unwrapped to `(d.data, d.i, wrapped)`. The base does that
+      unwrap; Plot overrides this to report the point nearest the cursor for
+      multi-point shapes (Line/Area) so a series tooltip reflects the hovered
+      x rather than the whole-series aggregate.
+      @private
+  */
+  _interactionDatum(
+    pick: PickResult,
+    _event: SceneEvent,
+  ): {d: unknown; i: number; x: unknown} {
+    const rawDatum = pick.datum as {data?: unknown; i?: number} | null | undefined;
+    const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
+    const sourceIndex =
+      rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
+    return {d: sourceDatum, i: sourceIndex, x: rawDatum};
+  }
+
+  /**
       Routes a renderer pointer event to the matching `viz.schema.on` handlers.
       Bridges the v4 scene-rendered path (SvgRenderer/CanvasRenderer), where
       compute-mode shapes mount no per-shape DOM, so `shape.on(evt, fn)`
@@ -551,16 +572,15 @@ export default class Viz extends VizBase {
         : false);
     const suffix = isLegendNode ? "legend" : "shape";
     const handlerKey = `${event.type}.${suffix}`;
-    // Resolve the source datum + index. `pick.datum` is the raw scene datum
-    // (which Shape._sceneXxx populated). For Plot shapes that's the wrapped
-    // record; the handlers expect `(d.data, d.i, x, event)`.
-    const rawDatum = pick.datum as
-      | {data?: unknown; i?: number}
-      | null
-      | undefined;
-    const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
-    const sourceIndex =
-      rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
+    // Resolve the datum + index this pick reports to handlers, ONCE, and reuse
+    // it for every handler fired below so tooltip/click/user handlers agree on
+    // which datum the pointer is over. The base unwraps the node's raw datum to
+    // its source row; Plot overrides `_interactionDatum` to report the point
+    // nearest the cursor for multi-point shapes (Line/Area).
+    const {d: sourceDatum, i: sourceIndex, x: rawDatum} = this._interactionDatum(
+      pick,
+      event,
+    );
     const shapeType =
       typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
     this._lastScenePick = {

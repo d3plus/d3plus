@@ -158,6 +158,18 @@ export interface AriaSpec {
 }
 
 /**
+    @interface InteractionPoint
+    One point of a multi-point shape (Line/Area): its position in pre-zoom
+    content space and the source datum it came from.
+*/
+export interface InteractionPoint {
+  x: number;
+  y: number;
+  datum: DataPoint;
+  index: number;
+}
+
+/**
     @interface NodeBase
     Fields shared by every scene node.
 */
@@ -173,6 +185,14 @@ export interface NodeBase {
   /** The original (unwrapped) datum, carried for interaction callbacks — not for drawing. */
   datum?: DataPoint;
   index?: number;
+  /**
+      For a multi-point shape (Line/Area), the per-point positions in pre-zoom
+      content space paired with each point's source datum. Lets the pointer
+      bridge resolve which point is nearest the cursor (e.g. for a series
+      tooltip) instead of always reporting the whole-series aggregate.
+      Interaction metadata only — backends never read it for drawing.
+  */
+  interactionPoints?: InteractionPoint[];
   /**
       The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …),
       carried so pointer handlers can route shape-class-scoped events

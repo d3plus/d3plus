@@ -60,7 +60,7 @@ import {
 import {plotPaint, type PlotPaintContext} from "../features/plotPaint.js";
 import Viz from "../viz/Viz.js";
 
-import type {Scene, SceneNode} from "@d3plus/render";
+import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -108,12 +108,14 @@ export default class Plot extends Viz {
     this.schema.barPadding = defaults.barPadding as number;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
     this._confidenceConfig = {
+      // A line's colour is its stroke, so the confidence band fills with that
+      // same colour (at the reduced opacity below). Prefer a per-Line stroke
+      // override, else the shared stroke accessor (the Line config itself sets
+      // no `stroke` — the colour comes from the top-level `shapeConfig.stroke`).
       fill: (d: DataPoint, i: number) => {
-        const c =
-          typeof this.schema.shapeConfig.Line.stroke === "function"
-            ? this.schema.shapeConfig.Line.stroke(d, i)
-            : this.schema.shapeConfig.Line.stroke;
-        return c;
+        const {Line, stroke} = this.schema.shapeConfig;
+        const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;
+        return typeof s === "function" ? s(d, i) : s;
       },
       fillOpacity: constant(0.5),
     };
@@ -306,6 +308,73 @@ export default class Plot extends Viz {
     for (const evt of globalEvents) shape.on(evt, forward(evt));
     for (const evt of shapeEvents) shape.on(evt, forward(evt));
     for (const evt of classEvents) shape.on(evt, forward(evt));
+  }
+
+  /**
+      For a multi-point shape (Line/Area) reports the point nearest the cursor
+      along the discrete axis, so every mouse event (tooltip, click, user
+      handlers) reflects the hovered x rather than the whole-series aggregate.
+      Non-nested shapes and legend swatches fall through to the base (aggregate)
+      behavior.
+      @private
+*/
+  _interactionDatum(
+    pick: PickResult,
+    event: SceneEvent,
+  ): {d: unknown; i: number; x: unknown} {
+    const node = pick.node as SceneNode & {
+      interactionPoints?: InteractionPoint[];
+      interactionGroup?: string;
+    };
+    const points = node && node.interactionPoints;
+    if (
+      node &&
+      node.interactionGroup !== "legend" &&
+      Array.isArray(points) &&
+      points.length &&
+      event &&
+      Array.isArray(event.point)
+    ) {
+      const nearest = this._nearestInteractionPoint(points, event.point);
+      if (nearest) {
+        const wrapped = nearest.datum as {data?: unknown; i?: number};
+        return {
+          d: wrapped && wrapped.data ? wrapped.data : wrapped,
+          i: typeof wrapped.i === "number" ? wrapped.i : nearest.index,
+          x: wrapped,
+        };
+      }
+    }
+    return super._interactionDatum(pick, event);
+  }
+
+  /**
+      Picks the interaction point closest to a surface-local cursor position
+      along the discrete axis. `event.point` is post-zoom surface space while the
+      points are in pre-zoom content space (they live under the `viz-zoom`
+      group), so the cursor is un-zoomed by `_zoomTransform` before comparing.
+      @private
+*/
+  _nearestInteractionPoint(
+    points: InteractionPoint[],
+    point: [number, number],
+  ): InteractionPoint | null {
+    const t = this._zoomTransform;
+    const scale = t && t.scale ? t.scale : 1;
+    const cx = (point[0] - (t ? t.x : 0)) / scale;
+    const cy = (point[1] - (t ? t.y : 0)) / scale;
+    const axis = this.schema.discrete === "y" ? "y" : "x";
+    const target = axis === "y" ? cy : cx;
+    let best: InteractionPoint | null = null;
+    let bestDist = Infinity;
+    for (const p of points) {
+      const dist = Math.abs(p[axis] - target);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = p;
+      }
+    }
+    return best;
   }
 
   /**

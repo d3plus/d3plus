@@ -246,7 +246,10 @@ const lineEmit: ShapeEmitter = ctx => {
       .renderMode("compute")
       .config(areaConfig)
       .data(values);
+    // Fresh object — must NOT mutate the shared `shapeConfig`, or the confidence
+    // fill/fillOpacity leak onto every other shape and every later render.
     const confidenceConfig = Object.assign(
+      {},
       viz.schema.shapeConfig,
       viz._confidenceConfig,
     );

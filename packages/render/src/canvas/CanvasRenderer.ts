@@ -18,7 +18,7 @@ import type {
 import SvgRenderer from "../svg/SvgRenderer.js";
 import {apply, invert, multiply, nodeMatrix} from "./transform.js";
 import type {Mat} from "./transform.js";
-import {paint, pathFor, solidFill} from "./canvasNodePaint.js";
+import {paint, pathFor, pathHit, solidFill} from "./canvasNodePaint.js";
 import {patternTileSvg} from "./patternTile.js";
 
 type Ctx = CanvasRenderingContext2D;
@@ -466,7 +466,7 @@ export default class CanvasRenderer implements Renderer {
       case "circle":
         return (lx - node.cx) ** 2 + (ly - node.cy) ** 2 <= node.r ** 2;
       case "path":
-        return this._ctx ? this._ctx.isPointInPath(new Path2D(node.d), lx, ly) : false;
+        return this._ctx ? pathHit(this._ctx, node, lx, ly) : false;
       case "area":
         if (!this._ctx) return false;
         pathFor(this._ctx, node);

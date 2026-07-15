@@ -1,10 +1,19 @@
 {
   "counts": {
-    "path": 4,
+    "path": 6,
     "text": 6,
     "rect": 1
   },
   "shapes": [
+    {
+      "t": "path",
+      "x": 99,
+      "y": 214,
+      "w": 0,
+      "h": 0,
+      "f": "none",
+      "s": "transparent"
+    },
     {
       "t": "path",
       "x": 99,
@@ -22,6 +31,15 @@
       "h": 363,
       "f": "",
       "s": "0"
+    },
+    {
+      "t": "path",
+      "x": 350,
+      "y": 32,
+      "w": 0,
+      "h": 0,
+      "f": "none",
+      "s": "transparent"
     },
     {
       "t": "path",
