@@ -52,7 +52,10 @@ function emphasizeStroke(node: SceneNode, darken: number, widthMult: number): Sc
   let base = typeof paint.fill === "string" ? paint.fill : undefined;
   if (!base || base === "transparent" || base === "none")
     base = typeof paint.stroke === "string" ? paint.stroke : undefined;
-  const c = base ? color(base) : null;
+  // No visible paint to emphasize (e.g. an invisible hit-area node): leave it
+  // untouched — darkening `transparent`/`none` would format to opaque black.
+  if (!base || base === "transparent" || base === "none") return node;
+  const c = color(base);
   if (c) paint.stroke = c.darker(darken).formatHex();
   const w = typeof paint.strokeWidth === "number" && paint.strokeWidth ? paint.strokeWidth : 1;
   paint.strokeWidth = w * widthMult;

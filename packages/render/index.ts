@@ -5,6 +5,7 @@ export type {
   FontSpec,
   FontStyle,
   HitShape,
+  InteractionPoint,
   NodeBase,
   Paint,
   Transform,

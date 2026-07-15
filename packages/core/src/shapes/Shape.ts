@@ -17,6 +17,7 @@ import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import {hitAreaNode} from "./hitAreaNode.js";
+import {interactionPoints} from "./interactionPoints.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
 /** Coerces a value to a finite number, or undefined. @private */
@@ -326,16 +327,14 @@ export default class Shape extends BaseClass {
     @param callback Optional callback invoked after rendering completes.
 */
   /**
-      Resolves a style accessor for a data point, mirroring the nested-data logic
-      of _applyStyle so scene output matches DOM rendering.
+      Resolves a style accessor. For a nested shape (Line/Area) the accessor gets
+      the merged aggregate `d.data`/`d.i` — matching `_nestWrapper` + scene datum.
       @private
 */
   _styleVal(fn: unknown, d: DataPoint, i: number): unknown {
     if (typeof fn !== "function") return fn;
-    if (d.nested && d.key && d.values) {
-      const first = (d.values as unknown as DataPoint[])[0];
-      return (fn as AccessorFn)(first, this._data.indexOf(first));
-    }
+    if (d.nested && d.key && d.values)
+      return (fn as AccessorFn)(d.data as DataPoint, d.i as number);
     return (fn as AccessorFn)(d, i);
   }
 
@@ -444,14 +443,16 @@ export default class Shape extends BaseClass {
       const datum = (d.__d3plusShape__ ? d.data : d) as DataPoint;
       const transform = this._sceneTransform(d, i);
 
+      // Per-point positions (Line/Area) shared by the geometry and its hit area
+      // so a hover anywhere on either resolves to the nearest point.
+      const iPoints = interactionPoints(d, this.schema.x, this.schema.y, this.schema.defined);
       // Push the hit area (if any) before the geometry so it sits behind it.
+      // Line's is a fat path built from the geometry `d`; Bar/legend etc. a rect.
       if (this.schema.hitArea) {
-        const ha = hitAreaNode(
-          this.schema.hitArea, d, i, this._aes(d, i), key, datum, this._name, transform,
-        );
+        const ha = hitAreaNode(this.schema.hitArea, d, i, this._aes(d, i), key, datum, this._name, transform, geom.d as string);
         // Share the datum's rank so the hit area stays paired just behind its
         // own geometry (equal `z`, kept in push order by the stable sort).
-        if (ha) children.push(rank ? ({...ha, z: rank[i]} as SceneNode) : ha);
+        if (ha) children.push(rank ? ({...ha, ...iPoints, z: rank[i]} as SceneNode) : ({...ha, ...iPoints} as SceneNode));
       }
 
       children.push({
@@ -466,6 +467,7 @@ export default class Shape extends BaseClass {
           role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
           label: strOrUndef(this._nestWrapper(this.schema.ariaLabel)(d, i)),
         },
+        ...iPoints,
         ...(rank ? {z: rank[i]} : {}),
       } as unknown as SceneNode);
       // backgroundImage: collect a per-datum image (see backgroundImageLayout for

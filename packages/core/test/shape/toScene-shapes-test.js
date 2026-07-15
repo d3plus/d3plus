@@ -48,12 +48,17 @@ it("Shape/Line toScene (path via generator, centered)", () => {
     .y(d => d.y)
     .toScene();
 
-  assert.strictEqual(scene.children.length, 1, "grouped into one line");
-  const n = scene.children[0];
+  // Two children per line: the fat transparent hit area (behind) + the visible
+  // line. The hit area is pushed first so it sits behind.
+  assert.strictEqual(scene.children.length, 2, "hit area + visible line");
+  const hit = scene.children[0];
+  assert.strictEqual(hit.paint.stroke, "transparent", "hit area is the invisible fat stroke");
+  const n = scene.children[1];
   assert.strictEqual(n.type, "path");
   // center = midpoint of x/y extents = (5, 10); points are relative to it.
   assert.deepStrictEqual(n.transform, {x: 5, y: 10, scale: 1, rotate: 0}, "centered transform");
   assert.strictEqual(n.d, "M-5,-10L5,10", "line points baked relative to center");
+  assert.strictEqual(hit.d, n.d, "hit area overlaps the visible line's geometry");
 
   const r = render(scene);
   assert.ok(document.querySelector("path.d3plus-render-path"), "line path rendered");
