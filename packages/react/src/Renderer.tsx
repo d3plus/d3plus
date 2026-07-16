@@ -1,18 +1,11 @@
 import {useContext, useEffect, useRef, useState} from "react";
-import {assign} from "@d3plus/dom";
+import {applyConfig, hash} from "@d3plus/dom";
+import type {D3plusInstance} from "@d3plus/dom";
 import type {D3plusConfig} from "@d3plus/core";
 
 import D3plusContext from "./D3plusContext.jsx";
 
 export type {D3plusConfig} from "@d3plus/core";
-
-/** Minimal interface for d3plus class instances used by the Renderer. */
-interface D3plusInstance {
-  config(c: D3plusConfig): this;
-  render?(callback?: () => void): this;
-  destroy?(): this;
-  [key: string]: unknown;
-}
 
 /** Constructor type for d3plus visualization classes. */
 export type D3plusConstructor = new (...args: any[]) => any;
@@ -32,28 +25,6 @@ export interface RendererProps {
 }
 
 /**
-    Stable hash that serializes functions by source, so function-valued config
-    props trigger re-renders when they change.
-    @private
-*/
-function hash(val: unknown): string {
-  const seen = new WeakSet();
-  try {
-    return JSON.stringify(val, (_, v) => {
-      if (typeof v === "function") return v.toString();
-      if (typeof v === "object" && v !== null) {
-        if (seen.has(v)) return "[Circular]";
-        seen.add(v);
-      }
-      return v;
-    });
-  }
-  catch {
-    return String(val);
-  }
-}
-
-/**
  */
 export default function Renderer({
   callback,
@@ -69,28 +40,12 @@ export default function Renderer({
   // Apply config + render on mount and whenever the config changes. The
   // instance (and its scene renderer) PERSISTS across these updates, so the
   // chart tweens between states instead of starting over each time.
+  // `applyConfig` (from @d3plus/dom) merges the global + local config onto the
+  // container's <svg> and routes the data/links/nodes/topojson loader fields.
   useEffect(
     () => {
       if (container.current) {
-        const c = assign(
-          {select: container.current},
-          globalConfig,
-          config ?? {},
-        ) as Record<string, unknown>;
-
-        (["data", "links", "nodes", "topojson"] as const).forEach(method => {
-          if (c[`${method}Format`] && c[method]) {
-            (instance[method] as (data: unknown, format: unknown) => void)(
-              c[method],
-              c[`${method}Format`],
-            );
-            delete c[method];
-            delete c[`${method}Format`];
-          }
-        });
-
-        instance.config(c);
-
+        applyConfig(instance, container.current, globalConfig, config);
         instance.render?.(callback);
       }
     },

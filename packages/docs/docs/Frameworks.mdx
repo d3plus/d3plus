@@ -1,0 +1,233 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Frameworks" />
+
+# Frameworks
+
+The d3plus engine (`@d3plus/core`) is imperative — you create an instance,
+configure it, and render it:
+
+```js
+import {Treemap} from "@d3plus/core";
+
+new Treemap()
+  .config({data, groupBy: "id", sum: "value"})
+  .render();
+```
+
+Official **wrapper packages** integrate that lifecycle idiomatically into the
+major front-end frameworks, so you pass a declarative `config` and the wrapper
+handles instantiation, updates, and teardown for you.
+
+| Framework | Package | Render with |
+|-----------|---------|-------------|
+| React | [`@d3plus/react`](https://www.npmjs.com/package/@d3plus/react) | `<Treemap config={…} />` |
+| Vue 3 | [`@d3plus/vue`](https://www.npmjs.com/package/@d3plus/vue) | `<Treemap :config="…" />` |
+| Svelte | [`@d3plus/svelte`](https://www.npmjs.com/package/@d3plus/svelte) | `<div use:d3plus={{constructor, config}} />` |
+| Web Components | [`@d3plus/element`](https://www.npmjs.com/package/@d3plus/element) | `<d3plus-treemap>` (`.config = …`) |
+| Angular | [`@d3plus/angular`](https://www.npmjs.com/package/@d3plus/angular) | `<d3plus-viz [viz]="Treemap" [config]="…" />` |
+
+Every wrapper is a thin layer over the same shared core (in `@d3plus/dom`), so
+their [runtime behavior](#shared-behavior) is identical. Prefer plain
+JavaScript? See the [CDN / vanilla usage](?path=/docs/introduction--docs) in the
+Introduction.
+
+## React
+
+```sh
+npm install @d3plus/react
+```
+
+Each chart, component, and shape is a React component that takes a `config`
+prop:
+
+```jsx
+import {Treemap} from "@d3plus/react";
+
+const config = {
+  data: [
+    {parent: "Group 1", id: "alpha", value: 29},
+    {parent: "Group 2", id: "beta",  value: 10}
+  ],
+  groupBy: ["parent", "id"],
+  sum: "value"
+};
+
+export default () => <Treemap config={config} />;
+```
+
+Set shared defaults for every visualization with the `D3plusContext` provider;
+per-component `config` props deep-merge over it:
+
+```jsx
+import {D3plusContext} from "@d3plus/react";
+
+<D3plusContext.Provider value={{locale: "es-ES"}}>
+  <App />
+</D3plusContext.Provider>
+```
+
+## Vue
+
+```sh
+npm install @d3plus/vue
+```
+
+Requires `vue` (^3.4) as a peer dependency. Every visualization is exported as a
+Vue component:
+
+```vue
+<script setup>
+import {Treemap} from "@d3plus/vue";
+import {ref} from "vue";
+
+const config = ref({
+  data: [
+    {parent: "Group 1", id: "alpha", value: 29},
+    {parent: "Group 2", id: "beta",  value: 10}
+  ],
+  groupBy: ["parent", "id"],
+  sum: "value"
+});
+</script>
+
+<template>
+  <Treemap :config="config" style="height: 400px" />
+</template>
+```
+
+Provide shared defaults with the `D3plusConfigKey` injection key:
+
+```js
+import {provide} from "vue";
+import {D3plusConfigKey} from "@d3plus/vue";
+
+provide(D3plusConfigKey, {locale: "es-ES"});
+```
+
+## Svelte
+
+```sh
+npm install @d3plus/svelte
+```
+
+Requires `svelte` (4 or 5) as a peer dependency. The package exports a single
+[action](https://svelte.dev/docs/svelte/use) — apply it with `use:d3plus`,
+passing the visualization class (from `@d3plus/core`) and its config:
+
+```svelte
+<script>
+  import {d3plus} from "@d3plus/svelte";
+  import {Treemap} from "@d3plus/core";
+
+  const data = [
+    {parent: "Group 1", id: "alpha", value: 29},
+    {parent: "Group 2", id: "beta",  value: 10}
+  ];
+  const config = {data, groupBy: ["parent", "id"], sum: "value"};
+</script>
+
+<div use:d3plus={{constructor: Treemap, config}} style="height: 400px"></div>
+```
+
+Because `config` is reactive, reassigning it (or mutating `$state`) drives
+updates automatically. Pass a `globalConfig` param to share defaults across
+charts.
+
+## Web Components
+
+```sh
+npm install @d3plus/element
+```
+
+Framework-agnostic [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components).
+Register them once (in the browser), then use `<d3plus-…>` tags anywhere —
+plain HTML, Astro, or any framework that renders the DOM:
+
+```js
+import {defineElements} from "@d3plus/element";
+defineElements();
+```
+
+Each d3plus class becomes `d3plus-<kebab-case-name>` (`Treemap` →
+`d3plus-treemap`, `BarChart` → `d3plus-bar-chart`). Config is supplied via the
+`.config` **property** (an object, so it can carry accessor functions — unlike
+string attributes):
+
+```html
+<d3plus-treemap id="chart"></d3plus-treemap>
+<script type="module">
+  import {defineElements} from "@d3plus/element";
+  defineElements();
+
+  document.getElementById("chart").config = {
+    data: [
+      {parent: "Group 1", id: "alpha", value: 29},
+      {parent: "Group 2", id: "beta",  value: 10}
+    ],
+    groupBy: ["parent", "id"],
+    sum: "value"
+  };
+</script>
+```
+
+Set shared defaults with `setGlobalConfig({…})`.
+
+## Angular
+
+```sh
+npm install @d3plus/angular
+```
+
+Requires `@angular/core` and `@angular/common` (v20+) as peer dependencies.
+Published in the [Angular Package Format](https://angular.dev/tools/libraries/angular-package-format)
+(partial-Ivy), so it works in your app's AOT production builds. Import the
+standalone `D3plusVizComponent` and pass the d3plus class via `viz`:
+
+```ts
+import {Component} from "@angular/core";
+import {D3plusVizComponent} from "@d3plus/angular";
+import {Treemap} from "@d3plus/core";
+
+@Component({
+  selector: "app-chart",
+  imports: [D3plusVizComponent],
+  template: `<d3plus-viz [viz]="Treemap" [config]="config" style="height: 400px" />`,
+})
+export class ChartComponent {
+  readonly Treemap = Treemap;
+  config = {
+    data: [
+      {parent: "Group 1", id: "alpha", value: 29},
+      {parent: "Group 2", id: "beta",  value: 10}
+    ],
+    groupBy: ["parent", "id"],
+    sum: "value",
+  };
+}
+```
+
+## Shared behavior
+
+Because all wrappers delegate to the same core, they behave identically:
+
+- **Tweening across updates.** The underlying instance is reused when the config
+  changes, so the chart animates between states instead of restarting.
+- **Structural diffing.** Assigning a config that is structurally identical to
+  the current one (including function-valued accessors, compared by source) is a
+  no-op — no re-render. Set `forceUpdate` to render on every update regardless.
+- **Global config.** Each wrapper exposes a way to supply defaults merged ahead
+  of a component's own config: React's `D3plusContext`, Vue's `D3plusConfigKey`,
+  Svelte's `globalConfig` param, the element's `setGlobalConfig()`, and Angular's
+  `globalConfig` input.
+- **Callbacks.** A `callback` runs at the end of each render cycle.
+- **Teardown.** The instance is destroyed automatically when the component
+  unmounts (or the element disconnects).
+
+| | Config | Global defaults | Force re-render |
+|---|---|---|---|
+| React | `config` prop | `D3plusContext.Provider` | `forceUpdate` prop |
+| Vue | `config` prop | `provide(D3plusConfigKey, …)` | `forceUpdate` prop |
+| Svelte | action param | `globalConfig` param | `forceUpdate` param |
+| Web Components | `.config` property | `setGlobalConfig()` | `.forceUpdate` property |
+| Angular | `config` input | `globalConfig` input | `forceUpdate` input |

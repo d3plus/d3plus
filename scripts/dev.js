@@ -121,14 +121,22 @@ function pipeServer(child) {
   });
 }
 
-if (name === "react") {
-  log.timer(`running Vite on port ${port}`);
-  pipeServer(spawn("vite", ["serve", "dev", `--port=${port}`], {stdio: "pipe", shell: true}));
-} else if (name === "docs") {
+if (name === "docs") {
   log.timer(`running Storybook on port ${port}`);
   pipeServer(spawn(
     "storybook",
     ["dev", "--docs", "--ci", "--no-version-updates", `--port=${port}`],
+    {stdio: "pipe", shell: true},
+  ));
+} else if (fs.existsSync("vite.config.js")) {
+  // Framework wrappers (react, element, svelte, vue, angular) serve their
+  // dev/ harness through Vite; each package's vite.config.js loads whatever
+  // framework plugin it needs. `--config` is passed explicitly because the
+  // `dev` root arg would otherwise make Vite look for the config inside dev/.
+  log.timer(`running Vite on port ${port}`);
+  pipeServer(spawn(
+    "vite",
+    ["serve", "dev", "--config", "vite.config.js", `--port=${port}`],
     {stdio: "pipe", shell: true},
   ));
 } else {

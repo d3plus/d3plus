@@ -1,0 +1,50 @@
+{
+  "name": "@d3plus/element",
+  "version": "4.2.0",
+  "description": "Framework-agnostic custom elements (Web Components) for d3plus visualizations.",
+  "license": "MIT",
+  "type": "module",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./es/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "es",
+    "types"
+  ],
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git",
+    "directory": "packages/element"
+  },
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "scripts": {
+    "build:esm": "node ../../scripts/build-esm.js",
+    "build:types": "tsc",
+    "dev": "node ../../scripts/dev.js",
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it --global=before --global=customElements test && mocha 'test/**/*-test.js'",
+    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+  },
+  "dependencies": {
+    "@d3plus/core": "workspace:*",
+    "@d3plus/dom": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^6.2.5"
+  }
+}

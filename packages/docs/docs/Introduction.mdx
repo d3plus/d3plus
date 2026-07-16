@@ -64,6 +64,7 @@ colorblind-safe default palette, and full TypeScript types.
 See the **Guides** in the sidebar to get oriented:
 
 - **Migration (v3 → v4)** — what changed and what (rarely) needs updating
+- **Frameworks** — using d3plus with React, Vue, Svelte, Web Components, or Angular
 - **Configuration** — the config object, accessors, `RESET`, shared defaults
 - **Rendering** — SVG vs. Canvas backends and lifecycle
 - **Data** — accessors, loading from a URL, and `@d3plus/data` transforms
@@ -121,6 +122,8 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
 );
 ```
 
+Using a different framework? d3plus ships official wrappers for **Vue**, **Svelte**, and **Angular**, plus framework-agnostic **Web Components** — see the **Frameworks** guide in the sidebar.
+
 ## Vanilla JavaScript (CDN)
 
 Load the core bundle directly via a script tag:
@@ -154,6 +157,10 @@ D3plus is a modular monorepo. Install only what you need:
 | Package | Description |
 |---------|-------------|
 | [@d3plus/react](https://www.npmjs.com/package/@d3plus/react) | React component wrappers for all chart types |
+| [@d3plus/vue](https://www.npmjs.com/package/@d3plus/vue) | Vue 3 component wrappers for all chart types |
+| [@d3plus/svelte](https://www.npmjs.com/package/@d3plus/svelte) | Svelte action for rendering visualizations |
+| [@d3plus/element](https://www.npmjs.com/package/@d3plus/element) | Framework-agnostic Web Components (custom elements) |
+| [@d3plus/angular](https://www.npmjs.com/package/@d3plus/angular) | Angular component wrappers for all chart types |
 | [@d3plus/core](https://www.npmjs.com/package/@d3plus/core) | Charts, components, and shapes (the main engine) |
 | [@d3plus/color](https://www.npmjs.com/package/@d3plus/color) | Color scales, defaults, and utilities |
 | [@d3plus/data](https://www.npmjs.com/package/@d3plus/data) | Data loading, filtering, and manipulation |

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "allowedNonPeerDependencies": [
+    "@d3plus/core",
+    "@d3plus/dom",
+    "tslib"
+  ],
+  "dest": "dist",
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}
