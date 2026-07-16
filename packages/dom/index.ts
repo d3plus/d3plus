@@ -9,6 +9,8 @@ export {default as getSize} from "./src/getSize.js";
 export {default as inViewport} from "./src/inViewport.js";
 export {default as isObject} from "./src/isObject.js";
 export {default as parseSides} from "./src/parseSides.js";
+export {applyConfig, hash} from "./src/renderer.js";
+export type {D3plusConstructor, D3plusInstance} from "./src/renderer.js";
 export {default as rtl} from "./src/rtl.js";
 export {default as stylize} from "./src/stylize.js";
 export {default as textWidth} from "./src/textWidth.js";

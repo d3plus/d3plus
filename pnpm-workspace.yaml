@@ -6,8 +6,11 @@ publicHoistPattern:
   - "*storybook*"
   - "*webpack*"
 allowBuilds:
+  '@parcel/watcher': true
   '@swc/core': true
   canvas: true
   core-js-pure: true
   esbuild: true
+  lmdb: true
+  msgpackr-extract: true
   sharp: true

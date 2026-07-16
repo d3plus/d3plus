@@ -158,6 +158,19 @@ function collectInterfaceDocs(project) {
 
 const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
+// Framework wrapper packages. These ship curated READMEs and are documented in
+// the Frameworks guide, so the generator skips them: a TypeDoc API dump doesn't
+// capture wrapper usage, and the non-React wrappers can't render in this
+// React-based Storybook anyway. (@d3plus/angular has no index.ts, so it is
+// skipped below regardless, but is listed here to make the intent explicit.)
+const FRAMEWORK_WRAPPERS = new Set([
+  "@d3plus/react",
+  "@d3plus/vue",
+  "@d3plus/svelte",
+  "@d3plus/element",
+  "@d3plus/angular",
+]);
+
 const kindLabels = {
   [ReflectionKind.Class]: "Classes",
   [ReflectionKind.Function]: "Functions",
@@ -283,7 +296,9 @@ async function generateMarkdown() {
       JSON.stringify(packageJSON, null, 2),
     );
 
-    if (name === "@d3plus/docs") {
+    // Skip this docs package and the framework wrappers (README + stories),
+    // but only after the version bump above so their versions still sync.
+    if (name === "@d3plus/docs" || FRAMEWORK_WRAPPERS.has(name)) {
       log.done();
       console.log("");
       continue;

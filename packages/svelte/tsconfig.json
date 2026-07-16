@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "declarationDir": "./types",
+    "outDir": "./types",
+    "rootDir": "."
+  },
+  "include": ["index.ts", "../../externals.d.ts"]
+}

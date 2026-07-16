@@ -126,10 +126,18 @@ try {
 
   // ── Tests & builds ─────────────────────────────────────────────────────
   if (await confirm("Run tests and build?")) {
-    run("pnpm test --if-present");
-    run("pnpm -r --if-present run build:umd");
+    // Build every package's publishable output once, up front. `build:esm`
+    // runs for all packages — with or without tests — and produces
+    // @d3plus/angular's ng-packagr `dist/`, so the publish below always has
+    // fresh output without depending on any package's test step.
+    run("pnpm -r --if-present run build:esm");
     run("pnpm -r --if-present run build:types");
+    run("pnpm -r --if-present run build:umd");
     run("pnpm run docs");
+    // Test against what was just built. Deliberately `-r run test` and NOT
+    // `pnpm test`: the root `pretest` hook rebuilds esm for every package,
+    // which would double-build everything right after the step above.
+    run("pnpm -r --if-present run test");
   }
 
   // ── Release notes ──────────────────────────────────────────────────────
