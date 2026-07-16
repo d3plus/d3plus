@@ -83,6 +83,9 @@ export interface VizRenderer {
   target(): {container: Element; width: number; height: number} | undefined;
   destroy(): void;
   drawScene(scene: any, opts?: any): any;
+  toSVGString?(): string;
+  toCanvas?(): HTMLCanvasElement;
+  whenSettled?(): Promise<void>;
   [key: string]: any;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -273,6 +276,21 @@ export interface VizInstance {
   _zoomSet?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
+  /**
+      Geomap only: the static (identity-transform) basemap tile list — URLs and
+      projection-pixel positions — used by @d3plus/ssr to fetch + inline tiles.
+  */
+  _computeTileList?: () => Array<{
+    key: string;
+    url: string;
+    x: number;
+    y: number;
+    size: number;
+  }>;
+  /** Set by @d3plus/ssr: emit ocean/tiles into the scene for a complete server render. */
+  _ssr?: boolean;
+  /** Set by @d3plus/ssr: pre-fetched basemap tiles keyed by `${x}-${y}-${z}` → data URI. */
+  _ssrTiles?: Map<string, string>;
   _wirePlotShapeEvents?: (shape: Shape, shapeKey: string, events: string[]) => void;
 
   /* 11. Identity */

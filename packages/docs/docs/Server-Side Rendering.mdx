@@ -1,0 +1,162 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Server-Side Rendering" />
+
+# Server-Side Rendering
+
+d3plus can render a visualization to an **SVG string** or a **PNG image** in
+Node — with no browser. This is useful for static image exports, email/PDF
+reports, social preview cards, caching charts on a server, or emitting SVG ahead
+of hydration.
+
+Every chart type is supported, including **Geomap** (basemap tiles are fetched
+and inlined server-side) and the **Canvas** backend for raster output. The
+[same scene graph](?path=/docs/guides-rendering--docs) that paints in the browser
+is realized headlessly, so server output matches the client.
+
+## Installing
+
+Server rendering lives in a dedicated package, [`@d3plus/ssr`](https://www.npmjs.com/package/@d3plus/ssr):
+
+```bash
+npm install @d3plus/ssr @d3plus/core
+```
+
+It has two optional peer dependencies, loaded on demand:
+
+- [`jsdom`](https://www.npmjs.com/package/jsdom) — the default headless DOM.
+- [`@napi-rs/canvas`](https://www.npmjs.com/package/@napi-rs/canvas) — text
+  measurement and PNG rasterization (prebuilt binaries, no system libraries).
+
+```bash
+npm install jsdom @napi-rs/canvas
+```
+
+## Rendering to SVG
+
+`renderToStaticSVG` returns a standalone `<svg>` string for any chart. An
+explicit `width` and `height` are required (a headless page has no layout to
+size against):
+
+```js
+import {Treemap} from "@d3plus/core";
+import {renderToStaticSVG} from "@d3plus/ssr";
+
+const svg = await renderToStaticSVG(
+  new Treemap()
+    .data([
+      {parent: "Group A", id: "alpha", value: 29},
+      {parent: "Group A", id: "beta", value: 10},
+      {parent: "Group B", id: "gamma", value: 22},
+    ])
+    .groupBy(["parent", "id"]),
+  {width: 600, height: 400},
+);
+// "<svg xmlns=…>…</svg>"
+```
+
+The chart is rendered into a temporary headless DOM that is fully torn down
+before the promise resolves — nothing is left mutated on `globalThis`.
+
+## Rendering to PNG
+
+`renderToStaticPNG` returns PNG bytes (a Node `Buffer`). Use `pixelRatio` for
+high-resolution output:
+
+```js
+import {BarChart} from "@d3plus/core";
+import {renderToStaticPNG} from "@d3plus/ssr";
+import {writeFileSync} from "node:fs";
+
+const png = await renderToStaticPNG(
+  new BarChart().data(data).groupBy("id").x("id").y("value"),
+  {width: 600, height: 400, pixelRatio: 2},
+);
+writeFileSync("chart.png", png);
+```
+
+For other formats or streaming, `renderToCanvas` returns the underlying
+[`@napi-rs/canvas`](https://www.npmjs.com/package/@napi-rs/canvas) canvas:
+
+```js
+import {renderToCanvas} from "@d3plus/ssr";
+
+const canvas = await renderToCanvas(viz, {width: 600, height: 400});
+const jpeg = await canvas.encode("jpeg", 90);
+```
+
+### Fonts
+
+For pixel-accurate PNG text, register the fonts your chart uses — otherwise the
+native canvas falls back to its built-in fonts:
+
+```js
+await renderToStaticPNG(viz, {
+  width: 600,
+  height: 400,
+  fonts: ["/fonts/Inter-Regular.ttf", "/fonts/Inter-Bold.ttf"],
+});
+```
+
+## Maps
+
+`Geomap` works server-side too. By default its basemap tiles are fetched over
+the network at render time, decoded, and **inlined** into the output, so the
+resulting SVG or PNG is fully self-contained:
+
+```js
+import {Geomap} from "@d3plus/core";
+import {renderToStaticPNG} from "@d3plus/ssr";
+
+const png = await renderToStaticPNG(
+  new Geomap()
+    .data([{city: "Tokyo", coords: [139.7, 35.7], value: 14}])
+    .point(d => d.coords)
+    .pointSize(d => d.value)
+    .groupBy("city"),
+  {width: 800, height: 500},
+);
+```
+
+Call `.tiles(false)` for a vector-only map (countries and points, no network).
+To cache tiles, add an API key, or route through a proxy, pass `fetchTile`:
+
+```js
+await renderToStaticPNG(map, {
+  width: 800,
+  height: 500,
+  fetchTile: async url =>
+    (await cache.get(url)) ?? fetch(url).then(r => r.arrayBuffer()),
+});
+```
+
+## Options
+
+| Option | Applies to | Description |
+|---|---|---|
+| `width`, `height` | all | Output size in pixels. Required here or via `viz.width()`/`viz.height()`. |
+| `pixelRatio` | PNG / canvas | Backing-store scale for sharper rasters. Default `2`. |
+| `fonts` | PNG / canvas | Font files to register before rendering. |
+| `window` | all | A custom DOM window (e.g. from `linkedom`); defaults to `jsdom`. |
+| `tileConcurrency` | Geomap | Max concurrent tile fetches. Default `8`. |
+| `tileTimeout` | Geomap | Per-tile fetch timeout in ms. Default `15000`. |
+| `fetchTile` | Geomap | Custom tile fetcher for caching, auth, or proxying. |
+
+## React & frameworks
+
+The [React wrapper](?path=/docs/guides-frameworks--docs) renders on the client
+inside `useEffect`, so it is safe to include in server-rendered apps — it simply
+paints after mount. Its components carry the `"use client"` directive, so they
+work in the Next.js App Router without extra boundaries.
+
+When you want the chart present in the server response as static markup (before
+or instead of hydration), render the SVG with `renderToStaticSVG` and inline it.
+
+## Notes
+
+- **Globals are restored.** Each call installs a temporary DOM and tears it down
+  afterward, even if rendering throws.
+- **Bring your own DOM.** Pass a `window` (for example from
+  [`linkedom`](https://www.npmjs.com/package/linkedom)) to skip `jsdom`.
+- **Lower-level control.** `installDom()` / `withDom()` expose the headless-DOM
+  lifecycle if you need to drive rendering yourself.

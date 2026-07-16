@@ -129,7 +129,10 @@ function resetPolls(viz: Viz): void {
   viz._visiblePoll = clearInterval(viz._visiblePoll);
   viz._resizePoll = clearTimeout(viz._resizePoll);
   viz._scrollPoll = clearTimeout(viz._scrollPoll);
-  select(viz.schema.scrollContainer).on(`scroll.${viz._uuid}`, null);
+  // scrollContainer is "" when constructed without a window (headless/SSR);
+  // there is nothing to unbind and select("") throws on an invalid selector.
+  if (viz.schema.scrollContainer)
+    select(viz.schema.scrollContainer).on(`scroll.${viz._uuid}`, null);
 }
 
 /**
@@ -289,9 +292,9 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   }
 
   if (viz.schema.detectResize && (viz._autoWidth || viz._autoHeight)) {
-    viz._resizeObserver.observe(viz._select.node().parentNode);
+    viz._resizeObserver?.observe(viz._select.node().parentNode);
   } else {
-    viz._resizeObserver.unobserve(viz._select.node().parentNode);
+    viz._resizeObserver?.unobserve(viz._select.node().parentNode);
   }
 
   if (callback)

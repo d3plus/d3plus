@@ -71,6 +71,11 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     transform: ReturnType<typeof zoomTransform> = zoomTransform((this._zoomEventTarget || this._container)!.node()),
     duration: number = 0,
   ): void {
+    // Under SSR the basemap is composited into the scene graph (see geomapEmit +
+    // `_computeTileList`), so skip the imperative <image> tile layer entirely.
+    // It wouldn't be serialized anyway, and its transform transition relies on
+    // SVGGElement.transform.baseVal, which headless DOMs don't implement.
+    if (this._ssr) return;
     let tileData: number[][] & {scale?: number; translate?: number[]} =
       [] as unknown as number[][] & {scale?: number; translate?: number[]};
     if (this.schema.tiles) {
@@ -101,6 +106,33 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
         x * scale + tileData.translate![0] * scale - transform.x / transform.k)
       .attr("y", ([, y]: [number, number]) =>
         y * scale + tileData.translate![1] * scale - transform.y / transform.k);
+  };
+
+  // Static (identity-transform) tile list for server-side rendering: the tile
+  // URLs + their positions in projection pixel space, so @d3plus/ssr can fetch
+  // them and geomapEmit can place them as scene image nodes (both SVG string and
+  // canvas output then include the basemap, with no network at view time).
+  // Deterministic `{s}` = "a" so tiles are cacheable across renders.
+  viz._computeTileList = function(
+    this: VizInstance,
+  ): Array<{key: string; url: string; x: number; y: number; size: number}> {
+    if (!this.schema.tiles) return [];
+    const tileData = this._tileGen
+      .extent(this._zoomBehavior.translateExtent())
+      .scale(this.schema.projection.scale() * (2 * Math.PI))
+      .translate(this.schema.projection.translate())();
+    const size: number = tileData.scale;
+    return (tileData as number[][]).map(([x, y, z]) => ({
+      key: `${x}-${y}-${z}`,
+      url: this.schema.tileUrl
+        .replace("{s}", "a")
+        .replace("{z}", `${z}`)
+        .replace("{x}", `${x}`)
+        .replace("{y}", `${y}`),
+      x: x * size + tileData.translate![0] * size,
+      y: y * size + tileData.translate![1] * size,
+      size,
+    }));
   };
 }
 
@@ -160,6 +192,10 @@ function setupGeomapDraw(viz: VizInstance): void {
     supDrawScene(durationOverride);
     if (
       viz._renderer === "canvas" &&
+      // Under SSR the canvas is a headless native surface with no
+      // addEventListener; there is no interaction to wire, so skip the
+      // pointer/zoom rebind entirely.
+      !viz._ssr &&
       viz._sceneRenderer &&
       typeof viz._sceneRenderer.toCanvas === "function"
     ) {

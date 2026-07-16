@@ -172,6 +172,22 @@ function canvasFillStyle(
     constant screen width regardless of an ancestor zoom/scale. It's 1 when
     nothing above the node scales, so unzoomed output is unchanged.
 */
+/**
+    Returns a dash array safe to pass to `setLineDash`, or `[]` (solid) for a
+    degenerate one. Browsers ignore an all-zero/non-finite dash and draw solid;
+    Skia-backed canvases (`@napi-rs/canvas`) instead throw "Make line dash path
+    effect failed", so normalize here for backend parity.
+*/
+function validDash(dash?: number[]): number[] {
+  if (!dash || !dash.length) return [];
+  let sum = 0;
+  for (const v of dash) {
+    if (!isFinite(v) || v < 0) return [];
+    sum += v;
+  }
+  return sum > 0 ? dash : [];
+}
+
 export function paint(
   ctx: Ctx,
   node: SceneNode,
@@ -194,7 +210,7 @@ export function paint(
       p.vectorEffect === "non-scaling-stroke" && cssScale
         ? (p.strokeWidth as number) / cssScale
         : (p.strokeWidth as number);
-    ctx.setLineDash(p.strokeDasharray ?? []);
+    ctx.setLineDash(validDash(p.strokeDasharray));
     if (p.strokeLinecap) ctx.lineCap = p.strokeLinecap;
     if (path) ctx.stroke(path);
     else ctx.stroke();

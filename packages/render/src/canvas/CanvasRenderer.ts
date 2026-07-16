@@ -19,7 +19,8 @@ import SvgRenderer from "../svg/SvgRenderer.js";
 import {apply, invert, multiply, nodeMatrix} from "./transform.js";
 import type {Mat} from "./transform.js";
 import {paint, pathFor, pathHit, solidFill} from "./canvasNodePaint.js";
-import {patternTileSvg} from "./patternTile.js";
+import {getCanvasBackend} from "./backend.js";
+import {CanvasResources} from "./resources.js";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -68,15 +69,24 @@ export default class CanvasRenderer implements Renderer {
   /** Per-mark position history for persistent motion trails. */
   private _trailLog = new TrailLog();
   private _pickIndex: PickEntry[] = [];
-  private _images = new Map<string, HTMLImageElement>();
-  // Token → tiled CanvasPattern (rasterized from the texture's SVG tile), plus
-  // the set of tokens whose rasterization is in flight. `_patternResolver` is a
-  // pre-bound view passed into the paint path so no closure is allocated per
-  // node per frame.
-  private _patterns = new Map<string, CanvasPattern>();
-  private _patternsPending = new Set<string>();
+  /**
+   * Async image + texture-pattern resources and the settle machinery. See
+   * {@link CanvasResources}. `_patternResolver` is a pre-bound view passed into
+   * the paint path so no closure is allocated per node per frame.
+   */
+  private _res = new CanvasResources(
+    () => this._ctx,
+    () => {
+      if (this._scene) this._paint(this._scene);
+    },
+  );
+  /**
+   * Whether the mounted surface is a real DOM canvas. False under a headless
+   * backend (`@d3plus/ssr`), where DOM mounting + interaction wiring are skipped.
+   */
+  private _dom = true;
   private _patternResolver = (token: string): CanvasPattern | null =>
-    this._resolvePattern(token);
+    this._res.resolvePattern(token);
   private _handlers = new Set<(event: SceneEvent) => void>();
   private _domListeners: Record<string, (e: Event) => void> = {};
   private _listening = false;
@@ -94,14 +104,20 @@ export default class CanvasRenderer implements Renderer {
   mount(target: RenderTarget): void {
     this._target = target;
     this._ratio = target.pixelRatio ?? (typeof devicePixelRatio !== "undefined" ? devicePixelRatio : 1);
-    const canvas = document.createElement("canvas");
-    canvas.className = "d3plus-render-canvas";
-    canvas.style.display = "block";
-    // `createOverlayHost` handles `position: relative` on container.
-    this._overlayHost = createOverlayHost(target);
-    target.container.insertBefore(canvas, this._overlayHost);
+    const backend = getCanvasBackend();
+    this._dom = backend.dom !== false;
+    const canvas = backend.createCanvas(target.width, target.height);
     this._canvas = canvas;
     this._ctx = canvas.getContext("2d") as Ctx;
+    // Headless backends (no DOM canvas) skip mounting + overlay hosting; they
+    // only produce pixels. The browser backend inserts the canvas + overlay host.
+    if (this._dom) {
+      canvas.className = "d3plus-render-canvas";
+      canvas.style.display = "block";
+      // `createOverlayHost` handles `position: relative` on container.
+      this._overlayHost = createOverlayHost(target);
+      target.container.insertBefore(canvas, this._overlayHost);
+    }
     this.resize(target.width, target.height);
   }
 
@@ -111,8 +127,10 @@ export default class CanvasRenderer implements Renderer {
     if (!this._canvas) return;
     this._canvas.width = Math.round(width * this._ratio);
     this._canvas.height = Math.round(height * this._ratio);
-    this._canvas.style.width = `${width}px`;
-    this._canvas.style.height = `${height}px`;
+    if (this._dom) {
+      this._canvas.style.width = `${width}px`;
+      this._canvas.style.height = `${height}px`;
+    }
     if (this._invalidatePointerRect) this._invalidatePointerRect();
     if (this._scene) this._paint(this._scene);
   }
@@ -370,81 +388,38 @@ export default class CanvasRenderer implements Renderer {
   }
 
   /**
-      Resolves a `pattern:<json>` texture token to a tiled CanvasPattern.
-
-      textures.js emits SVG `<pattern>`s a 2D context can't consume, so the tile
-      is rasterized: its standalone SVG markup ({@link patternTileSvg}) is loaded
-      as an Image onto an offscreen canvas, then `createPattern(…, "repeat")`
-      tiles it. Loading is async, so the first paint returns null (the caller
-      paints the texture's solid fallback) and we repaint once the tile is ready
-      — the same warm-up-then-repaint model as {@link _drawImage}.
+      Resolves once all in-flight image/texture decodes settle and a final frame
+      repaints. Server-side callers await this before reading pixels; the browser
+      repaints live and never needs it. See {@link CanvasResources}.
   */
-  private _resolvePattern(token: string): CanvasPattern | null {
-    const cached = this._patterns.get(token);
-    if (cached) return cached;
-    if (this._patternsPending.has(token)) return null;
-
-    const tile = patternTileSvg(token);
-    if (!tile) return null;
-
-    this._patternsPending.add(token);
-    const img = new Image();
-    img.onload = () => {
-      try {
-        const off = document.createElement("canvas");
-        off.width = tile.width;
-        off.height = tile.height;
-        const octx = off.getContext("2d");
-        const pat =
-          octx &&
-          (octx.drawImage(img, 0, 0, tile.width, tile.height),
-          this._ctx?.createPattern(off, "repeat"));
-        if (pat) this._patterns.set(token, pat);
-      } finally {
-        this._patternsPending.delete(token);
-        if (this._scene) this._paint(this._scene);
-      }
-    };
-    img.onerror = () => {
-      this._patternsPending.delete(token);
-    };
-    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(tile.svg)}`;
-    return null;
+  whenSettled(): Promise<void> {
+    return this._res.whenSettled();
   }
 
   private _drawImage(ctx: Ctx, node: Extract<SceneNode, {type: "image"}>, alpha: number): void {
-    let img = this._images.get(node.href);
-    if (!img) {
-      img = new Image();
-      img.onload = () => {
-        if (this._scene) this._paint(this._scene);
-      };
-      img.src = node.href;
-      this._images.set(node.href, img);
-    }
-    if (img.complete && img.naturalWidth) {
-      ctx.globalAlpha = alpha;
-      const par = node.preserveAspectRatio;
-      const iw = img.naturalWidth, ih = img.naturalHeight;
-      if (par && par.includes("slice")) {
-        // CSS `cover`: scale the image to fill the box, cropping the overflow
-        // (centered), via drawImage's source-rect crop.
-        const scale = Math.max(node.width / iw, node.height / ih);
-        const sw = node.width / scale, sh = node.height / scale;
-        ctx.drawImage(
-          img, (iw - sw) / 2, (ih - sh) / 2, sw, sh,
-          node.x, node.y, node.width, node.height,
-        );
-      } else if (par && par !== "none" && par.includes("meet")) {
-        // CSS `contain`: fit the whole image inside the box (centered).
-        const scale = Math.min(node.width / iw, node.height / ih);
-        const dw = iw * scale, dh = ih * scale;
-        ctx.drawImage(
-          img, node.x + (node.width - dw) / 2, node.y + (node.height - dh) / 2, dw, dh,
-        );
-      } else {
-        ctx.drawImage(img, node.x, node.y, node.width, node.height);
-      }
+    const img = this._res.imageFor(node.href);
+    if (!img) return;
+    ctx.globalAlpha = alpha;
+    const par = node.preserveAspectRatio;
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (par && par.includes("slice")) {
+      // CSS `cover`: scale the image to fill the box, cropping the overflow
+      // (centered), via drawImage's source-rect crop.
+      const scale = Math.max(node.width / iw, node.height / ih);
+      const sw = node.width / scale, sh = node.height / scale;
+      ctx.drawImage(
+        img, (iw - sw) / 2, (ih - sh) / 2, sw, sh,
+        node.x, node.y, node.width, node.height,
+      );
+    } else if (par && par !== "none" && par.includes("meet")) {
+      // CSS `contain`: fit the whole image inside the box (centered).
+      const scale = Math.min(node.width / iw, node.height / ih);
+      const dw = iw * scale, dh = ih * scale;
+      ctx.drawImage(
+        img, node.x + (node.width - dw) / 2, node.y + (node.height - dh) / 2, dw, dh,
+      );
+    } else {
+      ctx.drawImage(img, node.x, node.y, node.width, node.height);
     }
   }
 
@@ -513,7 +488,9 @@ export default class CanvasRenderer implements Renderer {
 
   on(handler: (event: SceneEvent) => void): () => void {
     this._handlers.add(handler);
-    if (!this._listening) this._attachListeners();
+    // A headless backend (`@d3plus/ssr`) has no DOM canvas to bind pointer
+    // listeners to; interaction is a no-op server-side.
+    if (this._dom && !this._listening) this._attachListeners();
     return () => {
       this._handlers.delete(handler);
     };
@@ -597,7 +574,7 @@ export default class CanvasRenderer implements Renderer {
 
   destroy(): void {
     if (this._cancelAnim) this._cancelAnim();
-    if (this._canvas) {
+    if (this._canvas && this._dom) {
       for (const [k, fn] of Object.entries(this._domListeners))
         this._canvas.removeEventListener(k, fn);
       this._canvas.remove();
@@ -615,10 +592,8 @@ export default class CanvasRenderer implements Renderer {
     this._handlers.clear();
     this._domListeners = {};
     this._listening = false;
-    this._images.clear();
     // CanvasPatterns are bound to the context being torn down.
-    this._patterns.clear();
-    this._patternsPending.clear();
+    this._res.clear();
     this._canvas = undefined;
     this._ctx = undefined;
     this._scene = null;

@@ -1,3 +1,5 @@
+"use client";
+
 import {createContext} from "react";
 import type {D3plusConfig} from "@d3plus/core";
 

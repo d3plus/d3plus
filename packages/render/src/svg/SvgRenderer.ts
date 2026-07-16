@@ -95,6 +95,10 @@ export default class SvgRenderer implements Renderer {
     this._target = target;
     const svg = document.createElementNS(SVG_NS, "svg") as SVGSVGElement;
     svg.setAttribute("class", "d3plus-render-svg");
+    // Explicit namespace so the serialized output (toSVGString → outerHTML) is a
+    // valid standalone SVG. Browsers infer it from the DOM namespace, but the
+    // HTML serializer doesn't always emit it; a redundant attribute is harmless.
+    svg.setAttribute("xmlns", SVG_NS);
     svg.style.display = "block";
     // Transparent background — without this, default UA stylesheet may
     // give the svg a white background, which briefly bleeds through

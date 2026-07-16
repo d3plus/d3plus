@@ -41,6 +41,9 @@ export type {
 export {default as SvgRenderer} from "./src/svg/SvgRenderer.js";
 export {default as CanvasRenderer} from "./src/canvas/CanvasRenderer.js";
 
+export {getCanvasBackend, setCanvasBackend} from "./src/canvas/backend.js";
+export type {CanvasBackend} from "./src/canvas/backend.js";
+
 export {patternTileSvg} from "./src/canvas/patternTile.js";
 
 export {curveFor, linePath, areaPath} from "./src/paths.js";

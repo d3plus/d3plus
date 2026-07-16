@@ -8,6 +8,9 @@ declare module "d3-geo-projection";
 
 declare module "hyphenated";
 
+// Optional peer dependency of @d3plus/ssr; ships no TypeScript types.
+declare module "jsdom";
+
 declare module "textures" {
   /**
       A configured textures.js instance: callable so it can be applied to a

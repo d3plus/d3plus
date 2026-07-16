@@ -26,10 +26,12 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   if (!c) return [];
   const out: SceneNode[] = [];
 
-  // Canvas backend: ensureZoomDom keeps its imperative ocean rect transparent
-  // (it lives in the overlaying compute <svg>), so paint the ocean into the
-  // scene here — first, beneath the geography — to match the SVG backend.
-  if (viz._renderer === "canvas") {
+  // The ocean rect and basemap tiles normally live in the imperative geomap
+  // <svg> (`_container`), outside the scene graph. That's fine on-screen, but a
+  // server render serializes only the scene, so under SSR (`viz._ssr`) — and on
+  // the canvas backend, whose compute <svg> keeps its ocean transparent — paint
+  // them into the scene here, beneath the geography, so the output is complete.
+  if (viz._renderer === "canvas" || viz._ssr) {
     const ocean = viz.schema.ocean as string | undefined;
     if (ocean && ocean !== "transparent") {
       const {width, height} = chartBounds(viz);
@@ -41,6 +43,28 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         width,
         height,
         paint: {fill: ocean},
+      } as SceneNode);
+    }
+  }
+
+  // Basemap tiles, pre-fetched + inlined as data URIs by @d3plus/ssr. Placed
+  // above the ocean and below the geography, at the positions `_computeTileList`
+  // derives from the fitted projection (same math as the live `_renderTiles`).
+  const ssrTiles = viz._ssrTiles as Map<string, string> | undefined;
+  if (ssrTiles && ssrTiles.size && typeof viz._computeTileList === "function") {
+    for (const t of viz._computeTileList()) {
+      const href = ssrTiles.get(t.key);
+      if (!href) continue;
+      out.push({
+        type: "image",
+        key: `geomap-tile-${t.key}`,
+        x: t.x,
+        y: t.y,
+        width: t.size,
+        height: t.size,
+        href,
+        preserveAspectRatio: "none",
+        interactive: false,
       } as SceneNode);
     }
   }
