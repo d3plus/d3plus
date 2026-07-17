@@ -20,11 +20,9 @@ import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-const legendAttrs = ["fill", "opacity", "texture"];
-
 interface LegendData {
   legendData: DataPoint[];
-  fill: (d: DataPoint, i: number) => string;
+  legendKey: (d: DataPoint, i: number) => string;
   getAttr: (d: DataPoint, i: number, attr: string) => string;
 }
 
@@ -34,7 +32,7 @@ interface LegendData {
     Returns the `legendData` array plus the `fill`/`getAttr` accessors the
     render step reuses.
 */
-function buildLegendData(viz: VizInstance): LegendData {
+export function buildLegendData(viz: VizInstance): LegendData {
   // Source: `_legendData` from the rollupAndFilter pipeline stage — same
   // arg drawLegend received via `drawLegend.bind(this)(this._legendData)`.
   const data: DataPoint[] = viz._legendData || [];
@@ -50,8 +48,27 @@ function buildLegendData(viz: VizInstance): LegendData {
     return typeof value === "function" ? value.bind(viz)(d, i) : value;
   };
 
-  const fill = (d: DataPoint, i: number): string =>
-    legendAttrs.map(a => getAttr(d, i, a)).join("_");
+  // Legend grouping key. Historically this was the resolved paint string
+  // (fill+opacity+texture): distinct categories that the ordinal color scale
+  // recycled onto the same hex collapsed into one scrambled entry (#788). Key
+  // on the color *encoding* input instead — categories keep their own entry
+  // even when two resolve to the same hex — while opacity/texture still split
+  // entries that differ on those secondary encodings. Falls back to the
+  // resolved fill when there's no color accessor to key on (e.g. `.color(false)`
+  // with a custom `shapeConfig.fill`).
+  const legendKey = (d: DataPoint, i: number): string => {
+    const c =
+      typeof viz.schema.color === "function" ? viz.schema.color(d, i) : undefined;
+    const colorKey =
+      c === undefined || c === null
+        ? getAttr(d, i, "fill")
+        : typeof c === "string"
+          ? c
+          : JSON.stringify(c);
+    return [colorKey, getAttr(d, i, "opacity"), getAttr(d, i, "texture")].join(
+      "_",
+    );
+  };
 
   const rollupData = viz.schema.colorScale
     ? data.filter(
@@ -62,7 +79,7 @@ function buildLegendData(viz: VizInstance): LegendData {
     rollupData,
     (leaves: DataPoint[]) =>
       legendData.push(merge(leaves, viz.schema.aggs) as unknown as DataPoint),
-    fill,
+    legendKey,
   );
 
   legendData.sort(viz.schema.legendSort);
@@ -94,7 +111,7 @@ function buildLegendData(viz: VizInstance): LegendData {
     }
   }
 
-  return {legendData, fill, getAttr};
+  return {legendData, legendKey, getAttr};
 }
 
 /**
@@ -108,7 +125,7 @@ function renderLegendFeature(
   built: LegendData,
   layoutMargin: Required<MarginClaim>,
 ): FeatureLayout {
-  const {legendData, fill, getAttr} = built;
+  const {legendData, legendKey, getAttr} = built;
 
   const hidden = (d: DataPoint, i: number): boolean => {
     let id = viz._id(d, i);
@@ -155,7 +172,7 @@ function renderLegendFeature(
 
   viz._legendClass!
     .renderMode("compute")
-    .id(fill)
+    .id(legendKey)
     .align(wide ? "center" : position)
     .direction(wide ? "row" : "column")
     .duration(viz.schema.duration)
