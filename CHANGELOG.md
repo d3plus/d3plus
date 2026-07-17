@@ -2,6 +2,22 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.3.0
+
+### Added
+
+- **Official framework wrappers — Vue, Svelte, Web Components, and Angular.** Alongside the existing `@d3plus/react`, four new packages drop a d3plus chart into any framework: `@d3plus/vue` (Vue 3 components), `@d3plus/svelte` (a `use:d3plus` action), `@d3plus/element` (framework-agnostic custom elements via `defineElements`), and `@d3plus/angular` (a standalone `D3plusVizComponent`). All five share a renderer core extracted into `@d3plus/dom`, so they behave identically: each reuses its chart instance across config changes (so charts tween instead of tearing down and re-entering), no-ops on a structurally-identical config, supports `forceUpdate` and a global config baseline, and destroys on teardown. (#716) [Frameworks guide ↗](https://d3plus.org/?path=/docs/guides-frameworks--docs)
+- **Server-side rendering — `@d3plus/ssr`.** Render any chart to an SVG string or a PNG buffer in Node, with no browser: `renderToStaticSVG`, `renderToStaticPNG`, `renderToCanvas`, plus `installDom`/`withDom` helpers. Geomap works headless too — basemap tiles are fetched server-side and inlined into the scene graph, so the output is self-contained — as does the Canvas backend. `jsdom` and `@napi-rs/canvas` are optional peer dependencies. `Viz` gains `toSVGString()` and `toCanvas()`; `@d3plus/render` exposes a pluggable `setCanvasBackend()` and `CanvasRenderer.whenSettled()`; and `@d3plus/react` now emits the `"use client"` directive for the Next.js App Router. (#375) [Server-Side Rendering guide ↗](https://d3plus.org/?path=/docs/guides-server-side-rendering--docs)
+
+### Fixed
+
+- **Multi-point shapes (`Line`/`Area`) now report a single, consistent datum.** They had no "representative datum," so different accessors disagreed and interactions reported the wrong point. Every paint accessor now sees the same merged aggregate that drives the scene node, id, and aria (#785). Mouse events on `Plot` charts now report the point **nearest the cursor** along the discrete axis — un-zoomed and defined-points-only — instead of the whole-series aggregate, so stacked-area and line tooltips finally name the point under the pointer (#786). This branch also **restores `Line`'s fat invisible hit area** (dropped in the v4 scene rewrite) so hovering anywhere along a line registers — with stroke-aware path hit-testing on the Canvas backend — and fixes two paint regressions it exposed: hovered hit areas rendering solid black, and `LinePlot` confidence bands rendering grey instead of the line's color.
+- **Non-plottable (`NaN`/`null`) values are filtered out of `Plot` data.** A `NaN` on an axis previously coerced to `0` (a phantom mark at the baseline) on the aggregated path, or emitted a broken `…L268.75,NaN` coordinate the browser rejects on the raw-leaves `Line` path. `formatPlotData` now drops rows whose `x`/`y` — or a defined `x2`/`y2` — aren't plottable, before domains, stacking, and paint read the data, so a `NaN` measure no longer widens a domain, stacks as `0`, or breaks the path; the point is simply absent. A bare `undefined` is left alone (that's how an unused secondary axis reports "no value"), so charts without `x2`/`y2` are unaffected. (#776)
+
+### Developer & tooling
+
+- `@d3plus/react` was refactored onto the shared `@d3plus/dom` core (config merge/diff + loader routing), with behavior unchanged. Vite dev harnesses were added for each wrapper (`@d3plus/angular` via `@analogjs/vite-plugin-angular`), and the release script builds ESM once up front and tests via `pnpm -r run test` to avoid a double build.
+
 ## 4.2.0
 
 ### Added
