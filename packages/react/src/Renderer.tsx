@@ -1,3 +1,5 @@
+"use client";
+
 import {useContext, useEffect, useRef, useState} from "react";
 import {applyConfig, hash} from "@d3plus/dom";
 import type {D3plusInstance} from "@d3plus/dom";

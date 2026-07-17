@@ -280,7 +280,13 @@ function initEventDefaults(viz: Viz): void {
     }
   };
   const debouncedResize = debounce(applyResize, viz.schema.detectResizeDelay);
-  viz._resizeObserver = new ResizeObserver(
+  // Guarded so a chart can be constructed in an environment without a DOM (e.g.
+  // before `@d3plus/ssr` installs one). Auto-resize is a browser-only feature;
+  // when absent, `_resizeObserver` stays undefined and its call sites skip it.
+  viz._resizeObserver =
+    typeof ResizeObserver === "undefined"
+      ? undefined
+      : new ResizeObserver(
     (entries: ResizeObserverEntry[]) => {
       // The first real-size notification after `observe()` reports the
       // container's settled layout size, which on an auto-sized chart often

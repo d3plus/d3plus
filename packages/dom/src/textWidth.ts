@@ -1,16 +1,56 @@
 import {prepareWithSegments, layoutWithLines} from "@chenglou/pretext";
 
+/** Common named HTML entities for the DOM-free decode fallback. */
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+  ndash: "–", mdash: "—", hellip: "…", copy: "©",
+  reg: "®", trade: "™", deg: "°", middot: "·",
+  bull: "•", laquo: "«", raquo: "»", times: "×",
+  divide: "÷", lsquo: "‘", rsquo: "’", ldquo: "“",
+  rdquo: "”", euro: "€", pound: "£", cent: "¢",
+  yen: "¥", sect: "§", para: "¶", plusmn: "±",
+};
+
 /**
- * Strips HTML and "un-escapes" escape characters.
+ * Decodes HTML entities without a DOM, for headless/server-side rendering where
+ * `DOMParser` may be absent. Handles numeric (`&#160;`/`&#xA0;`) and the common
+ * named entities above; unknown or out-of-range entities are left as-is.
+ * Exported for testing; not part of the package's public API.
+ * @param {String} input tag-stripped text
+ */
+export function decodeEntities(input: string): string {
+  return input.replace(
+    /&(#x[0-9a-fA-F]+|#[0-9]+|[a-zA-Z][a-zA-Z0-9]*);/g,
+    (match, code: string) => {
+      if (code[0] === "#") {
+        const cp =
+          code[1] === "x"
+            ? parseInt(code.slice(2), 16)
+            : parseInt(code.slice(1), 10);
+        // Reject code points outside the Unicode range — String.fromCodePoint
+        // throws on them; leave the raw entity in place instead.
+        return cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
+      }
+      const named = NAMED_ENTITIES[code];
+      return named !== undefined ? named : match;
+    },
+  );
+}
+
+/**
+ * Strips HTML and "un-escapes" escape characters. Uses `DOMParser` when present
+ * (browser / jsdom) for full entity coverage, falling back to a DOM-free decode
+ * so text measurement works in any headless environment.
  * @param {String} input
  */
 function htmlDecode(input: string): string {
   if (input.replace(/\s+/g, "") === "") return input;
-  const doc = new DOMParser().parseFromString(
-    input.replace(/<[^>]+>/g, ""),
-    "text/html",
-  );
-  return doc.documentElement ? doc.documentElement.textContent! : input;
+  const stripped = input.replace(/<[^>]+>/g, "");
+  if (typeof DOMParser !== "undefined") {
+    const doc = new DOMParser().parseFromString(stripped, "text/html");
+    return doc.documentElement ? doc.documentElement.textContent! : input;
+  }
+  return decodeEntities(stripped);
 }
 
 /**

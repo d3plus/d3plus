@@ -1,0 +1,59 @@
+{
+  "name": "@d3plus/ssr",
+  "version": "4.2.0",
+  "description": "Server-side rendering for d3plus visualizations — render charts to SVG strings and PNG buffers in Node, with no browser.",
+  "license": "MIT",
+  "type": "module",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./es/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "es",
+    "types"
+  ],
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3plus/d3plus.git",
+    "directory": "packages/ssr"
+  },
+  "keywords": [
+    "ssr",
+    "server",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "scripts": {
+    "build:esm": "node ../../scripts/build-esm.js",
+    "build:types": "tsc",
+    "dev": "node ../../scripts/dev.js",
+    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'",
+    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+  },
+  "dependencies": {
+    "@d3plus/core": "workspace:*",
+    "@d3plus/render": "workspace:*"
+  },
+  "peerDependencies": {
+    "@napi-rs/canvas": ">=0.1.0",
+    "jsdom": ">=26.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@napi-rs/canvas": {
+      "optional": true
+    },
+    "jsdom": {
+      "optional": true
+    }
+  }
+}

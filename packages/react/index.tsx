@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,

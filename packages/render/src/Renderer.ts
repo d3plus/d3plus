@@ -139,6 +139,13 @@ export interface Renderer {
   /** Rasterize the current surface to a canvas element. */
   toCanvas?(): HTMLCanvasElement;
 
+  /**
+      Resolve once all in-flight async resources (images, texture patterns) have
+      decoded and a final frame has painted. Server-side callers await this
+      before reading pixels; the browser repaints live and never needs it.
+  */
+  whenSettled?(): Promise<void>;
+
   /** Tear down listeners, observers, and the drawing surface. */
   destroy(): void;
 }

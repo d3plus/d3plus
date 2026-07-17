@@ -262,6 +262,29 @@ export default class Viz extends VizBase {
   }
 
   /**
+      Serializes the most recently rendered output to an SVG string. Returns
+      `""` if the chart has not been rendered yet. Both backends support this:
+      the SVG backend returns its live `<svg>`, the canvas backend re-renders the
+      retained scene through a throwaway SVG backend. Primarily used for
+      server-side rendering (see `@d3plus/ssr`).
+  */
+  toSVGString(): string {
+    return this._sceneRenderer?.toSVGString?.() ?? "";
+  }
+
+  /**
+      Returns the underlying canvas element of the most recent render when the
+      canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
+      Server-side callers cast this to their native canvas to encode a raster
+      (see `@d3plus/ssr`).
+  */
+  toCanvas(): unknown {
+    return this._renderer === "canvas"
+      ? this._sceneRenderer?.toCanvas?.()
+      : undefined;
+  }
+
+  /**
       Selects which @d3plus/render backend paints the visible output.
       `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
       Boolean arguments both normalize to `"svg"`.
@@ -356,7 +379,15 @@ export default class Viz extends VizBase {
         this._sceneRenderer.destroy();
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
-      this._sceneRenderer.mount({container: mountTarget, width: w, height: h});
+      // `_scenePixelRatio`, when set (e.g. by @d3plus/ssr for hi-res PNG output),
+      // fixes the canvas backing-store scale; otherwise the renderer falls back
+      // to `devicePixelRatio`.
+      this._sceneRenderer.mount({
+        container: mountTarget,
+        width: w,
+        height: h,
+        pixelRatio: this._scenePixelRatio,
+      });
       // Bridge renderer pointer events → viz.schema.on handlers. Without this,
       // tooltips never fire on the v4 scene-rendered path because
       // `shape.on(evt, fn)` in plotPaint only wires d3-selection
@@ -627,7 +658,7 @@ export default class Viz extends VizBase {
       Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
-    this._resizeObserver.disconnect();
+    this._resizeObserver?.disconnect();
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
     // Clear the visibility/resize/scroll poll timers + scroll listener
@@ -649,7 +680,8 @@ export default class Viz extends VizBase {
         cancelAnimationFrame(this._sceneRepaintRAF);
       this._sceneRepaintRAF = undefined;
     }
-    select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
+    if (this.schema.scrollContainer)
+      select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
     // Destroy the active scene renderer (clears its own pointer-rect
     // listeners, overlay host, canvas/svg DOM, timers).
     if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function") {
