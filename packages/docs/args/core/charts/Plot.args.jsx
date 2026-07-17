@@ -327,11 +327,11 @@ export const argTypes = assign(
     },
     confidenceConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => {\n  const c = typeof this.schema.shapeConfig.Line.stroke === \"function\" ? this.schema.shapeConfig.Line.stroke(d, i) : this.schema.shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
+      defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
       description: "Configuration object for shapes rendered as confidence intervals.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => {\n  const c = typeof this.schema.shapeConfig.Line.stroke === \"function\" ? this.schema.shapeConfig.Line.stroke(d, i) : this.schema.shapeConfig.Line.stroke;\n  return c;\n}, fillOpacity: 0.5}",
+          detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
           summary: "function"
         }
       },

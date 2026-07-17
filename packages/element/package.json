@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/element",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Framework-agnostic custom elements (Web Components) for d3plus visualizations.",
   "license": "MIT",
   "type": "module",

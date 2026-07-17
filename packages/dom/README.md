@@ -30,12 +30,14 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
+| [`applyConfig`](#applyconfig) | Merges the supplied config objects over a fresh `{select: node}` target, |
 | [`assign`](#assign) | A deeply recursive version of `Object.assign`. |
 | [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
 | [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the |
 | [`date`](#date) | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats. |
 | [`elem`](#elem) | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optiona |
 | [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false |
+| [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
@@ -43,11 +45,43 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`stylize`](#stylize) | Applies each key/value in an object as a style. |
 | [`textWidth`](#textwidth) | Given a text string, returns the predicted pixel width of the string when placed into DOM. |
 
+| Interfaces | Description |
+| --- | --- |
+| [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the |
+
 | Type Aliases | Description |
 | --- | --- |
+| [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization, component, and shape classes. |
 | [`D3Selection`](#d3selection) |  |
 
 ## Functions
+
+<a id="applyconfig"></a>
+
+### applyConfig()
+
+> **applyConfig**(`instance`: [`D3plusInstance`](#d3plusinstance), `node`: `Element`, ...`configs`: (`Record`\<`string`, `unknown`\> \| `undefined`)[]): [`D3plusInstance`](#d3plusinstance)
+
+Defined in: [renderer.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L37)
+
+Merges the supplied config objects over a fresh `{select: node}` target,
+routes any `<field>` + `<field>Format` pairs to their loader methods, then
+applies whatever remains via `instance.config()`. Shared by every d3plus
+framework wrapper so this routing lives in exactly one place.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `instance` | [`D3plusInstance`](#d3plusinstance) | A d3plus class instance. |
+| `node` | `Element` | The DOM element the visualization renders into (its `select`). |
+| ...`configs` | (`Record`\<`string`, `unknown`\> \| `undefined`)[] | One or more config objects, merged left-to-right (later objects win); `undefined`/`null` entries are ignored. |
+
+#### Returns
+
+[`D3plusInstance`](#d3plusinstance)
+
+***
 
 <a id="assign"></a>
 
@@ -195,6 +229,32 @@ Given either a single font-family or a list of fonts, returns the name of the fi
 
 ***
 
+<a id="hash"></a>
+
+### hash()
+
+> **hash**(`val`: `unknown`): `string`
+
+Defined in: [renderer.ts:70](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L70)
+
+Stable hash that serializes functions by their source, so function-valued
+config props (accessors, formatters) still register as changed when their
+body changes. Wrappers use this to diff config across a framework's render
+cycles — two structurally identical config objects hash equal, so an
+unchanged config skips a re-render.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `val` | `unknown` | Any config value. |
+
+#### Returns
+
+`string`
+
+***
+
 <a id="inviewport"></a>
 
 ### inViewport()
@@ -309,7 +369,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L49)
+Defined in: [textWidth.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L89)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -328,7 +388,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L53)
+Defined in: [textWidth.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L93)
 
 ##### Parameters
 
@@ -341,7 +401,96 @@ Defined in: [textWidth.ts:53](https://github.com/d3plus/d3plus/blob/main/package
 
 `number`[]
 
+## Interfaces
+
+<a id="d3plusinstance"></a>
+
+### D3plusInstance
+
+Defined in: [renderer.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L9)
+
+A minimal structural interface for the d3plus class instances that the
+framework wrappers drive. Every visualization, component, and shape exposes
+`.config()`; charts additionally expose `.render()` and `.destroy()`, plus
+loader methods (`data()`, `links()`, …) for their data-like fields.
+
+#### Indexable
+
+> \[`key`: `string`\]: `unknown`
+
+#### Methods
+
+<a id="config"></a>
+
+##### config()
+
+> **config**(`c`: `Record`\<`string`, `unknown`\>): `unknown`
+
+Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L10)
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `c` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`unknown`
+
+<a id="destroy"></a>
+
+##### destroy()?
+
+> `optional` **destroy**(): `unknown`
+
+Defined in: [renderer.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L12)
+
+###### Returns
+
+`unknown`
+
+<a id="render"></a>
+
+##### render()?
+
+> `optional` **render**(`callback?`: () => `void`): `unknown`
+
+Defined in: [renderer.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L11)
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `callback?` | () => `void` |
+
+###### Returns
+
+`unknown`
+
 ## Type Aliases
+
+<a id="d3plusconstructor"></a>
+
+### D3plusConstructor
+
+> **D3plusConstructor** = (...`args`: `any`[]) => [`D3plusInstance`](#d3plusinstance)
+
+Defined in: [renderer.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L17)
+
+Constructor type for d3plus visualization, component, and shape classes.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| ...`args` | `any`[] |
+
+#### Returns
+
+[`D3plusInstance`](#d3plusinstance)
+
+***
 
 <a id="d3selection"></a>
 

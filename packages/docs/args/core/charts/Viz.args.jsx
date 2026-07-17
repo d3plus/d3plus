@@ -1153,6 +1153,19 @@ export const argTypes = {
       summary: "boolean | function"
     }
   },
+  toCanvas: {
+    control: {},
+    description: "",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "unknown"
+    }
+  },
   tooltip: {
     control: {
       type: "boolean"

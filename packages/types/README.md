@@ -80,6 +80,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`accessor`](#accessor) | Wraps an object key in a simple accessor function. |
 | [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualiz |
+| [`applyConfig`](#applyconfig) | Merges the supplied config objects over a fresh `{select: node}` target, |
 | [`assign`](#assign) | A deeply recursive version of `Object.assign`. |
 | [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
 | [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the |
@@ -104,6 +105,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
 | [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
 | [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
+| [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
@@ -161,6 +163,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate. |
 | [`ColorValidation`](#colorvalidation) | The result of validating a palette. `ok` is true when no check hard-fails. |
 | [`D3plusConfig`](#d3plusconfig) |  |
+| [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the |
 | [`DataPoint`](#datapoint) | DataPoint |
 | [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
 | [`ImageConfig`](#imageconfig) | Image-specific config (url + dimensions). |
@@ -184,6 +187,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`AnyShapeConfig`](#anyshapeconfig) | Union of every shape config — useful for code that composes |
 | [`CheckState`](#checkstate) | The state of a single check. `warn` passes but obligates secondary encoding. |
 | [`ConstOrAccessor`](#constoraccessor) | A value that can either be a function (called per-datum) or a literal |
+| [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization, component, and shape classes. |
 | [`D3Selection`](#d3selection) | D3-style selection — deliberately loose. d3-selection's element/datum |
 | [`StringOrAccessor`](#stringoraccessor) | A value that can be a function, a string key (wrapped in `accessor`), |
 
@@ -11743,7 +11747,7 @@ Creates an x/y plot based on an array of data.
 
 > **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:85
+Defined in: core/types/src/charts/viz/Viz.d.ts:100
 
 Renders this chart through the @d3plus/render pluggable backends. Called
 automatically by `render()`. The compute pass draws into `this._select`
@@ -11772,7 +11776,7 @@ svg's children get cleared so only the scene output is visible.
 
 > **\_paint**(`pCtx`: `PlotPaintContext`): `this`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:61
+Defined in: core/types/src/charts/Plot/index.d.ts:82
 
 Paint phase: production axis rendering, shape buffer setup, and shape
 emission with event handlers. Receives all cross-phase locals from
@@ -11795,7 +11799,7 @@ scope beyond the explicit context).
 
 > **\_scheduleSceneRepaint**(): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:106
+Defined in: core/types/src/charts/viz/Viz.d.ts:136
 
 Coalesces interaction-driven scene repaints (hover/active dimming) into a
 single paint per animation frame. A fast pointer sweep across a dense
@@ -11903,7 +11907,7 @@ Custom aggregation methods for each data key.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: core/types/src/charts/Plot/index.d.ts:67
+Defined in: core/types/src/charts/Plot/index.d.ts:88
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -11973,7 +11977,7 @@ Configuration object for the attribution style.
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:71
+Defined in: core/types/src/charts/Plot/index.d.ts:92
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -12017,7 +12021,7 @@ Configuration object for the back button.
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:75
+Defined in: core/types/src/charts/Plot/index.d.ts:96
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -12037,7 +12041,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:79
+Defined in: core/types/src/charts/Plot/index.d.ts:100
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -12201,7 +12205,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`number`, `number`\]
 
-Defined in: core/types/src/charts/Plot/index.d.ts:92
+Defined in: core/types/src/charts/Plot/index.d.ts:113
 
 The confidence interval as an array of [lower, upper] bounds.
 
@@ -12233,7 +12237,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:96
+Defined in: core/types/src/charts/Plot/index.d.ts:117
 
 Configuration object for shapes rendered as confidence intervals.
 
@@ -12328,7 +12332,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:110
+Defined in: core/types/src/charts/viz/Viz.d.ts:140
 
 Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -12442,7 +12446,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:100
+Defined in: core/types/src/charts/Plot/index.d.ts:121
 
 When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
@@ -12582,7 +12586,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:104
+Defined in: core/types/src/charts/Plot/index.d.ts:125
 
 The pixel space between groups of bars.
 
@@ -12726,7 +12730,7 @@ Accessor function or string key for the label of each data point.
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:108
+Defined in: core/types/src/charts/Plot/index.d.ts:129
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -12746,7 +12750,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:112
+Defined in: core/types/src/charts/Plot/index.d.ts:133
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -12910,7 +12914,7 @@ Configuration object for the legend tooltip.
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:116
+Defined in: core/types/src/charts/Plot/index.d.ts:137
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -12930,7 +12934,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:120
+Defined in: core/types/src/charts/Plot/index.d.ts:141
 
 Draws circle markers on each vertex of a Line.
 
@@ -13369,7 +13373,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:54
+Defined in: core/types/src/charts/viz/Viz.d.ts:69
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -13387,7 +13391,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:55
+Defined in: core/types/src/charts/viz/Viz.d.ts:70
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -13415,7 +13419,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderMode**(): `"full"` \| `"compute"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:62
+Defined in: core/types/src/charts/viz/Viz.d.ts:77
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -13434,7 +13438,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderMode**(`_`: `"full"` \| `"compute"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:63
+Defined in: core/types/src/charts/viz/Viz.d.ts:78
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -13461,7 +13465,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:71
+Defined in: core/types/src/charts/viz/Viz.d.ts:86
 
 Public entry point that renders this chart through the @d3plus/render
 pluggable backends. The compute pass happens via render() (in an svg
@@ -13605,7 +13609,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:124
+Defined in: core/types/src/charts/Plot/index.d.ts:145
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -13625,7 +13629,7 @@ Sets the size of bubbles to the given Number, data key, or function.
 
 > **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:132
+Defined in: core/types/src/charts/Plot/index.d.ts:153
 
 Sets the vertical offset applied to stacked series. Accepts a named
 offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
@@ -13649,7 +13653,7 @@ stack offset function.
 
 > **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:147
+Defined in: core/types/src/charts/Plot/index.d.ts:168
 
 Sets the order of stacked series, from the bottom of the stack upward.
 Accepts:
@@ -13986,6 +13990,27 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 [`Viz`](#viz).[`titlePadding`](#titlepadding-1)
 
+<a id="tocanvas"></a>
+
+##### toCanvas()
+
+> **toCanvas**(): `unknown`
+
+Defined in: core/types/src/charts/viz/Viz.d.ts:63
+
+Returns the underlying canvas element of the most recent render when the
+canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
+Server-side callers cast this to their native canvas to encode a raster
+(see `@d3plus/ssr`).
+
+###### Returns
+
+`unknown`
+
+###### Inherited from
+
+[`Viz`](#viz).[`toCanvas`](#tocanvas-1)
+
 <a id="tooltip"></a>
 
 ##### tooltip()
@@ -14053,6 +14078,28 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 ###### Overrides
 
 [`Viz`](#viz).[`toScene`](#toscene-19)
+
+<a id="tosvgstring"></a>
+
+##### toSVGString()
+
+> **toSVGString**(): `string`
+
+Defined in: core/types/src/charts/viz/Viz.d.ts:56
+
+Serializes the most recently rendered output to an SVG string. Returns
+`""` if the chart has not been rendered yet. Both backends support this:
+the SVG backend returns its live `<svg>`, the canvas backend re-renders the
+retained scene through a throwaway SVG backend. Primarily used for
+server-side rendering (see `@d3plus/ssr`).
+
+###### Returns
+
+`string`
+
+###### Inherited from
+
+[`Viz`](#viz).[`toSVGString`](#tosvgstring-1)
 
 <a id="total"></a>
 
@@ -14214,7 +14261,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:151
+Defined in: core/types/src/charts/Plot/index.d.ts:172
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -14234,7 +14281,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:155
+Defined in: core/types/src/charts/Plot/index.d.ts:176
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -14254,7 +14301,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:163
+Defined in: core/types/src/charts/Plot/index.d.ts:184
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14274,7 +14321,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:159
+Defined in: core/types/src/charts/Plot/index.d.ts:180
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14294,7 +14341,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:167
+Defined in: core/types/src/charts/Plot/index.d.ts:188
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -14314,7 +14361,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:171
+Defined in: core/types/src/charts/Plot/index.d.ts:192
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -14334,7 +14381,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:181
+Defined in: core/types/src/charts/Plot/index.d.ts:202
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14354,7 +14401,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:177
+Defined in: core/types/src/charts/Plot/index.d.ts:198
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -18614,7 +18661,7 @@ Creates an x/y plot based on an array of data. See [this example](https://d3plus
 
 > **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:85
+Defined in: core/types/src/charts/viz/Viz.d.ts:100
 
 Renders this chart through the @d3plus/render pluggable backends. Called
 automatically by `render()`. The compute pass draws into `this._select`
@@ -18639,7 +18686,7 @@ svg's children get cleared so only the scene output is visible.
 
 > **\_scheduleSceneRepaint**(): `void`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:106
+Defined in: core/types/src/charts/viz/Viz.d.ts:136
 
 Coalesces interaction-driven scene repaints (hover/active dimming) into a
 single paint per animation frame. A fast pointer sweep across a dense
@@ -18998,7 +19045,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:110
+Defined in: core/types/src/charts/viz/Viz.d.ts:140
 
 Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -19911,7 +19958,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:54
+Defined in: core/types/src/charts/viz/Viz.d.ts:69
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -19925,7 +19972,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:55
+Defined in: core/types/src/charts/viz/Viz.d.ts:70
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -19949,7 +19996,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderMode**(): `"full"` \| `"compute"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:62
+Defined in: core/types/src/charts/viz/Viz.d.ts:77
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -19964,7 +20011,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderMode**(`_`: `"full"` \| `"compute"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:63
+Defined in: core/types/src/charts/viz/Viz.d.ts:78
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -19987,7 +20034,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:71
+Defined in: core/types/src/charts/viz/Viz.d.ts:86
 
 Public entry point that renders this chart through the @d3plus/render
 pluggable backends. The compute pass happens via render() (in an svg
@@ -20433,6 +20480,23 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 `VizBase.titlePadding`
 
+<a id="tocanvas-1"></a>
+
+##### toCanvas()
+
+> **toCanvas**(): `unknown`
+
+Defined in: core/types/src/charts/viz/Viz.d.ts:63
+
+Returns the underlying canvas element of the most recent render when the
+canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
+Server-side callers cast this to their native canvas to encode a raster
+(see `@d3plus/ssr`).
+
+###### Returns
+
+`unknown`
+
 <a id="tooltip-2"></a>
 
 ##### tooltip()
@@ -20500,6 +20564,24 @@ by the most recent render. Combines:
 ###### Returns
 
 `Scene`
+
+<a id="tosvgstring-1"></a>
+
+##### toSVGString()
+
+> **toSVGString**(): `string`
+
+Defined in: core/types/src/charts/viz/Viz.d.ts:56
+
+Serializes the most recently rendered output to an SVG string. Returns
+`""` if the chart has not been rendered yet. Both backends support this:
+the SVG backend returns its live `<svg>`, the canvas backend re-renders the
+retained scene through a throwaway SVG backend. Primarily used for
+server-side rendering (see `@d3plus/ssr`).
+
+###### Returns
+
+`string`
 
 <a id="total-1"></a>
 
@@ -21534,6 +21616,33 @@ Adds the provided value to the internal queue to be loaded, if necessary. This i
 
 ***
 
+<a id="applyconfig"></a>
+
+### applyConfig()
+
+> **applyConfig**(`instance`: [`D3plusInstance`](#d3plusinstance), `node`: `Element`, ...`configs`: (`Record`\<`string`, `unknown`\> \| `undefined`)[]): [`D3plusInstance`](#d3plusinstance)
+
+Defined in: dom/types/src/renderer.d.ts:25
+
+Merges the supplied config objects over a fresh `{select: node}` target,
+routes any `<field>` + `<field>Format` pairs to their loader methods, then
+applies whatever remains via `instance.config()`. Shared by every d3plus
+framework wrapper so this routing lives in exactly one place.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `instance` | [`D3plusInstance`](#d3plusinstance) | A d3plus class instance. |
+| `node` | `Element` | The DOM element the visualization renders into (its `select`). |
+| ...`configs` | (`Record`\<`string`, `unknown`\> \| `undefined`)[] | One or more config objects, merged left-to-right (later objects win); `undefined`/`null` entries are ignored. |
+
+#### Returns
+
+[`D3plusInstance`](#d3plusinstance)
+
+***
+
 <a id="assign"></a>
 
 ### assign()
@@ -22121,6 +22230,32 @@ An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-r
 #### Returns
 
 `Record`\<`string`, `unknown`\>
+
+***
+
+<a id="hash"></a>
+
+### hash()
+
+> **hash**(`val`: `unknown`): `string`
+
+Defined in: dom/types/src/renderer.d.ts:34
+
+Stable hash that serializes functions by their source, so function-valued
+config props (accessors, formatters) still register as changed when their
+body changes. Wrappers use this to diff config across a framework's render
+cycles — two structurally identical config objects hash equal, so an
+unchanged config skips a re-render.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `val` | `unknown` | Any config value. |
+
+#### Returns
+
+`string`
 
 ***
 
@@ -22786,7 +22921,7 @@ Splits a given sentence into an array of words.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: dom/types/src/textWidth.d.ts:6
+Defined in: dom/types/src/textWidth.d.ts:14
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -22805,7 +22940,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: dom/types/src/textWidth.d.ts:7
+Defined in: dom/types/src/textWidth.d.ts:15
 
 ##### Parameters
 
@@ -23922,6 +24057,73 @@ Allows additional custom properties.
 
 ***
 
+<a id="d3plusinstance"></a>
+
+### D3plusInstance
+
+Defined in: dom/types/src/renderer.d.ts:7
+
+A minimal structural interface for the d3plus class instances that the
+framework wrappers drive. Every visualization, component, and shape exposes
+`.config()`; charts additionally expose `.render()` and `.destroy()`, plus
+loader methods (`data()`, `links()`, …) for their data-like fields.
+
+#### Indexable
+
+> \[`key`: `string`\]: `unknown`
+
+#### Methods
+
+<a id="config-23"></a>
+
+##### config()
+
+> **config**(`c`: `Record`\<`string`, `unknown`\>): `unknown`
+
+Defined in: dom/types/src/renderer.d.ts:8
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `c` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`unknown`
+
+<a id="destroy-2"></a>
+
+##### destroy()?
+
+> `optional` **destroy**(): `unknown`
+
+Defined in: dom/types/src/renderer.d.ts:10
+
+###### Returns
+
+`unknown`
+
+<a id="render-21"></a>
+
+##### render()?
+
+> `optional` **render**(`callback?`: () => `void`): `unknown`
+
+Defined in: dom/types/src/renderer.d.ts:9
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `callback?` | () => `void` |
+
+###### Returns
+
+`unknown`
+
+***
+
 <a id="datapoint"></a>
 
 ### DataPoint
@@ -24487,6 +24689,28 @@ that wraps as `constant(_)`. Mirrors the runtime "const" coerce.
 | Type Parameter | Default type |
 | ------ | ------ |
 | `T` | `unknown` |
+
+***
+
+<a id="d3plusconstructor"></a>
+
+### D3plusConstructor
+
+> **D3plusConstructor** = (...`args`: `any`[]) => [`D3plusInstance`](#d3plusinstance)
+
+Defined in: dom/types/src/renderer.d.ts:14
+
+Constructor type for d3plus visualization, component, and shape classes.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| ...`args` | `any`[] |
+
+#### Returns
+
+[`D3plusInstance`](#d3plusinstance)
 
 ***
 
