@@ -14,19 +14,22 @@ const NAMED_ENTITIES: Record<string, string> = {
 /**
  * Decodes HTML entities without a DOM, for headless/server-side rendering where
  * `DOMParser` may be absent. Handles numeric (`&#160;`/`&#xA0;`) and the common
- * named entities above; unknown entities are left as-is.
+ * named entities above; unknown or out-of-range entities are left as-is.
+ * Exported for testing; not part of the package's public API.
  * @param {String} input tag-stripped text
  */
-function decodeEntities(input: string): string {
+export function decodeEntities(input: string): string {
   return input.replace(
     /&(#x[0-9a-fA-F]+|#[0-9]+|[a-zA-Z][a-zA-Z0-9]*);/g,
     (match, code: string) => {
       if (code[0] === "#") {
         const cp =
-          code[1] === "x" || code[1] === "X"
+          code[1] === "x"
             ? parseInt(code.slice(2), 16)
             : parseInt(code.slice(1), 10);
-        return Number.isFinite(cp) ? String.fromCodePoint(cp) : match;
+        // Reject code points outside the Unicode range — String.fromCodePoint
+        // throws on them; leave the raw entity in place instead.
+        return cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
       }
       const named = NAMED_ENTITIES[code];
       return named !== undefined ? named : match;
