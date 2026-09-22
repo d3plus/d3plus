@@ -67,6 +67,7 @@ export default async function (opts = {}) {
   Copyright (c) ${new Date().getFullYear()} D3plus - ${homepage}
   @license ${license}
 */`,
+    extend: true,
     file: filePath,
     format: "umd",
     name: "d3plus",
