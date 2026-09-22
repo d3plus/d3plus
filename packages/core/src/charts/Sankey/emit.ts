@@ -7,6 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {
+  drawNodeLabel,
   paintFromShapeConfig,
   resolveAccessor,
   shapeConfigFor,
@@ -55,6 +56,9 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         d: c.pathFn(link),
         datum: link as unknown as DataPoint,
         paint,
+        aria: {
+          label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}, ${link.value}.`,
+        },
       } as SceneNode);
     }
   }
@@ -67,6 +71,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         const d = values[i];
         const datum = (d.data ?? d) as DataPoint;
         const paint = paintFromShapeConfig(cfg, datum, d.i ?? i);
+        const aria = {label: `${drawNodeLabel(viz, d, i)}.`};
         if (shapeKind === "Rect") {
           out.push({
             type: "rect",
@@ -77,6 +82,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
             height: d.y1 - d.y0,
             datum,
             paint,
+            aria,
           } as SceneNode);
         } else if (shapeKind === "Circle") {
           const r = Number(resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0);
@@ -88,6 +94,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
             r,
             datum,
             paint,
+            aria,
           } as SceneNode);
         }
         // Other shape kinds: skipped (Sankey's default is Rect).

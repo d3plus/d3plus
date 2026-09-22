@@ -71,10 +71,12 @@ export const geomapEmit: ChartEmit = ({viz}) => {
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");
+    const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
     for (let i = 0; i < c.topoData.length; i++) {
       const d = c.topoData[i];
       const datum = (d.data ?? d) as DataPoint;
       const paint = paintFromShapeConfig(pathConfig, datum, i);
+      const validColorScale = colorScale ? `, ${colorScale(datum, i)}` : "";
       out.push({
         type: "path",
         key: `geomap-path-${d.id}`,
@@ -84,6 +86,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         // screen width as the map zooms (v3 parity), rather than scaling with
         // the zoom transform. Honors an explicit shapeConfig.vectorEffect.
         paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
+        aria: {label: `${viz._drawLabel(datum, i)}${validColorScale}.`},
       } as SceneNode);
     }
   }
@@ -111,6 +114,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         // Coordinate points are data shapes: hold their stroke at a constant
         // screen width through zoom (v3 parity), like the topojson borders.
         paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
+        aria: {label: `${viz._drawLabel(d, i)}, ${(viz.schema.pointSize as (d: DataPoint, i: number) => unknown)(d, i)}.`},
         ...(circleConfig.trail ? {trail: true} : {}),
         ...(circleConfig.trailPersist ? {trailPersist: circleConfig.trailPersist} : {}),
       } as SceneNode);

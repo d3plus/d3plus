@@ -114,6 +114,19 @@ export function paintFromShapeConfig(
 }
 
 /**
+    Resolve a layout node's `drawLabel` text, unwrapping the `{data, i}`
+    wrapper the emit-side layout nodes carry (Network/Rings/Sankey/Tree
+    convention — same unwrap `paintFromShapeConfig` callers already do).
+*/
+export function drawNodeLabel(
+  viz: {_drawLabel: (d: DataPoint, i: number) => string},
+  d: DataPoint & {data?: DataPoint; i?: number},
+  i: number,
+): string {
+  return viz._drawLabel((d.data ?? d) as DataPoint, (d.i ?? i) as number);
+}
+
+/**
     Apply a shape-config object to a chart-specific shape key, returning the
     configPrep-massaged object suitable for `.config(...)`. Equivalent to
     `(configPrep as any).bind(viz)(config, "shape", key)`. When `config` is

@@ -9,7 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface NetworkLink {
@@ -37,27 +37,39 @@ interface NetworkCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
+/** Link Paths, one per `c.links` entry — split out to keep `networkEmit` under the line budget. */
+function emitNetworkLinks(
+  viz: {_drawLabel: (d: DataPoint, i: number) => string},
+  c: NetworkCtx,
+): SceneNode[] {
+  const out: SceneNode[] = [];
+  for (let i = 0; i < c.links.length; i++) {
+    const link = c.links[i];
+    const datum = link as unknown as DataPoint;
+    const paint = paintFromShapeConfig(c.linkConfig, datum, i);
+    // Link's strokeWidth comes from the layout-injected `d.size`.
+    if (typeof link.size === "number") paint.strokeWidth = link.size;
+    const sizeLabel = typeof link.size === "number" ? `, ${link.size}` : "";
+    out.push({
+      type: "path",
+      key: `network-link-${(link.source as DataPoint).id ?? ""}-${(link.target as DataPoint).id ?? ""}-${i}`,
+      d: c.linkD(link),
+      datum,
+      paint,
+      aria: {
+        label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}${sizeLabel}.`,
+      },
+    } as SceneNode);
+  }
+  return out;
+}
+
 export const networkEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
 
-  if (c.links && c.links.length) {
-    for (let i = 0; i < c.links.length; i++) {
-      const link = c.links[i];
-      const datum = link as unknown as DataPoint;
-      const paint = paintFromShapeConfig(c.linkConfig, datum, i);
-      // Link's strokeWidth comes from the layout-injected `d.size`.
-      if (typeof link.size === "number") paint.strokeWidth = link.size;
-      out.push({
-        type: "path",
-        key: `network-link-${(link.source as DataPoint).id ?? ""}-${(link.target as DataPoint).id ?? ""}-${i}`,
-        d: c.linkD(link),
-        datum,
-        paint,
-      } as SceneNode);
-    }
-  }
+  if (c.links && c.links.length) out.push(...emitNetworkLinks(viz, c));
 
   if (c.nodeGroups && c.nodeGroups.length) {
     for (const [shapeKind, values] of c.nodeGroups) {
@@ -73,6 +85,9 @@ export const networkEmit: ChartEmit = ({viz}) => {
         // network zooms (the links above deliberately scale with the zoom, so
         // heavier connections read as heavier when zoomed in).
         if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
+        const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
+        const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
+        const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
         if (shapeKind === "Circle") {
           out.push({
             type: "circle",
@@ -82,6 +97,7 @@ export const networkEmit: ChartEmit = ({viz}) => {
             r: d.r,
             datum,
             paint,
+            aria,
           } as SceneNode);
         } else if (shapeKind === "Rect") {
           const w = Number(d.width ?? resolveAccessor<number>(merged.width, datum, d.i ?? i) ?? 0);
@@ -95,6 +111,7 @@ export const networkEmit: ChartEmit = ({viz}) => {
             height: h,
             datum,
             paint,
+            aria,
           } as SceneNode);
         }
         // Other shape kinds: skipped (Network's default is Circle).

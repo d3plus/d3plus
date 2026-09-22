@@ -35,6 +35,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
     const fill = resolveAccessor<string>(sc.fill, d.data, i);
     const stroke = resolveAccessor<string>(sc.stroke, d.data, i);
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data, i);
+    const ariaLabel = `${viz._drawLabel(d.data, i)}, ${d.start} - ${d.end}.`;
     const w = Math.abs(xScale(d.end) - xScale(d.start));
     const width = w > 2 ? w - 2 : w;
     // Translate each band to its left edge + lane center and keep the rect's
@@ -58,6 +59,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
         stroke,
         strokeWidth,
       },
+      aria: {label: ariaLabel},
     } as SceneNode;
   });
 
