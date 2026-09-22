@@ -70,6 +70,23 @@ export default {
       config.resolve.alias = {
         ...workspacePackages,
         ...config.resolve.alias,
+        // The `@d3plus/ssr` stories document the server-rendering API, but its
+        // Node-only runtime deps (`jsdom`, `@napi-rs/canvas`) are loaded via
+        // lazy `import()` that never executes in the browser preview. Stub them
+        // to empty modules so webpack doesn't try to bundle jsdom (which drags
+        // in the Node built-ins `net`/`tls`/`child_process`/`fs`).
+        jsdom: false,
+        "@napi-rs/canvas": false,
+      };
+
+      // Belt-and-suspenders for any Node core module reached before the aliases
+      // above short-circuit: resolve them to nothing in the browser bundle.
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+        child_process: false,
+        fs: false,
       };
 
       // TypeScript sources use .js extensions in imports (ESM convention);
