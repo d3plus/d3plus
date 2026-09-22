@@ -7,11 +7,44 @@ const NodeBuffer = (globalThis as any).Buffer as {
   from(data: ArrayBuffer | Uint8Array): {toString(encoding: string): string};
 };
 
+/**
+    Rejects tile URLs that are not plain `http`/`https` requests to a public
+    host, blocking SSRF vectors such as cloud metadata endpoints
+    (169.254.169.254), loopback, and other private/internal network ranges.
+*/
+function isSafeTileUrl(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+  const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    host === "localhost" ||
+    host === "metadata.google.internal" ||
+    host === "0.0.0.0" ||
+    host === "::1" ||
+    /^127\./.test(host) ||
+    /^10\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host) ||
+    /^169\.254\./.test(host) ||
+    /^f[cd][0-9a-f]{0,2}:/.test(host) ||
+    /^fe80:/.test(host)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 /** Fetches one tile to a `data:` URI, or `null` if it fails/times out. */
 async function fetchOne(
   url: string,
   opts: GeomapTileOptions,
 ): Promise<string | null> {
+  if (!isSafeTileUrl(url)) return null;
   const timeout = opts.tileTimeout ?? 15000;
   const ctrl = typeof AbortController !== "undefined" ? new AbortController() : undefined;
   const timer = setTimeout(() => ctrl?.abort(), timeout);
