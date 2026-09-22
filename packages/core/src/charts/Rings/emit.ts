@@ -8,7 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface RingsEdge {
@@ -57,12 +57,16 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       const datum = edge as unknown as DataPoint;
       const paint = paintFromShapeConfig(c.linkConfig, datum, i);
       if (typeof edge.size === "number") paint.strokeWidth = edge.size;
+      const sizeLabel = typeof edge.size === "number" ? `, ${edge.size}` : "";
       out.push({
         type: "path",
         key: `rings-link-${edge.source.id}-${edge.target.id}`,
         d: c.linkD(edge),
         datum,
         paint,
+        aria: {
+          label: `${drawNodeLabel(viz, edge.source, 0)} to ${drawNodeLabel(viz, edge.target, 0)}${sizeLabel}.`,
+        },
       } as SceneNode);
     }
   }
@@ -88,6 +92,9 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
         const rotate = nodeCfg.rotate ? nodeCfg.rotate(d) : 0;
         const transform = rotate ? {x: d.x, y: d.y, rotate} : {x: d.x, y: d.y};
+        const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
+        const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
+        const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
         if (shapeKind === "Circle") {
           out.push({
             type: "circle",
@@ -98,6 +105,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
             datum,
             paint,
             transform,
+            aria,
           } as SceneNode);
         } else if (shapeKind === "Rect") {
           const w = Number(resolveAccessor<number>(merged.width, datum, d.i ?? i) ?? d.r * 2);
@@ -112,6 +120,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
             datum,
             paint,
             transform,
+            aria,
           } as SceneNode);
         }
         // Other shape kinds: skipped (Rings's default is Circle).

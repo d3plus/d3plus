@@ -11,6 +11,7 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 interface RmCell extends Record<string, unknown> {
   row: unknown;
   column: unknown;
+  data?: DataPoint;
 }
 
 function resolveAccessor<T>(val: unknown, d: DataPoint, i: number): T | undefined {
@@ -23,11 +24,13 @@ export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
   if (!cells.length) return [];
   const arcData = viz.ctx.arcData as (d: RmCell) => string;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
 
   return cells.map((d, i): SceneNode => {
     const fill = resolveAccessor<string>(sc.fill, d as DataPoint, i);
     const stroke = resolveAccessor<string>(sc.stroke, d as DataPoint, i);
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d as DataPoint, i);
+    const validColorScale = colorScale ? `, ${colorScale((d.data ?? d) as DataPoint, i)}` : "";
     return {
       type: "path",
       key: `rm-${viz._ids(d as DataPoint, i).join("-")}`,
@@ -38,6 +41,7 @@ export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
         stroke,
         strokeWidth,
       },
+      aria: {label: `${d.row}, ${d.column}${validColorScale}.`},
     } as SceneNode;
   });
 };

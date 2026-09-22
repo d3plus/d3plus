@@ -32,6 +32,7 @@ export const radarEmit: ChartEmit = ({viz}) => {
       d: g.d,
       datum,
       paint,
+      aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode);
   }
   return out;

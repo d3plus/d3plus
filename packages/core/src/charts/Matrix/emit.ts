@@ -11,6 +11,7 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 interface MatrixCell extends Record<string, unknown> {
   row: unknown;
   column: unknown;
+  data?: DataPoint;
 }
 
 function resolveAccessor<T>(val: unknown, d: DataPoint, i: number): T | undefined {
@@ -27,6 +28,7 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
   const cellHeight = viz.ctx.cellHeight as number;
   const cellPadding = (viz.schema.cellPadding as number) ?? 0;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
 
   return cells.map((d, i): SceneNode => {
     const fill = resolveAccessor<string>(sc.fill, d as DataPoint, i);
@@ -36,6 +38,7 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
     const h = cellHeight - cellPadding;
     const x = columnScale(d.column) + cellWidth / 2 - w / 2;
     const y = rowScale(d.row) + cellHeight / 2 - h / 2;
+    const validColorScale = colorScale ? `, ${colorScale((d.data ?? d) as DataPoint, i)}` : "";
     return {
       type: "rect",
       key: `matrix-${i}`,
@@ -46,6 +49,7 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
         stroke,
         strokeWidth,
       },
+      aria: {label: `${d.row}, ${d.column}${validColorScale}.`},
     } as SceneNode;
   });
 };

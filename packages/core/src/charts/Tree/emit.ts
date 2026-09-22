@@ -107,6 +107,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
         datum,
         paint,
         transform: {x: tx, y: ty},
+        aria: {label: `${viz._drawLabel(datum, d.i ?? i)}.`},
       } as SceneNode);
     }
   }
@@ -133,6 +134,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
         key: `tree-${shapeKind}-${id}`,
         datum,
         paint,
+        aria: {label: `${viz._drawLabel(datum, i)}.`},
       } as SceneNode);
     }
 

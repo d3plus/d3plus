@@ -49,6 +49,9 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
         opacity: datum.__d3plusOpacity__,
         strokeWidth,
       },
+      aria: {
+        label: `${viz._drawLabel(datum, d.i)}, ${d.value}.`,
+      },
     } as SceneNode;
   });
 

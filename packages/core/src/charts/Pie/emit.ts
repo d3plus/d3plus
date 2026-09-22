@@ -32,7 +32,8 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const arcMaker = viz.ctx.arcData as (d: Slice) => string;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
-  const pathNodes: SceneNode[] = slices.map(d => {
+  const value = viz.schema.value as (d: DataPoint, i: number) => number;
+  const pathNodes: SceneNode[] = slices.map((d, rank) => {
     const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
     const stroke = resolveAccessor<string>(sc.stroke, d.data as DataPoint, d.i ?? 0);
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data as DataPoint, d.i ?? 0);
@@ -45,6 +46,9 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
         fill: typeof fill === "string" ? fill : undefined,
         stroke,
         strokeWidth,
+      },
+      aria: {
+        label: `${rank + 1}. ${viz._drawLabel(d.data as DataPoint, d.i ?? 0)}, ${value(d.data as DataPoint, d.i ?? 0)}.`,
       },
     } as SceneNode;
   });
