@@ -58,3 +58,16 @@ LargerNetwork.parameters = {
   controls: {include: ["center"]},
   docs: {description: {story: "Nodes one hop from the center sit on the inner ring; their neighbors fan out to an outer ring."}}
 };
+
+export const DirectionalArrows = Template.bind({});
+DirectionalArrows.args = {
+  center: "alpha",
+  arrows: "target",
+  links: [
+    {source: "alpha", target: "beta"},
+    {source: "alpha", target: "gamma"},
+    {source: "beta", target: "delta"},
+    {source: "gamma", target: "epsilon"}
+  ]
+};
+DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` draws an arrowhead at each edge's endpoint — following the bezier's tangent for the curved outer-ring links and insetting to the node for the straight center links. Use `\"both\"` or a per-link accessor for bi-directional edges."}}};

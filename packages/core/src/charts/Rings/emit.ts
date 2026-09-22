@@ -8,8 +8,11 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {arrowEnds, arrowNode, arrowSizeFor, straightEdgeArrows} from "../features/edgeArrows.js";
+import type {ArrowValue} from "../features/edgeArrows.js";
 import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 interface RingsEdge {
   source: DataPoint & {id: string; x: number; y: number};
@@ -46,6 +49,50 @@ interface RingsCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
+/**
+    Arrowheads for one Rings edge. Spline edges already terminate at the node
+    boundary, so the tangent comes from the bezier's end control point; straight
+    center-links run center-to-center and inset by the node radius.
+*/
+function ringsEdgeArrows(
+  viz: VizInstance,
+  edge: RingsEdge,
+  datum: DataPoint,
+  stroke: string | undefined,
+  strokeWidth: number | undefined,
+  i: number,
+): SceneNode[] {
+  const arrows = viz.schema.arrows as ArrowValue;
+  const baseKey = `${edge.source.id}-${edge.target.id}-${i}`;
+  const fill = typeof stroke === "string" ? stroke : undefined;
+  if (!edge.spline) {
+    return straightEdgeArrows({
+      arrows,
+      arrowSize: viz.schema.arrowSize,
+      strokeWidth,
+      datum,
+      i,
+      keyPrefix: `rings-arrow-${baseKey}`,
+      fill,
+      source: edge.source as unknown as {x: number; y: number; r?: number},
+      target: edge.target as unknown as {x: number; y: number; r?: number},
+    });
+  }
+  const ends = arrowEnds(arrows, datum, i);
+  if (!ends.source && !ends.target) return [];
+  const size = arrowSizeFor(viz.schema.arrowSize, datum, i, typeof strokeWidth === "number" ? strokeWidth : 1);
+  const out: SceneNode[] = [];
+  if (ends.target && edge.targetX != null) {
+    const angle = Math.atan2(edge.targetY! - edge.targetBisectY!, edge.targetX - edge.targetBisectX!);
+    out.push(arrowNode({key: `rings-arrow-t-${baseKey}`, datum, x: edge.targetX, y: edge.targetY!, angle, size, fill}));
+  }
+  if (ends.source && edge.sourceX != null) {
+    const angle = Math.atan2(edge.sourceY! - edge.sourceBisectY!, edge.sourceX - edge.sourceBisectX!);
+    out.push(arrowNode({key: `rings-arrow-s-${baseKey}`, datum, x: edge.sourceX, y: edge.sourceY!, angle, size, fill}));
+  }
+  return out;
+}
+
 export const ringsEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.ringsCtx as RingsCtx | undefined;
   if (!c) return [];
@@ -68,6 +115,9 @@ export const ringsEmit: ChartEmit = ({viz}) => {
           label: `${drawNodeLabel(viz, edge.source, 0)} to ${drawNodeLabel(viz, edge.target, 0)}${sizeLabel}.`,
         },
       } as SceneNode);
+
+      // Optional directional arrowheads.
+      out.push(...ringsEdgeArrows(viz, edge, datum, paint.stroke, paint.strokeWidth, i));
     }
   }
 

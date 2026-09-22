@@ -151,6 +151,8 @@ export const sankeyDef: ChartDefinition = {
   },
 
   fields: [
+    {key: "arrows", default: false},
+    {key: "arrowSize"},
     {key: "iterations", default: 6},
     {key: "links", default: accessor("links")},
     {key: "linkSort"},

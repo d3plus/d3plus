@@ -311,6 +311,8 @@ export const networkDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    {key: "arrows", default: false},
+    {key: "arrowSize"},
     {key: "links", default: []},
     {
       key: "linkSize",

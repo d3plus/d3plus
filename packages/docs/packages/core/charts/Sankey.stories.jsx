@@ -70,3 +70,16 @@ NodeSpacing.args = {
   nodePadding: 40
 };
 NodeSpacing.parameters = {controls: {include: ["nodeWidth", "nodePadding"]}, docs: {description: {story: "`nodeWidth` sets how thick each node bar is drawn and `nodePadding` the vertical gap between nodes in a column—raise `nodePadding` to spread crowded columns apart."}}};
+
+export const DirectionalArrows = Template.bind({});
+DirectionalArrows.args = {
+  value: "value",
+  links: [
+    {source: "Source A", target: "Hub", value: 30},
+    {source: "Source B", target: "Hub", value: 20},
+    {source: "Hub", target: "Out X", value: 30},
+    {source: "Hub", target: "Out Y", value: 20}
+  ],
+  arrows: "target"
+};
+DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` adds an arrowhead where each flow enters its target node, reinforcing the left-to-right direction. Use `\"both\"` for bi-directional flows or a per-link accessor."}}};
