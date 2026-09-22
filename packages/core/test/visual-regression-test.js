@@ -93,7 +93,10 @@ const charts = [
       {group: "B", id: "5", value: 8},  {group: "B", id: "6", value: 18},
       {group: "B", id: "7", value: 12}, {group: "B", id: "8", value: 22},
     ]).sum("value")`],
-  ["matrix", `lib => new lib.Matrix().data([
+  // `groupBy` must name both cell-identity dimensions — without it, every
+  // row shares the global default nest key (`id`, absent here) and the
+  // data-prep rollup merges all 9 rows into a single degenerate cell.
+  ["matrix", `lib => new lib.Matrix().groupBy(["row", "column"]).data([
       {row: "R1", column: "C1", value: 10}, {row: "R1", column: "C2", value: 25},
       {row: "R1", column: "C3", value: 15}, {row: "R2", column: "C1", value: 30},
       {row: "R2", column: "C2", value: 20}, {row: "R2", column: "C3", value: 5},
