@@ -12707,9 +12707,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:134
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -12771,7 +12773,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:138
 
 Whether to display the legend.
 
@@ -12795,7 +12797,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:142
 
 Configuration object passed to the legend's config method.
 
@@ -12819,7 +12821,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:146
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -12843,7 +12845,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:150
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -12867,7 +12869,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -12891,7 +12893,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
 
 Configuration object for the legend tooltip.
 
@@ -19376,9 +19378,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:134
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -19400,7 +19404,7 @@ Accessor function or string key for the label of each data point.
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:138
 
 Whether to display the legend.
 
@@ -19424,7 +19428,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:142
 
 Configuration object passed to the legend's config method.
 
@@ -19448,7 +19452,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:146
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -19472,7 +19476,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:150
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -19496,7 +19500,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -19520,7 +19524,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
 
 Configuration object for the legend tooltip.
 
@@ -22725,9 +22729,9 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 
 ### saveElement()
 
-> **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
+> **saveElement**(`elem`: `HTMLElement` \| `SVGElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: export/types/src/saveElement.d.ts:36
+Defined in: export/types/src/saveElement.d.ts:43
 
 Downloads an HTML Element as a bitmap PNG image.
 
@@ -22735,7 +22739,7 @@ Downloads an HTML Element as a bitmap PNG image.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `elem` | `HTMLElement` | The DOM element or d3 selection to export. |
+| `elem` | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export. |
 | `options?` | `SaveElementOptions` | Additional options to specify. |
 | `renderOptions?` | `SaveElementRenderOptions` | Custom options to be passed to the html-to-image function. |
 

@@ -540,7 +540,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    description: "Accessor function or string key for the label of each data point.",
+    description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
     table: {
       defaultValue: {
         summary: "undefined"

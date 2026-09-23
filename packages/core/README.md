@@ -12631,9 +12631,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:432](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L432)
+Defined in: [charts/viz/VizBaseConfig.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L434)
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -12695,7 +12697,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L443)
+Defined in: [charts/viz/VizBaseConfig.ts:445](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L445)
 
 Whether to display the legend.
 
@@ -12719,7 +12721,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L459)
+Defined in: [charts/viz/VizBaseConfig.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L461)
 
 Configuration object passed to the legend's config method.
 
@@ -12743,7 +12745,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:468](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L468)
+Defined in: [charts/viz/VizBaseConfig.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L470)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -12767,7 +12769,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:480](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L480)
+Defined in: [charts/viz/VizBaseConfig.ts:482](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L482)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -12791,7 +12793,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L492)
+Defined in: [charts/viz/VizBaseConfig.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L494)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -12815,7 +12817,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:502](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L502)
+Defined in: [charts/viz/VizBaseConfig.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L504)
 
 Configuration object for the legend tooltip.
 
@@ -19300,9 +19302,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:432](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L432)
+Defined in: [charts/viz/VizBaseConfig.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L434)
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -19324,7 +19328,7 @@ Accessor function or string key for the label of each data point.
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L443)
+Defined in: [charts/viz/VizBaseConfig.ts:445](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L445)
 
 Whether to display the legend.
 
@@ -19348,7 +19352,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L459)
+Defined in: [charts/viz/VizBaseConfig.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L461)
 
 Configuration object passed to the legend's config method.
 
@@ -19372,7 +19376,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:468](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L468)
+Defined in: [charts/viz/VizBaseConfig.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L470)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -19396,7 +19400,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:480](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L480)
+Defined in: [charts/viz/VizBaseConfig.ts:482](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L482)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -19420,7 +19424,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L492)
+Defined in: [charts/viz/VizBaseConfig.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L494)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -19444,7 +19448,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:502](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L502)
+Defined in: [charts/viz/VizBaseConfig.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L504)
 
 Configuration object for the legend tooltip.
 
@@ -21684,7 +21688,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: charts/Chord/index.ts:172
+Defined in: [charts/Chord/index.ts:181](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Chord/index.ts#L181)
 
 Creates a Chord diagram based on a defined set of nodes and links.
 
@@ -21809,7 +21813,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Network/index.ts:369](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L369)
+Defined in: [charts/Network/index.ts:371](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L371)
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -21972,7 +21976,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Rings/index.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L222)
+Defined in: [charts/Rings/index.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L224)
 
 Creates a ring visualization based on a defined set of nodes and edges.
 

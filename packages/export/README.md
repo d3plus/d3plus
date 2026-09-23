@@ -38,9 +38,9 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ### saveElement()
 
-> **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
+> **saveElement**(`elem`: `HTMLElement` \| `SVGElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: [saveElement.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/export/src/saveElement.ts#L58)
+Defined in: [saveElement.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/export/src/saveElement.ts#L79)
 
 Downloads an HTML Element as a bitmap PNG image.
 
@@ -48,7 +48,7 @@ Downloads an HTML Element as a bitmap PNG image.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `elem` | `HTMLElement` | The DOM element or d3 selection to export. |
+| `elem` | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export. |
 | `options` | `SaveElementOptions` | Additional options to specify. |
 | `renderOptions` | `SaveElementRenderOptions` | Custom options to be passed to the html-to-image function. |
 
