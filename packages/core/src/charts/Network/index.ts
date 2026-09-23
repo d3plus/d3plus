@@ -355,7 +355,9 @@ export const networkDef: ChartDefinition = {
           textAnchor: "middle",
           verticalAlign: "middle",
         },
-        Path: {fill: "none", label: false, stroke: "#eee"},
+        // Thin (1px) lines need more contrast than a wide flow-width stroke
+        // (cf. Sankey's #DBDBDB) to read clearly against a white background.
+        Path: {fill: "none", label: false, stroke: "#adb5bd"},
       }),
     },
   ],
