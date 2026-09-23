@@ -78,7 +78,7 @@ accessors), and its `_draw` runs the shared Viz pipeline then the chart's own
 Two kinds of def:
 
 - **Data-driven** (`emit(ctx) → SceneNode[]`): Treemap, Pack, Pie, Tree,
-  Network, Sankey, Rings, Geomap, Matrix, RadialMatrix, Priestley, Radar.
+  Network, Sankey, Rings, Chord, Geomap, Matrix, RadialMatrix, Priestley, Radar.
 - **Paint-driven** (`paintDriven: true`): the Plot family (BarChart, LinePlot,
   AreaPlot, StackedArea, BoxWhisker, BumpChart). `Plot._paint` (via `plotPaint`)
   builds `viz._chartScene`; there is no `emit` step.

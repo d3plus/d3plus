@@ -34,6 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`BarChart`](#barchart) | Creates a bar chart based on an array of data. |
 | [`BoxWhisker`](#boxwhisker) | Creates a simple box and whisker based on an array of data. |
 | [`BumpChart`](#bumpchart) | Creates a bump chart based on an array of data. |
+| [`Chord`](#chord) | Creates a Chord diagram based on a defined set of nodes and links. |
 | [`Donut`](#donut) | Extends the Pie visualization to create a donut chart. |
 | [`Geomap`](#geomap) | Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate  |
 | [`LinePlot`](#lineplot) | Creates a line plot based on an array of data. |
@@ -21653,6 +21654,39 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 Defined in: [charts/BumpChart/index.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BumpChart/index.ts#L75)
 
 Creates a bump chart based on an array of data.
+
+***
+
+<a id="chord"></a>
+
+### Chord
+
+Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides these defaults:
+
+| Method | Default |
+| --- | --- |
+| `arcThickness` | `20` |
+| `arrows` | `false` |
+| `arrowSize` | — |
+| `chordOpacity` | `0.6` |
+| `directed` | `true` |
+| `links` | `accessor(…)` |
+| `linksSource` | `"source"` |
+| `linksTarget` | `"target"` |
+| `noDataMessage` | `false` |
+| `nodes` | `accessor(…)` |
+| `nodeId` | `accessor(…)` |
+| `padAngle` | — |
+| `padPixel` | `2` |
+| `value` | `1` |
+| `shape` | `"Path"` |
+| `shapeConfig` | — |
+| `tooltipConfig` | — |
+
+
+Defined in: charts/Chord/index.ts:172
+
+Creates a Chord diagram based on a defined set of nodes and links.
 
 ***
 

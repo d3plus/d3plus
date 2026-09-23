@@ -3,6 +3,7 @@ export {
   BarChart,
   BoxWhisker,
   BumpChart,
+  Chord,
   Donut,
   Geomap,
   LinePlot,

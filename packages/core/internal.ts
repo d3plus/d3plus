@@ -11,6 +11,7 @@
 */
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
+export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
@@ -25,6 +26,7 @@ export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
+export {chordDef} from "./src/charts/Chord/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";

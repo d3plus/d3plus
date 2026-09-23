@@ -34,6 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`BarChart`](#barchart) | Creates a bar chart based on an array of data. |
 | [`BoxWhisker`](#boxwhisker) | Creates a simple box and whisker based on an array of data. |
 | [`BumpChart`](#bumpchart) | Creates a bump chart based on an array of data. |
+| [`Chord`](#chord) | Creates a Chord diagram based on a defined set of nodes and links. |
 | [`Donut`](#donut) | Extends the Pie visualization to create a donut chart. |
 | [`Geomap`](#geomap) | Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate  |
 | [`LinePlot`](#lineplot) | Creates a line plot based on an array of data. |
@@ -23097,6 +23098,22 @@ Creates a simple box and whisker based on an array of data.
 Defined in: core/types/src/charts/BumpChart/index.d.ts:10
 
 Creates a bump chart based on an array of data.
+
+#### Returns
+
+`any`
+
+***
+
+<a id="chord"></a>
+
+### Chord
+
+> `const` **Chord**: () => `any`
+
+Defined in: core/types/src/charts/Chord/index.d.ts:18
+
+Creates a Chord diagram based on a defined set of nodes and links.
 
 #### Returns
 

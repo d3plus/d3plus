@@ -427,7 +427,9 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Accessor function or string key for the label of each data point.
+      Accessor function, or a constant string applied to every data point's
+      label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+      per-datum object key — pass a function for that).
 */
   label(
     _?: string | ((d: DataPoint, i: number) => string),
