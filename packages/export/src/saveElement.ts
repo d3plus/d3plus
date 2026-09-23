@@ -47,6 +47,27 @@ export function resolveSaveOptions(
 }
 
 /**
+    True when `elem` is itself an `<svg>` root rather than an HTML container.
+    Pure (checks `tagName` only), so it's unit-testable without a DOM.
+*/
+export function isSvgTarget(elem: {tagName?: string}): boolean {
+  return typeof elem?.tagName === "string" && elem.tagName.toLowerCase() === "svg";
+}
+
+/**
+    Serializes an `<svg>` element directly to a Blob, bypassing html-to-image's
+    `toSvg`. `toSvg` always wraps its output in `<svg><foreignObject>`, even
+    when the source node is already an `<svg>` — harmless in a browser (which
+    renders `foreignObject` content), but SVG consumers that don't execute
+    `foreignObject` (e.g. Figma's importer) see an empty file, and a target
+    that's already an `<svg>` ends up double-nested inside another one.
+*/
+function serializeSvg(elem: SVGElement): Blob {
+  const xml = new XMLSerializer().serializeToString(elem);
+  return new Blob([xml], {type: "image/svg+xml;charset=utf-8"});
+}
+
+/**
     Downloads an HTML Element as a bitmap PNG image.
     @param elem The DOM element or d3 selection to export.
     @param options Additional options to specify.
@@ -56,7 +77,7 @@ export function resolveSaveOptions(
     @param renderOptions Custom options to be passed to the html-to-image function.
 */
 export default function (
-  elem: HTMLElement,
+  elem: HTMLElement | SVGElement,
   options: SaveElementOptions = {},
   renderOptions: SaveElementRenderOptions = {},
 ): void {
@@ -68,8 +89,10 @@ export default function (
     if (options.callback) options.callback();
   }
 
-  if (type === "svg") {
-    toSvg(elem, renderOpts).then((dataUrl: string) => {
+  if (type === "svg" && isSvgTarget(elem)) {
+    finish(serializeSvg(elem as SVGElement));
+  } else if (type === "svg") {
+    toSvg(elem as HTMLElement, renderOpts).then((dataUrl: string) => {
       const xhr = new XMLHttpRequest();
       xhr.open("GET", dataUrl);
       xhr.responseType = "blob";
@@ -77,7 +100,7 @@ export default function (
       xhr.send();
     });
   } else {
-    toBlob(elem, renderOpts).then((blob: Blob | null) => {
+    toBlob(elem as HTMLElement, renderOpts).then((blob: Blob | null) => {
       if (blob) finish(blob);
     });
   }
