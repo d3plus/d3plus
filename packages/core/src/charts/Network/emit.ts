@@ -9,8 +9,11 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {straightEdgeArrows} from "../features/edgeArrows.js";
+import type {ArrowValue} from "../features/edgeArrows.js";
 import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 interface NetworkLink {
   source: DataPoint & {x: number; y: number};
@@ -37,11 +40,31 @@ interface NetworkCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
-/** Link Paths, one per `c.links` entry — split out to keep `networkEmit` under the line budget. */
-function emitNetworkLinks(
-  viz: {_drawLabel: (d: DataPoint, i: number) => string},
-  c: NetworkCtx,
+/** Arrowheads for one network link (straight, center-to-center). */
+function networkLinkArrows(
+  viz: VizInstance,
+  link: NetworkLink,
+  datum: DataPoint,
+  stroke: string | undefined,
+  strokeWidth: number | undefined,
+  i: number,
+  keyPrefix: string,
 ): SceneNode[] {
+  return straightEdgeArrows({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth,
+    datum,
+    i,
+    keyPrefix,
+    fill: typeof stroke === "string" ? stroke : undefined,
+    source: link.source as NetworkNode,
+    target: link.target as NetworkNode,
+  });
+}
+
+/** Link Paths, one per `c.links` entry — split out to keep `networkEmit` under the line budget. */
+function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
   const out: SceneNode[] = [];
   for (let i = 0; i < c.links.length; i++) {
     const link = c.links[i];
@@ -50,9 +73,11 @@ function emitNetworkLinks(
     // Link's strokeWidth comes from the layout-injected `d.size`.
     if (typeof link.size === "number") paint.strokeWidth = link.size;
     const sizeLabel = typeof link.size === "number" ? `, ${link.size}` : "";
+    const srcId = (link.source as DataPoint).id ?? "";
+    const tgtId = (link.target as DataPoint).id ?? "";
     out.push({
       type: "path",
-      key: `network-link-${(link.source as DataPoint).id ?? ""}-${(link.target as DataPoint).id ?? ""}-${i}`,
+      key: `network-link-${srcId}-${tgtId}-${i}`,
       d: c.linkD(link),
       datum,
       paint,
@@ -60,6 +85,9 @@ function emitNetworkLinks(
         label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}${sizeLabel}.`,
       },
     } as SceneNode);
+
+    // Optional directional arrowheads at the node boundary.
+    out.push(...networkLinkArrows(viz, link, datum, paint.stroke, paint.strokeWidth, i, `network-arrow-${srcId}-${tgtId}-${i}`));
   }
   return out;
 }

@@ -21758,6 +21758,8 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 
 | Method | Default |
 | --- | --- |
+| `arrows` | `false` |
+| `arrowSize` | — |
 | `links` | `[]` |
 | `linkSize` | `1` |
 | `linkSizeMin` | `1` |
@@ -21773,7 +21775,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Network/index.ts:367](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L367)
+Defined in: [charts/Network/index.ts:369](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L369)
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -21919,6 +21921,8 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 
 | Method | Default |
 | --- | --- |
+| `arrows` | `false` |
+| `arrowSize` | — |
 | `center` | — |
 | `tooltipConfig` | — |
 | `links` | `[]` |
@@ -21934,7 +21938,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Rings/index.ts:220](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L220)
+Defined in: [charts/Rings/index.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L222)
 
 Creates a ring visualization based on a defined set of nodes and edges.
 
@@ -21948,6 +21952,8 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 
 | Method | Default |
 | --- | --- |
+| `arrows` | `false` |
+| `arrowSize` | — |
 | `iterations` | `6` |
 | `links` | `accessor(…)` |
 | `linkSort` | — |
@@ -21966,7 +21972,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Sankey/index.ts:217](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L217)
+Defined in: [charts/Sankey/index.ts:219](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L219)
 
 Creates a Sankey visualization based on a defined set of nodes and links.
 

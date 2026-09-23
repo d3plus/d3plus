@@ -97,3 +97,21 @@ DataDrivenLinkSize.args = {
   )
 };
 DataDrivenLinkSize.parameters = {controls: {include: ["linkSize"]}, docs: {description: {story: "`linkSize` takes an accessor returning each link's `weight`, which d3plus runs through a linear scale to set stroke thickness—heavier links render thicker."}}};
+
+export const DirectionalArrows = Template.bind({});
+DirectionalArrows.args = {
+  nodes: [
+    {id: "alpha", x: 1, y: 1.5},
+    {id: "beta", x: 2, y: 1},
+    {id: "gamma", x: 2, y: 2},
+    {id: "delta", x: 3, y: 1.5}
+  ],
+  links: [
+    {source: 0, target: 1},
+    {source: 0, target: 2},
+    {source: 1, target: 3},
+    {source: 2, target: 3}
+  ],
+  arrows: "target"
+};
+DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` draws an arrowhead at the node boundary to show edge direction. Use `\"target\"`, `\"source\"`, `\"both\"`, or a per-link accessor for bi-directional edges. `arrowSize` overrides the automatic size."}}};

@@ -168,6 +168,8 @@ export const ringsDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    {key: "arrows", default: false},
+    {key: "arrowSize"},
     {key: "center"},
     {
       key: "tooltipConfig",
