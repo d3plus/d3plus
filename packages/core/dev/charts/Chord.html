@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  new d3plus.Chord()
+    .value("value")
+    .links([
+      {source: "alpha", target: "beta",  value: 5},
+      {source: "alpha", target: "gamma", value: 3},
+      {source: "beta",  target: "gamma", value: 2},
+      {source: "gamma", target: "alpha", value: 4},
+      {source: "delta", target: "alpha", value: 6}
+    ])
+    .render();
+
+  // Undirected — merges both directions of a pair into a single ribbon
+  // (classic d3.chord layout). A node's arc size is its outgoing total only,
+  // so every node needs at least one outgoing link or its arc vanishes.
+
+  // new d3plus.Chord()
+  //   .directed(false)
+  //   .value("value")
+  //   .links([
+  //     {source: "A", target: "B", value: 5},
+  //     {source: "B", target: "A", value: 4},
+  //     {source: "B", target: "C", value: 2},
+  //     {source: "C", target: "A", value: 3}
+  //   ])
+  //   .render();
+
+  // Arrows — ribbonArrow head on the target end of every ribbon.
+
+  // new d3plus.Chord()
+  //   .arrows(true)
+  //   .value("value")
+  //   .links([
+  //     {source: "alpha", target: "beta",  value: 8},
+  //     {source: "beta",  target: "gamma", value: 5},
+  //     {source: "gamma", target: "alpha", value: 6},
+  //     {source: "alpha", target: "gamma", value: 3}
+  //   ])
+  //   .render();
+
+  // Self-loop — a link whose source and target are the same node writes to
+  // the diagonal of the flow matrix (reflexive/within-group flow).
+
+  // new d3plus.Chord()
+  //   .value("value")
+  //   .links([
+  //     {source: "A", target: "A", value: 4},
+  //     {source: "A", target: "B", value: 3}
+  //   ])
+  //   .render();
+
+  // Nodes inferred from link endpoints, no explicit .nodes() call, using an
+  // explicit .nodes() list instead to also carry a node absent from any link.
+
+  // new d3plus.Chord()
+  //   .nodes([{id: "A"}, {id: "B"}, {id: "C"}, {id: "isolated"}])
+  //   .value("value")
+  //   .links([
+  //     {source: "A", target: "B", value: 5},
+  //     {source: "B", target: "C", value: 2}
+  //   ])
+  //   .render();
+
+</script>
+
+</html>

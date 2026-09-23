@@ -5,6 +5,7 @@ import {
   BarChart as BarChartClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Chord as ChordClass,
   Donut as DonutClass,
   Geomap as GeomapClass,
   LinePlot as LinePlotClass,
@@ -67,6 +68,10 @@ export const BoxWhisker = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BumpChartClass} {...props} />
+);
+/** React component for rendering a d3plus Chord visualization. */
+export const Chord = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ChordClass} {...props} />
 );
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (

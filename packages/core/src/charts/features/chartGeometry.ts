@@ -56,8 +56,8 @@ export function marginOriginTransform(viz: Viz): Transform {
         y: this._margin.top + height / 2,
       };
 
-    Used by Pie, Donut, RadialMatrix, Radar — every chart whose data
-    lays out around a center point (polar / circular geometry).
+    Used by Pie, Donut, RadialMatrix, Radar, Chord — every chart whose
+    data lays out around a center point (polar / circular geometry).
 
     Width and height are the margin-adjusted chart-area dimensions —
     callers usually have them on hand from `chartBounds(viz)` or from

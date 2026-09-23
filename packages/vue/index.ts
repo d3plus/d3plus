@@ -3,6 +3,7 @@ import {
   BarChart as BarChartClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Chord as ChordClass,
   Donut as DonutClass,
   Geomap as GeomapClass,
   LinePlot as LinePlotClass,
@@ -56,6 +57,8 @@ export const BarChart = createD3plusComponent(BarChartClass, "chart");
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
+/** Vue component for rendering a d3plus Chord visualization. */
+export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
