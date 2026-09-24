@@ -437,6 +437,36 @@ function initLabelDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the zoom-control buttons — structural only
+    (sizing/spacing/typography); no color, background, border, or opacity.
+    Letting native/host-page button chrome show through by default means a
+    page styling its own buttons (Tailwind, Bootstrap, a design system) via
+    `zoomControlClassName` composes cleanly instead of fighting inline color
+    overrides. Active/hover get no default styling at all (`false`) — the
+    `.active` class and `:hover`/`:active` pseudo-classes stay available for
+    a host page's own CSS to hook into. Consumers who want d3plus's old
+    opinionated look can restore it via `.zoomControlStyle({...})`.
+
+    Exported as stable object references (not inlined per-instance) so
+    `zoomControls.ts` can tell, via `===`, whether a given viz's
+    `zoomControlStyle*` is still the untouched default — that's what lets
+    setting `zoomControlClassName` auto-disable the defaults without also
+    clobbering a style the caller explicitly customized themselves.
+    @private
+*/
+export const zoomControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const zoomControlStyleActiveDefault = false as const;
+export const zoomControlStyleHoverDefault = false as const;
+
+/**
     Zoom behavior, brush, control button styling, and zoom limit defaults.
     @private
 */
@@ -452,30 +482,10 @@ function initZoomDefaults(viz: Viz): void {
     fill: "#777",
     "stroke-width": 0,
   };
-  const zoomBg = "rgba(255, 255, 255, 0.75)";
-  viz.schema.zoomControlStyle = {
-    background: zoomBg,
-    border: "1px solid rgba(0, 0, 0, 0.75)",
-    color: colorContrast(zoomBg),
-    display: "block",
-    font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
-    height: "20px",
-    margin: "5px",
-    opacity: 0.75,
-    padding: 0,
-    "text-align": "center",
-    width: "20px",
-  };
-  const zoomActiveBg = "rgba(0, 0, 0, 0.75)";
-  viz.schema.zoomControlStyleActive = {
-    background: zoomActiveBg,
-    color: colorContrast(zoomActiveBg),
-    opacity: 1,
-  };
-  viz.schema.zoomControlStyleHover = {
-    cursor: "pointer",
-    opacity: 1,
-  };
+  viz.schema.zoomControlClassName = undefined;
+  viz.schema.zoomControlStyle = zoomControlStyleDefault;
+  viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
+  viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
   viz.schema.zoomFactor = 2;
   viz.schema.zoomMax = 16;
   viz.schema.zoomPadding = 20;
