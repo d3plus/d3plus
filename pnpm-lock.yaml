@@ -508,6 +508,9 @@ importers:
       jsdom:
         specifier: '>=26.0.0'
         version: 26.1.0(canvas@3.2.3)(supports-color@8.1.1)
+      undici:
+        specifier: ^7.28.0
+        version: 7.28.0
 
   packages/svelte:
     dependencies:

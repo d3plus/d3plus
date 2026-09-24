@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",
-    "@d3plus/render": "workspace:*"
+    "@d3plus/render": "workspace:*",
+    "undici": "^7.28.0"
   },
   "peerDependencies": {
     "@napi-rs/canvas": ">=0.1.0",
