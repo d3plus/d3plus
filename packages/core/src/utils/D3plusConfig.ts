@@ -489,6 +489,8 @@ export interface D3plusConfig {
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
   /** Set to false to disable zooming on Geomap and Network. */
   zoom?: boolean;
+  /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */
+  zoomControlClassName?: string;
   /** Multiplier applied to programmatic zoom steps. */
   zoomFactor?: number;
   /** Maximum zoom scale factor. */
