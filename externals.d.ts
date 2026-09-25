@@ -11,6 +11,34 @@ declare module "hyphenated";
 // Optional peer dependency of @d3plus/ssr; ships no TypeScript types.
 declare module "jsdom";
 
+// @d3plus/ssr avoids a dependency on @types/node; these ambient declarations
+// cover just the Node builtins its SSRF-safe tile fetch dispatcher touches.
+declare module "node:net" {
+  export class BlockList {
+    addSubnet(net: string, prefix: number, type?: "ipv4" | "ipv6"): void;
+    check(address: string, type?: "ipv4" | "ipv6"): boolean;
+  }
+  export function isIP(input: string): number;
+}
+
+declare module "node:dns" {
+  export interface LookupAddress {
+    address: string;
+    family: number;
+  }
+  export interface LookupOptions {
+    family?: number;
+    hints?: number;
+    all?: boolean;
+    verbatim?: boolean;
+  }
+  export function lookup(
+    hostname: string,
+    options: LookupOptions,
+    callback: (err: Error | null, address: LookupAddress[] | string, family?: number) => void,
+  ): void;
+}
+
 declare module "textures" {
   /**
       A configured textures.js instance: callable so it can be applied to a

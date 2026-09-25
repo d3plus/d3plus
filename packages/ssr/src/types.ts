@@ -34,7 +34,9 @@ export interface GeomapTileOptions {
   /**
       Custom tile fetcher — return the raw image bytes (or `null`/throw to skip)
       for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults
-      to the global `fetch`.
+      to the global `fetch`. The caller owns the network request made here:
+      d3plus does not apply SSRF filtering to this path, so a `fetchTile` can
+      reach internal/private hosts (e.g. a self-hosted tile server) on purpose.
   */
   fetchTile?: (url: string) => Promise<ArrayBuffer | Uint8Array | null>;
 }
