@@ -14,7 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -30,7 +30,7 @@ type HoverFn = (fn: (h: DataPoint) => boolean) => unknown;
 export const packDef: ChartDefinition = {
   name: "Pack",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPackLayout,
   emit: packEmit,
 

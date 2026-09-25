@@ -261,7 +261,7 @@ export function mountCustomIcons(viz: Viz, btn: HTMLElement): void {
 }
 
 /** The HTML element a chart's overlays (the zoom controls) mount in. */
-function overlayHost(viz: Viz): HTMLElement | null {
+export function overlayHost(viz: Viz): HTMLElement | null {
   let host = viz._select && viz._select.node() ? viz._select.node().parentNode : null;
   while (host && !(host instanceof HTMLElement)) host = host.parentNode;
   return host instanceof HTMLElement ? host : null;

@@ -17,7 +17,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -30,7 +30,7 @@ type ChordEdge = DataPoint & {source?: {id: string | number}; target?: {id: stri
 export const chordDef: ChartDefinition = {
   name: "Chord",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyChordLayout,
   emit: chordEmit,
 

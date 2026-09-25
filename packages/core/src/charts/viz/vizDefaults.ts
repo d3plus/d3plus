@@ -113,19 +113,9 @@ function initBaseDefaults(viz: Viz): void {
   viz.schema.attribution = false;
   viz.schema.attributionIcon = undefined;
   viz.schema.attributionStyle = attributionStyleDefault;
-  viz._backClass = new TextBox()
-    .on("click", () => {
-      if (viz._history.length) viz.config(viz._history.pop()).render();
-      else (viz.depth(viz._drawDepth - 1) as Viz).filter(false);
-      viz.render();
-    })
-    .on("mousemove", () =>
-      viz._backClass.select().style("cursor", "pointer"),
-    );
   viz.schema.backConfig = {
     fontSize: 10,
     padding: 5,
-    resize: false,
   };
   viz.schema.cache = true;
 }

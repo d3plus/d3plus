@@ -28,7 +28,6 @@
 */
 
 import {
-  backFeature,
   colorScaleFeature,
   legendFeature,
   runLayout,
@@ -104,12 +103,14 @@ export function vizDrawPure(
     left: viz._margin.left,
   };
 
-  // Top blocks first (back / title / subtitle / total) so the running
-  // margin.top grows BEFORE the left/right legend lays out — the legend
-  // positions against it. Title must lay out first or the left legend
-  // overlaps the title at y=0.
+  // Top blocks first (title / subtitle / total) so the running margin.top
+  // grows BEFORE the left/right legend lays out — the legend positions
+  // against it. Title must lay out first or the left legend overlaps the
+  // title at y=0. "← Back" no longer claims margin here — it's a
+  // zero-margin contribution to the shared top-left controls panel
+  // (`topLeftControlsFeature`, registered post-draw in `runVizPipeline`),
+  // the same way zoom's buttons float rather than claim margin.
   const topBlocks = runLayout({viz}, [
-    backFeature,
     titleFeature,
     subtitleFeature,
     totalFeature,
