@@ -13,6 +13,7 @@ export interface TranslationStrings {
   "No Data Available": string;
   "Powered by D3plus": string;
   "Reset Zoom": string;
+  Search: string;
   Share: string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
@@ -45,6 +46,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    Search: "\u0628\u062d\u062b",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
     "Shift+Click to Hide":
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
@@ -70,6 +72,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Datos No Disponibles",
     "Powered by D3plus": "Funciona con D3plus",
     "Reset Zoom": "Restablecer Zoom",
+    Search: "Buscar",
     Share: "Porcentaje",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
@@ -93,6 +96,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "Powered by D3plus": "Funciona com D3plus",
     "Reset Zoom": "Redefinir Zoom",
+    Search: "Pesquisar",
     Share: "Porcentagem",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
@@ -116,6 +120,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
+    Search: "\u641c\u7d22",
     Share: "\u5171\u4eab",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",

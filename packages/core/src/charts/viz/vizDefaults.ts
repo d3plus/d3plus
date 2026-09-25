@@ -88,6 +88,7 @@ const vizSchema = [
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
   {key: "minimap", coerce: "identity" as const},
+  {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
@@ -583,6 +584,41 @@ function initMinimapDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the search control's toggle button — the same
+    structural-only values as `zoomControlStyleDefault` et al. (visual
+    parity by default), kept as independent objects/consumers rather than
+    shared references so restyling one doesn't affect the other.
+    @private
+*/
+export const searchControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const searchControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const searchControlStyleHoverDefault = false as const;
+
+/**
+    Search-control (toggle button + input) styling defaults.
+    @private
+*/
+function initSearchDefaults(viz: Viz): void {
+  viz.schema.search = true;
+  viz.schema.searchControlClassName = undefined;
+  viz.schema.searchControlStyle = searchControlStyleDefault;
+  viz.schema.searchControlStyleActive = searchControlStyleActiveDefault;
+  viz.schema.searchControlStyleHover = searchControlStyleHoverDefault;
+}
+
+/**
     Seeds a fresh Viz instance's schema defaults and installs the identity-coerce
     fluent accessors. Extracted from the constructor so the seeding logic stays
     readable and the constructor stays under the per-function line budget.
@@ -606,4 +642,5 @@ export function initVizDefaults(viz: Viz): void {
   initZoomDefaults(viz);
   initMinimapDefaults(viz);
   initBackDefaults(viz);
+  initSearchDefaults(viz);
 }
