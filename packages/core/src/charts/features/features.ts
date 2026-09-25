@@ -22,6 +22,7 @@ import type {SceneNode} from "@d3plus/render";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -194,6 +195,30 @@ export function runLayout(
 
 /* --------------------------- text-block features --------------------------- */
 
+/** A TextBox `_textData()` row, as the text-block features read it. */
+interface TextDatum {
+  lines: string[];
+  lH: number;
+  fS: number;
+  fF: string;
+  fC: string;
+  fO: number;
+  tA: string;
+  widths: number[];
+}
+
+/**
+    How far content starting `top` px down the chart, whose right edge sits
+    `right` px in from the chart's right edge, must pull in its right edge to
+    clear the zoom-control panel pinned to the chart's top-right corner. Zero
+    when the chart shows no controls or the content starts below them.
+*/
+export function zoomControlsInset(viz: VizInstance, top: number, right: number): number {
+  const box = zoomControlsBox(viz as never);
+  if (!box || top >= box.height) return 0;
+  return Math.max(0, box.width - right);
+}
+
 /**
     Shared layout logic for any "single line of text claiming margin.top" feature
     (title, subtitle, total). Each feature passes the viz fields that source its
@@ -218,7 +243,7 @@ function textBlockLayout(
   const padding = usesPadding
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  const width =
+  let width =
     viz.schema.width -
     (layoutMargin.left + layoutMargin.right + padding.left + padding.right);
 
@@ -228,20 +253,22 @@ function textBlockLayout(
     .locale(viz.schema.locale)
     .width(width)
     .config(viz.schema[opts.configKey]);
-  const boxes = textClass._textData() as Array<{
-    lines: string[];
-    lH: number;
-    fS: number;
-    fF: string;
-    fC: string;
-    fO: number;
-    tA: string;
-    widths: number[];
-  }>;
+  let boxes = textClass._textData() as TextDatum[];
+
+  // Text alongside the zoom controls wraps short of them. Centered text
+  // insets both sides equally so it stays centered on the chart.
+  let x = layoutMargin.left + padding.left;
+  const inset = zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right);
+  if (inset && boxes.length) {
+    const centered = boxes[0].tA === "middle";
+    if (centered) x += inset;
+    width -= centered ? inset * 2 : inset;
+    textClass.width(width);
+    boxes = textClass._textData() as TextDatum[];
+  }
   if (!boxes.length) return {panel: null, margin: {}};
   const box = boxes[0];
 
-  const x = layoutMargin.left + padding.left;
   const y = layoutMargin.top;
   const lineHeight = box.lH;
   const blockPadding = (viz.schema[opts.configKey]?.padding as number) ?? 0;
@@ -625,6 +652,8 @@ export const colorScaleFeature: FeatureModule = {
     return {panel: null, margin};
   },
 };
+
+/* ------------------------------ Attribution ------------------------------ */
 
 /* ------------------------------ Attribution ------------------------------ */
 

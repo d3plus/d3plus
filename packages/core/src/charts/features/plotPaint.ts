@@ -13,7 +13,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import type {SceneNode} from "@d3plus/render";
+import type {ClipShape, SceneNode} from "@d3plus/render";
 
 import type Axis from "../../components/Axis/Axis.js";
 import * as shapes from "../../shapes/index.js";
@@ -170,6 +170,8 @@ export interface PlotPaintContext {
   barLabels: string[];
   showLineLabels: boolean;
   stackGroup: unknown;
+  /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
+  zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
 }
 
 /**
@@ -532,7 +534,12 @@ function collectAxisScenes(
     Returns the flat `SceneNode[]` array that the caller (`Plot._paint`)
     merges into `_chartScene`.
 */
-export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResult): SceneNode[] {
+export function plotEmit(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  mCtx: PlotMeasureResult,
+  clip?: ClipShape,
+): SceneNode[] {
     const out: SceneNode[] = [];
 
     const {shapeData, domains} = pCtx;
@@ -563,11 +570,21 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       if (group) out.push(group);
     });
 
-    // Ticks, tick labels, domain bar, and title render on top of the shapes.
-    out.push(...axisScenes.rest);
+    // A zoomable plot keeps everything but the axes in one stably-keyed group
+    // that clips to the plot rect while zoomed (see `Plot/plotZoom.ts`), so
+    // rescaled shapes can't paint over the axes. The group is emitted
+    // unzoomed too, so the first zoom tick updates it in place rather than
+    // re-entering every shape.
+    const content = viz.schema.zoom
+      ? [{type: "group", key: PLOT_ZOOM_CONTENT_KEY, ...(clip ? {clip} : {}), children: out} as SceneNode]
+      : out;
 
-    return out;
+    // Ticks, tick labels, domain bar, and title render on top of the shapes.
+    return [...content, ...axisScenes.rest];
 }
+
+/** Key of the group `plotEmit` wraps a zoomable plot's non-axis content in. */
+export const PLOT_ZOOM_CONTENT_KEY = "plot-zoom-content";
 
 /**
     Plot paint phase as a free function — orchestrates the axis render +
@@ -584,6 +601,20 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     @param pCtx Cross-phase locals produced by `Plot._draw`.
 */
 export function plotPaint(viz: Viz, pCtx: PlotPaintContext): SceneNode[] {
-  const mCtx = renderAxes(viz, pCtx);
-  return plotEmit(viz, pCtx, mCtx);
+  return plotPaintMeasured(viz, pCtx).nodes;
+}
+
+/**
+    `plotPaint` that also returns the solved axis layout, and accepts a
+    `frozen` layout to repaint against (plus a clip for the plot content) —
+    how a zoom repaints the plot with rescaled domains.
+*/
+export function plotPaintMeasured(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  frozen?: PlotMeasureResult,
+  clip?: ClipShape,
+): {nodes: SceneNode[]; layout: PlotMeasureResult} {
+  const layout = renderAxes(viz, pCtx, frozen);
+  return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

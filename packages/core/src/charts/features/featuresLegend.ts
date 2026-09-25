@@ -15,7 +15,8 @@ import {configPrep} from "../../utils/index.js";
 import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
-import {sanitizePosition} from "./features.js";
+import {sanitizePosition, zoomControlsInset} from "./features.js";
+import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -146,10 +147,20 @@ function renderLegendFeature(
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
+  // Clear the zoom-control panel in the chart's top-right corner: a top
+  // legend (centered) insets both sides equally; a right legend starts below.
+  const inset =
+    position === "top"
+      ? zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right)
+      : 0;
+  const drop =
+    position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
+      ? zoomControlsBox(viz as never)!.height - layoutMargin.top
+      : 0;
   const transform = {
     transform: `translate(${
-      wide ? layoutMargin.left + padding.left : layoutMargin.left
-    }, ${wide ? layoutMargin.top : layoutMargin.top + padding.top})`,
+      (wide ? layoutMargin.left + padding.left : layoutMargin.left) + inset
+    }, ${(wide ? layoutMargin.top : layoutMargin.top + padding.top) + drop})`,
   };
   // `visible` gates the legend group's DOM presence + data binding.
   // `position === false` forces it off so `.legendPosition(false)` is
@@ -178,10 +189,10 @@ function renderLegendFeature(
     .duration(viz.schema.duration)
     .data(visible ? legendData : [])
     .height(
-      wide
+      (wide
         ? viz.schema.height - (layoutMargin.bottom + layoutMargin.top)
         : viz.schema.height -
-            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top),
+            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top)) - drop,
     )
     .locale(viz.schema.locale)
     .parent(viz)
@@ -191,10 +202,10 @@ function renderLegendFeature(
     )
     .verticalAlign(!wide ? "middle" : position)
     .width(
-      wide
+      (wide
         ? viz.schema.width -
             (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
-        : viz.schema.width - (layoutMargin.left + layoutMargin.right),
+        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - inset * 2,
     )
     .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepContext)(viz.schema.shapeConfig, "legend"))
     .shapeConfig({

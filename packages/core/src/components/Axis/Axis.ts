@@ -32,6 +32,7 @@ import type {ConfigField} from "../../fluent.js";
 const axisSchema: ConfigField[] = [
   {key: "align", coerce: "identity", default: "middle"},
   {key: "domain", coerce: "identity", default: [0, 10]},
+  {key: "domainTicks", coerce: "identity", default: true},
   {key: "duration", coerce: "identity", default: 600},
   {key: "grid", coerce: "identity"},
   {key: "gridLog", coerce: "identity", default: false},
@@ -39,6 +40,7 @@ const axisSchema: ConfigField[] = [
   {key: "height", coerce: "identity", default: 400},
   {key: "labels", coerce: "identity"},
   {key: "labelOffset", coerce: "identity", default: false},
+  {key: "fixedSize", coerce: "identity"},
   {key: "maxSize", coerce: "identity"},
   {key: "minSize", coerce: "identity"},
   {key: "padding", coerce: "identity", default: 5},
@@ -76,6 +78,8 @@ export default class Axis extends BaseClass {
   _labelRotation: boolean | undefined;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
+  /** The measured size of the tick-label/title space, before margins (see `fixedSize`). */
+  _labelSpace?: number;
   _position!: {
     horizontal: boolean;
     width: string;

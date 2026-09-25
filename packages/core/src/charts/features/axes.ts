@@ -473,6 +473,7 @@ function renderXAxes(
     .width(width)
     .config(xC)
     .config(viz._xConfig)
+    .config(pCtx.zoomAxes?.x ?? {})
     .scale(xConfigScale)
     .render();
   if (showX) {
@@ -495,6 +496,7 @@ function renderXAxes(
       .config(xC)
       .config(defaultX2Config)
       .config(viz._x2Config)
+      .config(pCtx.zoomAxes?.x2 ?? {})
       .scale(x2ConfigScale)
       .render();
     axisSceneQueue.push({
@@ -558,6 +560,7 @@ function renderYAxes(
     .width(xRange[xRange.length - 1])
     .config(yC)
     .config(viz._yConfig)
+    .config(pCtx.zoomAxes?.y ?? {})
     .scale(yConfigScale)
     .render();
   if (showY) {
@@ -581,6 +584,7 @@ function renderYAxes(
       .title(false)
       .config(viz._y2Config)
       .config(defaultY2Config)
+      .config(pCtx.zoomAxes?.y2 ?? {})
       .scale(y2ConfigScale)
       .render();
     axisSceneQueue.push({
@@ -620,17 +624,20 @@ function renderYAxes(
     bumps the line labels, and queues axis scenes for the emit phase.
     Returns everything `plotEmit` needs to consume.
 */
-export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
+export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
     let {x, y} = pCtx;
     const {labelWidths} = pCtx;
     const {xHeight, x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
 
     let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
 
+    // A `frozen` layout (a zoom repaint) keeps the previous draw's axis sizes
+    // and plot rect, so changing tick labels can't make the plot area jump
+    // mid-gesture; the axes still re-render their ticks for the new domains.
     const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} =
-      solveFinalYAxes(viz, pCtx, yRange);
+      frozen || solveFinalYAxes(viz, pCtx, yRange);
 
-    const xRange = [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
+    const xRange = frozen?.xRange ?? [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
 
     const axisRelativeTransform = setupAxisTransforms(viz, pCtx, xOffsetLeft, yWidth);
 
@@ -640,7 +647,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult 
 
     x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue);
 
-    yRange = [
+    yRange = frozen?.yRange ?? [
       viz._xAxis!.outerBounds().y + x2Height,
       height - (xHeight + topOffset + verticalMargin),
     ];

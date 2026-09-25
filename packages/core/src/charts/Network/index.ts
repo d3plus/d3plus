@@ -47,6 +47,20 @@ type NetworkFluent = {
 type Aggregator = (leaves: DataPoint[]) => unknown;
 type NetworkViz = VizInstance & NetworkFluent;
 
+/**
+    Zooms to a node-space extent. Node coordinates sit under the chart's
+    margin-origin transform and the current zoom, so they're mapped to their
+    on-screen position first — the space `_zoomToBounds` expects.
+*/
+function zoomToNodeBounds(viz: VizInstance, xDomain: number[], yDomain: number[]) {
+  const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
+  const {x: cx = 0, y: cy = 0} = viz._chartTransform || {};
+  viz._zoomToBounds!([
+    [(xDomain[0] + cx) * t.k + t.x, (yDomain[0] + cy) * t.k + t.y],
+    [(xDomain[1] + cx) * t.k + t.x, (yDomain[1] + cy) * t.k + t.y],
+  ]);
+}
+
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
 function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
   viz.schema.on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
@@ -65,8 +79,8 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
         const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
         const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
         const filterIds: string[] = [id];
-        let xDomain = [node.x - node.r, node.x + node.r];
-        let yDomain = [node.y - node.r, node.y + node.r];
+        const xDomain = [node.x - node.r, node.x + node.r];
+        const yDomain = [node.y - node.r, node.y + node.r];
 
         links.forEach(l => {
           filterIds.push(l.id);
@@ -83,13 +97,7 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
         });
 
         viz._focus = id;
-        const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
-        xDomain = xDomain.map(d => d * t.k + t.x);
-        yDomain = yDomain.map(d => d * t.k + t.y);
-        viz._zoomToBounds!([
-          [xDomain[0], yDomain[0]],
-          [xDomain[1], yDomain[1]],
-        ]);
+        zoomToNodeBounds(viz, xDomain, yDomain);
       }
     }
   };
@@ -112,8 +120,8 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
         const idArr = Array.isArray(ids) ? ids : [ids];
         const nodes = idArr.map(nid => (viz.ctx.nodeLookup as Record<string, NodeRecord>)[String(nid)]);
         const filterIds = [`${id}`];
-        let xDomain = [nodes[0].x - nodes[0].r, nodes[0].x + nodes[0].r];
-        let yDomain = [nodes[0].y - nodes[0].r, nodes[0].y + nodes[0].r];
+        const xDomain = [nodes[0].x - nodes[0].r, nodes[0].x + nodes[0].r];
+        const yDomain = [nodes[0].y - nodes[0].r, nodes[0].y + nodes[0].r];
 
         nodes.forEach(l => {
           filterIds.push(l.id);
@@ -132,13 +140,7 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
         });
 
         viz._focus = ids as unknown as string;
-        const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
-        xDomain = xDomain.map(d => d * t.k + t.x);
-        yDomain = yDomain.map(d => d * t.k + t.y);
-        viz._zoomToBounds!([
-          [xDomain[0], yDomain[0]],
-          [xDomain[1], yDomain[1]],
-        ]);
+        zoomToNodeBounds(viz, xDomain, yDomain);
       }
 
       viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
@@ -268,12 +270,11 @@ export const networkDef: ChartDefinition = {
   layoutStage: applyNetworkLayout,
   emit: networkEmit,
 
-  // Network needs a real DOM element for d3-zoom binding; the hitArea click
-  // handler closes over class state. `setup` installs the event surface;
-  // `chartTransform` (default margin-origin) is fine for the scene.
+  // Network mounts its own zoom surface (with a background hitArea whose
+  // click handler closes over class state); `chartTransform` (default
+  // margin-origin) is fine for the scene.
   setup: (viz: VizInstance) => {
     const v = viz as NetworkViz;
-    viz.schema.zoom = true;
     setupNetworkEvents(viz, v);
 
     // `links()` / `nodes()` / `nodeGroupBy()` / `size()` / `x()` / `y()` /
@@ -288,19 +289,6 @@ export const networkDef: ChartDefinition = {
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);
     v._draw = function(callback?: () => void) {
-      // SVG backend: nodes/edges paint into the scene <svg> that sits above the
-      // imperative network <svg> d3-zoom binds to by default, so wheel/dblclick/
-      // pan over a node never reach that target. Bind zoom to the outer <svg>
-      // (an ancestor of both), which receives events over the nodes (bubbling up
-      // from the scene svg) and the empty background (from the network svg).
-      // Setting it before the wrapped draw lets `zoomEvents` bind this target
-      // with its zoomScroll/zoomPan disabling; clear the network svg's handlers
-      // so an event over the background isn't zoomed twice. (Canvas keeps the
-      // default target.)
-      if (viz._renderer !== "canvas" && viz._select) {
-        viz._zoomEventTarget = viz._select;
-        if (viz._container) viz._container.on(".zoom", null);
-      }
       const result = supDraw(callback);
       const {width, height} = chartBounds(viz);
       ensureZoomDom(viz, {kind: "network", width, height, duration: viz.schema.duration});

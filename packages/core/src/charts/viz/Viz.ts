@@ -11,6 +11,8 @@ import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
+import {chartAreaRect} from "../features/chartGeometry.js";
+import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
@@ -80,13 +82,17 @@ export default class Viz extends VizBase {
     const children: SceneNode[] = [];
     // Chart cells stashed on _chartScene — via `chartDef.emit(ctx)` for
     // data-driven charts, or `Plot._paint` for the paint-driven Plot family.
-    // Wraps in two groups when a zoom transform is active:
-    //   viz-chart-cells (chart-positioning transform)
+    // Wraps in three groups:
+    //   viz-chart-cells (clip window, untransformed)
     //     viz-zoom (zoom transform — pan/scale from d3-zoom)
-    //       … chart scene children
+    //       viz-chart-body (chart-positioning transform)
+    //         … chart scene children
     // This lets zoom apply to the chart content WITHOUT moving legend/
     // title/total/etc. (which live in sibling viz-* groups, not under
-    // viz-chart-cells).
+    // viz-chart-cells). The zoom transform sits above the chart transform so
+    // it lives in the same surface space d3-zoom measures the pointer in —
+    // a wheel zoom stays anchored under the cursor regardless of margins or
+    // a chart's own centering transform (Pie, Radar, …).
     if (this._chartScene && this._chartScene.length) {
       const sliced = applyInteractionOpacity(
         this._chartScene,
@@ -101,15 +107,22 @@ export default class Viz extends VizBase {
         type: "group" as const,
         key: "viz-zoom",
         transform: this._zoomTransform ?? {x: 0, y: 0, scale: 1},
-        children: sliced,
+        children: [{
+          type: "group" as const,
+          key: "viz-chart-body",
+          ...(this._chartTransform ? {transform: this._chartTransform} : {}),
+          children: sliced,
+        }],
       }];
+      // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
+      // while the viz-zoom child transform pans/scales content beneath it.
+      // Any zoomable chart without its own clip is clipped to the chart area,
+      // so zoomed content can't spill over the legend/title/timeline.
+      const clip = this._chartClip ?? (this.schema.zoom && this._margin ? chartAreaRect(this as unknown as VizInstance) : undefined);
       children.push({
         type: "group",
         key: "viz-chart-cells",
-        ...(this._chartTransform ? {transform: this._chartTransform} : {}),
-        // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
-        // while the viz-zoom child transform pans/scales content beneath it.
-        ...(this._chartClip ? {clip: this._chartClip} : {}),
+        ...(clip ? {clip} : {}),
         children: zoomNode,
       });
     }
@@ -458,16 +471,14 @@ export default class Viz extends VizBase {
     // is the sole interaction surface. The only interactive DOM that still
     // lives in this svg is the timeline's d3-brush (the canvas can't host the
     // native brush handles), so re-enable events on just that group. On the
-    // SVG backend `_select` IS the scene host, so events must stay enabled.
-    if (this._select) {
-      this._select.style("pointer-events", kind === "canvas" ? "none" : null);
-      if (this._container)
-        this._container.style("pointer-events", kind === "canvas" ? "none" : null);
-      if (kind === "canvas")
-        this._select
-          .select("g.d3plus-viz-timeline")
-          .style("pointer-events", "auto");
-    }
+    // SVG backend `_select` IS the scene host, so events must stay enabled
+    // (except while the zoom brush is active — see `applyZoomPointerEvents`).
+    applyZoomPointerEvents(this);
+    if (this._select && kind === "canvas")
+      this._select
+        .select("g.d3plus-viz-timeline")
+        .style("pointer-events", "auto");
+    if (kind === "canvas") bindCanvasZoom(this);
 
     // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
     // the outer svg) must paint above the scene-rendered timeline buttons/ticks
@@ -484,6 +495,9 @@ export default class Viz extends VizBase {
         ? host.querySelector(":scope > g.d3plus-viz-timeline")
         : null;
       if (tlGroup) host!.appendChild(tlGroup);
+      // Likewise the zoom brush, so its selection box draws over the shapes.
+      const zoomBrush = host ? host.querySelector(":scope > g.d3plus-zoom-brush") : null;
+      if (zoomBrush && zoomBrush !== host!.lastElementChild) host!.appendChild(zoomBrush);
     }
   }
 

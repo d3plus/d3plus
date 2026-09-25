@@ -52,6 +52,22 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
 */
 let rendererInstanceSeq = 0;
 
+/**
+    The client-space position of an <svg>'s user-space origin — what pointer
+    coordinates are measured from. Read off the screen CTM rather than
+    `getBoundingClientRect()`: for an <svg> nested inside another <svg> (the
+    scene svg inside a chart's compute svg), the bounding rect is the box of
+    its painted *content*, which shifts as content zooms/pans or overflows the
+    viewport. Falls back to the bounding rect where the CTM is unavailable
+    (headless DOMs).
+*/
+function svgClientOrigin(svg: SVGSVGElement): {left: number; top: number} {
+  const ctm = typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
+  if (ctm) return {left: ctm.e, top: ctm.f};
+  const rect = svg.getBoundingClientRect();
+  return {left: rect.left, top: rect.top};
+}
+
 export default class SvgRenderer implements Renderer {
   readonly kind = "svg" as const;
 
@@ -511,8 +527,8 @@ export default class SvgRenderer implements Renderer {
 
   pick(point: [number, number]): PickResult | null {
     if (!this._svg) return null;
-    const rect = this._svg.getBoundingClientRect();
-    const el = document.elementFromPoint(rect.left + point[0], rect.top + point[1]);
+    const origin = svgClientOrigin(this._svg);
+    const el = document.elementFromPoint(origin.left + point[0], origin.top + point[1]);
     return this._pickFromElement(el);
   }
 
@@ -549,11 +565,11 @@ export default class SvgRenderer implements Renderer {
     if (!this._svg) return;
     this._listening = true;
     const svg = this._svg;
-    // Cache the svg bounding rect so high-frequency pointer events
+    // Cache the svg's client origin so high-frequency pointer events
     // (mousemove during zoom drag) don't trigger forced layout reflow.
-    let cachedRect: DOMRect | null = null;
+    let cachedOrigin: {left: number; top: number} | null = null;
     const invalidateRect = (): void => {
-      cachedRect = null;
+      cachedOrigin = null;
     };
     window.addEventListener("resize", invalidateRect, {passive: true});
     window.addEventListener("scroll", invalidateRect, {passive: true, capture: true});
@@ -563,10 +579,8 @@ export default class SvgRenderer implements Renderer {
       window.removeEventListener("scroll", invalidateRect, {capture: true} as EventListenerOptions);
     };
     const local = (e: MouseEvent): [number, number] => {
-      if (!cachedRect || (cachedRect.width === 0 && cachedRect.height === 0)) {
-        cachedRect = svg.getBoundingClientRect();
-      }
-      return [e.clientX - cachedRect.left, e.clientY - cachedRect.top];
+      if (!cachedOrigin) cachedOrigin = svgClientOrigin(svg);
+      return [e.clientX - cachedOrigin.left, e.clientY - cachedOrigin.top];
     };
     const emit = (type: string, e: MouseEvent): void => {
       const point = local(e);

@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .viz {
+      width: 400px;
+      height: 300px;
+      border: 1px solid #ddd;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="viz" id="treemap"></div>
+  <div class="viz" id="pie"></div>
+  <div class="viz" id="tree"></div>
+  <div class="viz" id="network"></div>
+  <div class="viz" id="geomap"></div>
+  <div class="viz" id="geomap-canvas"></div>
+  <div class="viz" id="line"></div>
+  <div class="viz" id="scatter"></div>
+  <div class="viz" id="bar"></div>
+  <div class="viz" id="treemap-canvas"></div>
+  <div class="viz" id="bar-canvas"></div>
+  <div class="viz" id="legend-top"></div>
+  <div class="viz" id="legend-right"></div>
+  <div class="viz" id="zoom-off"></div>
+
+</body>
+
+<script>
+
+  var flat = [
+    {parent: "Group 1", id: "alpha", value: 29},
+    {parent: "Group 1", id: "beta", value: 10},
+    {parent: "Group 1", id: "gamma", value: 2},
+    {parent: "Group 2", id: "delta", value: 29},
+    {parent: "Group 2", id: "eta", value: 25},
+    {parent: "Group 2", id: "theta", value: 1},
+    {parent: "Group 2", id: "iota", value: 0.5}
+  ];
+
+  var series = [];
+  ["a", "b", "c"].forEach(function(id, j) {
+    for (var x = 0; x < 20; x++) series.push({id: id, x: x, y: Math.sin(x / 3 + j) * 10 + 20});
+  });
+
+  // Every chart zooms by default. Page scrolling is left alone: Ctrl/⌘ +
+  // wheel (or a pinch) zooms, and a plain wheel scrolls the page. The controls sit in the chart's top-right
+  // corner, and top-positioned content (title, subtitle, legend) makes room
+  // for them. The zoom limit defaults to the scale at which the smallest
+  // shape fills the chart area (compare the Pack-like Treemap to the map).
+  new d3plus.Treemap().select("#treemap").title("Treemap")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  new d3plus.Pie().select("#pie").title("A longer Pie title that has to wrap around the zoom controls")
+    .data(flat).groupBy("id").value("value").render();
+
+  new d3plus.Tree().select("#tree").title("Tree").subtitle("With a subtitle")
+    .data(flat).groupBy(["parent", "id"]).render();
+
+  new d3plus.Network().select("#network").title("Network (click a node to focus)")
+    .nodes([
+      {id: "alpha", x: 1, y: 1}, {id: "beta", x: 2, y: 1}, {id: "gamma", x: 1, y: 2},
+      {id: "delta", x: 3, y: 2}, {id: "epsilon", x: 2.5, y: 1.5}, {id: "zeta", x: 2, y: 2.4}
+    ])
+    .links([
+      {source: "alpha", target: "beta"}, {source: "alpha", target: "gamma"},
+      {source: "gamma", target: "delta"}, {source: "delta", target: "epsilon"},
+      {source: "epsilon", target: "zeta"}, {source: "beta", target: "epsilon"}
+    ])
+    .render();
+
+  // Basemap tiles stay aligned with the geography through zoom, and switch
+  // to Esri's Dark Gray Canvas when the page behind the map is dark.
+  var countries = ["usa", "can", "mex", "bra", "arg", "chn", "ind", "rus", "aus", "fra", "deu", "zaf", "egy", "nga", "jpn"]
+    .map(function(id, i) { return {id: id, value: (i * 37) % 100}; });
+  new d3plus.Geomap().select("#geomap").title("Geomap")
+    .topojson("../Geomap/countries.json")
+    .data(countries).groupBy("id").colorScale("value")
+    .render();
+
+  new d3plus.Geomap().select("#geomap-canvas").title("Geomap (canvas)").renderer("canvas")
+    .topojson("../Geomap/countries.json")
+    .data(countries).groupBy("id").colorScale("value")
+    .render();
+
+  // Plot charts rescale their linear axes instead of scaling the picture:
+  // only the value axis on a line/bar chart (its x axis is categorical),
+  // both axes on a scatter.
+  new d3plus.LinePlot().select("#line").title("LinePlot (value axis only)")
+    .data(series).groupBy("id").x("x").y("y").render();
+
+  var points = [];
+  for (var i = 0; i < 500; i++) points.push({id: "p" + i, x: Math.random() * 100, y: Math.random() * 50});
+  new d3plus.Plot().select("#scatter").title("Plot (both axes linear)").legend(false)
+    .data(points).groupBy("id").x("x").y("y").render();
+
+  new d3plus.BarChart().select("#bar").title("BarChart (value axis only)")
+    .data(series).groupBy("id").x("x").y("y").render();
+
+  new d3plus.Treemap().select("#treemap-canvas").title("Treemap (canvas)").renderer("canvas")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  new d3plus.BarChart().select("#bar-canvas").title("BarChart (canvas)").renderer("canvas")
+    .data(series).groupBy("id").x("x").y("y").render();
+
+  // Legends clear the controls too: a top legend insets both sides, a
+  // right-hand legend starts below them.
+  new d3plus.Treemap().select("#legend-top").legendPosition("top")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  new d3plus.Pie().select("#legend-right").legendPosition("right")
+    .data(flat).groupBy(["parent", "id"]).value("value").render();
+
+  // Opting out removes the controls and the reserved space.
+  new d3plus.Treemap().select("#zoom-off").title("zoom(false)").zoom(false)
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+</script>
+
+</html>

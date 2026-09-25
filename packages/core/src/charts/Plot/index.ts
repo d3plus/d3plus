@@ -2,6 +2,7 @@
 
 // @ts-ignore
 import pkg from "open-color/open-color.js";
+import {zoomTransform} from "d3-zoom";
 const {theme: openColor} = pkg;
 
 import {
@@ -57,7 +58,8 @@ import {
   type StackOrderFn,
   type StackOrderInput,
 } from "./stackHelpers.js";
-import {plotPaint, type PlotPaintContext} from "../features/plotPaint.js";
+import type {PlotPaintContext} from "../features/plotPaint.js";
+import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import Viz from "../viz/Viz.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
@@ -351,8 +353,9 @@ export default class Plot extends Viz {
   /**
       Picks the interaction point closest to a surface-local cursor position
       along the discrete axis. `event.point` is post-zoom surface space while the
-      points are in pre-zoom content space (they live under the `viz-zoom`
-      group), so the cursor is un-zoomed by `_zoomTransform` before comparing.
+      points are in chart content space (under the `viz-zoom` group and then
+      the chart's own `viz-chart-body` transform), so the cursor is un-zoomed
+      by `_zoomTransform` and offset by `_chartTransform` before comparing.
       @private
 */
   _nearestInteractionPoint(
@@ -361,8 +364,9 @@ export default class Plot extends Viz {
   ): InteractionPoint | null {
     const t = this._zoomTransform;
     const scale = t && t.scale ? t.scale : 1;
-    const cx = (point[0] - (t ? t.x : 0)) / scale;
-    const cy = (point[1] - (t ? t.y : 0)) / scale;
+    const c = this._chartTransform;
+    const cx = (point[0] - (t ? t.x : 0)) / scale - (c ? c.x : 0);
+    const cy = (point[1] - (t ? t.y : 0)) / scale - (c ? c.y : 0);
     const axis = this.schema.discrete === "y" ? "y" : "x";
     const target = axis === "y" ? cy : cx;
     let best: InteractionPoint | null = null;
@@ -397,8 +401,27 @@ export default class Plot extends Viz {
     // function of its inputs. `super._draw` resets `_chartScene` to []
     // before the paint phase, so the emit output IS the scene. Viz.toScene
     // wraps the collection in viz-chart-cells + zoom transform.
-    this._chartScene = plotPaint(this as unknown as VizInstance, pCtx);
+    const viz = this as unknown as VizInstance;
+    const target = viz._zoomEventTarget || viz._container;
+    this._chartScene = paintZoomablePlot(
+      viz,
+      pCtx,
+      target && target.node() ? zoomTransform(target.node()) : undefined,
+    );
     return this;
+  }
+
+  /**
+      Zooms by rescaling the plot's linear axes instead of scaling the
+      rendered picture (see `Plot/plotZoom.ts`). Returns false when no axis
+      is linear, so the plot falls back to picture zoom.
+      @private
+*/
+  _zoomRescale(t: ZoomState, duration = 0): boolean {
+    const nodes = zoomPlot(this as unknown as VizInstance, t, duration);
+    if (!nodes) return false;
+    this._chartScene = nodes;
+    return true;
   }
 
   /**

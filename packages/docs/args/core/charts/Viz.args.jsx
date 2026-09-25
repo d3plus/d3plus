@@ -540,7 +540,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    description: "Accessor function or string key for the label of each data point.",
+    description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1282,11 +1282,11 @@ export const argTypes = {
     control: {
       type: "boolean"
     },
-    defaultValue: false,
-    description: "Set to false to disable zooming on Geomap and Network.",
+    defaultValue: true,
+    description: "Enables pan/zoom with zoom-control buttons. On by default for every chart.",
     table: {
       defaultValue: {
-        summary: "false"
+        summary: "true"
       }
     },
     type: {
@@ -1335,9 +1335,24 @@ export const argTypes = {
       summary: "false | record"
     }
   },
+  zoomControlClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
   zoomControlStyle: {
     control: {},
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+    description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1350,7 +1365,7 @@ export const argTypes = {
   },
   zoomControlStyleActive: {
     control: {},
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+    description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1363,7 +1378,7 @@ export const argTypes = {
   },
   zoomControlStyleHover: {
     control: {},
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+    description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1394,11 +1409,10 @@ export const argTypes = {
     control: {
       type: "number"
     },
-    defaultValue: 16,
-    description: "Maximum zoom scale factor.",
+    description: "Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area.",
     table: {
       defaultValue: {
-        summary: "16"
+        summary: "undefined"
       }
     },
     type: {
@@ -1439,18 +1453,21 @@ export const argTypes = {
   },
   zoomScroll: {
     control: {
-      type: "boolean"
+      type: "radio"
     },
-    defaultValue: true,
-    description: "Whether scroll-wheel zooming is enabled.",
+    defaultValue: "modifier",
+    description: "Whether the mouse wheel (and one-finger touch) zooms. `\"modifier\"` (the\ndefault) leaves page scrolling alone: only\nCtrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans\nonly once zoomed in. `true` zooms on any wheel; `false` never does.",
+    options: [
+      "modifier"
+    ],
     table: {
       defaultValue: {
-        summary: "true"
+        summary: "modifier"
       }
     },
     type: {
       required: false,
-      summary: "boolean"
+      summary: "boolean | \"modifier\""
     }
   }
 };

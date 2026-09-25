@@ -48,7 +48,7 @@ it("toScene() emits viz-zoom group with an identity transform when _zoomTransfor
     {x: 0, y: 0, scale: 1},
     "identity transform when no zoom is active",
   );
-  const rect = zoom.children.find(c => c.key === "r1");
+  const rect = findGroup({root: zoom}, "r1");
   assert.ok(rect, "chart-scene rect lives inside viz-zoom");
 });
 
@@ -71,15 +71,16 @@ it("toScene() wraps _chartScene in a viz-zoom group when _zoomTransform is set",
     "viz-zoom transform reflects _zoomTransform",
   );
   // The rect lives INSIDE the viz-zoom group.
-  const rect = zoom.children.find(c => c.key === "r1");
+  const rect = findGroup({root: zoom}, "r1");
   assert.ok(rect, "chart-scene rect lives inside viz-zoom");
 });
 
-it("toScene() composes _chartTransform OUTSIDE the viz-zoom group", () => {
-  // Order matters: chart-cells group carries the chart-positioning
-  // transform; viz-zoom is its CHILD, carrying the user-driven zoom.
-  // So pan/scale apply to chart content WITHOUT moving legend/title/etc.
-  // (those live in sibling viz-* groups).
+it("toScene() composes _zoomTransform OUTSIDE the chart transform", () => {
+  // Order matters: viz-zoom carries the user-driven zoom in surface space
+  // (the space d3-zoom measures the pointer in), and viz-chart-body inside it
+  // carries the chart-positioning transform. viz-chart-cells is left
+  // untransformed so its clip stays fixed in surface space while content pans
+  // and scales beneath it. Legend/title/etc. live in sibling viz-* groups.
   const chart = new BarChart()
     .data([{id: "a", x: 1, y: 10}])
     .groupBy(["id"]);
@@ -92,18 +93,41 @@ it("toScene() composes _chartTransform OUTSIDE the viz-zoom group", () => {
   chart.schema.height = 300;
   const scene = chart.toScene();
   const cells = findGroup(scene, "viz-chart-cells");
-  assert.deepStrictEqual(
-    cells.transform,
-    {x: 10, y: 20},
-    "chart-cells group carries _chartTransform",
-  );
-  // The viz-zoom group is a CHILD of cells.
+  assert.strictEqual(cells.transform, undefined, "chart-cells group is untransformed");
   const zoomChild = cells.children.find(c => c.key === "viz-zoom");
   assert.ok(zoomChild, "viz-zoom is a child of viz-chart-cells");
   assert.deepStrictEqual(
     zoomChild.transform,
     {x: 30, y: 40, scale: 1.5},
-    "viz-zoom carries _zoomTransform separately",
+    "viz-zoom carries _zoomTransform",
+  );
+  const body = zoomChild.children.find(c => c.key === "viz-chart-body");
+  assert.ok(body, "viz-chart-body is a child of viz-zoom");
+  assert.deepStrictEqual(body.transform, {x: 10, y: 20}, "viz-chart-body carries _chartTransform");
+  assert.ok(body.children.find(c => c.key === "r1"), "chart content lives in viz-chart-body");
+});
+
+it("toScene() clips zoomable charts to the chart area", () => {
+  const chart = new BarChart()
+    .data([{id: "a", x: 1, y: 10}])
+    .groupBy(["id"]);
+  chart._chartScene = [
+    {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
+  ];
+  chart.schema.width = 400;
+  chart.schema.height = 300;
+  chart._margin = {top: 30, right: 0, bottom: 20, left: 10};
+  chart.zoom(false);
+  assert.strictEqual(
+    findGroup(chart.toScene(), "viz-chart-cells").clip,
+    undefined,
+    "no clip while zoom is off",
+  );
+  chart.zoom(true);
+  assert.deepStrictEqual(
+    findGroup(chart.toScene(), "viz-chart-cells").clip,
+    {type: "rect", x: 10, y: 30, width: 390, height: 250},
+    "clip is the margin-inset chart area",
   );
 });
 

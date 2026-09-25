@@ -48,7 +48,9 @@ interface ChartDefinitionBase {
       scene coordinates that the chart content is clipped to). Geomap uses this to
       contain projected geography within the map rectangle so it can't spill under
       the legend/timeline; the clip stays put while pan/zoom moves content beneath
-      it. Only meaningful for charts whose `chartTransform` is undefined.
+      it. The chart-cells group is untransformed (`chartTransform` applies to a
+      group inside it), so the clip is in surface coordinates. Zoomable charts
+      without one are clipped to the chart area.
   */
   chartClip?: (viz: VizInstance) => import("@d3plus/render").ClipShape | undefined;
   /**

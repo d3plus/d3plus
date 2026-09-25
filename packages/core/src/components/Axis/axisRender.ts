@@ -168,6 +168,7 @@ export function calculateTicks(
   }
 
   // forces min/max into ticks, if not present
+  if (this.schema.domainTicks === false) return ticks;
   if (
     !this._d3ScaleNegative ||
     isNegative(domain[inverted ? 1 : 0]) ===
@@ -234,13 +235,19 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
 
     const labelOffset = data && axis.schema.labelOffset ? data.offset ?? 0 : 0;
 
-    const labelWidth = horizontal
+    const fitWidth = horizontal
       ? space
       : bounds.width -
         margin[axis._position.opposite] -
         hBuff -
         margin[axis.schema.orient] +
         p;
+    // A `fixedSize` label space can be narrower than a label: widen that
+    // label's box (outward, away from the axis line) instead of dropping it.
+    const labelWidth =
+      !horizontal && data && typeof axis.schema.fixedSize === "number"
+        ? Math.max(fitWidth, Math.ceil(data.width) + p)
+        : fitWidth;
 
     const offset = margin[opposite],
       size = (hBuff + labelOffset) * (flip ? -1 : 1),

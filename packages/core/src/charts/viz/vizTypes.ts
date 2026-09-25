@@ -21,6 +21,7 @@
     @module
 */
 
+import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
@@ -169,6 +170,17 @@ export interface VizInstance {
   _previousShapes?: string[];
   _previousAnnotations?: Record<string, string[]>;
   _zoomTransform?: Transform;
+  /** Data-shape nodes the automatic `zoomMax` measures when they aren't `_chartScene`'s top level (Plot). */
+  _zoomShapes?: SceneNode[];
+  /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */
+  _plotZoomBase?: PlotZoomBase;
+  /** Pending repaint that drops a Plot's zoom clip once an animated reset settles. */
+  _plotUnclipTimer?: ReturnType<typeof setTimeout>;
+  /**
+      Chart-specific zoom: repaints for a transform and returns true, or
+      returns false to fall back to picture zoom (Plot rescales its axes).
+  */
+  _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
 
   /* 7. Lifecycle & rendering */
   _select?: D3Selection;
