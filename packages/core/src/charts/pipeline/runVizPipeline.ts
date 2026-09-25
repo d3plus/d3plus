@@ -30,6 +30,7 @@
 
 import {attributionFeature, runLayout} from "../features/features.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
+import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 export function runVizPipeline(viz: Viz): void {
@@ -40,17 +41,19 @@ export function runVizPipeline(viz: Viz): void {
   // calls hit the shim which delegates to the free functions.
   viz._preDraw();
   viz._draw();
-  // Post-draw features: zoom + brush event wiring and the attribution
-  // overlay. Both run after `_draw()` (they need the rendered chart body +
-  // `_container`/`_zoomGroup`), claim zero margin, and wire DOM the
+  // Post-draw features: zoom + brush event wiring, the shared top-left
+  // controls panel (back / table-view / search), and the attribution
+  // overlay. All three run after `_draw()` (zoom needs the rendered chart
+  // body + `_container`/`_zoomGroup`), claim zero margin, and wire DOM the
   // serializable scene graph can't carry. `zoomFeature` runs before
-  // `attributionFeature` to preserve the prior step order.
+  // `attributionFeature` to preserve the prior step order; `topLeftControlsFeature`
+  // has no ordering dependency on either.
   // `zoomFeature` returns its control-button overlay as a panel rather
   // than mutating `viz._featurePanels` from inside `layout()` (the
   // FeatureModule contract). The engine appends the returned panels to
   // the instance buffer that `toScene()` reads — including on later zoom
   // repaints, which re-walk `toScene()` outside this pipeline pass.
-  const post = runLayout({viz}, [zoomFeature, attributionFeature]);
+  const post = runLayout({viz}, [zoomFeature, topLeftControlsFeature, attributionFeature]);
   if (post.panels.length)
     viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
   viz._drawSceneToTarget();

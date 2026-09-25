@@ -209,6 +209,8 @@ export interface VizInstance {
   _userData?: DataPoint[] | string;
   /** Drill-down history stack (back button). */
   _history?: DataPoint[];
+  /** Cached measured size of the shared top-left controls panel (back/table-view/search). */
+  _topLeftControlsBox?: {width: number; height: number; signature: string};
 
   /* 8. Plot-specific (only present on Plot subclasses) */
   _xAxis?: Axis;
@@ -251,7 +253,6 @@ export interface VizInstance {
   _timelineClass?: Timeline;
   _titleClass?: TextBox;
   _subtitleClass?: TextBox;
-  _backClass?: TextBox;
   _messageClass?: Message;
   _tooltipClass?: Tooltip;
   _legendSort?: (a: DataPoint, b: DataPoint) => number;

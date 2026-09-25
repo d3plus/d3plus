@@ -23,6 +23,8 @@ import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
+import {topLeftControlsInset as topLeftControlsInsetRaw} from "../drawSteps/topLeftControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -220,6 +222,18 @@ export function zoomControlsInset(viz: VizInstance, top: number, right: number):
 }
 
 /**
+    The left-side mirror of `zoomControlsInset`: how far content starting
+    `top` px down the chart, whose left edge sits `left` px in from the
+    chart's left edge, must pull in to clear the shared top-left controls
+    panel (back / table-view / search). Zero when nothing is showing there
+    or content starts below the panel's height.
+*/
+export function topLeftControlsInset(viz: VizInstance, top: number, left: number): number {
+  const contributions = getTopLeftContributions(viz as never);
+  return topLeftControlsInsetRaw(viz as never, top, left, contributions);
+}
+
+/**
     Shared layout logic for any "single line of text claiming margin.top" feature
     (title, subtitle, total). Each feature passes the viz fields that source its
     text + TextBox + config; the helper computes the panel + margin claim using
@@ -255,14 +269,25 @@ function textBlockLayout(
     .config(viz.schema[opts.configKey]);
   let boxes = textClass._textData() as TextDatum[];
 
-  // Text alongside the zoom controls wraps short of them. Centered text
-  // insets both sides equally so it stays centered on the chart.
+  // Text alongside the zoom controls (right) and/or the shared top-left
+  // controls panel (left — back/table-view/search) wraps short of them.
+  // Centered text insets both sides by the SAME (larger) amount so it stays
+  // centered on the full chart width, matching how it already behaved
+  // relative to zoom alone; start/end-aligned text instead just narrows the
+  // true available box (its unaffected edge stays exactly where it was).
   let x = layoutMargin.left + padding.left;
-  const inset = zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right);
-  if (inset && boxes.length) {
+  const rightInset = zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right);
+  const leftInset = topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left + padding.left);
+  if ((rightInset || leftInset) && boxes.length) {
     const centered = boxes[0].tA === "middle";
-    if (centered) x += inset;
-    width -= centered ? inset * 2 : inset;
+    if (centered) {
+      const symInset = Math.max(leftInset, rightInset);
+      x += symInset;
+      width -= symInset * 2;
+    } else {
+      x += leftInset;
+      width -= leftInset + rightInset;
+    }
     textClass.width(width);
     boxes = textClass._textData() as TextDatum[];
   }
@@ -337,60 +362,6 @@ export const subtitleFeature: FeatureModule = {
       configKey: "subtitleConfig",
       paddingMethod: "subtitlePadding",
     }),
-};
-
-/**
-    Converts `drawBack.ts` to a FeatureModule. Visible only when there are
-    drill-down history entries; emits a "← Back" TextNode at the chart's
-    top-left and claims its line height + padding × 2 from `margin.top`.
-*/
-export const backFeature: FeatureModule = {
-  name: "back",
-  configFields: ["backConfig"],
-  layout: ({viz, layoutMargin}) => {
-    if (!viz._history || !viz._history.length) return {panel: null, margin: {}};
-
-    const text = `← ${viz.schema.translate("Back")}`;
-    viz._backClass.data([{text, x: 0, y: 0}]).config(viz.schema.backConfig);
-    const boxes = viz._backClass._textData() as Array<{
-      lines: string[];
-      lH: number;
-      fS: number;
-      fF: string;
-      fC: string;
-      fO: number;
-      tA: string;
-      widths: number[];
-    }>;
-    // _backClass might have a fontSize/padding only style (no wrapping data),
-    // in which case _textData may be empty; fall back to direct accessor reads
-    // for the margin claim to match drawBack's math precisely.
-    const fontSize = viz._backClass.fontSize()();
-    const padding = viz._backClass.padding()();
-    const height = fontSize + padding * 2;
-
-    if (!boxes.length) {
-      return {panel: null, margin: {top: height}};
-    }
-    const box = boxes[0];
-
-    const panel: SceneNode = {
-      type: "text",
-      key: "viz-back",
-      x: 0,
-      y: 0,
-      lines: box.lines.map((str, i) => ({
-        text: str,
-        x: 0,
-        y: (i + 1) * box.lH - (box.lH - box.fS),
-        width: box.widths?.[i] ?? 0,
-      })),
-      font: {family: box.fF, size: box.fS, baseline: "alphabetic"},
-      paint: {fill: box.fC, opacity: box.fO},
-      transform: {x: layoutMargin.left, y: layoutMargin.top},
-    };
-    return {panel, margin: {top: height}};
-  },
 };
 
 /* -------------------------------- Legend --------------------------------- */

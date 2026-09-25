@@ -29,7 +29,7 @@ type StyleObject = Record<string, string | number | undefined | null | false>;
 type ZoomControlStyleValue = StyleObject | false | null | undefined;
 
 /** `alignItems` / `align-items` → `align-items`, for `style.setProperty`. */
-const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
+export const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
 
 /**
     Fallbacks for CSS system colors a browser may not support yet: the
@@ -179,7 +179,7 @@ export function zoomControlsHtml(viz: Viz): string {
 }
 
 /** The HTML element a chart's overlays (the zoom controls) mount in. */
-function overlayHost(viz: Viz): HTMLElement | null {
+export function overlayHost(viz: Viz): HTMLElement | null {
   let host = viz._select && viz._select.node() ? viz._select.node().parentNode : null;
   while (host && !(host instanceof HTMLElement)) host = host.parentNode;
   return host instanceof HTMLElement ? host : null;

@@ -121,19 +121,9 @@ function initBaseDefaults(viz: Viz): void {
     opacity: 0.75,
     padding: "4px 6px 3px",
   };
-  viz._backClass = new TextBox()
-    .on("click", () => {
-      if (viz._history.length) viz.config(viz._history.pop()).render();
-      else (viz.depth(viz._drawDepth - 1) as Viz).filter(false);
-      viz.render();
-    })
-    .on("mousemove", () =>
-      viz._backClass.select().style("cursor", "pointer"),
-    );
   viz.schema.backConfig = {
     fontSize: 10,
     padding: 5,
-    resize: false,
   };
   viz.schema.cache = true;
 }

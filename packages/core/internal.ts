@@ -59,7 +59,6 @@ export {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
 
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {
-  backFeature,
   colorScaleFeature,
   legendFeature,
   runLayout,
@@ -68,6 +67,7 @@ export {
   titleFeature,
   totalFeature,
 } from "./src/charts/features/features.js";
+export {topLeftControlsFeature} from "./src/charts/drawSteps/topLeftControls.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";

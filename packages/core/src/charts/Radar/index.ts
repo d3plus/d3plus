@@ -11,7 +11,7 @@ import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -23,7 +23,7 @@ import {radarEmit} from "./emit.js";
 export const radarDef: ChartDefinition = {
   name: "Radar",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRadarLayout,
   emit: radarEmit,
 
