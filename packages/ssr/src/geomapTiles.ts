@@ -10,6 +10,8 @@ const NodeBuffer = (globalThis as any).Buffer as {
   from(data: ArrayBuffer | Uint8Array): {toString(encoding: string): string};
 };
 
+let blockedRanges: InstanceType<typeof net.BlockList> | undefined;
+
 // This-network, loopback, RFC1918 private, CGNAT/shared, link-local (covers
 // the cloud metadata address 169.254.169.254), benchmarking, multicast, and
 // reserved IPv4 ranges; loopback, unspecified, unique-local, link-local, and
@@ -19,40 +21,47 @@ const NodeBuffer = (globalThis as any).Buffer as {
 // (`64:ff9b::a.b.c.d`), 6to4 (`2002:a.b.c.d::`), and the deprecated
 // IPv4-compatible form (`::a.b.c.d`) — so those carrier ranges are blocked
 // outright below instead of extracting and re-checking the embedded address.
-const BLOCKED_RANGES = new net.BlockList();
-for (const [addr, prefix] of [
-  ["0.0.0.0", 8],
-  ["127.0.0.0", 8],
-  ["10.0.0.0", 8],
-  ["172.16.0.0", 12],
-  ["192.168.0.0", 16],
-  ["169.254.0.0", 16],
-  ["100.64.0.0", 10],
-  ["198.18.0.0", 15],
-  ["224.0.0.0", 4],
-  ["240.0.0.0", 4],
-] as const) {
-  BLOCKED_RANGES.addSubnet(addr, prefix, "ipv4");
-}
-for (const [addr, prefix] of [
-  ["::1", 128], // loopback
-  ["::", 96], // unspecified, plus the deprecated IPv4-compatible form (::a.b.c.d)
-  ["fc00::", 7], // unique-local
-  ["fe80::", 10], // link-local
-  ["64:ff9b::", 96], // NAT64, well-known prefix
-  ["64:ff9b:1::", 48], // NAT64, local-use prefix
-  ["2002::", 16], // 6to4
-  ["ff00::", 8], // multicast
-  ["fec0::", 10], // site-local (deprecated)
-] as const) {
-  BLOCKED_RANGES.addSubnet(addr, prefix, "ipv6");
+// Built lazily (not at module scope) so importing this module has no side
+// effects — Storybook's browser build stubs `net` to nothing, and a plain
+// `import` must not run node-only code.
+function getBlockedRanges(): InstanceType<typeof net.BlockList> {
+  if (blockedRanges) return blockedRanges;
+  blockedRanges = new net.BlockList();
+  for (const [addr, prefix] of [
+    ["0.0.0.0", 8],
+    ["127.0.0.0", 8],
+    ["10.0.0.0", 8],
+    ["172.16.0.0", 12],
+    ["192.168.0.0", 16],
+    ["169.254.0.0", 16],
+    ["100.64.0.0", 10],
+    ["198.18.0.0", 15],
+    ["224.0.0.0", 4],
+    ["240.0.0.0", 4],
+  ] as const) {
+    blockedRanges.addSubnet(addr, prefix, "ipv4");
+  }
+  for (const [addr, prefix] of [
+    ["::1", 128], // loopback
+    ["::", 96], // unspecified, plus the deprecated IPv4-compatible form (::a.b.c.d)
+    ["fc00::", 7], // unique-local
+    ["fe80::", 10], // link-local
+    ["64:ff9b::", 96], // NAT64, well-known prefix
+    ["64:ff9b:1::", 48], // NAT64, local-use prefix
+    ["2002::", 16], // 6to4
+    ["ff00::", 8], // multicast
+    ["fec0::", 10], // site-local (deprecated)
+  ] as const) {
+    blockedRanges.addSubnet(addr, prefix, "ipv6");
+  }
+  return blockedRanges;
 }
 
 /** Whether `address` (a literal IPv4/IPv6 address, not a hostname) is in a disallowed range. */
 export function isBlockedAddress(address: string): boolean {
   const family = net.isIP(address);
   if (family === 0) return true; // not a real address literal — reject defensively
-  return BLOCKED_RANGES.check(address, family === 4 ? "ipv4" : "ipv6");
+  return getBlockedRanges().check(address, family === 4 ? "ipv4" : "ipv6");
 }
 
 /**
