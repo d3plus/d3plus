@@ -104,8 +104,9 @@ it("createTileLookup blocks when only one of several resolved addresses is disal
   });
 });
 
-it("fetchTileFollowingRedirects follows an http-to-https style redirect", async () => {
+it("fetchTileFollowingRedirects follows an http-to-https style redirect and releases the redirect's body", async () => {
   const calls = [];
+  let redirectCancelled = false;
   const doFetch = async current => {
     calls.push(current);
     if (calls.length === 1) {
@@ -113,6 +114,7 @@ it("fetchTileFollowingRedirects follows an http-to-https style redirect", async 
         status: 301,
         ok: false,
         headers: {get: name => (name === "location" ? "https://tile.example/0/0/0.png" : null)},
+        body: {cancel: async () => { redirectCancelled = true; }},
       };
     }
     return {
@@ -125,36 +127,54 @@ it("fetchTileFollowingRedirects follows an http-to-https style redirect", async 
   const res = await fetchTileFollowingRedirects("http://tile.example/0/0/0.png", undefined, doFetch);
   assert.deepStrictEqual(calls, ["http://tile.example/0/0/0.png", "https://tile.example/0/0/0.png"]);
   assert.ok(res && res.ok, "the final response is returned");
+  assert.strictEqual(redirectCancelled, true, "the redirect response's body was released");
 });
 
-it("fetchTileFollowingRedirects refuses to follow a redirect to an unsafe target", async () => {
+it("fetchTileFollowingRedirects releases the body even without a body.cancel mock (optional chaining)", async () => {
+  const doFetch = async () => ({
+    status: 301,
+    ok: false,
+    headers: {get: name => (name === "location" ? "https://tile.example/next.png" : null)},
+  });
+  // Should not throw even though these fake responses have no `body` at all.
+  const res = await fetchTileFollowingRedirects("https://tile.example/0/0/0.png", undefined, doFetch);
+  assert.strictEqual(res, null, "the redirect loop was abandoned once the hop limit was hit");
+});
+
+it("fetchTileFollowingRedirects refuses to follow a redirect to an unsafe target, releasing its body", async () => {
   let calls = 0;
+  let cancelCalls = 0;
   const doFetch = async () => {
     calls++;
     return {
       status: 302,
       ok: false,
       headers: {get: name => (name === "location" ? "http://127.0.0.1/internal" : null)},
+      body: {cancel: async () => { cancelCalls++; }},
     };
   };
   const res = await fetchTileFollowingRedirects("https://tile.example/0/0/0.png", undefined, doFetch);
   assert.strictEqual(res, null, "the unsafe redirect target was rejected");
   assert.strictEqual(calls, 1, "the redirect target was never fetched");
+  assert.strictEqual(cancelCalls, 1, "the redirect response's body was released before the target was rejected");
 });
 
-it("fetchTileFollowingRedirects gives up after too many redirects", async () => {
+it("fetchTileFollowingRedirects gives up after too many redirects, releasing every hop's body", async () => {
   let calls = 0;
+  let cancelCalls = 0;
   const doFetch = async () => {
     calls++;
     return {
       status: 302,
       ok: false,
       headers: {get: name => (name === "location" ? "https://tile.example/next" : null)},
+      body: {cancel: async () => { cancelCalls++; }},
     };
   };
   const res = await fetchTileFollowingRedirects("https://tile.example/start", undefined, doFetch);
   assert.strictEqual(res, null, "the redirect loop was abandoned");
   assert.strictEqual(calls, 6, "expected exactly MAX_TILE_REDIRECTS + 1 fetch attempts");
+  assert.strictEqual(cancelCalls, 6, "every redirect response's body was released");
 });
 
 // A real public host that redirects to an internal address can't be tested

@@ -146,6 +146,9 @@ export async function fetchTileFollowingRedirects(
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get("location");
       if (location) {
+        // Release the redirect response's body — otherwise it keeps the
+        // underlying connection busy while this loop moves on to the next hop.
+        await res.body?.cancel();
         current = new URL(location, current).toString();
         continue;
       }
