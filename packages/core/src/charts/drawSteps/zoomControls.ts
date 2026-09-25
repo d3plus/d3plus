@@ -10,6 +10,7 @@ import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {
   isBrushing,
+  mountCustomIcons,
   paintZoomButton,
   setBrushing,
   showsZoomControls,
@@ -29,7 +30,8 @@ import {
     html isn't a fixed constant — it bakes in `zoomControlClassName`, the
     locale's translated `aria-label`s, and the brush state, so those
     changes swap in fresh button nodes on the next draw. The
-    `data-zoom-bound` guard styles and binds each button exactly once.
+    `data-zoom-bound` guard styles, binds, and mounts each node's custom
+    icon (`zoomControlIcons`, if set) exactly once.
     @private
 */
 function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
@@ -67,6 +69,7 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
         paintZoomButton(viz, btn);
         btn.addEventListener("mouseenter", () => paintZoomButton(viz, btn, true));
         btn.addEventListener("mouseleave", () => paintZoomButton(viz, btn));
+        mountCustomIcons(viz, btn);
       });
     },
   };

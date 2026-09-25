@@ -110,17 +110,8 @@ function initBaseDefaults(viz: Viz): void {
   viz._renderMode = "full";
   viz.schema.ariaHidden = true;
   viz.schema.attribution = false;
-  const attributionBg = "rgba(255, 255, 255, 0.75)";
-  viz.schema.attributionStyle = {
-    background: attributionBg,
-    border: "1px solid rgba(0, 0, 0, 0.25)",
-    color: colorContrast(attributionBg),
-    display: "block",
-    font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
-    margin: "5px",
-    opacity: 0.75,
-    padding: "4px 6px 3px",
-  };
+  viz.schema.attributionIcon = undefined;
+  viz.schema.attributionStyle = attributionStyleDefault;
   viz._backClass = new TextBox()
     .on("click", () => {
       if (viz._history.length) viz.config(viz._history.pop()).render();
@@ -437,6 +428,34 @@ function initLabelDefaults(viz: Viz): void {
 }
 
 /**
+    Default attribution styles: flush to the chart area's bottom-right corner
+    like the credit on a slippy map, in small type on a translucent backing
+    that keeps it legible over busy tiles without boxing it in. The dark
+    variant applies over a dark basemap while the style is still this
+    untouched default (compared by reference, like the zoom-control styles).
+    @private
+*/
+const attributionLightBg = "rgba(255, 255, 255, 0.7)";
+const attributionDarkBg = "rgba(24, 25, 28, 0.7)";
+const attributionBase = {
+  "border-radius": "3px 0 0 0",
+  display: "flex",
+  "align-items": "center",
+  gap: "4px",
+  font: `400 10px/1.4 ${fontFamilyStringify(fontFamily)}`,
+};
+export const attributionStyleDefault = {
+  ...attributionBase,
+  background: attributionLightBg,
+  color: colorContrast(attributionLightBg),
+};
+export const attributionStyleDarkDefault = {
+  ...attributionBase,
+  background: attributionDarkBg,
+  color: colorContrast(attributionDarkBg),
+};
+
+/**
     Default inline styles for the zoom-control buttons — structural only
     (sizing/spacing/typography); no color, background, border, or opacity.
     Letting native/host-page button chrome show through by default means a
@@ -490,6 +509,7 @@ function initZoomDefaults(viz: Viz): void {
     "stroke-width": 0,
   };
   viz.schema.zoomControlClassName = undefined;
+  viz.schema.zoomControlIcons = undefined;
   viz.schema.zoomControlStyle = zoomControlStyleDefault;
   viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
   viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
