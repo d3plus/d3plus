@@ -15,7 +15,6 @@ export const argTypes = assign(
    * overrides any defaults that have been changed in Plot
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(zoom.*)$/))
     .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
@@ -593,7 +592,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor function or string key for the label of each data point.",
+      description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1727,9 +1726,24 @@ export const argTypes = assign(
         summary: "false | record"
       }
     },
+    zoomControlClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
     zoomControlStyle: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1742,7 +1756,7 @@ export const argTypes = assign(
     },
     zoomControlStyleActive: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1755,7 +1769,7 @@ export const argTypes = assign(
     },
     zoomControlStyleHover: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"

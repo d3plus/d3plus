@@ -442,9 +442,12 @@ function initLabelDefaults(viz: Viz): void {
     Letting native/host-page button chrome show through by default means a
     page styling its own buttons (Tailwind, Bootstrap, a design system) via
     `zoomControlClassName` composes cleanly instead of fighting inline color
-    overrides. Active/hover get no default styling at all (`false`) — the
-    `.active` class and `:hover`/`:active` pseudo-classes stay available for
-    a host page's own CSS to hook into. Consumers who want d3plus's old
+    overrides. The active state (brush mode on) paints the OS accent color
+    through CSS system colors (`AccentColor`/`AccentColorText`, falling back
+    to the selection `Highlight` where unsupported), so it reads as pressed
+    in the browser's own idiom; hover gets no default styling (`false`). The
+    `.active` class, `aria-pressed`, and `:hover`/`:active` pseudo-classes
+    stay available for a host page's own CSS to hook into. Consumers who want d3plus's old
     opinionated look can restore it via `.zoomControlStyle({...})`.
 
     Exported as stable object references (not inlined per-instance) so
@@ -463,7 +466,11 @@ export const zoomControlStyleDefault = {
   padding: 0,
   width: "20px",
 };
-export const zoomControlStyleActiveDefault = false as const;
+export const zoomControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
 export const zoomControlStyleHoverDefault = false as const;
 
 /**
@@ -471,7 +478,7 @@ export const zoomControlStyleHoverDefault = false as const;
     @private
 */
 function initZoomDefaults(viz: Viz): void {
-  viz.schema.zoom = false;
+  viz.schema.zoom = true;
   viz._zoomBehavior = zoom();
   viz._zoomBrush = brush();
   viz.schema.zoomBrushHandleSize = 1;
@@ -487,10 +494,10 @@ function initZoomDefaults(viz: Viz): void {
   viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
   viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
   viz.schema.zoomFactor = 2;
-  viz.schema.zoomMax = 16;
+  viz.schema.zoomMax = undefined;
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
-  viz.schema.zoomScroll = true;
+  viz.schema.zoomScroll = "modifier";
 }
 
 /**

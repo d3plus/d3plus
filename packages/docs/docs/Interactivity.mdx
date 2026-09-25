@@ -101,7 +101,35 @@ trails** by default, and `trailPersist` can keep the whole path visible. See
 
 ## Zoom & pan
 
-Geomap and Network support zoom/pan with on-canvas controls. Toggle and tune
-them with `zoom` and related keys — see the
+Every chart zooms and pans its content by default, with controls in the
+chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
+that ends after one selection), wheel zoom, and drag-to-pan.
+
+Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
+zooms, a plain wheel scrolls the page, and on touch screens one finger
+scrolls while two fingers pinch-zoom — one finger pans only once the chart is
+zoomed in. Geomap and Network are pan-and-zoom surfaces, so they zoom on any
+wheel. Set `zoomScroll` to `true` (any wheel), `"modifier"`, or `false` (no
+wheel zoom) to choose. A title,
+subtitle, total, or top/right legend wraps or shifts to leave room for the
+controls. Set `zoom: false` to turn it all off. Zoomed content is clipped to
+the chart area, so the legend, title, and timeline stay put.
+
+The control buttons are real `<button>`s: the brush toggle carries
+`aria-pressed` and an `.active` class while on, and by default paints the OS
+accent color. Set `zoomControlClassName` to style them with your own CSS.
+
+Plot-based charts (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker,
+BumpChart, and Plot itself) zoom their data instead of the picture: each
+linear axis stays in place and rescales its domain, while category, time, and
+log axes stay fixed. A bar chart zooms and pans along its value axis only; a
+scatter plot with two linear axes zooms in both directions.
+
+How far you can zoom in adapts to what's drawn:
+by default, the limit is the scale at which the chart's smallest shape fills
+the chart area (a line or area series counts each segment between points), so
+a few large shapes allow little zoom while a detailed map zooms all the way
+into its smallest path. Set `zoomMax` to fix the limit instead. Tune the rest
+with `zoomFactor`, `zoomScroll`, `zoomPan`, and `zoomPadding` — see the
 [Geomap](/?path=/docs/core-charts-geomap--docs) examples for custom zoom,
 disabling zoom, and zoom limits.

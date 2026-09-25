@@ -97,6 +97,22 @@ export const argTypes = assign(
         summary: "array.&lt;number&gt;"
       }
     },
+    domainTicks: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Whether the domain's min and max are always shown as ticks, even when\nthey aren't among the scale's own \"nice\" tick values (the nearest nice\ntick is dropped when it would crowd them). Defaults to `true`; zooming\nturns it off so a rescaled axis shows only nice values.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     duration: {
       control: {
         type: "number"
@@ -106,6 +122,21 @@ export const argTypes = assign(
       table: {
         defaultValue: {
           summary: "600"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    fixedSize: {
+      control: {
+        type: "number"
+      },
+      description: "Exact size of the space that contains the axis tick labels and title.\nLabels that need more room overflow outward instead of moving the axis\nline; zooming pins a rescaled axis this way so it doesn't shift.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
         }
       },
       type: {

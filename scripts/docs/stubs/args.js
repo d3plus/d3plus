@@ -3,24 +3,15 @@ import path from "node:path";
 import {parseSync, printSync} from "@swc/core";
 
 const hiddenMethods = {
-  AreaPlot: ["shape", "zoom"],
-  BarChart: ["shape", "zoom"],
-  BoxWhisker: ["shape", "zoom"],
-  BumpChart: ["shape", "zoom"],
-  Chord: ["shape", "zoom"],
-  Donut: ["shape", "zoom"],
-  LinePlot: ["shape", "zoom"],
-  Pack: ["zoom"],
-  Pie: ["zoom"],
-  Plot: ["zoom"],
-  Priestley: ["zoom"],
-  Radar: ["zoom"],
-  RadialMatrix: ["zoom"],
-  Rings: ["zoom"],
-  Sankey: ["zoom"],
-  StackedArea: ["shape", "zoom"],
-  Tree: ["zoom"],
-  Treemap: ["shape", "zoom"],
+  AreaPlot: ["shape"],
+  BarChart: ["shape"],
+  BoxWhisker: ["shape"],
+  BumpChart: ["shape"],
+  Chord: ["shape"],
+  Donut: ["shape"],
+  LinePlot: ["shape"],
+  StackedArea: ["shape"],
+  Treemap: ["shape"],
 };
 
 function isWrappedInQuotes(str) {

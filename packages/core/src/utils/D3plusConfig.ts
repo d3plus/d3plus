@@ -52,6 +52,12 @@ export interface AxisConfig {
   /** Visible tick labels of the axis. */
   labels?: unknown[];
   labelOffset?: false | number;
+  /**
+      Exact size of the space that contains the axis tick labels and title.
+      Labels that need more room overflow outward instead of moving the axis
+      line; zooming pins a rescaled axis this way so it doesn't shift.
+  */
+  fixedSize?: number;
   /** Maximum size allowed for the space that contains the axis tick labels and title. */
   maxSize?: number;
   /** Minimum size alloted for the space that contains the axis tick labels and title. */
@@ -67,6 +73,13 @@ export interface AxisConfig {
   tickFormat?: (d: number | string) => string | number;
   /** Tick values of the axis. */
   ticks?: unknown[];
+  /**
+      Whether the domain's min and max are always shown as ticks, even when
+      they aren't among the scale's own "nice" tick values (the nearest nice
+      tick is dropped when it would crowd them). Defaults to `true`; zooming
+      turns it off so a rescaled axis shows only nice values.
+  */
+  domainTicks?: boolean;
   tickSize?: number;
   /**
       Defines a custom locale object to be used in time scales. Must include
@@ -487,18 +500,23 @@ export interface D3plusConfig {
   ySort?: (a: DataPoint, b: DataPoint) => number;
   /** Defines a custom sorting comparator function for discrete y2 axes. */
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
-  /** Set to false to disable zooming on Geomap and Network. */
+  /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
   zoom?: boolean;
   /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */
   zoomControlClassName?: string;
   /** Multiplier applied to programmatic zoom steps. */
   zoomFactor?: number;
-  /** Maximum zoom scale factor. */
+  /** Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. */
   zoomMax?: number;
   /** Whether panning (drag) is enabled while zoomed. */
   zoomPan?: boolean;
-  /** Whether scroll-wheel zooming is enabled. */
-  zoomScroll?: boolean;
+  /**
+      Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the
+      default) leaves page scrolling alone: only
+      Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans
+      only once zoomed in. `true` zooms on any wheel; `false` never does.
+  */
+  zoomScroll?: boolean | "modifier";
 
   /** Allows additional custom properties. */
   [key: string]: unknown;

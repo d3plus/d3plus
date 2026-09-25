@@ -288,7 +288,11 @@ export function computeAxisBounds(
     [x]: rangeOuter[0],
   });
 
-  bounds[height] = max([axis.schema.minSize, bounds[height]]);
+  bounds[height] =
+    typeof axis.schema.fixedSize === "number"
+      ? axis.schema.fixedSize
+      : max([axis.schema.minSize, bounds[height]])!;
+  axis._labelSpace = bounds[height];
 
   margin[axis.schema.orient] += hBuff;
   margin[opposite] =

@@ -24,10 +24,14 @@
 
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
-export type ZoomDomKind = "network" | "geomap";
+export type ZoomDomKind = "network" | "geomap" | "generic";
 
 interface SetupOpts {
-  /** "network" or "geomap" — picks the css class + behavior tweaks. */
+  /**
+      "network" or "geomap" — picks the css class + behavior tweaks. "generic"
+      is the bare surface (zoom group + brush host) every other chart gets
+      when `zoom` is enabled.
+  */
   kind: ZoomDomKind;
   /** Chart-area width (margin-adjusted). */
   width: number;
@@ -41,14 +45,15 @@ interface SetupOpts {
 
 export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
   const {kind, width, height, duration, ocean} = opts;
-  const cls = kind === "network" ? "d3plus-network" : "d3plus-geomap";
+  const cls = `d3plus-${kind === "generic" ? "zoom" : kind}`;
   const bg = kind === "geomap" ? ocean || "transparent" : "transparent";
 
   const select = viz._select!;
   let container = select.selectAll(`svg.${cls}`).data([0]);
   container = container
     .enter()
-    .append("svg")
+    // First child: beneath the scene, which the renderer paints after it.
+    .insert("svg", ":first-child")
     .attr("class", cls)
     .attr("opacity", 0)
     .attr("width", width)
@@ -68,7 +73,15 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
     .attr("x", viz._margin.left)
     .attr("y", viz._margin.top);
 
-  if (kind === "network") {
+  if (kind === "generic") {
+    let zoomGroup = container.selectAll(`g.${cls}-zoomGroup`).data([0]);
+    zoomGroup = zoomGroup
+      .enter()
+      .append("g")
+      .attr("class", `${cls}-zoomGroup`)
+      .merge(zoomGroup);
+    viz._zoomGroup = zoomGroup;
+  } else if (kind === "network") {
     // Hit-area for "click outside any node" → reset focus + zoom.
     const hitArea = container.selectAll(`rect.${cls}-hitArea`).data([0]);
     hitArea
