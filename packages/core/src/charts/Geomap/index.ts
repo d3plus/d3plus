@@ -92,6 +92,22 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     const scale = tileData.scale! / transform.k;
     const tileEnter = images.enter().append("image").attr("class", "d3plus-geomap-tile");
     tileEnter.attr("opacity", 0).transition().duration(duration).attr("opacity", 1);
+    // `images.interrupt()`: a config change that fires two `_renderTiles` calls
+    // back to back — e.g. a React `config` update that touches `tileUrl`
+    // alongside `projection`, whose setter resets the projection's fit before
+    // the real render's `applyGeomapLayout` re-fits it — makes the FIRST call
+    // compute tile keys against a momentarily stale projection. Its
+    // `images.exit()` schedules THIS call's own (correct-key) tiles for a
+    // fade-out-then-remove (queued for the next animation frame, not yet run).
+    // This call's join then re-matches those same elements by key as an
+    // "update" (they're `images`, not `tileEnter`) — but the queued removal
+    // still fires on schedule and deletes them anyway, since nothing here
+    // touches that scheduled transition. Interrupting `images` (the matched
+    // set only — NOT `tileEnter`, whose own fade-in transition just below
+    // must run) cancels any such leftover exit before it fires, so a same-key
+    // tile revived within one tick of being marked for exit survives instead
+    // of vanishing.
+    images.interrupt();
     images.merge(tileEnter)
       .attr("width", scale)
       .attr("height", scale)
