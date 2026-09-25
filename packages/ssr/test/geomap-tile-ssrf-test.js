@@ -4,7 +4,7 @@ import {Agent, fetch as undiciFetch} from "undici";
 import {Geomap} from "@d3plus/core";
 import {createCanvas} from "@napi-rs/canvas";
 import {renderToStaticSVG} from "../es/index.js";
-import {createTileLookup, isBlockedAddress, isSafeTileUrl} from "../es/src/geomapTiles.js";
+import {createTileLookup, fetchTileFollowingRedirects, isBlockedAddress, isSafeTileUrl} from "../es/src/geomapTiles.js";
 
 const cities = [
   {city: "NYC", coords: [-74, 40.7]},
@@ -46,7 +46,17 @@ it("isSafeTileUrl allows a normal public hostname (validated later, at DNS-resol
   assert.strictEqual(isSafeTileUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png"), true);
 });
 
-const blockedAddresses = ["127.0.0.1", "169.254.169.254", "10.0.0.1", "::1", "::ffff:127.0.0.1", "::ffff:7f00:1"];
+const blockedAddresses = [
+  "127.0.0.1",
+  "169.254.169.254",
+  "10.0.0.1",
+  "::1",
+  "::ffff:127.0.0.1",
+  "::ffff:7f00:1",
+  "64:ff9b::a00:1", // NAT64 -> 10.0.0.1
+  "2002:7f00:1::", // 6to4 -> 127.0.0.1
+  "::7f00:1", // IPv4-compatible (deprecated) -> 127.0.0.1
+];
 for (const address of blockedAddresses) {
   it(`isBlockedAddress blocks ${address}`, () => assert.strictEqual(isBlockedAddress(address), true));
 }
@@ -92,6 +102,59 @@ it("createTileLookup blocks when only one of several resolved addresses is disal
     assert.ok(err instanceof Error, "expected the lookup to error");
     done();
   });
+});
+
+it("fetchTileFollowingRedirects follows an http-to-https style redirect", async () => {
+  const calls = [];
+  const doFetch = async current => {
+    calls.push(current);
+    if (calls.length === 1) {
+      return {
+        status: 301,
+        ok: false,
+        headers: {get: name => (name === "location" ? "https://tile.example/0/0/0.png" : null)},
+      };
+    }
+    return {
+      status: 200,
+      ok: true,
+      headers: {get: () => "image/png"},
+      arrayBuffer: async () => new ArrayBuffer(0),
+    };
+  };
+  const res = await fetchTileFollowingRedirects("http://tile.example/0/0/0.png", undefined, doFetch);
+  assert.deepStrictEqual(calls, ["http://tile.example/0/0/0.png", "https://tile.example/0/0/0.png"]);
+  assert.ok(res && res.ok, "the final response is returned");
+});
+
+it("fetchTileFollowingRedirects refuses to follow a redirect to an unsafe target", async () => {
+  let calls = 0;
+  const doFetch = async () => {
+    calls++;
+    return {
+      status: 302,
+      ok: false,
+      headers: {get: name => (name === "location" ? "http://127.0.0.1/internal" : null)},
+    };
+  };
+  const res = await fetchTileFollowingRedirects("https://tile.example/0/0/0.png", undefined, doFetch);
+  assert.strictEqual(res, null, "the unsafe redirect target was rejected");
+  assert.strictEqual(calls, 1, "the redirect target was never fetched");
+});
+
+it("fetchTileFollowingRedirects gives up after too many redirects", async () => {
+  let calls = 0;
+  const doFetch = async () => {
+    calls++;
+    return {
+      status: 302,
+      ok: false,
+      headers: {get: name => (name === "location" ? "https://tile.example/next" : null)},
+    };
+  };
+  const res = await fetchTileFollowingRedirects("https://tile.example/start", undefined, doFetch);
+  assert.strictEqual(res, null, "the redirect loop was abandoned");
+  assert.strictEqual(calls, 6, "expected exactly MAX_TILE_REDIRECTS + 1 fetch attempts");
 });
 
 // A real public host that redirects to an internal address can't be tested
