@@ -5,6 +5,8 @@
 
   <meta charset="utf-8">
   <script src="../../umd/d3plus-core.full.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <style>
 
@@ -43,6 +45,8 @@
   <div class="viz" id="legend-top"></div>
   <div class="viz" id="legend-right"></div>
   <div class="viz" id="zoom-off"></div>
+  <div class="viz" id="custom-icons-string"></div>
+  <div class="viz" id="custom-icons-react"></div>
 
 </body>
 
@@ -133,6 +137,43 @@
 
   // Opting out removes the controls and the reserved space.
   new d3plus.Treemap().select("#zoom-off").title("zoom(false)").zoom(false)
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // The default zoom-control/attribution icons are inline SVGs, but a string
+  // is used as raw markup — an emoji, an <img>, hand-written SVG, whatever.
+  new d3plus.Treemap().select("#custom-icons-string").title("Custom icons: emoji")
+    .zoomControlIcons({zoomIn: "➕", zoomOut: "➖", zoomReset: "🏠", zoomBrush: "⬚"})
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // A mount function is the escape hatch for a live component — here, a
+  // small React tree per button, rendered with React.createElement (no JSX
+  // transpiler in a plain script tag). Each function receives the button's
+  // reserved icon <span> and mounts into it directly; returning the root's
+  // unmount as cleanup lets d3plus tear it down correctly if the button's
+  // markup ever regenerates (a locale change, a zoomControlClassName change,
+  // brush mode toggling — see the Interactivity guide).
+  var h = React.createElement;
+  function Dot(props) {
+    return h("div", {
+      style: {width: 10, height: 10, borderRadius: "50%", background: props.color},
+    });
+  }
+  function mountReactIcon(color) {
+    return function(el) {
+      var root = ReactDOM.createRoot(el);
+      root.render(h(Dot, {color: color}));
+      return function() { root.unmount(); };
+    };
+  }
+  new d3plus.Treemap().select("#custom-icons-react").title("Custom icons: React")
+    .zoomControlIcons({
+      zoomIn: mountReactIcon("#2f9e44"),
+      zoomOut: mountReactIcon("#e03131"),
+      zoomReset: mountReactIcon("#1971c2"),
+      zoomBrush: mountReactIcon("#f08c00"),
+    })
+    .attribution("Custom React attribution icon")
+    .attributionIcon(mountReactIcon("#7048e8"))
     .data(flat).groupBy(["parent", "id"]).sum("value").render();
 
 </script>

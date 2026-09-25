@@ -6,6 +6,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
+import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
 /**
@@ -406,6 +407,17 @@ export default class VizBase extends VizBaseConfig {
     return arguments.length
       ? ((this.schema.zoomControlClassName = _), this)
       : this.schema.zoomControlClassName;
+  }
+
+  /**
+      Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+*/
+  zoomControlIcons(
+    _?: ZoomControlIcons,
+  ): this | ZoomControlIcons | undefined {
+    return arguments.length
+      ? ((this.schema.zoomControlIcons = _), this)
+      : (this.schema.zoomControlIcons as ZoomControlIcons | undefined);
   }
 
   /**

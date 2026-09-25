@@ -139,6 +139,63 @@ const ZOOM_RESET_ICON = `<svg ${ICON_ATTRS}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2
 const ZOOM_BRUSH_ICON = `<svg ${ICON_ATTRS} stroke-dasharray="4 3"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>`;
 
 /**
+    A custom zoom-control icon: either raw markup (a string — inserted as the
+    button's content in place of the built-in `<svg>`, no wrapper) or a mount
+    function, the escape hatch for a live component (a React/Vue/Svelte tree,
+    a canvas sprite, anything imperative). The function receives the actual
+    `<span>` reserved for the icon — sized to match the built-ins, 12x12px —
+    once per fresh button element (see `mountCustomIcons` below), and may
+    return a cleanup function, called right before that element is discarded
+    (the panel's html regenerates wholesale on a brush toggle, a `.locale(...)`
+    change, or a `zoomControlClassName` change — see `zoomControlsHtml`'s own
+    doc — so a mounted icon is torn down and remounted on those, not just once
+    per chart). Omit the return value for icons with nothing to clean up.
+
+    @example
+      // Raw markup — a single emoji.
+      viz.zoomControlIcons({zoomIn: "➕"})
+
+      // A React tree, mounted imperatively into the reserved slot.
+      viz.zoomControlIcons({
+        zoomIn: el => {
+          const root = createRoot(el);
+          root.render(<PlusIcon />);
+          return () => root.unmount();
+        },
+      })
+*/
+export type ZoomControlIconRenderer = (el: HTMLElement) => void | (() => void);
+export type ZoomControlIconValue = string | ZoomControlIconRenderer;
+export type ZoomControlIconKey = "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush";
+export type ZoomControlIcons = Partial<Record<ZoomControlIconKey, ZoomControlIconValue>>;
+
+/**
+    Markup for a mount-function icon: an empty `<span>` sized like the built-in
+    `<svg>`s (so panel measurement — `zoomControlsBox` — stays correct whether
+    or not the mount function has run yet; it never invokes the function
+    itself, only ever renders this placeholder) and tagged with its icon key
+    so `mountCustomIcons` can find it inside the button.
+*/
+const iconSlot = (key: ZoomControlIconKey): string =>
+  `<span class="zoom-control-icon" data-icon="${key}" style="display:inline-block;width:12px;height:12px;vertical-align:middle;flex-shrink:0"></span>`;
+
+/** Resolves one button's glyph markup: a custom override, or the built-in icon. */
+function iconFor(viz: Viz, key: ZoomControlIconKey, builtin: string): string {
+  const icon = (viz.schema.zoomControlIcons as ZoomControlIcons | undefined)?.[key];
+  if (typeof icon === "string") return icon;
+  if (typeof icon === "function") return iconSlot(key);
+  return builtin;
+}
+
+/** Which button class carries which icon key — shared with `mountCustomIcons`. */
+const ICON_BUTTON_CLASS: Record<ZoomControlIconKey, string> = {
+  zoomIn: "zoom-in",
+  zoomOut: "zoom-out",
+  zoomReset: "zoom-reset",
+  zoomBrush: "zoom-brush",
+};
+
+/**
     The panel's own layout: a right-aligned flex row. Spacing lives here, not
     on the buttons — per-button `margin` doesn't collapse between flex
     siblings, so two adjacent 4px margins would add up to an 8px gap. A
@@ -171,11 +228,36 @@ export function zoomControlsHtml(viz: Viz): string {
   const button = (cls: string, label: string, glyph: string, pressed?: boolean) =>
     `<button type="button" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
   return (
-    button("zoom-in", "Zoom In", ZOOM_IN_ICON) +
-    button("zoom-out", "Zoom Out", ZOOM_OUT_ICON) +
-    button("zoom-reset", "Reset Zoom", ZOOM_RESET_ICON) +
-    button("zoom-brush", "Brush Zoom", ZOOM_BRUSH_ICON, isBrushing(viz))
+    button("zoom-in", "Zoom In", iconFor(viz, "zoomIn", ZOOM_IN_ICON)) +
+    button("zoom-out", "Zoom Out", iconFor(viz, "zoomOut", ZOOM_OUT_ICON)) +
+    button("zoom-reset", "Reset Zoom", iconFor(viz, "zoomReset", ZOOM_RESET_ICON)) +
+    button("zoom-brush", "Brush Zoom", iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON), isBrushing(viz))
   );
+}
+
+/**
+    Mounts each configured custom icon function into its button's reserved
+    slot — called once per fresh button element (from the same `onUpdate`
+    guard in `zoomControls.ts` that binds hover/style exactly once), so a
+    remount only happens when the whole panel's html actually regenerates
+    (see `ZoomControlIconRenderer`'s doc for when that is). Runs any PREVIOUS
+    mount's cleanup for that icon key first — the prior button element (if
+    any) is about to be discarded regardless of whether its content was
+    custom-mounted, so this is the one place that teardown can happen.
+*/
+export function mountCustomIcons(viz: Viz, btn: HTMLElement): void {
+  const icons = viz.schema.zoomControlIcons as ZoomControlIcons | undefined;
+  if (!icons) return;
+  const key = (Object.keys(ICON_BUTTON_CLASS) as ZoomControlIconKey[]).find(
+    k => btn.classList.contains(ICON_BUTTON_CLASS[k]),
+  );
+  const icon = key && icons[key];
+  if (!key || typeof icon !== "function") return;
+  const slot = btn.querySelector<HTMLElement>(".zoom-control-icon");
+  if (!slot) return;
+  const cleanups = (viz._zoomIconCleanup ||= {});
+  cleanups[key]?.();
+  cleanups[key] = icon(slot) || undefined;
 }
 
 /** The HTML element a chart's overlays (the zoom controls) mount in. */

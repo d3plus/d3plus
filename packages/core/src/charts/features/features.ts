@@ -10,12 +10,10 @@
     `vizDrawPure` via `runLayout(ctx, [...features])`.
 */
 import {extent, min, rollup, sum} from "d3-array";
-import {select} from "d3-selection";
 
 import {merge, unique} from "@d3plus/data";
 import type {DataPoint, MergedDataPoint} from "@d3plus/data";
-import {date, elem, stylize} from "@d3plus/dom";
-import type {D3Selection} from "@d3plus/dom";
+import {date, elem} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
@@ -655,44 +653,7 @@ export const colorScaleFeature: FeatureModule = {
 
 /* ------------------------------ Attribution ------------------------------ */
 
-/* ------------------------------ Attribution ------------------------------ */
-
-/**
-    Converts `drawAttribution.ts` to a FeatureModule.
-
-    Attribution is an HTML `<div>` overlay positioned absolutely outside the SVG
-    plane — it doesn't fit naturally as a SceneNode in the chart scene graph.
-    Rather than encode an HTML overlay into the scene graph, this feature runs
-    the DOM-creating side effect imperatively from inside `layout()`, so
-    invocation is funneled through `runLayout` for consistency with the
-    other features. It claims zero margin and emits no panel.
-*/
-export const attributionFeature: FeatureModule = {
-  name: "attribution",
-  configFields: ["attribution", "attributionStyle"],
-  layout: ({viz}) => {
-    let attr: D3Selection = select(viz._select.node().parentNode)
-      .selectAll("div.d3plus-attribution")
-      .data(viz.schema.attribution ? [0] : []) as unknown as D3Selection;
-
-    const attrEnter = attr
-      .enter()
-      .append("div")
-      .attr("class", "d3plus-attribution");
-
-    attr.exit().remove();
-
-    attr = attr
-      .merge(attrEnter as never)
-      .style("position", "absolute")
-      .html(viz.schema.attribution)
-      .style("right", `${viz._margin.right}px`)
-      .style("bottom", `${viz._margin.bottom}px`)
-      .call(stylize as never, viz.schema.attributionStyle);
-
-    return {panel: null, margin: {}};
-  },
-};
+export {attributionFeature} from "./attributionFeature.js";
 
 /**
     Converts `drawTotal.ts` to a FeatureModule. Slightly different from title/

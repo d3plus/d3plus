@@ -61,6 +61,20 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
+      Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
+*/
+  attributionIcon(
+    _?: string | ((el: HTMLElement) => void | (() => void)),
+  ): this | string | ((el: HTMLElement) => void | (() => void)) | undefined {
+    return arguments.length
+      ? ((this.schema.attributionIcon = _), this)
+      : (this.schema.attributionIcon as
+          | string
+          | ((el: HTMLElement) => void | (() => void))
+          | undefined);
+  }
+
+  /**
       Configuration object for the attribution style.
 */
   attributionStyle(

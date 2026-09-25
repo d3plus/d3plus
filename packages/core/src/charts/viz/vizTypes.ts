@@ -22,6 +22,7 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
@@ -181,6 +182,10 @@ export interface VizInstance {
       returns false to fall back to picture zoom (Plot rescales its axes).
   */
   _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
+  /** Cleanup functions returned by `zoomControlIcons`' mount functions, keyed by button. */
+  _zoomIconCleanup?: Partial<Record<ZoomControlIconKey, () => void>>;
+  /** Cleanup function returned by an `attributionIcon` mount function. */
+  _attributionIconCleanup?: () => void;
 
   /* 7. Lifecycle & rendering */
   _select?: D3Selection;
@@ -292,6 +297,8 @@ export interface VizInstance {
   _themeWatch?: boolean;
   /** The attribution d3plus last set from the tile URL (vs. a user-set one). */
   _tileAttribution?: string | false;
+  /** Whether a compact (ⓘ) attribution was clicked open. */
+  _attributionPinned?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
   /**
