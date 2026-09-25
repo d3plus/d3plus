@@ -79,11 +79,115 @@ ChangingProjection.args = {
 };
 ChangingProjection.parameters = {controls: {include: ["projection", "topojson", "topojsonFilter"]}, docs: {description: {story: "Any d3-geo projection name can be passed to `projection`; `\"geoMercator\"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== \"ata\"`)."}}};
 
-export const ChangingTileset = Template.bind({});
-ChangingTileset.args = {
-  tileUrl: "https://tile.opentopomap.org/{z}/{x}/{y}.png"
-}
-ChangingTileset.parameters = {controls: {include: ["tileUrl"]}, docs: {description: {story: "Point `tileUrl` at a different XYZ tile server (here OpenTopoMap) to swap the background imagery — handy for topographic or otherwise custom basemaps."}}};
+// Tile servers that serve tiles without an account or API key (checked
+// 2026-09-25). Each still has its own usage policy and attribution, which
+// Geomap displays automatically.
+const esri = name => `https://server.arcgisonline.com/ArcGIS/rest/services/${name}/MapServer/tile/{z}/{y}/{x}`;
+const noKeyTilesets = [
+  {name: "Esri Light Gray (default)", url: esri("Canvas/World_Light_Gray_Base")},
+  {name: "Esri Dark Gray (dark default)", url: esri("Canvas/World_Dark_Gray_Base")},
+  {name: "Esri Terrain", url: esri("World_Terrain_Base")},
+  {name: "Esri Street Map", url: esri("World_Street_Map")},
+  {name: "Esri Imagery", url: esri("World_Imagery")},
+  {name: "Esri National Geographic", url: esri("NatGeo_World_Map")},
+  {name: "OSM Standard", url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"},
+  {name: "OSM Humanitarian", url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"},
+  {name: "OpenTopoMap", url: "https://tile.opentopomap.org/{z}/{x}/{y}.png"},
+];
+
+// No topojson layered on top here — these three stories are about the raw
+// basemap tiles, so nothing but the ocean/tile imagery is drawn over them.
+const tileBackdrop = {
+  projection: "geoMercator"
+};
+
+export const ChangingTileset = {
+  render: () => {
+    const [tileUrl, setTileUrl] = React.useState(noKeyTilesets[0].url);
+    return (
+      <div>
+        <select
+          value={tileUrl}
+          onChange={e => setTileUrl(e.target.value)}
+          style={{marginBottom: "12px", font: "inherit", padding: "4px 8px"}}
+        >
+          {noKeyTilesets.map(({name, url}) => <option key={url} value={url}>{name}</option>)}
+        </select>
+        <Geomap config={{...tileBackdrop, height: 400, tileUrl}} />
+      </div>
+    );
+  },
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "Point `tileUrl` at any XYZ tile server to swap the background imagery — pick one of the servers that need no API key from the menu above the map. The credit in the corner updates to match, and any other `{z}/{x}/{y}` template works too (Esri's services order it `{z}/{y}/{x}`)."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+import {useState} from "react";
+
+function ChangingTileset() {
+  const [tileUrl, setTileUrl] = useState("${noKeyTilesets[0].url}");
+  return (
+    <div>
+      <select value={tileUrl} onChange={e => setTileUrl(e.target.value)}>
+${noKeyTilesets.map(t => `        <option value="${t.url}">${t.name}</option>`).join("\n")}
+      </select>
+      <Geomap config={{tileUrl}} />
+    </div>
+  );
+}`}
+    }
+  }
+};
+
+export const NoKeyTilesets = {
+  render: () => (
+    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
+      {noKeyTilesets.map(({name, url}) =>
+        <div key={url} style={{height: "280px"}}>
+          <Geomap config={{...tileBackdrop, height: 280, title: name, tileUrl: url}} />
+        </div>
+      )}
+    </div>
+  ),
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "Every tile server that works without an account or API key, side by side. Esri's Canvas layers are the default: Light Gray on a light page and Dark Gray on a dark one. The others suit topographic, street-level, or imagery backdrops."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+
+${noKeyTilesets.map(t => `// ${t.name}
+<Geomap config={{tileUrl: "${t.url}"}} />`).join("\n\n")}`}
+    }
+  }
+};
+
+export const LightAndDarkTiles = {
+  render: () => (
+    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
+      {[["Light page", "#ffffff", "#222"], ["Dark page", "#15191e", "#ddd"]].map(([label, background, color]) =>
+        <div key={label} style={{background, color, padding: "12px", borderRadius: "6px", height: "304px"}}>
+          <Geomap config={{...tileBackdrop, height: 280, title: label, titleConfig: {fontColor: color}}} />
+        </div>
+      )}
+    </div>
+  ),
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "`tileUrl` and `ocean` also accept a `{light, dark}` pair, and the defaults are one: Esri Light Gray Canvas on a light backdrop and Dark Gray Canvas on a dark one, with a matching ocean and no-data fill. Geomap reads the backdrop from the page (the nearest background color, or a dark `color-scheme` on a dark system) and redraws when it changes."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+
+// The default, spelled out: any two tile servers can be paired this way.
+<Geomap config={{
+  tileUrl: {
+    light: "${noKeyTilesets[0].url}",
+    dark: "${noKeyTilesets[1].url}"
+  },
+  ocean: {light: "#d0cfd4", dark: "#222327"}
+}} />`}
+    }
+  }
+};
 
 export const ChangingNoDataColor = Template.bind({});
 ChangingNoDataColor.args = {

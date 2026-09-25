@@ -10,6 +10,20 @@ const NodeBuffer = (globalThis as any).Buffer as {
   from(data: ArrayBuffer | Uint8Array): {toString(encoding: string): string};
 };
 
+/**
+    Identifies server-side tile requests. Tile providers (OpenStreetMap's
+    among them) block requests that carry a generic runtime User-Agent, so
+    the default names d3plus; `tileUserAgent` should name the app itself.
+*/
+export const DEFAULT_TILE_USER_AGENT = "d3plus-ssr (+https://d3plus.org)";
+
+/**
+    Tiles the default fetcher already fetched this process, so repeat renders
+    don't re-download them (a custom `fetchTile` manages its own caching).
+*/
+const tileCache = new Map<string, string>();
+const TILE_CACHE_SIZE = 512;
+
 let blockedRanges: InstanceType<typeof net.BlockList> | undefined;
 
 // This-network, loopback, RFC1918 private, CGNAT/shared, link-local (covers
@@ -128,7 +142,7 @@ function getTileDispatcher(): Agent {
   return tileDispatcher;
 }
 
-function defaultTileFetch(url: string, init: {signal?: AbortSignal}) {
+function defaultTileFetch(url: string, init: {signal?: AbortSignal; headers?: Record<string, string>}) {
   return undiciFetch(url, {...init, redirect: "manual", dispatcher: getTileDispatcher()});
 }
 
@@ -167,10 +181,34 @@ export async function fetchTileFollowingRedirects(
   return null; // too many redirects
 }
 
-/** Fetches one tile to a `data:` URI, or `null` if it fails/times out. */
-async function fetchOne(
+/**
+    Fetches one tile to a `data:` URI (cached), or `null` if it fails/times out.
+    `netFetch` is the underlying network call `defaultTileFetch` makes,
+    overridable so tests can stub the actual undici request while still
+    exercising the real SSRF-safe redirect handling, User-Agent header, and
+    cache above it.
+*/
+export async function fetchOne(
   url: string,
   opts: GeomapTileOptions,
+  netFetch: typeof defaultTileFetch = defaultTileFetch,
+): Promise<string | null> {
+  if (opts.fetchTile) return fetchUncached(url, opts, netFetch);
+  const cached = tileCache.get(url);
+  if (cached) return cached;
+  const uri = await fetchUncached(url, opts, netFetch);
+  if (uri) {
+    if (tileCache.size >= TILE_CACHE_SIZE) tileCache.delete(tileCache.keys().next().value!);
+    tileCache.set(url, uri);
+  }
+  return uri;
+}
+
+/** Fetches one tile to a `data:` URI, or `null` if it fails/times out. */
+async function fetchUncached(
+  url: string,
+  opts: GeomapTileOptions,
+  netFetch: typeof defaultTileFetch,
 ): Promise<string | null> {
   const timeout = opts.tileTimeout ?? 15000;
   const ctrl = typeof AbortController !== "undefined" ? new AbortController() : undefined;
@@ -182,7 +220,10 @@ async function fetchOne(
       // Caller-owned network access — d3plus does not apply SSRF filtering here.
       bytes = await opts.fetchTile(url);
     } else {
-      const res = await fetchTileFollowingRedirects(url, ctrl?.signal);
+      const userAgent = opts.tileUserAgent ?? DEFAULT_TILE_USER_AGENT;
+      const res = await fetchTileFollowingRedirects(url, ctrl?.signal, (u, init) =>
+        netFetch(u, {...init, headers: {"User-Agent": userAgent}}),
+      );
       if (!res || !res.ok) return null;
       contentType = res.headers.get("content-type") || contentType;
       bytes = await res.arrayBuffer();

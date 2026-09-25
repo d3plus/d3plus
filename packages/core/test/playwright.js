@@ -74,6 +74,12 @@ export async function render(bodyHtml, pageFunction, arg) {
   const page = await b.newPage();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
+  // Tests render real map tile URLs (Geomap's default basemap, or a custom
+  // one) without asserting on the fetched image bytes — only on attributes/
+  // computed style set before the network round trip resolves. Abort those
+  // requests instead of letting them actually hit the network: keeps tests
+  // hermetic and avoids flakiness under a long run's accumulated load.
+  await page.route(/^https?:\/\//, route => route.abort());
   try {
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});

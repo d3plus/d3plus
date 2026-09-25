@@ -370,8 +370,12 @@ export interface D3plusConfig {
   metric?: string;
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
-  /** Ocean color for geomaps (any CSS value including 'transparent'). */
-  ocean?: string;
+  /**
+      Ocean color for geomaps (any CSS value including 'transparent'), or a
+      `{light, dark}` pair chosen by the chart's backdrop. Defaults to the
+      default basemap's own water colors.
+  */
+  ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
   on?: Record<string, (event: Event) => void>;
   /** Coordinate accessor for point-based geomaps. */
@@ -442,8 +446,12 @@ export interface D3plusConfig {
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
   thresholdName?: string | ((d: DataPoint, i: number) => string);
-  /** URL to XYZ map tiles. */
-  tileUrl?: string;
+  /**
+      URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional
+      `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the
+      chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas.
+  */
+  tileUrl?: string | {light: string; dark: string};
   /** Whether to show map tiles. */
   tiles?: boolean;
   /** Time key for temporal data. */

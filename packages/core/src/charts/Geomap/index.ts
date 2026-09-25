@@ -7,8 +7,7 @@
 */
 
 import {color} from "d3-color";
-import {select} from "d3-selection";
-import {zoomTransform} from "d3-zoom";
+import type {ZoomTransform} from "d3-zoom";
 import {tile} from "d3-tile";
 import * as d3GeoCore from "d3-geo";
 import * as d3GeoProjection from "d3-geo-projection";
@@ -28,10 +27,20 @@ import {parseSides} from "@d3plus/dom";
 import accessor from "../../utils/accessor.js";
 import attributions from "../helpers/tileAttributions.js";
 import constant from "../../utils/constant.js";
-import {chartBounds} from "../features/chartGeometry.js";
+import {chartAreaRect, chartBounds} from "../features/chartGeometry.js";
 import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {tileZoomTransform} from "../drawSteps/zoomControls.js";
+import {
+  DEFAULT_OCEAN,
+  DEFAULT_TILE_URL,
+  isThemed,
+  pageIsDark,
+  resolveThemed,
+  watchPageTheme,
+} from "./basemapTheme.js";
+import type {Themed} from "./basemapTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -63,12 +72,34 @@ function findAttribution(url: string): string | false {
   return a ? a.text : false;
 }
 
+/** The tile layer's extent: the map rect in `_container`'s own (margin-relative) space. */
+function tileExtent(viz: VizInstance): [[number, number], [number, number]] {
+  const {width, height} = chartBounds(viz);
+  return [[0, 0], [width, height]];
+}
+
+/** The tile URL template for the chart's current light/dark backdrop. */
+function currentTileUrl(viz: VizInstance): string {
+  return resolveThemed(viz.schema.tileUrl as Themed<string>, Boolean(viz._basemapDark));
+}
+
+/**
+    Keeps the tile credit in sync with the active tile URL (a `{light, dark}`
+    pair can mix providers), unless the attribution was set by hand.
+*/
+function syncTileAttribution(viz: VizInstance): void {
+  const auto = viz.schema.tiles ? findAttribution(currentTileUrl(viz)) : false;
+  const current = viz.schema.attribution;
+  if (!current || current === viz._tileAttribution) viz.schema.attribution = auto || "";
+  viz._tileAttribution = auto;
+}
+
 /** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
 function setupGeomapRenderTiles(viz: VizInstance): void {
   // `_renderTiles` is a per-instance method that mutates the tile group.
   viz._renderTiles = function(
     this: VizInstance,
-    transform: ReturnType<typeof zoomTransform> = zoomTransform((this._zoomEventTarget || this._container)!.node()),
+    transform: ZoomTransform = tileZoomTransform(this as never),
     duration: number = 0,
   ): void {
     // Under SSR the basemap is composited into the scene graph (see geomapEmit +
@@ -80,7 +111,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
       [] as unknown as number[][] & {scale?: number; translate?: number[]};
     if (this.schema.tiles) {
       tileData = this._tileGen
-        .extent(this._zoomBehavior.translateExtent())
+        .extent(tileExtent(this))
         .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
         .translate(transform.apply(this.schema.projection.translate()))();
       this._tileGroup!.transition().duration(duration).attr("transform", transform);
@@ -112,7 +143,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
       .attr("width", scale)
       .attr("height", scale)
       .attr("xlink:href", ([x, y, z]: [number, number, number]) =>
-        this.schema.tileUrl
+        currentTileUrl(this)
           .replace("{s}", ["a", "b", "c"][(Math.random() * 3) | 0])
           .replace("{z}", `${z}`)
           .replace("{x}", `${x}`)
@@ -134,13 +165,13 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
   ): Array<{key: string; url: string; x: number; y: number; size: number}> {
     if (!this.schema.tiles) return [];
     const tileData = this._tileGen
-      .extent(this._zoomBehavior.translateExtent())
+      .extent(tileExtent(this))
       .scale(this.schema.projection.scale() * (2 * Math.PI))
       .translate(this.schema.projection.translate())();
     const size: number = tileData.scale;
     return (tileData as number[][]).map(([x, y, z]) => ({
       key: `${x}-${y}-${z}`,
-      url: this.schema.tileUrl
+      url: currentTileUrl(this)
         .replace("{s}", "a")
         .replace("{z}", `${z}`)
         .replace("{x}", `${x}`)
@@ -157,20 +188,10 @@ function setupGeomapDraw(viz: VizInstance): void {
   // Wrap _draw to ensure DOM zoom group + zoom wiring.
   const supDraw = viz._draw.bind(viz);
   viz._draw = function(callback?: () => void) {
-    // SVG backend: the geography paints into the scene <svg>, which sits above
-    // the imperative geomap <svg> that d3-zoom binds to by default — so wheel/
-    // dblclick/pan over a shape never reach that target; only the transparent
-    // ocean falls through. Bind zoom to the outer <svg> instead: it's an
-    // ancestor of both, so it receives events over the geography (bubbling up
-    // from the scene svg) and the ocean (from the geomap svg). Setting the
-    // target before the wrapped draw lets `zoomEvents` bind it directly (with
-    // its zoomScroll/zoomPan disabling); clear any stale handler on the geomap
-    // svg so an ocean event isn't zoomed twice. (Canvas keeps its own target —
-    // the <canvas>, set in `_drawSceneToTarget`.)
-    if (viz._renderer !== "canvas" && viz._select) {
-      viz._zoomEventTarget = viz._select;
-      if (viz._container) viz._container.on(".zoom", null);
-    }
+    // Resolve `{light, dark}` basemaps against the chart's backdrop.
+    viz._basemapDark = pageIsDark(viz);
+    if (isThemed(viz)) watchPageTheme(viz);
+    syncTileAttribution(viz);
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
     ensureZoomDom(viz, {
@@ -178,56 +199,13 @@ function setupGeomapDraw(viz: VizInstance): void {
       width,
       height,
       duration: viz.schema.duration,
-      // On the canvas backend this imperative ocean rect lives in the compute
-      // <svg>, which overlays the <canvas> and would hide the geography. Keep
-      // it transparent there; geomapEmit paints the ocean into the scene (and
-      // thus onto the canvas) beneath the geography instead.
-      ocean: viz._renderer === "canvas" ? "transparent" : viz.schema.ocean,
+      // On the canvas backend the ocean + tiles mount in an underlay beneath
+      // the <canvas> (see `ensureZoomDom`), so they show through around the
+      // geography on either backend.
+      ocean: resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)),
     });
-    if (!viz._zoomSet) {
-      viz._zoomBehavior
-        .extent([[0, 0], [width, height]])
-        .scaleExtent([1, viz.schema.zoomMax])
-        .translateExtent([[0, 0], [width, height]]);
-      viz._zoomSet = true;
-    }
+    viz._zoomSet = true;
     return result;
-  };
-
-  // On the Canvas backend the geography is painted on the <canvas>, but the
-  // compute <svg> (`_container`, holding the transparent ocean rect) is
-  // absolutely positioned and paints above it — intercepting the pointer
-  // events the canvas needs for hover/pick, so tooltips never fired. After the
-  // scene is painted (when the canvas exists), make that svg transparent to
-  // pointer events and move d3-zoom onto the canvas, so the canvas is the sole
-  // interaction surface: CanvasRenderer's pick drives tooltips and d3-zoom
-  // drives pan/zoom on the same element. (On SVG this is a no-op — the scene
-  // svg already sits on top and handles both.)
-  const supDrawScene = viz._drawSceneToTarget.bind(viz);
-  viz._drawSceneToTarget = function(durationOverride?: number) {
-    supDrawScene(durationOverride);
-    if (
-      viz._renderer === "canvas" &&
-      // Under SSR the canvas is a headless native surface with no
-      // addEventListener; there is no interaction to wire, so skip the
-      // pointer/zoom rebind entirely.
-      !viz._ssr &&
-      viz._sceneRenderer &&
-      typeof viz._sceneRenderer.toCanvas === "function"
-    ) {
-      const canvasNode = viz._sceneRenderer.toCanvas();
-      if (canvasNode) {
-        // The compute svg is absolutely positioned over the canvas; an svg root
-        // hit-tests its whole box, so even an empty one swallows the canvas's
-        // pointer events. The canvas is the sole render + interaction surface in
-        // canvas mode, so make the entire compute svg transparent to events.
-        if (viz._select) viz._select.style("pointer-events", "none");
-        if (viz._container) viz._container.style("pointer-events", "none");
-        viz._zoomEventTarget = select(canvasNode);
-        if (viz.schema.zoom && !viz._brushing)
-          viz._zoomEventTarget.call(viz._zoomBehavior);
-      }
-    }
   };
 }
 
@@ -323,17 +301,15 @@ function setupGeomapTileFluent(viz: VizInstance): void {
   v.tiles = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.tiles = _ as boolean;
-      const attribution = findAttribution(this.schema.tileUrl);
-      if (_ && this.schema.attribution === "") this.schema.attribution = attribution as string;
-      else if (!_ && this.schema.attribution === attribution) this.schema.attribution = "";
+      syncTileAttribution(this);
       return this;
     }
     return this.schema.tiles;
   };
   v.tileUrl = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
-      this.schema.tileUrl = _ as string;
-      if (this.schema.tiles) this.schema.attribution = findAttribution(_ as string) as string;
+      this.schema.tileUrl = _ as Themed<string>;
+      syncTileAttribution(this);
       if (this._tileGroup) this._renderTiles!.bind(this)();
       return this;
     }
@@ -392,22 +368,15 @@ export const geomapDef: ChartDefinition = {
   layoutStage: applyGeomapLayout,
   emit: geomapEmit,
 
-  // Geomap positions in absolute projection coordinates — no chart transform.
-  chartTransform: () => undefined,
-
   // Clip the geography to the map rectangle — the same box as the ocean rect and
   // the imperative inner <svg> viewport — so projected paths and points can't
   // spill past it (e.g. under the legend/timeline) when a `fitObject`/zoom pushes
   // features outside the fitted extent. The clip lives on the untransformed
   // chart-cells group, so it stays fixed while pan/zoom moves the map beneath it.
-  chartClip: (viz: VizInstance) => {
-    const {width, height} = chartBounds(viz);
-    return {type: "rect", x: viz._margin.left, y: viz._margin.top, width, height};
-  },
+  chartClip: chartAreaRect,
 
   setup: (viz: VizInstance) => {
     const v = viz as VizInstance & GeomapFluent;
-    viz.schema.zoom = true;
     viz._zoomSet = false;
     viz.schema.tiles = true;
     viz._tileGen = tile();
@@ -417,9 +386,10 @@ export const geomapDef: ChartDefinition = {
     setupGeomapFluent(viz);
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
-    v.tileUrl(
-      "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png",
-    );
+    v.tileUrl(DEFAULT_TILE_URL);
+    // Regions with no data: a quiet light fill, or its dark counterpart over a
+    // dark basemap (`topojsonFill` replaces both).
+    viz.schema.topojsonFill = () => (viz._basemapDark ? "#3d3e44" : "#f5f5f3");
   },
 
   ctx: {},
@@ -427,7 +397,7 @@ export const geomapDef: ChartDefinition = {
   fields: [
     {key: "fitObject", default: false},
     {key: "noDataMessage", default: false},
-    {key: "ocean", default: "#d4dadc"},
+    {key: "ocean", default: DEFAULT_OCEAN},
     {key: "point", default: accessor("point")},
     {key: "pointSize", default: constant(1)},
     {key: "pointSizeMax", default: 10},

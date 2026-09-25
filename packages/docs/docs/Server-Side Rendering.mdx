@@ -119,7 +119,26 @@ const png = await renderToStaticPNG(
 ```
 
 Call `.tiles(false)` for a vector-only map (countries and points, no network).
-To cache tiles, add an API key, or route through a proxy, pass `fetchTile`:
+
+The default basemap is OpenStreetMap, whose
+[tile usage policy](https://operations.osmfoundation.org/policies/tiles/)
+requires each request to identify the application making it. Tile requests
+send a User-Agent naming d3plus by default; set `tileUserAgent` to name your
+own app (and a contact), and tiles already fetched are reused across renders
+in the same process:
+
+```js
+await renderToStaticPNG(map, {
+  width: 800,
+  height: 500,
+  tileUserAgent: "my-app/1.0 (ops@example.com)",
+});
+```
+
+For heavy server-side use, point `.tileUrl()` at a provider or tile server
+that permits it. To cache tiles across processes, add an API key, or route
+through a proxy, pass `fetchTile` (which replaces the default fetcher, User-Agent
+and cache included):
 
 ```js
 await renderToStaticPNG(map, {
