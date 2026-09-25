@@ -366,3 +366,91 @@ it("zoom leaves page scrolling alone by default, on every chart", async function
   assert.ok(Math.abs(out.mouseRate - 0.2) < 1e-9, "Ctrl + mouse wheel zooms at the normal rate");
   assert.ok(Math.abs(out.pinchRate - 0.08) < 1e-9, "a trackpad pinch keeps the boosted rate");
 });
+
+it("a canvas Geomap mounts its ocean and tiles beneath the canvas", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.Geomap()
+          .select("#s")
+          .renderer("canvas")
+          .tileUrl("data:image/png;base64,{z}{x}{y}")
+          .duration(0)
+          .topojson({
+            type: "Topology",
+            objects: {c: {type: "GeometryCollection", geometries: [{type: "Polygon", arcs: [[0]], id: "x"}]}},
+            arcs: [[[-10, 40], [10, 40], [10, 60], [-10, 60], [-10, 40]]],
+          });
+        const layers = () => {
+          const host = document.getElementById("s");
+          const underlay = host.querySelector(":scope > svg.d3plus-geomap-underlay");
+          const canvas = host.querySelector("canvas");
+          return {
+            underlay: Boolean(underlay),
+            tilesInUnderlay: Boolean(underlay && underlay.querySelector(".d3plus-geomap-tileGroup")),
+            below: Boolean(underlay && canvas && underlay.compareDocumentPosition(canvas) & window.Node.DOCUMENT_POSITION_FOLLOWING),
+            zIndex: underlay ? window.getComputedStyle(underlay).zIndex : null,
+            isolation: window.getComputedStyle(host).isolation,
+            inCompute: host.querySelectorAll("svg.d3plus-viz > svg.d3plus-geomap").length,
+          };
+        };
+        viz.render(() => {
+          const canvas = layers();
+          viz.renderer("svg").render(() => resolve({canvas, svg: layers()}));
+        });
+      }),
+  );
+
+  assert.ok(out.canvas.underlay && out.canvas.tilesInUnderlay, "tiles mount in the underlay");
+  assert.ok(out.canvas.below, "the underlay precedes the canvas");
+  assert.strictEqual(out.canvas.zIndex, "-1", "the underlay stacks beneath the canvas");
+  assert.strictEqual(out.canvas.isolation, "isolate", "…within the chart's own stacking context");
+  assert.strictEqual(out.canvas.inCompute, 0, "no tile layer left above the canvas");
+  assert.strictEqual(out.svg.underlay, false, "the SVG backend drops the underlay");
+  assert.strictEqual(out.svg.inCompute, 1, "…and mounts the tile layer beneath the scene again");
+});
+
+it("the default basemap follows the page's theme", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.Geomap()
+          .select("#s")
+          .duration(0)
+          .topojson({
+            type: "Topology",
+            objects: {c: {type: "GeometryCollection", geometries: [{type: "Polygon", arcs: [[0]], id: "x"}]}},
+            arcs: [[[-10, 40], [10, 40], [10, 60], [-10, 60], [-10, 40]]],
+          });
+        const state = () => ({
+          tileUrl: viz._renderTiles && document.querySelector("#s image.d3plus-geomap-tile")?.getAttribute("href"),
+          ocean: document.querySelector("#s rect.d3plus-geomap-ocean")?.getAttribute("fill"),
+          noData: viz.schema.topojsonFill(),
+          credit: document.querySelector("#s .d3plus-attribution")?.textContent,
+        });
+        viz.render(() => {
+          const light = state();
+          document.body.style.background = "#15191e";
+          // The theme watcher redraws on the <body> style change.
+          window.setTimeout(() => {
+            const dark = state();
+            document.body.style.background = "";
+            resolve({light, dark});
+          }, 400);
+        });
+      }),
+  );
+
+  assert.ok(/World_Light_Gray_Base/.test(out.light.tileUrl), "light page: Esri Light Gray Canvas");
+  assert.ok(/World_Dark_Gray_Base/.test(out.dark.tileUrl), "dark page: Esri Dark Gray Canvas");
+  assert.strictEqual(out.light.ocean, "#d0cfd4", "light ocean matches the light tiles");
+  assert.strictEqual(out.dark.ocean, "#222327", "dark ocean matches the dark tiles");
+  assert.notStrictEqual(out.light.noData, out.dark.noData, "the no-data fill follows the theme");
+  assert.ok(/Esri/.test(out.light.credit) && /OpenStreetMap/.test(out.light.credit), "Esri's credit is shown");
+});

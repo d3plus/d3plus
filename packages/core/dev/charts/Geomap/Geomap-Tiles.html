@@ -31,19 +31,20 @@
 
   <!-- selector to change tiles -->
   <select id="tile-switcher">
-    <option value="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}@2x.png">CartoDB Positron (default)</option>
-    <option value="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}@2x.png">CartoDB Dark Matter</option>
-    <option value="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}@2x.png">CartoDB Voyager</option>
-    <option value="https://cartocdn_{s}.global.ssl.fastly.net/base-eco/{z}/{x}/{y}@2x.png">CartoDB Eco</option>
-    <option value="https://cartocdn_{s}.global.ssl.fastly.net/base-antique/{z}/{x}/{y}@2x.png">CartoDB Antique</option>
-    <option value="https://tile.opentopomap.org/{z}/{x}/{y}.png">OpenStreetMap Topology</option>
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Terrain</option>
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Street Map</option>
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI Satellite Imagery</option>
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}@2x.png">ESRI National Geographic</option>
-    <option value="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png">Stamen Toner</option>
-    <option value="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}@2x.png">Stamen Terrain</option>
-    <option value="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png">Stamen Watercolor</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}">Esri Light Gray Canvas (default)</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}">Esri Dark Gray Canvas (default in dark mode)</option>
+    <option value="https://tile.openstreetmap.org/{z}/{x}/{y}.png">OpenStreetMap Standard</option>
+    <option value="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png">OpenStreetMap Humanitarian</option>
+    <option value="https://tile.opentopomap.org/{z}/{x}/{y}.png">OpenTopoMap</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}">Esri Terrain</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}">Esri Street Map</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}">Esri Satellite Imagery</option>
+    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}">Esri National Geographic</option>
+    <option value="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}@2x.png">Stadia Alidade Smooth (key off localhost)</option>
+    <option value="https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}@2x.png">Stadia Stamen Toner Lite (key off localhost)</option>
+    <option value="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}@2x.png">Stadia Stamen Terrain (key off localhost)</option>
+    <option value="https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg">Stadia Stamen Watercolor (key off localhost)</option>
+    <option value="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png">CARTO Positron (API key required)</option>
   </select>
 
 </body>

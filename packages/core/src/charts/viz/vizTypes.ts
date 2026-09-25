@@ -286,6 +286,12 @@ export interface VizInstance {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _zoomBrush?: any;
   _zoomSet?: boolean;
+  /** Whether a Geomap's themed basemap resolved dark on the latest draw. */
+  _basemapDark?: boolean;
+  /** Whether a Geomap is watching its backdrop for theme changes. */
+  _themeWatch?: boolean;
+  /** The attribution d3plus last set from the tile URL (vs. a user-set one). */
+  _tileAttribution?: string | false;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
   /**
