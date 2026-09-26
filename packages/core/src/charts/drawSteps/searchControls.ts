@@ -56,7 +56,7 @@ function refreshFeedback(viz: Viz, host: HTMLElement, term: string): void {
   const clearBtn = host.querySelector<HTMLElement>(".search-clear");
   if (clearBtn) applySearchClearVisible(clearBtn, hasTerm);
   const countEl = host.querySelector<HTMLElement>(".search-count");
-  if (countEl) applySearchCount(countEl, hasTerm, undefined, hasTerm ? searchMatches(viz, term).length : 0);
+  if (countEl) applySearchCount(viz, countEl, hasTerm, undefined, hasTerm ? searchMatches(viz, term).length : 0);
 }
 
 /** Closes the search box: restores the saved highlight and resets the button/input DOM. */
@@ -183,7 +183,7 @@ function jumpToMatch(viz: Viz, host: HTMLElement, direction: 1 | -1): void {
   viz._searchMatchIndex = next;
 
   const countEl = host.querySelector<HTMLElement>(".search-count");
-  if (countEl) applySearchCount(countEl, true, next, count);
+  if (countEl) applySearchCount(viz, countEl, true, next, count);
 
   panToMatch(viz, host, matches[next].node.key);
 }

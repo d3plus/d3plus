@@ -206,11 +206,11 @@ export function applySearchClearVisible(btn: HTMLElement, visible: boolean): voi
   btn.tabIndex = visible ? 0 : -1;
 }
 
-/** Writes the match-count feedback's text/visibility directly onto the DOM node — visible whenever there's a term, regardless of whether it matched anything (a `0/0` result is itself useful feedback). */
-export function applySearchCount(el: HTMLElement, hasTerm: boolean, index: number | undefined, total: number): void {
+/** Writes the match-count feedback's text/visibility directly onto the DOM node — visible whenever there's a term, regardless of whether it matched anything ("No Matches" is itself useful feedback). */
+export function applySearchCount(viz: Viz, el: HTMLElement, hasTerm: boolean, index: number | undefined, total: number): void {
   const style = hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN;
   for (const key in style) el.style.setProperty(kebab(key), style[key]);
-  const {text, label} = formatMatchCount(index, total);
+  const {text, label} = formatMatchCount(viz, index, total);
   el.textContent = hasTerm ? text : "";
   el.setAttribute("aria-label", label);
 }
@@ -241,7 +241,7 @@ export function searchControlsHtml(viz: Viz): string {
   const clearStyle = styleAttr(hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN);
   const countStyle = styleAttr(hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN);
   const total = hasTerm ? searchMatches(viz, term).length : 0;
-  const {text: countText, label: countLabel} = formatMatchCount(viz._searchMatchIndex, total);
+  const {text: countText, label: countLabel} = formatMatchCount(viz, viz._searchMatchIndex, total);
   const wrapStyle = styleAttr(SEARCH_INPUT_WRAP_STYLE);
   return (
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
@@ -324,17 +324,22 @@ export function searchMatches(viz: Viz, term: string): SearchMatch[] {
 }
 
 /**
-    Formats the match-count feedback the same way a browser's built-in
-    "find in page" does: `2/5` once the user has stepped to a match (Enter/
-    Shift+Enter), or `-/5` before stepping to any of them yet. `index` is
-    0-based (`viz._searchMatchIndex`); `total` is `searchMatches(...).length`.
+    Formats the match-count feedback as a readable, localized phrase:
+    "No Matches" with nothing found, "6 Matches"/"1 Match" once there's a
+    count but the user hasn't stepped to one yet (Enter/Shift+Enter), and
+    "Match 2/6" once they have — the translated noun for context, plus a
+    compact numeric position rather than a translated "of" connector, since
+    a fixed English word order ("Match 2 of 6") wouldn't read naturally in
+    every locale, while a number pair after a noun does. `index` is 0-based
+    (`viz._searchMatchIndex`); `total` is `searchMatches(...).length`. Text
+    and label are the same string — both visible and accessible.
 */
-export function formatMatchCount(index: number | undefined, total: number): {text: string; label: string} {
-  const position = typeof index === "number" ? index + 1 : undefined;
-  return {
-    text: `${position ?? "-"}/${total}`,
-    label: position ? `${position} of ${total}` : `${total} found`,
-  };
+export function formatMatchCount(viz: Viz, index: number | undefined, total: number): {text: string; label: string} {
+  let text: string;
+  if (total === 0) text = viz.schema.translate("No Matches");
+  else if (typeof index !== "number") text = `${total} ${viz.schema.translate(total === 1 ? "Match" : "Matches")}`;
+  else text = `${viz.schema.translate("Match")} ${index + 1}/${total}`;
+  return {text, label: text};
 }
 
 /** Whether a chart shows the search control. */

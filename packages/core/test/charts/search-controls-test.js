@@ -110,7 +110,7 @@ it("typing highlights matching-label marks and grays the rest; closing restores 
   assert.ok(out.highlightRestoredAfterClose, "closing restores the (empty) prior highlight state");
 });
 
-it("shows match-count feedback (`-/total` while typing, `N/total` after stepping) and reserves its layout space while empty", async function () {
+it("shows readable match-count feedback (\"N Matches\" while typing, \"Match N/total\" after stepping) and reserves its layout space while empty", async function () {
   this.timeout(60000);
 
   const out = await render(
@@ -146,9 +146,65 @@ it("shows match-count feedback (`-/total` while typing, `N/total` after stepping
   );
 
   assert.strictEqual(out.beforeTyping, "hidden", "count feedback reserves space but stays invisible with no term");
-  assert.strictEqual(out.afterTyping.text, "-/2", "2 matches (Apple, Apricot) found, no current position yet");
+  assert.strictEqual(out.afterTyping.text, "2 Matches", "2 matches (Apple, Apricot) found, no current position yet");
   assert.strictEqual(out.afterTyping.visibility, "visible", "count feedback becomes visible once there's a term");
-  assert.strictEqual(out.afterEnter, "1/2", "Enter steps to the first match");
+  assert.strictEqual(out.afterEnter, "Match 1/2", "Enter steps to the first match");
+});
+
+it("match-count feedback reads \"No Matches\" (not \"0 Matches\") when the term matches nothing", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .data([{id: "Apple", value: 10}, {id: "Banana", value: 20}])
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
+        viz.render(() => {
+          document.querySelector("#s .search-toggle").click();
+          const input = document.querySelector("#s .search-input");
+          input.value = "xyz";
+          input.dispatchEvent(new window.Event("input", {bubbles: true}));
+          window.setTimeout(() => {
+            resolve({text: document.querySelector("#s .search-count").textContent});
+          }, 50);
+        });
+      }),
+  );
+
+  assert.strictEqual(out.text, "No Matches", "a term matching nothing reads as a phrase, not \"0 Matches\"");
+});
+
+it("uses the singular \"Match\" for exactly one result", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .data([{id: "Apple", value: 10}, {id: "Banana", value: 20}])
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
+        viz.render(() => {
+          document.querySelector("#s .search-toggle").click();
+          const input = document.querySelector("#s .search-input");
+          input.value = "apple";
+          input.dispatchEvent(new window.Event("input", {bubbles: true}));
+          window.setTimeout(() => {
+            resolve({text: document.querySelector("#s .search-count").textContent});
+          }, 50);
+        });
+      }),
+  );
+
+  assert.strictEqual(out.text, "1 Match", "singular phrasing for exactly one result");
 });
 
 it("Enter/Shift+Enter cycle through matches (wrapping) and pan/zoom the current one into view", async function () {
@@ -189,11 +245,11 @@ it("Enter/Shift+Enter cycle through matches (wrapping) and pan/zoom the current 
       }),
   );
 
-  assert.strictEqual(out.first.count, "1/8", "first Enter steps to match 1 of 8");
+  assert.strictEqual(out.first.count, "Match 1/8", "first Enter steps to match 1 of 8");
   assert.ok(out.first.transform, "first Enter pans/zooms (a zoom transform is set)");
-  assert.strictEqual(out.second.count, "2/8", "second Enter steps to match 2");
+  assert.strictEqual(out.second.count, "Match 2/8", "second Enter steps to match 2");
   assert.notDeepStrictEqual(out.second.transform, out.first.transform, "each match pans to a different position");
-  assert.strictEqual(out.backToFirstCount, "1/8", "Shift+Enter from match 2 wraps back to match 1");
+  assert.strictEqual(out.backToFirstCount, "Match 1/8", "Shift+Enter from match 2 wraps back to match 1");
 });
 
 it("the clear button empties the term, restores the prior highlight, and refocuses the input", async function () {
