@@ -35,6 +35,8 @@
   <div class="viz" id="search-off"></div>
   <div class="viz" id="legend-top"></div>
   <div class="viz" id="styled"></div>
+  <div class="viz" id="many-matches"></div>
+  <div class="viz" id="custom-accessor"></div>
 
 </body>
 
@@ -84,6 +86,29 @@
       color: "#fff",
     })
     .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // Enough leaves for the match-count feedback and Enter/Shift+Enter
+  // cycling to actually mean something: search "fruit", press Enter
+  // repeatedly to step through (and zoom to) each match, Shift+Enter to
+  // go back, and the × button to clear without closing the box.
+  var many = [];
+  for (var m = 0; m < 24; m++) {
+    many.push({id: (m % 3 === 0 ? "fruit " : "veg ") + m, value: 1 + (m % 7)});
+  }
+  new d3plus.Treemap().select("#many-matches").title("Search \"fruit\", then Enter/Shift+Enter")
+    .data(many).groupBy("id").sum("value").render();
+
+  // .searchAccessor() matches a field other than the rendered label — here
+  // the label shows a code name, but typing an ingredient finds it.
+  new d3plus.Treemap().select("#custom-accessor").title("searchAccessor(): try \"cocoa\"")
+    .data([
+      {id: "Product A", ingredients: "cocoa, sugar, milk", value: 40},
+      {id: "Product B", ingredients: "flour, sugar, egg", value: 35},
+      {id: "Product C", ingredients: "cocoa, oat, honey", value: 25},
+    ])
+    .groupBy("id").sum("value")
+    .searchAccessor(function(d) { return d.ingredients; })
+    .render();
 
 </script>
 

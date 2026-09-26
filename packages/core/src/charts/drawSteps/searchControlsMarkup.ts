@@ -12,6 +12,7 @@
     @module
 */
 import type {DataPoint} from "@d3plus/data";
+import type {SceneNode} from "@d3plus/render";
 
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
@@ -85,6 +86,8 @@ export function paintSearchButton(viz: Viz, btn: HTMLElement, hovered = false): 
 
 // A magnifying glass: a circle + a short diagonal handle.
 const SEARCH_ICON = `<svg ${ICON_ATTRS}><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>`;
+// An X: two crossed diagonals, for the clear button.
+const CLEAR_ICON = `<svg ${ICON_ATTRS}><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
 
 /** The input's inline style at rest (closed) vs. open — set directly by the toggle click handler, never regenerated mid-typing. */
 export const SEARCH_INPUT_STYLE_CLOSED: Record<string, string> = {
@@ -110,6 +113,40 @@ const SEARCH_INPUT_BASE_STYLE: Record<string, string> = {
   transition: "width 0.15s ease, opacity 0.15s ease",
 };
 
+// The clear (×) button and match-count feedback only ever show once there's
+// a term — both are toggled by the same `hasTerm` condition, at generation
+// time (`searchControlsHtml`) and imperatively while typing (`searchControls.ts`).
+// The hidden state uses `visibility: hidden`, not `display: none`: it keeps
+// their layout space reserved even while empty, so the panel's rendered
+// width is the same with or without a term. It has to be — title/legend
+// insetting around this panel (`topLeftControlsInset`) only recomputes on a
+// full layout pass, while typing only schedules a lightweight repaint (so
+// the input keeps DOM focus); if these collapsed to zero width while empty,
+// the panel would visibly grow out from under an already-placed title the
+// moment a term made them appear.
+const SEARCH_CLEAR_STYLE_SHOWN: Record<string, string> = {
+  display: "inline-flex",
+  "align-items": "center",
+  "justify-content": "center",
+  visibility: "visible",
+  width: "16px",
+  height: "16px",
+  padding: "0",
+  border: "none",
+  background: "none",
+  cursor: "pointer",
+};
+const SEARCH_CLEAR_STYLE_HIDDEN: Record<string, string> = {...SEARCH_CLEAR_STYLE_SHOWN, visibility: "hidden", cursor: "default"};
+const SEARCH_COUNT_STYLE_SHOWN: Record<string, string> = {
+  display: "inline-block",
+  visibility: "visible",
+  "min-width": "28px",
+  "font-size": "11px",
+  color: "#767676",
+  "white-space": "nowrap",
+};
+const SEARCH_COUNT_STYLE_HIDDEN: Record<string, string> = {...SEARCH_COUNT_STYLE_SHOWN, visibility: "hidden"};
+
 function styleAttr(style: Record<string, string>): string {
   return Object.entries(style)
     .map(([k, v]) => `${kebab(k)}:${v}`)
@@ -122,6 +159,22 @@ export function applySearchInputOpenState(input: HTMLInputElement, open: boolean
   for (const key in style) input.style.setProperty(kebab(key), style[key]);
 }
 
+/** Shows/hides the clear button, directly on the DOM node — same no-rebuild pattern as the input's open state. */
+export function applySearchClearVisible(btn: HTMLElement, visible: boolean): void {
+  const style = visible ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN;
+  for (const key in style) btn.style.setProperty(kebab(key), style[key]);
+  btn.tabIndex = visible ? 0 : -1;
+}
+
+/** Writes the match-count feedback's text/visibility directly onto the DOM node — visible whenever there's a term, regardless of whether it matched anything (a `0/0` result is itself useful feedback). */
+export function applySearchCount(el: HTMLElement, hasTerm: boolean, index: number | undefined, total: number): void {
+  const style = hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN;
+  for (const key in style) el.style.setProperty(kebab(key), style[key]);
+  const {text, label} = formatMatchCount(index, total);
+  el.textContent = hasTerm ? text : "";
+  el.setAttribute("aria-label", label);
+}
+
 /** Escapes a value for safe interpolation into `innerHTML`. */
 function escapeHtml(value: unknown): string {
   return String(value ?? "").replace(/[&<>"']/g, c => (
@@ -130,32 +183,42 @@ function escapeHtml(value: unknown): string {
 }
 
 /**
-    The search control's markup: a toggle `<button>` + an `<input>`, both
-    real elements so host-page button/input styling applies through the
-    cascade the same way zoom's buttons do. The input's value/open state are
-    baked in from `viz._searchTerm`/`_searchOpen` so a full re-render (e.g. a
-    resize or data change) preserves whatever the user was doing — typing
-    itself never regenerates this markup (see `searchControls.ts`).
+    The search control's markup: a toggle `<button>`, an `<input>`, a clear
+    (×) button, and a match-count span — all real elements so host-page
+    button/input styling applies through the cascade the same way zoom's
+    buttons do. Value/open/match-count state is baked in from
+    `viz._searchTerm`/`_searchOpen`/`_searchMatchIndex` so a full re-render
+    (e.g. a resize or data change) preserves whatever the user was doing —
+    typing itself never regenerates this markup (see `searchControls.ts`).
 */
 export function searchControlsHtml(viz: Viz): string {
   const extraClass = viz.schema.searchControlClassName ? ` ${viz.schema.searchControlClassName}` : "";
   const label = viz.schema.translate("Search");
   const open = isSearchOpen(viz);
   const term = viz._searchTerm || "";
+  const hasTerm = term.trim().length > 0;
   const inputStyle = styleAttr({...SEARCH_INPUT_BASE_STYLE, ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED)});
+  const clearStyle = styleAttr(hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN);
+  const countStyle = styleAttr(hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN);
+  const total = hasTerm ? searchMatches(viz, term).length : 0;
+  const {text: countText, label: countLabel} = formatMatchCount(viz._searchMatchIndex, total);
   return (
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
-    `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>`
+    `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>` +
+    `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : " tabindex=\"-1\""}>${CLEAR_ICON}</button>` +
+    `<span class="search-count" aria-live="polite" aria-label="${countLabel}" style="${countStyle}">${hasTerm ? countText : ""}</span>`
   );
 }
 
 /**
     Builds the predicate `.highlight()` drives from the current search term:
-    a case-insensitive substring match against each mark's resolved,
-    on-screen label (`viz._drawLabel`) — the same string the user reads on
-    the chart, so this works unchanged across every chart type. Empty term
-    restores whatever `.highlight()` predicate (if any) was active before
-    the search box opened.
+    a case-insensitive substring match against `viz.schema.searchAccessor`'s
+    resolved string for each mark — the mark's on-screen label
+    (`viz._drawLabel`) by default, so this works unchanged across every
+    chart type, but overridable via `.searchAccessor()` for charts that want
+    to match against something else (e.g. a data field not shown as the
+    label). Empty term restores whatever `.highlight()` predicate (if any)
+    was active before the search box opened.
 */
 export function searchHighlightPredicate(
   viz: Viz,
@@ -163,7 +226,72 @@ export function searchHighlightPredicate(
 ): ((d: DataPoint, i: number) => boolean) | false {
   const needle = term.trim().toLowerCase();
   if (!needle) return viz._searchPrevHighlight ?? false;
-  return (d: DataPoint, i: number) => viz._drawLabel(d, i).toLowerCase().includes(needle);
+  // This predicate also runs against the legend's own (merged-aggregate)
+  // rows via the shared interaction-opacity pass, whose shape can differ
+  // from a chart mark's row — a custom `.searchAccessor()` isn't guaranteed
+  // to return a string for those, so guard rather than let a non-string
+  // (commonly `undefined`) throw on `.toLowerCase()`.
+  return (d: DataPoint, i: number) => {
+    const value = viz.schema.searchAccessor(d, i);
+    return typeof value === "string" && value.toLowerCase().includes(needle);
+  };
+}
+
+/** Scene mark types a match is searched against — mirrors `interactionOpacity.ts`'s own `MARK_TYPES`. */
+const MARK_TYPES = new Set(["rect", "circle", "line", "area", "path"]);
+
+/** One matching mark: its scene node (for `.key`/geometry), the unwrapped source row, and its index. */
+export interface SearchMatch {
+  node: SceneNode;
+  row: DataPoint;
+  index: number;
+}
+
+/**
+    Every currently-rendered mark matching the given term, in scene order.
+    Walks `viz._chartScene` (the actual painted scene, post-layout) rather
+    than the raw data array, unwrapping each node's datum the same way
+    `applyInteractionOpacity` does, so a grouped/aggregated chart matches by
+    rendered mark, not by raw input row — and de-dupes by datum reference so
+    a mark's separate label node doesn't double-count it. An empty term
+    matches nothing (there's no "everything" state to jump through).
+*/
+export function searchMatches(viz: Viz, term: string): SearchMatch[] {
+  const needle = term.trim().toLowerCase();
+  if (!needle) return [];
+  const nodes = viz._chartScene || [];
+  const seen = new Set<unknown>();
+  const results: SearchMatch[] = [];
+  const walk = (node: SceneNode): void => {
+    if (MARK_TYPES.has(node.type) && node.datum !== undefined) {
+      const raw = node.datum as (DataPoint & {data?: DataPoint}) | undefined;
+      const row = (raw && raw.data ? raw.data : raw) as DataPoint;
+      if (row !== undefined && !seen.has(row)) {
+        seen.add(row);
+        const i = typeof node.index === "number" ? node.index : 0;
+        const value = viz.schema.searchAccessor(row, i);
+        if (typeof value === "string" && value.toLowerCase().includes(needle)) results.push({node, row, index: i});
+      }
+    }
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) kids.forEach(walk);
+  };
+  nodes.forEach(walk);
+  return results;
+}
+
+/**
+    Formats the match-count feedback the same way a browser's built-in
+    "find in page" does: `2/5` once the user has stepped to a match (Enter/
+    Shift+Enter), or `-/5` before stepping to any of them yet. `index` is
+    0-based (`viz._searchMatchIndex`); `total` is `searchMatches(...).length`.
+*/
+export function formatMatchCount(index: number | undefined, total: number): {text: string; label: string} {
+  const position = typeof index === "number" ? index + 1 : undefined;
+  return {
+    text: `${position ?? "-"}/${total}`,
+    label: position ? `${position} of ${total}` : `${total} found`,
+  };
 }
 
 /** Whether a chart shows the search control. */

@@ -142,6 +142,21 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
+      Resolves the string the search box matches its typed term against, for
+      a given datum. Defaults to the mark's resolved on-screen label
+      (`viz._drawLabel`) — the same text the user reads on the chart.
+      Override it to match against something else instead, e.g. a data
+      field that isn't shown as the label.
+*/
+  searchAccessor(
+    _?: (d: DataPoint, i: number) => string,
+  ): this | ((d: DataPoint, i: number) => string) {
+    return arguments.length
+      ? ((this.schema.searchAccessor = _), this)
+      : this.schema.searchAccessor;
+  }
+
+  /**
       An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
 */
   searchControlClassName(_?: string): this | string {

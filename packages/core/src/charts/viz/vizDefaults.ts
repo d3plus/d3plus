@@ -612,6 +612,7 @@ export const searchControlStyleHoverDefault = false as const;
 */
 function initSearchDefaults(viz: Viz): void {
   viz.schema.search = true;
+  viz.schema.searchAccessor = (d: DataPoint, i: number) => viz._drawLabel(d, i);
   viz.schema.searchControlClassName = undefined;
   viz.schema.searchControlStyle = searchControlStyleDefault;
   viz.schema.searchControlStyleActive = searchControlStyleActiveDefault;

@@ -206,6 +206,8 @@ export interface VizInstance {
   _searchTerm?: string;
   /** The `_highlight` predicate saved when the search box opened, restored when it closes. */
   _searchPrevHighlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** 0-based index of the current match within `searchMatches(...)`, once Enter/Shift+Enter has stepped to one. */
+  _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
   _userHover?: number;

@@ -424,6 +424,8 @@ export interface D3plusConfig {
   scrollContainer?: string | Window;
   /** Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. */
   search?: boolean;
+  /** Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. */
+  searchAccessor?: (d: DataPoint, i: number) => string;
   /** Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. */
   searchControlClassName?: string;
   /** Configuration for shape rendering. */
