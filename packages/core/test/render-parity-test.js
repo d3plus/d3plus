@@ -1220,6 +1220,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
       text: target.textContent,
       hasBack: !!btn,
       isButton: btn ? btn.tagName.toLowerCase() === "button" : false,
+      hasIcon: btn ? !!btn.querySelector("svg") : false,
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
@@ -1227,7 +1228,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
 
   assert.ok(res.hasBack, "back button in the top-left controls panel");
   assert.ok(res.isButton, "back control is a real <button>, not a scene text node");
-  assert.ok(res.text.includes("←"), "back arrow glyph present");
+  assert.ok(res.hasIcon, "back arrow SVG icon present");
   assert.ok(res.text.toLowerCase().includes("back"), "back label rendered");
 });
 
