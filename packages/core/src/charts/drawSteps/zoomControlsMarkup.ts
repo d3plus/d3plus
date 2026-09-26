@@ -13,6 +13,8 @@ import {
   zoomControlStyleDefault,
   zoomControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
+import {kebab, paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
+export {kebab};
 
 /**
     Brush mode is per-chart, not global: it lives on `viz._brushing` and is
@@ -25,54 +27,13 @@ export function setBrushing(viz: Viz, value: boolean): void {
   viz._brushing = value;
 }
 
-type StyleObject = Record<string, string | number | undefined | null | false>;
-type ZoomControlStyleValue = StyleObject | false | null | undefined;
-
-/** `alignItems` / `align-items` → `align-items`, for `style.setProperty`. */
-export const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
-
-/**
-    Fallbacks for CSS system colors a browser may not support yet: the
-    active-button default uses the OS accent color (Firefox, Safari), and
-    Chromium falls back to the text-selection highlight.
-*/
-const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
-  AccentColor: "Highlight",
-  AccentColorText: "HighlightText",
-};
-
-/** Sets one style property, swapping an unsupported system color for its fallback. */
-function setStyle(el: HTMLElement, key: string, value: string): void {
-  const prop = kebab(key);
-  el.style.setProperty(prop, value);
-  const fallback = SYSTEM_COLOR_FALLBACKS[value];
-  if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
-}
-
-/**
-    Resolves a `zoomControlStyle`/`Active`/`Hover` value for painting.
-    Setting `zoomControlClassName` auto-disables whichever of the three is
-    still the untouched built-in default (identified by reference — see
-    `zoomControlStyleDefault` et al. in `vizDefaults.ts`) so a host page's own
-    button styling can apply through the cascade without also requiring
-    `.zoomControlStyle(false)` etc. An explicit custom style object (a
-    different reference) always wins, className or not.
-*/
-function resolveZoomControlStyle(
-  viz: Viz,
-  value: ZoomControlStyleValue,
-  defaultValue: ZoomControlStyleValue,
-): StyleObject {
-  if (viz.schema.zoomControlClassName && value === defaultValue) return {};
-  return value || {};
-}
-
 /** The resolved base / active / hover button styles for a chart. */
 function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
+  const className = Boolean(viz.schema.zoomControlClassName);
   return {
-    base: resolveZoomControlStyle(viz, viz.schema.zoomControlStyle, zoomControlStyleDefault),
-    active: resolveZoomControlStyle(viz, viz.schema.zoomControlStyleActive, zoomControlStyleActiveDefault),
-    hover: resolveZoomControlStyle(viz, viz.schema.zoomControlStyleHover, zoomControlStyleHoverDefault),
+    base: resolveControlStyle(viz.schema.zoomControlStyle, zoomControlStyleDefault, className),
+    active: resolveControlStyle(viz.schema.zoomControlStyleActive, zoomControlStyleActiveDefault, className),
+    hover: resolveControlStyle(viz.schema.zoomControlStyleHover, zoomControlStyleHoverDefault, className),
   };
 }
 
@@ -84,15 +45,7 @@ function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover:
     leaving a state fully undoes it.
 */
 export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  const {base, active, hover} = buttonStyles(viz);
-  const isActive = btn.classList.contains("active");
-  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
-    btn.style.removeProperty(kebab(key));
-  for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
-    for (const key in style) {
-      const v = style[key];
-      if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
-    }
+  paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
 }
 
 /**

@@ -87,6 +87,23 @@ export function applyOverlayToElement(
 }
 
 /**
+    Tells the overlay diff "this element's content already matches `html`" —
+    for a consumer that just mutated an overlay's DOM imperatively (rather
+    than through a scene redraw) and wants the NEXT redraw to recognize that
+    and skip rewriting `innerHTML` over it. Without this, `applyOverlayToElement`
+    only ever learns an overlay's current content by writing it there itself
+    (tracked via the same `__d3plusHTML` this sets) — so an imperative
+    mutation (e.g. toggling an `<input>` open and focusing it) leaves that
+    tracking stale, and the next redraw's fresh `html` (which may describe
+    the exact same state the imperative mutation already produced) reads as
+    "changed" and gets rewritten wholesale, discarding focus/cursor/selection
+    along with the DOM it replaces.
+*/
+export function markOverlayHtmlSynced(el: HTMLElement, html: string): void {
+  (el as HTMLElement & {__d3plusHTML?: string}).__d3plusHTML = html;
+}
+
+/**
     Creates the sibling host div both renderers append next to their
     surface. Container is set to `position: relative` if it doesn't
     already have one so the absolutely-positioned host layers correctly.

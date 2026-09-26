@@ -35,6 +35,8 @@
 
     @module
 */
+import {markOverlayHtmlSynced} from "@d3plus/render";
+
 import type Viz from "../viz/Viz.js";
 import type {Contribution} from "./topLeftControlsMarkup.js";
 import {
@@ -43,11 +45,91 @@ import {
   applySearchInputOpenState,
   isSearchOpen,
   paintSearchButton,
+  searchButtonStyles,
   searchControlsHtml,
   searchHighlightPredicate,
   searchMatches,
   showsSearchControls,
 } from "./searchControlsMarkup.js";
+
+/**
+    Finds this contribution's OWN node within `viz._featurePanels` — the
+    "group" `topLeftControlsFeature.layout()` returned last, still sitting
+    frozen on the instance until the next full render — so its `.html` can
+    be updated in place. Structurally coupled to `topLeftControlsMarkup.ts`'s
+    node shape (a "group" keyed `viz-top-left-controls` whose children are
+    keyed `viz-top-left-controls-<contribution key>`); degrades to a no-op
+    rather than throwing if that shape ever changes.
+*/
+function findFrozenSearchNode(viz: Viz): {html: string} | null {
+  const panels = (viz._featurePanels ?? []) as Array<{
+    key?: unknown;
+    children?: Array<{key?: unknown; html?: string}>;
+  }>;
+  for (const panel of panels) {
+    if (panel?.key !== "viz-top-left-controls" || !panel.children) continue;
+    const child = panel.children.find(c => c.key === "viz-top-left-controls-search");
+    if (child) return child as {html: string};
+  }
+  return null;
+}
+
+/**
+    Keeps this contribution's html in sync on BOTH sides of the renderer's
+    overlay diff after an imperative mutation (`_searchOpen`/`_searchTerm`
+    changing) — call this whenever either one does.
+
+    The diff (`applyOverlayToElement` in `@d3plus/render`) compares the
+    scene node's OWN `.html` against `__d3plusHTML`, a tracked "what I last
+    wrote" value on the overlay's host element. Between full renders, the
+    scene node itself (frozen in `viz._featurePanels` since the last one) is
+    NOT regenerated — only its live DOM is imperatively mutated here — so if
+    only the TRACKED side were updated to the fresh (now open/typed) html,
+    the two sides would disagree; the very next repaint for ANY OTHER reason
+    (a hover elsewhere, or `.highlight()`'s own self-scheduled repaint from
+    typing itself) would then see the frozen (stale, closed/empty) node
+    html as "changed" relative to the tracked (fresh) one and rewrite the
+    live DOM back to that stale content, discarding focus along the way —
+    the opposite of what this is trying to prevent. Updating the frozen
+    node's `.html` TOO keeps both sides equal, so neither an intervening
+    repaint nor the eventual next full render (which regenerates a fresh,
+    matching string from the same `_searchOpen`/`_searchTerm`) ever disagree
+    with what's already live.
+*/
+function syncTrackedHtml(viz: Viz, host: HTMLElement): void {
+  const html = searchControlsHtml(viz);
+  const frozenNode = findFrozenSearchNode(viz);
+  if (frozenNode) frozenNode.html = html;
+  markOverlayHtmlSynced(host, html);
+}
+
+/**
+    Recomputes and displays the match-count feedback from CURRENT state.
+    Deliberately NOT baked into `searchControlsHtml` — the count depends on
+    the chart's data/scene, not on the search box's own state, so if it were
+    part of the generated html, a data change unrelated to search (e.g.
+    drilling down) would change this contribution's own html and force its
+    whole DOM — including the live `<input>` — to be torn down and rebuilt.
+    Called from `onUpdate` (every draw, so a data change alone keeps this
+    correct) as well as after typing/clearing/stepping.
+*/
+function refreshCount(viz: Viz, host: HTMLElement): void {
+  const countEl = host.querySelector<HTMLElement>(".search-count");
+  if (!countEl) return;
+  const term = viz._searchTerm || "";
+  const hasTerm = term.trim().length > 0;
+  const total = hasTerm ? searchMatches(viz, term).length : 0;
+  // A full re-render (drill-down, `.data()`/filter change, resize) can
+  // shrink the match set out from under a previously-stepped-to index —
+  // typing/clearing/Enter always keep this in range themselves, but this
+  // runs on EVERY draw, so it's also the path that catches the matches
+  // silently changing underneath an unrelated re-render. Drop it rather
+  // than show an impossible position like "Match 6/2".
+  if (typeof viz._searchMatchIndex === "number" && viz._searchMatchIndex >= total) {
+    viz._searchMatchIndex = undefined;
+  }
+  applySearchCount(viz, countEl, hasTerm, viz._searchMatchIndex, total);
+}
 
 /** Resets the clear-button/count feedback after the match set changes (typing, clearing) — no "current" position yet. */
 function refreshFeedback(viz: Viz, host: HTMLElement, term: string): void {
@@ -55,8 +137,7 @@ function refreshFeedback(viz: Viz, host: HTMLElement, term: string): void {
   viz._searchMatchIndex = undefined;
   const clearBtn = host.querySelector<HTMLElement>(".search-clear");
   if (clearBtn) applySearchClearVisible(clearBtn, hasTerm);
-  const countEl = host.querySelector<HTMLElement>(".search-count");
-  if (countEl) applySearchCount(viz, countEl, hasTerm, undefined, hasTerm ? searchMatches(viz, term).length : 0);
+  refreshCount(viz, host);
 }
 
 /** Closes the search box: restores the saved highlight and resets the button/input DOM. */
@@ -65,6 +146,7 @@ function closeSearch(viz: Viz, host: HTMLElement): void {
   viz._searchTerm = "";
   viz.highlight(viz._searchPrevHighlight ?? false);
   viz._searchPrevHighlight = undefined;
+  syncTrackedHtml(viz, host);
   refreshFeedback(viz, host, "");
 
   const btn = host.querySelector<HTMLElement>(".search-toggle");
@@ -85,6 +167,7 @@ function closeSearch(viz: Viz, host: HTMLElement): void {
 function openSearch(viz: Viz, host: HTMLElement): void {
   viz._searchOpen = true;
   viz._searchPrevHighlight = viz._highlight;
+  syncTrackedHtml(viz, host);
 
   const btn = host.querySelector<HTMLElement>(".search-toggle");
   if (btn) {
@@ -109,6 +192,7 @@ function onToggleClick(viz: Viz, e: Event): void {
 function applyTerm(viz: Viz, host: HTMLElement, term: string): void {
   viz._searchTerm = term;
   viz.highlight(searchHighlightPredicate(viz, term));
+  syncTrackedHtml(viz, host);
   refreshFeedback(viz, host, term);
 }
 
@@ -181,10 +265,7 @@ function jumpToMatch(viz: Viz, host: HTMLElement, direction: 1 | -1): void {
   const prev = viz._searchMatchIndex;
   const next = ((typeof prev === "number" ? prev : direction === 1 ? -1 : 0) + direction + count) % count;
   viz._searchMatchIndex = next;
-
-  const countEl = host.querySelector<HTMLElement>(".search-count");
-  if (countEl) applySearchCount(viz, countEl, true, next, count);
-
+  refreshCount(viz, host);
   panToMatch(viz, host, matches[next].node.key);
 }
 
@@ -204,6 +285,7 @@ export function searchContribution(viz: Viz): Contribution | null {
   return {
     key: "search",
     html: searchControlsHtml(viz),
+    styleSignature: JSON.stringify(searchButtonStyles(viz)),
     events: {
       ".search-toggle": {click: (e: Event) => onToggleClick(viz, e)},
       ".search-clear": {click: (e: Event) => onClearClick(viz, e)},
@@ -216,6 +298,11 @@ export function searchContribution(viz: Viz): Contribution | null {
     // it here, guarded so it only binds once per DOM node — mirrors
     // zoomControls.ts's `data-zoom-bound` pattern exactly.
     onUpdate: (host: HTMLElement) => {
+      // Runs on EVERY draw (not just when this contribution's own html
+      // changed) — exactly why the match count lives here rather than in
+      // the generated html: a data/scene change alone (no search state
+      // change at all) still needs to refresh it.
+      refreshCount(viz, host);
       const btn = host.querySelector<HTMLElement>(".search-toggle");
       if (!btn || btn.dataset.searchBound) return;
       btn.dataset.searchBound = "1";

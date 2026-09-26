@@ -1214,7 +1214,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
     // Seed drill-down history so backContribution renders the back button.
     viz._history = [{depth: 0}];
     await new Promise(resolve => viz.render(resolve));
-    const panel = target.querySelector(".d3plus-top-left-controls");
+    const panel = target.querySelector(".d3plus-top-left-controls-item");
     const btn = panel && panel.querySelector(".back-control");
     return {
       text: target.textContent,

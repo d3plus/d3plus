@@ -351,6 +351,13 @@ it("search term/open state and the highlight survive a drill-down re-render", as
           const input = document.querySelector("#s .search-input");
           input.value = "apple";
           input.dispatchEvent(new window.Event("input", {bubbles: true}));
+          input.focus();
+          input.__marker = "same-node";
+          // Give .highlight()'s own self-scheduled (rAF) repaint a chance to
+          // fire BEFORE the drill-down — this is what actually exposed the
+          // regression: that intervening lightweight repaint must not
+          // already have clobbered the live input by the time the drill's
+          // full re-render runs.
           window.setTimeout(() => {
             // Simulate drilling into "Fruit" the way click.shape does: push
             // history + a narrower filter, then a full re-render.
@@ -358,7 +365,9 @@ it("search term/open state and the highlight survive a drill-down re-render", as
             viz.config({depth: 1, filter: (d) => d.parent === "Fruit"}).render(() => {
               const newInput = document.querySelector("#s .search-input");
               resolve({
-                sameInputValue: newInput.value,
+                sameInputValue: newInput ? newInput.value : null,
+                sameNode: newInput ? newInput.__marker === "same-node" : false,
+                stillFocused: document.activeElement === newInput,
                 stillOpen: viz._searchOpen,
                 backButtonPresent: !!document.querySelector("#s .back-control"),
                 matchesApple: viz._highlight ? viz._highlight({id: "Apple"}, 0) : null,
@@ -371,6 +380,8 @@ it("search term/open state and the highlight survive a drill-down re-render", as
   );
 
   assert.strictEqual(out.sameInputValue, "apple", "search term survives the drill-down re-render");
+  assert.ok(out.sameNode, "the <input> DOM node itself survives the drill-down (not torn down/rebuilt)");
+  assert.ok(out.stillFocused, "the <input> stays focused across the drill-down");
   assert.ok(out.stillOpen, "search box stays open across the drill-down");
   assert.ok(out.backButtonPresent, "back button now appears alongside search, post-drill");
   assert.strictEqual(out.matchesApple, true, "highlight still matches Apple after drilling");

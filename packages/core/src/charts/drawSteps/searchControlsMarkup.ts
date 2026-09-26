@@ -16,6 +16,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
+import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
 import {
   searchControlStyleActiveDefault,
   searchControlStyleDefault,
@@ -27,61 +28,19 @@ export function isSearchOpen(viz: Viz): boolean {
   return Boolean(viz._searchOpen);
 }
 
-type StyleObject = Record<string, string | number | undefined | null | false>;
-type ControlStyleValue = StyleObject | false | null | undefined;
-
-/**
-    Fallbacks for CSS system colors a browser may not support yet (see the
-    identical table in `zoomControlsMarkup.ts`).
-*/
-const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
-  AccentColor: "Highlight",
-  AccentColorText: "HighlightText",
-};
-
-/** Sets one style property, swapping an unsupported system color for its fallback. */
-function setStyle(el: HTMLElement, key: string, value: string): void {
-  const prop = kebab(key);
-  el.style.setProperty(prop, value);
-  const fallback = SYSTEM_COLOR_FALLBACKS[value];
-  if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
-}
-
-/**
-    Resolves a `searchControlStyle`/`Active`/`Hover` value for painting.
-    Setting `searchControlClassName` auto-disables whichever of the three is
-    still the untouched built-in default (identified by reference), the same
-    trick `zoomControlClassName` uses.
-*/
-function resolveSearchControlStyle(
-  viz: Viz,
-  value: ControlStyleValue,
-  defaultValue: ControlStyleValue,
-): StyleObject {
-  if (viz.schema.searchControlClassName && value === defaultValue) return {};
-  return value || {};
-}
-
-/** The resolved base / active / hover button styles for a chart. */
-function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
+/** The resolved base / active / hover button styles for a chart — also the cheap, non-DOM basis for `searchContribution`'s `styleSignature` (see `Contribution.styleSignature`). */
+export function searchButtonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
+  const className = Boolean(viz.schema.searchControlClassName);
   return {
-    base: resolveSearchControlStyle(viz, viz.schema.searchControlStyle, searchControlStyleDefault),
-    active: resolveSearchControlStyle(viz, viz.schema.searchControlStyleActive, searchControlStyleActiveDefault),
-    hover: resolveSearchControlStyle(viz, viz.schema.searchControlStyleHover, searchControlStyleHoverDefault),
+    base: resolveControlStyle(viz.schema.searchControlStyle, searchControlStyleDefault, className),
+    active: resolveControlStyle(viz.schema.searchControlStyleActive, searchControlStyleActiveDefault, className),
+    hover: resolveControlStyle(viz.schema.searchControlStyleHover, searchControlStyleHoverDefault, className),
   };
 }
 
 /** Paints the search toggle button's inline style for its current state. Mirrors `paintZoomButton`. */
 export function paintSearchButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  const {base, active, hover} = buttonStyles(viz);
-  const isActive = btn.classList.contains("active");
-  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
-    btn.style.removeProperty(kebab(key));
-  for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
-    for (const key in style) {
-      const v = style[key];
-      if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
-    }
+  paintControlButton(btn, searchButtonStyles(viz), hovered, btn.classList.contains("active"));
 }
 
 // A magnifying glass: a circle + a short diagonal handle.
@@ -226,10 +185,20 @@ function escapeHtml(value: unknown): string {
     The search control's markup: a toggle `<button>`, an `<input>`, a clear
     (×) button, and a match-count span — all real elements so host-page
     button/input styling applies through the cascade the same way zoom's
-    buttons do. Value/open/match-count state is baked in from
-    `viz._searchTerm`/`_searchOpen`/`_searchMatchIndex` so a full re-render
-    (e.g. a resize or data change) preserves whatever the user was doing —
-    typing itself never regenerates this markup (see `searchControls.ts`).
+    buttons do. Term/open state is baked in from `viz._searchTerm`/
+    `_searchOpen` so a full re-render (e.g. a resize or data change)
+    preserves whatever the user was doing — typing itself never regenerates
+    this markup (see `searchControls.ts`).
+
+    The count span is left EMPTY here on purpose — its text is written by
+    `searchContribution`'s `onUpdate` instead (see there), not baked into
+    this string. `onUpdate` runs on every draw regardless of whether this
+    html string changed, while the match count itself depends on the
+    CHART's data/scene, not on the search box's own state — baking its text
+    in here would make this contribution's own html change (and its DOM,
+    including the live `<input>`, get torn down and rebuilt) every time the
+    chart's data changes for a reason that has nothing to do with search,
+    e.g. drilling down while the box is open and focused.
 */
 export function searchControlsHtml(viz: Viz): string {
   const extraClass = viz.schema.searchControlClassName ? ` ${viz.schema.searchControlClassName}` : "";
@@ -239,16 +208,13 @@ export function searchControlsHtml(viz: Viz): string {
   const hasTerm = term.trim().length > 0;
   const inputStyle = styleAttr({...SEARCH_INPUT_BASE_STYLE, ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED)});
   const clearStyle = styleAttr(hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN);
-  const countStyle = styleAttr(hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN);
-  const total = hasTerm ? searchMatches(viz, term).length : 0;
-  const {text: countText, label: countLabel} = formatMatchCount(viz, viz._searchMatchIndex, total);
   const wrapStyle = styleAttr(SEARCH_INPUT_WRAP_STYLE);
   return (
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
     `<span class="search-input-wrap" style="${wrapStyle}">` +
     `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>` +
     `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : " tabindex=\"-1\""}>${CLEAR_ICON}</button>` +
-    `<span class="search-count" aria-live="polite" aria-label="${countLabel}" style="${countStyle}">${hasTerm ? countText : ""}</span>` +
+    `<span class="search-count" aria-live="polite"></span>` +
     `</span>`
   );
 }
@@ -311,7 +277,18 @@ export function searchMatches(viz: Viz, term: string): SearchMatch[] {
       const row = (raw && raw.data ? raw.data : raw) as DataPoint;
       if (row !== undefined && !seen.has(row)) {
         seen.add(row);
-        const i = typeof node.index === "number" ? node.index : 0;
+        // Mirrors applyInteractionOpacity's own fallback order exactly
+        // (interactionOpacity.ts) — node.index, then the row's own `.i`,
+        // then 0 — so the index a custom searchAccessor sees here always
+        // matches the index the highlight predicate was evaluated with,
+        // and Enter/Shift+Enter never jumps to a different mark than the
+        // one that's actually highlighted.
+        const i =
+          typeof node.index === "number"
+            ? node.index
+            : typeof (row as {i?: number}).i === "number"
+              ? (row as {i: number}).i
+              : 0;
         const value = viz.schema.searchAccessor(row, i);
         if (typeof value === "string" && value.toLowerCase().includes(needle)) results.push({node, row, index: i});
       }

@@ -143,6 +143,11 @@ export const backControlStyleDefault = {
     @private
 */
 function initBackDefaults(viz: Viz): void {
+  // No longer drives the button's appearance (see `.backConfig()`'s own
+  // doc comment), but `.backConfig({...})` merges into this via
+  // `assign(this.schema.backConfig, _)` — leaving it undefined makes that
+  // throw on the very first call, on every chart.
+  viz.schema.backConfig = {};
   viz.schema.backControlClassName = undefined;
   viz.schema.backControlStyle = backControlStyleDefault;
 }

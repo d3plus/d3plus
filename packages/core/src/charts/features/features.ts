@@ -232,6 +232,27 @@ export function topLeftControlsInset(viz: VizInstance, top: number, left: number
 }
 
 /**
+    The combined left+right corner-panel insets for content starting `top`
+    px down the chart, plus the single symmetric amount CENTERED content
+    should inset both sides by to stay centered on the full chart width even
+    when only one corner has something to avoid (the larger of the two —
+    see `textBlockLayout`'s doc comment for why). Shared by `textBlockLayout`
+    (title/subtitle/total) and the legend's own top-position layout
+    (`featuresLegend.ts`), which independently needed this exact same
+    "combine the two corners' insets" math before this existed.
+*/
+export function cornerInsets(
+  viz: VizInstance,
+  top: number,
+  left: number,
+  right: number,
+): {left: number; right: number; symmetric: number} {
+  const leftInset = topLeftControlsInset(viz, top, left);
+  const rightInset = zoomControlsInset(viz, top, right);
+  return {left: leftInset, right: rightInset, symmetric: Math.max(leftInset, rightInset)};
+}
+
+/**
     Shared layout logic for any "single line of text claiming margin.top" feature
     (title, subtitle, total). Each feature passes the viz fields that source its
     text + TextBox + config; the helper computes the panel + margin claim using
@@ -274,14 +295,17 @@ function textBlockLayout(
   // relative to zoom alone; start/end-aligned text instead just narrows the
   // true available box (its unaffected edge stays exactly where it was).
   let x = layoutMargin.left + padding.left;
-  const rightInset = zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right);
-  const leftInset = topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left + padding.left);
+  const {left: leftInset, right: rightInset, symmetric} = cornerInsets(
+    viz,
+    layoutMargin.top,
+    layoutMargin.left + padding.left,
+    layoutMargin.right + padding.right,
+  );
   if ((rightInset || leftInset) && boxes.length) {
     const centered = boxes[0].tA === "middle";
     if (centered) {
-      const symInset = Math.max(leftInset, rightInset);
-      x += symInset;
-      width -= symInset * 2;
+      x += symmetric;
+      width -= symmetric * 2;
     } else {
       x += leftInset;
       width -= leftInset + rightInset;
