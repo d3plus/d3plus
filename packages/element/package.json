@@ -37,7 +37,7 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it --global=before --global=customElements test && mocha 'test/**/*-test.js'",
+    "test": "eslint index.ts src && eslint --global=it --global=before --global=customElements test && mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
