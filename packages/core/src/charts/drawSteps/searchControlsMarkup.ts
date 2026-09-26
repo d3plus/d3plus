@@ -89,7 +89,13 @@ const SEARCH_ICON = `<svg ${ICON_ATTRS}><circle cx="10" cy="10" r="7"/><line x1=
 // An X: two crossed diagonals, for the clear button.
 const CLEAR_ICON = `<svg ${ICON_ATTRS}><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
 
-/** The input's inline style at rest (closed) vs. open — set directly by the toggle click handler, never regenerated mid-typing. */
+/**
+    The input's inline style at rest (closed) vs. open — set directly by the
+    toggle click handler, never regenerated mid-typing. Open's right padding
+    reserves room for the clear button, which sits absolutely-positioned
+    INSIDE the input's own box (see `SEARCH_CLEAR_STYLE_SHOWN`) rather than
+    beside it, so typed text wraps short of it instead of running underneath.
+*/
 export const SEARCH_INPUT_STYLE_CLOSED: Record<string, string> = {
   width: "0",
   padding: "0",
@@ -99,7 +105,7 @@ export const SEARCH_INPUT_STYLE_CLOSED: Record<string, string> = {
 };
 export const SEARCH_INPUT_STYLE_OPEN: Record<string, string> = {
   width: "120px",
-  padding: "0 6px",
+  padding: "0 22px 0 6px",
   border: "1px solid #ccc",
   "border-radius": "3px",
   opacity: "1",
@@ -113,18 +119,32 @@ const SEARCH_INPUT_BASE_STYLE: Record<string, string> = {
   transition: "width 0.15s ease, opacity 0.15s ease",
 };
 
-// The clear (×) button and match-count feedback only ever show once there's
-// a term — both are toggled by the same `hasTerm` condition, at generation
+/**
+    The wrapper `.search-input-wrap` is the positioning context for both the
+    clear button (absolute, inside the input's own box) and the match-count
+    feedback (absolute, below it) — an `inline-block` with no explicit width
+    of its own, so it always shrink-wraps to the input's CURRENT width
+    (0 closed, 120px open) and the count box (`width: 100%`) automatically
+    matches it.
+*/
+export const SEARCH_INPUT_WRAP_STYLE: Record<string, string> = {
+  position: "relative",
+  display: "inline-block",
+};
+
+// The clear button and match-count feedback only ever show once there's a
+// term — both are toggled by the same `hasTerm` condition, at generation
 // time (`searchControlsHtml`) and imperatively while typing (`searchControls.ts`).
-// The hidden state uses `visibility: hidden`, not `display: none`: it keeps
-// their layout space reserved even while empty, so the panel's rendered
-// width is the same with or without a term. It has to be — title/legend
-// insetting around this panel (`topLeftControlsInset`) only recomputes on a
-// full layout pass, while typing only schedules a lightweight repaint (so
-// the input keeps DOM focus); if these collapsed to zero width while empty,
-// the panel would visibly grow out from under an already-placed title the
-// moment a term made them appear.
+// The hidden state uses `visibility: hidden`, not `display: none`, for the
+// clear button: it keeps its layout space reserved (matching the input's
+// permanent right padding) even while empty. The count box doesn't need
+// that — it's absolutely positioned below the input, so it never affects
+// the panel's own width/height either way.
 const SEARCH_CLEAR_STYLE_SHOWN: Record<string, string> = {
+  position: "absolute",
+  top: "50%",
+  right: "2px",
+  transform: "translateY(-50%)",
   display: "inline-flex",
   "align-items": "center",
   "justify-content": "center",
@@ -137,13 +157,33 @@ const SEARCH_CLEAR_STYLE_SHOWN: Record<string, string> = {
   cursor: "pointer",
 };
 const SEARCH_CLEAR_STYLE_HIDDEN: Record<string, string> = {...SEARCH_CLEAR_STYLE_SHOWN, visibility: "hidden", cursor: "default"};
+
+/**
+    The match-count feedback sits directly below the input, at its same
+    width, styled like the attribution box (`vizDefaults.ts`'s
+    `attributionStyle` default) — a translucent white pill overlaying
+    whatever chart content is beneath it. `pointer-events: none` so it never
+    intercepts a click meant for the chart.
+*/
 const SEARCH_COUNT_STYLE_SHOWN: Record<string, string> = {
-  display: "inline-block",
+  position: "absolute",
+  top: "100%",
+  left: "0",
+  "margin-top": "4px",
+  width: "100%",
+  "box-sizing": "border-box",
+  display: "block",
   visibility: "visible",
-  "min-width": "28px",
+  background: "rgba(255, 255, 255, 0.75)",
+  border: "1px solid rgba(0, 0, 0, 0.25)",
+  color: "rgba(0, 0, 0, 0.75)",
   "font-size": "11px",
-  color: "#767676",
+  "text-align": "center",
+  padding: "2px 4px",
   "white-space": "nowrap",
+  overflow: "hidden",
+  "text-overflow": "ellipsis",
+  "pointer-events": "none",
 };
 const SEARCH_COUNT_STYLE_HIDDEN: Record<string, string> = {...SEARCH_COUNT_STYLE_SHOWN, visibility: "hidden"};
 
@@ -202,11 +242,14 @@ export function searchControlsHtml(viz: Viz): string {
   const countStyle = styleAttr(hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN);
   const total = hasTerm ? searchMatches(viz, term).length : 0;
   const {text: countText, label: countLabel} = formatMatchCount(viz._searchMatchIndex, total);
+  const wrapStyle = styleAttr(SEARCH_INPUT_WRAP_STYLE);
   return (
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
+    `<span class="search-input-wrap" style="${wrapStyle}">` +
     `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>` +
     `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : " tabindex=\"-1\""}>${CLEAR_ICON}</button>` +
-    `<span class="search-count" aria-live="polite" aria-label="${countLabel}" style="${countStyle}">${hasTerm ? countText : ""}</span>`
+    `<span class="search-count" aria-live="polite" aria-label="${countLabel}" style="${countStyle}">${hasTerm ? countText : ""}</span>` +
+    `</span>`
   );
 }
 
