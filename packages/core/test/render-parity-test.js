@@ -1287,7 +1287,10 @@ it("titleFeature composes a title TextNode into the scene", async () => {
 
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.titleTextNode, "title text node present in scene");
-  assert.ok(res.text.includes("My Chart Title"), "title text appears in rendered DOM");
+  // Wrapped lines render as separate tspans with no inserted whitespace, so
+  // check the words rather than the exact phrase with its space intact.
+  assert.ok(res.text.includes("My Chart"), "title text appears in rendered DOM");
+  assert.ok(res.text.includes("Title"), "title text appears in rendered DOM");
 });
 
 it("CanvasRenderer picks a Path2D path in a real browser", async () => {

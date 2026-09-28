@@ -122,15 +122,20 @@ function initBaseDefaults(viz: Viz): void {
     same properties `zoomControlStyleDefault`/`searchControlStyleDefault`
     use, except `width: "auto"` (it shows an icon + the word "Back", not a
     single centered glyph) with a small `gap` between them and horizontal
-    padding for breathing room. No background/border/color, same as the
-    other two: a plain browser-appearance button, letting native/host-page
-    button chrome show through by default.
+    padding for breathing room. Also lighter/smaller than the other two's
+    `font` (900 15px): that value is a holdover from when their icons were
+    bold Unicode glyphs sized to read clearly (the icons are SVG now, so it
+    no longer affects THEM at all) — but back is the one place that font
+    actually renders visible text, where 900 15px reads oversized/heavy.
+    No background/border/color, same as the other two: a plain
+    browser-appearance button, letting native/host-page button chrome show
+    through by default.
     @private
 */
 export const backControlStyleDefault = {
   "align-items": "center",
   display: "inline-flex",
-  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  font: `400 12px/1 ${fontFamilyStringify(fontFamily)}`,
   gap: "4px",
   height: "20px",
   "justify-content": "center",

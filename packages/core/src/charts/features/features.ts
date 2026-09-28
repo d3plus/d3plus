@@ -208,6 +208,16 @@ interface TextDatum {
 }
 
 /**
+    A little breathing room added to a NON-zero corner inset, on top of the
+    exact pixel width the corner panel measured at. Without it, content
+    insets to EXACTLY the corner box's edge — any tiny discrepancy between
+    that hidden-probe measurement and the real rendered box (sub-pixel
+    rounding, a font metric quirk) then reads as the text visibly, if
+    slightly, running under the buttons.
+*/
+const CORNER_INSET_GAP = 6;
+
+/**
     How far content starting `top` px down the chart, whose right edge sits
     `right` px in from the chart's right edge, must pull in its right edge to
     clear the zoom-control panel pinned to the chart's top-right corner. Zero
@@ -216,7 +226,8 @@ interface TextDatum {
 export function zoomControlsInset(viz: VizInstance, top: number, right: number): number {
   const box = zoomControlsBox(viz as never);
   if (!box || top >= box.height) return 0;
-  return Math.max(0, box.width - right);
+  const inset = box.width - right;
+  return inset > 0 ? inset + CORNER_INSET_GAP : 0;
 }
 
 /**
@@ -228,7 +239,8 @@ export function zoomControlsInset(viz: VizInstance, top: number, right: number):
 */
 export function topLeftControlsInset(viz: VizInstance, top: number, left: number): number {
   const contributions = getTopLeftContributions(viz as never);
-  return topLeftControlsInsetRaw(viz as never, top, left, contributions);
+  const inset = topLeftControlsInsetRaw(viz as never, top, left, contributions);
+  return inset > 0 ? inset + CORNER_INSET_GAP : 0;
 }
 
 /**
@@ -316,10 +328,18 @@ function textBlockLayout(
   if (!boxes.length) return {panel: null, margin: {}};
   const box = boxes[0];
 
-  const y = layoutMargin.top;
   const lineHeight = box.lH;
   const blockPadding = (viz.schema[opts.configKey]?.padding as number) ?? 0;
   const height = box.lines.length * lineHeight + blockPadding * 2;
+  // The claimed margin (below) already reserves `blockPadding` above AND
+  // below the text — shifting the panel down by that same amount is what
+  // actually centers the text within that reserved band, rather than
+  // pinning it flush to the very top of it. Previously `blockPadding` only
+  // grew/shrank the claimed space; it never moved the text within it,
+  // which is why the default title padding (5px) had no visible effect —
+  // the title sat at the top of its claim regardless, reading noticeably
+  // higher than the same-row zoom/back/search buttons beside it.
+  const y = layoutMargin.top + blockPadding;
 
   const lines = box.lines.map((str: string, i: number) => ({
     text: str,
