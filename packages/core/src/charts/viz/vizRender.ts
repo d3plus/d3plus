@@ -185,6 +185,7 @@ function setupDetection(viz: Viz, callback?: () => void): boolean {
           viz._forceVisible = true;
           viz.render(callback);
         },
+        viz.schema.detectVisibleInterval,
       );
       return true;
     }

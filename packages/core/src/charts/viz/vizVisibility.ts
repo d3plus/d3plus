@@ -1,7 +1,13 @@
 import {select} from "d3-selection";
 
+interface Target {
+  delay: number;
+  onVisible: () => void;
+  timer?: ReturnType<typeof setTimeout>;
+}
+
 interface Entry {
-  callbacks: Map<Element, () => void>;
+  targets: Map<Element, Target>;
   io: IntersectionObserver;
 }
 
@@ -38,34 +44,45 @@ function resolveRoot(scrollContainer: unknown): Element | null {
 
 /**
     Observes `el` against `scrollContainer` through one IntersectionObserver
-    shared by every viz using that root. Returns a function that stops observing.
+    shared by every viz using that root. `onVisible` runs once `el` has stayed in
+    view for `delay` ms, so elements scrolled past quickly never fire; leaving
+    view cancels the pending call. Returns a function that stops observing.
     @private
 */
 export function observeVisibility(
   el: Element,
   scrollContainer: unknown,
   onVisible: () => void,
+  delay = 0,
 ): () => void {
   const root = resolveRoot(scrollContainer);
   const key = root || WINDOW_ROOT;
   let entry = entries.get(key);
   if (!entry) {
-    const map = new Map<Element, () => void>();
+    const map = new Map<Element, Target>();
     const io = new IntersectionObserver(
       changes => {
         changes.forEach(c => {
-          if (c.isIntersecting) map.get(c.target)?.();
+          const t = map.get(c.target);
+          if (!t) return;
+          clearTimeout(t.timer);
+          t.timer = undefined;
+          if (!c.isIntersecting) return;
+          if (t.delay > 0) t.timer = setTimeout(t.onVisible, t.delay);
+          else t.onVisible();
         });
       },
       {root, rootMargin: ROOT_MARGIN},
     );
-    entry = {callbacks: map, io};
+    entry = {targets: map, io};
     entries.set(key, entry);
   }
-  const {callbacks: map, io} = entry;
-  map.set(el, onVisible);
+  const {targets: map, io} = entry;
+  const target: Target = {delay, onVisible};
+  map.set(el, target);
   io.observe(el);
   return () => {
+    clearTimeout(target.timer);
     map.delete(el);
     io.unobserve(el);
   };

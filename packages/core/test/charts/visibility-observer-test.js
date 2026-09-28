@@ -1,4 +1,5 @@
 import assert from "assert";
+import {setTimeout as wait} from "node:timers/promises";
 import {
   canObserveVisibility,
   observeVisibility,
@@ -75,3 +76,31 @@ it(
     offB();
   }),
 );
+
+it("visibility observer: delay only fires for targets that stay in view", async () => {
+  globalThis.IntersectionObserver = StubIO;
+  try {
+    const a = {};
+    const b = {};
+    const c = {};
+    const seen = [];
+    const offs = [
+      observeVisibility(a, null, () => seen.push("a"), 30),
+      observeVisibility(b, null, () => seen.push("b"), 30),
+      observeVisibility(c, null, () => seen.push("c"), 30),
+    ];
+    const io = StubIO.instances[0];
+    io.fire(a, true);
+    io.fire(b, true);
+    io.fire(c, true);
+    io.fire(a, false); // scrolled past before the delay elapsed
+    offs[2](); // unregistered while pending
+    assert.deepStrictEqual(seen, []);
+    await wait(80);
+    assert.deepStrictEqual(seen, ["b"]);
+    offs[0]();
+    offs[1]();
+  } finally {
+    delete globalThis.IntersectionObserver;
+  }
+});
