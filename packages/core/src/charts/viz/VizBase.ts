@@ -147,6 +147,11 @@ export default class VizBase extends VizBaseConfig {
       (`viz._drawLabel`) — the same text the user reads on the chart.
       Override it to match against something else instead, e.g. a data
       field that isn't shown as the label.
+
+      This is checked alongside, not instead of, every level of the datum's
+      own groupBy hierarchy — searching a leaf's label also matches its
+      ancestor group's cell/legend entry, and vice versa, regardless of
+      this accessor's override.
 */
   searchAccessor(
     _?: (d: DataPoint, i: number) => string,

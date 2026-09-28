@@ -269,6 +269,23 @@ function jumpToMatch(viz: Viz, host: HTMLElement, direction: 1 | -1): void {
   panToMatch(viz, host, matches[next].node.key);
 }
 
+/**
+    Closes the search box on blur, but only when there's no term to preserve
+    — an empty, still-open box is just visual clutter once the user's
+    attention has moved on, while a typed term stays open so its highlight/
+    match-count feedback remains visible (e.g. while the user clicks a
+    matched mark). `relatedTarget` is the element GAINING focus; when it's
+    still inside this contribution's own host (the clear button, or the
+    toggle button itself mid-close-click), this is internal focus shuffling,
+    not the user leaving — skip so those clicks keep handling themselves.
+*/
+function onSearchBlur(viz: Viz, host: HTMLElement, e: FocusEvent): void {
+  if ((viz._searchTerm || "").trim().length > 0) return;
+  const next = e.relatedTarget as Node | null;
+  if (next && host.contains(next)) return;
+  closeSearch(viz, host);
+}
+
 function onSearchKeydown(viz: Viz, e: Event): void {
   const ke = e as KeyboardEvent;
   const host = e.currentTarget as HTMLElement;
@@ -304,11 +321,20 @@ export function searchContribution(viz: Viz): Contribution | null {
       // change at all) still needs to refresh it.
       refreshCount(viz, host);
       const btn = host.querySelector<HTMLElement>(".search-toggle");
-      if (!btn || btn.dataset.searchBound) return;
-      btn.dataset.searchBound = "1";
-      paintSearchButton(viz, btn);
-      btn.addEventListener("mouseenter", () => paintSearchButton(viz, btn, true));
-      btn.addEventListener("mouseleave", () => paintSearchButton(viz, btn));
+      if (btn && !btn.dataset.searchBound) {
+        btn.dataset.searchBound = "1";
+        paintSearchButton(viz, btn);
+        btn.addEventListener("mouseenter", () => paintSearchButton(viz, btn, true));
+        btn.addEventListener("mouseleave", () => paintSearchButton(viz, btn));
+      }
+      // `blur` doesn't bubble, so it can't ride the declarative `events`
+      // map (which delegates via a bubbling listener on `host`) the way
+      // click/input/keydown do — bind it directly, same as hover above.
+      const input = host.querySelector<HTMLInputElement>(".search-input");
+      if (input && !input.dataset.searchBlurBound) {
+        input.dataset.searchBlurBound = "1";
+        input.addEventListener("blur", e => onSearchBlur(viz, host, e as FocusEvent));
+      }
     },
   };
 }

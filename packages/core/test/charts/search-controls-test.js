@@ -329,6 +329,104 @@ it(".searchAccessor() overrides what the typed term matches against", async func
   assert.strictEqual(out.matchesY, false, "Y's secret field doesn't contain the term");
 });
 
+it("a typed term matches across the groupBy hierarchy: a leaf's label also matches its ancestor group's row, and vice versa", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const data = [
+          {parent: "Group 1", id: "Apple", value: 10},
+          {parent: "Group 2", id: "Fig", value: 5},
+          {parent: "Group 2", id: "Grape", value: 5},
+        ];
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .data(data)
+          .groupBy(["parent", "id"])
+          .sum("value")
+          .duration(0);
+        viz.render(() => {
+          document.querySelector("#s .search-toggle").click();
+          const input = document.querySelector("#s .search-input");
+          const typeTerm = (term, cb) => {
+            input.value = term;
+            input.dispatchEvent(new window.Event("input", {bubbles: true}));
+            window.setTimeout(cb, 50);
+          };
+          // A leaf search: matches the leaf itself, and (via `viz._ids`)
+          // Group 2's own merged-aggregate row (its legend entry carries
+          // every leaf id it merged) — but not Group 1's.
+          typeTerm("Fig", () => {
+            const figMatchesFig = viz._highlight({parent: "Group 2", id: "Fig"}, 0);
+            const figMatchesGroup2Row = viz._highlight({parent: "Group 2", id: ["Fig", "Grape"]}, 0);
+            const figMatchesGroup1Row = viz._highlight({parent: "Group 1", id: "Apple"}, 0);
+            // An ancestor search: matches every leaf under it, not siblings
+            // under a different ancestor.
+            typeTerm("Group 2", () => {
+              resolve({
+                figMatchesFig,
+                figMatchesGroup2Row,
+                figMatchesGroup1Row,
+                group2MatchesGrapeLeaf: viz._highlight({parent: "Group 2", id: "Grape"}, 0),
+                group2MatchesAppleLeaf: viz._highlight({parent: "Group 1", id: "Apple"}, 0),
+              });
+            });
+          });
+        });
+      }),
+  );
+
+  assert.strictEqual(out.figMatchesFig, true, "searching 'Fig' matches the Fig leaf itself");
+  assert.strictEqual(out.figMatchesGroup2Row, true, "searching 'Fig' also matches Group 2's merged-aggregate row");
+  assert.strictEqual(out.figMatchesGroup1Row, false, "searching 'Fig' doesn't match Group 1's row");
+  assert.strictEqual(out.group2MatchesGrapeLeaf, true, "searching 'Group 2' matches every one of its leaves");
+  assert.strictEqual(out.group2MatchesAppleLeaf, false, "searching 'Group 2' doesn't match a leaf under a different ancestor");
+});
+
+it("the search box closes on blur when empty, but stays open on blur with a typed term", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div><button id="outside">outside</button>',
+    () =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .data([{id: "Apple", value: 10}, {id: "Banana", value: 20}])
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
+        viz.render(() => {
+          const toggle = document.querySelector("#s .search-toggle");
+          const outside = document.getElementById("outside");
+          toggle.click();
+          outside.focus();
+          window.setTimeout(() => {
+            const closedWhenEmpty = toggle.getAttribute("aria-pressed");
+            toggle.click(); // reopen
+            const input = document.querySelector("#s .search-input");
+            input.value = "app";
+            input.dispatchEvent(new window.Event("input", {bubbles: true}));
+            window.setTimeout(() => {
+              outside.focus();
+              window.setTimeout(() => {
+                resolve({
+                  closedWhenEmpty,
+                  openWithTerm: toggle.getAttribute("aria-pressed"),
+                });
+              }, 50);
+            }, 50);
+          }, 50);
+        });
+      }),
+  );
+
+  assert.strictEqual(out.closedWhenEmpty, "false", "blurring an empty search box closes it");
+  assert.strictEqual(out.openWithTerm, "true", "blurring a search box with a typed term leaves it open");
+});
+
 it("search term/open state and the highlight survive a drill-down re-render", async function () {
   this.timeout(60000);
 

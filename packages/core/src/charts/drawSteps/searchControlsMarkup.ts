@@ -13,6 +13,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
+import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
@@ -43,8 +44,13 @@ export function paintSearchButton(viz: Viz, btn: HTMLElement, hovered = false): 
   paintControlButton(btn, searchButtonStyles(viz), hovered, btn.classList.contains("active"));
 }
 
-// A magnifying glass: a circle + a short diagonal handle.
-const SEARCH_ICON = `<svg ${ICON_ATTRS}><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>`;
+// A magnifying glass: a circle + a short diagonal handle. Nudged 1 unit
+// above the viewBox's true mathematical center (cy 10 → 9, the handle
+// shifted to match) — the ring's hollow center reads as lighter than the
+// handle's solid diagonal stroke, so a perfectly math-centered glass looks
+// optically low next to a symmetric icon like the back arrow's, even
+// though both render in pixel-identical boxes.
+const SEARCH_ICON = `<svg ${ICON_ATTRS}><circle cx="10" cy="9" r="7"/><line x1="21" y1="20" x2="15" y2="14"/></svg>`;
 // An X: two crossed diagonals, for the clear button.
 const CLEAR_ICON = `<svg ${ICON_ATTRS}><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
 
@@ -74,7 +80,11 @@ export const SEARCH_INPUT_STYLE_OPEN: Record<string, string> = {
 const SEARCH_INPUT_BASE_STYLE: Record<string, string> = {
   height: "20px",
   "box-sizing": "border-box",
-  font: "inherit",
+  // `inherit` picked up whatever font-size the host page's body/chart
+  // container happened to set — often much larger than this 20px-tall
+  // control was designed for. An explicit size matches the rest of the
+  // panel (back/zoom's own buttons) regardless of the host page's CSS.
+  font: `12px/1 ${fontFamilyStringify(fontFamily)}`,
   transition: "width 0.15s ease, opacity 0.15s ease",
 };
 
@@ -89,6 +99,21 @@ const SEARCH_INPUT_BASE_STYLE: Record<string, string> = {
 export const SEARCH_INPUT_WRAP_STYLE: Record<string, string> = {
   position: "relative",
   display: "inline-block",
+};
+
+/**
+    The root wrapper tying the toggle button and `.search-input-wrap` span
+    together. Without it, the two sit as bare inline siblings and align by
+    CSS's default inline baseline rule — which, since a `<button>` and an
+    `<input>` differ in their UA-default box model (borders/padding under
+    `content-box` vs. this module's explicit `border-box` on the input),
+    doesn't actually land their content on the same visual center. `flex` +
+    `align-items: center` centers both on their shared cross-axis instead,
+    regardless of that box-model mismatch.
+*/
+const SEARCH_ROOT_STYLE: Record<string, string> = {
+  display: "inline-flex",
+  "align-items": "center",
 };
 
 // The clear button and match-count feedback only ever show once there's a
@@ -209,25 +234,56 @@ export function searchControlsHtml(viz: Viz): string {
   const inputStyle = styleAttr({...SEARCH_INPUT_BASE_STYLE, ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED)});
   const clearStyle = styleAttr(hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN);
   const wrapStyle = styleAttr(SEARCH_INPUT_WRAP_STYLE);
+  const rootStyle = styleAttr(SEARCH_ROOT_STYLE);
   return (
+    `<span class="search-root" style="${rootStyle}">` +
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
     `<span class="search-input-wrap" style="${wrapStyle}">` +
     `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>` +
     `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : " tabindex=\"-1\""}>${CLEAR_ICON}</button>` +
     `<span class="search-count" aria-live="polite"></span>` +
+    `</span>` +
     `</span>`
   );
 }
 
 /**
-    Builds the predicate `.highlight()` drives from the current search term:
-    a case-insensitive substring match against `viz.schema.searchAccessor`'s
-    resolved string for each mark — the mark's on-screen label
-    (`viz._drawLabel`) by default, so this works unchanged across every
-    chart type, but overridable via `.searchAccessor()` for charts that want
-    to match against something else (e.g. a data field not shown as the
-    label). Empty term restores whatever `.highlight()` predicate (if any)
-    was active before the search box opened.
+    Whether `d` (row at index `i`) matches the (already-lowercased,
+    already-trimmed) search `needle` — checked against
+    `viz.schema.searchAccessor`'s resolved string, OR any level of `d`'s
+    groupBy hierarchy (`viz._ids(d, i)`, one id string per groupBy field).
+
+    The hierarchy check is what makes a match reach across drawn depth: a
+    grouped chart's aggregate row (a Treemap's un-drilled parent cell, or a
+    legend entry) is built by merging every leaf row it summarizes
+    (`merge`/`objectMerge` in `@d3plus/data`), and a merged field that
+    varies across those leaves survives as an ARRAY of every value seen —
+    so an aggregate "Group 2" row's OWN `_ids()` output still contains
+    "Fig" (search "Fig", match "Group 2"'s cell/legend entry) even though
+    its rendered label is just "Group 2". The reverse direction needs no
+    special-casing: a LEAF row's `_ids()` includes its ancestor's own
+    (unmerged) id directly, so searching "Group 2" matches every one of its
+    leaves too. Non-hierarchical charts (a single-field `groupBy`) degrade
+    to exactly today's behavior — `_ids()` is a 1-element array equal to
+    the accessor's own value.
+
+    A custom `.searchAccessor()` isn't guaranteed to return a string for
+    every row shape this runs against (the legend's own merged-aggregate
+    rows differ in shape from a chart mark's row) — guard rather than let a
+    non-string (commonly `undefined`) throw on `.toLowerCase()`.
+*/
+function matchesSearchNeedle(viz: Viz, d: DataPoint, i: number, needle: string): boolean {
+  const value = viz.schema.searchAccessor(d, i);
+  if (typeof value === "string" && value.toLowerCase().includes(needle)) return true;
+  const ids = viz._ids(d, i) as string[];
+  return ids.some(id => typeof id === "string" && id.toLowerCase().includes(needle));
+}
+
+/**
+    Builds the predicate `.highlight()` drives from the current search term
+    — see `matchesSearchNeedle` for the match rule. Empty term restores
+    whatever `.highlight()` predicate (if any) was active before the search
+    box opened.
 */
 export function searchHighlightPredicate(
   viz: Viz,
@@ -235,15 +291,7 @@ export function searchHighlightPredicate(
 ): ((d: DataPoint, i: number) => boolean) | false {
   const needle = term.trim().toLowerCase();
   if (!needle) return viz._searchPrevHighlight ?? false;
-  // This predicate also runs against the legend's own (merged-aggregate)
-  // rows via the shared interaction-opacity pass, whose shape can differ
-  // from a chart mark's row — a custom `.searchAccessor()` isn't guaranteed
-  // to return a string for those, so guard rather than let a non-string
-  // (commonly `undefined`) throw on `.toLowerCase()`.
-  return (d: DataPoint, i: number) => {
-    const value = viz.schema.searchAccessor(d, i);
-    return typeof value === "string" && value.toLowerCase().includes(needle);
-  };
+  return (d: DataPoint, i: number) => matchesSearchNeedle(viz, d, i, needle);
 }
 
 /** Scene mark types a match is searched against — mirrors `interactionOpacity.ts`'s own `MARK_TYPES`. */
@@ -289,8 +337,7 @@ export function searchMatches(viz: Viz, term: string): SearchMatch[] {
             : typeof (row as {i?: number}).i === "number"
               ? (row as {i: number}).i
               : 0;
-        const value = viz.schema.searchAccessor(row, i);
-        if (typeof value === "string" && value.toLowerCase().includes(needle)) results.push({node, row, index: i});
+        if (matchesSearchNeedle(viz, row, i, needle)) results.push({node, row, index: i});
       }
     }
     const kids = (node as {children?: SceneNode[]}).children;
