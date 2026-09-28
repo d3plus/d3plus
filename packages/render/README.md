@@ -51,6 +51,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`interpolateScene`](#interpolatescene) | Builds a function that returns the interpolated scene at a given time, driving |
 | [`isPersistTrail`](#ispersisttrail) | Whether a node opts into a persistent trail (a positive count or `true`). |
 | [`linePath`](#linepath) | Generates an SVG path string for a line node. |
+| [`markOverlayHtmlSynced`](#markoverlayhtmlsynced) | Tells the overlay diff "this element's content already matches `html`" — |
 | [`parseGradient`](#parsegradient) | Decodes a `gradient:<json>` token, or returns null if `fill` is not one. |
 | [`patternTileSvg`](#patterntilesvg) | Builds standalone SVG markup for one tile of a `pattern:<json>` texture |
 | [`persistTrailNode`](#persisttrailnode) | Builds a mark's persistent-trail scene node (Canvas backend) at progress `t`. |
@@ -357,7 +358,7 @@ repaints live and never needs it. See CanvasResources.
 
 ### SvgRenderer
 
-Defined in: [svg/SvgRenderer.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L55)
+Defined in: [svg/SvgRenderer.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L71)
 
 Renderer
 The pluggable backend contract. Chart logic emits a Scene; a Renderer realizes
@@ -388,7 +389,7 @@ across backends — that equivalence is the parity guarantee of the architecture
 
 > **destroy**(): `void`
 
-Defined in: [svg/SvgRenderer.ts:615](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L615)
+Defined in: [svg/SvgRenderer.ts:629](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L629)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -406,7 +407,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [svg/SvgRenderer.ts:138](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L138)
+Defined in: [svg/SvgRenderer.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L154)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -432,7 +433,7 @@ scene when `opts.duration` is positive. The single method that matters.
 
 > **mount**(`target`: [`RenderTarget`](#rendertarget)): `void`
 
-Defined in: [svg/SvgRenderer.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L94)
+Defined in: [svg/SvgRenderer.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L110)
 
 Attach to a target element and prepare the drawing surface.
 
@@ -456,7 +457,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [svg/SvgRenderer.ts:540](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L540)
+Defined in: [svg/SvgRenderer.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L556)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -480,7 +481,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [svg/SvgRenderer.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L512)
+Defined in: [svg/SvgRenderer.ts:528](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L528)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -504,7 +505,7 @@ Hit-test a point in surface-local coordinates. Returns the topmost interactive n
 
 > **resize**(`width`: `number`, `height`: `number`): `void`
 
-Defined in: [svg/SvgRenderer.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L121)
+Defined in: [svg/SvgRenderer.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L137)
 
 Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
@@ -529,7 +530,7 @@ Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
 > **target**(): [`RenderTarget`](#rendertarget) \| `undefined`
 
-Defined in: [svg/SvgRenderer.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L134)
+Defined in: [svg/SvgRenderer.ts:150](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L150)
 
 Public view onto the mount target. v4: callers (e.g. `Viz._drawSceneToTarget`)
 use this to compare the current target's container against their
@@ -549,7 +550,7 @@ desired one without reaching into the private `_target` field.
 
 > **toSVGString**(): `string`
 
-Defined in: [svg/SvgRenderer.ts:611](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L611)
+Defined in: [svg/SvgRenderer.ts:625](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L625)
 
 Serialize the current scene to an SVG string (Canvas backends re-render via SVG).
 
@@ -565,7 +566,7 @@ Serialize the current scene to an SVG string (Canvas backends re-render via SVG)
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L56) |
+| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L72) |
 
 ***
 
@@ -671,7 +672,7 @@ The live segments for a mark: the animating one (or null) and committed ones.
 
 > **applyDeclarativeEvents**(`host`: `HTMLElement`, `events`: `Record`\<`string`, `Partial`\<`Record`\<`string`, (`e`: `Event`) => `void`\>\>\> \| `undefined`): `void`
 
-Defined in: [overlay.ts:148](https://github.com/d3plus/d3plus/blob/main/packages/render/src/overlay.ts#L148)
+Defined in: [overlay.ts:165](https://github.com/d3plus/d3plus/blob/main/packages/render/src/overlay.ts#L165)
 
 Declarative event delegation for `HtmlOverlayNode.events`. Attaches
 ONE delegated listener per event type on the host element; each
@@ -1031,6 +1032,39 @@ Generates an SVG path string for a line node.
 #### Returns
 
 `string`
+
+***
+
+<a id="markoverlayhtmlsynced"></a>
+
+### markOverlayHtmlSynced()
+
+> **markOverlayHtmlSynced**(`el`: `HTMLElement`, `html`: `string`): `void`
+
+Defined in: [overlay.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/render/src/overlay.ts#L102)
+
+Tells the overlay diff "this element's content already matches `html`" —
+for a consumer that just mutated an overlay's DOM imperatively (rather
+than through a scene redraw) and wants the NEXT redraw to recognize that
+and skip rewriting `innerHTML` over it. Without this, `applyOverlayToElement`
+only ever learns an overlay's current content by writing it there itself
+(tracked via the same `__d3plusHTML` this sets) — so an imperative
+mutation (e.g. toggling an `<input>` open and focusing it) leaves that
+tracking stale, and the next redraw's fresh `html` (which may describe
+the exact same state the imperative mutation already produced) reads as
+"changed" and gets rewritten wholesale, discarding focus/cursor/selection
+along with the DOM it replaces.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `el` | `HTMLElement` |
+| `html` | `string` |
+
+#### Returns
+
+`void`
 
 ***
 
