@@ -201,6 +201,16 @@ export interface VizInstance {
   _userDuration?: number;
   _dataCutoff: number;
   _brushing?: boolean;
+  /** Whether the table-view toggle is currently showing the data table instead of the chart. */
+  _tableView?: boolean;
+  /** The data table's current page (0-indexed), when `tableViewPageSize` paginates it. */
+  _tableViewPage?: number;
+  /** The data table's current sort column + direction, when the user has clicked a header. */
+  _tableViewSort?: {column: string; direction: "asc" | "desc"};
+  /** Which dataset the data table currently shows — `viz._data` (raw) once toggled, `viz._filteredData` (aggregate) by default. */
+  _tableViewDataSource?: "raw" | "aggregate";
+  /** Cached first-occurrence-index lookups (exact JSON match, and groupBy-key fallback) for restoring `.data()` insertion order to the aggregate view; invalidated by comparing against the raw array reference they were built from. */
+  _tableViewGroupOrder?: {data: DataPoint[]; exact: Map<string, number>; group: Map<string, number>};
   /** Timeline brush selection (timeline feature). */
   _timelineSelection?: (Date | number)[] | false;
   /** The last drawn timeline value (ms), to detect multi-period trail jumps. */

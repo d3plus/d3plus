@@ -14,7 +14,7 @@ import type {D3Selection} from "@d3plus/dom";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
-import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
+import type {FeatureLayout, FeatureModule, MarginClaim, PanelPosition} from "./features.js";
 import {sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
@@ -118,6 +118,40 @@ export function buildLegendData(viz: VizInstance): LegendData {
 }
 
 /**
+    How far a legend must inset (top position) or drop below (left/right
+    position) to clear the zoom-control panel (top-right) and/or the shared
+    top-left controls panel (back/table-view/search): a top legend (centered)
+    insets both sides by the larger of the two, staying centered on the
+    chart; a right legend drops below the zoom panel, a left legend below the
+    top-left panel. Split out of `renderLegendFeature` to keep that function
+    under the per-function line budget.
+*/
+function legendInsetAndDrop(
+  viz: VizInstance,
+  layoutMargin: Required<MarginClaim>,
+  position: PanelPosition,
+  padding: {top: number; right: number; bottom: number; left: number},
+): {inset: number; drop: number} {
+  const rightInset =
+    position === "top"
+      ? zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right)
+      : 0;
+  const leftInset =
+    position === "top"
+      ? topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left + padding.left)
+      : 0;
+  const dropRight =
+    position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
+      ? zoomControlsBox(viz as never)!.height - layoutMargin.top
+      : 0;
+  const dropLeft =
+    position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
+      ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
+      : 0;
+  return {inset: Math.max(rightInset, leftInset), drop: dropRight || dropLeft};
+}
+
+/**
     Positions, configures, and renders the chart's `_legendClass` Legend
     instance (compute mode — Legend contributes to the scene via its
     `toScene()` collected on Viz.toScene), then returns the margin claim
@@ -149,29 +183,7 @@ function renderLegendFeature(
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  // Clear the zoom-control panel (top-right) and/or the shared top-left
-  // controls panel (back/table-view/search): a top legend (centered) insets
-  // both sides by the larger of the two, staying centered on the chart; a
-  // right legend drops below the zoom panel, a left legend below the
-  // top-left panel.
-  const rightInset =
-    position === "top"
-      ? zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right)
-      : 0;
-  const leftInset =
-    position === "top"
-      ? topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left + padding.left)
-      : 0;
-  const inset = Math.max(rightInset, leftInset);
-  const dropRight =
-    position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
-      ? zoomControlsBox(viz as never)!.height - layoutMargin.top
-      : 0;
-  const dropLeft =
-    position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
-      ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
-      : 0;
-  const drop = dropRight || dropLeft;
+  const {inset, drop} = legendInsetAndDrop(viz, layoutMargin, position, padding);
   const transform = {
     transform: `translate(${
       (wide ? layoutMargin.left + padding.left : layoutMargin.left) + inset

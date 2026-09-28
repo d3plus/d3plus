@@ -442,6 +442,24 @@ export interface D3plusConfig {
   svgDesc?: string;
   /** Accessible title applied to the root SVG (`<title>`). */
   svgTitle?: string;
+  /** Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. */
+  tableView?: boolean;
+  /** Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. */
+  tableViewClassName?: string;
+  /** Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. */
+  tableViewControlClassName?: string;
+  /** CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. */
+  tableViewControlStyle?: Record<string, unknown> | false;
+  /** CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. */
+  tableViewControlStyleActive?: Record<string, unknown> | false;
+  /** CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. */
+  tableViewControlStyleHover?: Record<string, unknown> | false;
+  /** Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. */
+  tableViewDownload?: boolean;
+  /** Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. */
+  tableViewPageSize?: number | false;
+  /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
+  tableViewSort?: boolean;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */

@@ -25,7 +25,7 @@ export function setBrushing(viz: Viz, value: boolean): void {
   viz._brushing = value;
 }
 
-type StyleObject = Record<string, string | number | undefined | null | false>;
+export type StyleObject = Record<string, string | number | undefined | null | false>;
 type ZoomControlStyleValue = StyleObject | false | null | undefined;
 
 /** `alignItems` / `align-items` → `align-items`, for `style.setProperty`. */
@@ -34,19 +34,48 @@ export const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.t
 /**
     Fallbacks for CSS system colors a browser may not support yet: the
     active-button default uses the OS accent color (Firefox, Safari), and
-    Chromium falls back to the text-selection highlight.
+    Chromium falls back to the text-selection highlight. Exported so any
+    control-button feature's `setStyle` (below) picks up the same fallbacks,
+    rather than each maintaining its own copy of this table.
 */
-const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
+export const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
   AccentColor: "Highlight",
   AccentColorText: "HighlightText",
 };
 
 /** Sets one style property, swapping an unsupported system color for its fallback. */
-function setStyle(el: HTMLElement, key: string, value: string): void {
+export function setStyle(el: HTMLElement, key: string, value: string): void {
   const prop = kebab(key);
   el.style.setProperty(prop, value);
   const fallback = SYSTEM_COLOR_FALLBACKS[value];
   if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
+}
+
+/**
+    Paints a control button's inline style for its current state: the base
+    style, then the hover style while hovered, then the active style while
+    its mode is on (so an active button reads as active even under the
+    cursor). Every property any of the three styles sets is cleared first, so
+    leaving a state fully undoes it. Generalizes `paintZoomButton`'s original
+    body — shared with `tableViewMarkup.ts`'s `paintTableViewButton` (both
+    button-chrome features want identical clear-then-apply painting; only
+    which style objects they resolve differs, and each keeps its own
+    `resolve*ControlStyle`/schema-key logic for that).
+*/
+export function paintControlButton(
+  btn: HTMLElement,
+  styles: {base: StyleObject; active: StyleObject; hover: StyleObject},
+  hovered: boolean,
+): void {
+  const {base, active, hover} = styles;
+  const isActive = btn.classList.contains("active");
+  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
+    btn.style.removeProperty(kebab(key));
+  for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
+    for (const key in style) {
+      const v = style[key];
+      if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
+    }
 }
 
 /**
@@ -76,23 +105,9 @@ function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover:
   };
 }
 
-/**
-    Paints a zoom-control button's inline style for its current state: the
-    base style, then the hover style while hovered, then the active style
-    while its mode is on (so an active button reads as active even under the
-    cursor). Every property any of the three styles sets is cleared first, so
-    leaving a state fully undoes it.
-*/
+/** Paints a zoom-control button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
 export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  const {base, active, hover} = buttonStyles(viz);
-  const isActive = btn.classList.contains("active");
-  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
-    btn.style.removeProperty(kebab(key));
-  for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
-    for (const key in style) {
-      const v = style[key];
-      if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
-    }
+  paintControlButton(btn, buttonStyles(viz), hovered);
 }
 
 /**
