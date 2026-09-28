@@ -200,19 +200,10 @@ export default class Viz extends VizBase {
         });
       }
     }
-    // E2: FeatureModule.layout() panels (title/subtitle/total/back).
+    // E2: FeatureModule.layout() panels (title/subtitle/total, plus the
+    // zoom/top-left-controls/attribution overlays appended post-draw).
     if (this._featurePanels && this._featurePanels.length) {
-      const panels = this._featurePanels.slice();
-      // Tag the back-button panel so the pointer bridge can route its click.
-      for (const panel of panels) {
-        if (
-          panel &&
-          typeof (panel as {key?: string}).key === "string" &&
-          (panel as {key: string}).key.toLowerCase().includes("back")
-        )
-          tagInteractionGroup(panel as SceneNode, "back");
-      }
-      children.push({type: "group", key: "viz-features", children: panels});
+      children.push({type: "group", key: "viz-features", children: this._featurePanels});
     }
     return {
       width: this.schema.width,
@@ -602,29 +593,6 @@ export default class Viz extends VizBase {
       interactionGroup?: string;
       shapeType?: string;
     };
-    // Back-button panel: its d3-selection click listener never fires in the
-    // scene path (it's a plain text node), so route its click here to pop
-    // the drill-down history / step up a level.
-    if (nodeAny.interactionGroup === "back") {
-      if (event.type === "click") {
-        const self = this;
-        const entry = self._history.pop();
-        if (entry) {
-          // Arms the reappearing parent's reunion lookup (resolveDrillMorph),
-          // so the vanishing children shrink into its rect instead of just
-          // fading — the mirror of clickShape's forward capture. `body` is
-          // the CURRENT (about-to-be-OLD) body rect, captured now because
-          // the exiting siblings' own geometry is frozen in THIS frame, not
-          // the new one .render() is about to produce.
-          if (entry.groupId !== undefined && entry.groupDepth !== undefined)
-            self._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: self._bodyRect};
-          self.config(entry).render();
-        } else {
-          self.depth(self._drawDepth - 1).filter(false).render();
-        }
-      }
-      return;
-    }
     // Axis ticks/labels and the timeline are chrome — they carry data but
     // are not chart shapes, so they must not fire shape tooltips/handlers.
     if (

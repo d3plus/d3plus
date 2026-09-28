@@ -87,6 +87,8 @@ const vizSchema = [
   {key: "filter", coerce: "identity" as const},
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
+  {key: "minimap", coerce: "identity" as const},
+  {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
@@ -110,46 +112,49 @@ function initBaseDefaults(viz: Viz): void {
   viz._renderMode = "full";
   viz.schema.ariaHidden = true;
   viz.schema.attribution = false;
-  const attributionBg = "rgba(255, 255, 255, 0.75)";
-  viz.schema.attributionStyle = {
-    background: attributionBg,
-    border: "1px solid rgba(0, 0, 0, 0.25)",
-    color: colorContrast(attributionBg),
-    display: "block",
-    font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
-    margin: "5px",
-    opacity: 0.75,
-    padding: "4px 6px 3px",
-  };
-  viz._backClass = new TextBox()
-    .on("click", () => {
-      const entry = viz._history.pop();
-      if (entry) {
-        // Arms the reappearing parent's reunion lookup (resolveDrillMorph),
-        // so the vanishing children shrink into its rect instead of just
-        // fading — the mirror of clickShape's forward capture. `body` is
-        // the CURRENT (about-to-be-OLD) body rect, captured now because the
-        // exiting siblings' own geometry is frozen in THIS frame, not the
-        // new one .render() is about to produce.
-        if (entry.groupId !== undefined && entry.groupDepth !== undefined)
-          viz._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: viz._bodyRect};
-        viz.config(entry).render();
-      } else {
-        // A single `.render()` — calling it again after `.filter(false)`
-        // would restart this same render mid-flight and cancel its
-        // transition (a fresh drawScene interrupts the one already running).
-        (viz.depth(viz._drawDepth - 1) as Viz).filter(false).render();
-      }
-    })
-    .on("mousemove", () =>
-      viz._backClass.select().style("cursor", "pointer"),
-    );
-  viz.schema.backConfig = {
-    fontSize: 10,
-    padding: 5,
-    resize: false,
-  };
+  viz.schema.attributionIcon = undefined;
+  viz.schema.attributionStyle = attributionStyleDefault;
   viz.schema.cache = true;
+}
+
+/**
+    Default inline style for the "← Back" button — structural-only, the
+    same properties `zoomControlStyleDefault`/`searchControlStyleDefault`
+    use, except `width: "auto"` (it shows an icon + the word "Back", not a
+    single centered glyph) with a small `gap` between them and horizontal
+    padding for breathing room. Also lighter/smaller than the other two's
+    `font` (900 15px): that value is a holdover from when their icons were
+    bold Unicode glyphs sized to read clearly (the icons are SVG now, so it
+    no longer affects THEM at all) — but back is the one place that font
+    actually renders visible text, where 900 15px reads oversized/heavy.
+    No background/border/color, same as the other two: a plain
+    browser-appearance button, letting native/host-page button chrome show
+    through by default.
+    @private
+*/
+export const backControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `400 12px/1 ${fontFamilyStringify(fontFamily)}`,
+  gap: "4px",
+  height: "20px",
+  "justify-content": "center",
+  padding: "0 6px",
+  width: "auto",
+};
+
+/**
+    Back-button control styling defaults.
+    @private
+*/
+function initBackDefaults(viz: Viz): void {
+  // No longer drives the button's appearance (see `.backConfig()`'s own
+  // doc comment), but `.backConfig({...})` merges into this via
+  // `assign(this.schema.backConfig, _)` — leaving it undefined makes that
+  // throw on the very first call, on every chart.
+  viz.schema.backConfig = {};
+  viz.schema.backControlClassName = undefined;
+  viz.schema.backControlStyle = backControlStyleDefault;
 }
 
 /**
@@ -451,6 +456,34 @@ function initLabelDefaults(viz: Viz): void {
 }
 
 /**
+    Default attribution styles: flush to the chart area's bottom-right corner
+    like the credit on a slippy map, in small type on a translucent backing
+    that keeps it legible over busy tiles without boxing it in. The dark
+    variant applies over a dark basemap while the style is still this
+    untouched default (compared by reference, like the zoom-control styles).
+    @private
+*/
+const attributionLightBg = "rgba(255, 255, 255, 0.7)";
+const attributionDarkBg = "rgba(24, 25, 28, 0.7)";
+const attributionBase = {
+  "border-radius": "3px 0 0 0",
+  display: "flex",
+  "align-items": "center",
+  gap: "4px",
+  font: `400 10px/1.4 ${fontFamilyStringify(fontFamily)}`,
+};
+export const attributionStyleDefault = {
+  ...attributionBase,
+  background: attributionLightBg,
+  color: colorContrast(attributionLightBg),
+};
+export const attributionStyleDarkDefault = {
+  ...attributionBase,
+  background: attributionDarkBg,
+  color: colorContrast(attributionDarkBg),
+};
+
+/**
     Default inline styles for the zoom-control buttons — structural only
     (sizing/spacing/typography); no color, background, border, or opacity.
     Letting native/host-page button chrome show through by default means a
@@ -504,6 +537,7 @@ function initZoomDefaults(viz: Viz): void {
     "stroke-width": 0,
   };
   viz.schema.zoomControlClassName = undefined;
+  viz.schema.zoomControlIcons = undefined;
   viz.schema.zoomControlStyle = zoomControlStyleDefault;
   viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
   viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
@@ -512,6 +546,87 @@ function initZoomDefaults(viz: Viz): void {
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
   viz.schema.zoomScroll = "modifier";
+}
+
+/**
+    Default inline styles for the minimap — mirrors the zoom-control defaults'
+    own reasoning (structural/neutral, easy to override or auto-disable via
+    `minimapClassName`) and the same by-reference `===` trick that lets
+    setting `minimapClassName` auto-disable an untouched default without
+    clobbering a caller's own customization.
+    @private
+*/
+export const minimapStyleDefault = {
+  background: "rgba(255, 255, 255, 0.75)",
+  border: "1px solid rgba(0, 0, 0, 0.25)",
+  "border-radius": "2px",
+  "box-sizing": "border-box",
+};
+export const minimapViewportStyleDefault = {
+  background: "rgba(0, 0, 0, 0.15)",
+  border: "1px solid rgba(0, 0, 0, 0.5)",
+  "border-radius": "2px",
+  cursor: "grab",
+};
+export const minimapViewportStyleActiveDefault = {
+  background: "rgba(0, 0, 0, 0.25)",
+  cursor: "grabbing",
+};
+export const minimapLabelStyleDefault = {
+  bottom: "2px",
+  right: "3px",
+  color: "rgba(0, 0, 0, 0.75)",
+  font: `400 9px/1 ${fontFamilyStringify(fontFamily)}`,
+  "pointer-events": "none",
+};
+
+/**
+    Minimap visibility and styling defaults.
+    @private
+*/
+function initMinimapDefaults(viz: Viz): void {
+  viz.schema.minimap = true;
+  viz.schema.minimapClassName = undefined;
+  viz.schema.minimapStyle = minimapStyleDefault;
+  viz.schema.minimapViewportStyle = minimapViewportStyleDefault;
+  viz.schema.minimapViewportStyleActive = minimapViewportStyleActiveDefault;
+  viz.schema.minimapLabelStyle = minimapLabelStyleDefault;
+}
+
+/**
+    Default inline styles for the search control's toggle button — the same
+    structural-only values as `zoomControlStyleDefault` et al. (visual
+    parity by default), kept as independent objects/consumers rather than
+    shared references so restyling one doesn't affect the other.
+    @private
+*/
+export const searchControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const searchControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const searchControlStyleHoverDefault = false as const;
+
+/**
+    Search-control (toggle button + input) styling defaults.
+    @private
+*/
+function initSearchDefaults(viz: Viz): void {
+  viz.schema.search = true;
+  viz.schema.searchAccessor = (d: DataPoint, i: number) => viz._drawLabel(d, i);
+  viz.schema.searchControlClassName = undefined;
+  viz.schema.searchControlStyle = searchControlStyleDefault;
+  viz.schema.searchControlStyleActive = searchControlStyleActiveDefault;
+  viz.schema.searchControlStyleHover = searchControlStyleHoverDefault;
 }
 
 /**
@@ -536,4 +651,7 @@ export function initVizDefaults(viz: Viz): void {
   initShapeDefaults(viz);
   initLabelDefaults(viz);
   initZoomDefaults(viz);
+  initMinimapDefaults(viz);
+  initBackDefaults(viz);
+  initSearchDefaults(viz);
 }

@@ -52,7 +52,7 @@ export {curveFor, linePath, areaPath} from "./src/paths.js";
 
 export {domToScene} from "./src/dom.js";
 
-export {applyDeclarativeEvents} from "./src/overlay.js";
+export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 
 export {collapse, collapseTo, cubicInOut, interpolateNode, isFlipEligible} from "./src/animate/interpolate.js";
 export type {Interp} from "./src/animate/interpolate.js";

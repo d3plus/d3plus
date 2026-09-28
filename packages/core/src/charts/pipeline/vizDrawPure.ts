@@ -28,7 +28,6 @@
 */
 
 import {
-  backFeature,
   colorScaleFeature,
   legendFeature,
   runLayout,
@@ -38,6 +37,9 @@ import {
   titleFeature,
   totalFeature,
 } from "../features/features.js";
+import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
+import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
 
 import {resolveSpec} from "./resolveSpec.js";
 
@@ -104,12 +106,14 @@ export function vizDrawPure(
     left: viz._margin.left,
   };
 
-  // Top blocks first (back / title / subtitle / total) so the running
-  // margin.top grows BEFORE the left/right legend lays out — the legend
-  // positions against it. Title must lay out first or the left legend
-  // overlaps the title at y=0.
+  // Top blocks first (title / subtitle / total) so the running margin.top
+  // grows BEFORE the left/right legend lays out — the legend positions
+  // against it. Title must lay out first or the left legend overlaps the
+  // title at y=0. "← Back" no longer claims margin here — it's a
+  // zero-margin contribution to the shared top-left controls panel
+  // (`topLeftControlsFeature`, registered post-draw in `runVizPipeline`),
+  // the same way zoom's buttons float rather than claim margin.
   const topBlocks = runLayout({viz}, [
-    backFeature,
     titleFeature,
     subtitleFeature,
     totalFeature,
@@ -162,6 +166,27 @@ export function vizDrawPure(
     out.marginDelta!.bottom += claim.margin.bottom;
     running.top += claim.margin.top;
     running.bottom += claim.margin.bottom;
+  }
+
+  // The corner controls (zoom, back/search) deliberately claim zero
+  // margin of their own — they float at y:0, and normally whatever's
+  // ABOVE the chart body (title/subtitle/total, a top legend/colorScale)
+  // already pushed it down clear of them. But when NONE of those claimed
+  // any margin.top, the chart body starts at y:0 too, and the buttons
+  // paint directly over its top edge — a Treemap's very top row, most
+  // visibly, since there's no dead space up there to absorb it. Reserve
+  // just enough room for the taller of the two corner rows in that one
+  // case; a chart with a title/legend already has (at minimum) that same
+  // room from its own claim, so this never adds on top of one.
+  if (!out.marginDelta!.top) {
+    const zoomHeight = zoomControlsBox(viz as never)?.height ?? 0;
+    const topLeftHeight =
+      topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))?.height ?? 0;
+    const cornerHeight = Math.max(zoomHeight, topLeftHeight);
+    if (cornerHeight) {
+      out.marginDelta!.top += cornerHeight;
+      running.top += cornerHeight;
+    }
   }
 
   // Snapshot final featurePanels onto the returned ctx.

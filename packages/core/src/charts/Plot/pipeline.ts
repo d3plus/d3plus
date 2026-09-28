@@ -19,7 +19,7 @@ import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -33,7 +33,6 @@ export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
 
 const defaultChartFeatures = [
-  backFeature,
   titleFeature,
   subtitleFeature,
   totalFeature,

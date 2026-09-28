@@ -437,10 +437,17 @@ it("the default basemap follows the page's theme", async function () {
         viz.render(() => {
           const light = state();
           document.body.style.background = "#15191e";
-          // The theme watcher redraws on the <body> style change.
+          // The theme watcher redraws on the <body> style change. Don't
+          // reset the background back afterward: that's a second style
+          // mutation the same MutationObserver picks up, kicking off a
+          // third, un-awaited redraw (and its own tile fetch) that can still
+          // be in flight when `render()`'s `page.close()` runs — tearing
+          // down the page mid-fetch throws "Execution context was
+          // destroyed", flakily failing this test well after it already
+          // resolved correctly. The page itself is thrown away right after
+          // this promise settles, so there's nothing to actually clean up.
           window.setTimeout(() => {
             const dark = state();
-            document.body.style.background = "";
             resolve({light, dark});
           }, 400);
         });

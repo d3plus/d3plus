@@ -22,6 +22,7 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
@@ -191,6 +192,10 @@ export interface VizInstance {
       returns false to fall back to picture zoom (Plot rescales its axes).
   */
   _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
+  /** Cleanup functions returned by `zoomControlIcons`' mount functions, keyed by button. */
+  _zoomIconCleanup?: Partial<Record<ZoomControlIconKey, () => void>>;
+  /** Cleanup function returned by an `attributionIcon` mount function. */
+  _attributionIconCleanup?: () => void;
 
   /* 7. Lifecycle & rendering */
   _select?: D3Selection;
@@ -205,6 +210,14 @@ export interface VizInstance {
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** Whether the search control's input is currently open. */
+  _searchOpen?: boolean;
+  /** The search control's current (lowercased) search term. */
+  _searchTerm?: string;
+  /** The `_highlight` predicate saved when the search box opened, restored when it closes. */
+  _searchPrevHighlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** 0-based index of the current match within `searchMatches(...)`, once Enter/Shift+Enter has stepped to one. */
+  _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
   _userHover?: number;
@@ -273,6 +286,9 @@ export interface VizInstance {
   _resolvedExitToBody?: TransitionRect;
   /** See `DrawOptions.instantExitKey` — the clicked node's own key, resolved from `_pendingEnterOrigin.key`. */
   _resolvedInstantExitKey?: string | number;
+  /** Cached measured size of the shared top-left controls panel (back/table-view/search). */
+  /** `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
+  _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};
 
   /* 8. Plot-specific (only present on Plot subclasses) */
   _xAxis?: Axis;
@@ -315,7 +331,6 @@ export interface VizInstance {
   _timelineClass?: Timeline;
   _titleClass?: TextBox;
   _subtitleClass?: TextBox;
-  _backClass?: TextBox;
   _messageClass?: Message;
   _tooltipClass?: Tooltip;
   _legendSort?: (a: DataPoint, b: DataPoint) => number;
@@ -356,6 +371,8 @@ export interface VizInstance {
   _themeWatch?: boolean;
   /** The attribution d3plus last set from the tile URL (vs. a user-set one). */
   _tileAttribution?: string | false;
+  /** Whether a compact (ⓘ) attribution was clicked open. */
+  _attributionPinned?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
   /**

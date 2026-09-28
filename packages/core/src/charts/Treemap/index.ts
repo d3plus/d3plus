@@ -25,7 +25,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
@@ -60,7 +60,7 @@ type SortFn = (a: HierarchyNode<DataPoint>, b: HierarchyNode<DataPoint>) => numb
 export const treemapDef: ChartDefinition = {
   name: "Treemap",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyTreemapLayout,
   emit: treemapEmit,
 

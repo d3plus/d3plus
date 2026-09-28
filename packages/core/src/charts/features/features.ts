@@ -10,12 +10,10 @@
     `vizDrawPure` via `runLayout(ctx, [...features])`.
 */
 import {extent, min, rollup, sum} from "d3-array";
-import {select} from "d3-selection";
 
 import {merge, unique} from "@d3plus/data";
 import type {DataPoint, MergedDataPoint} from "@d3plus/data";
-import {date, elem, stylize} from "@d3plus/dom";
-import type {D3Selection} from "@d3plus/dom";
+import {date, elem} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
@@ -23,6 +21,8 @@ import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
+import {topLeftControlsInset as topLeftControlsInsetRaw} from "../drawSteps/topLeftControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -208,6 +208,16 @@ interface TextDatum {
 }
 
 /**
+    A little breathing room added to a NON-zero corner inset, on top of the
+    exact pixel width the corner panel measured at. Without it, content
+    insets to EXACTLY the corner box's edge — any tiny discrepancy between
+    that hidden-probe measurement and the real rendered box (sub-pixel
+    rounding, a font metric quirk) then reads as the text visibly, if
+    slightly, running under the buttons.
+*/
+const CORNER_INSET_GAP = 6;
+
+/**
     How far content starting `top` px down the chart, whose right edge sits
     `right` px in from the chart's right edge, must pull in its right edge to
     clear the zoom-control panel pinned to the chart's top-right corner. Zero
@@ -216,7 +226,42 @@ interface TextDatum {
 export function zoomControlsInset(viz: VizInstance, top: number, right: number): number {
   const box = zoomControlsBox(viz as never);
   if (!box || top >= box.height) return 0;
-  return Math.max(0, box.width - right);
+  const inset = box.width - right;
+  return inset > 0 ? inset + CORNER_INSET_GAP : 0;
+}
+
+/**
+    The left-side mirror of `zoomControlsInset`: how far content starting
+    `top` px down the chart, whose left edge sits `left` px in from the
+    chart's left edge, must pull in to clear the shared top-left controls
+    panel (back / table-view / search). Zero when nothing is showing there
+    or content starts below the panel's height.
+*/
+export function topLeftControlsInset(viz: VizInstance, top: number, left: number): number {
+  const contributions = getTopLeftContributions(viz as never);
+  const inset = topLeftControlsInsetRaw(viz as never, top, left, contributions);
+  return inset > 0 ? inset + CORNER_INSET_GAP : 0;
+}
+
+/**
+    The combined left+right corner-panel insets for content starting `top`
+    px down the chart, plus the single symmetric amount CENTERED content
+    should inset both sides by to stay centered on the full chart width even
+    when only one corner has something to avoid (the larger of the two —
+    see `textBlockLayout`'s doc comment for why). Shared by `textBlockLayout`
+    (title/subtitle/total) and the legend's own top-position layout
+    (`featuresLegend.ts`), which independently needed this exact same
+    "combine the two corners' insets" math before this existed.
+*/
+export function cornerInsets(
+  viz: VizInstance,
+  top: number,
+  left: number,
+  right: number,
+): {left: number; right: number; symmetric: number} {
+  const leftInset = topLeftControlsInset(viz, top, left);
+  const rightInset = zoomControlsInset(viz, top, right);
+  return {left: leftInset, right: rightInset, symmetric: Math.max(leftInset, rightInset)};
 }
 
 /**
@@ -255,24 +300,46 @@ function textBlockLayout(
     .config(viz.schema[opts.configKey]);
   let boxes = textClass._textData() as TextDatum[];
 
-  // Text alongside the zoom controls wraps short of them. Centered text
-  // insets both sides equally so it stays centered on the chart.
+  // Text alongside the zoom controls (right) and/or the shared top-left
+  // controls panel (left — back/table-view/search) wraps short of them.
+  // Centered text insets both sides by the SAME (larger) amount so it stays
+  // centered on the full chart width, matching how it already behaved
+  // relative to zoom alone; start/end-aligned text instead just narrows the
+  // true available box (its unaffected edge stays exactly where it was).
   let x = layoutMargin.left + padding.left;
-  const inset = zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right);
-  if (inset && boxes.length) {
+  const {left: leftInset, right: rightInset, symmetric} = cornerInsets(
+    viz,
+    layoutMargin.top,
+    layoutMargin.left + padding.left,
+    layoutMargin.right + padding.right,
+  );
+  if ((rightInset || leftInset) && boxes.length) {
     const centered = boxes[0].tA === "middle";
-    if (centered) x += inset;
-    width -= centered ? inset * 2 : inset;
+    if (centered) {
+      x += symmetric;
+      width -= symmetric * 2;
+    } else {
+      x += leftInset;
+      width -= leftInset + rightInset;
+    }
     textClass.width(width);
     boxes = textClass._textData() as TextDatum[];
   }
   if (!boxes.length) return {panel: null, margin: {}};
   const box = boxes[0];
 
-  const y = layoutMargin.top;
   const lineHeight = box.lH;
   const blockPadding = (viz.schema[opts.configKey]?.padding as number) ?? 0;
   const height = box.lines.length * lineHeight + blockPadding * 2;
+  // The claimed margin (below) already reserves `blockPadding` above AND
+  // below the text — shifting the panel down by that same amount is what
+  // actually centers the text within that reserved band, rather than
+  // pinning it flush to the very top of it. Previously `blockPadding` only
+  // grew/shrank the claimed space; it never moved the text within it,
+  // which is why the default title padding (5px) had no visible effect —
+  // the title sat at the top of its claim regardless, reading noticeably
+  // higher than the same-row zoom/back/search buttons beside it.
+  const y = layoutMargin.top + blockPadding;
 
   const lines = box.lines.map((str: string, i: number) => ({
     text: str,
@@ -337,60 +404,6 @@ export const subtitleFeature: FeatureModule = {
       configKey: "subtitleConfig",
       paddingMethod: "subtitlePadding",
     }),
-};
-
-/**
-    Converts `drawBack.ts` to a FeatureModule. Visible only when there are
-    drill-down history entries; emits a "← Back" TextNode at the chart's
-    top-left and claims its line height + padding × 2 from `margin.top`.
-*/
-export const backFeature: FeatureModule = {
-  name: "back",
-  configFields: ["backConfig"],
-  layout: ({viz, layoutMargin}) => {
-    if (!viz._history || !viz._history.length) return {panel: null, margin: {}};
-
-    const text = `← ${viz.schema.translate("Back")}`;
-    viz._backClass.data([{text, x: 0, y: 0}]).config(viz.schema.backConfig);
-    const boxes = viz._backClass._textData() as Array<{
-      lines: string[];
-      lH: number;
-      fS: number;
-      fF: string;
-      fC: string;
-      fO: number;
-      tA: string;
-      widths: number[];
-    }>;
-    // _backClass might have a fontSize/padding only style (no wrapping data),
-    // in which case _textData may be empty; fall back to direct accessor reads
-    // for the margin claim to match drawBack's math precisely.
-    const fontSize = viz._backClass.fontSize()();
-    const padding = viz._backClass.padding()();
-    const height = fontSize + padding * 2;
-
-    if (!boxes.length) {
-      return {panel: null, margin: {top: height}};
-    }
-    const box = boxes[0];
-
-    const panel: SceneNode = {
-      type: "text",
-      key: "viz-back",
-      x: 0,
-      y: 0,
-      lines: box.lines.map((str, i) => ({
-        text: str,
-        x: 0,
-        y: (i + 1) * box.lH - (box.lH - box.fS),
-        width: box.widths?.[i] ?? 0,
-      })),
-      font: {family: box.fF, size: box.fS, baseline: "alphabetic"},
-      paint: {fill: box.fC, opacity: box.fO},
-      transform: {x: layoutMargin.left, y: layoutMargin.top},
-    };
-    return {panel, margin: {top: height}};
-  },
 };
 
 /* -------------------------------- Legend --------------------------------- */
@@ -655,44 +668,7 @@ export const colorScaleFeature: FeatureModule = {
 
 /* ------------------------------ Attribution ------------------------------ */
 
-/* ------------------------------ Attribution ------------------------------ */
-
-/**
-    Converts `drawAttribution.ts` to a FeatureModule.
-
-    Attribution is an HTML `<div>` overlay positioned absolutely outside the SVG
-    plane — it doesn't fit naturally as a SceneNode in the chart scene graph.
-    Rather than encode an HTML overlay into the scene graph, this feature runs
-    the DOM-creating side effect imperatively from inside `layout()`, so
-    invocation is funneled through `runLayout` for consistency with the
-    other features. It claims zero margin and emits no panel.
-*/
-export const attributionFeature: FeatureModule = {
-  name: "attribution",
-  configFields: ["attribution", "attributionStyle"],
-  layout: ({viz}) => {
-    let attr: D3Selection = select(viz._select.node().parentNode)
-      .selectAll("div.d3plus-attribution")
-      .data(viz.schema.attribution ? [0] : []) as unknown as D3Selection;
-
-    const attrEnter = attr
-      .enter()
-      .append("div")
-      .attr("class", "d3plus-attribution");
-
-    attr.exit().remove();
-
-    attr = attr
-      .merge(attrEnter as never)
-      .style("position", "absolute")
-      .html(viz.schema.attribution)
-      .style("right", `${viz._margin.right}px`)
-      .style("bottom", `${viz._margin.bottom}px`)
-      .call(stylize as never, viz.schema.attributionStyle);
-
-    return {panel: null, margin: {}};
-  },
-};
+export {attributionFeature} from "./attributionFeature.js";
 
 /**
     Converts `drawTotal.ts` to a FeatureModule. Slightly different from title/

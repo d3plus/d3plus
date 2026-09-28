@@ -1199,7 +1199,7 @@ it("Axis.measure() populates outerBounds without touching the DOM", async () => 
   }
 });
 
-it("backFeature emits a Back button TextNode when history is non-empty", async () => {
+it("backContribution renders a Back button in the top-left controls panel when history is non-empty", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -1211,23 +1211,28 @@ it("backFeature emits a Back button TextNode when history is non-empty", async (
       .height(300)
       .duration(0)
       .select(target);
-    // Seed drill-down history so backFeature renders the back button.
+    // Seed drill-down history so backContribution renders the back button.
     viz._history = [{depth: 0}];
     await new Promise(resolve => viz.render(resolve));
+    const panel = target.querySelector(".d3plus-top-left-controls-item");
+    const btn = panel && panel.querySelector(".back-control");
     return {
       text: target.textContent,
-      hasBack: !!target.querySelector('[data-key="viz-back"]'),
+      hasBack: !!btn,
+      isButton: btn ? btn.tagName.toLowerCase() === "button" : false,
+      hasIcon: btn ? !!btn.querySelector("svg") : false,
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await page.close();
 
-  assert.ok(res.hasBack, "back text node in scene");
-  assert.ok(res.text.includes("←"), "back arrow glyph present");
+  assert.ok(res.hasBack, "back button in the top-left controls panel");
+  assert.ok(res.isButton, "back control is a real <button>, not a scene text node");
+  assert.ok(res.hasIcon, "back arrow SVG icon present");
   assert.ok(res.text.toLowerCase().includes("back"), "back label rendered");
 });
 
-it("backFeature emits nothing when history is empty (default state)", async () => {
+it("backContribution emits nothing when history is empty (default state)", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -1243,13 +1248,13 @@ it("backFeature emits nothing when history is empty (default state)", async () =
         .render(resolve);
     });
     return {
-      hasBack: !!target.querySelector('[data-key="viz-back"]'),
+      hasBack: !!target.querySelector(".back-control"),
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await page.close();
 
-  assert.ok(!res.hasBack, "no back node when history is empty");
+  assert.ok(!res.hasBack, "no back button when history is empty");
 });
 
 it("titleFeature composes a title TextNode into the scene", async () => {
@@ -1282,7 +1287,10 @@ it("titleFeature composes a title TextNode into the scene", async () => {
 
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.titleTextNode, "title text node present in scene");
-  assert.ok(res.text.includes("My Chart Title"), "title text appears in rendered DOM");
+  // Wrapped lines render as separate tspans with no inserted whitespace, so
+  // check the words rather than the exact phrase with its space intact.
+  assert.ok(res.text.includes("My Chart"), "title text appears in rendered DOM");
+  assert.ok(res.text.includes("Title"), "title text appears in rendered DOM");
 });
 
 it("CanvasRenderer picks a Path2D path in a real browser", async () => {

@@ -86,12 +86,10 @@ it("a routed click on a StackedArea band arms and resolves the forward and backw
       };
 
       const beforeBackDraws = capturedOpts.length;
-      chart._routeSceneEvent({
-        type: "click",
-        point: [1, 1],
-        pick: {node: {type: "rect", x: 0, y: 0, width: 10, height: 10, interactionGroup: "back"}, datum: undefined, index: 0},
-        nativeEvent: {},
-      });
+      // The back button is a real HTML <button> in the shared top-left
+      // controls panel now (backControl.ts), not an SVG scene node routed
+      // through _routeSceneEvent — click it the same way a user would.
+      document.querySelector("#viz .back-control").click();
       await new Promise(resolve => window.setTimeout(resolve, 50));
       const backDraw = capturedOpts.slice(beforeBackDraws).find(o => o.exitTo);
 
