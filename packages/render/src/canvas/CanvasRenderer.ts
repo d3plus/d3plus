@@ -177,7 +177,11 @@ export default class CanvasRenderer implements Renderer {
     this._reconcileOverlays(scene);
 
     const ease = opts?.ease ?? cubicInOut;
-    const interp = interpolateScene(prev, scene, trailLog);
+    const interp = interpolateScene(prev, scene, trailLog, {
+      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      instantExitKey: opts?.instantExitKey,
+    });
     const start = now();
     let cancelled = false;
 

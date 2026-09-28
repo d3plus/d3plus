@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import {collapse, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, parseGradient, TrailLog} from "../es/index.js";
+import {collapse, collapseTo, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, isFlipEligible, parseGradient, TrailLog} from "../es/index.js";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");
@@ -54,6 +54,166 @@ it("collapse grows a Sankey link's stroke-width from 0, keeping opacity", () => 
   assert.strictEqual(plain.paint.strokeWidth, 4, "plain path keeps its stroke-width");
 });
 
+it("collapse flattens a shapeType Area path to a flat line at its own bounding-box center", () => {
+  // A triangle-ish "d" whose bbox is x:[0,20], y:[-10,0] — the flat line
+  // should sit at the box's vertical center (y=-5), spanning its x-span.
+  const area = collapse({type: "path", key: "a", shapeType: "Area", d: "M0,0L10,-10L20,0Z"});
+  assert.strictEqual(area.paint.opacity, 0, "opacity fades to 0");
+  assert.ok(area.d.includes("-5"), "flat line sits at the bbox's vertical center");
+  assert.ok(area.d.startsWith("M0,-5"), "flat line starts at the bbox's left edge");
+});
+
+it("collapse scales a shapeType Pie wedge to nothing at its own bounding-box center", () => {
+  // A wedge-ish "d" whose bbox is x:[0,20], y:[-10,0] — scale:0 collapses
+  // every point to the transform's (x,y), which must equal the bbox center
+  // (10,-5) so the wedge shrinks toward itself, not the scene origin. `d`
+  // stays untouched — only the transform expresses the collapse.
+  const wedge = collapse({type: "path", key: "w", shapeType: "Pie", d: "M0,0L10,-10L20,0Z"});
+  assert.strictEqual(wedge.paint.opacity, 0, "opacity fades to 0");
+  assert.strictEqual(wedge.d, "M0,0L10,-10L20,0Z", "d is untouched — the collapse is expressed as a transform");
+  assert.strictEqual(wedge.transform.scale, 0, "scales to nothing");
+  assert.strictEqual(wedge.transform.x, 10, "collapses toward its own bbox center (x)");
+  assert.strictEqual(wedge.transform.y, -5, "collapses toward its own bbox center (y)");
+});
+
+it("collapse flattens an area to its own vertical center", () => {
+  const area = collapse({
+    type: "area", key: "a",
+    topline: [[0, 0], [10, -20], [20, -5]],
+    baseline: [[0, 10], [10, 10], [20, 10]],
+  });
+  const midY = (0 + -20 + -5) / 3;
+  assert.ok(area.topline.every(([, y]) => y === midY), "topline flattens to its own average y");
+  assert.ok(area.baseline.every(([, y]) => y === midY), "baseline flattens to the same y as topline");
+  assert.deepStrictEqual(area.topline.map(p => p[0]), [0, 10, 20], "x positions are kept");
+  assert.strictEqual(area.paint.opacity, 0, "opacity fades to 0");
+});
+
+it("isFlipEligible admits plain rect/circle/area content, rejects chrome and other types", () => {
+  assert.ok(isFlipEligible({type: "rect", key: "a", x: 0, y: 0, width: 1, height: 1}), "plain rect is eligible");
+  assert.ok(isFlipEligible({type: "circle", key: "b", cx: 0, cy: 0, r: 1}), "plain circle is eligible");
+  assert.ok(isFlipEligible({type: "area", key: "c", topline: [], baseline: []}), "plain area is eligible");
+  assert.ok(
+    !isFlipEligible({type: "rect", key: "d", x: 0, y: 0, width: 1, height: 1, interactionGroup: "back"}),
+    "chrome tagged with an interactionGroup (legend/timeline/back) is not eligible",
+  );
+  assert.ok(!isFlipEligible({type: "text", key: "e", x: 0, y: 0, lines: [], font: {}}), "text has no rect-collapse mapping");
+  assert.ok(!isFlipEligible({type: "path", key: "f", d: "M0,0"}), "a plain path keeps its own opacity-only fade, not the box override");
+  assert.ok(!isFlipEligible({type: "path", key: "g", d: "M0,0", shapeType: "Link"}), "a Sankey Link keeps its own stroke-width collapse, not the box override");
+  assert.ok(
+    isFlipEligible({type: "path", key: "h", d: "M0,0", shapeType: "Area"}),
+    "a path stamped shapeType Area is eligible — StackedArea/AreaPlot's actual band representation",
+  );
+  assert.ok(
+    isFlipEligible({type: "path", key: "i", d: "M0,0", shapeType: "Pie"}),
+    "a path stamped shapeType Pie is eligible — Pie/Donut's actual wedge representation",
+  );
+});
+
+it("collapseTo collapses a flip-eligible node to/from an external box, not its own center", () => {
+  const rect = collapseTo(
+    {type: "rect", key: "a", x: 0, y: 0, width: 100, height: 50},
+    {x: 10, y: 20, width: 30, height: 40},
+  );
+  assert.deepStrictEqual(
+    {x: rect.x, y: rect.y, width: rect.width, height: rect.height},
+    {x: 10, y: 20, width: 30, height: 40},
+    "rect takes the override box exactly",
+  );
+  assert.strictEqual(rect.paint.opacity, 0, "opacity fades to 0");
+
+  const circle = collapseTo({type: "circle", key: "b", cx: 0, cy: 0, r: 100}, {x: 0, y: 0, width: 20, height: 40});
+  assert.strictEqual(circle.cx, 10, "circle centers in the box (x)");
+  assert.strictEqual(circle.cy, 20, "circle centers in the box (y)");
+  assert.strictEqual(circle.r, 10, "circle radius is half the box's shorter side");
+
+  const area = collapseTo(
+    {type: "area", key: "c", topline: [[0, -20], [10, -30]], baseline: [[0, 10], [10, 10]]},
+    {x: 100, y: 200, width: 40, height: 10},
+  );
+  assert.ok(area.topline.every(([, y]) => y === 205), "topline sits at the box's vertical center");
+  assert.ok(area.baseline.every(([, y]) => y === 205), "baseline sits at the box's vertical center");
+  assert.strictEqual(area.topline[0][0], 100, "first point at the box's left edge");
+  assert.strictEqual(area.topline[1][0], 140, "last point at the box's right edge");
+
+  const areaPath = collapseTo(
+    {type: "path", key: "d", shapeType: "Area", d: "M0,0L10,-10L20,0Z"},
+    {x: 100, y: 200, width: 40, height: 10},
+  );
+  assert.strictEqual(areaPath.paint.opacity, 0, "opacity fades to 0");
+  assert.ok(areaPath.d.startsWith("M100,205"), "flat line starts at the box's left edge, vertical center");
+  assert.ok(areaPath.d.includes("140,205"), "flat line reaches the box's right edge");
+
+  // Bbox x:[0,20] y:[-10,0] fit ("contain") into a 40×10 box: the height
+  // ratio (10/10=1) is the binding constraint, so scale is 1 and the wedge's
+  // own shape is centered in the box, letterboxed horizontally — its real
+  // silhouette (`d`, untouched), not a degenerate point.
+  const wedge = collapseTo(
+    {type: "path", key: "e", shapeType: "Pie", d: "M0,0L10,-10L20,0Z"},
+    {x: 100, y: 200, width: 40, height: 10},
+  );
+  assert.strictEqual(wedge.paint.opacity, 0, "opacity fades to 0");
+  assert.strictEqual(wedge.d, "M0,0L10,-10L20,0Z", "d is untouched — the collapse is expressed as a transform");
+  assert.strictEqual(wedge.transform.scale, 1, "contain-fits at the binding (height) ratio");
+  assert.strictEqual(wedge.transform.x, 110, "translated so its bbox centers in the box (x)");
+  assert.strictEqual(wedge.transform.y, 210, "translated so its bbox centers in the box (y)");
+});
+
+it("collapseTo maps a Treemap cell PROPORTIONALLY within body into rect, instead of becoming rect", () => {
+  const body = {x: 0, y: 0, width: 100, height: 50};
+  const node = {type: "rect", key: "cell", x: 20, y: 10, width: 30, height: 20};
+  const target = {x: 200, y: 300, width: 40, height: 20};
+
+  const mapped = collapseTo(node, target, body);
+  // fx=0.2, fy=0.2, fw=0.3, fh=0.4 of body, reapplied to target.
+  assert.strictEqual(mapped.x, 208, "x keeps its fractional position within body, remapped into target");
+  assert.strictEqual(mapped.y, 304, "y keeps its fractional position within body, remapped into target");
+  assert.strictEqual(mapped.width, 12, "width scales by target/body ratio (non-uniform), not becoming target's width");
+  assert.strictEqual(mapped.height, 8, "height scales by target/body ratio (non-uniform)");
+  assert.strictEqual(mapped.paint.opacity, 0, "opacity still fades to 0");
+
+  // A Bar (axis-based layout, not a space-filling one) keeps the plain
+  // "become target exactly" behavior even when body is supplied.
+  const bar = collapseTo({...node, shapeType: "Bar"}, target, body);
+  assert.deepStrictEqual(
+    {x: bar.x, y: bar.y, width: bar.width, height: bar.height},
+    {x: 200, y: 300, width: 40, height: 20},
+    "a Bar ignores body and becomes target exactly, same as without body",
+  );
+});
+
+it("collapseTo maps a Pack circle PROPORTIONALLY within body into rect, instead of becoming rect", () => {
+  const body = {x: 0, y: 0, width: 100, height: 100};
+  const node = {type: "circle", key: "c", cx: 30, cy: 70, r: 10, shapeType: "Pack"};
+  const target = {x: 500, y: 500, width: 40, height: 40};
+
+  const mapped = collapseTo(node, target, body);
+  assert.strictEqual(mapped.cx, 512, "cx keeps its fractional position within body, remapped into target");
+  assert.strictEqual(mapped.cy, 528, "cy keeps its fractional position within body, remapped into target");
+  assert.strictEqual(mapped.r, 4, "radius scales by the target/body ratio (0.4), not becoming half of target's side");
+
+  // A Plot scatter point (shapeType "Circle", not "Pack") keeps the plain
+  // "become target exactly" behavior even when body is supplied.
+  const scatter = collapseTo({...node, shapeType: "Circle"}, target, body);
+  assert.strictEqual(scatter.cx, 520, "a scatter point ignores body and centers in target, same as without body");
+  assert.strictEqual(scatter.r, 20, "a scatter point's radius is half of target's side, same as without body");
+});
+
+it("collapseTo maps a Pie wedge using the WHOLE pie (body) as the shared scale source, not its own bbox", () => {
+  const body = {x: -50, y: -50, width: 100, height: 100};
+  const node = {type: "path", key: "w", shapeType: "Pie", d: "M0,0L10,-10L20,0Z"};
+  const target = {x: 100, y: 200, width: 40, height: 10};
+
+  const mapped = collapseTo(node, target, body);
+  assert.strictEqual(mapped.d, "M0,0L10,-10L20,0Z", "d stays untouched — only the transform expresses the collapse");
+  assert.strictEqual(mapped.transform.scale, 0.1, "scale is target/body (0.1), not target/own-bbox (which would be 1)");
+  // body is centered at (0,0), so translate lands exactly on target's center —
+  // unlike the own-bbox case (previous test), which offsets to center the
+  // wedge's OWN off-center bbox instead.
+  assert.strictEqual(mapped.transform.x, 120, "translates to target's center x, since body's center is the origin");
+  assert.strictEqual(mapped.transform.y, 205, "translates to target's center y, since body's center is the origin");
+});
+
 it("interpolateNode interpolates numeric geometry and color", () => {
   const interp = interpolateNode(
     {type: "rect", key: "a", x: 0, y: 0, width: 0, height: 0, paint: {fill: "#000000"}},
@@ -97,6 +257,79 @@ it("interpolateScene fades entering nodes and drops exiting nodes at t=1", () =>
 
   const end = interp(1);
   assert.deepStrictEqual(end.root.children.map(c => c.key), ["new"], "exiting node dropped at t=1");
+});
+
+it("interpolateScene morphs a flip-eligible entering node from an external enterFrom box", () => {
+  const prev = {width: 200, height: 100, root: {type: "group", key: "root", children: []}};
+  const next = {
+    width: 200, height: 100,
+    root: {type: "group", key: "root", children: [
+      {type: "rect", key: "new", x: 0, y: 0, width: 100, height: 50},
+    ]},
+  };
+  const enterFrom = {x: 40, y: 20, width: 10, height: 10};
+  const interp = interpolateScene(prev, next, undefined, {enterFrom});
+
+  const start = interp(0).root.children.find(c => c.key === "new");
+  assert.strictEqual(start.x, 40, "entering rect starts at enterFrom.x, not its own center");
+  assert.strictEqual(start.y, 20, "entering rect starts at enterFrom.y");
+  assert.strictEqual(start.width, 10, "entering rect starts at enterFrom.width");
+  assert.strictEqual(start.height, 10, "entering rect starts at enterFrom.height");
+
+  const end = interp(1).root.children.find(c => c.key === "new");
+  assert.strictEqual(end.width, 100, "entering rect still ends at its own target geometry");
+});
+
+it("interpolateScene threads enterFromBody through to a PROPORTIONAL start position (Treemap-style)", () => {
+  const prev = {width: 200, height: 100, root: {type: "group", key: "root", children: []}};
+  const next = {
+    width: 200, height: 100,
+    root: {type: "group", key: "root", children: [
+      // Sits at x:[50,100] within a 0..100-wide body — right half.
+      {type: "rect", key: "new", x: 50, y: 0, width: 50, height: 50},
+    ]},
+  };
+  const enterFrom = {x: 1000, y: 2000, width: 40, height: 20};
+  const enterFromBody = {x: 0, y: 0, width: 100, height: 50};
+  const interp = interpolateScene(prev, next, undefined, {enterFrom, enterFromBody});
+
+  const start = interp(0).root.children.find(c => c.key === "new");
+  // fx=0.5 (right half of body) → still the right half of enterFrom, not
+  // enterFrom's own x/width verbatim.
+  assert.strictEqual(start.x, 1020, "starts at its proportional position within enterFromBody, remapped into enterFrom");
+  assert.strictEqual(start.width, 20, "starts at its proportional width within enterFromBody, remapped into enterFrom");
+});
+
+it("interpolateScene morphs a flip-eligible exiting node toward an external exitTo box", () => {
+  const prev = {
+    width: 200, height: 100,
+    root: {type: "group", key: "root", children: [
+      {type: "rect", key: "old", x: 0, y: 0, width: 100, height: 50},
+    ]},
+  };
+  const next = {width: 200, height: 100, root: {type: "group", key: "root", children: []}};
+  const exitTo = {x: 40, y: 20, width: 10, height: 10};
+  const interp = interpolateScene(prev, next, undefined, {exitTo});
+
+  // Exiting nodes are dropped entirely at t=1 (see the test above), so the
+  // approach-toward-exitTo has to be checked just short of that.
+  const node = interp(0.999).root.children.find(c => c.key === "old");
+  assert.ok(Math.abs(node.width - 10) < 0.5, "exiting rect shrinks toward exitTo's width, not its own center");
+  assert.ok(Math.abs(node.x - 40) < 0.5, "exiting rect moves toward exitTo's x");
+});
+
+it("interpolateScene ignores enterFrom/exitTo for a node that is not flip-eligible", () => {
+  const prev = {width: 200, height: 100, root: {type: "group", key: "root", children: []}};
+  const next = {
+    width: 200, height: 100,
+    root: {type: "group", key: "root", children: [
+      {type: "rect", key: "back", x: 0, y: 0, width: 100, height: 50, interactionGroup: "back"},
+    ]},
+  };
+  const interp = interpolateScene(prev, next, undefined, {enterFrom: {x: 999, y: 999, width: 1, height: 1}});
+  const start = interp(0).root.children.find(c => c.key === "back");
+  assert.strictEqual(start.x, 50, "chrome collapses to its own center, ignoring enterFrom");
+  assert.strictEqual(start.width, 0, "chrome collapses its own width to 0, ignoring enterFrom");
 });
 
 it("interpolateScene streaks a motion trail behind a moving trailed point", () => {

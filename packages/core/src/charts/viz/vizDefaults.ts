@@ -123,9 +123,23 @@ function initBaseDefaults(viz: Viz): void {
   };
   viz._backClass = new TextBox()
     .on("click", () => {
-      if (viz._history.length) viz.config(viz._history.pop()).render();
-      else (viz.depth(viz._drawDepth - 1) as Viz).filter(false);
-      viz.render();
+      const entry = viz._history.pop();
+      if (entry) {
+        // Arms the reappearing parent's reunion lookup (resolveDrillMorph),
+        // so the vanishing children shrink into its rect instead of just
+        // fading — the mirror of clickShape's forward capture. `body` is
+        // the CURRENT (about-to-be-OLD) body rect, captured now because the
+        // exiting siblings' own geometry is frozen in THIS frame, not the
+        // new one .render() is about to produce.
+        if (entry.groupId !== undefined && entry.groupDepth !== undefined)
+          viz._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: viz._bodyRect};
+        viz.config(entry).render();
+      } else {
+        // A single `.render()` — calling it again after `.filter(false)`
+        // would restart this same render mid-flight and cancel its
+        // transition (a fresh drawScene interrupts the one already running).
+        (viz.depth(viz._drawDepth - 1) as Viz).filter(false).render();
+      }
     })
     .on("mousemove", () =>
       viz._backClass.select().style("cursor", "pointer"),

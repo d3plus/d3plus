@@ -39,6 +39,14 @@ export const packDef: ChartDefinition = {
     y: viz._margin.top + ((viz.ctx.packOffsetY as number) ?? 0),
   }),
 
+  // Pack's body isn't the full chart area (chartTransform centers a
+  // diameter-sized square within it, via packOffsetX/Y) — the drill-down
+  // morph's fractions need that square, not the default chartBounds() rect.
+  chartBodyRect: (viz: VizInstance) => {
+    const d = (viz.ctx.packDiameter as number) ?? 0;
+    return {x: 0, y: 0, width: d, height: d};
+  },
+
   // `hover` shadows the prototype method per-instance so it also drives
   // the legend's hover state. Method shadowing doesn't fit the field
   // model (it's a method, not a value with a default); setup is the

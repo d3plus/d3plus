@@ -2,11 +2,12 @@ import {type BaseType, select, type Selection} from "d3-selection";
 import {transition, type Transition} from "d3-transition";
 import textures from "textures";
 
-import {collapse} from "../animate/interpolate.js";
+import type {FlipTransition} from "../animate/diff.js";
 import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
 import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
 import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
+import {enterStart, reconcileExit} from "./svgFlip.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
@@ -184,7 +185,12 @@ export default class SvgRenderer implements Renderer {
       this._svg.style.background = scene.meta.background;
 
     const t = transition().duration(duration);
-    this._reconcile(select(this._root), scene.root.children, duration, t);
+    const flip: FlipTransition = {
+      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      instantExitKey: opts?.instantExitKey,
+    };
+    this._reconcile(select(this._root), scene.root.children, duration, t, flip);
     this._reconcileOverlays(scene);
 
     let cancelled = false;
@@ -289,6 +295,7 @@ export default class SvgRenderer implements Renderer {
     children: SceneNode[],
     duration: number,
     t: RenderTransition,
+    flip?: FlipTransition,
   ): void {
     // HtmlOverlay nodes live outside the SVG; they're reconciled separately
     // by `_reconcileOverlays` against the sibling overlay host. Skip the
@@ -339,8 +346,7 @@ export default class SvgRenderer implements Renderer {
       if (d && this.parentNode) removePersistTrail(this.parentNode as Element, d.key);
       if (d) self._trailGrads.remove(d.key);
     });
-    if (duration) exit.transition(t).attr("opacity", 0).remove();
-    else exit.remove();
+    reconcileExit(exit, duration, t, flip, resolveFill);
 
     const enter = sel
       .enter()
@@ -351,7 +357,7 @@ export default class SvgRenderer implements Renderer {
     enter.each(function (this: Element, d: SceneNode) {
       const s = select(this);
       applyStatic(s, d);
-      applyGeometry(s, collapse(d), false, resolveFill);
+      applyGeometry(s, enterStart(d, flip), false, resolveFill);
     });
 
     const merged = enter.merge(sel);
@@ -408,7 +414,7 @@ export default class SvgRenderer implements Renderer {
       }
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
-        self._reconcile(s, (d as GroupNode).children, duration, t);
+        self._reconcile(s, (d as GroupNode).children, duration, t, flip);
       }
     });
   }

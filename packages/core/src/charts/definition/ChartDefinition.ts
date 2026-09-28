@@ -54,6 +54,17 @@ interface ChartDefinitionBase {
   */
   chartClip?: (viz: VizInstance) => import("@d3plus/render").ClipShape | undefined;
   /**
+      Optional chart-specific "local body rect" — the box the drill-down morph
+      transition (`enterFrom`/`exitTo`) measures its fractions against. Read
+      directly off `def` by `runChartDraw` (same pattern as `chartClip`), after
+      the layout stage runs. Default: the margin-adjusted chart area at local
+      origin (0,0), i.e. `{x: 0, y: 0, ...chartBounds(viz)}` — correct for any
+      chart whose emitted nodes sit inside the `chartTransform`-wrapped body
+      group at that same local origin (Treemap; Pack overrides this, since its
+      body is a diameter-sized square, not the full chart area).
+  */
+  chartBodyRect?: (viz: VizInstance) => {x: number; y: number; width: number; height: number};
+  /**
       Imperative per-instance setup hook — runs once after `applyDefinition`
       seeds the chart. Use for event handler overrides and shadowed methods
       that don't fit the declarative `fields`/`ctx` surface.

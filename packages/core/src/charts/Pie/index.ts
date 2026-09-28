@@ -36,6 +36,27 @@ export const pieDef: DataDrivenChartDefinition = {
       viz.ctx.pieHeight as number,
     ),
 
+  // Pie's chartTransform centers the origin — wedges are drawn in
+  // [-pieWidth/2, pieWidth/2] × [-pieHeight/2, pieHeight/2], not the
+  // top-left-origin box the default chartBodyRect assumes (that default is
+  // only correct for a marginOriginTransform chart like Treemap). Without
+  // this override, the drill-down morph's enter/exit fractions would be
+  // computed against the wrong origin.
+  //
+  // Uses the TIGHT circle (radius = min(pieWidth, pieHeight)/2, matching
+  // applyPieLayout's own outerRadius) rather than the loose pieWidth ×
+  // pieHeight box: pieWidth/pieHeight is the available space, which isn't
+  // square when the chart area isn't, and the drill-down morph's
+  // proportional remap (collapseTo's shapeType "Pie" case) uses this as the
+  // "whole pie" reference — a non-square reference would stretch the circle
+  // into an ellipse as it scales.
+  chartBodyRect: (viz: VizInstance) => {
+    const w = (viz.ctx.pieWidth as number) ?? 0;
+    const h = (viz.ctx.pieHeight as number) ?? 0;
+    const r = Math.min(w, h) / 2;
+    return {x: -r, y: -r, width: r * 2, height: r * 2};
+  },
+
   ctx: {
     pie: d3Pie(),
   },

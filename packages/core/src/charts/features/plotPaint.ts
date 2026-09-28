@@ -616,5 +616,14 @@ export function plotPaintMeasured(
   clip?: ClipShape,
 ): {nodes: SceneNode[]; layout: PlotMeasureResult} {
   const layout = renderAxes(viz, pCtx, frozen);
+  // The drill-down morph's fractions are measured against the plot's actual
+  // measured pixel rect — Plot bakes margins/axis offsets directly into
+  // shape coordinates (no separate _chartTransform the way Treemap/Pack
+  // have), so xRange/yRange already are that local rect.
+  viz._bodyRect = {
+    x: layout.xRange[0], y: layout.yRange[0],
+    width: layout.xRange[1] - layout.xRange[0],
+    height: layout.yRange[1] - layout.yRange[0],
+  };
   return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

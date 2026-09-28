@@ -460,7 +460,23 @@ export default class Viz extends VizBase {
         ? computeTrailCatchup(this as unknown as VizInstance, scene, this._trailSeq, sequence)
         : undefined;
     if (sequence !== undefined) this._trailSeq = sequence;
-    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence, trailCatchup});
+    this._sceneRenderer.drawScene(scene, {
+      duration: drawDuration, sequence, trailCatchup,
+      // The drill-down morph's resolved boxes for this draw, if a drill
+      // click armed one (resolveDrillMorph, run just before this method via
+      // runVizPipeline). One-shot: cleared right below so a later repaint
+      // that reaches this method by some OTHER path (a zoom/pan tick, a
+      // coalesced hover repaint, Rings' click-to-recenter) never inherits a
+      // stale box from an earlier drill click.
+      enterFrom: this._resolvedEnterFrom, enterFromBody: this._resolvedEnterFromBody,
+      exitTo: this._resolvedExitTo, exitToBody: this._resolvedExitToBody,
+      instantExitKey: this._resolvedInstantExitKey,
+    });
+    this._resolvedEnterFrom = undefined;
+    this._resolvedEnterFromBody = undefined;
+    this._resolvedExitTo = undefined;
+    this._resolvedExitToBody = undefined;
+    this._resolvedInstantExitKey = undefined;
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay
@@ -592,8 +608,20 @@ export default class Viz extends VizBase {
     if (nodeAny.interactionGroup === "back") {
       if (event.type === "click") {
         const self = this;
-        if (self._history.length) self.config(self._history.pop()).render();
-        else self.depth(self._drawDepth - 1).filter(false).render();
+        const entry = self._history.pop();
+        if (entry) {
+          // Arms the reappearing parent's reunion lookup (resolveDrillMorph),
+          // so the vanishing children shrink into its rect instead of just
+          // fading — the mirror of clickShape's forward capture. `body` is
+          // the CURRENT (about-to-be-OLD) body rect, captured now because
+          // the exiting siblings' own geometry is frozen in THIS frame, not
+          // the new one .render() is about to produce.
+          if (entry.groupId !== undefined && entry.groupDepth !== undefined)
+            self._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: self._bodyRect};
+          self.config(entry).render();
+        } else {
+          self.depth(self._drawDepth - 1).filter(false).render();
+        }
       }
       return;
     }
@@ -630,6 +658,10 @@ export default class Viz extends VizBase {
       typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
     this._lastScenePick = {
       d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType,
+      // The live picked node's own geometry, read synchronously by clickShape
+      // (before the drill-down re-render replaces this frame) to arm the
+      // forward drill-down morph.
+      node: pick.node,
     };
     this._hoverDatum = rawDatum;
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);

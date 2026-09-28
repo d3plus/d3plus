@@ -110,5 +110,11 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
     },
   });
 
+  // Marks each label as eligible for the drill-down morph (isFlipEligible),
+  // so it moves along with its cell instead of just fading in in place —
+  // distinct from every other text a chart emits (title/subtitle/legend),
+  // which is never stamped this way and so never flip-morphs.
+  for (const n of labelNodes) (n as {shapeType?: string}).shapeType = "Label";
+
   return [...rectNodes, ...labelNodes];
 };
