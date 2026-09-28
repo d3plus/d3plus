@@ -58,6 +58,59 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
+      An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+*/
+  minimapClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.minimapClassName = _), this)
+      : this.schema.minimapClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapLabelStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapLabelStyle = _), this)
+      : this.schema.minimapLabelStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapStyle = _), this)
+      : this.schema.minimapStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyle = _), this)
+      : this.schema.minimapViewportStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyleActive = _), this)
+      : this.schema.minimapViewportStyleActive;
+  }
+
+  /**
       The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 */
   noDataHTML(

@@ -87,6 +87,7 @@ const vizSchema = [
   {key: "filter", coerce: "identity" as const},
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
+  {key: "minimap", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
@@ -521,6 +522,51 @@ function initZoomDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the minimap — mirrors the zoom-control defaults'
+    own reasoning (structural/neutral, easy to override or auto-disable via
+    `minimapClassName`) and the same by-reference `===` trick that lets
+    setting `minimapClassName` auto-disable an untouched default without
+    clobbering a caller's own customization.
+    @private
+*/
+export const minimapStyleDefault = {
+  background: "rgba(255, 255, 255, 0.75)",
+  border: "1px solid rgba(0, 0, 0, 0.25)",
+  "border-radius": "2px",
+  "box-sizing": "border-box",
+};
+export const minimapViewportStyleDefault = {
+  background: "rgba(0, 0, 0, 0.15)",
+  border: "1px solid rgba(0, 0, 0, 0.5)",
+  "border-radius": "2px",
+  cursor: "grab",
+};
+export const minimapViewportStyleActiveDefault = {
+  background: "rgba(0, 0, 0, 0.25)",
+  cursor: "grabbing",
+};
+export const minimapLabelStyleDefault = {
+  bottom: "2px",
+  right: "3px",
+  color: "rgba(0, 0, 0, 0.75)",
+  font: `400 9px/1 ${fontFamilyStringify(fontFamily)}`,
+  "pointer-events": "none",
+};
+
+/**
+    Minimap visibility and styling defaults.
+    @private
+*/
+function initMinimapDefaults(viz: Viz): void {
+  viz.schema.minimap = true;
+  viz.schema.minimapClassName = undefined;
+  viz.schema.minimapStyle = minimapStyleDefault;
+  viz.schema.minimapViewportStyle = minimapViewportStyleDefault;
+  viz.schema.minimapViewportStyleActive = minimapViewportStyleActiveDefault;
+  viz.schema.minimapLabelStyle = minimapLabelStyleDefault;
+}
+
+/**
     Seeds a fresh Viz instance's schema defaults and installs the identity-coerce
     fluent accessors. Extracted from the constructor so the seeding logic stays
     readable and the constructor stays under the per-function line budget.
@@ -542,4 +588,5 @@ export function initVizDefaults(viz: Viz): void {
   initShapeDefaults(viz);
   initLabelDefaults(viz);
   initZoomDefaults(viz);
+  initMinimapDefaults(viz);
 }

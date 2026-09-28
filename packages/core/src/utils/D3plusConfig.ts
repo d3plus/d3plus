@@ -388,6 +388,10 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Metric key for the visualization. */
   metric?: string;
+  /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
+  minimap?: boolean;
+  /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
+  minimapClassName?: string;
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**

@@ -446,9 +446,11 @@ function zoomMath(this: Viz, factor: number = 0): void {
     translate to `translateExtent` (the constraint d3-zoom enforces for
     pointer gestures), records it as the bound element's zoom state so the
     next wheel/drag continues from here, and paints it.
-    @private
+
+    Exported so `minimap.ts`'s drag-to-pan and Cmd/Ctrl+scroll-to-zoom can
+    reuse the same scale/translate clamping instead of reimplementing it.
 */
-function zoomTo(
+export function zoomTo(
   viz: Viz,
   scale: number,
   x: number,
