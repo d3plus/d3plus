@@ -200,6 +200,14 @@ export interface VizInstance {
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** Whether the search control's input is currently open. */
+  _searchOpen?: boolean;
+  /** The search control's current (lowercased) search term. */
+  _searchTerm?: string;
+  /** The `_highlight` predicate saved when the search box opened, restored when it closes. */
+  _searchPrevHighlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** 0-based index of the current match within `searchMatches(...)`, once Enter/Shift+Enter has stepped to one. */
+  _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
   _userHover?: number;
@@ -215,7 +223,8 @@ export interface VizInstance {
   /** Drill-down history stack (back button). */
   _history?: DataPoint[];
   /** Cached measured size of the shared top-left controls panel (back/table-view/search). */
-  _topLeftControlsBox?: {width: number; height: number; signature: string};
+  /** `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
+  _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};
 
   /* 8. Plot-specific (only present on Plot subclasses) */
   _xAxis?: Axis;

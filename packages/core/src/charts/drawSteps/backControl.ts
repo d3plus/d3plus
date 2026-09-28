@@ -22,43 +22,19 @@
 */
 import type Viz from "../viz/Viz.js";
 import type {Contribution} from "./topLeftControlsMarkup.js";
-import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
+import {ICON_ATTRS} from "./zoomControlsMarkup.js";
+import {paintControlButton, resolveControlStyle} from "./controlButtonStyle.js";
 import {backControlStyleDefault} from "../viz/vizDefaults.js";
 
-type StyleObject = Record<string, string | number | undefined | null | false>;
-type ControlStyleValue = StyleObject | false | null | undefined;
-
-/** Fallbacks for CSS system colors a browser may not support yet (see `zoomControlsMarkup.ts`). */
-const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
-  AccentColor: "Highlight",
-  AccentColorText: "HighlightText",
-};
-
-/** Sets one style property, swapping an unsupported system color for its fallback. */
-function setStyle(el: HTMLElement, key: string, value: string): void {
-  const prop = kebab(key);
-  el.style.setProperty(prop, value);
-  const fallback = SYSTEM_COLOR_FALLBACKS[value];
-  if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
-}
-
-/**
-    Resolves `backControlStyle` for painting. Setting `backControlClassName`
-    auto-disables the untouched built-in default (identified by reference),
-    the same trick `zoomControlClassName` uses.
-*/
-function resolveBackControlStyle(viz: Viz, value: ControlStyleValue): StyleObject {
-  if (viz.schema.backControlClassName && value === backControlStyleDefault) return {};
-  return value || {};
+/** The resolved base button style — also used as the cheap, non-DOM basis for `backContribution`'s `styleSignature` (see `Contribution.styleSignature`). */
+function resolvedBackButtonStyle(viz: Viz) {
+  const className = Boolean(viz.schema.backControlClassName);
+  return resolveControlStyle(viz.schema.backControlStyle, backControlStyleDefault, className);
 }
 
 /** Paints the back button's inline style. There's no active/hover override — unlike zoom/search it's not a toggle, so it relies on the browser's native `:hover`, like their own hover default (`false`) already does. */
 export function paintBackButton(viz: Viz, btn: HTMLElement): void {
-  const base = resolveBackControlStyle(viz, viz.schema.backControlStyle);
-  for (const key in base) {
-    const v = base[key];
-    if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
-  }
+  paintControlButton(btn, {base: resolvedBackButtonStyle(viz)}, false, false);
 }
 
 // A left-pointing arrow: a horizontal shaft + an open chevron head.
@@ -77,11 +53,17 @@ export function backControlsHtml(viz: Viz): string {
   return `<button type="button" class="back-control${extraClass}">${BACK_ICON}${label}</button>`;
 }
 
+/** Whether a chart shows the back button — history to pop, and not under SSR (mirrors `showsZoomControls`/`showsSearchControls`: a static export has no interaction to route a click to). */
+function showsBackControl(viz: Viz): boolean {
+  return Boolean(viz._history && viz._history.length) && !viz._ssr;
+}
+
 export function backContribution(viz: Viz): Contribution | null {
-  if (!viz._history || !viz._history.length) return null;
+  if (!showsBackControl(viz)) return null;
   return {
     key: "back",
     html: backControlsHtml(viz),
+    styleSignature: JSON.stringify(resolvedBackButtonStyle(viz)),
     events: {
       ".back-control": {click: () => goBack(viz)},
     },

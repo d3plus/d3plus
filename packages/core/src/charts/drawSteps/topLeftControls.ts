@@ -21,6 +21,7 @@
 import type {FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {backContribution} from "./backControl.js";
+import {searchContribution} from "./searchControls.js";
 import {buildTopLeftPanel, type Contribution} from "./topLeftControlsMarkup.js";
 
 export type {Contribution};
@@ -31,6 +32,7 @@ export type {Contribution};
 */
 export const TOP_LEFT_CONTRIBUTORS: Array<(viz: Viz) => Contribution | null> = [
   backContribution,
+  searchContribution,
 ];
 
 /** The current, non-null contributions for a chart — computed once per layout/measurement. */

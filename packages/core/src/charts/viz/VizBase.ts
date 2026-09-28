@@ -142,6 +142,68 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
+      Resolves the string the search box matches its typed term against, for
+      a given datum. Defaults to the mark's resolved on-screen label
+      (`viz._drawLabel`) — the same text the user reads on the chart.
+      Override it to match against something else instead, e.g. a data
+      field that isn't shown as the label.
+
+      This is checked alongside, not instead of, every level of the datum's
+      own groupBy hierarchy — searching a leaf's label also matches its
+      ancestor group's cell/legend entry, and vice versa, regardless of
+      this accessor's override.
+*/
+  searchAccessor(
+    _?: (d: DataPoint, i: number) => string,
+  ): this | ((d: DataPoint, i: number) => string) {
+    return arguments.length
+      ? ((this.schema.searchAccessor = _), this)
+      : this.schema.searchAccessor;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  searchControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.searchControlClassName = _), this)
+      : this.schema.searchControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyle = _), this)
+      : this.schema.searchControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleActive = _), this)
+      : this.schema.searchControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleHover = _), this)
+      : this.schema.searchControlStyleHover;
+  }
+
+  /**
       The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 */
   select(_?: string | HTMLElement): this | ReturnType<typeof select> {

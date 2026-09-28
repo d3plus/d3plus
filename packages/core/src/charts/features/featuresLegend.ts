@@ -15,7 +15,7 @@ import {configPrep} from "../../utils/index.js";
 import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
-import {sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
+import {cornerInsets, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
@@ -120,10 +120,11 @@ export function buildLegendData(viz: VizInstance): LegendData {
 /**
     How far a legend must inset/drop to clear the zoom-controls panel
     (top-right) and/or the shared top-left controls panel (back/table-view/
-    search). A top legend (centered) insets both sides by the larger of the
-    two, staying centered on the chart; a right legend drops below the zoom
-    panel, a left legend below the top-left panel. Extracted from
-    `renderLegendFeature` to keep it under the per-function line budget.
+    search). A top legend (centered) insets both sides via the shared
+    `cornerInsets` helper (the same one `textBlockLayout` uses), staying
+    centered on the chart; a right legend drops below the zoom panel, a left
+    legend below the top-left panel. Extracted from `renderLegendFeature` to
+    keep it under the per-function line budget.
 */
 function legendCornerClearance(
   viz: VizInstance,
@@ -131,13 +132,14 @@ function legendCornerClearance(
   layoutMargin: Required<MarginClaim>,
   padding: {top: number; right: number; bottom: number; left: number},
 ): {inset: number; drop: number} {
-  const rightInset =
+  const inset =
     position === "top"
-      ? zoomControlsInset(viz, layoutMargin.top, layoutMargin.right + padding.right)
-      : 0;
-  const leftInset =
-    position === "top"
-      ? topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left + padding.left)
+      ? cornerInsets(
+          viz,
+          layoutMargin.top,
+          layoutMargin.left + padding.left,
+          layoutMargin.right + padding.right,
+        ).symmetric
       : 0;
   const dropRight =
     position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
@@ -147,7 +149,7 @@ function legendCornerClearance(
     position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
       ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
       : 0;
-  return {inset: Math.max(rightInset, leftInset), drop: dropRight || dropLeft};
+  return {inset, drop: dropRight || dropLeft};
 }
 
 /**

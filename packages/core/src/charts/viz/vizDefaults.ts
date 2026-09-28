@@ -88,6 +88,7 @@ const vizSchema = [
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
   {key: "minimap", coerce: "identity" as const},
+  {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
@@ -121,15 +122,20 @@ function initBaseDefaults(viz: Viz): void {
     same properties `zoomControlStyleDefault`/`searchControlStyleDefault`
     use, except `width: "auto"` (it shows an icon + the word "Back", not a
     single centered glyph) with a small `gap` between them and horizontal
-    padding for breathing room. No background/border/color, same as the
-    other two: a plain browser-appearance button, letting native/host-page
-    button chrome show through by default.
+    padding for breathing room. Also lighter/smaller than the other two's
+    `font` (900 15px): that value is a holdover from when their icons were
+    bold Unicode glyphs sized to read clearly (the icons are SVG now, so it
+    no longer affects THEM at all) — but back is the one place that font
+    actually renders visible text, where 900 15px reads oversized/heavy.
+    No background/border/color, same as the other two: a plain
+    browser-appearance button, letting native/host-page button chrome show
+    through by default.
     @private
 */
 export const backControlStyleDefault = {
   "align-items": "center",
   display: "inline-flex",
-  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  font: `400 12px/1 ${fontFamilyStringify(fontFamily)}`,
   gap: "4px",
   height: "20px",
   "justify-content": "center",
@@ -142,6 +148,11 @@ export const backControlStyleDefault = {
     @private
 */
 function initBackDefaults(viz: Viz): void {
+  // No longer drives the button's appearance (see `.backConfig()`'s own
+  // doc comment), but `.backConfig({...})` merges into this via
+  // `assign(this.schema.backConfig, _)` — leaving it undefined makes that
+  // throw on the very first call, on every chart.
+  viz.schema.backConfig = {};
   viz.schema.backControlClassName = undefined;
   viz.schema.backControlStyle = backControlStyleDefault;
 }
@@ -583,6 +594,42 @@ function initMinimapDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the search control's toggle button — the same
+    structural-only values as `zoomControlStyleDefault` et al. (visual
+    parity by default), kept as independent objects/consumers rather than
+    shared references so restyling one doesn't affect the other.
+    @private
+*/
+export const searchControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const searchControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const searchControlStyleHoverDefault = false as const;
+
+/**
+    Search-control (toggle button + input) styling defaults.
+    @private
+*/
+function initSearchDefaults(viz: Viz): void {
+  viz.schema.search = true;
+  viz.schema.searchAccessor = (d: DataPoint, i: number) => viz._drawLabel(d, i);
+  viz.schema.searchControlClassName = undefined;
+  viz.schema.searchControlStyle = searchControlStyleDefault;
+  viz.schema.searchControlStyleActive = searchControlStyleActiveDefault;
+  viz.schema.searchControlStyleHover = searchControlStyleHoverDefault;
+}
+
+/**
     Seeds a fresh Viz instance's schema defaults and installs the identity-coerce
     fluent accessors. Extracted from the constructor so the seeding logic stays
     readable and the constructor stays under the per-function line budget.
@@ -606,4 +653,5 @@ export function initVizDefaults(viz: Viz): void {
   initZoomDefaults(viz);
   initMinimapDefaults(viz);
   initBackDefaults(viz);
+  initSearchDefaults(viz);
 }

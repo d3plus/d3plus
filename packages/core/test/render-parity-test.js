@@ -1214,7 +1214,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
     // Seed drill-down history so backContribution renders the back button.
     viz._history = [{depth: 0}];
     await new Promise(resolve => viz.render(resolve));
-    const panel = target.querySelector(".d3plus-top-left-controls");
+    const panel = target.querySelector(".d3plus-top-left-controls-item");
     const btn = panel && panel.querySelector(".back-control");
     return {
       text: target.textContent,
@@ -1287,7 +1287,10 @@ it("titleFeature composes a title TextNode into the scene", async () => {
 
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.titleTextNode, "title text node present in scene");
-  assert.ok(res.text.includes("My Chart Title"), "title text appears in rendered DOM");
+  // Wrapped lines render as separate tspans with no inserted whitespace, so
+  // check the words rather than the exact phrase with its space intact.
+  assert.ok(res.text.includes("My Chart"), "title text appears in rendered DOM");
+  assert.ok(res.text.includes("Title"), "title text appears in rendered DOM");
 });
 
 it("CanvasRenderer picks a Path2D path in a real browser", async () => {
