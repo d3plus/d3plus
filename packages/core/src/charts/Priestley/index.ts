@@ -10,7 +10,7 @@ import {min, max} from "d3-array";
 
 import accessor from "../../utils/accessor.js";
 import {Axis} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {DataPoint} from "@d3plus/data";
 import {makeChart} from "../definition/makeChart.js";
@@ -22,7 +22,7 @@ import {priestleyEmit} from "./emit.js";
 export const priestleyDef: ChartDefinition = {
   name: "Priestley",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPriestleyLayout,
   emit: priestleyEmit,
 

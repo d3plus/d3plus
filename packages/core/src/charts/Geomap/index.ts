@@ -28,7 +28,7 @@ import accessor from "../../utils/accessor.js";
 import attributions from "../helpers/tileAttributions.js";
 import constant from "../../utils/constant.js";
 import {chartAreaRect, chartBounds} from "../features/chartGeometry.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {tileZoomTransform} from "../drawSteps/zoomControls.js";
@@ -364,7 +364,7 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
 export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyGeomapLayout,
   emit: geomapEmit,
 

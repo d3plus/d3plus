@@ -286,6 +286,8 @@ export interface D3plusConfig {
   attributionIcon?: string | ((el: HTMLElement) => void | (() => void));
   /** CSS key/value pairs used to style the attribution text. */
   attributionStyle?: Record<string, unknown>;
+  /** Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. */
+  backControlClassName?: string;
   /** Padding between bars in pixels. */
   barPadding?: number;
   /** The baseline for the x/y plot. */

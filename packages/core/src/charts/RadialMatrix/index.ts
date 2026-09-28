@@ -13,7 +13,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {TextBox} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -37,7 +37,7 @@ interface LabelDatum {
 export const radialMatrixDef: ChartDefinition = {
   name: "RadialMatrix",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRadialMatrixLayout,
   emit: radialMatrixEmit,
 

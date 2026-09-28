@@ -86,12 +86,36 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
-      Configuration object for the back button.
+      Configuration object for the back button. Superseded by
+      `.backControlStyle()`/`.backControlClassName()` for the button's
+      appearance (it renders as a real `<button>`, like the zoom/search
+      controls, not a configurable text node) — kept for backwards
+      compatibility, but no longer affects how the button looks.
 */
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
       ? ((this.schema.backConfig = assign(this.schema.backConfig, _!)), this)
       : this.schema.backConfig;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  backControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.backControlClassName = _), this)
+      : this.schema.backControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  backControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.backControlStyle = _), this)
+      : this.schema.backControlStyle;
   }
 
   /**

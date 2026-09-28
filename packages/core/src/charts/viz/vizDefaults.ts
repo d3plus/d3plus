@@ -113,21 +113,37 @@ function initBaseDefaults(viz: Viz): void {
   viz.schema.attribution = false;
   viz.schema.attributionIcon = undefined;
   viz.schema.attributionStyle = attributionStyleDefault;
-  viz._backClass = new TextBox()
-    .on("click", () => {
-      if (viz._history.length) viz.config(viz._history.pop()).render();
-      else (viz.depth(viz._drawDepth - 1) as Viz).filter(false);
-      viz.render();
-    })
-    .on("mousemove", () =>
-      viz._backClass.select().style("cursor", "pointer"),
-    );
-  viz.schema.backConfig = {
-    fontSize: 10,
-    padding: 5,
-    resize: false,
-  };
   viz.schema.cache = true;
+}
+
+/**
+    Default inline style for the "← Back" button — structural-only, the
+    same properties `zoomControlStyleDefault`/`searchControlStyleDefault`
+    use, except `width: "auto"` (it shows an icon + the word "Back", not a
+    single centered glyph) with a small `gap` between them and horizontal
+    padding for breathing room. No background/border/color, same as the
+    other two: a plain browser-appearance button, letting native/host-page
+    button chrome show through by default.
+    @private
+*/
+export const backControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  gap: "4px",
+  height: "20px",
+  "justify-content": "center",
+  padding: "0 6px",
+  width: "auto",
+};
+
+/**
+    Back-button control styling defaults.
+    @private
+*/
+function initBackDefaults(viz: Viz): void {
+  viz.schema.backControlClassName = undefined;
+  viz.schema.backControlStyle = backControlStyleDefault;
 }
 
 /**
@@ -589,4 +605,5 @@ export function initVizDefaults(viz: Viz): void {
   initLabelDefaults(viz);
   initZoomDefaults(viz);
   initMinimapDefaults(viz);
+  initBackDefaults(viz);
 }

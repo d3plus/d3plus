@@ -12,7 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
@@ -25,7 +25,7 @@ import {pieEmit} from "./emit.js";
 export const pieDef: DataDrivenChartDefinition = {
   name: "Pie",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPieLayout,
   emit: pieEmit,
 
