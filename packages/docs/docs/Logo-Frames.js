@@ -29,9 +29,12 @@ const plusSize = ySquares / 4;
 export const sharedConfig = {
   height,
   noDataMessage: false,
+  search: false,
+  tableView: false,
   width,
   xDomain: [0, xSquares],
   yDomain: [0, ySquares],
+  zoom: false,
 };
 
 const hiddenAxis = {
