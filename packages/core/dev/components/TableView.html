@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 24px;
+      align-items: flex-start;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 240px;
+      font-size: 13px;
+    }
+
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .controls select,
+    .controls button {
+      font-size: 13px;
+      padding: 4px 6px;
+    }
+
+    .readout {
+      background: #f4f4f4;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    .readout .dom-rows {
+      font-weight: 700;
+    }
+
+    #viz {
+      width: 640px;
+      height: 480px;
+      border: 1px solid #ddd;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="controls">
+    <h3 style="margin:0 0 4px;">Table-view virtualization</h3>
+    <p style="margin:0;color:#555;">
+      Click the table icon (top-left of the chart) to open the data table.
+      With "Rows" above the virtualization threshold (300) and pagination
+      off, only a small window of &lt;tr&gt;s stays in the DOM as you
+      scroll — the readout below updates live so you can watch it.
+    </p>
+
+    <label>
+      Rows
+      <select id="row-count">
+        <option value="50">50 (below threshold — no virtualization)</option>
+        <option value="500">500</option>
+        <option value="5000" selected>5,000</option>
+        <option value="20000">20,000 (chart itself takes ~2s to draw — table virtualization stays instant regardless)</option>
+      </select>
+    </label>
+
+    <label>
+      Pagination
+      <select id="page-size">
+        <option value="false" selected>Off — tableViewPageSize(false)</option>
+        <option value="50">On — tableViewPageSize(50) (default)</option>
+        <option value="500">On — tableViewPageSize(500) (page itself still virtualizes above 300 rows)</option>
+      </select>
+    </label>
+
+    <button id="rebuild">Rebuild chart</button>
+
+    <div class="readout" id="readout">…</div>
+  </div>
+
+  <div id="viz"></div>
+
+</body>
+
+<script>
+
+  // A wide, intentionally heterogeneous synthetic dataset: a mix of string/
+  // numeric/date-shaped values, and (on purpose) a "flag" key that's only
+  // present on every 7th row — good for eyeballing both virtualization and
+  // the "columns are the union of every row's keys, not just the first
+  // row's" behavior in the same page.
+  //
+  // `x` is a per-category sequential index, NOT shared across categories —
+  // table-view reads `viz._filteredData`, which (for LinePlot, same as
+  // BarChart/Treemap/etc.) holds one entry per rendered MARK, merging any
+  // rows that share a (groupBy, x) pair. Reusing `category` itself as `x`
+  // would collapse all 5,000+ rows down to 5 (one per category) before the
+  // table ever sees them — this is what makes the "large dataset" story
+  // real rather than accidentally re-aggregated away.
+  function makeData(n) {
+    const categories = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"];
+    const rows = [];
+    for (let i = 0; i < n; i++) {
+      const row = {
+        id: `Row ${i}`,
+        category: categories[i % categories.length],
+        x: Math.floor(i / categories.length),
+        value: Math.round(Math.sin(i / 137) * 5000 + i * 1.3),
+        date: new Date(2020, 0, 1 + (i % 3650)),
+      };
+      if (i % 7 === 0) row.flag = "special";
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  let viz;
+  let domRowInterval;
+
+  function updateReadout() {
+    const el = document.getElementById("readout");
+    const wrapper = document.querySelector(".d3plus-table-view-scroll");
+    if (!wrapper) {
+      el.textContent = "Table view not open — click the table icon.";
+      return;
+    }
+    const virtualized = wrapper.hasAttribute("data-tableview-virtual");
+    const domRows = wrapper.querySelectorAll("tbody tr:not([aria-hidden])").length;
+    el.innerHTML =
+      `virtualized:    ${virtualized}\n` +
+      `rows in DOM:    <span class="dom-rows">${domRows}</span>\n` +
+      `scrollHeight:   ${Math.round(wrapper.scrollHeight)}px\n` +
+      `scrollTop:      ${Math.round(wrapper.scrollTop)}px`;
+  }
+
+  function rebuild() {
+    const n = Number(document.getElementById("row-count").value);
+    const pageSizeRaw = document.getElementById("page-size").value;
+    const pageSize = pageSizeRaw === "false" ? false : Number(pageSizeRaw);
+
+    document.getElementById("viz").innerHTML = "";
+    viz = new d3plus.LinePlot()
+      .select("#viz")
+      .groupBy("category")
+      .title(`${n.toLocaleString()} rows`)
+      .tableViewPageSize(pageSize)
+      .data(makeData(n))
+      .x("x")
+      .y("value")
+      .duration(0)
+      .render();
+
+    clearInterval(domRowInterval);
+    domRowInterval = setInterval(updateReadout, 200);
+  }
+
+  document.getElementById("rebuild").addEventListener("click", rebuild);
+  document.getElementById("row-count").addEventListener("change", rebuild);
+  document.getElementById("page-size").addEventListener("change", rebuild);
+
+  rebuild();
+
+</script>
+
+</html>

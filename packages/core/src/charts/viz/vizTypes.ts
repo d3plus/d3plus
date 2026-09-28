@@ -214,6 +214,16 @@ export interface VizInstance {
   _userDuration?: number;
   _dataCutoff: number;
   _brushing?: boolean;
+  /** Whether the table-view toggle is currently showing the data table instead of the chart. */
+  _tableView?: boolean;
+  /** The data table's current page (0-indexed), when `tableViewPageSize` paginates it. */
+  _tableViewPage?: number;
+  /** The data table's current sort column + direction, when the user has clicked a header. */
+  _tableViewSort?: {column: string; direction: "asc" | "desc"};
+  /** Which dataset the data table currently shows — `viz._data` (raw) once toggled, `viz._filteredData` (aggregate) by default. */
+  _tableViewDataSource?: "raw" | "aggregate";
+  /** Cached first-occurrence-index lookups (exact JSON match, and groupBy-key fallback) for restoring `.data()` insertion order to the aggregate view; invalidated by comparing against the raw array reference they were built from. */
+  _tableViewGroupOrder?: {data: DataPoint[]; exact: Map<string, number>; group: Map<string, number>};
   /** Timeline brush selection (timeline feature). */
   _timelineSelection?: (Date | number)[] | false;
   /** The last drawn timeline value (ms), to detect multi-period trail jumps. */
@@ -222,8 +232,7 @@ export interface VizInstance {
   _userData?: DataPoint[] | string;
   /** Drill-down history stack (back button). */
   _history?: DataPoint[];
-  /** Cached measured size of the shared top-left controls panel (back/table-view/search). */
-  /** `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
+  /** Cached measured size of the shared top-left controls panel (back/table-view/search). `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
   _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};
 
   /* 8. Plot-specific (only present on Plot subclasses) */

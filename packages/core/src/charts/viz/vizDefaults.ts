@@ -91,6 +91,9 @@ const vizSchema = [
   {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
+  {key: "tableView", coerce: "identity" as const},
+  {key: "tableViewDownload", coerce: "identity" as const},
+  {key: "tableViewSort", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
   {key: "timeline", coerce: "identity" as const},
   {key: "width", coerce: "identity" as const},
@@ -521,6 +524,30 @@ export const zoomControlStyleActiveDefault = {
 export const zoomControlStyleHoverDefault = false as const;
 
 /**
+    Default inline styles for the table-view toggle button — structural only,
+    mirroring `zoomControlStyleDefault` et al. so the two chrome features look
+    and behave consistently. Kept as separate object references (not shared
+    with zoom's) so `tableViewControl.ts` can independently detect, via `===`,
+    whether `tableViewControlStyle*` is still untouched — the same
+    auto-disable-on-className trick `zoomControlClassName` uses.
+*/
+export const tableViewControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const tableViewControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const tableViewControlStyleHoverDefault = false as const;
+
+/**
     Zoom behavior, brush, control button styling, and zoom limit defaults.
     @private
 */
@@ -546,6 +573,25 @@ function initZoomDefaults(viz: Viz): void {
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
   viz.schema.zoomScroll = "modifier";
+}
+
+/**
+    Table-view button + data-table defaults. Mirrors `initZoomDefaults`:
+    a chrome toggle shown by default, styled structurally (no color/
+    background) so a host page's own button styling applies through the
+    cascade once `tableViewControlClassName` is set.
+    @private
+*/
+function initTableViewDefaults(viz: Viz): void {
+  viz.schema.tableView = true;
+  viz.schema.tableViewClassName = undefined;
+  viz.schema.tableViewControlClassName = undefined;
+  viz.schema.tableViewControlStyle = tableViewControlStyleDefault;
+  viz.schema.tableViewControlStyleActive = tableViewControlStyleActiveDefault;
+  viz.schema.tableViewControlStyleHover = tableViewControlStyleHoverDefault;
+  viz.schema.tableViewDownload = true;
+  viz.schema.tableViewPageSize = 50;
+  viz.schema.tableViewSort = true;
 }
 
 /**
@@ -651,6 +697,7 @@ export function initVizDefaults(viz: Viz): void {
   initShapeDefaults(viz);
   initLabelDefaults(viz);
   initZoomDefaults(viz);
+  initTableViewDefaults(viz);
   initMinimapDefaults(viz);
   initBackDefaults(viz);
   initSearchDefaults(viz);

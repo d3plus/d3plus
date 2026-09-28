@@ -73,6 +73,7 @@ export {
   TOP_LEFT_CONTRIBUTORS,
 } from "./src/charts/drawSteps/topLeftControls.js";
 export {backContribution} from "./src/charts/drawSteps/backControl.js";
+export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js";
 export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
