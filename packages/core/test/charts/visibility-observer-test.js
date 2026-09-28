@@ -86,3 +86,22 @@ it(
     off();
   }),
 );
+
+it(
+  "visibility observer: registrations on one element are independent",
+  withIO(() => {
+    const el = {};
+    const seen = [];
+    const offA = observeVisibility(el, null, () => seen.push("a-in"), 0, () => seen.push("a-out"));
+    const io = StubIO.instances[0];
+    const offB = observeVisibility(el, null, () => seen.push("b-in"));
+    io.fire(el, true);
+    assert.deepStrictEqual(seen, ["a-in", "b-in"]);
+    offB();
+    assert.ok(io.targets.has(el), "still observed while another registration remains");
+    io.fire(el, false);
+    assert.deepStrictEqual(seen, ["a-in", "b-in", "a-out"]);
+    offA();
+    assert.ok(!io.targets.has(el));
+  }),
+);

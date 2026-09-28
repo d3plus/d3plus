@@ -367,6 +367,13 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
 */
 export function vizRender(viz: Viz, callback?: () => void): Viz {
   viz._callback = callback;
+  // With unloading switched off nothing would ever reload an unloaded chart,
+  // so drop the observer and treat this as a normal (possibly deferred) render.
+  if (!(viz.schema.detectVisible && viz.schema.detectVisibleUnload)) {
+    viz._unloadUnobserve?.();
+    viz._unloadUnobserve = undefined;
+    viz._unloaded = false;
+  }
   // Resets margins and padding
   viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
   viz._padding = {bottom: 0, left: 0, right: 0, top: 0};

@@ -10,7 +10,7 @@ interface Target {
 }
 
 interface Entry {
-  targets: Map<Element, Target>;
+  targets: Map<Element, Set<Target>>;
   io: IntersectionObserver;
 }
 
@@ -64,20 +64,20 @@ export function observeVisibility(
   const key = root || WINDOW_ROOT;
   let entry = entries.get(key);
   if (!entry) {
-    const map = new Map<Element, Target>();
+    const map = new Map<Element, Set<Target>>();
     const io = new IntersectionObserver(
       changes => {
         changes.forEach(c => {
-          const t = map.get(c.target);
-          if (!t) return;
-          clearTimeout(t.timer);
-          t.timer = undefined;
-          if (!c.isIntersecting) {
-            t.onHidden?.();
-            return;
-          }
-          if (t.delay > 0) t.timer = setTimeout(t.onVisible, t.delay);
-          else t.onVisible();
+          map.get(c.target)?.forEach(t => {
+            clearTimeout(t.timer);
+            t.timer = undefined;
+            if (!c.isIntersecting) {
+              t.onHidden?.();
+              return;
+            }
+            if (t.delay > 0) t.timer = setTimeout(t.onVisible, t.delay);
+            else t.onVisible();
+          });
         });
       },
       {root, rootMargin: ROOT_MARGIN},
@@ -87,12 +87,21 @@ export function observeVisibility(
   }
   const {targets: map, io} = entry;
   const target: Target = {delay, onHidden, onVisible};
-  map.set(el, target);
+  let set = map.get(el);
+  if (!set) map.set(el, (set = new Set()));
+  set.add(target);
+  // An IntersectionObserver only reports changes after observe() starts, so
+  // restart observation to give a registration added to an already-observed
+  // element (e.g. a redraw of a drawn chart) its current state right away.
+  io.unobserve(el);
   io.observe(el);
   return () => {
     clearTimeout(target.timer);
-    map.delete(el);
-    io.unobserve(el);
+    set.delete(target);
+    if (!set.size) {
+      map.delete(el);
+      io.unobserve(el);
+    }
   };
 }
 
