@@ -8,7 +8,11 @@ import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import type Viz from "./Viz.js";
-import {canObserveVisibility, observeVisibility} from "./vizVisibility.js";
+import {
+  canObserveVisibility,
+  observeVisibility,
+  syncUnloadObserver,
+} from "./vizVisibility.js";
 
 /**
     Whether the chart counts as on-screen for this render. `_forceVisible` is set
@@ -297,6 +301,8 @@ function buildDataTable(viz: Viz): void {
     @private
 */
 function finishDraw(viz: Viz, callback?: () => void): void {
+  // scrolled away while data was loading; the next reload redraws
+  if (viz._unloaded) return;
   buildDataTable(viz);
 
   // Run the chart pipeline. Extracted to a free function so the
@@ -305,6 +311,8 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   // loading, callback timing) stays on the class because it's
   // inherently instance-bound.
   runVizPipeline(viz as unknown as VizInstance);
+  viz._instantNextDraw = false;
+  syncUnloadObserver(viz);
 
   if (
     viz._messageClass._isVisible &&

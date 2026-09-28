@@ -194,6 +194,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.detectResizeDelay = 400;
   viz.schema.detectVisible = true;
   viz.schema.detectVisibleInterval = 1000;
+  viz.schema.detectVisibleUnload = false;
   viz.schema.downloadButton = false;
   viz.schema.downloadConfig = {type: "png"};
   viz.schema.downloadPosition = "top";
