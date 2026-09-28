@@ -264,7 +264,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      The interval, in milliseconds, for checking if the visualization is visible on the page.
+      The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 */
   detectVisibleInterval(_?: number): this | number {
     return arguments.length

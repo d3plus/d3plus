@@ -8,6 +8,17 @@ import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import type Viz from "./Viz.js";
+import {canObserveVisibility, observeVisibility} from "./vizVisibility.js";
+
+/**
+    Whether the chart counts as on-screen for this render. `_forceVisible` is set
+    by the observer callbacks, whose margin admits charts that are just outside
+    the strict viewport.
+    @private
+*/
+function isVisible(viz: Viz): boolean {
+  return !!viz._forceVisible || inViewport(viz._select.node());
+}
 
 /**
     Appends a fullscreen SVG to the BODY if a container has not been provided
@@ -55,7 +66,7 @@ function scopeTooltip(viz: Viz): void {
 function autoSize(viz: Viz): void {
   if (
     (!viz.schema.width || !viz.schema.height) &&
-    (!viz.schema.detectVisible || inViewport(viz._select.node()))
+    (!viz.schema.detectVisible || isVisible(viz))
   ) {
     viz._autoWidth = viz.schema.width === undefined;
     viz._autoHeight = viz.schema.height === undefined;
@@ -129,6 +140,8 @@ function resetPolls(viz: Viz): void {
   viz._visiblePoll = clearInterval(viz._visiblePoll);
   viz._resizePoll = clearTimeout(viz._resizePoll);
   viz._scrollPoll = clearTimeout(viz._scrollPoll);
+  viz._visibleUnobserve?.();
+  viz._visibleUnobserve = undefined;
   // scrollContainer is "" when constructed without a window (headless/SSR);
   // there is nothing to unbind and select("") throws on an invalid selector.
   if (viz.schema.scrollContainer)
@@ -161,7 +174,21 @@ function setupDetection(viz: Viz, callback?: () => void): boolean {
       }
     }, viz.schema.detectVisibleInterval);
     return true;
-  } else if (viz.schema.detectVisible && !inViewport(viz._select.node())) {
+  } else if (viz.schema.detectVisible && !isVisible(viz)) {
+    if (canObserveVisibility()) {
+      viz._visibleUnobserve = observeVisibility(
+        viz._select.node(),
+        viz.schema.scrollContainer,
+        () => {
+          viz._visibleUnobserve?.();
+          viz._visibleUnobserve = undefined;
+          viz._forceVisible = true;
+          viz.render(callback);
+        },
+        viz.schema.detectVisibleInterval,
+      );
+      return true;
+    }
     select(viz.schema.scrollContainer).on(`scroll.${viz._uuid}`, () => {
       if (!viz._scrollPoll) {
         viz._scrollPoll = setTimeout(() => {
@@ -345,6 +372,7 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
 
   resetPolls(viz);
   if (!setupDetection(viz, callback)) loadAndDraw(viz, callback);
+  viz._forceVisible = false;
 
   // Attaches touchstart event listener to the BODY to hide the tooltip when the user touches any element without data
   select("body").on(`touchstart.${viz._uuid}`, touchstartBody.bind(viz));

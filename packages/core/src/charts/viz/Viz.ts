@@ -669,6 +669,8 @@ export default class Viz extends VizBase {
     if (this._scrollPoll) {
       this._scrollPoll = clearTimeout(this._scrollPoll) as never;
     }
+    this._visibleUnobserve?.();
+    this._visibleUnobserve = undefined;
     if (this._sceneRepaintRAF != null) {
       if (typeof cancelAnimationFrame === "function")
         cancelAnimationFrame(this._sceneRepaintRAF);
