@@ -27,7 +27,7 @@
     "build:esm": "ng-packagr -p ng-package.json",
     "build": "ng-packagr -p ng-package.json",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint src/**/*.ts && eslint --global=it --global=before test && mocha 'test/**/*-test.js'"
+    "test": "eslint src && eslint --global=it --global=before test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",

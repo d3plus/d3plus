@@ -67,7 +67,14 @@ export {
   titleFeature,
   totalFeature,
 } from "./src/charts/features/features.js";
-export {topLeftControlsFeature} from "./src/charts/drawSteps/topLeftControls.js";
+export {
+  getTopLeftContributions,
+  topLeftControlsFeature,
+  TOP_LEFT_CONTRIBUTORS,
+} from "./src/charts/drawSteps/topLeftControls.js";
+export {backContribution} from "./src/charts/drawSteps/backControl.js";
+export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js";
+export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
@@ -77,3 +84,4 @@ export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/pl
 export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {VizInstance, VizRenderer} from "./src/charts/viz/vizTypes.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";
+export type {Contribution} from "./src/charts/drawSteps/topLeftControlsMarkup.js";

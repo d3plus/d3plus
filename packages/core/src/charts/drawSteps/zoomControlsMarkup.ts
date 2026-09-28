@@ -13,6 +13,8 @@ import {
   zoomControlStyleDefault,
   zoomControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
+import {kebab, paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
+export {kebab};
 
 /**
     Brush mode is per-chart, not global: it lives on `viz._brushing` and is
@@ -25,89 +27,19 @@ export function setBrushing(viz: Viz, value: boolean): void {
   viz._brushing = value;
 }
 
-export type StyleObject = Record<string, string | number | undefined | null | false>;
-type ZoomControlStyleValue = StyleObject | false | null | undefined;
-
-/** `alignItems` / `align-items` → `align-items`, for `style.setProperty`. */
-export const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
-
-/**
-    Fallbacks for CSS system colors a browser may not support yet: the
-    active-button default uses the OS accent color (Firefox, Safari), and
-    Chromium falls back to the text-selection highlight. Exported so any
-    control-button feature's `setStyle` (below) picks up the same fallbacks,
-    rather than each maintaining its own copy of this table.
-*/
-export const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
-  AccentColor: "Highlight",
-  AccentColorText: "HighlightText",
-};
-
-/** Sets one style property, swapping an unsupported system color for its fallback. */
-export function setStyle(el: HTMLElement, key: string, value: string): void {
-  const prop = kebab(key);
-  el.style.setProperty(prop, value);
-  const fallback = SYSTEM_COLOR_FALLBACKS[value];
-  if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
-}
-
-/**
-    Paints a control button's inline style for its current state: the base
-    style, then the hover style while hovered, then the active style while
-    its mode is on (so an active button reads as active even under the
-    cursor). Every property any of the three styles sets is cleared first, so
-    leaving a state fully undoes it. Generalizes `paintZoomButton`'s original
-    body — shared with `tableViewMarkup.ts`'s `paintTableViewButton` (both
-    button-chrome features want identical clear-then-apply painting; only
-    which style objects they resolve differs, and each keeps its own
-    `resolve*ControlStyle`/schema-key logic for that).
-*/
-export function paintControlButton(
-  btn: HTMLElement,
-  styles: {base: StyleObject; active: StyleObject; hover: StyleObject},
-  hovered: boolean,
-): void {
-  const {base, active, hover} = styles;
-  const isActive = btn.classList.contains("active");
-  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
-    btn.style.removeProperty(kebab(key));
-  for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
-    for (const key in style) {
-      const v = style[key];
-      if (v !== undefined && v !== null && v !== false) setStyle(btn, key, String(v));
-    }
-}
-
-/**
-    Resolves a `zoomControlStyle`/`Active`/`Hover` value for painting.
-    Setting `zoomControlClassName` auto-disables whichever of the three is
-    still the untouched built-in default (identified by reference — see
-    `zoomControlStyleDefault` et al. in `vizDefaults.ts`) so a host page's own
-    button styling can apply through the cascade without also requiring
-    `.zoomControlStyle(false)` etc. An explicit custom style object (a
-    different reference) always wins, className or not.
-*/
-function resolveZoomControlStyle(
-  viz: Viz,
-  value: ZoomControlStyleValue,
-  defaultValue: ZoomControlStyleValue,
-): StyleObject {
-  if (viz.schema.zoomControlClassName && value === defaultValue) return {};
-  return value || {};
-}
-
 /** The resolved base / active / hover button styles for a chart. */
 function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
+  const className = Boolean(viz.schema.zoomControlClassName);
   return {
-    base: resolveZoomControlStyle(viz, viz.schema.zoomControlStyle, zoomControlStyleDefault),
-    active: resolveZoomControlStyle(viz, viz.schema.zoomControlStyleActive, zoomControlStyleActiveDefault),
-    hover: resolveZoomControlStyle(viz, viz.schema.zoomControlStyleHover, zoomControlStyleHoverDefault),
+    base: resolveControlStyle(viz.schema.zoomControlStyle, zoomControlStyleDefault, className),
+    active: resolveControlStyle(viz.schema.zoomControlStyleActive, zoomControlStyleActiveDefault, className),
+    hover: resolveControlStyle(viz.schema.zoomControlStyleHover, zoomControlStyleHoverDefault, className),
   };
 }
 
 /** Paints a zoom-control button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
 export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  paintControlButton(btn, buttonStyles(viz), hovered);
+  paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
 }
 
 /**
@@ -145,13 +77,70 @@ export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): vo
     bounding box within the 24x24 viewBox, so they also match in apparent
     size) — this is how icon sets like Feather/Lucide/Material Symbols do it.
 */
-const ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
+export const ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
 const ZOOM_IN_ICON = `<svg ${ICON_ATTRS}><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`;
 const ZOOM_OUT_ICON = `<svg ${ICON_ATTRS}><line x1="4" y1="12" x2="20" y2="12"/></svg>`;
 // A simple house outline — the conventional "reset to home view" icon.
 const ZOOM_RESET_ICON = `<svg ${ICON_ATTRS}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 // A dashed square — a "marquee select" icon, reading as "drag a box".
 const ZOOM_BRUSH_ICON = `<svg ${ICON_ATTRS} stroke-dasharray="4 3"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>`;
+
+/**
+    A custom zoom-control icon: either raw markup (a string — inserted as the
+    button's content in place of the built-in `<svg>`, no wrapper) or a mount
+    function, the escape hatch for a live component (a React/Vue/Svelte tree,
+    a canvas sprite, anything imperative). The function receives the actual
+    `<span>` reserved for the icon — sized to match the built-ins, 12x12px —
+    once per fresh button element (see `mountCustomIcons` below), and may
+    return a cleanup function, called right before that element is discarded
+    (the panel's html regenerates wholesale on a brush toggle, a `.locale(...)`
+    change, or a `zoomControlClassName` change — see `zoomControlsHtml`'s own
+    doc — so a mounted icon is torn down and remounted on those, not just once
+    per chart). Omit the return value for icons with nothing to clean up.
+
+    @example
+      // Raw markup — a single emoji.
+      viz.zoomControlIcons({zoomIn: "➕"})
+
+      // A React tree, mounted imperatively into the reserved slot.
+      viz.zoomControlIcons({
+        zoomIn: el => {
+          const root = createRoot(el);
+          root.render(<PlusIcon />);
+          return () => root.unmount();
+        },
+      })
+*/
+export type ZoomControlIconRenderer = (el: HTMLElement) => void | (() => void);
+export type ZoomControlIconValue = string | ZoomControlIconRenderer;
+export type ZoomControlIconKey = "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush";
+export type ZoomControlIcons = Partial<Record<ZoomControlIconKey, ZoomControlIconValue>>;
+
+/**
+    Markup for a mount-function icon: an empty `<span>` sized like the built-in
+    `<svg>`s (so panel measurement — `zoomControlsBox` — stays correct whether
+    or not the mount function has run yet; it never invokes the function
+    itself, only ever renders this placeholder) and tagged with its icon key
+    so `mountCustomIcons` can find it inside the button.
+*/
+const iconSlot = (key: ZoomControlIconKey): string =>
+  `<span class="zoom-control-icon" data-icon="${key}" style="display:inline-block;width:12px;height:12px;vertical-align:middle;flex-shrink:0"></span>`;
+
+/** Resolves one button's glyph markup: a custom override, or the built-in icon. */
+function iconFor(viz: Viz, key: ZoomControlIconKey, builtin: string): string {
+  const icon = (viz.schema.zoomControlIcons as ZoomControlIcons | undefined)?.[key];
+  if (typeof icon === "string") return icon;
+  if (typeof icon === "function") return iconSlot(key);
+  return builtin;
+}
+
+/** Which button class carries which icon key — shared with `mountCustomIcons`. */
+const ICON_BUTTON_CLASS: Record<ZoomControlIconKey, string> = {
+  zoomIn: "zoom-in",
+  zoomOut: "zoom-out",
+  zoomReset: "zoom-reset",
+  zoomBrush: "zoom-brush",
+};
 
 /**
     The panel's own layout: a right-aligned flex row. Spacing lives here, not
@@ -186,11 +175,36 @@ export function zoomControlsHtml(viz: Viz): string {
   const button = (cls: string, label: string, glyph: string, pressed?: boolean) =>
     `<button type="button" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
   return (
-    button("zoom-in", "Zoom In", ZOOM_IN_ICON) +
-    button("zoom-out", "Zoom Out", ZOOM_OUT_ICON) +
-    button("zoom-reset", "Reset Zoom", ZOOM_RESET_ICON) +
-    button("zoom-brush", "Brush Zoom", ZOOM_BRUSH_ICON, isBrushing(viz))
+    button("zoom-in", "Zoom In", iconFor(viz, "zoomIn", ZOOM_IN_ICON)) +
+    button("zoom-out", "Zoom Out", iconFor(viz, "zoomOut", ZOOM_OUT_ICON)) +
+    button("zoom-reset", "Reset Zoom", iconFor(viz, "zoomReset", ZOOM_RESET_ICON)) +
+    button("zoom-brush", "Brush Zoom", iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON), isBrushing(viz))
   );
+}
+
+/**
+    Mounts each configured custom icon function into its button's reserved
+    slot — called once per fresh button element (from the same `onUpdate`
+    guard in `zoomControls.ts` that binds hover/style exactly once), so a
+    remount only happens when the whole panel's html actually regenerates
+    (see `ZoomControlIconRenderer`'s doc for when that is). Runs any PREVIOUS
+    mount's cleanup for that icon key first — the prior button element (if
+    any) is about to be discarded regardless of whether its content was
+    custom-mounted, so this is the one place that teardown can happen.
+*/
+export function mountCustomIcons(viz: Viz, btn: HTMLElement): void {
+  const icons = viz.schema.zoomControlIcons as ZoomControlIcons | undefined;
+  if (!icons) return;
+  const key = (Object.keys(ICON_BUTTON_CLASS) as ZoomControlIconKey[]).find(
+    k => btn.classList.contains(ICON_BUTTON_CLASS[k]),
+  );
+  const icon = key && icons[key];
+  if (!key || typeof icon !== "function") return;
+  const slot = btn.querySelector<HTMLElement>(".zoom-control-icon");
+  if (!slot) return;
+  const cleanups = (viz._zoomIconCleanup ||= {});
+  cleanups[key]?.();
+  cleanups[key] = icon(slot) || undefined;
 }
 
 /** The HTML element a chart's overlays (the zoom controls) mount in. */

@@ -266,6 +266,28 @@ export interface D3plusConfig {
   aggs?: {[k: string]: (d: DataPoint[]) => unknown};
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
+  /**
+      Text (rendered as HTML — any valid HTML string works, including anchor
+      links) shown in the chart's bottom-right corner, most often a map tile
+      credit. `false` (the default) shows nothing. A credit wider than half
+      the chart area collapses to a small "ⓘ" badge that expands on hover,
+      focus, or click.
+  */
+  attribution?: string | boolean;
+  /**
+      Overrides the "ⓘ" badge a long attribution collapses to, which
+      otherwise renders as an inline SVG. A string is used as the badge's
+      raw HTML content; a mount function, `(el: HTMLElement) => void | (() =>
+      void)`, is called once with the badge's reserved element so a live
+      component (a React tree via `createRoot(el).render(...)`, or anything
+      else imperative) can be mounted into it — return a cleanup function if
+      there's teardown to do.
+  */
+  attributionIcon?: string | ((el: HTMLElement) => void | (() => void));
+  /** CSS key/value pairs used to style the attribution text. */
+  attributionStyle?: Record<string, unknown>;
+  /** Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. */
+  backControlClassName?: string;
   /** Padding between bars in pixels. */
   barPadding?: number;
   /** The baseline for the x/y plot. */
@@ -368,6 +390,10 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Metric key for the visualization. */
   metric?: string;
+  /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
+  minimap?: boolean;
+  /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
+  minimapClassName?: string;
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
@@ -396,6 +422,12 @@ export interface D3plusConfig {
   row?: string;
   /** Scrollable container selector for tooltip positioning. */
   scrollContainer?: string | Window;
+  /** Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. */
+  search?: boolean;
+  /** Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. */
+  searchAccessor?: (d: DataPoint, i: number) => string;
+  /** Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. */
+  searchControlClassName?: string;
   /** Configuration for shape rendering. */
   shapeConfig?: {
     duration?: number;
@@ -530,6 +562,21 @@ export interface D3plusConfig {
   zoom?: boolean;
   /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */
   zoomControlClassName?: string;
+  /**
+      Overrides one or more of the four built-in zoom-control icons (`zoomIn`,
+      `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline
+      SVGs. Each value is either raw HTML — used as that button's content — or
+      a mount function, `(el: HTMLElement) => void | (() => void)`, called
+      once with the button's reserved icon slot so a live component (a React
+      tree via `createRoot(el).render(...)`, or anything else imperative) can
+      be mounted into it — return a cleanup function if there's teardown to do.
+  */
+  zoomControlIcons?: Partial<
+    Record<
+      "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush",
+      string | ((el: HTMLElement) => void | (() => void))
+    >
+  >;
   /** Multiplier applied to programmatic zoom steps. */
   zoomFactor?: number;
   /** Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. */

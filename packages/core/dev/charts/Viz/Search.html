@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .viz {
+      width: 400px;
+      height: 300px;
+      border: 1px solid #ddd;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="viz" id="basic"></div>
+  <div class="viz" id="with-back"></div>
+  <div class="viz" id="long-title"></div>
+  <div class="viz" id="search-off"></div>
+  <div class="viz" id="legend-top"></div>
+  <div class="viz" id="styled"></div>
+  <div class="viz" id="many-matches"></div>
+  <div class="viz" id="custom-accessor"></div>
+
+</body>
+
+<script>
+
+  var flat = [
+    {parent: "Group 1", id: "Apple", value: 29},
+    {parent: "Group 1", id: "Banana", value: 10},
+    {parent: "Group 1", id: "Cherry", value: 2},
+    {parent: "Group 2", id: "Date", value: 29},
+    {parent: "Group 2", id: "Elderberry", value: 25},
+    {parent: "Group 2", id: "Fig", value: 1},
+    {parent: "Group 2", id: "Grape", value: 0.5}
+  ];
+
+  // Every chart shows a search button top-left, mirroring the zoom
+  // controls' top-right position. Click it, type a fruit name — matching
+  // labels stay in color, everything else grays out.
+  new d3plus.Treemap().select("#basic").title("Search a label")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // Drilling in shows "← Back" too — both controls share one flex row,
+  // back first, then search, with no overlap.
+  var withBack = new d3plus.Treemap().select("#with-back").title("Back + Search")
+    .data(flat).groupBy(["parent", "id"]).sum("value");
+  withBack._history = [{depth: 0}];
+  withBack.render();
+
+  // A long, centered title insets around BOTH corners (zoom on the right,
+  // back+search on the left).
+  new d3plus.Treemap().select("#long-title").title("A fairly long centered title that must wrap around both corners")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // Opting out removes just the search button (back/zoom are unaffected).
+  new d3plus.Treemap().select("#search-off").title("search(false)").search(false)
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // A top legend insets around the search button on the left too.
+  new d3plus.Treemap().select("#legend-top").legendPosition("top")
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // Custom styling, mirroring how `.zoomControlStyle*` restyles the zoom buttons.
+  new d3plus.Treemap().select("#styled").title("Custom search style")
+    .searchControlStyle({
+      "background-color": "#222",
+      "border-radius": "50%",
+      color: "#fff",
+    })
+    .data(flat).groupBy(["parent", "id"]).sum("value").render();
+
+  // Enough leaves for the match-count feedback and Enter/Shift+Enter
+  // cycling to actually mean something: search "fruit", press Enter
+  // repeatedly to step through (and zoom to) each match, Shift+Enter to
+  // go back, and the × button to clear without closing the box.
+  var many = [];
+  for (var m = 0; m < 24; m++) {
+    many.push({id: (m % 3 === 0 ? "fruit " : "veg ") + m, value: 1 + (m % 7)});
+  }
+  new d3plus.Treemap().select("#many-matches").title("Search \"fruit\", then Enter/Shift+Enter")
+    .data(many).groupBy("id").sum("value").render();
+
+  // .searchAccessor() matches a field other than the rendered label — here
+  // the label shows a code name, but typing an ingredient finds it.
+  new d3plus.Treemap().select("#custom-accessor").title("searchAccessor(): try \"cocoa\"")
+    .data([
+      {id: "Product A", ingredients: "cocoa, sugar, milk", value: 40},
+      {id: "Product B", ingredients: "flour, sugar, egg", value: 35},
+      {id: "Product C", ingredients: "cocoa, oat, honey", value: 25},
+    ])
+    .groupBy("id").sum("value")
+    .searchAccessor(function(d) { return d.ingredients; })
+    .render();
+
+</script>
+
+</html>

@@ -19,13 +19,19 @@
 import type Viz from "../viz/Viz.js";
 import type {Contribution} from "./topLeftControlsMarkup.js";
 import {toggleTableView} from "./tableView.js";
-import {bindTableViewButton, showsTableView, tableViewButtonHtml} from "./tableViewMarkup.js";
+import {
+  bindTableViewButton,
+  showsTableView,
+  tableViewButtonHtml,
+  tableViewButtonStyleSignature,
+} from "./tableViewMarkup.js";
 
 export function tableViewContribution(viz: Viz): Contribution | null {
   if (!showsTableView(viz)) return null;
   return {
     key: "table-view",
     html: tableViewButtonHtml(viz),
+    styleSignature: tableViewButtonStyleSignature(viz),
     events: {
       ".table-view-toggle": {click: (): void => toggleTableView(viz)},
     },

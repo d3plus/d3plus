@@ -1214,12 +1214,13 @@ it("backContribution renders a Back button in the top-left controls panel when h
     // Seed drill-down history so backContribution renders the back button.
     viz._history = [{depth: 0}];
     await new Promise(resolve => viz.render(resolve));
-    const panel = target.querySelector(".d3plus-top-left-controls");
+    const panel = target.querySelector(".d3plus-top-left-controls-item");
     const btn = panel && panel.querySelector(".back-control");
     return {
       text: target.textContent,
       hasBack: !!btn,
       isButton: btn ? btn.tagName.toLowerCase() === "button" : false,
+      hasIcon: btn ? !!btn.querySelector("svg") : false,
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
@@ -1227,7 +1228,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
 
   assert.ok(res.hasBack, "back button in the top-left controls panel");
   assert.ok(res.isButton, "back control is a real <button>, not a scene text node");
-  assert.ok(res.text.includes("←"), "back arrow glyph present");
+  assert.ok(res.hasIcon, "back arrow SVG icon present");
   assert.ok(res.text.toLowerCase().includes("back"), "back label rendered");
 });
 
@@ -1286,7 +1287,10 @@ it("titleFeature composes a title TextNode into the scene", async () => {
 
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.titleTextNode, "title text node present in scene");
-  assert.ok(res.text.includes("My Chart Title"), "title text appears in rendered DOM");
+  // Wrapped lines render as separate tspans with no inserted whitespace, so
+  // check the words rather than the exact phrase with its space intact.
+  assert.ok(res.text.includes("My Chart"), "title text appears in rendered DOM");
+  assert.ok(res.text.includes("Title"), "title text appears in rendered DOM");
 });
 
 it("CanvasRenderer picks a Path2D path in a real browser", async () => {

@@ -38,8 +38,8 @@ it("back renders as a button in the shared top-left panel only with drill-down h
         noHistory.render(() =>
           withHistory.render(() => {
             resolve({
-              noHistoryPanel: document.querySelectorAll("#a .d3plus-top-left-controls .back-control").length,
-              withHistoryPanel: document.querySelectorAll("#b .d3plus-top-left-controls .back-control").length,
+              noHistoryPanel: document.querySelectorAll("#a .d3plus-top-left-controls-item .back-control").length,
+              withHistoryPanel: document.querySelectorAll("#b .d3plus-top-left-controls-item .back-control").length,
               marginTopEqual: noHistory._margin.top === withHistory._margin.top,
             });
           }),

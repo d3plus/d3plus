@@ -119,6 +119,18 @@ The control buttons are real `<button>`s: the brush toggle carries
 `aria-pressed` and an `.active` class while on, and by default paints the OS
 accent color. Set `zoomControlClassName` to style them with your own CSS.
 
+The four control icons render as inline SVGs by default; `zoomControlIcons`
+overrides any of them — pass a raw HTML string, or a mount function
+(`(el) => void | (() => void)`) that receives the button's reserved icon
+element to render into imperatively. That's the escape hatch for a live
+component: a brand icon from a React tree (`createRoot(el).render(<Icon/>)`),
+a Vue app, anything. The function runs once per button element — an ordinary
+redraw (pan, zoom, a data update) leaves a mounted icon alone; only something
+that changes the buttons' own markup (the brush toggling, a locale change, a
+new `zoomControlClassName`) tears it down first, calling the cleanup function
+your mount function returned, if any. The attribution credit's "ⓘ" badge (see
+`attribution`) takes the same treatment via `attributionIcon`.
+
 Plot-based charts (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker,
 BumpChart, and Plot itself) zoom their data instead of the picture: each
 linear axis stays in place and rescales its domain, while category, time, and

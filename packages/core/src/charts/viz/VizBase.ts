@@ -6,6 +6,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
+import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
 /**
@@ -57,6 +58,59 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
+      An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+*/
+  minimapClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.minimapClassName = _), this)
+      : this.schema.minimapClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapLabelStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapLabelStyle = _), this)
+      : this.schema.minimapLabelStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapStyle = _), this)
+      : this.schema.minimapStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyle = _), this)
+      : this.schema.minimapViewportStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyleActive = _), this)
+      : this.schema.minimapViewportStyleActive;
+  }
+
+  /**
       The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 */
   noDataHTML(
@@ -85,6 +139,68 @@ export default class VizBase extends VizBaseConfig {
     return arguments.length
       ? ((this.schema.scrollContainer = _), this)
       : this.schema.scrollContainer;
+  }
+
+  /**
+      Resolves the string the search box matches its typed term against, for
+      a given datum. Defaults to the mark's resolved on-screen label
+      (`viz._drawLabel`) — the same text the user reads on the chart.
+      Override it to match against something else instead, e.g. a data
+      field that isn't shown as the label.
+
+      This is checked alongside, not instead of, every level of the datum's
+      own groupBy hierarchy — searching a leaf's label also matches its
+      ancestor group's cell/legend entry, and vice versa, regardless of
+      this accessor's override.
+*/
+  searchAccessor(
+    _?: (d: DataPoint, i: number) => string,
+  ): this | ((d: DataPoint, i: number) => string) {
+    return arguments.length
+      ? ((this.schema.searchAccessor = _), this)
+      : this.schema.searchAccessor;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  searchControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.searchControlClassName = _), this)
+      : this.schema.searchControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyle = _), this)
+      : this.schema.searchControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleActive = _), this)
+      : this.schema.searchControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleHover = _), this)
+      : this.schema.searchControlStyleHover;
   }
 
   /**
@@ -406,6 +522,17 @@ export default class VizBase extends VizBaseConfig {
     return arguments.length
       ? ((this.schema.zoomControlClassName = _), this)
       : this.schema.zoomControlClassName;
+  }
+
+  /**
+      Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+*/
+  zoomControlIcons(
+    _?: ZoomControlIcons,
+  ): this | ZoomControlIcons | undefined {
+    return arguments.length
+      ? ((this.schema.zoomControlIcons = _), this)
+      : (this.schema.zoomControlIcons as ZoomControlIcons | undefined);
   }
 
   /**

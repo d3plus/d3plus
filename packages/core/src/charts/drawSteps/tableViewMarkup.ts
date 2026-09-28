@@ -11,10 +11,11 @@
     features are independent chrome a chart can mix and match; sharing
     styling *knobs* (config keys, defaults) between them would couple them
     for no benefit. The button-painting *mechanism* is genuinely
-    feature-agnostic, though — `kebab`/`setStyle`/`paintControlButton`/
-    `overlayHost` are reused from `zoomControlsMarkup.ts` rather than
-    duplicated, the same way `zoomControlsInset` and `topLeftControlsInset`
+    feature-agnostic, though — `paintControlButton`/`resolveControlStyle`
+    come from the shared `controlButtonStyle.ts` (also used by zoom/back/
+    search), the same way `zoomControlsInset` and `topLeftControlsInset`
     share the box-measuring pattern without sharing what they measure.
+    `overlayHost` is reused from `zoomControlsMarkup.ts`.
 
     @module
 */
@@ -23,8 +24,8 @@ import type {DataPoint} from "@d3plus/data";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import type Viz from "../viz/Viz.js";
-import {overlayHost, paintControlButton} from "./zoomControlsMarkup.js";
-import type {StyleObject} from "./zoomControlsMarkup.js";
+import {overlayHost} from "./zoomControlsMarkup.js";
+import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
 import {
   tableViewControlStyleActiveDefault,
   tableViewControlStyleDefault,
@@ -89,35 +90,24 @@ function hasDistinctRawData(viz: Viz): boolean {
   return raw.length !== aggregate.length;
 }
 
-type ControlStyleValue = StyleObject | false | null | undefined;
-
-/**
-    Resolves a `tableViewControlStyle`/`Active`/`Hover` value for painting.
-    Setting `tableViewControlClassName` auto-disables whichever of the three
-    is still the untouched built-in default (identified by reference), same
-    trick `zoomControlClassName` uses.
-*/
-function resolveControlStyle(
-  viz: Viz,
-  value: ControlStyleValue,
-  defaultValue: ControlStyleValue,
-): StyleObject {
-  if (viz.schema.tableViewControlClassName && value === defaultValue) return {};
-  return value || {};
-}
-
-/** The resolved base / active / hover button styles for a chart. */
+/** The resolved base / active / hover button styles for a chart, also the cheap non-DOM basis for `tableViewContribution`'s `styleSignature`. */
 function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
+  const className = Boolean(viz.schema.tableViewControlClassName);
   return {
-    base: resolveControlStyle(viz, viz.schema.tableViewControlStyle, tableViewControlStyleDefault),
-    active: resolveControlStyle(viz, viz.schema.tableViewControlStyleActive, tableViewControlStyleActiveDefault),
-    hover: resolveControlStyle(viz, viz.schema.tableViewControlStyleHover, tableViewControlStyleHoverDefault),
+    base: resolveControlStyle(viz.schema.tableViewControlStyle, tableViewControlStyleDefault, className),
+    active: resolveControlStyle(viz.schema.tableViewControlStyleActive, tableViewControlStyleActiveDefault, className),
+    hover: resolveControlStyle(viz.schema.tableViewControlStyleHover, tableViewControlStyleHoverDefault, className),
   };
 }
 
 /** Paints the table-view button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
 export function paintTableViewButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  paintControlButton(btn, buttonStyles(viz), hovered);
+  paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
+}
+
+/** The cheap, non-DOM signature capturing the button's resolved style — see `Contribution.styleSignature`. */
+export function tableViewButtonStyleSignature(viz: Viz): string {
+  return JSON.stringify(buttonStyles(viz));
 }
 
 /** Shared icon attributes — see the long comment in `zoomControlsMarkup.ts` for why these exact properties matter. */
@@ -696,7 +686,7 @@ export function bindTableViewOverlay(host: HTMLElement, viz: Viz): void {
     would otherwise still read "active" until the next full re-render.
 */
 export function syncSharedTableViewButton(viz: Viz): void {
-  const btn = overlayHost(viz)?.querySelector<HTMLElement>(".d3plus-top-left-controls .table-view-toggle");
+  const btn = overlayHost(viz)?.querySelector<HTMLElement>(".d3plus-top-left-controls-item .table-view-toggle");
   if (!btn) return;
   const active = isTableView(viz);
   btn.classList.toggle("active", active);
