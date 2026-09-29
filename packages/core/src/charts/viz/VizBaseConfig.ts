@@ -273,7 +273,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      When `true` (and `detectVisible` is enabled), the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not. Requires `IntersectionObserver`.
+      When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. Requires `IntersectionObserver`.
 */
   detectVisibleUnload(_?: boolean): this | boolean {
     return arguments.length

@@ -1,4 +1,5 @@
 import assert from "assert";
+import {render, closeBrowser} from "../playwright.js";
 import {shared, withIO} from "./stubIntersectionObserver.js";
 import {
   syncUnloadObserver,
@@ -75,3 +76,15 @@ it(
     assert.strictEqual(viz._unloadUnobserve, undefined);
   }),
 );
+
+it("visibility unload: is on by default and can be turned off", async () => {
+  const result = await render("", () => {
+    const viz = new window.d3plus.Treemap();
+    const initial = viz.detectVisibleUnload();
+    viz.detectVisibleUnload(false);
+    return {initial, detectVisible: viz.detectVisible(), off: viz.detectVisibleUnload()};
+  });
+  assert.deepStrictEqual(result, {initial: true, detectVisible: true, off: false});
+});
+
+after(closeBrowser);
