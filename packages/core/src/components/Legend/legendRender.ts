@@ -87,7 +87,9 @@ export function computeLegendLineData(
 
     res = Object.assign(res, newRes);
 
-    res.width =
+    // A label with no room for even one line (e.g. a chart only a few pixels
+    // wide) measures as zero, so row packing falls back to swatches alone.
+    res.width = !(res.lines as string[]).length ? 0 :
       Math.ceil(
         max(
           (res.lines as string[]).map((t: string) =>
