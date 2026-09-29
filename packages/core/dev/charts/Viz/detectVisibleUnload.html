@@ -118,10 +118,10 @@
       //      "unloaded" (red) and their DOM node count drops; scrolling back
       //      redraws them immediately without an animation. DOM nodes in the
       //      HUD should stay roughly constant however far you scroll.
-      //   4. Untick it (Apply) and re-scroll: charts stay loaded, and each <svg>
-      //      gets `content-visibility: auto` (inspect one) so the browser skips
-      //      its contents while off-screen. Hover a chart near its edge: the
-      //      tooltip is not clipped.
+      //   4. Untick it (Apply) and re-scroll: charts stay loaded. Either way each
+      //      <svg> has `content-visibility: auto` (inspect one) so the browser
+      //      skips its contents while far off-screen. Hover a chart near its
+      //      edge: the tooltip is not clipped.
       //   5. Zoom/hover state is not kept across an unload; that is expected.
 
       const params = new URLSearchParams(location.search);

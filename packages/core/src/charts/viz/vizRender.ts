@@ -94,14 +94,12 @@ function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void 
     .style("position", "absolute")
     .style("top", parent.style("padding-top"))
     .style("left", parent.style("padding-left"))
-    // Fallback for when off-screen charts are kept rather than unloaded: lets
-    // the browser skip layout and paint of the SVG's contents while it is out
-    // of view. The SVG is absolutely positioned and explicitly sized, so it
-    // needs no intrinsic size, and tooltips live outside it so are not clipped.
-    .style(
-      "content-visibility",
-      viz.schema.detectVisible && !viz.schema.detectVisibleUnload ? "auto" : null,
-    )
+    // Lets the browser skip layout and paint of the SVG's contents while it
+    // is far off-screen. The SVG is absolutely positioned and explicitly sized,
+    // so it needs no intrinsic size, and tooltips live outside it so are not
+    // clipped. Unset with detectVisible(false), which also keeps it out of
+    // static SVG/PNG output.
+    .style("content-visibility", viz.schema.detectVisible ? "auto" : null)
     .transition()
     .duration(viz.schema.duration)
     .style(

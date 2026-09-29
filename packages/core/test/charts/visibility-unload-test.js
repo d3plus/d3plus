@@ -87,7 +87,7 @@ it("visibility unload: is on by default and can be turned off", async () => {
   assert.deepStrictEqual(result, {initial: true, detectVisible: true, off: false});
 });
 
-it("visibility unload: kept charts get content-visibility on the svg only", async () => {
+it("visibility unload: charts get content-visibility on the svg only while detectVisible is on", async () => {
   const result = await render('<div id="c" style="position:relative;height:200px;width:400px"></div>', () => {
     const c = document.getElementById("c");
     const cv = (detectVisible, unload) => {
@@ -114,7 +114,7 @@ it("visibility unload: kept charts get content-visibility on the svg only", asyn
   });
   assert.deepStrictEqual(result, {
     kept: {svg: "auto", container: "visible"},
-    unloading: {svg: "visible", container: "visible"},
+    unloading: {svg: "auto", container: "visible"},
     notDetecting: {svg: "visible", container: "visible"},
   });
 });
