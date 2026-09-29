@@ -12,6 +12,7 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../../components/index.js";
 import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
+import {markDefault} from "../../utils/configDefault.js";
 import {installFluent} from "../../fluent.js";
 
 import {legendLabel} from "../features/legendLabel.js";
@@ -373,13 +374,15 @@ function initShapeDefaults(viz: Viz): void {
       return colorAssign(key, viz._colorDefaults);
     },
     labelConfig: {
-      fontColor: (d: DataPoint, i: number) => {
+      // Marked so chart emitters layering user label config keep their own
+      // label colors over this generic one.
+      fontColor: markDefault((d: DataPoint, i: number) => {
         const c =
           typeof viz.schema.shapeConfig.fill === "function"
             ? viz.schema.shapeConfig.fill(d, i)
             : viz.schema.shapeConfig.fill;
         return colorContrast(c);
-      },
+      }),
     },
     opacity: constant(1),
     stroke: (d: DataPoint, i: number) => {

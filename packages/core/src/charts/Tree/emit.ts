@@ -13,6 +13,7 @@ import {
   paintFromShapeConfig,
   resolveAccessor,
   shapeConfigFor,
+  userLabelConfig,
 } from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
@@ -149,7 +150,10 @@ export const treeEmit: ChartEmit = ({viz}) => {
       id: (d, i) => chartShapeConfig.id(d, i),
       labelBounds: (d, i, aes) =>
         chartShapeConfig.labelBounds(d, i, aes as Record<string, number>),
-      labelConfig: chartShapeConfig.labelConfig,
+      labelConfig: {
+        ...userLabelConfig(viz, shapeKind),
+        ...chartShapeConfig.labelConfig,
+      },
     });
     out.push(...labelNodes);
   }
