@@ -7,6 +7,7 @@ import {
 
 import type {D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
+import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
 /**
     Recursive function that resets nested Object configs.
@@ -138,10 +139,8 @@ export default class BaseClass {
                 v,
               );
             }
-          } else {
-            // console.warn(
-            //   `${this.constructor.name}.config() received unknown property "${k}".`,
-            // );
+          } else if (!isSharedConfig(_)) {
+            warnUnknownConfig(`${this.constructor.name}.config()`, k);
           }
         }
       }

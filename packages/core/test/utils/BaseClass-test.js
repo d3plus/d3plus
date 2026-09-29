@@ -1,6 +1,7 @@
 import assert from "assert";
 import {default as BaseClass} from "../../es/src/utils/BaseClass.js";
 import {default as RESET} from "../../es/src/utils/RESET.js";
+import {markSharedConfig} from "../../es/src/utils/configWarnings.js";
 
 it("BaseClass", () => {
   const one = new BaseClass(),
@@ -56,9 +57,21 @@ it("BaseClass", () => {
   r.config({locale: RESET});
   assert.strictEqual(r.locale(), "en-US", "locale reset to default");
 
-  // config with unknown key does not throw
-  r.config({nonExistentProp: "value"});
-  assert.ok(true, "unknown config key ignored");
+  // config with unknown key warns instead of throwing
+  const warn = console.warn,
+    warnings = [];
+  console.warn = msg => warnings.push(msg);
+  try {
+    r.config({nonExistentProp: "value", locale: "en-US"});
+    r.config(markSharedConfig({sharedOnlyProp: "value"}));
+  } finally {
+    console.warn = warn;
+  }
+  assert.deepStrictEqual(
+    warnings,
+    ['BaseClass.config() received unknown property "nonExistentProp".'],
+    "unknown config key warns once, shared configs stay quiet",
+  );
 
   // config with nested object
   r.shapeConfig({nested: {a: 1}});

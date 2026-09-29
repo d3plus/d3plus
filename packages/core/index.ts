@@ -54,6 +54,7 @@ export {
   accessor,
   BaseClass,
   configPrep,
+  configWarnings,
   constant,
   RESET,
 } from "./src/utils/index.js";

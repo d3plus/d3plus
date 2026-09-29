@@ -1,7 +1,7 @@
 import {max, sum} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign, textWidth} from "@d3plus/dom";
+import {textWidth} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
 
 import * as shapes from "../../shapes/index.js";
@@ -322,7 +322,6 @@ export function renderLegendShapes(legend: Legend): void {
     config = {
       id: (d: Record<string, unknown>) => d.id,
       label: (d: Record<string, unknown>) => d.label,
-      lineHeight: (d: Record<string, unknown>) => d.lH,
     };
 
   const data = legend._data.map((d: DataPoint, i: number) => {
@@ -332,7 +331,6 @@ export function renderLegendShapes(legend: Legend): void {
       i,
       id: legend.schema.id(d, i),
       label: legend._lineData[i].width ? legend.schema.label(d, i) : false,
-      lH: legend._fetchConfig("lineHeight", d, i),
       shape: legend.schema.shape(d, i),
     };
 
@@ -352,7 +350,8 @@ export function renderLegendShapes(legend: Legend): void {
         .labelConfig({padding: 0})
         .select(legend._shapeGroup.node())
         .verticalAlign("top")
-        .config(assign({}, baseConfig, config))
+        .config(baseConfig)
+        .config(config)
         .render(),
     );
   });
