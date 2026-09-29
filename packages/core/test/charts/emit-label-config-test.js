@@ -72,7 +72,9 @@ it("emitted chart labels honor fontFamily and shapeConfig.labelConfig", async fu
 
       const results = {};
       for (const name of charts) {
-        const family = await draw(name, v => v.fontFamily("Georgia"));
+        // A generic family, so the result doesn't depend on installed fonts
+        // (TextBox only uses a family that fontExists finds on the machine).
+        const family = await draw(name, v => v.fontFamily("monospace"));
         const styled = await draw(name, v =>
           v.shapeConfig({
             labelConfig: {
@@ -99,7 +101,7 @@ it("emitted chart labels honor fontFamily and shapeConfig.labelConfig", async fu
     assert.ok(r.count > 0, `${name}: draws labels`);
     // Priestley's time axis is chart-body text too; it takes fontFamily but
     // not shapeConfig, so only the family is asserted across all of it.
-    assert.deepStrictEqual(r.families, ["Georgia"], `${name}: fontFamily()`);
+    assert.deepStrictEqual(r.families, ["monospace"], `${name}: fontFamily()`);
     assert.ok(r.weights.includes("700"), `${name}: labelConfig.fontWeight`);
   }
   // A per-datum fontColor accessor receives the source row. Rings colors its
