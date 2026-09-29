@@ -1,3 +1,4 @@
+/* global console */
 import assert from "assert";
 import {default as BaseClass} from "../../es/src/utils/BaseClass.js";
 import {default as RESET} from "../../es/src/utils/RESET.js";

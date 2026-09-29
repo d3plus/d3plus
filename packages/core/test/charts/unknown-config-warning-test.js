@@ -1,3 +1,4 @@
+/* global console */
 import assert from "assert";
 import {BarChart, configWarnings, Treemap} from "../../es/index.js";
 
