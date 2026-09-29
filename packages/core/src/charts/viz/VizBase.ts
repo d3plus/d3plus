@@ -7,6 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
 import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
+import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
 /**
@@ -229,9 +230,10 @@ export default class VizBase extends VizBaseConfig {
   shapeConfig(): D3plusConfig;
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
-    return arguments.length
-      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
-      : this.schema.shapeConfig;
+    if (!arguments.length) return this.schema.shapeConfig;
+    validateShapeConfig(this.constructor.name, _!);
+    this.schema.shapeConfig = assign(this.schema.shapeConfig, _!);
+    return this;
   }
 
   /**
