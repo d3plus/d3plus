@@ -161,10 +161,9 @@ function computeBoxGroup(
       d.data as DataPoint,
       d.i as number,
     );
-    (d as Record<string, unknown>).x = box.schema.x(
-      d.data as DataPoint,
-      d.i as number,
-    );
+    // The group key is this same accessor evaluated on each member; the
+    // merged datum can't be re-read because `merge` sums numeric fields.
+    (d as Record<string, unknown>).x = key;
     (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
   } else if (d.orient === "horizontal") {
     // Compute values for horizontal orientation.
@@ -174,10 +173,7 @@ function computeBoxGroup(
     );
     (d as Record<string, unknown>).width = rectLength;
     (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-    (d as Record<string, unknown>).y = box.schema.y(
-      d.data as DataPoint,
-      d.i as number,
-    );
+    (d as Record<string, unknown>).y = key;
   }
 
   // Compute data for outliers.
