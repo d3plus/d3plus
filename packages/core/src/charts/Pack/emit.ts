@@ -8,6 +8,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PackLeaf} from "./applyLayout.js";
 
@@ -80,7 +81,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       const r = (aes as {r: number}).r;
       return {width: r * 1.6, height: r * 0.8, x: -r * 0.8, y: -r * 0.4};
     },
-    labelConfig: {fontResize: true},
+    labelConfig: {fontResize: true, ...userLabelConfig(viz, "Circle")},
   });
 
   return [...circleNodes, ...labelNodes];

@@ -22,6 +22,7 @@
 
 import configPrep from "../../utils/configPrep.js";
 import type {VizContext} from "../../utils/configPrep.js";
+import {isDefault} from "../../utils/configDefault.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, SceneNode} from "@d3plus/render";
@@ -151,6 +152,31 @@ export function shapeConfigFor(
     kind,
     shapeKey,
   );
+}
+
+/**
+    The user's label config for one shape kind — `shapeConfig.labelConfig`
+    overlaid with `shapeConfig[shapeKey].labelConfig`, data-wrapped the same
+    way the Shape path wraps it. Spread it over a chart's own label defaults so
+    user settings (including `fontFamily()`) win. Library-seeded defaults are
+    left out so they don't override the chart's.
+*/
+export function userLabelConfig(
+  viz: VizLike,
+  shapeKey: string,
+): Record<string, unknown> {
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const labelConfigOf = (cfg: unknown): Record<string, unknown> | undefined =>
+    cfg && typeof cfg === "object"
+      ? ((cfg as Record<string, unknown>).labelConfig as Record<string, unknown>)
+      : undefined;
+  const raw: Record<string, unknown> = {
+    ...labelConfigOf(sc),
+    ...labelConfigOf(sc[shapeKey]),
+  };
+  for (const key in raw) if (isDefault(raw[key])) delete raw[key];
+  const {labelConfig} = shapeConfigFor(viz, shapeKey, {labelConfig: raw});
+  return (labelConfig ?? {}) as Record<string, unknown>;
 }
 
 /**

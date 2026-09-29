@@ -11,6 +11,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 
@@ -107,6 +108,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
         const fillVal = resolveAccessor<string>(sc.fill, src, src.i);
         return typeof fillVal === "string" ? colorContrast(fillVal) : undefined;
       },
+      ...userLabelConfig(viz, "Rect"),
     },
   });
 

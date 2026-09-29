@@ -10,7 +10,13 @@ import type {SceneNode} from "@d3plus/render";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {arrowEnds, arrowNode, arrowSizeFor, straightEdgeArrows} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
-import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  drawNodeLabel,
+  paintFromShapeConfig,
+  resolveAccessor,
+  shapeConfigFor,
+  userLabelConfig,
+} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -188,7 +194,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
           rotate: d => (nodeCfg.rotate ? nodeCfg.rotate(d as RingsNode) : 0),
           id: d => `rings-label-${(d as RingsNode).id}`,
           labelBounds: (d, _i) => boundsFn(d as RingsNode),
-          labelConfig: nodeCfg.labelConfig ?? {},
+          labelConfig: {...userLabelConfig(viz, shapeKind), ...nodeCfg.labelConfig},
         });
         out.push(...labelNodes);
       }

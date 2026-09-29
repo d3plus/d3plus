@@ -10,6 +10,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 function resolveAccessor<T>(
@@ -87,6 +88,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
       fontResize: true,
       textAnchor: "middle",
       verticalAlign: "middle",
+      ...userLabelConfig(viz, "Path"),
     },
   });
 
