@@ -87,4 +87,36 @@ it("visibility unload: is on by default and can be turned off", async () => {
   assert.deepStrictEqual(result, {initial: true, detectVisible: true, off: false});
 });
 
+it("visibility unload: kept charts get content-visibility on the svg only", async () => {
+  const result = await render('<div id="c" style="position:relative;height:200px;width:400px"></div>', () => {
+    const c = document.getElementById("c");
+    const cv = (detectVisible, unload) => {
+      c.innerHTML = "";
+      new window.d3plus.Treemap()
+        .data([{id: "a", value: 1}, {id: "b", value: 2}])
+        .groupBy("id")
+        .sum("value")
+        .duration(0)
+        .detectVisible(detectVisible)
+        .detectVisibleUnload(unload)
+        .select(c)
+        .render();
+      return {
+        svg: window.getComputedStyle(c.querySelector("svg")).contentVisibility,
+        container: window.getComputedStyle(c).contentVisibility,
+      };
+    };
+    return {
+      kept: cv(true, false),
+      unloading: cv(true, true),
+      notDetecting: cv(false, false),
+    };
+  });
+  assert.deepStrictEqual(result, {
+    kept: {svg: "auto", container: "visible"},
+    unloading: {svg: "visible", container: "visible"},
+    notDetecting: {svg: "visible", container: "visible"},
+  });
+});
+
 after(closeBrowser);
