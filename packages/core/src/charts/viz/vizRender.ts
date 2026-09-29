@@ -8,7 +8,11 @@ import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import type Viz from "./Viz.js";
-import {canObserveVisibility, observeVisibility} from "./vizVisibility.js";
+import {
+  canObserveVisibility,
+  observeVisibility,
+  syncUnloadObserver,
+} from "./vizVisibility.js";
 
 /**
     Whether the chart counts as on-screen for this render. `_forceVisible` is set
@@ -90,6 +94,12 @@ function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void 
     .style("position", "absolute")
     .style("top", parent.style("padding-top"))
     .style("left", parent.style("padding-left"))
+    // Lets the browser skip layout and paint of the SVG's contents while it
+    // is far off-screen. The SVG is absolutely positioned and explicitly sized,
+    // so it needs no intrinsic size, and tooltips live outside it so are not
+    // clipped. Unset with detectVisible(false), which also keeps it out of
+    // static SVG/PNG output.
+    .style("content-visibility", viz.schema.detectVisible ? "auto" : null)
     .transition()
     .duration(viz.schema.duration)
     .style(
@@ -297,6 +307,8 @@ function buildDataTable(viz: Viz): void {
     @private
 */
 function finishDraw(viz: Viz, callback?: () => void): void {
+  // scrolled away while data was loading; the next reload redraws
+  if (viz._unloaded) return;
   buildDataTable(viz);
 
   // Run the chart pipeline. Extracted to a free function so the
@@ -305,6 +317,8 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   // loading, callback timing) stays on the class because it's
   // inherently instance-bound.
   runVizPipeline(viz as unknown as VizInstance);
+  viz._instantNextDraw = false;
+  syncUnloadObserver(viz);
 
   if (
     viz._messageClass._isVisible &&
@@ -359,6 +373,13 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
 */
 export function vizRender(viz: Viz, callback?: () => void): Viz {
   viz._callback = callback;
+  // With unloading switched off nothing would ever reload an unloaded chart,
+  // so drop the observer and treat this as a normal (possibly deferred) render.
+  if (!(viz.schema.detectVisible && viz.schema.detectVisibleUnload)) {
+    viz._unloadUnobserve?.();
+    viz._unloadUnobserve = undefined;
+    viz._unloaded = false;
+  }
   // Resets margins and padding
   viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
   viz._padding = {bottom: 0, left: 0, right: 0, top: 0};

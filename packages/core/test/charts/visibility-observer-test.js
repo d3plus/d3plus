@@ -1,42 +1,10 @@
 import assert from "assert";
 import {setTimeout as wait} from "node:timers/promises";
+import {StubIO, withIO} from "./stubIntersectionObserver.js";
 import {
   canObserveVisibility,
   observeVisibility,
 } from "../../es/src/charts/viz/vizVisibility.js";
-
-class StubIO {
-  static instances = [];
-  constructor(cb, opts) {
-    this.cb = cb;
-    this.opts = opts;
-    this.targets = new Set();
-    StubIO.instances.push(this);
-  }
-  observe(el) {
-    this.targets.add(el);
-  }
-  unobserve(el) {
-    this.targets.delete(el);
-  }
-  fire(target, isIntersecting) {
-    this.cb([{target, isIntersecting}]);
-  }
-}
-
-// IntersectionObserver is stubbed only for the duration of each test so other
-// suites in the same mocha process don't see it. The observer is shared per
-// scroll root and persists across tests, so assertions are relative.
-function withIO(fn) {
-  return () => {
-    globalThis.IntersectionObserver = StubIO;
-    try {
-      fn();
-    } finally {
-      delete globalThis.IntersectionObserver;
-    }
-  };
-}
 
 it("visibility observer: is unavailable without IntersectionObserver", () => {
   assert.strictEqual(canObserveVisibility(), false);
@@ -104,3 +72,36 @@ it("visibility observer: delay only fires for targets that stay in view", async 
     delete globalThis.IntersectionObserver;
   }
 });
+
+it(
+  "visibility observer: onHidden runs when a target leaves view",
+  withIO(() => {
+    const a = {};
+    const seen = [];
+    const off = observeVisibility(a, null, () => seen.push("in"), 0, () => seen.push("out"));
+    const io = StubIO.instances[0];
+    io.fire(a, true);
+    io.fire(a, false);
+    assert.deepStrictEqual(seen, ["in", "out"]);
+    off();
+  }),
+);
+
+it(
+  "visibility observer: registrations on one element are independent",
+  withIO(() => {
+    const el = {};
+    const seen = [];
+    const offA = observeVisibility(el, null, () => seen.push("a-in"), 0, () => seen.push("a-out"));
+    const io = StubIO.instances[0];
+    const offB = observeVisibility(el, null, () => seen.push("b-in"));
+    io.fire(el, true);
+    assert.deepStrictEqual(seen, ["a-in", "b-in"]);
+    offB();
+    assert.ok(io.targets.has(el), "still observed while another registration remains");
+    io.fire(el, false);
+    assert.deepStrictEqual(seen, ["a-in", "b-in", "a-out"]);
+    offA();
+    assert.ok(!io.targets.has(el));
+  }),
+);
