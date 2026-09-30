@@ -8,7 +8,7 @@
 
 import {tree} from "d3-hierarchy";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
@@ -60,12 +60,12 @@ export const treeDef: ChartDefinition = {
             const bg = viz._select
               ? backgroundColor(viz._select.node())
               : "rgb(255, 255, 255)";
-            return colorContrast(bg);
+            return colorContrast(bg, viz.schema.colorDefaults);
           },
         },
         Path: {
           fill: "none",
-          stroke: colorDefaults.missing,
+          stroke: () => viz.schema.colorDefaults.missing,
           strokeWidth: 2,
         },
         r: constant(7),

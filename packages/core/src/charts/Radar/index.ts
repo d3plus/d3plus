@@ -60,7 +60,7 @@ export const radarDef: ChartDefinition = {
               const bg = viz._select
                 ? backgroundColor(viz._select.node())
                 : "rgb(255, 255, 255)";
-              return colorContrast(bg);
+              return colorContrast(bg, viz.schema.colorDefaults);
             },
             fontResize: false,
             padding: 0,
@@ -72,7 +72,7 @@ export const radarDef: ChartDefinition = {
             const bg = viz._select
               ? backgroundColor(viz._select.node())
               : "rgb(255, 255, 255)";
-            return colorContrast(bg);
+            return colorContrast(bg, viz.schema.colorDefaults);
           },
           strokeWidth: constant(1),
         },

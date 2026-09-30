@@ -186,7 +186,7 @@ export const networkEmit: ChartEmit = ({viz}) => {
                 (node.data ?? node) as DataPoint,
                 node.i ?? 0,
               );
-              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
             },
             ...userLabelConfig(viz, shapeKind),
           },

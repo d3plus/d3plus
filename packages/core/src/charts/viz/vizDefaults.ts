@@ -167,9 +167,11 @@ function initBackDefaults(viz: Viz): void {
 */
 function initColorDefaults(viz: Viz): void {
   viz.schema.color = (d: DataPoint, i: number) => viz.schema.groupBy[0](d, i);
-  viz._colorDefaults = {
+  // Each viz gets its own categorical scale so assignments don't leak
+  // across charts on the same page.
+  viz.schema.colorDefaults = {
     ...colorDefaults,
-    scale: scaleOrdinal().range(colorDefaults.scale.range()),
+    scale: scaleOrdinal<string>().range(colorDefaults.scale.range()),
   };
   viz._colorScaleClass = new ColorScale();
   viz.schema.colorScaleConfig = {
@@ -372,7 +374,7 @@ function initShapeDefaults(viz: Viz): void {
       // hues, so the color itself carries the ordering.
       if (viz.schema.colorOrdinal && viz._ordinalColorScale)
         return viz._ordinalColorScale(key);
-      return colorAssign(key, viz._colorDefaults);
+      return colorAssign(key, viz.schema.colorDefaults);
     },
     labelConfig: {
       // Marked so chart emitters layering user label config keep their own
@@ -382,7 +384,7 @@ function initShapeDefaults(viz: Viz): void {
           typeof viz.schema.shapeConfig.fill === "function"
             ? viz.schema.shapeConfig.fill(d, i)
             : viz.schema.shapeConfig.fill;
-        return colorContrast(c);
+        return colorContrast(c, viz.schema.colorDefaults);
       }),
     },
     opacity: constant(1),

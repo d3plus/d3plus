@@ -87,7 +87,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: {data?: PriestleyDatum}) => {
         const pd = (d.data ?? d) as PriestleyDatum;
         const fill = resolveAccessor<string>(sc.fill, pd.data, pd.i);
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
       },
       fontResize: false,
       textAnchor: "start",

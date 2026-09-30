@@ -2,7 +2,6 @@ import {extent, max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 
-import {colorDefaults} from "@d3plus/color";
 import {date, elem, textWidth} from "@d3plus/dom";
 import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
@@ -291,7 +290,7 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     .data(playData)
     .select(playButtonGroup.node())
     .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig));
-  if (disabled) tl._playButtonClass.config({fontColor: colorDefaults.missing});
+  if (disabled) tl._playButtonClass.config({fontColor: tl.schema.colorDefaults.missing});
   tl._playButtonClass.render();
 
   // The play button's pixels are composed into the scene (compute mode), but

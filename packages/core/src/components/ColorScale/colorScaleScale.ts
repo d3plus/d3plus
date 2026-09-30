@@ -39,6 +39,11 @@ interface ScaleResult {
   labels: number[] | undefined;
 }
 
+/** The scale's poles, with unset ones taken from its `colorDefaults`. */
+const colorMin = (cs: ColorScale): string => cs.schema.colorMin ?? cs.schema.colorDefaults.off;
+const colorMid = (cs: ColorScale): string => cs.schema.colorMid ?? cs.schema.colorDefaults.light;
+const colorMax = (cs: ColorScale): string => cs.schema.colorMax ?? cs.schema.colorDefaults.sequential;
+
 /** Builds the jenks (ckmeans) threshold scale and assigns it to the instance. */
 function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   const {allValues, diverging, numBuckets} = ctx;
@@ -98,9 +103,9 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   if (!colors) {
     if (diverging) {
       const base: string[] = [
-        cs.schema.colorMin,
-        cs.schema.colorMid,
-        cs.schema.colorMax,
+        colorMin(cs),
+        colorMid(cs),
+        colorMax(cs),
       ];
       colors = base;
       const negatives = ticks
@@ -130,7 +135,7 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
       // Single-hue light→dark ramp, stepped in OKLab (see @d3plus/color).
-      colors = colorRamp(cs.schema.colorMax, numBuckets);
+      colors = colorRamp(colorMax(cs), numBuckets);
     }
   }
 
@@ -154,18 +159,18 @@ function resolveDivergingLinear(
   const {domain, numBuckets} = ctx;
   const half = Math.floor(numBuckets / 2);
   const negativeColorScale = interpolateRgb.gamma(2.2)(
-    cs.schema.colorMin,
-    cs.schema.colorMid,
+    colorMin(cs),
+    colorMid(cs),
   );
   const negativeColors = range(0, half, 1).map((i: number) =>
     negativeColorScale(i / half),
   );
   const spanningColors = (numBuckets % 2 ? [0] : []).map(
-    () => cs.schema.colorMid,
+    () => colorMid(cs),
   );
   const positiveColorScale = interpolateRgb.gamma(2.2)(
-    cs.schema.colorMax,
-    cs.schema.colorMid,
+    colorMax(cs),
+    colorMid(cs),
   );
   const positiveColors = range(0, half, 1)
     .map((i: number) => positiveColorScale(i / half))
@@ -206,7 +211,7 @@ function resolveNonDivergingLinear(
   if (!colors) {
     // Single-hue ramp of the relevant pole, stepped in OKLab (light→dark).
     // Negative-only scales read dark→light, so the ramp is reversed.
-    const base = negative ? cs.schema.colorMin : cs.schema.colorMax;
+    const base = negative ? colorMin(cs) : colorMax(cs);
     if (cs.schema.scale === "buckets" || cs.schema.scale === "quantile") {
       const ramp = colorRamp(base, numBuckets);
       colors = positive ? ramp : ramp.slice().reverse();
@@ -222,7 +227,7 @@ function resolveNonDivergingLinear(
         quantile(allValues, d),
       ) as number[];
     } else if (diverging && cs.schema.color && cs.schema.centered) {
-      const midIndex = colors.indexOf(cs.schema.colorMid);
+      const midIndex = colors.indexOf(colorMid(cs));
       const negativeStep =
         (cs.schema.midpoint - (domain as number[])[0]) / midIndex;
       const positiveStep =
@@ -342,7 +347,7 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
     diverging &&
     (!cs.schema.color ||
       (cs.schema.color instanceof Array &&
-        !cs.schema.color.includes(cs.schema.colorMid)))
+        !cs.schema.color.includes(colorMid(cs))))
       ? undefined
       : cs.schema.color;
 

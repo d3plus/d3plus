@@ -2,7 +2,7 @@ import {select} from "d3-selection";
 import {computePosition, arrow as arrowMiddleware, offset, flip, shift} from "@floating-ui/dom";
 import type {VirtualElement} from "@floating-ui/dom";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import {assign, elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
@@ -15,7 +15,7 @@ import type {ConfigField} from "../fluent.js";
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const tooltipSchema: ConfigField[] = [
   {key: "arrow", coerce: "const", default: accessor("arrow", "")},
-  {key: "background", coerce: "const", default: constant(colorDefaults.light)},
+  {key: "background", coerce: "const", factory: t => () => t.schema.colorDefaults.light},
   {key: "body", coerce: "const", default: accessor("body", "")},
   {key: "border", coerce: "const", default: constant("1px solid rgba(0, 0, 0, 0.25)")},
   {key: "borderRadius", coerce: "const", default: constant("4px")},
@@ -382,7 +382,7 @@ export default class Tooltip extends BaseClass {
     };
     this.schema.tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
-      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string)) as unknown as string,
+      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string, this.schema.colorDefaults)) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
     this.schema.trStyle = {

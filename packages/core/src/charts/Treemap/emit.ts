@@ -106,7 +106,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: DataPoint & {data?: DataPoint; i?: number}) => {
         const src = (d && d.data ? d.data : d) as DataPoint & {i?: number};
         const fillVal = resolveAccessor<string>(sc.fill, src, src.i);
-        return typeof fillVal === "string" ? colorContrast(fillVal) : undefined;
+        return typeof fillVal === "string" ? colorContrast(fillVal, viz.schema.colorDefaults) : undefined;
       },
       ...userLabelConfig(viz, "Rect"),
     },

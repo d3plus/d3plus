@@ -189,7 +189,7 @@ export default class Shape extends BaseClass {
     // etc. rely on this. Bar overrides to "middle" in its constructor.
     this.schema.labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
-        colorContrast(this.schema.fill(d, i) as string),
+        colorContrast(this.schema.fill(d, i) as string, this.schema.colorDefaults),
       // Fade labels with their shape's opacity (e.g. an axis tick label hides
       // when `shapeConfig.opacity` is 0). Reads `this.schema.opacity` live —
       // like `fontColor` reads `fill` — which unwraps nested label data.

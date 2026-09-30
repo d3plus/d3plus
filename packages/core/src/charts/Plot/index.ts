@@ -8,7 +8,6 @@ const {theme: openColor} = pkg;
 import {
   colorAssign,
   colorContrast,
-  colorDefaults,
 } from "@d3plus/color";
 import {assign, backgroundColor} from "@d3plus/dom";
 
@@ -128,7 +127,7 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i)),
+      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i), this.schema.colorDefaults),
       r: constant(3),
     };
     this._lineMarkers = defaults.lineMarkers as boolean;
@@ -166,8 +165,8 @@ export default class Plot extends Viz {
           const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
           if (range[0] === position) return "transparent";
           const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg);
-          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+                  const contrast = colorContrast(bg, this.schema.colorDefaults);
+          return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
         },
       },
     };
@@ -191,8 +190,8 @@ export default class Plot extends Viz {
           const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);
           if (range[range.length - 1] === position) return "transparent";
           const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg);
-          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+                  const contrast = colorContrast(bg, this.schema.colorDefaults);
+          return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
         },
       },
     };
