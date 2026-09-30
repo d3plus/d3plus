@@ -43,6 +43,12 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       cx: d.x,
       cy: d.y,
       r: d.r,
+      // Distinguishes this circle from Plot's Circle shape (which carries
+      // shapeType "Circle" via the generic Shape.toScene() stamp) so the
+      // drill-down morph's proportional remap — appropriate for Pack's
+      // subdivide-a-container circles, not a scatter chart's — only applies
+      // here.
+      shapeType: "Pack",
       datum,
       paint: {
         fill: typeof fill === "string" ? fill : undefined,

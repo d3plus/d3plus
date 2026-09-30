@@ -42,8 +42,20 @@ const BACK_ICON = `<svg ${ICON_ATTRS}><line x1="19" y1="12" x2="5" y2="12"/><pol
 
 /** Pops the drill-down history (or steps up a level, when there's no history entry left) and re-renders. */
 function goBack(viz: Viz): void {
-  if (viz._history.length) viz.config(viz._history.pop()).render();
-  else viz.depth(viz._drawDepth - 1).filter(false).render();
+  const entry = viz._history.pop();
+  if (entry) {
+    // Arms the reappearing parent's reunion lookup (resolveDrillMorph), so
+    // the vanishing children shrink into its rect instead of just fading —
+    // the mirror of clickShape's forward capture. `body` is the CURRENT
+    // (about-to-be-OLD) body rect, captured now because the exiting
+    // siblings' own geometry is frozen in THIS frame, not the new one
+    // .render() is about to produce.
+    if (entry.groupId !== undefined && entry.groupDepth !== undefined)
+      viz._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: viz._bodyRect};
+    viz.config(entry).render();
+  } else {
+    viz.depth(viz._drawDepth - 1).filter(false).render();
+  }
 }
 
 /** The back button's markup: a real `<button>` (icon + visible "Back" text), so host-page button styling applies through the cascade once `backControlClassName` auto-disables the inline default. */

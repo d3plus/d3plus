@@ -1,7 +1,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import type {TrailCatchup} from "./animate/trailLog.js";
-import type {Scene, SceneNode} from "./scene.js";
+import type {Scene, SceneNode, TransitionRect} from "./scene.js";
 
 /**
     @interface RenderTarget
@@ -41,6 +41,72 @@ export interface DrawOptions {
       before `sequence`.
   */
   trailCatchup?: TrailCatchup[];
+  /**
+      Origin box flip-eligible entering nodes (rect/circle/area without an
+      `interactionGroup` — chart body marks, not chrome) collapse FROM on this
+      draw, instead of self-collapsing to their own center. Drives the
+      drill-down "morph" transition (grow from the clicked parent's rect).
+  */
+  enterFrom?: TransitionRect;
+  /**
+      The full layout's reference box `enterFrom`-eligible nodes' own geometry
+      is proportionally mapped FROM, into `enterFrom` (e.g. `viz._bodyRect`
+      for the draw that resolved `enterFrom`) — so entering siblings scale
+      together as one unit (a miniature of the whole layout growing out of
+      the clicked parent's rect) rather than each individually filling
+      `enterFrom`. Only consulted by node types/shapeTypes `collapseTo`
+      opts into proportional mapping for (Treemap cells, Pack circles, Pie
+      wedges); omit to keep every eligible node's plain "become `enterFrom`"
+      behavior.
+  */
+  enterFromBody?: TransitionRect;
+  /**
+      Target box flip-eligible exiting nodes collapse TO on this draw, instead
+      of self-collapsing to their own center. Drives the drill-up morph
+      (shrink into the reappearing parent's rect).
+  */
+  exitTo?: TransitionRect;
+  /** The `exitTo` counterpart of {@link DrawOptions.enterFromBody} — the OLD layout's reference box exiting nodes' own (frozen, pre-redraw) geometry is proportionally mapped FROM, into `exitTo`. */
+  exitToBody?: TransitionRect;
+  /**
+      The key of a single exiting node to remove immediately, skipping its
+      normal collapse animation entirely (not even at `duration: 0`'s snap-to-
+      end — it's simply never drawn again, at any `t`). Used for the exact
+      node a drill-down morph's `enterFrom` was captured from: since the
+      entering nodes already start by filling that same box, the exiting
+      original would otherwise render on top of them (exits paint after
+      enters) while it animates its own, separate collapse — a visible
+      double-image for the whole transition. Leave unset for every other
+      exit, which keeps its normal animated collapse.
+  */
+  instantExitKey?: string | number;
+  /**
+      The key of a single entering node that starts from `reunionEnterFrom`
+      instead of collapsing in from its own center. Used for the drill-up
+      morph's reunion node (the reappearing parent a Back click found a
+      match for): it starts at the FULL size its former children currently
+      occupy (`reunionEnterFrom` — the old, pre-Back body rect) and animates
+      DOWN to its own real target geometry, at full opacity throughout (no
+      fade) — the mirror of a forward click's entering children starting
+      confined within the clicked parent's box and growing outward. Leave
+      unset for every other entering node, which keeps its normal animated
+      (collapse-from-center) enter.
+  */
+  reunionEnterKey?: string | number;
+  /**
+      The box `reunionEnterKey`'s node starts from — see its doc for why.
+  */
+  reunionEnterFrom?: TransitionRect;
+  /**
+      Removes every exiting node immediately, skipping its normal collapse
+      animation entirely — the drill-up counterpart of `instantExitKey`, but
+      for the WHOLE exit set rather than one key: a Back click's reunion
+      always resolves to one parent's entire former child set exiting
+      together, so there's no single key to name. Pairs with
+      `instantEnterKey` so the reappearing parent instantly stands in for
+      its vanished children instead of a cross-fade between them.
+  */
+  instantExitAll?: boolean;
 }
 
 /**

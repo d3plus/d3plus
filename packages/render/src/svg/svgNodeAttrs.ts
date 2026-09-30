@@ -2,9 +2,10 @@ import {interpolatePath} from "d3-interpolate-path";
 import {select, type Selection} from "d3-selection";
 import type {Transition} from "d3-transition";
 
+import {arcPath, lerpArc} from "../animate/interpolate.js";
 import {areaPath, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
-import type {SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
+import type {ArcGeometry, SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 export const XLINK_NS = "http://www.w3.org/1999/xlink";
@@ -222,13 +223,33 @@ export function applyPaint(target: AttrTarget, node: SceneNode, resolveFill: (f?
     .attr("opacity", p.opacity ?? null);
 }
 
-/** Sets a path's `d`, morphing via interpolatePath when animating on a transition. */
-export function setPath(target: AttrTarget, d: string, animated: boolean): void {
+/**
+    Sets a path's `d`. When `arc` params are given (a Pie/Donut wedge), the
+    element's own previously-set `arc` — stashed here on every call, the same
+    pattern `SvgRenderer` uses for a text label's previous font size or a
+    trailed mark's previous position — is interpolated against it NUMBER BY
+    NUMBER (`lerpArc`/`arcPath`, exact radius throughout) instead of
+    interpolating the `d` STRING itself: `interpolatePath`'s generic
+    point-resampling has no notion of "arc," and between two differently-
+    curved paths (e.g. a zero-width collapsed slice growing into its full
+    angular span) it visibly bulges/pinches the radius mid-transition. Falls
+    back to `interpolatePath` when either endpoint has no `arc` (a plain
+    path/Area band/Sankey link), or on the very first draw (nothing stashed
+    yet to interpolate from).
+*/
+export function setPath(target: AttrTarget, d: string, animated: boolean, arc?: ArcGeometry): void {
+  const el = (target as unknown as {node?: () => Element & {__d3plusArcPrev__?: ArcGeometry}}).node?.();
+  const prevArc = el?.__d3plusArcPrev__;
   if (animated)
     (target as unknown as SvgTransition).attrTween("d", function (this: Element) {
+      if (arc && prevArc) {
+        const lerp = lerpArc(prevArc, arc);
+        return (k: number) => arcPath(lerp(k));
+      }
       return interpolatePath(this.getAttribute("d") || d, d);
     });
   else target.attr("d", d);
+  if (el) el.__d3plusArcPrev__ = arc;
 }
 
 /** Applies geometry + paint + transform to a selection (animated=false) or transition. */
@@ -258,7 +279,7 @@ export function applyGeometry(
       setPath(target, areaPath(node), animated);
       break;
     case "path":
-      setPath(target, node.d, animated);
+      setPath(target, node.d, animated, node.arc);
       break;
     case "image":
       target

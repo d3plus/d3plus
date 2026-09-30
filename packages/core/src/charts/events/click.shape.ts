@@ -1,4 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
+import {nodeRect} from "../pipeline/drillMorph.js";
 import type Viz from "../viz/Viz.js";
 
 /**
@@ -26,9 +27,29 @@ export default function (
 
     const oldFilter = this.schema.filter;
 
+    // Arm the drill-down morph: normalize the clicked node's live rect as
+    // fractions of the *current* (pre-click) body rect, so the fraction
+    // survives a possible margin/frame shift (e.g. the back button claiming
+    // margin for the first time) between this frame and the next one, where
+    // resolveDrillMorph denormalizes against the *new* body rect.
+    const pickedNode = this._lastScenePick?.node;
+    const r = pickedNode && nodeRect(pickedNode);
+    if (r && this._bodyRect && this._bodyRect.width && this._bodyRect.height) {
+      const b = this._bodyRect;
+      this._pendingEnterOrigin = {
+        fx: (r.x - b.x) / b.width, fy: (r.y - b.y) / b.height,
+        fw: r.width / b.width, fh: r.height / b.height,
+        key: pickedNode.key,
+        parentStartAngle: pickedNode.startAngle,
+        parentEndAngle: pickedNode.endAngle,
+      };
+    }
+
     this._history.push({
       depth: this.schema.depth,
       filter: oldFilter,
+      groupId: filterId,
+      groupDepth: this._drawDepth,
     });
 
     this.config({

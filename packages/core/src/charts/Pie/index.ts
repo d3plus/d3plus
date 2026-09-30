@@ -7,6 +7,7 @@
 */
 
 import {pie as d3Pie} from "d3-shape";
+import {backgroundColor} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
@@ -36,6 +37,26 @@ export const pieDef: DataDrivenChartDefinition = {
       viz.ctx.pieHeight as number,
     ),
 
+  // Pie's chartTransform centers the origin — wedges are drawn in
+  // [-pieWidth/2, pieWidth/2] × [-pieHeight/2, pieHeight/2], not the
+  // top-left-origin box the default chartBodyRect assumes (that default is
+  // only correct for a marginOriginTransform chart like Treemap). Without
+  // this override, the drill-down morph's enter/exit fractions would be
+  // computed against the wrong origin.
+  //
+  // Uses the TIGHT circle (radius = pieOuterRadius, applyPieLayout's own
+  // actual, buffer-reduced outerRadius — see its comment on strokeBuffer)
+  // rather than the loose pieWidth × pieHeight box: pieWidth/pieHeight is
+  // the available space (not square when the chart area isn't, and larger
+  // than the wedges' real size by the hover-stroke buffer), and the
+  // drill-down morph's proportional remap (collapseTo's shapeType "Pie"
+  // case) uses this as the "whole pie" reference — a mismatched reference
+  // would stretch the circle into an ellipse, or off-scale it, as it grows.
+  chartBodyRect: (viz: VizInstance) => {
+    const r = (viz.ctx.pieOuterRadius as number) ?? 0;
+    return {x: -r, y: -r, width: r * 2, height: r * 2};
+  },
+
   ctx: {
     pie: d3Pie(),
   },
@@ -43,6 +64,12 @@ export const pieDef: DataDrivenChartDefinition = {
   fields: [
     {key: "innerRadius", default: 0},
     {key: "padAngle"},
+    // Not used for the default wedge-to-wedge gap (see shapeConfig's
+    // stroke/strokeWidth below) — an angular gap's LINEAR width is
+    // proportional to radius, so it inevitably tapers to nothing as it
+    // approaches the pie's center, which a full (non-donut) Pie always
+    // touches. Left at 0; still available for a user who explicitly wants
+    // the angular look anyway.
     {key: "padPixel", default: 0},
     {
       key: "value",
@@ -73,6 +100,16 @@ export const pieDef: DataDrivenChartDefinition = {
           return `${++pieData[i].index}. ${viz._drawLabel(d, i)}, ${(viz.schema.value as (d: DataPoint, i: number) => number)(d, i)}.`;
         },
         Path: {labelConfig: {fontResize: true}},
+        // A visual, constant-WIDTH gap between wedges: an SVG stroke is
+        // measured in screen pixels regardless of the underlying path's
+        // radius, unlike padAngle (see padPixel's default above), so
+        // matching it to the chart's own background color "cuts out" an
+        // even border everywhere — including near the center, where an
+        // angular gap has nowhere left to taper from. Centered on each
+        // wedge's outline (SVG's default), so half its width falls on each
+        // side of an edge shared with a neighbor.
+        stroke: () => backgroundColor(viz._select?.node()),
+        strokeWidth: 2,
       }),
     },
     {

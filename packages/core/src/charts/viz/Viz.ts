@@ -455,7 +455,29 @@ export default class Viz extends VizBase {
         ? computeTrailCatchup(this as unknown as VizInstance, scene, this._trailSeq, sequence)
         : undefined;
     if (sequence !== undefined) this._trailSeq = sequence;
-    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence, trailCatchup});
+    this._sceneRenderer.drawScene(scene, {
+      duration: drawDuration, sequence, trailCatchup,
+      // The drill-down morph's resolved boxes for this draw, if a drill
+      // click armed one (resolveDrillMorph, run just before this method via
+      // runVizPipeline). One-shot: cleared right below so a later repaint
+      // that reaches this method by some OTHER path (a zoom/pan tick, a
+      // coalesced hover repaint, Rings' click-to-recenter) never inherits a
+      // stale box from an earlier drill click.
+      enterFrom: this._resolvedEnterFrom, enterFromBody: this._resolvedEnterFromBody,
+      exitTo: this._resolvedExitTo, exitToBody: this._resolvedExitToBody,
+      instantExitKey: this._resolvedInstantExitKey,
+      reunionEnterKey: this._resolvedReunionEnterKey,
+      reunionEnterFrom: this._resolvedReunionEnterFrom,
+      instantExitAll: this._resolvedInstantExitAll,
+    });
+    this._resolvedEnterFrom = undefined;
+    this._resolvedEnterFromBody = undefined;
+    this._resolvedExitTo = undefined;
+    this._resolvedExitToBody = undefined;
+    this._resolvedInstantExitKey = undefined;
+    this._resolvedReunionEnterKey = undefined;
+    this._resolvedReunionEnterFrom = undefined;
+    this._resolvedInstantExitAll = undefined;
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay
@@ -614,6 +636,10 @@ export default class Viz extends VizBase {
       typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
     this._lastScenePick = {
       d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType,
+      // The live picked node's own geometry, read synchronously by clickShape
+      // (before the drill-down re-render replaces this frame) to arm the
+      // forward drill-down morph.
+      node: pick.node,
     };
     this._hoverDatum = rawDatum;
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);

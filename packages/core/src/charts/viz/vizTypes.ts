@@ -26,7 +26,7 @@ import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
-import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
+import type {ClipShape, SceneNode, Transform, TransitionRect} from "@d3plus/render";
 
 import type {
   Axis,
@@ -57,6 +57,16 @@ export interface Padding {
   bottom: number;
   left: number;
   right: number;
+}
+
+/** One entry on the drill-down history stack (`Viz._history`), pushed by a click.shape drill-down and popped by Back. */
+export interface DrillDownHistoryEntry {
+  depth: number;
+  filter?: (d: DataPoint, i: number) => boolean;
+  /** `groupBy[groupDepth]`'s value for the clicked node — identifies the reunion node the Back morph grows back into. */
+  groupId?: unknown;
+  /** The groupBy index `groupId` was read at (== `_drawDepth` when the node was clicked). */
+  groupDepth?: number;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -231,7 +241,67 @@ export interface VizInstance {
   /** The user-set data, retained to detect changes across `.data()` calls. */
   _userData?: DataPoint[] | string;
   /** Drill-down history stack (back button). */
-  _history?: DataPoint[];
+  _history?: DrillDownHistoryEntry[];
+  /**
+      The local, chart-family-defined "body rect" flip-morph fractions are
+      measured against — e.g. Treemap/Pack's margin-adjusted chart area at
+      local origin, or Plot's measured axis plot rect. Set by `runChartDraw`
+      (via `ChartDefinition.chartBodyRect`) or by Plot's own paint pipeline.
+  */
+  _bodyRect?: {x: number; y: number; width: number; height: number};
+  /**
+      One-shot: the clicked node's rect, captured at click time and
+      normalized as fractions of the *pre-click* `_bodyRect`, armed by
+      `clickShape`. Resolved into `_resolvedEnterFrom` (against the *new*
+      draw's `_bodyRect`) and cleared by `resolveDrillMorph`. Also carries:
+      `key`, the clicked node's own scene key, resolved into
+      `_resolvedInstantExitKey` so its own exit (now filtered out of the new
+      scene) is removed instantly instead of animating on top of the
+      children that replace it; and, when the clicked node carried them
+      (currently only Pie/Donut wedges), `parentStartAngle`/`parentEndAngle`
+      — its angular range, read by the next draw's `pieEmit` to build each
+      entering child wedge's `flipFromArc` (a real arc confined within that
+      range, at full radius) via the actual arc generator.
+  */
+  _pendingEnterOrigin?: {
+    fx: number; fy: number; fw: number; fh: number;
+    key?: string | number;
+    parentStartAngle?: number;
+    parentEndAngle?: number;
+  };
+  /**
+      One-shot: the group id/depth being un-filtered by a Back click, armed by
+      the two Back-click sites — plus the OLD (pre-render) `_bodyRect`,
+      captured at the same moment, so the exiting siblings' own (frozen)
+      geometry can be read as proportions of the frame they were actually
+      laid out in. Resolved into `_resolvedExitTo`/`_resolvedExitToBody` (by
+      finding the matching node in the *new* `_chartScene`) and cleared by
+      `resolveDrillMorph`.
+  */
+  _pendingExitReunion?: {
+    groupId: unknown;
+    groupDepth: number;
+    body?: {x: number; y: number; width: number; height: number};
+  };
+  /**
+      The drill-down morph's resolved enter/exit boxes for the upcoming
+      `drawScene` call, plus each one's "body" reference box (the full
+      layout entering/exiting nodes' own geometry is proportional within —
+      see `DrawOptions.enterFromBody`/`exitToBody`). Set by
+      `resolveDrillMorph`, read and one-shot cleared by `_drawSceneToTarget`.
+  */
+  _resolvedEnterFrom?: TransitionRect;
+  _resolvedEnterFromBody?: TransitionRect;
+  _resolvedExitTo?: TransitionRect;
+  _resolvedExitToBody?: TransitionRect;
+  /** See `DrawOptions.instantExitKey` — the clicked node's own key, resolved from `_pendingEnterOrigin.key`. */
+  _resolvedInstantExitKey?: string | number;
+  /** See `DrawOptions.reunionEnterKey` — the Back click's reunion node's own key, resolved when `resolveDrillMorph` finds a match. */
+  _resolvedReunionEnterKey?: string | number;
+  /** See `DrawOptions.reunionEnterFrom` — the OLD (pre-Back) body rect, the full size the reunion node's former children occupied. */
+  _resolvedReunionEnterFrom?: TransitionRect;
+  /** See `DrawOptions.instantExitAll` — set alongside `_resolvedReunionEnterKey`, when a reunion match was found. */
+  _resolvedInstantExitAll?: boolean;
   /** Cached measured size of the shared top-left controls panel (back/table-view/search). `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
   _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};
 

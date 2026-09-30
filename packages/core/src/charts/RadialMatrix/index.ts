@@ -48,6 +48,17 @@ export const radialMatrixDef: ChartDefinition = {
       viz.ctx.radialMatrixHeight as number,
     ),
 
+  // RadialMatrix's chartTransform centers the origin — arc cells are drawn
+  // in [-radialMatrixWidth/2, radialMatrixWidth/2] × [-radialMatrixHeight/2,
+  // radialMatrixHeight/2], not the top-left-origin box the default
+  // chartBodyRect assumes (see Pie/index.ts, which documents/fixes the
+  // identical issue for its own centered layout).
+  chartBodyRect: (viz: VizInstance) => {
+    const w = (viz.ctx.radialMatrixWidth as number) ?? 0;
+    const h = (viz.ctx.radialMatrixHeight as number) ?? 0;
+    return {x: -w / 2, y: -h / 2, width: w, height: h};
+  },
+
   setup: (viz: VizInstance) => {
     const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
     viz.schema.on["mousemove.shape"] = (

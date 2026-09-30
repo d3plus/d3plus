@@ -34,6 +34,7 @@
 import {attributionFeature, runLayout} from "../features/features.js";
 import {minimapFeature} from "../drawSteps/minimap.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
+import {resolveDrillMorph} from "./drillMorph.js";
 import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
 import {tableViewFeature} from "../drawSteps/tableView.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -69,5 +70,8 @@ export function runVizPipeline(viz: Viz): void {
   const post = runLayout({viz}, [zoomFeature, minimapFeature, topLeftControlsFeature, attributionFeature, tableViewFeature]);
   if (post.panels.length)
     viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
+  // Resolve the drill-down morph's enter/exit boxes (if a drill click armed
+  // one) now that this draw's _bodyRect/_chartScene are final.
+  resolveDrillMorph(viz);
   viz._drawSceneToTarget();
 }

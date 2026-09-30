@@ -32,6 +32,15 @@ export const radarDef: ChartDefinition = {
     return centerChartTransform(viz, width, height);
   },
 
+  // Radar's chartTransform centers the origin — the polygon is drawn in
+  // [-width/2, width/2] × [-height/2, height/2], not the top-left-origin box
+  // the default chartBodyRect assumes (see Pie/index.ts, which documents/
+  // fixes the identical issue for its own centered layout).
+  chartBodyRect: (viz: VizInstance) => {
+    const {width, height} = chartBounds(viz);
+    return {x: -width / 2, y: -height / 2, width, height};
+  },
+
   ctx: {},
 
   fields: [

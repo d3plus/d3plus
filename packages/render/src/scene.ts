@@ -147,6 +147,19 @@ export type HitShape =
   | {type: "path"; d: string};
 
 /**
+    @interface TransitionRect
+    A plain geometry box used by the drill-morph enter/exit override
+    (`DrawOptions.enterFrom`/`exitTo`): flip-eligible entering/exiting nodes
+    collapse to/from this box instead of their own degenerate center.
+*/
+export interface TransitionRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
     @interface AriaSpec
     Accessibility metadata. The SVG backend applies these as role/aria-label
     attributes natively; the Canvas backend mirrors them in a shadow tree.
@@ -238,6 +251,17 @@ export interface NodeBase {
       of parsing `d`. Used by motion-trail cones.
   */
   gradientBounds?: {x: number; y: number; w: number; h: number};
+  /**
+      A radial node's angular range in radians (currently only Pie/Donut
+      wedges). Interaction metadata only — backends never read it for
+      drawing. Lets the drill-down morph's click capture (chart-agnostic)
+      carry the clicked node's angular position through to the next draw,
+      where the same chart that emitted it (the only place with an arc
+      generator) can build a geometrically real entering-wedge start shape
+      confined within it (see `PathNode.flipFromArc`).
+  */
+  startAngle?: number;
+  endAngle?: number;
 }
 
 export interface RectNode extends NodeBase {
@@ -270,10 +294,54 @@ export interface AreaNode extends NodeBase {
   curve?: CurveName;
 }
 
+/**
+    The polar parameters a Pie/Donut wedge's `d` was (or should be) built
+    from. Carrying these as plain numbers — not just the pre-serialized `d`
+    string — lets the animate layer interpolate a wedge geometrically (lerp
+    each number, rebuild `d` every frame via the real arc generator) instead
+    of morphing the `d` STRING itself: a generic point-resampling path
+    interpolator has no notion of "arc", so between two differently-curved
+    paths it visibly bulges/pinches the radius partway through the
+    transition. `@d3plus/render` depends on d3-shape already (every backend
+    ships it for Path/Geomap), so this is a pure-geometry utility, not a
+    chart-specific one.
+*/
+export interface ArcGeometry {
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  padAngle?: number;
+}
+
 /** Pre-serialized SVG path data (the Path shape, Geomap, d3-geo output). */
 export interface PathNode extends NodeBase {
   type: "path";
   d: string;
+  /** This wedge's own current polar parameters (Pie/Donut only) — see {@link ArcGeometry}. */
+  arc?: ArcGeometry;
+  /**
+      A chart-computed override for the drill-morph enter start (see
+      `collapseTo`'s `shapeType: "Pie"` case): this wedge's real polar
+      parameters, already confined to the clicked parent's angular range at
+      full final radius — interpolated numerically against `arc` (angle by
+      angle, exact radius throughout) instead of `collapseTo`'s generic
+      shared-transform fallback, since only the chart that owns the arc
+      generator can construct a geometrically real "narrower slice of the
+      same arc" shape.
+  */
+  flipFromArc?: ArcGeometry;
+  /**
+      The drill-UP counterpart of `flipFromArc`, for the reappearing parent
+      wedge a Back click's reunion resolved (`DrawOptions.reunionEnterKey`):
+      a full circle (startAngle 0, endAngle a full turn) at this wedge's own
+      real radii — "instantly" showing the full layout its children
+      currently occupy (a filled-in ring/disc, matching how a Treemap
+      reunion parent starts at the FULL body rect its children occupied),
+      then animating the angles down to its own real slice. Interpolated
+      numerically against `arc`, same as `flipFromArc`.
+  */
+  reunionFromArc?: ArcGeometry;
 }
 
 export interface ImageNode extends NodeBase {
@@ -317,6 +385,18 @@ export interface TextNode extends NodeBase {
   */
   width?: number;
   height?: number;
+  /**
+      A chart-computed override for the drill-morph enter start (see
+      `collapseTo`'s `shapeType: "Label"` case): this label's own real
+      position (`transform.x/y`), remapped the same geometric way its shape
+      is — e.g. a Pie/Donut label keeps its own radius but has its ANGLE
+      confined within the clicked parent's old angular range, mirroring
+      `PathNode.flipFromArc` — instead of `collapseTo`'s generic Cartesian
+      body→target point mapping (`proportionalPoint`), which has no notion
+      of a circular layout and puts the label somewhere unrelated to where
+      its own (angularly confined) shape actually starts.
+  */
+  flipFromTransform?: {x: number; y: number};
 }
 
 /**

@@ -41,6 +41,16 @@ export const chordDef: ChartDefinition = {
       viz.ctx.chordHeight as number,
     ),
 
+  // Chord's chartTransform centers the origin — arcs/ribbons are drawn in
+  // [-chordWidth/2, chordWidth/2] × [-chordHeight/2, chordHeight/2], not the
+  // top-left-origin box the default chartBodyRect assumes (see Pie/index.ts,
+  // which documents/fixes the identical issue for its own centered layout).
+  chartBodyRect: (viz: VizInstance) => {
+    const w = (viz.ctx.chordWidth as number) ?? 0;
+    const h = (viz.ctx.chordHeight as number) ?? 0;
+    return {x: -w / 2, y: -h / 2, width: w, height: h};
+  },
+
   setup: (viz: VizInstance) => {
     type ChordFluent = {
       links: (data?: DataPoint[], formatter?: unknown) => unknown;

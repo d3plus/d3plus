@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../../umd/d3plus-core.full.js"></script>
+    <style>
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        padding: 10px;
+        font: 13px sans-serif;
+      }
+      #viz {
+        display: block;
+        height: calc(100vh - 50px);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      <span id="durationLabel">600ms</span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // Issue #166 manual check, Pie/Donut variant: click a top-level wedge to
+    // drill into its children — they should start as a point at the clicked
+    // wedge's location and grow to fill the chart, instead of fading in in
+    // place. "Back" should mirror this — the reappearing wedge grows back
+    // out from the collective area the children occupied, and the children
+    // shrink to a point as they exit. This is the documented "DrillDownOnClick"
+    // Pie story config (packages/docs/.../Pie.stories.jsx).
+    var chart = new d3plus.Pie()
+      .data([
+        {category: "Fruit", id: "Apple", value: 30}, {category: "Fruit", id: "Banana", value: 22},
+        {category: "Fruit", id: "Cherry", value: 18},
+        {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
+        {category: "Vegetable", id: "Kale", value: 8},
+      ])
+      .groupBy(["category", "id"])
+      .value("value")
+      .depth(0)
+      .duration(600)
+      .select("#viz")
+      .render();
+
+    document.getElementById("duration").addEventListener("input", function (e) {
+      var v = +e.target.value;
+      document.getElementById("durationLabel").textContent = v + "ms";
+      chart.duration(v);
+    });
+  </script>
+</html>

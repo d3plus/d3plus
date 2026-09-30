@@ -64,6 +64,58 @@ it("SvgRenderer reconciles enter/update/exit by key", () => {
   renderer.destroy();
 });
 
+it("SvgRenderer starts a flip-eligible entering node at enterFrom, not its own collapsed center", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 100});
+
+  // Enter branch attrs are applied synchronously (the transition only tweens
+  // toward the target afterward), so the DOM reflects the start state
+  // immediately after drawScene returns — no need to advance any timers.
+  renderer.drawScene(
+    scene([{type: "rect", key: "new", x: 0, y: 0, width: 100, height: 50}]),
+    {duration: 400, enterFrom: {x: 40, y: 20, width: 10, height: 10}},
+  );
+
+  const el = document.querySelector('[data-key="new"]');
+  assert.strictEqual(el.getAttribute("x"), "40", "starts at enterFrom.x");
+  assert.strictEqual(el.getAttribute("y"), "20", "starts at enterFrom.y");
+  assert.strictEqual(el.getAttribute("width"), "10", "starts at enterFrom.width");
+  assert.strictEqual(el.getAttribute("height"), "10", "starts at enterFrom.height");
+
+  renderer.destroy();
+});
+
+it("SvgRenderer ignores enterFrom for a node tagged with an interactionGroup (chrome)", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 100});
+
+  renderer.drawScene(
+    scene([{type: "rect", key: "back", x: 0, y: 0, width: 100, height: 50, interactionGroup: "back"}]),
+    {duration: 400, enterFrom: {x: 999, y: 999, width: 1, height: 1}},
+  );
+
+  const el = document.querySelector('[data-key="back"]');
+  assert.strictEqual(el.getAttribute("x"), "50", "collapses to its own center, ignoring enterFrom");
+  assert.strictEqual(el.getAttribute("width"), "0", "collapses its own width to 0, ignoring enterFrom");
+
+  renderer.destroy();
+});
+
+it("SvgRenderer keeps a non-morph exit present until its collapse transition ends", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 100});
+
+  renderer.drawScene(scene([{type: "rect", key: "old", x: 0, y: 0, width: 10, height: 10}]));
+  // A drill-up draw (exitTo set) with nothing exiting this round should not
+  // disturb an unrelated, ordinary exit elsewhere in the same tree.
+  const handle = renderer.drawScene(scene([]), {duration: 400});
+  const el = document.querySelector('[data-key="old"]');
+  assert.ok(el, "exiting element is still present synchronously (removal happens at transition end)");
+
+  handle.cancel();
+  renderer.destroy();
+});
+
 it("SvgRenderer orders elements by z within a group", () => {
   const renderer = new SvgRenderer();
   renderer.mount({container: document.body, width: 200, height: 100});

@@ -1,5 +1,5 @@
-import type {GroupNode, Scene, SceneNode} from "../scene.js";
-import {collapse, interpolateNode} from "./interpolate.js";
+import type {GroupNode, Scene, SceneNode, TransitionRect} from "../scene.js";
+import {collapse, collapseTo, interpolateNode, isFlipEligible} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
 import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
@@ -59,11 +59,33 @@ export function diffChildren(prev: SceneNode[], next: SceneNode[]): GroupDiff {
   return {enter, update, exit};
 }
 
+/**
+    @interface FlipTransition
+    The drill-morph override for one draw: the box entering nodes collapse
+    FROM and/or exiting nodes collapse TO, in place of their own degenerate
+    center. See `DrawOptions.enterFrom`/`exitTo`.
+*/
+export interface FlipTransition {
+  enterFrom?: TransitionRect;
+  enterFromBody?: TransitionRect;
+  exitTo?: TransitionRect;
+  exitToBody?: TransitionRect;
+  /** See `DrawOptions.instantExitKey`. */
+  instantExitKey?: string | number;
+  /** See `DrawOptions.reunionEnterKey`. */
+  reunionEnterKey?: string | number;
+  /** See `DrawOptions.reunionEnterFrom`. */
+  reunionEnterFrom?: TransitionRect;
+  /** See `DrawOptions.instantExitAll`. */
+  instantExitAll?: boolean;
+}
+
 /** Recursively interpolates a list of sibling nodes between two frames. */
 function interpolateChildren(
   prev: SceneNode[],
   next: SceneNode[],
   log?: TrailLog,
+  flip?: FlipTransition,
 ): Interp<SceneNode[]> {
   const {enter, update, exit} = diffChildren(prev, next);
 
@@ -77,7 +99,7 @@ function interpolateChildren(
   const persist: {key: string | number; persist: number | boolean}[] = [];
   const updaters: Interp<SceneNode>[] = update.map(([a, b]) => {
     if (a.type === "group" && b.type === "group") {
-      return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children, log));
+      return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children, log, flip));
     }
     if (b.trail && (b.type === "circle" || b.type === "rect")) {
       // A persistent trail draws its whole history from the log; the plain
@@ -92,17 +114,40 @@ function interpolateChildren(
   });
 
   const enters: Interp<SceneNode>[] = enter.map(n => {
-    const interp = interpolateNode(collapse(n), n);
+    // The drill-up reunion node starts at the full size its former children
+    // currently occupy and animates down to its own real target — see
+    // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
+    const start = flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
+      ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
+      : flip?.enterFrom && isFlipEligible(n)
+        ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
+        : collapse(n);
+    const interp = interpolateNode(start, n);
     if (n.type === "group") {
-      return wrapGroup(interp, interpolateChildren([], n.children));
+      return wrapGroup(interp, interpolateChildren([], n.children, undefined, flip));
     }
     return interp;
   });
 
-  const exits: Interp<SceneNode>[] = exit.map(n => {
-    const interp = interpolateNode(n, collapse(n));
+  // The clicked node's own exit is dropped from the animated set entirely —
+  // it's never drawn again at any t, instead of collapsing on top of the
+  // entering children that already fill its exact box. See
+  // `DrawOptions.instantExitKey`. `instantExitAll` does the same for every
+  // exiting node this draw — the drill-up counterpart, since a reunion's
+  // former children all disappear together (no single key names them).
+  const animatedExit = flip?.instantExitAll
+    ? []
+    : flip?.instantExitKey === undefined
+      ? exit
+      : exit.filter(n => n.key !== flip.instantExitKey);
+
+  const exits: Interp<SceneNode>[] = animatedExit.map(n => {
+    const end = flip?.exitTo && isFlipEligible(n)
+      ? collapseTo(n, flip.exitTo, flip.exitToBody)
+      : collapse(n);
+    const interp = interpolateNode(n, end);
     if (n.type === "group") {
-      return wrapGroup(interp, interpolateChildren(n.children, []));
+      return wrapGroup(interp, interpolateChildren(n.children, [], undefined, flip));
     }
     return interp;
   });
@@ -134,8 +179,9 @@ function interpolateChildren(
     exiting nodes shrink/fade out and are dropped at t === 1.
     @param prev The previously drawn scene, or null for the first frame.
     @param next The target scene.
+    @param flip The drill-morph enter/exit override for this draw, if any.
 */
-export function interpolateScene(prev: Scene | null, next: Scene, log?: TrailLog): Interp<Scene> {
-  const rootInterp = interpolateChildren(prev ? prev.root.children : [], next.root.children, log);
+export function interpolateScene(prev: Scene | null, next: Scene, log?: TrailLog, flip?: FlipTransition): Interp<Scene> {
+  const rootInterp = interpolateChildren(prev ? prev.root.children : [], next.root.children, log, flip);
   return t => ({...next, root: {...next.root, children: rootInterp(t)}});
 }
