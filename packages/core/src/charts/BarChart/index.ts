@@ -9,6 +9,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
+import {stackShareTooltipConfig} from "../Plot/stackShareTooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 export const barChartDef: ChartDefinition = {
@@ -22,6 +23,7 @@ export const barChartDef: ChartDefinition = {
     {key: "baseline", default: 0},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
+    {key: "tooltipConfig", merge: true, factory: stackShareTooltipConfig},
     {
       key: "legend",
       coerce: "const",
@@ -48,6 +50,7 @@ export const barChartDef: ChartDefinition = {
 };
 
 /**
-    Creates a bar chart based on an array of data.
+    Creates a bar chart based on an array of data. When stacked, each bar's
+    fraction of its stack total is available to tooltip accessors as `share`.
 */
 export default makeChart(barChartDef, Plot);
