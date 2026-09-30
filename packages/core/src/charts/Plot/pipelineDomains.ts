@@ -7,7 +7,8 @@
       group totals, sorts axisData by discrete-then-group-sum-then-opp,
       builds `discreteKeys`/`stackKeys`/`stackData`, fills in missing Area
       filler points, runs d3-stack with the configured order/offset, then
-      derives `domains` from the stack extents.
+      derives `domains` from the stack extents. Each stacked row and its
+      source datum also gets a `share` of its stack's total.
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
       either the data values (for the discrete axis or user-sorted axes) or
       extent (for continuous).
@@ -85,6 +86,27 @@ function fillMissingAreaPoints(
   });
 }
 
+/**
+    Stamps each stacked row (and its source datum, which tooltip accessors
+    receive) with `share`: its value as a fraction of the total stack at its
+    discrete position. Both sides use absolute values, so a diverging stack's
+    negative segments get positive shares and every stack's shares sum to 1.
+    Runs before filler points are added, since a filler reuses another point's
+    source datum.
+*/
+function stampStackShares(data: Row[], opp: string | undefined): void {
+  const stacked = data.filter((d: Row) => ["Area", "Bar"].includes(d.shape as string));
+  const totals = new Map<unknown, number>();
+  for (const d of stacked)
+    totals.set(d.discrete, (totals.get(d.discrete) || 0) + Math.abs(+(d[opp as string] as number) || 0));
+  for (const d of stacked) {
+    const total = totals.get(d.discrete);
+    const share = total ? Math.abs(+(d[opp as string] as number) || 0) / total : 0;
+    d.share = share;
+    if (d.data) (d.data as DataPoint).share = share;
+  }
+}
+
 /** Stacked branch: d3-stack + extent-derived domains. */
 function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizContext> {
   const {data, axisData, xData, yData, opp, stackGroup} = ctx;
@@ -121,6 +143,7 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     (d: Row) => d.discrete,
   ).map(([, values]) => values);
 
+  stampStackShares(data, opp);
   fillMissingAreaPoints(viz, {axisData, data, stackData: stackGroupsData, stackKeys, stackGroup, opp});
 
   if (viz.schema[`${viz.schema.discrete}Sort`]) {

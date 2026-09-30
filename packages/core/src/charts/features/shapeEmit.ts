@@ -28,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
+import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -124,7 +125,9 @@ function finishShape(ctx: ShapeEmitContext, key: string, s: Shape): SceneNode[] 
   viz._wirePlotShapeEvents!(s, key, events);
   const userConfig = shapeConfigFor(viz, key);
   if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
-  s.config(userConfig).render();
+  s.config(userConfig);
+  if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
+  s.render();
   return collectComputed(s);
 }
 
