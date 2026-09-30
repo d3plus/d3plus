@@ -72,6 +72,12 @@ export interface FlipTransition {
   exitToBody?: TransitionRect;
   /** See `DrawOptions.instantExitKey`. */
   instantExitKey?: string | number;
+  /** See `DrawOptions.reunionEnterKey`. */
+  reunionEnterKey?: string | number;
+  /** See `DrawOptions.reunionEnterFrom`. */
+  reunionEnterFrom?: TransitionRect;
+  /** See `DrawOptions.instantExitAll`. */
+  instantExitAll?: boolean;
 }
 
 /** Recursively interpolates a list of sibling nodes between two frames. */
@@ -108,9 +114,14 @@ function interpolateChildren(
   });
 
   const enters: Interp<SceneNode>[] = enter.map(n => {
-    const start = flip?.enterFrom && isFlipEligible(n)
-      ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
-      : collapse(n);
+    // The drill-up reunion node starts at the full size its former children
+    // currently occupy and animates down to its own real target — see
+    // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
+    const start = flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
+      ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
+      : flip?.enterFrom && isFlipEligible(n)
+        ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
+        : collapse(n);
     const interp = interpolateNode(start, n);
     if (n.type === "group") {
       return wrapGroup(interp, interpolateChildren([], n.children, undefined, flip));
@@ -121,10 +132,14 @@ function interpolateChildren(
   // The clicked node's own exit is dropped from the animated set entirely —
   // it's never drawn again at any t, instead of collapsing on top of the
   // entering children that already fill its exact box. See
-  // `DrawOptions.instantExitKey`.
-  const animatedExit = flip?.instantExitKey === undefined
-    ? exit
-    : exit.filter(n => n.key !== flip.instantExitKey);
+  // `DrawOptions.instantExitKey`. `instantExitAll` does the same for every
+  // exiting node this draw — the drill-up counterpart, since a reunion's
+  // former children all disappear together (no single key names them).
+  const animatedExit = flip?.instantExitAll
+    ? []
+    : flip?.instantExitKey === undefined
+      ? exit
+      : exit.filter(n => n.key !== flip.instantExitKey);
 
   const exits: Interp<SceneNode>[] = animatedExit.map(n => {
     const end = flip?.exitTo && isFlipEligible(n)

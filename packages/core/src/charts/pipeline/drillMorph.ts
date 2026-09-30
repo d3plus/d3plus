@@ -124,8 +124,23 @@ export function resolveDrillMorph(viz: Viz): void {
     // no cross-frame math needed (unlike _resolvedEnterFrom's fractions,
     // this was never normalized against a different frame to begin with).
     viz._resolvedExitToBody = reunion.body;
+    // A match means the reappearing parent stands in for its whole former
+    // child set: it starts at the FULL size those children currently occupy
+    // (reunion.body — the old, pre-Back body rect) and animates down to its
+    // own real target (reunionEnterKey/reunionEnterFrom), while the vanishing
+    // children drop immediately (instantExitAll) instead of a cross-fade —
+    // the mirror of the forward click's entering children starting confined
+    // within the clicked parent's box (instantExitKey handles that
+    // direction's parent). No match (degraded fade above) keeps the plain
+    // animated exit too — there's no specific node to swap in for.
+    viz._resolvedReunionEnterKey = match?.key;
+    viz._resolvedReunionEnterFrom = match ? reunion.body : undefined;
+    viz._resolvedInstantExitAll = Boolean(match);
   } else {
     viz._resolvedExitTo = undefined;
     viz._resolvedExitToBody = undefined;
+    viz._resolvedReunionEnterKey = undefined;
+    viz._resolvedReunionEnterFrom = undefined;
+    viz._resolvedInstantExitAll = undefined;
   }
 }

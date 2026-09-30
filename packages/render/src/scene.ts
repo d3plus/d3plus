@@ -331,6 +331,17 @@ export interface PathNode extends NodeBase {
       same arc" shape.
   */
   flipFromArc?: ArcGeometry;
+  /**
+      The drill-UP counterpart of `flipFromArc`, for the reappearing parent
+      wedge a Back click's reunion resolved (`DrawOptions.reunionEnterKey`):
+      a full circle (startAngle 0, endAngle a full turn) at this wedge's own
+      real radii — "instantly" showing the full layout its children
+      currently occupy (a filled-in ring/disc, matching how a Treemap
+      reunion parent starts at the FULL body rect its children occupied),
+      then animating the angles down to its own real slice. Interpolated
+      numerically against `arc`, same as `flipFromArc`.
+  */
+  reunionFromArc?: ArcGeometry;
 }
 
 export interface ImageNode extends NodeBase {
@@ -374,6 +385,18 @@ export interface TextNode extends NodeBase {
   */
   width?: number;
   height?: number;
+  /**
+      A chart-computed override for the drill-morph enter start (see
+      `collapseTo`'s `shapeType: "Label"` case): this label's own real
+      position (`transform.x/y`), remapped the same geometric way its shape
+      is — e.g. a Pie/Donut label keeps its own radius but has its ANGLE
+      confined within the clicked parent's old angular range, mirroring
+      `PathNode.flipFromArc` — instead of `collapseTo`'s generic Cartesian
+      body→target point mapping (`proportionalPoint`), which has no notion
+      of a circular layout and puts the label somewhere unrelated to where
+      its own (angularly confined) shape actually starts.
+  */
+  flipFromTransform?: {x: number; y: number};
 }
 
 /**

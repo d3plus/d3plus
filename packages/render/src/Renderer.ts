@@ -80,6 +80,33 @@ export interface DrawOptions {
       exit, which keeps its normal animated collapse.
   */
   instantExitKey?: string | number;
+  /**
+      The key of a single entering node that starts from `reunionEnterFrom`
+      instead of collapsing in from its own center. Used for the drill-up
+      morph's reunion node (the reappearing parent a Back click found a
+      match for): it starts at the FULL size its former children currently
+      occupy (`reunionEnterFrom` — the old, pre-Back body rect) and animates
+      DOWN to its own real target geometry, at full opacity throughout (no
+      fade) — the mirror of a forward click's entering children starting
+      confined within the clicked parent's box and growing outward. Leave
+      unset for every other entering node, which keeps its normal animated
+      (collapse-from-center) enter.
+  */
+  reunionEnterKey?: string | number;
+  /**
+      The box `reunionEnterKey`'s node starts from — see its doc for why.
+  */
+  reunionEnterFrom?: TransitionRect;
+  /**
+      Removes every exiting node immediately, skipping its normal collapse
+      animation entirely — the drill-up counterpart of `instantExitKey`, but
+      for the WHOLE exit set rather than one key: a Back click's reunion
+      always resolves to one parent's entire former child set exiting
+      together, so there's no single key to name. Pairs with
+      `instantEnterKey` so the reappearing parent instantly stands in for
+      its vanished children instead of a cross-fade between them.
+  */
+  instantExitAll?: boolean;
 }
 
 /**

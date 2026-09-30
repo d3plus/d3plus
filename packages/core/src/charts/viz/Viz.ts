@@ -462,12 +462,18 @@ export default class Viz extends VizBase {
       enterFrom: this._resolvedEnterFrom, enterFromBody: this._resolvedEnterFromBody,
       exitTo: this._resolvedExitTo, exitToBody: this._resolvedExitToBody,
       instantExitKey: this._resolvedInstantExitKey,
+      reunionEnterKey: this._resolvedReunionEnterKey,
+      reunionEnterFrom: this._resolvedReunionEnterFrom,
+      instantExitAll: this._resolvedInstantExitAll,
     });
     this._resolvedEnterFrom = undefined;
     this._resolvedEnterFromBody = undefined;
     this._resolvedExitTo = undefined;
     this._resolvedExitToBody = undefined;
     this._resolvedInstantExitKey = undefined;
+    this._resolvedReunionEnterKey = undefined;
+    this._resolvedReunionEnterFrom = undefined;
+    this._resolvedInstantExitAll = undefined;
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay

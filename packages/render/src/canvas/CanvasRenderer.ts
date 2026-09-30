@@ -181,6 +181,9 @@ export default class CanvasRenderer implements Renderer {
       enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
       exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
       instantExitKey: opts?.instantExitKey,
+      reunionEnterKey: opts?.reunionEnterKey,
+      reunionEnterFrom: opts?.reunionEnterFrom,
+      instantExitAll: opts?.instantExitAll,
     });
     const start = now();
     let cancelled = false;

@@ -286,6 +286,12 @@ export interface VizInstance {
   _resolvedExitToBody?: TransitionRect;
   /** See `DrawOptions.instantExitKey` — the clicked node's own key, resolved from `_pendingEnterOrigin.key`. */
   _resolvedInstantExitKey?: string | number;
+  /** See `DrawOptions.reunionEnterKey` — the Back click's reunion node's own key, resolved when `resolveDrillMorph` finds a match. */
+  _resolvedReunionEnterKey?: string | number;
+  /** See `DrawOptions.reunionEnterFrom` — the OLD (pre-Back) body rect, the full size the reunion node's former children occupied. */
+  _resolvedReunionEnterFrom?: TransitionRect;
+  /** See `DrawOptions.instantExitAll` — set alongside `_resolvedReunionEnterKey`, when a reunion match was found. */
+  _resolvedInstantExitAll?: boolean;
   /** Cached measured size of the shared top-left controls panel (back/table-view/search). */
   /** `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
   _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};

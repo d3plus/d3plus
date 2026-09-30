@@ -10,14 +10,20 @@ import {applyGeometry} from "./svgNodeAttrs.js";
 type RenderTransition = Transition<BaseType, unknown, null, undefined>;
 
 /**
-    The start geometry for an entering node: the drill-morph override
-    (collapsed to `flip.enterFrom`) when the node is {@link isFlipEligible}
-    and a morph is active for this draw, otherwise the node's own degenerate
-    center — same choice for both renderer backends.
+    The start geometry for an entering node: collapsed to `flip.reunionEnterFrom`
+    when it's the drill-up morph's reunion node (`flip.reunionEnterKey` — see
+    `DrawOptions.reunionEnterKey`), so it starts at the full size its former
+    children currently occupy and animates down to its own target; the
+    drill-morph override (collapsed to `flip.enterFrom`) when the node is
+    {@link isFlipEligible} and a drill-down morph is active for this draw;
+    otherwise the node's own degenerate center — same choices for both
+    renderer backends.
     @param node The entering node.
     @param flip The drill-morph override for this draw, if any.
 */
 export function enterStart(node: SceneNode, flip: FlipTransition | undefined): SceneNode {
+  if (flip?.reunionEnterKey !== undefined && node.key === flip.reunionEnterKey)
+    return collapseTo(node, flip.reunionEnterFrom!, undefined, true);
   return flip?.enterFrom && isFlipEligible(node)
     ? collapseTo(node, flip.enterFrom, flip.enterFromBody, true)
     : collapse(node);
@@ -51,6 +57,13 @@ export function reconcileExit(
   if (flip?.instantExitKey !== undefined) {
     exit.filter((d: SceneNode) => d.key === flip.instantExitKey).remove();
     exit = exit.filter((d: SceneNode) => d.key !== flip.instantExitKey);
+  }
+  // The drill-up morph's whole former-child set disappears together, the
+  // mirror of instantExitKey for the case where there's no single key to
+  // name. See `DrawOptions.instantExitAll`.
+  if (flip?.instantExitAll) {
+    exit.remove();
+    return;
   }
   if (!duration) {
     exit.remove();

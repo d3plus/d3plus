@@ -189,6 +189,9 @@ export default class SvgRenderer implements Renderer {
       enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
       exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
       instantExitKey: opts?.instantExitKey,
+      reunionEnterKey: opts?.reunionEnterKey,
+      reunionEnterFrom: opts?.reunionEnterFrom,
+      instantExitAll: opts?.instantExitAll,
     };
     this._reconcile(select(this._root), scene.root.children, duration, t, flip);
     this._reconcileOverlays(scene);

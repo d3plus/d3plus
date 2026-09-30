@@ -6,7 +6,7 @@ import type {Arc, PieArcDatum} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
 import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
-import type {ArcGeometry, SceneNode} from "@d3plus/render";
+import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
@@ -27,6 +27,40 @@ type Slice = PieArcDatum<DataPoint> & {__d3plus__?: true; i?: number};
 
 /** d3.pie()'s default span (Pie/applyLayout.ts never overrides startAngle/endAngle) — the range every slice's own startAngle/endAngle is relative to. */
 const FULL_TURN = Math.PI * 2;
+
+/**
+    Marks each label as eligible for the drill-down morph (isFlipEligible),
+    so it moves along with its wedge instead of just fading in in place —
+    distinct from every other text this chart (or any other) emits
+    (title/subtitle/legend), which is never stamped this way and so never
+    flip-morphs. When a drill-down click armed `flipSource` (the clicked
+    parent's confined angular range), also gives each label a real
+    `flipFromTransform` start: the label's own position is already somewhere
+    within its wedge's angular span (that's how it got placed there) — so
+    remapping its OWN angle linearly into the confined range, at its OWN
+    radius, lands it proportionally in the same spot within the confined
+    wedge, exactly mirroring `flipFromArc`'s remap of the wedge's
+    start/endAngle. No need to look up the owning slice's angles separately.
+*/
+function stampLabelFlip(
+  labelNodes: SceneNode[],
+  flipSource: {start: number; span: number} | undefined,
+): void {
+  for (const n of labelNodes) {
+    const tn = n as TextNode;
+    tn.shapeType = "Label";
+    if (!flipSource) continue;
+    const tr = tn.transform ?? {};
+    const x = tr.x ?? 0, y = tr.y ?? 0;
+    const radius = Math.hypot(x, y);
+    // d3's angle convention: 0 rad = straight up, increasing clockwise —
+    // atan2(x, -y) inverts the x = r·sin(θ), y = -r·cos(θ) used below.
+    const angle = Math.atan2(x, -y);
+    const normalized = angle < 0 ? angle + FULL_TURN : angle;
+    const mapped = flipSource.start + (normalized / FULL_TURN) * flipSource.span;
+    tn.flipFromTransform = {x: radius * Math.sin(mapped), y: -radius * Math.cos(mapped)};
+  }
+}
 
 export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
@@ -53,6 +87,13 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     ? {start: parentStart, span: parentEnd - parentStart}
     : undefined;
 
+  // A Back click armed this draw — every entering wedge gets a "full circle,
+  // at my own real radii" start built here (the render layer has no arc
+  // generator to build one itself); collapseTo only ever actually applies it
+  // to the one wedge resolveDrillMorph later resolves as the reunion match,
+  // so there's no need to know which slice that'll be yet.
+  const isReunionDraw = Boolean(viz._pendingExitReunion);
+
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
   const pathNodes: SceneNode[] = slices.map((d, rank) => {
     const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
@@ -72,12 +113,16 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
           endAngle: flipSource.start + (d.endAngle / FULL_TURN) * flipSource.span,
         }
       : undefined;
+    const reunionFromArc: ArcGeometry | undefined = isReunionDraw
+      ? {...arc, startAngle: 0, endAngle: FULL_TURN}
+      : undefined;
     return {
       type: "path",
       key: `pie-${viz._ids(d.data as DataPoint, d.i ?? 0).join("-")}`,
       d: arcMaker(d),
       arc,
       flipFromArc,
+      reunionFromArc,
       // Lets the render layer's drill-down morph collapse this wedge to/from
       // an external box (isFlipEligible/collapseTo) — the same mechanism
       // StackedArea's shapeType: "Area" bands use.
@@ -153,12 +198,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     },
   });
 
-  // Marks each label as eligible for the drill-down morph (isFlipEligible),
-  // so it moves along with its wedge instead of just fading in in place —
-  // distinct from every other text this chart (or any other) emits
-  // (title/subtitle/legend), which is never stamped this way and so never
-  // flip-morphs.
-  for (const n of labelNodes) (n as {shapeType?: string}).shapeType = "Label";
+  stampLabelFlip(labelNodes, flipSource);
 
   return [...pathNodes, ...labelNodes];
 };

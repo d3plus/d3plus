@@ -27,6 +27,9 @@ import type {
     an exact arc at every interpolated frame instead of morphing a `d`
     STRING between two differently-curved shapes (see `ArcGeometry`).
 */
+/** d3.pie()'s span — a wedge's own startAngle/endAngle are always within [0, FULL_TURN]. */
+const FULL_TURN = Math.PI * 2;
+
 const arcGenerator = d3Arc<ArcGeometry>()
   .innerRadius(d => d.innerRadius)
   .outerRadius(d => d.outerRadius)
@@ -369,12 +372,19 @@ export function collapse(node: SceneNode): SceneNode {
       // vertical center — the band grows out of/into that centerline.
       if (node.shapeType === "Area")
         return {...node, paint, d: flatAreaPath(pathBounds(node.d))};
-      // A Pie/Donut wedge collapses to a zero-WIDTH slice at angle 0 (the
-      // pie's start-angle reference, visually 12 o'clock) at its OWN full
-      // radius — not scaled down to a point/dot. Every wedge shares that
-      // same angle-0 collapse target, so entering wedges read as "the whole
-      // pie unrolling clockwise from the top," each one's arc LENGTH
-      // growing from zero while its radius stays constant throughout
+      // A Pie/Donut wedge collapses to a zero-WIDTH slice at its OWN full
+      // radius — not scaled down to a point/dot — at whichever of 0 or a
+      // full turn (2π) is closer to the wedge's own position: d3.pie()'s
+      // slices span [0, 2π] monotonically, so those two values are the SAME
+      // screen angle (12 o'clock) but numerically far apart, and collapsing
+      // every wedge toward the literal number 0 would sweep the long way
+      // around the whole circle for one sitting just before completing the
+      // loop back to the top. Picking the nearer representation instead
+      // sweeps the short way — left (toward 0) for a wedge in the first
+      // half, right/wrapping (toward 2π) for one in the second half —
+      // reading as "shrinking back into 12 o'clock" rather than unrolling
+      // backward across everyone else's wedges. Every wedge's arc LENGTH
+      // shrinks to zero while its radius stays constant throughout
       // (interpolateNode's "path" case lerps startAngle/endAngle directly
       // once both endpoints carry `arc`, rebuilding `d` every frame — see
       // `ArcGeometry`). Falls back to the old scale-to-a-point behavior
@@ -383,7 +393,9 @@ export function collapse(node: SceneNode): SceneNode {
       if (node.shapeType === "Pie") {
         const f = node as PathNode;
         if (f.arc) {
-          const collapsed: ArcGeometry = {...f.arc, startAngle: 0, endAngle: 0};
+          const mid = (f.arc.startAngle + f.arc.endAngle) / 2;
+          const targetAngle = mid > Math.PI ? FULL_TURN : 0;
+          const collapsed: ArcGeometry = {...f.arc, startAngle: targetAngle, endAngle: targetAngle};
           return {...node, paint, arc: collapsed, d: arcPath(collapsed)};
         }
         const own = pathBounds(node.d);
@@ -513,12 +525,21 @@ export function collapseTo(
         // reconstruct this from `d`/a bounding box.
         if (entering && node.flipFromArc)
           return {...node, paint, transform: undefined, arc: node.flipFromArc, d: arcPath(node.flipFromArc)};
-        // Fallback (no flipFromArc — e.g. the exit/drill-up direction, which
-        // isn't re-emitted so has no fresh arc generator to call): the WHOLE
-        // pie (body), not this wedge's own bbox, is the source — every
-        // wedge then shares the same scale+translate, so the pie scales as
-        // one rigid, non-overlapping unit (a miniature of the full pie)
-        // instead of each wedge individually filling rect.
+        // The reappearing reunion wedge (drill-UP): the chart layer already
+        // built a full-circle start at this wedge's own real radii — it
+        // "instantly" shows the full layout its children currently occupy
+        // (a filled-in ring/disc), then animates the angles down to its own
+        // real slice, instead of the generic scale+translate fallback below
+        // (which would read as an awkward resize/reposition rather than a
+        // clean angular sweep).
+        if (entering && node.reunionFromArc)
+          return {...node, paint, transform: undefined, arc: node.reunionFromArc, d: arcPath(node.reunionFromArc)};
+        // Fallback (neither flipFromArc nor reunionFromArc — a plain, non-
+        // morph exit, which isn't re-emitted so has no fresh arc generator
+        // to call): the WHOLE pie (body), not this wedge's own bbox, is the
+        // source — every wedge then shares the same scale+translate, so the
+        // pie scales as one rigid, non-overlapping unit (a miniature of the
+        // full pie) instead of each wedge individually filling rect.
         const source = body ?? pathBounds(node.d);
         const scale = Math.min(rect.width / (source.width || 1e-6), rect.height / (source.height || 1e-6));
         return {...node, paint, transform: fitTransform(source, rect, scale)};
@@ -527,14 +548,22 @@ export function collapseTo(
     case "text": {
       // Only reached for shapeType "Label" — isFlipEligible excludes every
       // other text node (title/subtitle/legend/axis, none of which are
-      // stamped this way). Moves the label's own position (`transform.x/y`
-      // — TextBox.toScene() always parks the layout at x:0,y:0 and carries
-      // the real position on `transform`) proportionally within `body` into
-      // `rect`, same as a Treemap cell's own geometry — so a label reads as
-      // moving along with its shape instead of fading in in place. Font
-      // size/rotation are left alone; only position changes.
+      // stamped this way). Font size/rotation are left alone in every case
+      // below; only position (`transform.x/y` — TextBox.toScene() always
+      // parks the layout at x:0,y:0 and carries the real position on
+      // `transform`) changes.
       const f = node as TextNode;
       const tr = f.transform ?? {};
+      // The chart already computed this label's start the same geometric
+      // way its own shape is remapped (e.g. a Pie wedge's angular
+      // confinement) — use it verbatim instead of the generic Cartesian
+      // fallback below, which has no notion of e.g. a circular layout.
+      if (entering && f.flipFromTransform)
+        return {...node, paint, transform: {...tr, x: f.flipFromTransform.x, y: f.flipFromTransform.y}};
+      // Generic fallback: move the label's own position proportionally
+      // within `body` into `rect`, same as a Treemap cell's own geometry —
+      // so a label reads as moving along with its shape instead of fading
+      // in in place.
       const point = body
         ? proportionalPoint(tr.x ?? 0, tr.y ?? 0, body, rect)
         : {x: rect.x + rect.width / 2, y: rect.y + rect.height / 2};
