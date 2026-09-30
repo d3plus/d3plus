@@ -1,3 +1,4 @@
+import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
@@ -254,6 +255,11 @@ export interface ColorScaleConfig {
   bucketJoiner?: (min: string, max: string) => string;
 }
 
+/** `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. */
+export type ColorDefaultsConfig = Partial<Omit<ColorDefaults, "scale">> & {
+  scale?: ColorDefaults["scale"] | string[];
+};
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -294,6 +300,8 @@ export interface D3plusConfig {
   baseline?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
+  colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
   colorOrdinal?: boolean;
   /** Color scale key or custom color function. */

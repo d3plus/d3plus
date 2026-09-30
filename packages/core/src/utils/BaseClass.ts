@@ -1,11 +1,13 @@
+import {colorDefaults, type ColorDefaults} from "@d3plus/color";
 import {assign, isObject} from "@d3plus/dom";
+import {scaleOrdinal} from "d3-scale";
 import {
   findLocale,
   translateLocale as dictionaries,
   type TranslationStrings,
 } from "@d3plus/locales";
 
-import type {D3plusConfig} from "./D3plusConfig.js";
+import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
 import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
@@ -63,6 +65,25 @@ function getAllMethods(obj: object): string[] {
 }
 
 /**
+    Merges color overrides into an instance and every BaseClass it owns (own
+    properties and `ctx` entries), so a Viz's legend, tooltip, axes, and
+    shapes pick them up too.
+    @private
+*/
+function cascadeColorDefaults(
+  obj: BaseClass,
+  overrides: Partial<ColorDefaults>,
+  seen: WeakSet<BaseClass>,
+): void {
+  if (seen.has(obj)) return;
+  seen.add(obj);
+  obj.schema.colorDefaults = {...obj.schema.colorDefaults, ...overrides};
+  for (const child of [...Object.values(obj), ...Object.values(obj.ctx)]) {
+    if (child instanceof BaseClass) cascadeColorDefaults(child, overrides, seen);
+  }
+}
+
+/**
     Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 */
 export default class BaseClass {
@@ -89,6 +110,7 @@ export default class BaseClass {
   constructor() {
     this.schema = {};
     this.ctx = {};
+    this.schema.colorDefaults = {...colorDefaults};
     this.schema.locale = "en-US";
     this.schema.on = {};
     this.schema.parent = {};
@@ -175,6 +197,29 @@ export default class BaseClass {
     return arguments.length
       ? ((this.schema.locale = findLocale(_ as string)), this)
       : this.schema.locale;
+  }
+
+  /**
+      Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+@example
+new Treemap()
+  .colorDefaults({
+    dark: "#222",
+    light: "#fff",
+    scale: ["#1b9e77", "#d95f02", "#7570b3"]
+  })
+*/
+  colorDefaults(): ColorDefaults;
+  colorDefaults(_: ColorDefaultsConfig): this;
+  colorDefaults(_?: ColorDefaultsConfig): ColorDefaults | this {
+    if (!arguments.length) return this.schema.colorDefaults;
+    const {scale, ...rest} = _ ?? {};
+    const next: Partial<ColorDefaults> = {...rest};
+    if (Array.isArray(scale)) next.scale = scaleOrdinal<string>().range(scale);
+    else if (scale) next.scale = scale;
+    cascadeColorDefaults(this, next, new WeakSet());
+    return this;
   }
 
   /**

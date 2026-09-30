@@ -62,6 +62,7 @@ export {
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorDefaultsConfig,
   ColorScaleConfig,
   LegendConfig,
   TextBoxConfig,

@@ -4,6 +4,7 @@ export {default as BaseClass} from "./BaseClass.js";
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorDefaultsConfig,
   ColorScaleConfig,
   LegendConfig,
   TextBoxConfig,

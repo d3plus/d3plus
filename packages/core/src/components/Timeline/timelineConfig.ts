@@ -1,4 +1,4 @@
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor} from "@d3plus/dom";
 
 import TextBox from "../TextBox.js";
@@ -31,7 +31,7 @@ function timelineShapeConfig(tl: Timeline): Record<string, unknown> {
     labelConfig: {
       fontColor: () => {
         const bg = tl._select ? backgroundColor(tl._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, tl.schema.colorDefaults);
       },
       fontSize: () => 12,
       verticalAlign: () =>
@@ -90,7 +90,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.schema.domain = [2001, 2010];
   tl.schema.gridSize = 0;
   tl.schema.handleConfig = {
-    fill: colorDefaults.light,
+    fill: () => tl.schema.colorDefaults.light,
     stroke: "#228be6",
     "stroke-width": 2,
     rx: 2,
@@ -102,7 +102,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.orient("bottom");
   tl._playButtonClass = buildPlayButton();
   tl.schema.playButtonConfig = {
-    fontColor: colorDefaults.dark,
+    fontColor: () => tl.schema.colorDefaults.dark,
     fontSize: 15,
     text: () => (tl._playTimer ? "\u23F8" : "\u23F5"),
     textAnchor: "middle",

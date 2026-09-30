@@ -101,7 +101,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
           slice.data as DataPoint,
           slice.i ?? 0,
         );
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
       },
       fontResize: true,
       textAnchor: "middle",

@@ -104,7 +104,7 @@ export const radialMatrixDef: ChartDefinition = {
               const bg = viz._select
                 ? backgroundColor(viz._select.node())
                 : "rgb(255, 255, 255)";
-              return colorContrast(bg);
+              return colorContrast(bg, viz.schema.colorDefaults);
             },
             padding: 5,
             textAnchor: (d: LabelDatum) =>
