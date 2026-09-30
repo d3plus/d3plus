@@ -109,7 +109,7 @@ export const argTypes = {
   },
   backConfig: {
     control: {},
-    description: "Configuration object for the back button.",
+    description: "Configuration object for the back button. Superseded by\n`.backControlStyle()`/`.backControlClassName()` for the button's\nappearance (it renders as a real `<button>`, like the zoom/search\ncontrols, not a configurable text node) — kept for backwards\ncompatibility, but no longer affects how the button looks.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -118,6 +118,34 @@ export const argTypes = {
     type: {
       required: false,
       summary: "record"
+    }
+  },
+  backControlClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  backControlStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
     }
   },
   cache: {
@@ -738,6 +766,89 @@ export const argTypes = {
       summary: "record"
     }
   },
+  minimap: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled.",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  minimapClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  minimapLabelStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. \"2x\"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  minimapStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  minimapViewportStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  minimapViewportStyleActive: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
   noDataHTML: {
     control: {
       type: "text"
@@ -875,6 +986,89 @@ export const argTypes = {
       summary: "string | htmlelement | window"
     }
   },
+  search: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart.",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  searchAccessor: {
+    control: {},
+    description: "Resolves the string the search box matches its typed term against, for\na given datum. Defaults to the mark's resolved on-screen label\n(`viz._drawLabel`) — the same text the user reads on the chart.\nOverride it to match against something else instead, e.g. a data\nfield that isn't shown as the label.\n\nThis is checked alongside, not instead of, every level of the datum's\nown groupBy hierarchy — searching a leaf's label also matches its\nancestor group's cell/legend entry, and vice versa, regardless of\nthis accessor's override.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "function"
+    }
+  },
+  searchControlClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  searchControlStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  searchControlStyleActive: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  searchControlStyleHover: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
   select: {
     control: {
       type: "text"
@@ -991,6 +1185,138 @@ export const argTypes = {
     type: {
       required: false,
       summary: "string"
+    }
+  },
+  tableView: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart.",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  tableViewClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  tableViewControlClassName: {
+    control: {
+      type: "text"
+    },
+    description: "An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "string"
+    }
+  },
+  tableViewControlStyle: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  tableViewControlStyleActive: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  tableViewControlStyleHover: {
+    control: {},
+    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "false | record"
+    }
+  },
+  tableViewDownload: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "Whether the data table shows a \"download CSV\" button, exporting its full (sorted, unpaginated) rows. On by default.",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
+    }
+  },
+  tableViewPageSize: {
+    control: {
+      type: "number"
+    },
+    description: "The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "number | false"
+    }
+  },
+  tableViewSort: {
+    control: {
+      type: "boolean"
+    },
+    defaultValue: true,
+    description: "Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default.",
+    table: {
+      defaultValue: {
+        summary: "true"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   },
   threshold: {

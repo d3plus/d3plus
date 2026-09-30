@@ -7,11 +7,12 @@ import type {DataPoint} from "@d3plus/data";
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
 import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
+import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
 /**
     Second half of the fluent config accessors shared by every Viz chart
-    (`loadingHTML` through `zoomPadding`), extending `VizBaseConfig` which
+    (`loadingHTML` through `tableViewPageSize`), extending `VizBaseConfig` which
     holds the first half. Split purely so each file stays under the
     `max-lines` budget; the methods remain real prototype methods, so
     `BaseClass.config()` reflection and polymorphic `this` chaining are
@@ -229,9 +230,10 @@ export default class VizBase extends VizBaseConfig {
   shapeConfig(): D3plusConfig;
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
-    return arguments.length
-      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
-      : this.schema.shapeConfig;
+    if (!arguments.length) return this.schema.shapeConfig;
+    validateShapeConfig(this.constructor.name, _!);
+    this.schema.shapeConfig = assign(this.schema.shapeConfig, _!);
+    return this;
   }
 
   /**
@@ -575,6 +577,66 @@ export default class VizBase extends VizBaseConfig {
     return arguments.length
       ? ((this.schema.zoomPadding = _), this)
       : this.schema.zoomPadding;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.
+*/
+  tableViewClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.tableViewClassName = _), this)
+      : this.schema.tableViewClassName;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+*/
+  tableViewControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.tableViewControlClassName = _), this)
+      : this.schema.tableViewControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyle = _), this)
+      : this.schema.tableViewControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyleActive = _), this)
+      : this.schema.tableViewControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyleHover = _), this)
+      : this.schema.tableViewControlStyleHover;
+  }
+
+  /**
+      The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.
+*/
+  tableViewPageSize(_?: number | false): this | number | false {
+    return arguments.length
+      ? ((this.schema.tableViewPageSize = _), this)
+      : this.schema.tableViewPageSize;
   }
 
 }

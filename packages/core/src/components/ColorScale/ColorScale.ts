@@ -2,7 +2,7 @@ import {max, min} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
@@ -39,11 +39,12 @@ const colorScaleSchema: ConfigField[] = [
   // (colorMax / colorMin) ramp or the diverging (min↔mid↔max) construction,
   // so magnitude reads as one hue getting darker rather than a multi-hue ramp.
   {key: "color", coerce: "identity"},
-  // Blue high pole (and default sequential hue), gray "nothing" midpoint, red
-  // low pole — warm/cool poles that stay distinct under color-vision deficiency.
-  {key: "colorMax", coerce: "identity", default: colorDefaults.sequential},
-  {key: "colorMid", coerce: "identity", default: colorDefaults.light},
-  {key: "colorMin", coerce: "identity", default: colorDefaults.off},
+  // Unset poles fall back to `colorDefaults` at draw time: `sequential` (blue)
+  // high, `light` midpoint, `off` (red) low — warm/cool poles that stay
+  // distinct under color-vision deficiency.
+  {key: "colorMax", coerce: "identity"},
+  {key: "colorMid", coerce: "identity"},
+  {key: "colorMin", coerce: "identity"},
   {key: "domain", coerce: "identity"},
   {key: "duration", coerce: "identity", default: 600},
   {key: "height", coerce: "identity", default: 200},
@@ -152,14 +153,14 @@ export default class ColorScale extends BaseClass {
     this.schema.labelConfig = {
       fontColor: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       fontSize: 12,
     };
     this._legendClass = new Legend();
     this.schema.legendConfig = {
       shapeConfig: {
-        stroke: colorDefaults.dark,
+        stroke: () => this.schema.colorDefaults.dark,
         strokeWidth: 1,
       },
     };

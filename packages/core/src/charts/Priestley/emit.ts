@@ -9,6 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
 
@@ -86,11 +87,12 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: {data?: PriestleyDatum}) => {
         const pd = (d.data ?? d) as PriestleyDatum;
         const fill = resolveAccessor<string>(sc.fill, pd.data, pd.i);
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
       },
       fontResize: false,
       textAnchor: "start",
       verticalAlign: "top",
+      ...userLabelConfig(viz, "Rect"),
     },
   });
 

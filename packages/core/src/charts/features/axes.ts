@@ -279,7 +279,7 @@ function measureXTestAxes(
   const x2Bounds = x2Test.outerBounds() as AxisBounds;
   const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
 
-  const xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
   if (showX) {
     xTest.range([xOffsetLeft, undefined]).measure();
@@ -292,6 +292,7 @@ function measureXTestAxes(
     : 0;
 
   const xOffsetRight = max([
+    0,
     y2Width,
     width - xTestRange[1],
     width - x2TestRange[1],
@@ -372,7 +373,7 @@ function solveFinalYAxes(
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
   if (y2Exists) {
     y2Test

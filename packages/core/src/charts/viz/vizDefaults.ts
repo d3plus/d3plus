@@ -12,6 +12,7 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../../components/index.js";
 import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
+import {markDefault} from "../../utils/configDefault.js";
 import {installFluent} from "../../fluent.js";
 
 import {legendLabel} from "../features/legendLabel.js";
@@ -91,6 +92,9 @@ const vizSchema = [
   {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
+  {key: "tableView", coerce: "identity" as const},
+  {key: "tableViewDownload", coerce: "identity" as const},
+  {key: "tableViewSort", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
   {key: "timeline", coerce: "identity" as const},
   {key: "width", coerce: "identity" as const},
@@ -163,9 +167,11 @@ function initBackDefaults(viz: Viz): void {
 */
 function initColorDefaults(viz: Viz): void {
   viz.schema.color = (d: DataPoint, i: number) => viz.schema.groupBy[0](d, i);
-  viz._colorDefaults = {
+  // Each viz gets its own categorical scale so assignments don't leak
+  // across charts on the same page.
+  viz.schema.colorDefaults = {
     ...colorDefaults,
-    scale: scaleOrdinal().range(colorDefaults.scale.range()),
+    scale: scaleOrdinal<string>().range(colorDefaults.scale.range()),
   };
   viz._colorScaleClass = new ColorScale();
   viz.schema.colorScaleConfig = {
@@ -191,6 +197,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.detectResizeDelay = 400;
   viz.schema.detectVisible = true;
   viz.schema.detectVisibleInterval = 1000;
+  viz.schema.detectVisibleUnload = true;
   viz.schema.downloadButton = false;
   viz.schema.downloadConfig = {type: "png"};
   viz.schema.downloadPosition = "top";
@@ -367,16 +374,18 @@ function initShapeDefaults(viz: Viz): void {
       // hues, so the color itself carries the ordering.
       if (viz.schema.colorOrdinal && viz._ordinalColorScale)
         return viz._ordinalColorScale(key);
-      return colorAssign(key, viz._colorDefaults);
+      return colorAssign(key, viz.schema.colorDefaults);
     },
     labelConfig: {
-      fontColor: (d: DataPoint, i: number) => {
+      // Marked so chart emitters layering user label config keep their own
+      // label colors over this generic one.
+      fontColor: markDefault((d: DataPoint, i: number) => {
         const c =
           typeof viz.schema.shapeConfig.fill === "function"
             ? viz.schema.shapeConfig.fill(d, i)
             : viz.schema.shapeConfig.fill;
-        return colorContrast(c);
-      },
+        return colorContrast(c, viz.schema.colorDefaults);
+      }),
     },
     opacity: constant(1),
     stroke: (d: DataPoint, i: number) => {
@@ -521,6 +530,30 @@ export const zoomControlStyleActiveDefault = {
 export const zoomControlStyleHoverDefault = false as const;
 
 /**
+    Default inline styles for the table-view toggle button — structural only,
+    mirroring `zoomControlStyleDefault` et al. so the two chrome features look
+    and behave consistently. Kept as separate object references (not shared
+    with zoom's) so `tableViewControl.ts` can independently detect, via `===`,
+    whether `tableViewControlStyle*` is still untouched — the same
+    auto-disable-on-className trick `zoomControlClassName` uses.
+*/
+export const tableViewControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const tableViewControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const tableViewControlStyleHoverDefault = false as const;
+
+/**
     Zoom behavior, brush, control button styling, and zoom limit defaults.
     @private
 */
@@ -546,6 +579,25 @@ function initZoomDefaults(viz: Viz): void {
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
   viz.schema.zoomScroll = "modifier";
+}
+
+/**
+    Table-view button + data-table defaults. Mirrors `initZoomDefaults`:
+    a chrome toggle shown by default, styled structurally (no color/
+    background) so a host page's own button styling applies through the
+    cascade once `tableViewControlClassName` is set.
+    @private
+*/
+function initTableViewDefaults(viz: Viz): void {
+  viz.schema.tableView = true;
+  viz.schema.tableViewClassName = undefined;
+  viz.schema.tableViewControlClassName = undefined;
+  viz.schema.tableViewControlStyle = tableViewControlStyleDefault;
+  viz.schema.tableViewControlStyleActive = tableViewControlStyleActiveDefault;
+  viz.schema.tableViewControlStyleHover = tableViewControlStyleHoverDefault;
+  viz.schema.tableViewDownload = true;
+  viz.schema.tableViewPageSize = 50;
+  viz.schema.tableViewSort = true;
 }
 
 /**
@@ -651,6 +703,7 @@ export function initVizDefaults(viz: Viz): void {
   initShapeDefaults(viz);
   initLabelDefaults(viz);
   initZoomDefaults(viz);
+  initTableViewDefaults(viz);
   initMinimapDefaults(viz);
   initBackDefaults(viz);
   initSearchDefaults(viz);

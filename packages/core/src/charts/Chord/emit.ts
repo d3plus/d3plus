@@ -11,7 +11,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  paintFromShapeConfig,
+  resolveAccessor,
+  shapeConfigFor,
+  userLabelConfig,
+} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
@@ -92,6 +97,7 @@ export const chordEmit: ChartEmit = ({viz}) => {
       id: d => `chord-label-${(d as unknown as ChordNode).id}`,
       labelBounds: d => (d as unknown as ChordNode).labelBounds ?? false,
       labelConfig: {
+        ...userLabelConfig(viz, "Path"),
         fontResize: false,
         padding: 0,
         textAnchor: (d: DataPoint) =>

@@ -411,7 +411,11 @@ export default class Viz extends VizBase {
     // skip the transition machinery — animating every wheel/drag tick
     // accumulates `setTimeout(duration+10)` per event.
     const drawDuration =
-      durationOverride !== undefined ? durationOverride : this.schema.duration;
+      durationOverride !== undefined
+        ? durationOverride
+        : this._instantNextDraw
+          ? 0
+          : this.schema.duration;
     // A duration>0 render (drill-down, zoom, re-center) must win over any
     // pending coalesced duration-0 repaint — otherwise that repaint fires on
     // the next frame and interrupts this transition, snapping shapes to their
@@ -695,6 +699,10 @@ export default class Viz extends VizBase {
     if (this._scrollPoll) {
       this._scrollPoll = clearTimeout(this._scrollPoll) as never;
     }
+    this._visibleUnobserve?.();
+    this._visibleUnobserve = undefined;
+    this._unloadUnobserve?.();
+    this._unloadUnobserve = undefined;
     if (this._sceneRepaintRAF != null) {
       if (typeof cancelAnimationFrame === "function")
         cancelAnimationFrame(this._sceneRepaintRAF);

@@ -165,9 +165,10 @@ export function buildTopLeftPanel(viz: Viz, contributions: Contribution[]): Scen
     The shared top-left panel's rendered size (padding included) as it will
     render in the chart's page, so top-positioned content can leave room for
     it — the same measure-a-hidden-probe technique `zoomControlsBox` uses,
-    generalized to whichever mix of controls (back / search) is currently
-    contributing, and to each contribution's OWN resolved button styling
-    (not just its markup). Returns null when nothing is contributing.
+    generalized to whichever mix of controls (back / table-view / search)
+    is currently contributing, and to each contribution's OWN resolved
+    button styling (not just its markup). Returns null when nothing is
+    contributing.
 */
 export function topLeftControlsBox(
   viz: Viz,

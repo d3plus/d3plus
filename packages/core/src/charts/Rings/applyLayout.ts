@@ -523,10 +523,11 @@ function publishRingsCtx(
             (node.data ?? node) as DataPoint,
             node.i,
           );
-          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", v.schema.colorDefaults);
         }
         return colorContrast(
           v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
+          v.schema.colorDefaults,
         );
       },
       fontResize: (d: RingsNode & {data?: RingsNode}) => ((d.data ?? d) as RingsNode).id === v.schema.center,

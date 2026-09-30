@@ -37,13 +37,7 @@ function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover:
   };
 }
 
-/**
-    Paints a zoom-control button's inline style for its current state: the
-    base style, then the hover style while hovered, then the active style
-    while its mode is on (so an active button reads as active even under the
-    cursor). Every property any of the three styles sets is cleared first, so
-    leaving a state fully undoes it.
-*/
+/** Paints a zoom-control button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
 export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): void {
   paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
 }

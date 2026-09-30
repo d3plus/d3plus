@@ -136,7 +136,7 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
     labelConfig: {
       fontColor: () => {
         const bg = legend._select ? backgroundColor(legend._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, legend.schema.colorDefaults);
       },
       fontFamily: legend._titleClass.fontFamily(),
       fontResize: false,

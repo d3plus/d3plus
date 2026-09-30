@@ -69,6 +69,40 @@ import {RESET} from "@d3plus/core";
 chart.color(RESET).render();
 ```
 
+## Unknown property warnings
+
+If a chart receives a config key it doesn't support, usually a typo, it logs a
+console warning instead of silently ignoring it. This covers keys passed to
+`.config()` (including the React `config` prop), keys inside `shapeConfig`, and
+nested configs like `xConfig` or `legendConfig`:
+
+```js
+new d3plus.BarChart().config({
+  colr: "id",
+  shapeConfig: {fil: "red", Bar: {strok: "blue"}}
+});
+// BarChart.config() received unknown property "colr".
+// BarChart.shapeConfig() received unknown property "fil".
+// BarChart.shapeConfig() received unknown property "Bar.strok".
+```
+
+A `shapeConfig` key is accepted if any shape type supports it, because one
+`shapeConfig` applies to every shape. A key nested under a shape name (like
+`Bar: {...}`) must exist on that shape. Each message is logged only once, so
+re-renders don't repeat it.
+
+To turn the warnings off for every chart on the page, call `configWarnings`
+once before creating your charts:
+
+```js
+import {configWarnings} from "@d3plus/core";
+
+configWarnings(false);
+configWarnings(); // → false
+```
+
+With a script tag, use `d3plus.configWarnings(false)`.
+
 ## Shared defaults with `D3plusContext` (React)
 
 Wrap your app in `D3plusContext.Provider` to set defaults for **every**

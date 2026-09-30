@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="../../umd/d3plus-core.full.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 16px;
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      }
+      .chart {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        height: 400px;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      <button id="toggle">Apply colorDefaults</button>
+      <span id="state">library defaults</span>
+    </p>
+    <div class="grid">
+      <div>
+        <h3>Treemap — palette, label contrast, legend, tooltip</h3>
+        <div class="chart" id="treemap"></div>
+      </div>
+      <div>
+        <h3>BarChart — palette, bar labels, axes</h3>
+        <div class="chart" id="bar"></div>
+      </div>
+      <div>
+        <h3>Treemap + colorScale — sequential pole, color scale legend</h3>
+        <div class="chart" id="scale"></div>
+      </div>
+      <div>
+        <h3>Pie — palette, label contrast</h3>
+        <div class="chart" id="pie"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var overrides = {
+      dark: "#3d1f00",
+      light: "#fff4e6",
+      sequential: "#e8590c",
+      scale: ["#0b7285", "#ffd43b", "#862e9c", "#94d82d", "#212529", "#f76707"],
+    };
+
+    var data = [
+      {group: "Group 1", item: "Item 1", value: 17, year: 2020},
+      {group: "Group 1", item: "Item 2", value: 15, year: 2020},
+      {group: "Group 2", item: "Item 3", value: 7, year: 2020},
+      {group: "Group 2", item: "Item 4", value: 10, year: 2020},
+      {group: "Group 3", item: "Item 5", value: 12, year: 2020},
+      {group: "Group 4", item: "Item 6", value: 5, year: 2020},
+      {group: "Group 5", item: "Item 7", value: 9, year: 2020},
+      {group: "Group 6", item: "Item 8", value: 4, year: 2020},
+    ];
+
+    var charts = [
+      new d3plus.Treemap()
+        .select("#treemap")
+        .data(data)
+        .groupBy(["group", "item"])
+        .sum("value"),
+      new d3plus.BarChart()
+        .select("#bar")
+        .data(data)
+        .groupBy("group")
+        .x("item")
+        .y("value"),
+      new d3plus.Treemap()
+        .select("#scale")
+        .data(data)
+        .groupBy("item")
+        .sum("value")
+        .colorScale("value"),
+      new d3plus.Pie()
+        .select("#pie")
+        .data(data)
+        .groupBy("group")
+        .value("value"),
+    ];
+
+    charts.forEach(function (c) {
+      c.render();
+    });
+
+    var applied = false;
+    document.getElementById("toggle").addEventListener("click", function () {
+      applied = !applied;
+      charts.forEach(function (c) {
+        c.config({colorDefaults: applied ? overrides : d3plus.RESET}).render();
+      });
+      this.textContent = applied ? "Reset colorDefaults" : "Apply colorDefaults";
+      document.getElementById("state").textContent = applied
+        ? "overrides: " + JSON.stringify(overrides)
+        : "library defaults";
+    });
+  </script>
+</html>

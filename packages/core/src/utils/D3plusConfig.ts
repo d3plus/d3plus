@@ -1,3 +1,4 @@
+import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
@@ -254,6 +255,11 @@ export interface ColorScaleConfig {
   bucketJoiner?: (min: string, max: string) => string;
 }
 
+/** `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. */
+export type ColorDefaultsConfig = Partial<Omit<ColorDefaults, "scale">> & {
+  scale?: ColorDefaults["scale"] | string[];
+};
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -294,6 +300,8 @@ export interface D3plusConfig {
   baseline?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
+  colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
   colorOrdinal?: boolean;
   /** Color scale key or custom color function. */
@@ -474,6 +482,24 @@ export interface D3plusConfig {
   svgDesc?: string;
   /** Accessible title applied to the root SVG (`<title>`). */
   svgTitle?: string;
+  /** Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. */
+  tableView?: boolean;
+  /** Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. */
+  tableViewClassName?: string;
+  /** Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. */
+  tableViewControlClassName?: string;
+  /** CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. */
+  tableViewControlStyle?: Record<string, unknown> | false;
+  /** CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. */
+  tableViewControlStyleActive?: Record<string, unknown> | false;
+  /** CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. */
+  tableViewControlStyleHover?: Record<string, unknown> | false;
+  /** Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. */
+  tableViewDownload?: boolean;
+  /** Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. */
+  tableViewPageSize?: number | false;
+  /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
+  tableViewSort?: boolean;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */

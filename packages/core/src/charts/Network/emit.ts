@@ -11,7 +11,13 @@ import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {straightEdgeArrows} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
-import {drawNodeLabel, paintFromShapeConfig, resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  drawNodeLabel,
+  paintFromShapeConfig,
+  resolveAccessor,
+  shapeConfigFor,
+  userLabelConfig,
+} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -180,8 +186,9 @@ export const networkEmit: ChartEmit = ({viz}) => {
                 (node.data ?? node) as DataPoint,
                 node.i ?? 0,
               );
-              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
             },
+            ...userLabelConfig(viz, shapeKind),
           },
         });
         out.push(...labelNodes);

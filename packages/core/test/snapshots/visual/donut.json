@@ -1,7 +1,7 @@
 {
   "counts": {
     "path": 6,
-    "text": 6,
+    "text": 10,
     "rect": 10
   },
   "shapes": [
@@ -156,7 +156,15 @@
       "a": "middle"
     },
     {
+      "s": "30%",
+      "a": "middle"
+    },
+    {
       "s": "Beta",
+      "a": "middle"
+    },
+    {
+      "s": "22%",
       "a": "middle"
     },
     {
@@ -164,7 +172,15 @@
       "a": "middle"
     },
     {
+      "s": "18%",
+      "a": "middle"
+    },
+    {
       "s": "Delta",
+      "a": "middle"
+    },
+    {
+      "s": "15%",
       "a": "middle"
     },
     {

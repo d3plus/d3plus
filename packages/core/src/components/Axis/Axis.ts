@@ -5,7 +5,7 @@ import {transition} from "d3-transition";
 import pkg from "open-color/open-color.js";
 const {theme: openColor} = pkg;
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
@@ -123,15 +123,15 @@ export default class Axis extends BaseClass {
     this.schema.barConfig = {
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       "stroke-width": 1,
     };
     this.schema.gridConfig = {
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        const contrast = colorContrast(bg);
-        return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+        const contrast = colorContrast(bg, this.schema.colorDefaults);
+        return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
       },
       "stroke-width": 1,
     };
@@ -140,7 +140,7 @@ export default class Axis extends BaseClass {
     this.schema.shapeConfig = {
       fill: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       height: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
       label: (d: Record<string, unknown>) => d.text,
@@ -148,7 +148,7 @@ export default class Axis extends BaseClass {
       labelConfig: {
         fontColor: () => {
           const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-          return colorContrast(bg);
+          return colorContrast(bg, this.schema.colorDefaults);
         },
         fontResize: false,
         fontSize: constant(12),
@@ -179,7 +179,7 @@ export default class Axis extends BaseClass {
       r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       strokeWidth: 1,
       width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
@@ -189,7 +189,7 @@ export default class Axis extends BaseClass {
     this.schema.titleConfig = {
       fontColor: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       fontSize: 12,
       textAnchor: "middle",

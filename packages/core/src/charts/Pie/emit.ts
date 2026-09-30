@@ -4,12 +4,14 @@
 
 import type {Arc, PieArcDatum} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
+import {formatAbbreviate} from "@d3plus/format";
 import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 function resolveAccessor<T>(
@@ -23,10 +25,102 @@ function resolveAccessor<T>(
   return val as T | undefined;
 }
 
-type Slice = PieArcDatum<DataPoint> & {__d3plus__?: true; i?: number};
+type Slice = PieArcDatum<DataPoint> & {
+  __d3plus__?: true;
+  i?: number;
+  share?: number;
+};
 
 /** d3.pie()'s default span (Pie/applyLayout.ts never overrides startAngle/endAngle) — the range every slice's own startAngle/endAngle is relative to. */
 const FULL_TURN = Math.PI * 2;
+
+/** Shared, per-draw context `buildPathNode` needs for every slice — bundled to keep its own parameter list short. */
+interface PathNodeCtx {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- VizContext.viz is deliberately `any` (see ChartEmit's definition); threaded through unchanged.
+  viz: any;
+  arcMaker: (d: Slice) => string;
+  resolveInnerRadius: (d: Slice, i: number) => number;
+  resolveOuterRadius: (d: Slice, i: number) => number;
+  sc: Record<string, unknown>;
+  value: (d: DataPoint, i: number) => number;
+  sharePct: (d: Slice) => string;
+  /** The clicked parent's confined angular range (a forward drill click), if this draw is one. */
+  flipSource: {start: number; span: number} | undefined;
+  /** Whether a Back click armed this draw (see `pieEmit`'s own comment on `isReunionDraw`). */
+  isReunionDraw: boolean;
+}
+
+/**
+    Builds one wedge's Path SceneNode — pulled out of `pieEmit` to keep that
+    function under the file's max-lines-per-function limit. See `pieEmit`'s
+    own comments for what `flipFromArc`/`reunionFromArc` are and why.
+*/
+function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
+  const {viz, arcMaker, resolveInnerRadius, resolveOuterRadius, sc, value, sharePct, flipSource, isReunionDraw} = ctx;
+  const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
+  const stroke = resolveAccessor<string>(sc.stroke, d.data as DataPoint, d.i ?? 0);
+  const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data as DataPoint, d.i ?? 0);
+  const arc: ArcGeometry = {
+    innerRadius: resolveInnerRadius(d, d.i ?? 0),
+    outerRadius: resolveOuterRadius(d, d.i ?? 0),
+    startAngle: d.startAngle,
+    endAngle: d.endAngle,
+    padAngle: d.padAngle,
+  };
+  const flipFromArc: ArcGeometry | undefined = flipSource
+    ? {
+        ...arc,
+        startAngle: flipSource.start + (d.startAngle / FULL_TURN) * flipSource.span,
+        endAngle: flipSource.start + (d.endAngle / FULL_TURN) * flipSource.span,
+      }
+    : undefined;
+  const reunionFromArc: ArcGeometry | undefined = isReunionDraw
+    ? {...arc, startAngle: 0, endAngle: FULL_TURN}
+    : undefined;
+  return {
+    type: "path",
+    key: `pie-${viz._ids(d.data as DataPoint, d.i ?? 0).join("-")}`,
+    d: arcMaker(d),
+    arc,
+    flipFromArc,
+    reunionFromArc,
+    // Lets the render layer's drill-down morph collapse this wedge to/from
+    // an external box (isFlipEligible/collapseTo) — the same mechanism
+    // StackedArea's shapeType: "Area" bands use.
+    shapeType: "Pie",
+    // Explicit identity transform (not the field's usual `undefined`) so
+    // the SVG backend's transition tweens the "transform" attribute from
+    // collapse()/collapseTo()'s scaled-down start toward this real target
+    // string — a `null` target attr removes immediately instead of
+    // tweening (d3-transition can't interpolate "toward absent"), which
+    // would otherwise skip the whole morph animation.
+    transform: {x: 0, y: 0},
+    // Carried for the NEXT click's capture (click.shape.ts, chart-agnostic)
+    // to read off the clicked node — see `_pendingEnterOrigin.parentStartAngle`.
+    startAngle: d.startAngle,
+    endAngle: d.endAngle,
+    datum: d.data,
+    paint: {
+      fill: typeof fill === "string" ? fill : undefined,
+      stroke,
+      strokeWidth,
+      // Explicit (not the field's usual `undefined`) for the same reason
+      // as `transform` above: a plain, non-morph sibling exit's opacity
+      // fade (SvgRenderer's `reconcileExit` fast path,
+      // `.attr("opacity", 0)`) tweens FROM whatever's already on the live
+      // DOM element — an absent attribute reads back as `null`, and
+      // d3-interpolate's string interpolator can't align "null" against
+      // "0" (a different count of numeric tokens), so it snaps to the
+      // target on the very first tick instead of fading. Stamping this
+      // wedge's own steady-state opacity here gives every later exit a
+      // real starting value to fade from.
+      opacity: 1,
+    },
+    aria: {
+      label: `${rank + 1}. ${viz._drawLabel(d.data as DataPoint, d.i ?? 0)}, ${value(d.data as DataPoint, d.i ?? 0)}, ${sharePct(d)}.`,
+    },
+  } as SceneNode;
+}
 
 /**
     Marks each label as eligible for the drill-down morph (isFlipEligible),
@@ -95,75 +189,37 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const isReunionDraw = Boolean(viz._pendingExitReunion);
 
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
-  const pathNodes: SceneNode[] = slices.map((d, rank) => {
-    const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
-    const stroke = resolveAccessor<string>(sc.stroke, d.data as DataPoint, d.i ?? 0);
-    const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data as DataPoint, d.i ?? 0);
-    const arc: ArcGeometry = {
-      innerRadius: resolveInnerRadius(d, d.i ?? 0),
-      outerRadius: resolveOuterRadius(d, d.i ?? 0),
-      startAngle: d.startAngle,
-      endAngle: d.endAngle,
-      padAngle: d.padAngle,
-    };
-    const flipFromArc: ArcGeometry | undefined = flipSource
-      ? {
-          ...arc,
-          startAngle: flipSource.start + (d.startAngle / FULL_TURN) * flipSource.span,
-          endAngle: flipSource.start + (d.endAngle / FULL_TURN) * flipSource.span,
-        }
-      : undefined;
-    const reunionFromArc: ArcGeometry | undefined = isReunionDraw
-      ? {...arc, startAngle: 0, endAngle: FULL_TURN}
-      : undefined;
-    return {
-      type: "path",
-      key: `pie-${viz._ids(d.data as DataPoint, d.i ?? 0).join("-")}`,
-      d: arcMaker(d),
-      arc,
-      flipFromArc,
-      reunionFromArc,
-      // Lets the render layer's drill-down morph collapse this wedge to/from
-      // an external box (isFlipEligible/collapseTo) — the same mechanism
-      // StackedArea's shapeType: "Area" bands use.
-      shapeType: "Pie",
-      // Explicit identity transform (not the field's usual `undefined`) so
-      // the SVG backend's transition tweens the "transform" attribute from
-      // collapse()/collapseTo()'s scaled-down start toward this real target
-      // string — a `null` target attr removes immediately instead of
-      // tweening (d3-transition can't interpolate "toward absent"), which
-      // would otherwise skip the whole morph animation.
-      transform: {x: 0, y: 0},
-      // Carried for the NEXT click's capture (click.shape.ts, chart-agnostic)
-      // to read off the clicked node — see `_pendingEnterOrigin.parentStartAngle`.
-      startAngle: d.startAngle,
-      endAngle: d.endAngle,
-      datum: d.data,
-      paint: {
-        fill: typeof fill === "string" ? fill : undefined,
-        stroke,
-        strokeWidth,
-        // Explicit (not the field's usual `undefined`) for the same reason
-        // as `transform` above: a plain, non-morph sibling exit's opacity
-        // fade (SvgRenderer's `reconcileExit` fast path,
-        // `.attr("opacity", 0)`) tweens FROM whatever's already on the live
-        // DOM element — an absent attribute reads back as `null`, and
-        // d3-interpolate's string interpolator can't align "null" against
-        // "0" (a different count of numeric tokens), so it snaps to the
-        // target on the very first tick instead of fading. Stamping this
-        // wedge's own steady-state opacity here gives every later exit a
-        // real starting value to fade from.
-        opacity: 1,
-      },
-      aria: {
-        label: `${rank + 1}. ${viz._drawLabel(d.data as DataPoint, d.i ?? 0)}, ${value(d.data as DataPoint, d.i ?? 0)}.`,
-      },
-    } as SceneNode;
+  const locale = viz.schema.locale;
+  const sharePct = (d: Slice) => `${formatAbbreviate((d.share ?? 0) * 100, locale)}%`;
+  const pathCtx: PathNodeCtx = {
+    viz, arcMaker, resolveInnerRadius, resolveOuterRadius, sc, value, sharePct, flipSource, isReunionDraw,
+  };
+  const pathNodes: SceneNode[] = slices.map((d, rank) => buildPathNode(d, rank, pathCtx));
+
+  // Each label sits in its slice's largest inscribed rectangle: the name
+  // above and the share percentage below, meeting at the rectangle's center.
+  // Short rectangles skip the share line so it can't crowd out the name.
+  const labelBoxes = slices.map(d => {
+    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0});
+    if (!r) return false;
+    const x = r.cx - r.width / 2;
+    const y = r.cy - r.height / 2;
+    if (r.height < 50) return [{angle: r.angle, width: r.width, height: r.height, x, y}];
+    const padding = 5;
+    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
+    return [
+      {angle: r.angle, width: r.width, height: r.height - band, x, y},
+      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
+    ];
   });
 
   const labelNodes = emitLabels({
     data: slices as unknown as DataPoint[],
-    label: (_d, i) => viz._drawLabel((slices[i].data as DataPoint), slices[i].i ?? i),
+    label: (_d, i) => {
+      const name = viz._drawLabel(slices[i].data as DataPoint, slices[i].i ?? i);
+      const box = labelBoxes[i];
+      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
+    },
     // The largest inscribed rectangle is in chart-centered path coordinates,
     // so the anchor is the origin and labelBounds carries the absolute box.
     x: () => 0,
@@ -171,17 +227,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     aes: () => ({}),
     rotate: constant(0),
     id: (_d, i) => `pie-label-${i}`,
-    labelBounds: (_d, i) => {
-      const r = largestRect(path2polygon(arcMaker(slices[i])), {angle: 0});
-      if (!r) return false;
-      return {
-        angle: r.angle,
-        width: r.width,
-        height: r.height,
-        x: r.cx - r.width / 2,
-        y: r.cy - r.height / 2,
-      };
-    },
+    labelBounds: (_d, i) => labelBoxes[i],
     labelConfig: {
       fontColor: (d: {data?: Slice}) => {
         const slice = (d.data ?? d) as Slice;
@@ -190,11 +236,16 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
           slice.data as DataPoint,
           slice.i ?? 0,
         );
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
       },
       fontResize: true,
       textAnchor: "middle",
-      verticalAlign: "middle",
+      verticalAlign: (d: {data?: Slice; l?: number}) => {
+        if (d && d.l === 1) return "top";
+        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
+        return box && box.length > 1 ? "bottom" : "middle";
+      },
+      ...userLabelConfig(viz, "Path"),
     },
   });
 

@@ -16,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "htmlelement"
+      summary: "htmlelement | svgelement"
     }
   },
   options: {

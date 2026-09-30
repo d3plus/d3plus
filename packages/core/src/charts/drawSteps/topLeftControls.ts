@@ -3,11 +3,11 @@
     Shared top-left corner control panel — mirrors the top-right
     zoom-controls panel's "N buttons, one flex-row `htmlOverlay` panel"
     composition (`zoomControls.ts`/`zoomControlsMarkup.ts`), except fed by
-    independent contributor functions (currently just `backContribution`)
-    rather than one feature's own fixed button set. A downstream branch
-    adding a new top-left control (table-view, search) appends its own
-    contributor function to `TOP_LEFT_CONTRIBUTORS` — a one-line diff, not a
-    dynamic registry.
+    independent contributor functions (`backContribution`,
+    `tableViewContribution`, `searchContribution`) rather than one feature's
+    own fixed button set. A downstream branch adding a new top-left control
+    appends its own contributor function to `TOP_LEFT_CONTRIBUTORS` — a
+    one-line diff, not a dynamic registry.
 
     Runs as a post-draw `FeatureModule` (see `runVizPipeline`), the same
     slot as `zoomFeature`/`attributionFeature`: it claims zero margin and
@@ -21,6 +21,7 @@
 import type {FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {backContribution} from "./backControl.js";
+import {tableViewContribution} from "./tableViewControl.js";
 import {searchContribution} from "./searchControls.js";
 import {buildTopLeftPanel, type Contribution} from "./topLeftControlsMarkup.js";
 
@@ -32,6 +33,7 @@ export type {Contribution};
 */
 export const TOP_LEFT_CONTRIBUTORS: Array<(viz: Viz) => Contribution | null> = [
   backContribution,
+  tableViewContribution,
   searchContribution,
 ];
 
