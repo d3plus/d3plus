@@ -4,6 +4,7 @@
 
 import type {PieArcDatum} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
+import {formatAbbreviate} from "@d3plus/format";
 import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
@@ -24,7 +25,11 @@ function resolveAccessor<T>(
   return val as T | undefined;
 }
 
-type Slice = PieArcDatum<DataPoint> & {__d3plus__?: true; i?: number};
+type Slice = PieArcDatum<DataPoint> & {
+  __d3plus__?: true;
+  i?: number;
+  share?: number;
+};
 
 export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
@@ -34,6 +39,8 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
 
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
+  const locale = viz.schema.locale;
+  const sharePct = (d: Slice) => `${formatAbbreviate((d.share ?? 0) * 100, locale)}%`;
   const pathNodes: SceneNode[] = slices.map((d, rank) => {
     const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
     const stroke = resolveAccessor<string>(sc.stroke, d.data as DataPoint, d.i ?? 0);
@@ -49,14 +56,35 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
         strokeWidth,
       },
       aria: {
-        label: `${rank + 1}. ${viz._drawLabel(d.data as DataPoint, d.i ?? 0)}, ${value(d.data as DataPoint, d.i ?? 0)}.`,
+        label: `${rank + 1}. ${viz._drawLabel(d.data as DataPoint, d.i ?? 0)}, ${value(d.data as DataPoint, d.i ?? 0)}, ${sharePct(d)}.`,
       },
     } as SceneNode;
   });
 
+  // Each label sits in its slice's largest inscribed rectangle: the name
+  // above and the share percentage below, meeting at the rectangle's center.
+  // Short rectangles skip the share line so it can't crowd out the name.
+  const labelBoxes = slices.map(d => {
+    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0});
+    if (!r) return false;
+    const x = r.cx - r.width / 2;
+    const y = r.cy - r.height / 2;
+    if (r.height < 50) return [{angle: r.angle, width: r.width, height: r.height, x, y}];
+    const padding = 5;
+    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
+    return [
+      {angle: r.angle, width: r.width, height: r.height - band, x, y},
+      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
+    ];
+  });
+
   const labelNodes = emitLabels({
     data: slices as unknown as DataPoint[],
-    label: (_d, i) => viz._drawLabel((slices[i].data as DataPoint), slices[i].i ?? i),
+    label: (_d, i) => {
+      const name = viz._drawLabel(slices[i].data as DataPoint, slices[i].i ?? i);
+      const box = labelBoxes[i];
+      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
+    },
     // The largest inscribed rectangle is in chart-centered path coordinates,
     // so the anchor is the origin and labelBounds carries the absolute box.
     x: () => 0,
@@ -64,17 +92,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     aes: () => ({}),
     rotate: constant(0),
     id: (_d, i) => `pie-label-${i}`,
-    labelBounds: (_d, i) => {
-      const r = largestRect(path2polygon(arcMaker(slices[i])), {angle: 0});
-      if (!r) return false;
-      return {
-        angle: r.angle,
-        width: r.width,
-        height: r.height,
-        x: r.cx - r.width / 2,
-        y: r.cy - r.height / 2,
-      };
-    },
+    labelBounds: (_d, i) => labelBoxes[i],
     labelConfig: {
       fontColor: (d: {data?: Slice}) => {
         const slice = (d.data ?? d) as Slice;
@@ -87,7 +105,11 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
       },
       fontResize: true,
       textAnchor: "middle",
-      verticalAlign: "middle",
+      verticalAlign: (d: {data?: Slice; l?: number}) => {
+        if (d && d.l === 1) return "top";
+        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
+        return box && box.length > 1 ? "bottom" : "middle";
+      },
       ...userLabelConfig(viz, "Path"),
     },
   });
