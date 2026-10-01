@@ -46,6 +46,9 @@ export default function (
       hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
     );
 
+    // Plot's snapped hover (shared or single) owns the tooltip while active.
+    if (this._sharedHoverActive) return;
+
     const position = event.touches
       ? [event.touches[0].clientX, event.touches[0].clientY]
       : [event.clientX, event.clientY];

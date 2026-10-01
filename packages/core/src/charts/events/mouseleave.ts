@@ -25,6 +25,9 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       hoverDatum = hoverDatum.data as typeof hoverDatum;
     if (hoverDatum && this._id(hoverDatum) === this._id(leaveDatum)) return;
 
+    // The shared multi-series tooltip (Plot) owns hover + tooltip while active
+    // and clears both itself on leaving the plot area.
+    if (this._sharedHoverActive) return;
     if (
       this.schema.shapeConfig.hoverOpacity !== 1 && this._hover
         ? this._hover(d, i)

@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      display: grid;
+      font-family: sans-serif;
+      gap: 20px;
+      grid-template-columns: repeat(2, 560px);
+      margin: 10px;
+    }
+
+    h3 {
+      font-size: 13px;
+      margin: 0 0 4px;
+    }
+
+    .viz {
+      height: 340px;
+      width: 560px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div><h3>LinePlot (time axis)</h3><div class="viz" id="line"></div></div>
+  <div><h3>StackedArea</h3><div class="viz" id="area"></div></div>
+  <div><h3>BarChart (stacked → whole stack highlights)</h3><div class="viz" id="bar"></div></div>
+  <div><h3>BarChart (grouped → snapped x/y tooltip on a bar)</h3><div class="viz" id="grouped"></div></div>
+  <div><h3>LinePlot (single series → snapped x/y tooltip)</h3><div class="viz" id="single"></div></div>
+  <div><h3>LinePlot (canvas renderer)</h3><div class="viz" id="canvas"></div></div>
+  <div><h3>LinePlot (tooltipShared: false → snapped x/y tooltip on a line)</h3><div class="viz" id="off"></div></div>
+</body>
+
+<script>
+
+  // #779: hovering anywhere in the plot area snaps to the nearest discrete
+  // position, draws a crosshair, and lists every series' value there.
+  var countries = ["Brazil", "Canada", "Germany", "Japan"];
+  var data = [];
+  countries.forEach(function(country, c) {
+    for (var year = 2015; year <= 2024; year++) {
+      var t = year - 2015;
+      data.push({
+        country: country,
+        year: year,
+        exports: Math.round(40 + c * 18 + t * (3 + c) + 8 * Math.sin(t + c)),
+      });
+    }
+  });
+
+  new d3plus.LinePlot()
+    .select("#line")
+    .data(data)
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .render();
+
+  new d3plus.StackedArea()
+    .select("#area")
+    .data(data)
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .render();
+
+  new d3plus.BarChart()
+    .select("#bar")
+    .data(data.filter(function(d) { return d.year >= 2019; }))
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .stacked(true)
+    .render();
+
+  new d3plus.BarChart()
+    .select("#grouped")
+    .data(data.filter(function(d) { return d.year >= 2021; }))
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#single")
+    .data(data.filter(function(d) { return d.country === "Japan"; }))
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#canvas")
+    .renderer("canvas")
+    .data(data)
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    // .crosshairConfig({stroke: "#e03131", strokeDasharray: "none"})
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#off")
+    .data(data)
+    .groupBy("country")
+    .x("year")
+    .y("exports")
+    .tooltipShared(false)
+    .render();
+
+</script>
+
+</html>

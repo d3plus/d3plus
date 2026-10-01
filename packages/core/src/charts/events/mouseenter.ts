@@ -9,6 +9,8 @@ import type Viz from "../viz/Viz.js";
     @private
 */
 export default function (this: Viz, d: DataPoint, i: number): void {
+  // The shared multi-series tooltip (Plot) owns hover emphasis while active.
+  if (this._sharedHoverActive && this._sharedHoverState?.mode === "shared") return;
   // ColorScale range swatch: it has no groupBy id, so highlight every datum
   // whose colorScale value falls in this swatch's color range — mirroring the
   // regular legend, which highlights the data shapes by id. `colorScaleBucketOf`

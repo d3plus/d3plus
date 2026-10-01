@@ -33,6 +33,7 @@ const plotSchema = [
   {key: "sizeMin", coerce: "identity" as const},
   {key: "sizeScale", coerce: "identity" as const},
   {key: "stacked", coerce: "identity" as const},
+  {key: "tooltipShared", coerce: "identity" as const},
   {key: "xCutoff", coerce: "identity" as const},
   {key: "xDomain", coerce: "identity" as const},
   {key: "x2Domain", coerce: "identity" as const},
@@ -59,6 +60,8 @@ import {
 } from "./stackHelpers.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
+import {contentPoint, handleSharedHover} from "./sharedHover.js";
+import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
@@ -120,6 +123,11 @@ export default class Plot extends Viz {
       },
       fillOpacity: constant(0.5),
     };
+    this._crosshairConfig = {
+      stroke: openColor.colors.gray[500],
+      strokeDasharray: "4 3",
+      strokeWidth: 1,
+    };
     this._discreteCutoff = defaults.discreteCutoff as number;
     this._groupPadding = defaults.groupPadding as number;
     this._labelConnectorConfig = {
@@ -138,6 +146,7 @@ export default class Plot extends Viz {
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
     this.schema.shapeSort = (a: string, b: string) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);
+    this.schema.tooltipShared = defaults.tooltipShared as boolean;
     this.schema.sizeMax = 20;
     this.schema.sizeMin = 5;
     this.schema.sizeScale = "sqrt";
@@ -275,6 +284,7 @@ export default class Plot extends Viz {
     }
     // Axes are drawn behind the shapes.
     scene.root.children.unshift(...axisNodes);
+    appendSharedHoverNodes(this as unknown as VizInstance, scene);
     return scene;
   }
 
@@ -361,11 +371,7 @@ export default class Plot extends Viz {
     points: InteractionPoint[],
     point: [number, number],
   ): InteractionPoint | null {
-    const t = this._zoomTransform;
-    const scale = t && t.scale ? t.scale : 1;
-    const c = this._chartTransform;
-    const cx = (point[0] - (t ? t.x : 0)) / scale - (c ? c.x : 0);
-    const cy = (point[1] - (t ? t.y : 0)) / scale - (c ? c.y : 0);
+    const [cx, cy] = contentPoint(this as unknown as VizInstance, point);
     const axis = this.schema.discrete === "y" ? "y" : "x";
     const target = axis === "y" ? cy : cx;
     let best: InteractionPoint | null = null;
@@ -378,6 +384,17 @@ export default class Plot extends Viz {
       }
     }
     return best;
+  }
+
+  /**
+      Drives the shared multi-series tooltip + crosshair: while the pointer is
+      inside the plot area, snaps to the nearest discrete position and, when
+      two or more series share it, shows them all in one tooltip (suppressing
+      the single-shape tooltip). Clears on leaving the plot area or the chart.
+      @private
+*/
+  _sharedHover(event: SceneEvent): void {
+    handleSharedHover(this as unknown as VizInstance, event);
   }
 
   /**
@@ -544,6 +561,17 @@ Additionally, each config object can also contain an optional "layer" key, which
       ? ((this._labelPosition = typeof _ === "function" ? _ : constant(_)),
         this)
       : this._labelPosition;
+  }
+
+  /**
+      Paint for the shared tooltip's crosshair guide line (`stroke`,
+      `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
+      current config.
+*/
+  crosshairConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this._crosshairConfig = assign(this._crosshairConfig, _!)), this)
+      : this._crosshairConfig;
   }
 
   /**

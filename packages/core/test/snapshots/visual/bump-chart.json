@@ -1,10 +1,19 @@
 {
   "counts": {
+    "rect": 19,
     "path": 40,
-    "text": 16,
-    "rect": 18
+    "text": 16
   },
   "shapes": [
+    {
+      "t": "rect",
+      "x": 80,
+      "y": 31,
+      "w": 462,
+      "h": 304,
+      "f": "transparent",
+      "s": ""
+    },
     {
       "t": "path",
       "x": 80,
