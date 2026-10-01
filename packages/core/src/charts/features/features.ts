@@ -23,6 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsInset as topLeftControlsInsetRaw} from "../drawSteps/topLeftControlsMarkup.js";
+import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -571,14 +572,24 @@ export const colorScaleFeature: FeatureModule = {
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 
+    // Share the bottom band with the bottom-right corner panel (size legend):
+    // a bottom colorScale fits beside it, a side one ends above it.
+    const corner = bottomRightClearance(
+      viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
+    );
+
     const availableWidth =
-      viz.schema.width - (layoutMargin.left + layoutMargin.right + padding.left + padding.right);
+      viz.schema.width -
+      (layoutMargin.left + layoutMargin.right + padding.left + padding.right) -
+      corner.inset;
     const width = wide
       ? min([viz.schema.colorScaleMaxSize, availableWidth])!
       : viz.schema.width - (layoutMargin.left + layoutMargin.right);
 
     const availableHeight =
-      viz.schema.height - (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top);
+      viz.schema.height -
+      (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top) -
+      corner.drop;
     const height = !wide
       ? min([viz.schema.colorScaleMaxSize, availableHeight])!
       : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);

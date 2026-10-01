@@ -6,6 +6,7 @@ export {default as AxisTop} from "./Axis/AxisTop.js";
 
 export {default as ColorScale} from "./ColorScale/ColorScale.js";
 export {default as Legend} from "./Legend/Legend.js";
+export {default as SizeLegend} from "./SizeLegend/SizeLegend.js";
 
 export {default as Message} from "./Message.js";
 

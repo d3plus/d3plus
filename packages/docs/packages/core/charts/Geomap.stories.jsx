@@ -360,3 +360,48 @@ PointMotionTrails.parameters = {
   controls: {include: ["renderer", "time"]},
   docs: {description: {story: "Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends."}}
 };
+
+export const PointSizeLegend = Template.bind({});
+PointSizeLegend.args = {
+  data: [
+    {city: "Tokyo", lon: 139.69, lat: 35.69, pop: 37.1}, {city: "Delhi", lon: 77.21, lat: 28.61, pop: 33.8},
+    {city: "Shanghai", lon: 121.47, lat: 31.23, pop: 29.9}, {city: "São Paulo", lon: -46.63, lat: -23.55, pop: 22.8},
+    {city: "Mexico City", lon: -99.13, lat: 19.43, pop: 22.3}, {city: "Cairo", lon: 31.24, lat: 30.04, pop: 22.2},
+    {city: "Mumbai", lon: 72.88, lat: 19.08, pop: 21.3}, {city: "Beijing", lon: 116.41, lat: 39.90, pop: 21.8},
+    {city: "Dhaka", lon: 90.41, lat: 23.81, pop: 23.2}, {city: "Osaka", lon: 135.50, lat: 34.69, pop: 19.0},
+    {city: "New York", lon: -74.01, lat: 40.71, pop: 18.9}, {city: "Karachi", lon: 67.01, lat: 24.86, pop: 17.2},
+    {city: "Buenos Aires", lon: -58.38, lat: -34.60, pop: 15.5}, {city: "Istanbul", lon: 28.98, lat: 41.01, pop: 15.8},
+    {city: "Lagos", lon: 3.38, lat: 6.52, pop: 15.9}, {city: "Manila", lon: 120.98, lat: 14.60, pop: 14.7},
+    {city: "Rio de Janeiro", lon: -43.17, lat: -22.91, pop: 13.7}, {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 12.5},
+    {city: "Moscow", lon: 37.62, lat: 55.76, pop: 12.7}, {city: "Paris", lon: 2.35, lat: 48.86, pop: 11.2},
+    {city: "London", lon: -0.13, lat: 51.51, pop: 9.6}, {city: "Lima", lon: -77.04, lat: -12.05, pop: 11.2},
+    {city: "Bangkok", lon: 100.50, lat: 13.76, pop: 11.1}, {city: "Jakarta", lon: 106.85, lat: -6.21, pop: 11.2},
+    {city: "Chicago", lon: -87.63, lat: 41.88, pop: 8.9}, {city: "Sydney", lon: 151.21, lat: -33.87, pop: 5.2},
+    {city: "Johannesburg", lon: 28.05, lat: -26.20, pop: 6.2}, {city: "Toronto", lon: -79.38, lat: 43.65, pop: 6.4},
+    {city: "Nairobi", lon: 36.82, lat: -1.29, pop: 5.3}, {city: "Madrid", lon: -3.70, lat: 40.42, pop: 6.8},
+    {city: "Berlin", lon: 13.40, lat: 52.52, pop: 3.6}, {city: "Santiago", lon: -70.67, lat: -33.45, pop: 6.9},
+    {city: "Auckland", lon: 174.76, lat: -36.85, pop: 1.7}, {city: "Reykjavík", lon: -21.94, lat: 64.15, pop: 0.2},
+  ],
+  groupBy: "city",
+  legend: false,
+  ocean: "transparent",
+  point: funcify(
+    d => [d.lon, d.lat],
+    "d => [d.lon, d.lat]"
+  ),
+  pointSize: funcify(
+    d => d.pop,
+    "d => d.pop"
+  ),
+  pointSizeMax: 24,
+  pointSizeMin: 3,
+  pointSizeScale: "sqrt",
+  sizeLegendConfig: {title: "Population (millions)"},
+  tiles: false,
+  topojson: "https://oec.world/topojson/world-50m.json",
+  topojsonFilter: funcify(
+    d => d.id !== "ata",
+    "d => d.id !== 'ata'"
+  )
+};
+PointSizeLegend.parameters = {controls: {include: ["pointSize", "pointSizeMin", "pointSizeMax", "pointSizeScale", "sizeLegendConfig"]}, docs: {description: {story: "Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed."}}};

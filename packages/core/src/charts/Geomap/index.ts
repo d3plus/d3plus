@@ -44,7 +44,7 @@ import type {Themed} from "./basemapTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyGeomapLayout} from "./applyLayout.js";
+import {applyGeomapLayout, geomapPointData, geomapPointSizeScale} from "./applyLayout.js";
 import {geomapEmit} from "./emit.js";
 
 type GeomapFluent = {
@@ -366,6 +366,10 @@ export const geomapDef: ChartDefinition = {
 
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyGeomapLayout,
+  sizeLegendScale: viz => {
+    const pointData = geomapPointData(viz);
+    return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
+  },
   emit: geomapEmit,
 
   // Clip the geography to the map rectangle — the same box as the ocean rect and

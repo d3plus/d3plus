@@ -73,6 +73,26 @@ export {
   TOP_LEFT_CONTRIBUTORS,
 } from "./src/charts/drawSteps/topLeftControls.js";
 export {backContribution} from "./src/charts/drawSteps/backControl.js";
+export {
+  BOTTOM_RIGHT_CONTRIBUTORS,
+  bottomRightControlsFeature,
+  reserveBottomRight,
+  sizeLegendContribution,
+} from "./src/charts/drawSteps/bottomRightControls.js";
+export {
+  bottomRightClearance,
+  bottomRightControlsBox,
+  bottomRightControlsDrop,
+  bottomRightControlsInset,
+  bottomRightControlsShortfall,
+} from "./src/charts/drawSteps/bottomRightControlsMarkup.js";
+export type {BottomRightBox, BottomRightContribution} from "./src/charts/drawSteps/bottomRightControlsMarkup.js";
+export {
+  computeSizeLegend,
+  defaultSizeLegendValues,
+  zoomSizeLegendScale,
+} from "./src/components/SizeLegend/sizeLegendLayout.js";
+export type {SizeLegendLayout, SizeLegendScale, SizeLegendSize} from "./src/components/SizeLegend/sizeLegendLayout.js";
 export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js";
 export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
 

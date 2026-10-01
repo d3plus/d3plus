@@ -8,6 +8,7 @@ import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {autoZoomMax} from "../features/zoomExtent.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import {
   isBrushing,
   mountCustomIcons,
@@ -18,6 +19,7 @@ import {
   ZOOM_PANEL_STYLE,
   zoomControlsHtml,
 } from "./zoomControlsMarkup.js";
+import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -413,6 +415,8 @@ function zoomed(
   // a 600 ms transition per event, causing visible lag + setTimeout
   // accumulation. Programmatic zooms (zoomMath, zoomToBounds) pass an
   // explicit duration when they want animation.
+  // The size legend relabels for the zoom (see `zoomSizeLegendScale`).
+  refreshBottomRightPanel(this as unknown as VizInstance);
   if (this._drawSceneToTarget && this._sceneRenderer) {
     this._drawSceneToTarget(duration);
   }

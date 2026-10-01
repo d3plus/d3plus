@@ -9,7 +9,8 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
-import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../../components/index.js";
+import {ColorScale, Legend, SizeLegend, TextBox, Timeline, Tooltip} from "../../components/index.js";
+import {sizeLegendFits} from "../../components/SizeLegend/sizeLegendLayout.js";
 import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
 import {markDefault} from "../../utils/configDefault.js";
@@ -211,7 +212,7 @@ function initDataDefaults(viz: Viz): void {
 }
 
 /**
-    Legend visibility, class instance, and config defaults.
+    Legend and size legend visibility, class instances, and config defaults.
     @private
 */
 function initLegendDefaults(viz: Viz): void {
@@ -241,6 +242,8 @@ function initLegendDefaults(viz: Viz): void {
   viz.schema.legendSort = (a: DataPoint, b: DataPoint) =>
     viz._drawLabel(a).localeCompare(viz._drawLabel(b));
   viz.schema.legendTooltip = {};
+  viz._sizeLegendClass = new SizeLegend();
+  Object.assign(viz.schema, {sizeLegend: sizeLegendFits, sizeLegendConfig: {}, sizeLegendPosition: "right"});
 }
 
 /**

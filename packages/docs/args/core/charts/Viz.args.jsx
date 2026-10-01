@@ -1112,6 +1112,53 @@ export const argTypes = {
       summary: "d3plusconfig"
     }
   },
+  sizeLegend: {
+    control: {
+      type: "boolean"
+    },
+    description: "Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean | function"
+    }
+  },
+  sizeLegendConfig: {
+    control: {},
+    description: "Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "record"
+    }
+  },
+  sizeLegendPosition: {
+    control: {
+      type: "radio"
+    },
+    description: "Which margin the size legend claims in the chart's bottom-right corner. `\"right\"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `\"bottom\"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.",
+    options: [
+      "right",
+      "bottom"
+    ],
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "\"right\" | \"bottom\""
+    }
+  },
   subtitle: {
     control: {
       type: "text"

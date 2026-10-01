@@ -9,6 +9,7 @@ import type {PickResult, Renderer, Scene, SceneEvent, SceneNode, Transform} from
 
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
@@ -218,6 +219,15 @@ export default class Viz extends VizBase {
   */
   _draw(): void {
     vizDraw(this as unknown as VizInstance);
+  }
+
+  /**
+      The chart's size-legend radius scale (see `ChartDefinition.sizeLegendScale`).
+      Charts that size marks override this; the base chart sizes nothing.
+      @private
+  */
+  _sizeLegendScale(_available: {width: number; height: number}): SizeLegendScale | null {
+    return null;
   }
 
   /**

@@ -7,6 +7,7 @@ export type {
   ColorDefaultsConfig,
   ColorScaleConfig,
   LegendConfig,
+  SizeLegendConfig,
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
