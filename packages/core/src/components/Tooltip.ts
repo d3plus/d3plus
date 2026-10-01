@@ -225,10 +225,11 @@ function buildTable(
   const theadTrUpdate = theadTr.merge(theadTrEnter as never);
   stylize(theadTrUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
   const th = theadTrUpdate.selectAll("th").data(that.schema.thead);
-  th.enter()
+  const thUpdate = th.enter()
     .append("th")
     .merge(th as never)
     .html(cellContent as never);
+  stylize(thUpdate as never, that.schema.thStyle);
   th.exit().remove();
 
   tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
@@ -240,11 +241,11 @@ function buildTable(
   const trUpdate = tr.merge(trEnter as never);
   stylize(trUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
   const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
-  td.enter()
+  const tdUpdate = td.enter()
     .append("td")
     .merge(td as never)
     .html(cellContent as never);
-  stylize(td, that.schema.tdStyle);
+  stylize(tdUpdate as never, that.schema.tdStyle);
 }
 
 /**
@@ -389,7 +390,10 @@ export default class Tooltip extends BaseClass {
       "border-top": (d: unknown, i: number) =>
         i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
     };
-    this.schema.tdStyle = {};
+    // First column (labels) left-aligned, value columns right-aligned.
+    const cellAlign = (_d: unknown, i: number) => (i ? "right" : "left");
+    this.schema.tdStyle = {"text-align": cellAlign};
+    this.schema.thStyle = {"text-align": cellAlign};
   }
 
   /**
@@ -618,13 +622,34 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
+      An object with CSS keys and values to be applied to all <td> elements inside of each <tr>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+@example <caption>default styles</caption>
+  {
+    "text-align": (d, i) => i ? "right" : "left"
+  }
 */
-  tdStyle(): Record<string, string>;
-  tdStyle(_: Record<string, string>): this;
-  tdStyle(_?: Record<string, string>): unknown {
+  tdStyle(): Record<string, unknown>;
+  tdStyle(_: Record<string, unknown>): this;
+  tdStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
       ? ((this.schema.tdStyle = assign(this.schema.tdStyle, _!)), this)
       : this.schema.tdStyle;
+  }
+
+  /**
+      An object with CSS keys and values to be applied to all <th> elements inside of the <thead>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+@example <caption>default styles</caption>
+  {
+    "text-align": (d, i) => i ? "right" : "left"
+  }
+*/
+  thStyle(): Record<string, unknown>;
+  thStyle(_: Record<string, unknown>): this;
+  thStyle(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.thStyle = assign(this.schema.thStyle, _!)), this)
+      : this.schema.thStyle;
   }
 }

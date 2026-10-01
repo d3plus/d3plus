@@ -65,7 +65,7 @@ export interface PlotDatum {
 }
 
 /** A user annotation: a shape key plus its config, optionally z-layered. */
-interface Annotation {
+export interface Annotation {
   shape: string;
   layer?: string;
   [key: string]: unknown;
@@ -272,7 +272,7 @@ function markAnnotationsInert(nodes: SceneNode[]): SceneNode[] {
     match old→new by id frame-to-frame and TWEEN instead of exit/entering. The
     subtree is marked inert (annotations never show tooltips).
 */
-function collectAnnotationGroup(
+export function collectAnnotationGroup(
   inst: shapes.Shape,
   key: string,
 ): SceneNode | null {
@@ -298,6 +298,47 @@ function collectAnnotationGroup(
 }
 
 /**
+    Renders one annotation in compute mode: the annotation's own config, with
+    positions mapped from data space through the plot's axis functions — the
+    same mapping user `annotations` get.
+*/
+export function renderPlotAnnotation(
+  viz: Viz,
+  annotation: Annotation,
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+  domains: Record<string, unknown[]>,
+  yOffset: number,
+): shapes.Shape {
+  const inst = makeShape(annotation.shape)
+    .renderMode("compute")
+    .duration(viz.schema.duration)
+    .config(annotation)
+    .config({
+      x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      x0:
+        viz.schema.discrete === "x"
+          ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+          : x(domains.x[0]),
+      x1:
+        viz.schema.discrete === "x"
+          ? null
+          : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+      y0:
+        viz.schema.discrete === "y"
+          ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+          : y(domains.y[1]) - yOffset,
+      y1:
+        viz.schema.discrete === "y"
+          ? null
+          : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+    });
+  inst.render();
+  return inst;
+}
+
+/**
     Renders back/front annotations, pushing back-layer scenes onto `out` and
     returning the front-layer shape instances for later absorption.
 */
@@ -314,34 +355,8 @@ function emitAnnotations(
   // (before the main shape loop below); "front" annotations queue and
   // absorb AFTER the shape loop, giving back → shapes → front.
   const frontAnnotationShapes: shapes.Shape[] = [];
-  const renderAnnotation = (annotation: Annotation) => {
-    const inst = makeShape(annotation.shape)
-      .renderMode("compute")
-      .duration(viz.schema.duration)
-      .config(annotation)
-      .config({
-        x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-        x0:
-          viz.schema.discrete === "x"
-            ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-            : x(domains.x[0]),
-        x1:
-          viz.schema.discrete === "x"
-            ? null
-            : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-        y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
-        y0:
-          viz.schema.discrete === "y"
-            ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-            : y(domains.y[1]) - yOffset,
-        y1:
-          viz.schema.discrete === "y"
-            ? null
-            : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-      });
-    inst.render();
-    return inst;
-  };
+  const renderAnnotation = (annotation: Annotation) =>
+    renderPlotAnnotation(viz, annotation, x, y, domains, yOffset);
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData: Annotation[] = (
@@ -620,10 +635,17 @@ export function plotPaintMeasured(
   // measured pixel rect — Plot bakes margins/axis offsets directly into
   // shape coordinates (no separate _chartTransform the way Treemap/Pack
   // have), so xRange/yRange already are that local rect.
+  const {xRange, yRange} = layout;
   viz._bodyRect = {
-    x: layout.xRange[0], y: layout.yRange[0],
-    width: layout.xRange[1] - layout.xRange[0],
-    height: layout.yRange[1] - layout.yRange[0],
+    x: xRange[0], y: yRange[0],
+    width: xRange[1] - xRange[0],
+    height: yRange[1] - yRange[0],
+  };
+  viz._plotArea = {
+    x: xRange[0] - viz._margin.left,
+    y: 0,
+    width: xRange[1] - xRange[0],
+    height: yRange[1] - yRange[0],
   };
   return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

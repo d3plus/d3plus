@@ -225,6 +225,8 @@ export interface VizInstance {
   _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
+  /** Epoch ms until which an animated transition is in flight (pointer routing pauses). */
+  _transitionEndsAt?: number;
   _userHover?: number;
   _userDuration?: number;
   _dataCutoff: number;
@@ -315,8 +317,32 @@ export interface VizInstance {
   _yAxis?: Axis;
   _x2Axis?: Axis;
   _y2Axis?: Axis;
+  /** The x/y data keys, when set by string (Plot's default axis titles). */
+  _xKey?: string;
+  _yKey?: string;
   _xFunc?: (d: DataPoint, axis?: string) => number;
   _yFunc?: (d: DataPoint, axis?: string) => number;
+  /** The plot area (inside the axes) in chart content space, set by the paint phase. */
+  _plotArea?: {x: number; y: number; width: number; height: number};
+  /** Crosshair guide-line paint for the shared tooltip. */
+  _crosshairConfig?: Record<string, unknown>;
+  /**
+      The active shared-tooltip hover, if any: the snapped discrete position
+      (pixel + data value), the hovered Line points to mark, and which side of
+      the marks the crosshair draws on.
+  */
+  _sharedHoverState?: {
+    mode: "shared" | "single";
+    axis: "x" | "y";
+    px: number;
+    value: unknown;
+    markers: {datum: DataPoint; x: number; y: number}[];
+    layer: "back" | "front";
+  } | null;
+  /** True while the shared multi-series tooltip owns the tooltip. */
+  _sharedHoverActive?: boolean;
+  /** The tooltip's own `arrow`/`thead`/`tbody`, held while the shared tooltip replaces them. */
+  _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */

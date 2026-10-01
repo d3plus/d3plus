@@ -22,6 +22,8 @@ export const boxWhiskerDef: ChartDefinition = {
   fields: [
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Box"), coerce: "const"},
+    // A box summarizes a distribution; there is no single value to share.
+    {key: "tooltipShared", default: false},
     {
       key: "tooltipConfig",
       merge: true,

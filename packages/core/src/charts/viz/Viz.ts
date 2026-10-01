@@ -550,6 +550,14 @@ export default class Viz extends VizBase {
   }
 
   /**
+      Pointer hook run by `_routeSceneEvent` before any handler routing, for
+      every event including ones over empty space. No-op here; Plot overrides
+      it to drive the shared multi-series tooltip and crosshair.
+      @private
+  */
+  _sharedHover(_event: SceneEvent): void {}
+
+  /**
       Routes a renderer pointer event to the matching `viz.schema.on` handlers.
       Bridges the v4 scene-rendered path (SvgRenderer/CanvasRenderer), where
       compute-mode shapes mount no per-shape DOM, so `shape.on(evt, fn)`
@@ -567,6 +575,10 @@ export default class Viz extends VizBase {
     // — the glitchy jump. `_transitionEndsAt` is stamped by `_drawSceneToTarget`
     // for the transition's duration; it lapses on its own, so interaction
     // resumes the instant the transition settles.
+    // Runs for every event, picked or not, so a chart can track the pointer
+    // across empty space (Plot's shared tooltip + crosshair) — and ahead of
+    // the transition guard below, so leaving mid-transition still clears it.
+    this._sharedHover(event);
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.

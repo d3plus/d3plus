@@ -365,6 +365,11 @@ export interface D3plusConfig {
         string | ((d: DataPoint, i: number) => number),
       ]
     | false;
+  /**
+      Paint for the shared tooltip's crosshair guide line (`stroke`,
+      `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
+  */
+  crosshairConfig?: Record<string, unknown>;
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /** Active depth level for nested groupings. */
@@ -581,6 +586,13 @@ export interface D3plusConfig {
   tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
   /** Configuration for the tooltip component. */
   tooltipConfig?: TooltipConfig;
+  /**
+      Whether hovering a Plot's plot area shows one tooltip listing every
+      series' value at the nearest discrete-axis position, with a crosshair
+      through it. Applies when a discrete axis is set and at least two series
+      share that position.
+  */
+  tooltipShared?: boolean;
   /** Path or object for the topojson data. */
   topojson?: string | object;
   /** CSS color to fill the map shapes. */
