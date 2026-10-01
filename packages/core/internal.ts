@@ -45,7 +45,7 @@ export {createFluent, installFluent} from "./src/fluent.js";
 
 // ── Pipeline orchestration + the config/context boundary ─────────────────────
 export {runStages} from "./src/charts/pipeline/stages.js";
-export {runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
+export {runPostDrawFeatures, runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
 export {resolveSpec} from "./src/charts/pipeline/resolveSpec.js";
 export {vizDraw} from "./src/charts/pipeline/vizDraw.js";
 export {vizDrawPure} from "./src/charts/pipeline/vizDrawPure.js";
