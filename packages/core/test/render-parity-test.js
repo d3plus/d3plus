@@ -6,6 +6,8 @@ import assert from "assert";
 
 import {chromium} from "playwright";
 
+import {flushCoverage, startCoverage, stopCoverage} from "./playwright.js";
+
 // Browser-based parity check: render a shape the legacy way (Shape.render →
 // DOM) and the new way (Shape.toScene → @d3plus/render SvgRenderer), then
 // compare the on-screen bounds of the resulting elements. Runs in real Chromium
@@ -40,6 +42,7 @@ before(async function () {
 });
 
 after(async () => {
+  flushCoverage();
   if (browser) await browser.close();
 });
 
@@ -57,6 +60,7 @@ async function newPage() {
     if (process.env.PARITY_LOG)
       process.stderr.write(`[page-${msg.type()}] ${msg.text()}\n`);
   });
+  await startCoverage(page);
   await page.setContent(
     '<!doctype html><html><body><div id="A"></div><div id="B"></div></body></html>',
   );
@@ -68,6 +72,11 @@ async function newPage() {
   await page.addScriptTag({content: renderUmd});
   page._errors = errors;
   return page;
+}
+
+async function closePage(page) {
+  await stopCoverage(page, coreUmd);
+  await page.close();
 }
 
 /** Asserts two on-screen rects match within a 1px tolerance. */
@@ -119,7 +128,7 @@ it("Rect parity (legacy render vs toScene→SvgRenderer)", async () => {
     builderSrc: 'lib => new lib.Rect().data([{id:"a"}]).width(40).height(20).x(100).y(60).fill("red")',
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
   assertClose(res.a, res.b, "Rect");
 });
 
@@ -130,7 +139,7 @@ it("Circle parity (legacy render vs toScene→SvgRenderer)", async () => {
     builderSrc: 'lib => new lib.Circle().data([{id:"a"}]).r(25).x(120).y(80).fill("blue")',
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
   assertClose(res.a, res.b, "Circle");
 });
 
@@ -142,7 +151,7 @@ it("Path parity (legacy render vs toScene→SvgRenderer)", async () => {
       'lib => new lib.Path().data([{id:"a",path:"M40,40 L160,40 L160,120 L40,120 Z"}]).fill("green")',
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
   assertClose(res.a, res.b, "Path");
 });
 
@@ -211,7 +220,7 @@ it("Treemap parity (chart render vs toScene→SvgRenderer)", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.a.length >= 4, "treemap rendered all cells");
   assert.strictEqual(res.b.length, res.a.length, "scene reproduced every cell");
@@ -300,7 +309,7 @@ it("BarChart full parity — bars + axes (render vs toScene→SvgRenderer/Canvas
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   // Bars match between legacy render and the scene.
   assert.strictEqual(res.barsA.length, 4, "four bars rendered");
@@ -363,7 +372,7 @@ it("Legend composes into a chart scene (multi-level Treemap)", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasLegendInRender, "legend rendered by viz.render() (scene path)");
   assert.ok(res.hasLegendGroup, "legend composed into the scene");
@@ -411,7 +420,7 @@ it("Timeline composes into a chart scene (time-based Treemap)", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasTimelineInRender, "timeline rendered by viz.render() (scene path)");
   assert.ok(res.hasTimelineGroup, "timeline composed into the scene");
@@ -452,7 +461,7 @@ it("Scene rendering emits zero legacy d3plus-* classes in the user target", asyn
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.legacyRects, 0, "no legacy rect.d3plus-Rect in target");
   assert.strictEqual(res.legacyTextBoxes, 0, "no legacy g.d3plus-textBox in target");
@@ -494,7 +503,7 @@ it("Viz.renderScene drives a chart through the scene path (SVG)", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.kind, "svg", "SvgRenderer in use");
   assert.ok(res.hasSceneSvg, "target contains scene SVG");
@@ -538,7 +547,7 @@ it("Viz.renderScene drives a chart through the scene path (Canvas)", async () =>
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.kind, "canvas", "CanvasRenderer in use");
   assert.ok(res.hasCanvas, "target contains a <canvas>");
@@ -594,7 +603,7 @@ it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click"
     return {hit, fired};
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hit, "found a pickable Bar on the canvas");
   assert.ok(res.fired.includes("Bar"), "shape-class handler click.Bar fired on canvas");
@@ -632,7 +641,7 @@ it("Scene renderer is the default — viz.render() routes through it with no fla
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasSceneSvg, "render() produced a scene SVG with no opt-in");
   assert.ok(!res.hasLegacyTreemap, "default render() did NOT produce legacy d3plus-Treemap DOM");
@@ -671,7 +680,7 @@ it("subtitle and total features compose into the scene", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasTitle, "title in scene");
   assert.ok(res.hasSubtitle, "subtitle in scene");
@@ -727,7 +736,7 @@ it("treemapDef.emit produces rect nodes with correct cell geometry", async () =>
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   if (res.missing) {
     // Expose the internals on the UMD so a future browser-side test can use them.
@@ -774,7 +783,7 @@ it("treemapDef.emit yields label-aware scene nodes (rect + text) in a browser", 
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.rectCount, 2, "two rect cells emitted");
   // Each cell has two labels (id + share%), so 4 text nodes total.
@@ -881,7 +890,7 @@ it("measureAxis runs on a plain object — no Axis class instance needed", async
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasD3Scale, "measureAxis populated _d3Scale on the plain object");
   assert.ok(Array.isArray(res.domain), "domain is set");
@@ -929,7 +938,7 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
     }, {name, data});
     if (page._errors.length)
       throw new Error(`${name}: ${page._errors.join("; ")}`);
-    await page.close();
+    await closePage(page);
 
     assert.strictEqual(res.shapesLength, 0, `${name}: _shapes empty`);
     assert.ok(res.chartSceneLength > 0, `${name}: _chartScene populated`);
@@ -983,7 +992,7 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
     }, {name, data});
     if (page._errors.length)
       throw new Error(`${name}: ${page._errors.join("; ")}`);
-    await page.close();
+    await closePage(page);
 
     assert.strictEqual(
       res.shapesLength,
@@ -1031,7 +1040,7 @@ it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Circle push)");
   assert.ok(res.hasChartScene, "_chartScene array populated");
@@ -1075,7 +1084,7 @@ it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", asyn
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Rect push)");
   assert.ok(res.hasChartScene, "_chartScene array exists");
@@ -1119,7 +1128,7 @@ it("Plot no longer holds persistent test-axis instances (_xTest/_yTest/_x2Test/_
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.hasXTest, false, "_xTest field is gone");
   assert.strictEqual(res.hasYTest, false, "_yTest field is gone");
@@ -1183,7 +1192,7 @@ it("Axis.measure() populates outerBounds without touching the DOM", async () => 
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.strictEqual(res.childCountBefore, 0, "target starts empty");
   assert.strictEqual(res.childCountAfter, 0, "measure() created no children in target");
@@ -1224,7 +1233,7 @@ it("backContribution renders a Back button in the top-left controls panel when h
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.hasBack, "back button in the top-left controls panel");
   assert.ok(res.isButton, "back control is a real <button>, not a scene text node");
@@ -1252,7 +1261,7 @@ it("backContribution emits nothing when history is empty (default state)", async
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(!res.hasBack, "no back button when history is empty");
 });
@@ -1283,7 +1292,7 @@ it("titleFeature composes a title TextNode into the scene", async () => {
     };
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
 
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.titleTextNode, "title text node present in scene");
@@ -1313,7 +1322,7 @@ it("CanvasRenderer picks a Path2D path in a real browser", async () => {
     return {inside: inside && inside.node.key, outside};
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
   assert.strictEqual(res.inside, "p", "point inside the square path hits (Path2D isPointInPath)");
   assert.strictEqual(res.outside, null, "point outside the path misses");
 });
@@ -1359,7 +1368,7 @@ it("CanvasRenderer paints a real texture pattern (not the solid fallback) in a r
     return sample();
   });
   if (page._errors.length) throw new Error(page._errors.join("; "));
-  await page.close();
+  await closePage(page);
   assert.ok(res.red > 0, "tile background (red) painted");
   assert.ok(
     res.blue > 0,
