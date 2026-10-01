@@ -6,6 +6,7 @@ export {
   Chord,
   Donut,
   Geomap,
+  Histogram,
   LinePlot,
   Matrix,
   Network,

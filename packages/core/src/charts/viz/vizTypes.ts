@@ -268,6 +268,8 @@ export interface VizInstance {
   _xCutoff?: number;
   _yCutoff?: number;
   _discreteCutoff?: number;
+  /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
+  _discreteExtent?: (d: DataPoint) => [number, number];
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

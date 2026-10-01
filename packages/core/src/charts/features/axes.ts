@@ -180,7 +180,7 @@ function buildXConfig(viz: Viz, inputs: AxisMeasureInputs): Record<string, unkno
   const xC: Record<string, unknown> = {
     data: xData,
     locale: viz.schema.locale,
-    rounding: viz.schema.xDomain ? "none" : "outside",
+    rounding: viz.schema.xDomain || (viz._discreteExtent && viz.schema.discrete === "x") ? "none" : "outside",
     scalePadding: xScalePadding,
   };
   if (!showY && showX) {

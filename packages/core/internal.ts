@@ -25,9 +25,12 @@ export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js"
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 
+export {default as binData} from "./src/charts/Histogram/binData.js";
+
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {chordDef} from "./src/charts/Chord/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
+export {histogramDef} from "./src/charts/Histogram/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";

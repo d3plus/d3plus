@@ -23,6 +23,7 @@ import * as d3Shape from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
+import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
@@ -180,9 +181,11 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
   const discreteTime = viz.schema.discrete === "x" ? viz._xTime : viz._yTime;
 
   const domains: Record<string, DomainValue[]> = {
-    [viz.schema.discrete]: (discreteTime
-      ? extent(discreteData as (number | Date)[])
-      : discreteData) as DomainValue[],
+    [viz.schema.discrete]: (viz._discreteExtent
+      ? spanDomain(viz, axisData)
+      : discreteTime
+        ? extent(discreteData as (number | Date)[])
+        : discreteData) as DomainValue[],
     [opp as string]: [
       min(stackData.map((g: number[][]) => min(g.map((p: number[]) => p[0])) as number)) as number,
       max(stackData.map((g: number[][]) => max(g.map((p: number[]) => p[1])) as number)) as number,
@@ -213,15 +216,19 @@ function computeNonStackedDomains(
   }
 
   const domains: Record<string, DomainValue[]> = {
-    x: ((!xTime && viz.schema.discrete === "x") || viz.schema.xSort
-      ? xData
-      : extent(xData as (number | Date)[])) as DomainValue[],
+    x: (isSpanAxis(viz, "x")
+      ? spanDomain(viz, axisData)
+      : (!xTime && viz.schema.discrete === "x") || viz.schema.xSort
+        ? xData
+        : extent(xData as (number | Date)[])) as DomainValue[],
     x2: ((!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
       ? x2Data
       : extent(x2Data as (number | Date)[])) as DomainValue[],
-    y: ((!yTime && viz.schema.discrete === "y") || viz.schema.ySort
-      ? yData
-      : extent(yData as (number | Date)[])) as DomainValue[],
+    y: (isSpanAxis(viz, "y")
+      ? spanDomain(viz, axisData)
+      : (!yTime && viz.schema.discrete === "y") || viz.schema.ySort
+        ? yData
+        : extent(yData as (number | Date)[])) as DomainValue[],
     y2: ((!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
       ? y2Data
       : extent(y2Data as (number | Date)[])) as DomainValue[],

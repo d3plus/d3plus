@@ -8,6 +8,7 @@ import {
   Chord as ChordClass,
   Donut as DonutClass,
   Geomap as GeomapClass,
+  Histogram as HistogramClass,
   LinePlot as LinePlotClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
@@ -80,6 +81,10 @@ export const Donut = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Geomap visualization. */
 export const Geomap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={GeomapClass} {...props} />
+);
+/** React component for rendering a d3plus Histogram visualization. */
+export const Histogram = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={HistogramClass} {...props} />
 );
 /** React component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = (props: D3plusComponentProps) => (

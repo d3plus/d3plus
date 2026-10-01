@@ -16,6 +16,7 @@ import * as scales from "d3-scale";
 import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-array";
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
+import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
@@ -284,7 +285,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
       (d: Record<string, unknown>) => d.shape as string,
     );
     allShapeData.forEach(([key, values]) => {
-      if (["Bar", "Box"].includes(key)) {
+      if (["Bar", "Box"].includes(key) && !viz._discreteExtent) {
         discreteBufferFn(viz.schema.discrete === "x" ? x : y, data, viz.schema.discrete);
       }
       if (viz._buffer[key]) {
@@ -359,7 +360,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: viz.schema.yDomain ? "none" : "outside",
+    rounding: viz.schema.yDomain || isSpanAxis(viz, "y") ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
   };
   if (!showX && showY) {
@@ -391,6 +392,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     .map(String);
 
   const tickFor = (axis: string, axisScale: string) => {
+    if (isSpanAxis(viz, axis)) return spanEdges(viz, axisData);
     const ticks = unique(axisData.map((d: Record<string, unknown>) => d[axis]));
     return axisScale === "Point" && ticks.every(t => barLabels.includes(`${t}`))
       ? []
@@ -444,7 +446,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : viz.schema.discrete === axis || viz.schema[`${axis}Sort`]
+      : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`]
         ? "Point"
         : "Linear";
     const domain = viz.schema[`${axis}Domain`]

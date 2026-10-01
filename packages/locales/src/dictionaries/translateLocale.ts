@@ -8,6 +8,8 @@ export interface TranslationStrings {
   "Click to Highlight": string;
   "Click to Show": string;
   "Click to Show All": string;
+  Count: string;
+  Density: string;
   Download: string;
   "Loading Visualization": string;
   Match: string;
@@ -16,12 +18,15 @@ export interface TranslationStrings {
   "No Data Available": string;
   "No Matches": string;
   "Powered by D3plus": string;
+  Range: string;
+  "Relative Frequency": string;
   "Reset Zoom": string;
   Search: string;
   Share: string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
   Total: string;
+  Value: string;
   Values: string;
   "Zoom In": string;
   "Zoom Out": string;
@@ -42,6 +47,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "\u0627\u0646\u0642\u0631 \u0644\u0644\u0639\u0631\u0636",
     "Click to Show All":
       "\u0627\u0646\u0642\u0631 \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
+    Count: "\u0627\u0644\u0639\u062f\u062f",
+    Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     Download: "\u062a\u062d\u0645\u064a\u0644",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -53,6 +60,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     more: "\u0623\u062e\u0631\u0649",
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
+    Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
+    "Relative Frequency": "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a",
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
     Search: "\u0628\u062d\u062b",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
@@ -61,6 +70,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
+    Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
@@ -75,6 +85,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clic para Resaltar",
     "Click to Show": "Clic para Mostrar",
     "Click to Show All": "Clic para Mostrar Todo",
+    Count: "Recuento",
+    Density: "Densidad",
     Download: "Descargar",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Match: "Coincidencia",
@@ -83,12 +95,15 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
     "Powered by D3plus": "Funciona con D3plus",
+    Range: "Rango",
+    "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
     Search: "Buscar",
     Share: "Porcentaje",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     Total: "Total",
+    Value: "Valor",
     Values: "Valores",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
@@ -103,6 +118,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clique para Destacar",
     "Click to Show": "Clique para Mostrar",
     "Click to Show All": "Clique para Mostrar Tudo",
+    Count: "Contagem",
+    Density: "Densidade",
     Download: "Baixar",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Match: "Correspond\u00eancia",
@@ -111,12 +128,15 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
     "Powered by D3plus": "Funciona com D3plus",
+    Range: "Intervalo",
+    "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
     Search: "Pesquisar",
     Share: "Porcentagem",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     Total: "Total",
+    Value: "Valor",
     Values: "Valores",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
@@ -131,6 +151,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Click to Show": "\u5355\u51fb\u663e\u793a",
     "Click to Show All": "\u5355\u51fb\u663e\u793a\u5168\u90e8",
+    Count: "\u8ba1\u6570",
+    Density: "\u5bc6\u5ea6",
     Download: "\u4e0b\u8f7d",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Match: "\u5339\u914d\u9879",
@@ -139,12 +161,15 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
+    Range: "\u8303\u56f4",
+    "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
     Search: "\u641c\u7d22",
     Share: "\u5171\u4eab",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     Total: "\u603b",
+    Value: "\u503c",
     Values: "\u503c",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
