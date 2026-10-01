@@ -6,6 +6,7 @@ import {
   Chord as ChordClass,
   Donut as DonutClass,
   Geomap as GeomapClass,
+  Histogram as HistogramClass,
   LinePlot as LinePlotClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
@@ -63,6 +64,8 @@ export const Chord = createD3plusComponent(ChordClass, "chart");
 export const Donut = createD3plusComponent(DonutClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
 export const Geomap = createD3plusComponent(GeomapClass, "chart");
+/** Vue component for rendering a d3plus Histogram visualization. */
+export const Histogram = createD3plusComponent(HistogramClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
 /** Vue component for rendering a d3plus Matrix visualization. */

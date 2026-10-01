@@ -1,0 +1,71 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../../umd/d3plus-core.full.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 360px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Default (Sturges bins, count)</h3><div class="viz" id="basic"></div></div>
+    <div><h3>Stacked by groupBy</h3><div class="viz" id="stacked"></div></div>
+    <div><h3>binWidth(2.5)</h3><div class="viz" id="width"></div></div>
+    <div><h3>binNormalize("density")</h3><div class="viz" id="density"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // Seeded normal samples so the page renders identically every load.
+  let seed = 42;
+  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const normal = (mu, sigma) =>
+    mu + sigma * Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+
+  const heights = Array.from({length: 1000}, () => ({"Height (cm)": normal(170, 10)}));
+  const bySex = [
+    ...Array.from({length: 600}, () => ({Sex: "Male", "Height (cm)": normal(176, 7)})),
+    ...Array.from({length: 600}, () => ({Sex: "Female", "Height (cm)": normal(163, 6.5)})),
+  ];
+
+  new d3plus.Histogram()
+    .select("#basic")
+    .data(heights)
+    .value("Height (cm)")
+    .render();
+
+  new d3plus.Histogram()
+    .select("#stacked")
+    .data(bySex)
+    .groupBy("Sex")
+    .value("Height (cm)")
+    .render();
+
+  new d3plus.Histogram()
+    .select("#width")
+    .data(heights)
+    .value("Height (cm)")
+    .binWidth(2.5)
+    .render();
+
+  new d3plus.Histogram()
+    .select("#density")
+    .data(bySex)
+    .groupBy("Sex")
+    .value("Height (cm)")
+    .binNormalize("density")
+    .render();
+
+</script>
+
+</html>

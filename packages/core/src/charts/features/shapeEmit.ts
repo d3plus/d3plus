@@ -28,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
+import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
@@ -148,8 +149,10 @@ const barEmit: ShapeEmitter = ctx => {
     .config(buildInner(ctx, "Bar"))
     .data(values);
 
-  let space;
   const scale = viz.schema.discrete === "x" ? x : y;
+  if (viz._discreteExtent) return spanBarEmit(ctx, s, scale);
+
+  let space;
   const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
   const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
   const range = viz.schema.discrete === "x" ? xRange : yRange;
@@ -218,6 +221,21 @@ const barEmit: ShapeEmitter = ctx => {
 
   return finishShape(ctx, "Bar", s);
 };
+
+/**
+    Bar on a span axis (`viz._discreteExtent`): each bar fills its own
+    `[start, end]`, less `groupPadding`. Series sharing a span overlap.
+*/
+function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneNode[] {
+  const {viz} = ctx;
+  const size = (d: PlotDatum) => {
+    const [start, end] = rowSpan(viz, d);
+    return Math.max(1, Math.abs(scale(end) - scale(start)) - viz._groupPadding!);
+  };
+  s.width(size);
+  s.height(size);
+  return finishShape(ctx, "Bar", s);
+}
 
 /** Line — duration, optional confidence band, end-labels, and point markers. */
 const lineEmit: ShapeEmitter = ctx => {
