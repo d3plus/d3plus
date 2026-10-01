@@ -217,14 +217,14 @@ function buildRows(
 
 /**
     Runs the row-wrapping pass: builds rows, retries label-free if it overflows,
-    then distributes row `y` offsets. Returns the resolved `spaceNeeded`.
+    then distributes row `y` offsets. Returns the widest row's width, or
+    `false` when even label-free swatches overflow the available space.
 */
 export function wrapLegendRows(
   legend: Legend,
   availableWidth: number,
   availableHeight: number,
-  spaceNeeded: number,
-): number {
+): number | false {
   const state: WrapState = {
     lines: 1,
     newRows: [],
@@ -242,12 +242,6 @@ export function wrapLegendRows(
     sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
       availableHeight
   ) {
-    spaceNeeded =
-      sum(
-        legend._lineData.map(
-          (d: Record<string, unknown>) => (d.shapeWidth as number) + legend.schema.padding,
-        ),
-      ) - legend.schema.padding;
     for (let i = 0; i < legend._lineData.length; i++) {
       legend._lineData[i].width = 0;
       legend._lineData[i].height = 0;
@@ -256,24 +250,30 @@ export function wrapLegendRows(
   }
 
   if (
-    state.newRows.length &&
-    sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding <
+    !state.newRows.length ||
+    sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
       availableHeight
-  ) {
-    state.newRows.forEach((row: Record<string, unknown>[], i: number) => {
-      row.forEach((d: Record<string, unknown>) => {
-        if (i) {
-          d.y = sum(state.newRows.slice(0, i), legend._rowHeight.bind(legend));
-        }
-      });
-    });
-    spaceNeeded = max(
-      state.newRows,
-      legend._rowWidth.bind(legend),
-    ) as unknown as number;
-  }
+  )
+    return false;
 
-  return spaceNeeded;
+  state.newRows.forEach((row: Record<string, unknown>[], i: number) => {
+    row.forEach((d: Record<string, unknown>) => {
+      if (i) {
+        d.y = sum(state.newRows.slice(0, i), legend._rowHeight.bind(legend));
+      }
+    });
+  });
+  return max(state.newRows, legend._rowWidth.bind(legend)) as unknown as number;
+}
+
+/**
+    Empties a legend whose swatches don't fit: no title, no shapes, and zero
+    outer bounds, so a parent chart claims no margin for it.
+*/
+export function clearLegend(legend: Legend): void {
+  legend._titleClass.data([]);
+  legend._shapes = [];
+  Object.assign(legend._outerBounds, {width: 0, height: 0, x: 0, y: 0});
 }
 
 /** Computes `_outerBounds` (size + aligned x/y offset) from the laid-out rows. */
