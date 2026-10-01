@@ -303,6 +303,33 @@ ConfidenceIntervals.args = {
 };
 ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent."}}};
 
+export const TrendLine = Template.bind({});
+TrendLine.args = {
+  data: [
+    {id: "alpha", date: "2018-01-01", value: 31},
+    {id: "alpha", date: "2019-01-01", value: 38},
+    {id: "alpha", date: "2020-01-01", value: 35},
+    {id: "alpha", date: "2021-01-01", value: 44},
+    {id: "alpha", date: "2022-01-01", value: 49},
+    {id: "alpha", date: "2023-01-01", value: 47},
+    {id: "alpha", date: "2024-01-01", value: 56},
+    {id: "beta",  date: "2018-01-01", value: 52},
+    {id: "beta",  date: "2019-01-01", value: 49},
+    {id: "beta",  date: "2020-01-01", value: 55},
+    {id: "beta",  date: "2021-01-01", value: 51},
+    {id: "beta",  date: "2022-01-01", value: 54},
+    {id: "beta",  date: "2023-01-01", value: 58},
+    {id: "beta",  date: "2024-01-01", value: 57}
+  ],
+  groupBy: "id",
+  time: "date",
+  x: "date",
+  y: "value",
+  trendLine: true,
+  trendLineConfig: {confidence: true}
+};
+TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation."}}};
+
 export const DashedLines = Template.bind({});
 DashedLines.args = {
   data: [

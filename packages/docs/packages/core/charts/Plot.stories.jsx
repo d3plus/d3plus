@@ -198,52 +198,171 @@ ShapeBackgroundImages.args = {
 };
 ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}, docs: {description: {story: "Render each circle as an image by setting `shapeConfig.Circle.backgroundImage` to a per-datum URL (and blanking the `label`) — here country icons stand in for the bubbles on a GDP-versus-complexity plot."}}};
 
-export const TrendlineUsingAnnotations = Template.bind()
-TrendlineUsingAnnotations.args = {
-  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&include=State+County:04000US06&drilldowns=County,Year&measures=Premature%20Death,Diabetes%20Prevalence&Year=2025",
-  groupBy: "County",
-  annotations: [
-    {
-      // x is "Diabetes Prevalence" (a proportion, ~0.07–0.15) and y is
-      // "Premature Death" (years of potential life lost per 100,000, ~4,000–
-      // 27,000) — so annotation coordinates must use those same units to
-      // overlay the scatter. Trend rises across the diabetes range; Baseline is
-      // flat near the county median (~8,000).
-      data: [
-        {
-          "id": "Trend",
-          "x": 0.075,
-          "y": 6000
-        },
-        {
-          "id": "Trend",
-          "x": 0.15,
-          "y": 14000
-        },
-        {
-          "id": "Baseline",
-          "x": 0.075,
-          "y": 8000
-        },
-        {
-          "id": "Baseline",
-          "x": 0.15,
-          "y": 8000
-        }
-      ],
-      shape: "Line",
-      stroke: funcify(
-        d => d["id"] === "Trend" ? "#6A994E" : "#c3c3c3",
-        "d => d['id'] === 'Trend' ? '#6A994E' : '#c3c3c3'"
-      ),
-      strokeDasharray: "10",
-      strokeWidth: 2
-    }
+export const Annotations = Template.bind({});
+Annotations.args = {
+  data: [
+    {store: "Store 1", visitors: 4.2, revenue: 48},
+    {store: "Store 2", visitors: 5.1, revenue: 61},
+    {store: "Store 3", visitors: 6.0, revenue: 66},
+    {store: "Store 4", visitors: 6.8, revenue: 79},
+    {store: "Store 5", visitors: 7.5, revenue: 84},
+    {store: "Store 6", visitors: 8.3, revenue: 97},
+    {store: "Store 7", visitors: 9.0, revenue: 182},
+    {store: "Store 8", visitors: 9.6, revenue: 108},
+    {store: "Store 9", visitors: 10.4, revenue: 121},
+    {store: "Store 10", visitors: 11.2, revenue: 126},
+    {store: "Store 11", visitors: 12.1, revenue: 139},
+    {store: "Store 12", visitors: 13.0, revenue: 150}
   ],
-  x: "Diabetes Prevalence",
-  y: "Premature Death"
+  groupBy: "store",
+  x: "visitors",
+  y: "revenue",
+  legend: false,
+  shapeConfig: {Circle: {fill: "#4dabf7"}},
+  annotations: [
+    // A dashed reference line across the plot, with a small text label above it.
+    {
+      shape: "Line",
+      data: [{id: "target", x: 4, y: 100}, {id: "target", x: 13.4, y: 100}],
+      stroke: "#adb5bd",
+      strokeDasharray: "6 4",
+      strokeWidth: 1.5
+    },
+    {
+      shape: "Rect",
+      data: [{id: "target-label", x: 4.9, y: 106, width: 84, height: 18}],
+      fill: "transparent",
+      label: "Target: $100k",
+      labelConfig: {fontColor: "#868e96", fontSize: 11, padding: 0, textAnchor: "start", verticalAlign: "middle"}
+    },
+    // A pull-out label for one data point: a ring around it, a leader line, and a callout box,
+    // all drawn in front of the marks.
+    {
+      shape: "Circle",
+      layer: "front",
+      data: [{id: "ring", x: 9.0, y: 182, r: 13}],
+      fill: "transparent",
+      stroke: "#c92a2a",
+      strokeWidth: 2
+    },
+    {
+      shape: "Line",
+      layer: "front",
+      data: [{id: "leader", x: 9.35, y: 180}, {id: "leader", x: 10.6, y: 172}],
+      stroke: "#c92a2a",
+      strokeWidth: 1.5
+    },
+    {
+      shape: "Rect",
+      layer: "front",
+      data: [{id: "callout", x: 11.8, y: 172, width: 150, height: 40}],
+      fill: "#fff5f5",
+      stroke: "#c92a2a",
+      strokeWidth: 1.5,
+      label: "Store 7\n$182k from 9k visitors",
+      labelConfig: {fontColor: "#c92a2a", fontSize: 12, padding: 4, textAnchor: "middle", verticalAlign: "middle"}
+    }
+  ]
 };
-TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Draw reference lines over the data with `annotations`: each entry brings its own `data` and a `Line` shape, plotted in the same `x`/`y` units as the marks — here a sloped trend and a flat baseline."}}};
+Annotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Layer custom shapes over the data with `annotations`. Each entry names a `shape`, brings its own `data` in the same `x`/`y` units as the marks, and sits `\"back\"` (default) or `\"front\"` of them via `layer`. Here a dashed `Line` with a `Rect` text label marks a revenue target, and a pull-out label calls out one store: a `Circle` ring around the point, a `Line` leader, and a `Rect` callout carrying a `label`. Width, height and radius are in pixels. To draw a fitted trend line, use `trendLine` instead."}}};
+
+export const TrendLine = Template.bind({});
+TrendLine.args = {
+  data: [
+    {region: "North", id: "North 1", x: 1.0, y: 8.8},
+    {region: "North", id: "North 2", x: 1.8, y: 8.8},
+    {region: "North", id: "North 3", x: 2.6, y: 14.0},
+    {region: "North", id: "North 4", x: 3.4, y: 12.7},
+    {region: "North", id: "North 5", x: 4.2, y: 13.2},
+    {region: "North", id: "North 6", x: 5.0, y: 18.8},
+    {region: "North", id: "North 7", x: 5.8, y: 26.6},
+    {region: "North", id: "North 8", x: 6.6, y: 26.8},
+    {region: "North", id: "North 9", x: 7.4, y: 28.0},
+    {region: "North", id: "North 10", x: 8.2, y: 23.1},
+    {region: "North", id: "North 11", x: 9.0, y: 28.4},
+    {region: "North", id: "North 12", x: 9.8, y: 26.9},
+    {region: "South", id: "South 1", x: 1.0, y: 17.1},
+    {region: "South", id: "South 2", x: 1.8, y: 18.7},
+    {region: "South", id: "South 3", x: 2.6, y: 22.4},
+    {region: "South", id: "South 4", x: 3.4, y: 33.3},
+    {region: "South", id: "South 5", x: 4.2, y: 34.5},
+    {region: "South", id: "South 6", x: 5.0, y: 36.7},
+    {region: "South", id: "South 7", x: 5.8, y: 39.0},
+    {region: "South", id: "South 8", x: 6.6, y: 34.1},
+    {region: "South", id: "South 9", x: 7.4, y: 37.9},
+    {region: "South", id: "South 10", x: 8.2, y: 44.1},
+    {region: "South", id: "South 11", x: 9.0, y: 47.8},
+    {region: "South", id: "South 12", x: 9.8, y: 51.7},
+    {region: "West", id: "West 1", x: 1.0, y: 34.6},
+    {region: "West", id: "West 2", x: 1.8, y: 28.2},
+    {region: "West", id: "West 3", x: 2.6, y: 37.7},
+    {region: "West", id: "West 4", x: 3.4, y: 41.7},
+    {region: "West", id: "West 5", x: 4.2, y: 42.9},
+    {region: "West", id: "West 6", x: 5.0, y: 42.1},
+    {region: "West", id: "West 7", x: 5.8, y: 48.9},
+    {region: "West", id: "West 8", x: 6.6, y: 47.5},
+    {region: "West", id: "West 9", x: 7.4, y: 60.8},
+    {region: "West", id: "West 10", x: 8.2, y: 63.2},
+    {region: "West", id: "West 11", x: 9.0, y: 62.6},
+    {region: "West", id: "West 12", x: 9.8, y: 62.8}
+  ],
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: true
+};
+TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Set `trendLine: true` to fit a least-squares line to the plotted data. Each series (here the parent `region` of each point) gets its own dashed line in its color, drawn behind the marks. Hover a line for its equation, R² and number of observations."}}};
+
+export const TrendLineConfidence = Template.bind({});
+TrendLineConfidence.args = {
+  data: TrendLine.args.data,
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: "linear",
+  trendLineConfig: {
+    group: "all",
+    confidence: true
+  }
+};
+TrendLineConfidence.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.group: \"all\"` fits one line to every point instead of one per series, and `confidence: true` shades the 95% confidence band for the line (set `confidenceLevel` to change it, and `confidenceConfig` to style it). Bands are drawn for linear fits only."}}};
+
+export const TrendLineTypes = Template.bind({});
+TrendLineTypes.args = {
+  data: [
+    {id: "p1", x: 0.0, y: -36.7},
+    {id: "p2", x: 0.5, y: -26.9},
+    {id: "p3", x: 1.0, y: -14.5},
+    {id: "p4", x: 1.5, y: -7.4},
+    {id: "p5", x: 2.0, y: -4.7},
+    {id: "p6", x: 2.5, y: -1.9},
+    {id: "p7", x: 3.0, y: 1.6},
+    {id: "p8", x: 3.5, y: 1.1},
+    {id: "p9", x: 4.0, y: -1.1},
+    {id: "p10", x: 4.5, y: -0.6},
+    {id: "p11", x: 5.0, y: 2.5},
+    {id: "p12", x: 5.5, y: -4.6},
+    {id: "p13", x: 6.0, y: -5.2},
+    {id: "p14", x: 6.5, y: -0.6},
+    {id: "p15", x: 7.0, y: -2.6},
+    {id: "p16", x: 7.5, y: 1.5},
+    {id: "p17", x: 8.0, y: 4.6},
+    {id: "p18", x: 8.5, y: 8.9},
+    {id: "p19", x: 9.0, y: 21.6},
+    {id: "p20", x: 9.5, y: 25.0}
+  ],
+  groupBy: "id",
+  x: "x",
+  y: "y",
+  legend: false,
+  trendLine: "polynomial",
+  trendLineConfig: {
+    order: 3,
+    stroke: "#c92a2a",
+    strokeDasharray: "none"
+  }
+};
+TrendLineTypes.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Besides `\"linear\"`, `trendLine` accepts `\"exponential\"`, `\"logarithmic\"`, `\"power\"` and `\"polynomial\"` (with `trendLineConfig.order` setting the degree). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line."}}};
 
 export const MultipleShapes = Template.bind({});
 MultipleShapes.args = {

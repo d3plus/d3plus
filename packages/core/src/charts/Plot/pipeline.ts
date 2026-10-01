@@ -590,6 +590,7 @@ export const plotDef: ChartDefinition = {
     lineMarkers: false,
     shape: constant("Circle"),
     tooltipShared: true,
+    trendLine: false,
   },
   features: defaultChartFeatures,
   // Plot._paint populates `viz._chartScene` from `plotPaint`; no emit step.

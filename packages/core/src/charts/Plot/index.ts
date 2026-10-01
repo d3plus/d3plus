@@ -60,6 +60,7 @@ import {
 } from "./stackHelpers.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
+import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
@@ -90,6 +91,8 @@ const defaultBuffers = {
     Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
+  _trendLine: TrendLineType = plotDef.defaults!.trendLine as TrendLineType;
+  _trendLineConfig: Record<string, unknown> = trendLineDefaults();
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -580,6 +583,33 @@ Additionally, each config object can also contain an optional "layer" key, which
     return arguments.length
       ? ((this._crosshairConfig = assign(this._crosshairConfig, _!)), this)
       : this._crosshairConfig;
+  }
+
+  /**
+      Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
+*/
+  trendLine(_?: TrendLineType): this | TrendLineType {
+    return arguments.length
+      ? ((this._trendLine = _ as TrendLineType), this)
+      : this._trendLine;
+  }
+
+  /**
+      Options for the trend lines drawn by `trendLine`, merged into the current config:
+      - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
+      - `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).
+      - `confidence`: draws a confidence band around a linear fit (default `false`).
+      - `confidenceLevel`: the band's confidence level (default `0.95`).
+      - `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).
+      - `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).
+      - Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.
+
+Stacked charts always fit one line to the stack totals.
+*/
+  trendLineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this._trendLineConfig = assign(this._trendLineConfig, _!)), this)
+      : this._trendLineConfig;
   }
 
   /**

@@ -83,7 +83,7 @@ function snappedPosition(viz: VizInstance, hover: SharedHover, event: SceneEvent
     isn't left with these rows — and resets thead/tbody to them before each
     render so rows never accumulate.
 */
-function prepareTooltip(viz: VizInstance) {
+export function prepareTooltip(viz: VizInstance) {
   const tip = viz._tooltipClass!;
   if (!viz._sharedTooltipSaved)
     viz._sharedTooltipSaved = {arrow: tip.arrow(), thead: tip.thead(), tbody: tip.tbody()};

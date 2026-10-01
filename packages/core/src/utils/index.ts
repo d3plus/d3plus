@@ -11,6 +11,7 @@ export type {
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TrendLineConfig,
 } from "./D3plusConfig.js";
 export type {D3Scale} from "./D3Scale.js";
 export {default as configPrep} from "./configPrep.js";

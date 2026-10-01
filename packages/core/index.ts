@@ -71,6 +71,7 @@ export type {
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TrendLineConfig,
 } from "./src/utils/index.js";
 
 export type {

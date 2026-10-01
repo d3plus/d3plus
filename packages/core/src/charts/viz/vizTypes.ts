@@ -22,6 +22,7 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
@@ -372,6 +373,11 @@ export interface VizInstance {
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;
   _confidenceConfig?: Record<string, unknown>;
+  /** The `trendLine` setting: a regression type, `true` (linear), or `false`. */
+  _trendLine?: TrendLineType;
+  _trendLineConfig?: Record<string, unknown>;
+  /** The trend lines fit by `computePlotTrendFits` for the current draw. */
+  _trendFits?: TrendFit[];
   _xCutoff?: number;
   _yCutoff?: number;
   _discreteCutoff?: number;

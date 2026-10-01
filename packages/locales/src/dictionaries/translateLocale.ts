@@ -11,12 +11,19 @@ export interface TranslationStrings {
   Count: string;
   Density: string;
   Download: string;
+  Equation: string;
+  Exponential: string;
+  Linear: string;
   "Loading Visualization": string;
+  Logarithmic: string;
   Match: string;
   Matches: string;
   more: string;
   "No Data Available": string;
   "No Matches": string;
+  Observations: string;
+  Polynomial: string;
+  Power: string;
   "Powered by D3plus": string;
   Range: string;
   "Relative Frequency": string;
@@ -26,6 +33,7 @@ export interface TranslationStrings {
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
   Total: string;
+  "Trend Line": string;
   Value: string;
   Values: string;
   "Zoom In": string;
@@ -50,14 +58,21 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     Download: "\u062a\u062d\u0645\u064a\u0644",
+    Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
+    Exponential: "\u0623\u0633\u064a",
+    Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
+    Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
     Match: "\u062a\u0637\u0627\u0628\u0642",
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
     more: "\u0623\u062e\u0631\u0649",
+    Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
+    Polynomial: "\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u062d\u062f\u0648\u062f",
+    Power: "\u0642\u0648\u0629",
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
@@ -70,6 +85,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
+    "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
@@ -88,12 +104,19 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Recuento",
     Density: "Densidad",
     Download: "Descargar",
+    Equation: "Ecuaci\u00f3n",
+    Exponential: "Exponencial",
+    Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
+    Logarithmic: "Logar\u00edtmica",
     Match: "Coincidencia",
     Matches: "Coincidencias",
     more: "m\u00e1s",
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
+    Observations: "Observaciones",
+    Polynomial: "Polin\u00f3mica",
+    Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
     Range: "Rango",
     "Relative Frequency": "Frecuencia Relativa",
@@ -103,6 +126,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     Total: "Total",
+    "Trend Line": "L\u00ednea de Tendencia",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Acercar",
@@ -121,12 +145,19 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Contagem",
     Density: "Densidade",
     Download: "Baixar",
+    Equation: "Equa\u00e7\u00e3o",
+    Exponential: "Exponencial",
+    Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
+    Logarithmic: "Logar\u00edtmica",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     more: "mais",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
+    Observations: "Observa\u00e7\u00f5es",
+    Polynomial: "Polinomial",
+    Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
     Range: "Intervalo",
     "Relative Frequency": "Frequ\u00eancia Relativa",
@@ -136,6 +167,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     Total: "Total",
+    "Trend Line": "Linha de Tend\u00eancia",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Aproximar",
@@ -154,12 +186,19 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u8ba1\u6570",
     Density: "\u5bc6\u5ea6",
     Download: "\u4e0b\u8f7d",
+    Equation: "\u65b9\u7a0b",
+    Exponential: "\u6307\u6570",
+    Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
+    Logarithmic: "\u5bf9\u6570",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     more: "\u66f4\u591a",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
+    Observations: "\u89c2\u6d4b\u6570",
+    Polynomial: "\u591a\u9879\u5f0f",
+    Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
     Range: "\u8303\u56f4",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
@@ -169,6 +208,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     Total: "\u603b",
+    "Trend Line": "\u8d8b\u52bf\u7ebf",
     Value: "\u503c",
     Values: "\u503c",
     "Zoom In": "\u653e\u5927",

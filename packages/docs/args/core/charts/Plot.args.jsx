@@ -281,6 +281,19 @@ export const argTypes = assign(
         summary: "string | false | function"
       }
     },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
     colorScale: {
       control: {
         type: "text"
@@ -395,6 +408,20 @@ export const argTypes = assign(
         summary: "d3plusconfig"
       }
     },
+    crosshairConfig: {
+      control: {},
+      defaultValue: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}",
+      description: "Paint for the shared tooltip's crosshair guide line (`stroke`,\n`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the\ncurrent config.",
+      table: {
+        defaultValue: {
+          summary: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     data: {
       control: {
         type: "object"
@@ -459,7 +486,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
+      description: "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -468,6 +495,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    detectVisibleUnload: {
+      control: {
+        type: "boolean"
+      },
+      description: "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     discreteCutoff: {
@@ -779,11 +821,11 @@ export const argTypes = assign(
     },
     lineMarkerConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
+      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i), this.schema.colorDefaults), r: 3}",
       description: "Shape config for the Circle shapes drawn by the lineMarkers method.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
+          detail: "{fill: (d, i) => colorAssign(this._id(d, i), this.schema.colorDefaults), r: 3}",
           summary: "function"
         }
       },
@@ -1662,6 +1704,22 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    tooltipShared: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Whether hovering a Plot's plot area shows one tooltip listing every\nseries' value at the nearest discrete-axis position, with a crosshair\nthrough it. Applies when a discrete axis is set and at least two series\nshare that position.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     total: {
       control: {
         type: "text"
@@ -1729,6 +1787,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function"
+      }
+    },
+    trendLine: {
+      control: {},
+      description: "Draws an automatic trend line fit to the plotted data: `true` (or `\"linear\"`) for a least-squares line, or one of `\"exponential\"`, `\"logarithmic\"`, `\"power\"`, or `\"polynomial\"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "trendlinetype"
+      }
+    },
+    trendLineConfig: {
+      control: {},
+      description: "Options for the trend lines drawn by `trendLine`, merged into the current config:\n- `group`: `\"series\"` (default) fits one line per series, colored to match it; `\"all\"` fits a single line to every point.\n- `order`: the polynomial degree when `trendLine` is `\"polynomial\"` (default `2`).\n- `confidence`: draws a confidence band around a linear fit (default `false`).\n- `confidenceLevel`: the band's confidence level (default `0.95`).\n- `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).\n- `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).\n- Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.\n\nStacked charts always fit one line to the stack totals.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     },
     x: {
@@ -1805,11 +1889,11 @@ export const argTypes = assign(
     },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
           summary: "function"
         }
       },
@@ -1936,11 +2020,11 @@ export const argTypes = assign(
     },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
           summary: "function"
         }
       },

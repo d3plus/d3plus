@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+  <style>
+    body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px; font-family: sans-serif; }
+    .chart { height: 360px; }
+    h3 { margin: 0 0 4px; font-size: 14px; }
+  </style>
+
+</head>
+
+<body>
+  <div><h3>Scatter, per series (renderer toggle below)</h3><div class="chart" id="scatter"></div></div>
+  <div><h3>Scatter, all points + 95% confidence band</h3><div class="chart" id="band"></div></div>
+  <div><h3>Polynomial (order 3)</h3><div class="chart" id="poly"></div></div>
+  <div><h3>LinePlot, time axis</h3><div class="chart" id="time"></div></div>
+  <div><h3>BarChart, per series</h3><div class="chart" id="bar"></div></div>
+  <div><h3>Horizontal BarChart, categories</h3><div class="chart" id="hbar"></div></div>
+  <div><h3>StackedArea (fits the totals)</h3><div class="chart" id="stacked"></div></div>
+  <div><h3>Exponential, log y axis, zoomable</h3><div class="chart" id="exp"></div></div>
+  <div>
+    <label><input type="checkbox" id="canvas"> Canvas renderer</label>
+  </div>
+</body>
+
+<script>
+
+  // Deterministic jitter, so the page renders the same every load.
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
+
+  const scatter = [];
+  ["North", "South", "West"].forEach((region, s) => {
+    for (let i = 0; i < 25; i++) {
+      const x = 1 + i * 0.4;
+      scatter.push({region, id: `${region} ${i}`, x, y: 10 + s * 8 + (2 + s) * x + rand() * 12});
+    }
+  });
+
+  const years = [];
+  ["Alpha", "Beta"].forEach((id, s) => {
+    for (let year = 2010; year <= 2024; year++) {
+      years.push({id, year, date: `${year}-07-01`, value: 40 + 15 * s + (year - 2010) * (3 - s * 1.5) + rand() * 14});
+    }
+  });
+
+  const charts = [];
+  const make = (Chart, select, config) => {
+    const chart = new d3plus[Chart]().select(select).config(config);
+    charts.push(chart);
+    return chart.render();
+  };
+
+  make("Plot", "#scatter", {data: scatter, groupBy: ["region", "id"], x: "x", y: "y", trendLine: true});
+
+  make("Plot", "#band", {
+    data: scatter, groupBy: ["region", "id"], x: "x", y: "y",
+    trendLine: "linear",
+    trendLineConfig: {group: "all", confidence: true}
+  });
+
+  make("Plot", "#poly", {
+    data: scatter.map(d => ({...d, y: 0.4 * (d.x - 5) ** 3 - 2 * (d.x - 5) + rand() * 8})),
+    groupBy: ["region", "id"], x: "x", y: "y",
+    trendLine: "polynomial",
+    trendLineConfig: {group: "all", order: 3, stroke: "#c92a2a", strokeDasharray: "none"}
+  });
+
+  make("LinePlot", "#time", {data: years, groupBy: "id", x: "date", y: "value", time: "date", trendLine: true, trendLineConfig: {confidence: true}});
+
+  make("BarChart", "#bar", {data: years.filter(d => d.year >= 2018), groupBy: "id", x: "year", y: "value", trendLine: true});
+
+  make("BarChart", "#hbar", {
+    data: ["Seed", "Sprout", "Sapling", "Young", "Mature", "Old"].map((stage, i) => ({id: "Height", stage, value: 2 + i * i * 1.5})),
+    groupBy: "id", discrete: "y", x: "value", y: "stage", ySort: () => 0,
+    trendLine: "polynomial"
+  });
+
+  make("StackedArea", "#stacked", {data: years, groupBy: "id", x: "year", y: "value", trendLine: true});
+
+  make("Plot", "#exp", {
+    data: Array.from({length: 30}, (_, i) => ({id: `p${i}`, x: i, y: 2 * Math.exp(0.2 * i) * (1 + rand() * 0.5)})),
+    groupBy: "id", x: "x", y: "y", yConfig: {scale: "log"}, zoom: true,
+    trendLine: "exponential"
+  });
+
+  document.querySelector("#canvas").addEventListener("change", e => {
+    charts.forEach(chart => chart.renderer(e.target.checked ? "canvas" : "svg").render());
+  });
+
+</script>
+
+</html>
