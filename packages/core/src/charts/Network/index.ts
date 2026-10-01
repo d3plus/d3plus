@@ -23,6 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyNetworkLayout, networkSizeLegendScale} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
   return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
@@ -271,6 +272,7 @@ export const networkDef: ChartDefinition = {
   layoutStage: applyNetworkLayout,
   sizeLegendScale: (viz, {width, height}) => networkSizeLegendScale(viz, width, height),
   emit: networkEmit,
+  insetRegion: sceneInsetRegion,
 
   // Network mounts its own zoom surface (with a background hitArea whose
   // click handler closes over class state); `chartTransform` (default

@@ -9,21 +9,19 @@
     Every Plot-family + chart-shell feature here is wired into
     `vizDrawPure` via `runLayout(ctx, [...features])`.
 */
-import {extent, min, rollup, sum} from "d3-array";
+import {extent, sum} from "d3-array";
 
-import {merge, unique} from "@d3plus/data";
-import type {DataPoint, MergedDataPoint} from "@d3plus/data";
+import {unique} from "@d3plus/data";
+import type {DataPoint} from "@d3plus/data";
 import {date, elem} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
-import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsInset as topLeftControlsInsetRaw} from "../drawSteps/topLeftControlsMarkup.js";
-import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -539,143 +537,7 @@ export const timelineFeature: FeatureModule = {
 
 /* ------------------------------- ColorScale ------------------------------ */
 
-/**
-    Converts `drawColorScale.ts` to a FeatureModule.
-
-    Visible only when `_colorScale` is truthy and `_colorScalePosition` resolves
-    to a side. Renders the chart's `_colorScaleClass` ColorScale instance and
-    claims margin along its position side.
-*/
-export const colorScaleFeature: FeatureModule = {
-  name: "colorScale",
-  configFields: [
-    "colorScale",
-    "colorScaleConfig",
-    "colorScaleMaxSize",
-    "colorScalePadding",
-    "colorScalePosition",
-  ],
-  layout: ({viz, layoutMargin}) => {
-    const data = Array.from(
-      rollup(
-        viz._data,
-        (leaves: DataPoint[]) => merge(leaves, viz.schema.aggs),
-        (d: DataPoint, i: number) =>
-          `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${viz._ids(d, i).join("_")}`,
-      ).values(),
-    );
-
-    const position = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)));
-    const wide = ["top", "bottom"].includes(position as string);
-    const showColorScale = viz.schema.colorScale && position;
-    const padding = viz.schema.colorScalePadding(viz)
-      ? viz._padding
-      : {top: 0, right: 0, bottom: 0, left: 0};
-
-    // Share the bottom band with the bottom-right corner panel (size legend):
-    // a bottom colorScale fits beside it, a side one ends above it.
-    const corner = bottomRightClearance(
-      viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
-    );
-
-    const availableWidth =
-      viz.schema.width -
-      (layoutMargin.left + layoutMargin.right + padding.left + padding.right) -
-      corner.inset;
-    const width = wide
-      ? min([viz.schema.colorScaleMaxSize, availableWidth])!
-      : viz.schema.width - (layoutMargin.left + layoutMargin.right);
-
-    const availableHeight =
-      viz.schema.height -
-      (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top) -
-      corner.drop;
-    const height = !wide
-      ? min([viz.schema.colorScaleMaxSize, availableHeight])!
-      : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);
-
-    const transform = {
-      opacity: position ? 1 : 0,
-      transform: `translate(${
-        wide
-          ? layoutMargin.left + padding.left + (availableWidth - width) / 2
-          : layoutMargin.left
-      }, ${
-        wide
-          ? layoutMargin.top
-          : layoutMargin.top + padding.top + (availableHeight - height) / 2
-      })`,
-    };
-
-    const scaleGroup = elem("g.d3plus-viz-colorScale", {
-      condition: showColorScale && !viz.schema.colorScaleConfig.select,
-      enter: transform,
-      parent: viz._select,
-      duration: viz.schema.duration,
-      update: transform,
-    }).node();
-
-    if (!viz.schema.colorScale) return {panel: null, margin: {}};
-
-    const scaleData = data.filter((d: MergedDataPoint, i: number) => {
-      const c = viz.schema.colorScale(d as unknown as DataPoint, i);
-      return c !== undefined && c !== null;
-    });
-
-    // Discrete (bucket/jenks/quantile) colorScales render their swatches via an
-    // internal Legend, which composes cleanly through the Viz scene — so run
-    // them in compute mode (like the legend) so the Viz's toScene owns them and
-    // hover/active dimming applies. Without this they render full-mode, where
-    // paintComponentScene paints a full-opacity copy that overlays and defeats
-    // the dimming. The smooth-gradient variant stays full-mode: its gradient
-    // fill is materialized through paintComponentScene, not the Viz scene.
-    const csCfg = (viz.schema.colorScaleConfig || {}) as {
-      scale?: string;
-      bucketAxis?: boolean;
-    };
-    const csDiscrete =
-      !csCfg.bucketAxis &&
-      ["buckets", "jenks", "quantile"].includes(
-        typeof csCfg.scale === "string" ? csCfg.scale : "",
-      );
-
-    viz._colorScaleClass
-      .renderMode(csDiscrete ? "compute" : "full")
-      .align(
-        ({bottom: "end", left: "start", right: "end", top: "start"} as Record<string, string>)[
-          position as string
-        ] || "bottom",
-      )
-      .duration(viz.schema.duration)
-      .data(scaleData)
-      .height(height)
-      .locale(viz.schema.locale)
-      .orient(position)
-      .select(scaleGroup)
-      .value(viz.schema.colorScale)
-      .width(width)
-      .config(viz.schema.colorScaleConfig)
-      .render();
-
-    const margin: Record<string, number> = {};
-    if (showColorScale) {
-      const scaleBounds = viz._colorScaleClass.outerBounds();
-      if (!viz.schema.colorScaleConfig.select && scaleBounds.height) {
-        // Use the colorScale's OWN padding for its margin claim — not the
-        // legend's, so a custom legendPadding doesn't shift the
-        // colorScale's claim when the legend is hidden. The colorScale
-        // class is the source of truth.
-        const csPadding =
-          typeof viz._colorScaleClass.padding === "function"
-            ? viz._colorScaleClass.padding()
-            : viz._legendClass.padding();
-        if (wide) margin[position] = scaleBounds.height + csPadding * 2;
-        else margin[position] = scaleBounds.width + csPadding * 2;
-      }
-    }
-    return {panel: null, margin};
-  },
-};
+export {colorScaleFeature} from "./featuresColorScale.js";
 
 /* ------------------------------ Attribution ------------------------------ */
 

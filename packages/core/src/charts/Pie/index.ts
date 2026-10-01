@@ -22,6 +22,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyPieLayout} from "./applyLayout.js";
 import {pieEmit} from "./emit.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 export const pieDef: DataDrivenChartDefinition = {
   name: "Pie",
@@ -29,6 +30,7 @@ export const pieDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPieLayout,
   emit: pieEmit,
+  insetRegion: sceneInsetRegion,
 
   chartTransform: (viz: VizInstance) =>
     centerChartTransform(

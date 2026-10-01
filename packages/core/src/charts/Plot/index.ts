@@ -64,6 +64,7 @@ import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
+import {plotInsetRegion} from "./insetRegion.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
@@ -414,6 +415,15 @@ export default class Plot extends Viz {
   */
   _sizeLegendScale() {
     return plotSizeLegendScale(this as unknown as VizInstance);
+  }
+
+  /**
+      The plot area, with the plotted marks as obstacles, for drawing a
+      legend inside the plot's empty space (see `legendInset`).
+      @private
+  */
+  _insetRegion() {
+    return plotInsetRegion(this as unknown as VizInstance);
   }
 
   /**

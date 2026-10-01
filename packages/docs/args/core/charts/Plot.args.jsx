@@ -761,6 +761,34 @@ export const argTypes = assign(
         summary: "boolean | function"
       }
     },
+    legendInset: {
+      control: {
+        type: "boolean"
+      },
+      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | function"
+      }
+    },
+    legendInsetConfig: {
+      control: {},
+      description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     legendPadding: {
       control: {
         type: "boolean"

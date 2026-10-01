@@ -31,6 +31,8 @@
 
 <script>
 
+  // These charts show the margin placements, so they keep the size legend
+  // out of the plot's open space (see LegendInset.html for that).
   const data = [
     {id: "Alpha", x: 4, y: 7, value: 120}, {id: "Beta", x: 5, y: 2, value: 1450},
     {id: "Gamma", x: 6, y: 9, value: 640}, {id: "Delta", x: 2, y: 4, value: 80},
@@ -48,6 +50,7 @@
     .size("value")
     .sizeMin(4)
     .sizeMax(36)
+    .legendInset(false)
     .legend(false)
     .render();
 
@@ -61,6 +64,7 @@
     .size("value")
     .sizeMin(4)
     .sizeMax(36)
+    .legendInset(false)
     .legendPosition("bottom")
     .sizeLegendConfig({title: "Revenue ($M)", values: [100, 1000, 2000]})
     .render();
@@ -75,6 +79,7 @@
     .size("value")
     .sizeMin(4)
     .sizeMax(36)
+    .legendInset(false)
     .colorScale("y")
     .colorScalePosition("right")
     .render();
@@ -90,6 +95,7 @@
     .size("value")
     .sizeMin(4)
     .sizeMax(36)
+    .legendInset(false)
     .legendPosition("bottom")
     .sizeLegendPosition("bottom")
     .render();

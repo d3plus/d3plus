@@ -448,3 +448,18 @@ SizeLegendConfig.args = {
   }
 };
 SizeLegendConfig.parameters = {controls: {include: ["sizeLegendConfig", "colorScalePosition"]}, docs: {description: {story: "`sizeLegendConfig` customizes the size legend: `title`, `values` (the circles to draw), `tickFormat`, and styling through `shapeConfig`, `lineConfig`, `labelConfig`, and `titleConfig`. A colorScale on the right shares the right column, shortening so it ends above the size legend."}}};
+
+export const LegendInset = Template.bind({});
+LegendInset.args = {
+  data: [
+    {id: "Alpha", group: "North", x: 1, y: 9}, {id: "Beta", group: "North", x: 2, y: 10},
+    {id: "Gamma", group: "North", x: 1.5, y: 8}, {id: "Delta", group: "East", x: 9, y: 9},
+    {id: "Epsilon", group: "East", x: 10, y: 10}, {id: "Zeta", group: "East", x: 8.5, y: 8},
+    {id: "Eta", group: "South", x: 1, y: 1}, {id: "Theta", group: "South", x: 2, y: 2},
+    {id: "Iota", group: "South", x: 2.5, y: 1.2}
+  ],
+  groupBy: ["group", "id"],
+  x: "x",
+  y: "y"
+};
+LegendInset.parameters = {controls: {include: ["legendInset", "legendInsetConfig", "size"]}, docs: {description: {story: "When the points leave a corner of the plot empty, the legend is drawn there, over a translucent box, instead of taking a margin. If the chart also sizes its points, the size legend gets the first try at that space and the legend goes back to its margin. Points that enclose an empty area never get a legend placed inside them."}}};

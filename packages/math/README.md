@@ -34,6 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
+| [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
@@ -52,6 +53,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Interfaces | Description |
 | --- | --- |
+| [`Box`](#box) | An axis-aligned box: top-left corner plus size. |
+| [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
 | [`RegressionOptions`](#regressionoptions) |  |
 | [`RegressionResult`](#regressionresult) |  |
 
@@ -174,6 +177,37 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 #### Returns
 
 `Point` \| `null`
+
+***
+
+<a id="negativespace"></a>
+
+### negativeSpace()
+
+> **negativeSpace**(`bounds`: [`Box`](#box), `obstacles`: [`Box`](#box)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Box`](#box)[]
+
+Defined in: negativeSpace.ts:88
+
+Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
+outside the marks described by `obstacles`. The marks are treated as a single
+solid region — the convex hull of every (padded) obstacle box — so a hole in
+the middle of a ring of points is never returned, only the space around them.
+Boxes in `options.exclude` are kept clear too, each on its own. Each
+returned box is maximal (it cannot grow in any direction without leaving
+`bounds` or touching the hull or an excluded box). Results are sorted largest area first, and the
+output is deterministic for a given input.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `bounds` | [`Box`](#box) | The region to search, such as a chart's plot area. |
+| `obstacles` | [`Box`](#box)[] | The bounding boxes of the marks drawn inside `bounds`. |
+| `options` | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options. |
+
+#### Returns
+
+[`Box`](#box)[]
 
 ***
 
@@ -548,6 +582,43 @@ The inverse cumulative distribution function (quantile) of Student's t-distribut
 `number`
 
 ## Interfaces
+
+<a id="box"></a>
+
+### Box
+
+Defined in: negativeSpace.ts:6
+
+An axis-aligned box: top-left corner plus size.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-height"></a> `height` | `number` | negativeSpace.ts:10 |
+| <a id="property-width"></a> `width` | `number` | negativeSpace.ts:9 |
+| <a id="property-x"></a> `x` | `number` | negativeSpace.ts:7 |
+| <a id="property-y"></a> `y` | `number` | negativeSpace.ts:8 |
+
+***
+
+<a id="negativespaceoptions"></a>
+
+### NegativeSpaceOptions
+
+Defined in: negativeSpace.ts:14
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-divisions"></a> `divisions?` | `number` | Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. | negativeSpace.ts:22 |
+| <a id="property-exclude"></a> `exclude?` | [`Box`](#box)[] | Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). | negativeSpace.ts:24 |
+| <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | negativeSpace.ts:20 |
+| <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | negativeSpace.ts:18 |
+| <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | negativeSpace.ts:16 |
+
+***
 
 <a id="regressionoptions"></a>
 

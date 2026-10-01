@@ -1,0 +1,174 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Legends" />
+
+# Legends
+
+A chart can show three kinds of legend, each explaining a different encoding:
+
+| Legend | Explains | Turned on by |
+| --- | --- | --- |
+| **Legend** | Categories: the color (and shape) of each group | Data with more than one group |
+| **ColorScale** | A numeric value mapped to color, as a gradient or as color buckets | `colorScale` |
+| **Size legend** | A numeric value mapped to mark size, as nested circles | `size` (or `pointSize` on a Geomap) |
+
+Each sits in a margin around the chart by default. When the chart leaves enough empty space around its marks, one of them moves inside the chart instead (see [Inside the chart](#inside-the-chart)).
+
+## Legend
+
+The legend lists each group in the chart, with a swatch in the group's color. It appears whenever there is more than one swatch to show. Set `legend` to `false` to hide it, `true` to always show it, or pass a function that receives the resolved chart config and the legend's data and returns whether to show it.
+
+```jsx
+<BarChart config={{data, groupBy: "fruit", x: "year", y: "price", legend: false}} />
+```
+
+Clicking a swatch hides that group, and shift-clicking it shows that group alone. `legendFilterInvert: true` swaps the two. The other legend settings:
+
+- **`legendPosition`** picks the side the legend sits on: `"top"`, `"bottom"`, `"left"`, or `"right"`, or `false` to hide it. By default it goes on the right of charts more than 1.5 times as wide as they are tall, and along the bottom otherwise.
+- **`legendConfig`** is passed to the [Legend](/?path=/docs/core-components-legend--docs) component, for things like `label`, `shapeConfig`, and `title`.
+- **`legendSort`** orders the swatches. The default is alphabetical by label.
+- **`legendTooltip`** configures the tooltip shown when hovering a swatch.
+- **`legendPadding`** lines the legend up with the chart's own padding, so a bottom legend centers under a plot's x-axis rather than under the whole chart. It's on for screens wider than 600 pixels.
+
+## ColorScale
+
+When `colorScale` maps a numeric value to color, a colorScale replaces the legend for those marks. It shows the range of values as a gradient or as a row of color buckets with an axis:
+
+```jsx
+<Geomap config={{
+  data, groupBy: "id", colorScale: "value",
+  colorScaleConfig: {scale: "jenks"},   // "linear" | "jenks" | "quantile" | "buckets" | "log"
+  colorScalePosition: "right"           // "top" | "bottom" | "left" | "right" | false
+}} />
+```
+
+- **`colorScaleConfig`** is passed to the [ColorScale](/?path=/docs/core-components-colorscale--docs) component. Its `scale` option picks how values are binned. The default, `"jenks"`, groups values into natural breaks. `"linear"` draws a continuous gradient. Pass `color` to override the colors.
+- **`colorScalePosition`** picks the side, with the same default rule as the legend.
+- **`colorScaleMaxSize`** caps the scale's length along its side (600 pixels by default).
+- **`colorScalePadding`** works like `legendPadding`.
+
+See **Guides → Color** for how the default sequential and diverging palettes are built.
+
+## Size legend
+
+When a chart sizes its marks by a value, such as bubbles in a scatter plot, points on a map, or nodes in a network, a **size legend** shows what those sizes mean. It draws a set of concentric circles that share a bottom edge, under a centered title, with a short leader line from the top of each circle to a label giving the value it represents.
+
+The legend's circles are drawn with the chart's own radius scale, so they are exactly the sizes of the chart's marks: the largest circle matches the largest mark.
+
+### When it appears
+
+The size legend is on by default. It appears whenever a chart sizes its marks by more than one distinct value, unless it would take up more than a third of the chart's width or height. Very large bubbles in a small chart would otherwise leave no room for the chart itself:
+
+| Chart | Sized by | Radius settings |
+| --- | --- | --- |
+| Plot family (bubble / scatter) | `size` | `sizeMin`, `sizeMax`, `sizeScale` |
+| Geomap coordinate points | `pointSize` | `pointSizeMin`, `pointSizeMax`, `pointSizeScale` |
+| Network | `size` | `sizeMin`, `sizeMax`, `sizeScale` |
+| Rings | `size` | `sizeMin`, `sizeMax`, `sizeScale` |
+
+When `size` is set to a data key (`size: "population"`), that key becomes the legend's title.
+
+Set `sizeLegend` to `true` to always show it, or to `false` to hide it. It also accepts a function that returns whether to show the legend. The function receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`:
+
+```jsx
+<Plot config={{data, groupBy: "id", x: "x", y: "y", size: "value", sizeLegend: false}} />
+```
+
+### Configuring it
+
+Pass options to the legend with `sizeLegendConfig`:
+
+```jsx
+<Plot config={{
+  data, groupBy: "id", x: "x", y: "y", size: "revenue",
+  sizeLegendConfig: {
+    title: "Revenue ($M)",
+    values: [100, 1000, 2000],        // which circles to draw (or a count, default 3)
+    tickFormat: d => `$${d}M`,        // label format (default: abbreviated numbers)
+    shapeConfig: {fill: "#4269d0", fillOpacity: 0.1, stroke: "#4269d0"},
+    lineConfig: {strokeDasharray: [2, 2]},
+    labelConfig: {fontSize: 12},
+    titleConfig: {fontWeight: 700}
+  }
+}} />
+```
+
+By default the legend draws three circles, for the smallest value, the largest value, and a round value in between. The smallest and largest are the actual extremes of the data, so those circles match the chart's smallest and largest marks. Labels that would overlap are pushed apart.
+
+### Standalone
+
+The size legend is also available as its own component, `SizeLegend`. Give it any d3 continuous scale that maps values to pixel radii:
+
+```js
+import {SizeLegend} from "@d3plus/core";
+import {scaleSqrt} from "d3-scale";
+
+new SizeLegend()
+  .scale(scaleSqrt().domain([0, 1000]).range([2, 30]))
+  .title("Population")
+  .select("#legend")
+  .render();
+```
+
+See the [SizeLegend](/?path=/docs/core-components-sizelegend--docs) component page for more examples.
+
+## Placement
+
+### In the margins
+
+Each legend claims a band of margin on its side before the chart lays out, so the chart is drawn in the space that's left. The size legend sits in the chart's **bottom-right corner**, and `sizeLegendPosition` picks which margin it takes:
+
+- **`"right"`** (the default) widens the right margin, so the chart keeps its full height. The size legend sits at the bottom of the right column, and a right-side legend or colorScale shortens to end above it. A bottom legend or colorScale narrows to stay clear of that column.
+- **`"bottom"`** deepens the bottom margin instead, so the chart keeps its full width. A bottom legend or colorScale narrows to sit beside it, and a right-side one still ends above it.
+
+```jsx
+<Plot config={{data, groupBy: "id", x: "x", y: "y", size: "value", sizeLegendPosition: "bottom"}} />
+```
+
+A timeline always stays below the legends. See the [Plot size legend](/?path=/story/core-charts-plot--size-legend) and [size legend config](/?path=/story/core-charts-plot--size-legend-config) stories.
+
+### Inside the chart
+
+Many charts leave empty space around their marks: a scatter plot whose points cluster in a few corners, a network gathered in the middle, the corners around a pie or a pack of circles. In Plot, Network, Pack, Pie, Rings, Tree, and Geomap, a legend can be drawn in that space instead of taking a margin, which gives the chart more room.
+
+After the chart lays out, it looks for the open rectangles around its marks and tries, in order:
+
+1. the **size legend**,
+2. then the **legend**,
+3. then the **colorScale**.
+
+The first one that fits is drawn inside the chart. The others keep their margins, and the chart lays out again around them. If none of them fit, every legend stays in its margin. A legend or colorScale may lay itself out as a column or as a row to fit. When it fits in more than one corner of the chart, it takes the first of the bottom-right, top-right, bottom-left, and top-left corners. When it fits in no corner, it goes in the largest open space, against whichever side lies on the chart's edge.
+
+Space enclosed by the marks is never used. The marks are treated as one solid shape that wraps around all of them, so a legend will never land in the hole in the middle of a ring of points, only in the space outside it. Labels count as part of the marks.
+
+The legend is drawn over a slightly transparent box in the chart's background color, so it stays readable when the chart is zoomed or panned and marks slide underneath it. Style the box with `legendInsetConfig`:
+
+```jsx
+<Plot config={{
+  data, groupBy: "id", x: "x", y: "y",
+  legendInsetConfig: {
+    fill: "#f8f9fa",     // default: the chart's background color
+    fillOpacity: 0.9,    // default: 0.85
+    stroke: "#ced4da",   // default: a faint contrasting outline
+    rx: 6,               // corner radius, default 4
+    margin: 8,           // space between the box's edge and the legend, default 6
+    padding: 12          // space kept between the box and the marks/edges, default 10
+  }
+}} />
+```
+
+This is on by default. To keep every legend in its margin, set `legendInset` to `false`, or pass a function that receives the resolved config and returns whether to allow it. Setting `legendPosition` or `colorScalePosition` explicitly also keeps that legend on the side you chose. `sizeLegendPosition` only picks which margin the size legend uses when it doesn't fit inside the chart.
+
+```jsx
+<Network config={{data, nodes, links, size: "value", legendInset: false}} />
+```
+
+See the [Plot legend inset](/?path=/story/core-charts-plot--legend-inset) and [Network legend inset](/?path=/story/core-charts-network--legend-inset) stories.
+
+## Zooming
+
+Geomap points, and Network and Rings nodes, grow as you zoom in. The size legend doesn't grow with them. Instead it keeps its circles the same size and relabels them with the values those circle sizes now represent on screen, rounded to a clean number. The legend stays accurate at every zoom level and always fits in its space. Try zooming the [Geomap point size legend](/?path=/story/core-charts-geomap--point-size-legend) story.
+
+Plot charts zoom by rescaling their axes, and their bubbles keep the same size, so their size legend doesn't change when you zoom.
+
+A legend drawn inside the chart stays where it was placed while you zoom and pan. Its background box keeps it readable as marks move underneath.

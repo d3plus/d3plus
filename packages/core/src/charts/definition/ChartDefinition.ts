@@ -11,6 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import type {FeatureModule} from "../features/features.js";
+import type {InsetRegion} from "../features/insetState.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
@@ -49,6 +50,14 @@ interface ChartDefinitionBase {
     viz: VizInstance,
     available: {width: number; height: number},
   ) => SizeLegendScale | null;
+  /**
+      Optional region for drawing chart chrome (the size legend, legend, or
+      colorScale) inside the chart's negative space, called after layout:
+      the area chrome may occupy plus the boxes of the chart's marks, in
+      surface coordinates (see `sceneInsetRegion`). Return null when the
+      chart has no room to offer.
+  */
+  insetRegion?: (viz: VizInstance) => InsetRegion | null;
   /** Optional pure threshold algorithm (replaces `Viz._thresholdFunction`). */
   thresholdFunction?: (viz: VizInstance, data: unknown[]) => unknown[];
   /**

@@ -442,6 +442,26 @@ export interface D3plusConfig {
   };
   /** Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
+  /**
+      Whether one legend may be drawn inside the empty space around the chart's
+      marks instead of in a margin (size legend first, then legend, then
+      colorScale), or an accessor receiving the resolved config. Defaults to `true`.
+  */
+  legendInset?: boolean | ((config: D3plusConfig) => boolean);
+  /** Style of the semi-transparent box behind a legend drawn inside the chart. */
+  legendInsetConfig?: {
+    /** Box fill; defaults to the chart's background color. */
+    fill?: string;
+    fillOpacity?: number;
+    stroke?: string;
+    strokeWidth?: number;
+    /** Corner radius. */
+    rx?: number;
+    /** Space between the box's edge and the legend inside it. */
+    margin?: number;
+    /** Space kept between the box and the chart's marks and edges. */
+    padding?: number;
+  };
   /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
   /** Position of the legend, or an accessor returning it. */

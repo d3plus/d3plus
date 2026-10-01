@@ -13,7 +13,8 @@
     callback:
 
       1. `viz._preDraw()` — data filtering + legend-data + drawDepth
-      2. `viz._draw()`    — chart-specific layout + scene absorption
+      2. `viz._draw()`    — chart-specific layout + scene absorption, re-run
+         when chrome is placed inside the chart (`drawWithInset`)
       3. `zoomControls(viz)` — zoom HTML overlay (architectural carve-out)
       4. `minimapFeature.layout(viz)` — zoomed-chart viewport indicator
       5. `topLeftControlsFeature.layout(viz)` — back/table-view/search panel
@@ -36,6 +37,7 @@ import {attributionFeature, runLayout} from "../features/features.js";
 import {minimapFeature} from "../drawSteps/minimap.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
 import {resolveDrillMorph} from "./drillMorph.js";
+import {drawWithInset} from "./insetPlacement.js";
 import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
 import {bottomRightControlsFeature} from "../drawSteps/bottomRightControls.js";
 import {tableViewFeature} from "../drawSteps/tableView.js";
@@ -48,7 +50,9 @@ export function runVizPipeline(viz: Viz): void {
   // hold the BASE Viz behavior; subclasses' `super._preDraw()`/`super._draw()`
   // calls hit the shim which delegates to the free functions.
   viz._preDraw();
-  viz._draw();
+  // `_draw()`, possibly more than once: chrome that fits inside the chart's
+  // negative space is placed there after layout (see insetPlacement.ts).
+  drawWithInset(viz);
   // Post-draw features: zoom + brush event wiring, the minimap, the shared
   // top-left controls panel (back / table-view button / search), the
   // attribution overlay, and the table-view data-table overlay. All run

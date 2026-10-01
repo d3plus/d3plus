@@ -13,6 +13,8 @@ import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout
 import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
+import {initInsetDefaults, insetComponentScene} from "../features/insetState.js";
+import type {InsetKey, InsetRegion} from "../features/insetState.js";
 import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {vizRender} from "./vizRender.js";
@@ -60,6 +62,7 @@ export default class Viz extends VizBase {
   constructor() {
     super();
     initVizDefaults(this);
+    initInsetDefaults(this as unknown as VizInstance);
   }
 
   /**
@@ -197,7 +200,9 @@ export default class Viz extends VizBase {
         children.push({
           type: "group",
           key: `viz-${name}`,
-          children: [compScene],
+          children: name === "timeline"
+            ? [compScene]
+            : insetComponentScene(this as unknown as VizInstance, name as InsetKey, compScene, (comp as Legend | ColorScale).outerBounds()),
         });
       }
     }
@@ -227,6 +232,16 @@ export default class Viz extends VizBase {
       @private
   */
   _sizeLegendScale(_available: {width: number; height: number}): SizeLegendScale | null {
+    return null;
+  }
+
+  /**
+      The region chart chrome may be drawn inside, with the chart's mark boxes
+      as obstacles (see `ChartDefinition.insetRegion`). Charts that leave
+      negative space override this; the base chart offers none.
+      @private
+  */
+  _insetRegion(): InsetRegion | null {
     return null;
   }
 

@@ -22,6 +22,7 @@ import type Viz from "../viz/Viz.js";
 
 import {applyTreeLayout} from "./applyLayout.js";
 import {treeEmit} from "./emit.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 export const treeDef: ChartDefinition = {
   name: "Tree",
@@ -29,6 +30,7 @@ export const treeDef: ChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyTreeLayout,
   emit: treeEmit,
+  insetRegion: sceneInsetRegion,
 
   ctx: {
     tree: tree(),
