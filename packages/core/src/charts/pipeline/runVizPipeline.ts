@@ -67,11 +67,21 @@ export function runVizPipeline(viz: Viz): void {
   // buffer that `toScene()` reads — including on later repaints (a zoom
   // event, a table-view toggle), which re-walk `toScene()` outside this
   // pipeline pass.
-  const post = runLayout({viz}, [zoomFeature, minimapFeature, topLeftControlsFeature, attributionFeature, tableViewFeature]);
-  if (post.panels.length)
-    viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
+  runPostDrawFeatures(viz);
   // Resolve the drill-down morph's enter/exit boxes (if a drill click armed
   // one) now that this draw's _bodyRect/_chartScene are final.
   resolveDrillMorph(viz);
   viz._drawSceneToTarget();
+}
+
+/**
+    Runs the post-draw features (see above) and appends their panels. Anything
+    that re-runs `viz._draw()` outside this pipeline — Rings re-centering on a
+    click, say — must call this after it: `_draw()` resets the feature panels,
+    so skipping it drops the corner controls and attribution.
+*/
+export function runPostDrawFeatures(viz: Viz): void {
+  const post = runLayout({viz}, [zoomFeature, minimapFeature, topLeftControlsFeature, attributionFeature, tableViewFeature]);
+  if (post.panels.length)
+    viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
 }
