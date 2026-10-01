@@ -111,3 +111,34 @@ it("merges globalConfig ahead of config", () => {
   assert.strictEqual(cfg.localSetting, "l", "local applied");
   assert.strictEqual(cfg.shared, "local", "local wins on conflict");
 });
+
+it("does nothing until a constructor is provided", () => {
+  const {MockViz, state} = makeViz();
+  const node = document.createElement("div");
+  const action = d3plus(node, {constructor: undefined, config: {a: 1}});
+  assert.ok(node.querySelector("svg"), "svg still created");
+  action.update({constructor: MockViz, config: {a: 1}});
+  assert.strictEqual(state.instances, 1, "instance created once a constructor arrives");
+  assert.strictEqual(state.renders, 1, "rendered once a constructor arrives");
+});
+
+it("tolerates visualizations without render() or destroy()", () => {
+  const configs = [];
+  class BareViz {
+    config(c) { configs.push(c); return this; }
+  }
+  const node = document.createElement("div");
+  const action = d3plus(node, {constructor: BareViz, config: {a: 1}});
+  action.update({constructor: makeViz().MockViz, config: {a: 1}});
+  action.update({constructor: BareViz, config: {a: 2}});
+  action.destroy();
+  assert.strictEqual(configs.length, 2, "config() applied on each BareViz build");
+  assert.strictEqual(node.querySelector("svg"), null, "svg removed");
+});
+
+it("destroy() before any instance exists only removes the svg", () => {
+  const node = document.createElement("div");
+  const action = d3plus(node, {constructor: undefined, config: {}});
+  action.destroy();
+  assert.strictEqual(node.querySelector("svg"), null, "svg removed");
+});
