@@ -5,6 +5,7 @@ export {default as attrize} from "./src/attrize.js";
 export {default as date} from "./src/date.js";
 export {default as elem} from "./src/elem.js";
 export {default as fontExists} from "./src/fontExists.js";
+export {onFontsLoaded} from "./src/fontLoading.js";
 export {default as getSize} from "./src/getSize.js";
 export {default as inViewport} from "./src/inViewport.js";
 export {default as isObject} from "./src/isObject.js";

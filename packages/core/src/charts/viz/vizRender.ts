@@ -1,7 +1,7 @@
 import {range} from "d3-array";
 import {select} from "d3-selection";
 
-import {inViewport} from "@d3plus/dom";
+import {inViewport, onFontsLoaded} from "@d3plus/dom";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import {runVizPipeline} from "../pipeline/runVizPipeline.js";
@@ -331,6 +331,16 @@ function finishDraw(viz: Viz, callback?: () => void): void {
         .duration(viz.schema.duration)
         .attr("opacity", 1);
   }
+
+  // Text drawn before a web font finished loading was laid out with the
+  // fallback font's metrics; redraw once it arrives. A render still waiting
+  // on its callback is retried rather than dropped.
+  const redraw = (): void => {
+    if (!viz._fontsUnsubscribe) return;
+    if (viz._callback) setTimeout(redraw, viz.schema.duration);
+    else viz.render();
+  };
+  viz._fontsUnsubscribe ??= onFontsLoaded(redraw);
 
   if (viz.schema.detectResize && (viz._autoWidth || viz._autoHeight)) {
     viz._resizeObserver?.observe(viz._select.node().parentNode);

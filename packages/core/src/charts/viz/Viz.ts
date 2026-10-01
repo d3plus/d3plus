@@ -701,10 +701,12 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
     this._resizeObserver?.disconnect();
+    this._fontsUnsubscribe?.();
+    this._fontsUnsubscribe = undefined;
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
     // Clear the visibility/resize/scroll poll timers + scroll listener
