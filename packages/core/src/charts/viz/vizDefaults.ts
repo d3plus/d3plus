@@ -5,6 +5,7 @@ import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
 
 import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
+import {backgroundColor} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
@@ -229,7 +230,10 @@ function initLegendDefaults(viz: Viz): void {
     shapeConfig: {
       ariaLabel: legendLabel.bind(viz),
       labelConfig: {
-        fontColor: undefined,
+        // Labels read against the chart's own background (dark text on a light
+        // page, light text on a dark one), not the swatch fill the chart's
+        // shape labels contrast with.
+        fontColor: () => colorContrast(viz._select ? backgroundColor(viz._select.node()) : "rgb(255, 255, 255)", viz.schema.colorDefaults),
         fontResize: false,
         padding: 0,
       },
