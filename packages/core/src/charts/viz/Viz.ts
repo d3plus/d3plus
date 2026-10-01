@@ -625,11 +625,13 @@ export default class Viz extends VizBase {
       interactionGroup?: string;
       shapeType?: string;
     };
-    // Axis ticks/labels and the timeline are chrome — they carry data but
-    // are not chart shapes, so they must not fire shape tooltips/handlers.
+    // Axis ticks/labels, the timeline, and Plot's trend lines are chrome —
+    // they carry data but are not chart shapes, so they must not fire shape
+    // tooltips/handlers (a trend line's own tooltip runs in `_sharedHover`).
     if (
       nodeAny.interactionGroup === "axis" ||
-      nodeAny.interactionGroup === "timeline"
+      nodeAny.interactionGroup === "timeline" ||
+      nodeAny.interactionGroup === "trend"
     )
       return;
     // Prefer the node's stamped interaction group (set by Viz.toScene), so

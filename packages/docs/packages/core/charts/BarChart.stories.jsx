@@ -117,6 +117,30 @@ HorizontalBars.args = {
 };
 HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "Run the bars horizontally by setting `discrete: \"y\"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous."}}};
 
+export const TrendLine = Template.bind({});
+TrendLine.args = {
+  data: [
+    {id: "alpha", year: 2019, value: 42},
+    {id: "alpha", year: 2020, value: 38},
+    {id: "alpha", year: 2021, value: 51},
+    {id: "alpha", year: 2022, value: 57},
+    {id: "alpha", year: 2023, value: 55},
+    {id: "alpha", year: 2024, value: 66},
+    {id: "beta",  year: 2019, value: 61},
+    {id: "beta",  year: 2020, value: 63},
+    {id: "beta",  year: 2021, value: 56},
+    {id: "beta",  year: 2022, value: 54},
+    {id: "beta",  year: 2023, value: 49},
+    {id: "beta",  year: 2024, value: 47}
+  ],
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  trendLine: true,
+  trendLineConfig: {strokeWidth: 3}
+};
+TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLine` works on the discrete axis too: each series gets a line fit across its bars, sampled at every category and drawn behind them. Categories that aren't numbers or dates are fit by their order along the axis."}}};
+
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
   data: [

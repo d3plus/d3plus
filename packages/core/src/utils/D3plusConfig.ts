@@ -266,6 +266,29 @@ export interface SizeLegendConfig {
   labelPadding?: number;
 }
 
+export interface TrendLineConfig {
+  /** `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point. Stacked charts always fit the stack totals. */
+  group?: "series" | "all";
+  /** The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. */
+  order?: number;
+  /** Draws a confidence band around a linear fit. Defaults to `false`. */
+  confidence?: boolean;
+  /** The confidence band's level, between 0 and 1. Defaults to 0.95. */
+  confidenceLevel?: number;
+  /** Area shape config for the confidence band. Its fill defaults to the line color. */
+  confidenceConfig?: Record<string, unknown>;
+  /** Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. */
+  tooltip?: boolean;
+  /** Line color. Defaults to the series color (dark gray when `group` is `"all"`). */
+  stroke?: string;
+  /** Line width in pixels. Defaults to 2. */
+  strokeWidth?: number;
+  /** Line dash pattern. Defaults to `"6 4"`. */
+  strokeDasharray?: string;
+  /** Other Line shape config. */
+  [key: string]: unknown;
+}
+
 export interface ColorScaleConfig {
   /**
       For a linear scale, the `[min, max]` values used by the color scale; values
@@ -593,6 +616,19 @@ export interface D3plusConfig {
       share that position.
   */
   tooltipShared?: boolean;
+  /**
+      Draws an automatic trend line fit to the plotted data: `true` (or
+      `"linear"`) for a least-squares line, or `"exponential"`,
+      `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it.
+  */
+  trendLine?: boolean | "linear" | "exponential" | "logarithmic" | "power" | "polynomial";
+  /**
+      Options for the trend lines: `group` (`"series"` or `"all"`), the
+      polynomial `order`, a `confidence` band with `confidenceLevel` and
+      `confidenceConfig`, `tooltip`, and Line styles (`stroke`,
+      `strokeWidth`, `strokeDasharray`, …).
+  */
+  trendLineConfig?: TrendLineConfig;
   /** Path or object for the topojson data. */
   topojson?: string | object;
   /** CSS color to fill the map shapes. */

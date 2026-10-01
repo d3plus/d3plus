@@ -30,6 +30,7 @@ import {
   measurePlotLineLabels,
   preparePlotAxisLayout,
 } from "./pipeline.js";
+import {computePlotTrendFits} from "./trendLines.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -44,7 +45,7 @@ const superDraw = (viz: VizInstance, callback?: () => void) =>
 
 /** Runs format + per-axis-value stages; returns formatted data and axis-value bundles. */
 function runPlotDataStages(viz: VizInstance) {
-  const plotCtx = runStages({viz}, [formatPlotData, computePlotAxisValues]);
+  const plotCtx = runStages({viz}, [formatPlotData, computePlotAxisValues, computePlotTrendFits]);
   // Time flags (xTime/x2Time/yTime/y2Time) are written onto `viz` by
   // `formatPlotData` and read directly via `viz._xTime` etc. downstream.
   return {

@@ -9,6 +9,8 @@ import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
+import type {TrendFit} from "./trendLines.js";
+import {renderTrendTooltip} from "./trendTooltip.js";
 
 /** One series' entry in the shared tooltip. */
 export interface SharedRow {
@@ -298,7 +300,11 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
   if (event.type === "mousemove" || event.type === "mouseenter") {
     // Repainting mid-transition would snap it to its end (see `_routeSceneEvent`).
     if (viz._transitionEndsAt && Date.now() < viz._transitionEndsAt) return;
-    const pick = event.pick && (event.pick.node as {interactionGroup?: string});
+    const pick = event.pick && (event.pick.node as {interactionGroup?: string; trendFit?: TrendFit});
+    if (pick && pick.trendFit) {
+      handleTrendHover(viz, pick.trendFit, event);
+      return;
+    }
     if (area && Array.isArray(event.point) && !(pick && pick.interactionGroup === "legend")) {
       const [cx, cy] = contentPoint(viz, event.point);
       const inside =
@@ -327,6 +333,21 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
     viz._tooltipClass!.data([]).render();
     restoreTooltip(viz);
     if (typeof viz._hover === "function") viz.hover!(false);
+    viz._scheduleSceneRepaint();
+  }
+}
+
+/**
+    Hovering a trend line: its own tooltip replaces any snapped hover, and the
+    crosshair clears. The leave path in `handleSharedHover` tears it down.
+*/
+function handleTrendHover(viz: VizInstance, trend: TrendFit, event: SceneEvent): void {
+  const prev = viz._sharedHoverState;
+  viz._sharedHoverActive = true;
+  viz._sharedHoverState = null;
+  renderTrendTooltip(viz, trend, event);
+  if (prev) {
+    if (prev.mode === "shared" && typeof viz._hover === "function") viz.hover!(false);
     viz._scheduleSceneRepaint();
   }
 }

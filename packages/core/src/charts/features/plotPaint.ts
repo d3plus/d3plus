@@ -21,6 +21,7 @@ import {renderAxes} from "./axes.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
+import {emitTrendLines} from "../Plot/trendScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
@@ -571,6 +572,9 @@ export function plotEmit(
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
     const frontAnnotationShapes = emitAnnotations(viz, out, x, y, domains, yOffset);
+
+    // Trend lines sit behind the marks they summarize.
+    out.push(...emitTrendLines(viz, x, y));
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 

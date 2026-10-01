@@ -32,6 +32,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
+| [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
@@ -41,10 +42,22 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
 | [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
 | [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
 | [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
+| [`studentTCdf`](#studenttcdf) | The cumulative distribution function of Student's t-distribution. |
+| [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportio |
+
+| Interfaces | Description |
+| --- | --- |
+| [`RegressionOptions`](#regressionoptions) |  |
+| [`RegressionResult`](#regressionresult) |  |
+
+| Type Aliases | Description |
+| --- | --- |
+| [`RegressionType`](#regressiontype) |  |
 
 ## Functions
 
@@ -113,6 +126,29 @@ tolerance: 0.02,
 verbose: false,
 }
 ```
+
+***
+
+<a id="linearconfidence"></a>
+
+### linearConfidence()
+
+> **linearConfidence**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: linearConfidence.ts:8
+
+Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `level` | `number` | `0.95` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
 
 ***
 
@@ -342,6 +378,30 @@ Rotates a point around a given origin.
 
 ***
 
+<a id="regression"></a>
+
+### regression()
+
+> **regression**(`points`: \[`number`, `number`\][], `type?`: [`RegressionType`](#regressiontype), `options?`: [`RegressionOptions`](#regressionoptions)): [`RegressionResult`](#regressionresult) \| `null`
+
+Defined in: regression.ts:127
+
+Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `type` | [`RegressionType`](#regressiontype) | `"linear"` | The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial". |
+| `options` | [`RegressionOptions`](#regressionoptions) | `{}` | Additional options, such as the polynomial `order`. |
+
+#### Returns
+
+[`RegressionResult`](#regressionresult) \| `null`
+
+***
+
 <a id="segmentboxcontains"></a>
 
 ### segmentBoxContains()
@@ -440,3 +500,92 @@ Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorith
 #### Author
 
 Vladimir Agafonkin
+
+***
+
+<a id="studenttcdf"></a>
+
+### studentTCdf()
+
+> **studentTCdf**(`t`: `number`, `df`: `number`): `number`
+
+Defined in: studentTQuantile.ts:64
+
+The cumulative distribution function of Student's t-distribution.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `t` | `number` | The t statistic. |
+| `df` | `number` | Degrees of freedom. |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="studenttquantile"></a>
+
+### studentTQuantile()
+
+> **studentTQuantile**(`p`: `number`, `df`: `number`): `number`
+
+Defined in: studentTQuantile.ts:74
+
+The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p` | `number` | A probability between 0 and 1 (e.g. 0.975 for a two-sided 95% interval). |
+| `df` | `number` | Degrees of freedom (greater than 0). |
+
+#### Returns
+
+`number`
+
+## Interfaces
+
+<a id="regressionoptions"></a>
+
+### RegressionOptions
+
+Defined in: regression.ts:29
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | regression.ts:31 |
+
+***
+
+<a id="regressionresult"></a>
+
+### RegressionResult
+
+Defined in: regression.ts:8
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | regression.ts:18 |
+| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | regression.ts:26 |
+| <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | regression.ts:24 |
+| <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | regression.ts:20 |
+| <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | regression.ts:22 |
+| <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | regression.ts:10 |
+
+## Type Aliases
+
+<a id="regressiontype"></a>
+
+### RegressionType
+
+> **RegressionType** = `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"`
+
+Defined in: regression.ts:1
