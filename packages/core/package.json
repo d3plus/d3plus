@@ -44,7 +44,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "eslint index.ts internal.ts umd-entry.ts src && eslint --global=it test && mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test:coverage": "c8 -r text -r lcov --src src --exclude-after-remap --include 'src/**' --include '*.ts' mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/color": "workspace:*",
@@ -81,6 +81,7 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@bcoe/v8-coverage": "^1.0.2",
     "playwright": "1.59.1"
   }
 }

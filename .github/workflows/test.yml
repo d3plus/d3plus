@@ -111,6 +111,14 @@ jobs:
           files: packages/dom/coverage/lcov.info
           flags: dom
           fail_ci_if_error: false
+      - name: Upload element coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/element/coverage/lcov.info
+          flags: element
+          fail_ci_if_error: false
       - name: Upload export coverage
         if: matrix.node-version == '22.x'
         uses: codecov/codecov-action@v5
@@ -151,6 +159,30 @@ jobs:
           files: packages/react/coverage/lcov.info
           flags: react
           fail_ci_if_error: false
+      - name: Upload render coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/render/coverage/lcov.info
+          flags: render
+          fail_ci_if_error: false
+      - name: Upload ssr coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/ssr/coverage/lcov.info
+          flags: ssr
+          fail_ci_if_error: false
+      - name: Upload svelte coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/svelte/coverage/lcov.info
+          flags: svelte
+          fail_ci_if_error: false
       - name: Upload text coverage
         if: matrix.node-version == '22.x'
         uses: codecov/codecov-action@v5
@@ -158,4 +190,12 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/text/coverage/lcov.info
           flags: text
+          fail_ci_if_error: false
+      - name: Upload vue coverage
+        if: matrix.node-version == '22.x'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/vue/coverage/lcov.info
+          flags: vue
           fail_ci_if_error: false
