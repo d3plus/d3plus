@@ -14,6 +14,7 @@ import type {ConfigField} from "../../fluent.js";
 
 import {buildLegendShapeConfig} from "./legendConfig.js";
 import {
+  clearLegend,
   computeLegendBounds,
   computeLegendLineData,
   measureLegendTitle,
@@ -213,14 +214,17 @@ export default class Legend extends BaseClass {
 
     this._lineData = computeLegendLineData(this, availableHeight);
 
-    let spaceNeeded = this._rowWidth(this._lineData);
+    let spaceNeeded: number | false = this._rowWidth(this._lineData);
     const availableWidth = this.schema.width - this.schema.padding * 2;
     if (this.schema.direction === "column" || spaceNeeded > availableWidth)
-      spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight, spaceNeeded);
+      spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight);
 
-    computeLegendBounds(this, spaceNeeded);
-    renderLegendTitle(this);
-    renderLegendShapes(this);
+    if (spaceNeeded === false) clearLegend(this);
+    else {
+      computeLegendBounds(this, spaceNeeded);
+      renderLegendTitle(this);
+      renderLegendShapes(this);
+    }
 
     // Standalone render: paint the scene into the user's `_select`. Inside a
     // Viz the legend runs in compute mode and the Viz composes its toScene().
