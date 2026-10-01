@@ -21,7 +21,7 @@ import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyNetworkLayout} from "./applyLayout.js";
+import {applyNetworkLayout, networkSizeLegendScale} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
@@ -226,6 +226,7 @@ function setupNetworkFluent(v: NetworkViz) {
     this._size = ((typeof _ === "function" || !_)
       ? _
       : accessor(_ as string)) as ((d: DataPoint, i?: number) => number) | undefined;
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
   v.x = function(this: VizInstance, _?: unknown) {
@@ -268,6 +269,7 @@ export const networkDef: ChartDefinition = {
 
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyNetworkLayout,
+  sizeLegendScale: (viz, {width, height}) => networkSizeLegendScale(viz, width, height),
   emit: networkEmit,
 
   // Network mounts its own zoom surface (with a background hitArea whose

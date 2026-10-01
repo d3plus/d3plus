@@ -7,6 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
 import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
+import type {SizeLegendScale, SizeLegendSize} from "../../components/SizeLegend/sizeLegendLayout.js";
 import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 import VizBaseConfig from "./VizBaseConfig.js";
 
@@ -234,6 +235,40 @@ export default class VizBase extends VizBaseConfig {
     validateShapeConfig(this.constructor.name, _!);
     this.schema.shapeConfig = assign(this.schema.shapeConfig, _!);
     return this;
+  }
+
+  /**
+      Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+*/
+  sizeLegend(
+    _?:
+      | boolean
+      | ((config: Record<string, unknown>, scale: SizeLegendScale, size: SizeLegendSize) => boolean),
+  ):
+    | this
+    | boolean
+    | ((config: Record<string, unknown>, scale: SizeLegendScale, size: SizeLegendSize) => boolean) {
+    return arguments.length
+      ? ((this.schema.sizeLegend = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.sizeLegend;
+  }
+
+  /**
+      Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
+*/
+  sizeLegendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this.schema.sizeLegendConfig = assign(this.schema.sizeLegendConfig, _!)), this)
+      : this.schema.sizeLegendConfig;
+  }
+
+  /**
+      Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
+*/
+  sizeLegendPosition(_?: "right" | "bottom"): this | "right" | "bottom" {
+    return arguments.length
+      ? ((this.schema.sizeLegendPosition = _), this)
+      : this.schema.sizeLegendPosition;
   }
 
   /**

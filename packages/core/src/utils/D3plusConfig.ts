@@ -3,6 +3,12 @@ import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
 import type {AccessorFn} from "./AccessorFn.js";
+import type {
+  SizeLegendLineConfig,
+  SizeLegendShapeConfig,
+  SizeLegendTextConfig,
+} from "../components/SizeLegend/SizeLegend.js";
+import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 
@@ -234,6 +240,32 @@ export interface LegendConfig {
   shape?: Accessor<string>;
 }
 
+export interface SizeLegendConfig {
+  /**
+      The values to draw circles for: an array of values, how many to pick
+      from the size domain (default 3: its min, max, and a round middle), or
+      a function receiving the `[min, max]` domain and returning values.
+  */
+  values?: number[] | number | ((domain: [number, number]) => number[]);
+  /** Formats each value's label. Defaults to the locale's abbreviated number format. */
+  tickFormat?: (value: number) => string;
+  /** Title above the circles. Defaults to the `size` key when `size` is set to a string. */
+  title?: string;
+  /** Circle paint: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. */
+  shapeConfig?: SizeLegendShapeConfig;
+  /** Leader-line paint: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. */
+  lineConfig?: SizeLegendLineConfig;
+  /** Value-label font: `fontColor`, `fontFamily`, `fontSize`. */
+  labelConfig?: SizeLegendTextConfig;
+  /** Title font: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. */
+  titleConfig?: SizeLegendTextConfig;
+  padding?: number;
+  /** Length of the leader lines past the largest circle, in pixels. */
+  lineLength?: number;
+  /** Gap between each leader line and its label, in pixels. */
+  labelPadding?: number;
+}
+
 export interface ColorScaleConfig {
   /**
       For a linear scale, the `[min, max]` values used by the color scale; values
@@ -450,6 +482,25 @@ export interface D3plusConfig {
   shapeSort?: (a: string, b: string) => number;
   /** Size accessor key. */
   size?: string;
+  /**
+      Controls size-legend visibility — the nested-circle key drawn in the
+      bottom-right corner of charts that size their marks. Shown by default
+      whenever marks are sized by more than one value, unless it would take
+      up more than a third of the chart's width or height; pass `true` to
+      always show it, `false` to hide it, or a `(config, scale, size) =>
+      boolean` accessor.
+  */
+  sizeLegend?:
+    | boolean
+    | ((config: D3plusConfig, scale: SizeLegendScale, size: SizeLegendSize) => boolean);
+  /** Configuration for the size-legend component. */
+  sizeLegendConfig?: SizeLegendConfig;
+  /**
+      Which margin the size legend claims in the bottom-right corner:
+      `"right"` (default) keeps the chart's full height, `"bottom"` its full
+      width.
+  */
+  sizeLegendPosition?: "right" | "bottom";
   /** Whether to stack series. */
   stacked?: boolean;
   /**

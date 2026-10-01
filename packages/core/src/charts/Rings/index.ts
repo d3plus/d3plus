@@ -19,7 +19,7 @@ import {makeChart} from "../definition/makeChart.js";
 import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyRingsLayout} from "./applyLayout.js";
+import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
@@ -80,12 +80,12 @@ function installRingsAccessors(viz: VizInstance): void {
     return this;
   };
   v.size = function(this: VizInstance, _?: RingsAccessor) {
-    return arguments.length
-      ? ((this._size = (typeof _ === "function" || !_
-          ? _
-          : accessor(_ as unknown as string)) as VizInstance["_size"]),
-        this)
-      : this._size;
+    if (!arguments.length) return this._size;
+    this._size = (typeof _ === "function" || !_
+      ? _
+      : accessor(_ as unknown as string)) as VizInstance["_size"];
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
+    return this;
   };
   v.hover = function(
     this: VizInstance,
@@ -107,6 +107,7 @@ export const ringsDef: ChartDefinition = {
 
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRingsLayout,
+  sizeLegendScale: (viz, {width, height}) => ringsSizeLegendScale(viz, width, height),
   emit: ringsEmit,
 
   setup: (viz: VizInstance) => {
@@ -160,7 +161,7 @@ export const ringsDef: ChartDefinition = {
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
       viz._draw();
       // _draw() resets the feature panels; re-run the post-draw features so
-      // the corner controls and attribution come back.
+      // the corner controls, size legend, and attribution come back.
       runPostDrawFeatures(viz);
       // _draw() only recomputes layout/scene; paint it with the chart duration
       // so the re-centering animates (a bare _draw leaves the only repaint to

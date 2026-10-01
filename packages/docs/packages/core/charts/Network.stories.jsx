@@ -115,3 +115,22 @@ DirectionalArrows.args = {
   arrows: "target"
 };
 DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` draws an arrowhead at the node boundary to show edge direction. Use `\"target\"`, `\"source\"`, `\"both\"`, or a per-link accessor for bi-directional edges. `arrowSize` overrides the automatic size."}}};
+
+export const SizeLegend = Template.bind({});
+SizeLegend.args = {
+  height: 500,
+  nodes: [
+    {id: "Hub", value: 900}, {id: "Alpha", value: 420}, {id: "Beta", value: 260}, {id: "Gamma", value: 120},
+    {id: "Delta", value: 610}, {id: "Epsilon", value: 60}, {id: "Zeta", value: 180}, {id: "Eta", value: 30},
+    {id: "Theta", value: 340}, {id: "Iota", value: 90}, {id: "Kappa", value: 15}, {id: "Lambda", value: 220}
+  ],
+  links: [
+    {source: "Hub", target: "Alpha"}, {source: "Hub", target: "Beta"}, {source: "Hub", target: "Gamma"},
+    {source: "Hub", target: "Delta"}, {source: "Alpha", target: "Epsilon"}, {source: "Alpha", target: "Zeta"},
+    {source: "Beta", target: "Eta"}, {source: "Delta", target: "Theta"}, {source: "Delta", target: "Iota"},
+    {source: "Gamma", target: "Kappa"}, {source: "Theta", target: "Lambda"}, {source: "Zeta", target: "Lambda"}
+  ],
+  size: "value",
+  sizeMin: 4
+};
+SizeLegend.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "sizeLegend"]}, docs: {description: {story: "Sizing nodes with `size` adds a size legend in the bottom-right corner. It is drawn with the chart's own radius scale, which Network fits to the space between nodes. Zoom in and the circles keep their size while the labels change to the values those circles now represent on screen."}}};

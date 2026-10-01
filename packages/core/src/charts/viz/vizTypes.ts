@@ -23,6 +23,7 @@
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
+import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
@@ -33,10 +34,12 @@ import type {
   ColorScale,
   Legend,
   Message,
+  SizeLegend,
   TextBox,
   Timeline,
   Tooltip,
 } from "../../components/index.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
@@ -151,6 +154,8 @@ export interface VizInstance {
   _y2?: (d: DataPoint, i: number) => number | Date | string;
   _shape: (d: DataPoint, i: number) => string;
   _size?: (d: DataPoint, i?: number) => number;
+  /** The data key `size` was set to, when it was set with a string; the size legend's default title. */
+  _sizeKey?: string;
   _value?: (d: DataPoint, i: number) => number;
   _time?: (d: DataPoint, i: number) => string | number | Date;
   _sort?: ((a: DataPoint, b: DataPoint) => number) | null;
@@ -314,6 +319,12 @@ export interface VizInstance {
   _yFunc?: (d: DataPoint, axis?: string) => number;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
+  /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
+  _sizeLegendFinal?: SizeLegendScale | null;
+  /** Size-legend component, rendered in the bottom-right corner panel. */
+  _sizeLegendClass?: SizeLegend;
+  /** The bottom-right corner panel reserved in `vizDrawPure` for this draw (see `bottomRightControlsMarkup.ts`). */
+  _bottomRightBox?: BottomRightBox | null;
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
@@ -421,6 +432,8 @@ export interface VizInstance {
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
   _thresholdFunction?(data: DataPoint[], tree?: unknown): DataPoint[];
+  /** The chart's size-legend radius scale, estimated before layout for the given chart area (see `ChartDefinition.sizeLegendScale`). */
+  _sizeLegendScale?(available: {width: number; height: number}): SizeLegendScale | null;
   toScene?(): SceneNode;
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;

@@ -32,6 +32,7 @@ import {
   ColorScale as ColorScaleClass,
   Legend as LegendClass,
   Message as MessageClass,
+  SizeLegend as SizeLegendClass,
   TextBox as TextBoxClass,
   Timeline as TimelineClass,
   Tooltip as TooltipClass,
@@ -178,6 +179,10 @@ export const Legend = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Message. */
 export const Message = (props: D3plusComponentProps) => (
   <Renderer className="component" constructor={MessageClass} {...props} />
+);
+/** React component for rendering a d3plus SizeLegend. */
+export const SizeLegend = (props: D3plusComponentProps) => (
+  <Renderer className="component" constructor={SizeLegendClass} {...props} />
 );
 /** React component for rendering a d3plus TextBox. */
 export const TextBox = (props: D3plusComponentProps) => (

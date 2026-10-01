@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    .viz {
+      height: 420px;
+      margin-bottom: 24px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="viz" id="alone"></div>
+  <div class="viz" id="legend"></div>
+  <div class="viz" id="colorScale"></div>
+  <div class="viz" id="bottom"></div>
+</body>
+
+<script>
+
+  const data = [
+    {id: "Alpha", x: 4, y: 7, value: 120}, {id: "Beta", x: 5, y: 2, value: 1450},
+    {id: "Gamma", x: 6, y: 9, value: 640}, {id: "Delta", x: 2, y: 4, value: 80},
+    {id: "Epsilon", x: 8, y: 5, value: 2300}, {id: "Zeta", x: 3, y: 8, value: 900},
+    {id: "Eta", x: 7, y: 3, value: 310}, {id: "Theta", x: 9, y: 8, value: 1800}
+  ];
+
+  // Bubble chart: the size legend claims the bottom of the right column.
+  new d3plus.Plot()
+    .select("#alone")
+    .data(data)
+    .groupBy("id")
+    .x("x")
+    .y("y")
+    .size("value")
+    .sizeMin(4)
+    .sizeMax(36)
+    .legend(false)
+    .render();
+
+  // A bottom legend narrows to stay clear of the size legend's column.
+  new d3plus.Plot()
+    .select("#legend")
+    .data(data)
+    .groupBy("id")
+    .x("x")
+    .y("y")
+    .size("value")
+    .sizeMin(4)
+    .sizeMax(36)
+    .legendPosition("bottom")
+    .sizeLegendConfig({title: "Revenue ($M)", values: [100, 1000, 2000]})
+    .render();
+
+  // A right colorScale ends above the size legend.
+  new d3plus.Plot()
+    .select("#colorScale")
+    .data(data)
+    .groupBy("id")
+    .x("x")
+    .y("y")
+    .size("value")
+    .sizeMin(4)
+    .sizeMax(36)
+    .colorScale("y")
+    .colorScalePosition("right")
+    .render();
+
+  // sizeLegendPosition("bottom"): the chart keeps its full width instead, and
+  // the bottom legend sits beside the size legend.
+  new d3plus.Plot()
+    .select("#bottom")
+    .data(data)
+    .groupBy("id")
+    .x("x")
+    .y("y")
+    .size("value")
+    .sizeMin(4)
+    .sizeMax(36)
+    .legendPosition("bottom")
+    .sizeLegendPosition("bottom")
+    .render();
+
+</script>
+
+</html>

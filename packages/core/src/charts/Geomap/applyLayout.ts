@@ -14,6 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -150,6 +151,23 @@ function applyPointExtentBounds(
   };
 }
 
+/** The rows drawn as points: those whose `point` accessor returns coordinates. */
+export function geomapPointData(v: GeomapViz): DataPoint[] {
+  return v._filteredData.filter(
+    (d: DataPoint, i: number) => v.schema.point(d, i) instanceof Array,
+  );
+}
+
+/** The point radius scale: `pointSizeScale` over the points' `pointSize` extent, onto `[pointSizeMin, pointSizeMax]`. */
+export function geomapPointSizeScale(v: GeomapViz, pointData: DataPoint[]): SizeLegendScale {
+  const scaleName = `scale${v.schema.pointSizeScale.charAt(0).toUpperCase()}${v.schema.pointSizeScale.slice(1)}`;
+  return ((scales as unknown as Record<string, ScaleFactory>)[scaleName]() as {
+    domain: (d: [number, number]) => {range: (r: [number, number]) => SizeLegendScale};
+  })
+    .domain(extent(pointData, (d: DataPoint, i: number) => v.schema.pointSize(d, i)) as unknown as [number, number])
+    .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
@@ -173,9 +191,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   };
   ctx.path = path;
 
-  const pointData = v._filteredData.filter(
-    (d: DataPoint, i: number) => v.schema.point(d, i) instanceof Array,
-  );
+  const pointData = geomapPointData(v);
 
   const pathData = v._filteredData
     .filter((d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array))
@@ -193,12 +209,8 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     [],
   );
 
-  const scaleName = `scale${v.schema.pointSizeScale.charAt(0).toUpperCase()}${v.schema.pointSizeScale.slice(1)}`;
-  const r = ((scales as unknown as Record<string, ScaleFactory>)[scaleName]() as {
-    domain: (d: [number, number]) => {range: (r: [number, number]) => (v: number) => number};
-  })
-    .domain(extent(pointData, (d: DataPoint, i: number) => v.schema.pointSize(d, i)) as unknown as [number, number])
-    .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
+  const r = geomapPointSizeScale(v, pointData);
+  v._sizeLegendFinal = pointData.length ? r : null;
 
   if (!v._zoomSet || !ctx.extentBounds) {
     const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v.schema.fitKey) : coordData;

@@ -295,3 +295,37 @@ SortingShapes.args = {
   y: "value"
 };
 SortingShapes.parameters = {controls: {include: ["shapeSort"]}, docs: {description: {story: "When a plot mixes shape types, `shapeSort` sets the order they are drawn — the comparator here renders `Line` marks before `Circle`s so the points sit on top of the connecting line."}}};
+
+export const SizeLegend = Template.bind({});
+SizeLegend.args = {
+  data: [
+    {id: "Alpha", x: 4, y: 7, revenue: 120}, {id: "Beta", x: 5, y: 2, revenue: 1450},
+    {id: "Gamma", x: 6, y: 9, revenue: 640}, {id: "Delta", x: 2, y: 4, revenue: 80},
+    {id: "Epsilon", x: 8, y: 5, revenue: 2300}, {id: "Zeta", x: 3, y: 8, revenue: 900},
+    {id: "Eta", x: 7, y: 3, revenue: 310}, {id: "Theta", x: 9, y: 8, revenue: 1800}
+  ],
+  groupBy: "id",
+  legendPosition: "bottom",
+  size: "revenue",
+  sizeMax: 36,
+  sizeMin: 4,
+  x: "x",
+  y: "y"
+};
+SizeLegend.parameters = {controls: {include: ["size", "sizeLegend", "sizeLegendPosition", "sizeLegendConfig", "legendPosition"]}, docs: {description: {story: "When `size` sizes the bubbles by more than one value, a size legend appears in the chart's bottom-right corner. Its circles are drawn at the same radii as the chart's bubbles, so the largest circle matches the largest bubble exactly. When `size` is a data key, that key becomes the legend's title. By default the legend takes room from the right margin, so the chart keeps its full height. Set `sizeLegendPosition` to `\"bottom\"` to take room from the bottom instead, or `sizeLegend` to `false` to hide it."}}};
+
+export const SizeLegendConfig = Template.bind({});
+SizeLegendConfig.args = {
+  ...SizeLegend.args,
+  colorScale: "y",
+  colorScalePosition: "right",
+  sizeLegendConfig: {
+    title: "Revenue ($M)",
+    values: [100, 1000, 2000],
+    tickFormat: funcify(
+      d => `$${d}M`,
+      "d => `$${d}M`"
+    )
+  }
+};
+SizeLegendConfig.parameters = {controls: {include: ["sizeLegendConfig", "colorScalePosition"]}, docs: {description: {story: "`sizeLegendConfig` customizes the size legend: `title`, `values` (the circles to draw), `tickFormat`, and styling through `shapeConfig`, `lineConfig`, `labelConfig`, and `titleConfig`. A colorScale on the right shares the right column, shortening so it ends above the size legend."}}};

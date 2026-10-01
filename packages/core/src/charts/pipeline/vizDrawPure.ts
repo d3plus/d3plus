@@ -40,6 +40,11 @@ import {
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
+import {reserveBottomRight} from "../drawSteps/bottomRightControls.js";
+import {
+  bottomRightControlsRightShortfall,
+  bottomRightControlsShortfall,
+} from "../drawSteps/bottomRightControlsMarkup.js";
 
 import {resolveSpec} from "./resolveSpec.js";
 
@@ -126,6 +131,14 @@ export function vizDrawPure(
   out.marginDelta!.bottom += timelineClaim.margin.bottom;
   running.bottom += timelineClaim.margin.bottom;
 
+  // The bottom-right corner panel (the size legend) measures next, above the
+  // timeline and against the area left so far, so the legend/colorScale
+  // blocks below can inset around it (see `bottomRightControlsInset`).
+  reserveBottomRight(viz, running.bottom, {
+    width: viz.schema.width - running.left - running.right,
+    height: viz.schema.height - running.top - running.bottom,
+  });
+
   // Left/right legend + colorScale claims. Includes `=== false` (mirrors
   // colorScale below) so a previously-rendered left/right legend tears
   // down its DOM when the user toggles off via `.legendPosition(false)`.
@@ -152,6 +165,13 @@ export function vizDrawPure(
     running.right += claim.margin.right;
   }
 
+  // A right-side bottom-right panel (the size legend's default) shares the
+  // right column: widen the right margin to it, if the left/right claims
+  // above didn't already, before the bottom blocks lay out against it.
+  const rightShortfall = bottomRightControlsRightShortfall(viz, running.right);
+  out.marginDelta!.right += rightShortfall;
+  running.right += rightShortfall;
+
   // Top/bottom legend + colorScale.
   if (legendPosition === "top" || legendPosition === "bottom") {
     const claim = runLayout({viz}, [legendFeature], running);
@@ -167,6 +187,12 @@ export function vizDrawPure(
     running.top += claim.margin.top;
     running.bottom += claim.margin.bottom;
   }
+
+  // A bottom-side panel: the chart body must end above it, so if the bottom
+  // claims so far are shorter than it, top the bottom margin up.
+  const shortfall = bottomRightControlsShortfall(viz, running.bottom);
+  out.marginDelta!.bottom += shortfall;
+  running.bottom += shortfall;
 
   // The corner controls (zoom, back/search) deliberately claim zero
   // margin of their own — they float at y:0, and normally whatever's

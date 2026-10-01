@@ -23,6 +23,7 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
 /** d3-scale's scale constructors, indexed by the dynamic `scale<Type>` name. */
 const scaleConstructors = scales as unknown as Record<string, () => D3Scale>;
@@ -67,6 +68,43 @@ const isPlottableRow = (d: Record<string, unknown>): boolean =>
   (d.y2 === undefined || !isBadAxisValue(d.y2));
 
 /**
+    The bubble radius scale: `sizeScale` over the extent of `sizes`, ranging
+    from `sizeMin` (capped at half of `sizeMax`) to `sizeMax`. A single-value
+    extent maps everything to `sizeMax`.
+*/
+export function plotSizeScale(viz: Parameters<TransformStage>[0]["viz"], sizes: number[]): D3Scale {
+  const rExtent = extent(sizes);
+  return scaleConstructors[
+    `scale${viz.schema.sizeScale.charAt(0).toUpperCase()}${viz.schema.sizeScale.slice(1)}`
+  ]()
+    .domain(rExtent as unknown as [number, number])
+    .range([
+      rExtent[0] === rExtent[1]
+        ? viz.schema.sizeMax
+        : min([viz.schema.sizeMax / 2, viz.schema.sizeMin]),
+      viz.schema.sizeMax,
+    ]);
+}
+
+/**
+    Plot's size-legend scale, available before layout: the same scale
+    `formatPlotData` builds, over the plottable rows. Null when there's no
+    `size` accessor or none of those rows draws as a circle.
+*/
+export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): SizeLegendScale | null {
+  if (!viz._size) return null;
+  const rows: DataPoint[] = viz._axisPersist ? viz._data : viz._filteredData || [];
+  const sizes: number[] = [];
+  let circles = false;
+  rows.forEach((d, i) => {
+    if (isBadAxisValue(viz._x!(d, i)) || isBadAxisValue(viz._y!(d, i))) return;
+    sizes.push(viz._size!(d, i));
+    if (viz.schema.shape(d, i) === "Circle") circles = true;
+  });
+  return circles ? (plotSizeScale(viz, sizes) as unknown as SizeLegendScale) : null;
+}
+
+/**
     `formatPlotData` — first stage of Plot's chart-specific pipeline. Detects
     time axes (sets viz._xTime / _x2Time / _yTime / _y2Time), maps the
     filtered data through `prepData` to produce the per-row PlotDatum shape
@@ -80,6 +118,7 @@ const isPlottableRow = (d: Record<string, unknown>): boolean =>
 */
 export const formatPlotData: TransformStage = ({viz}) => {
   if (!viz._filteredData || !viz._filteredData.length) {
+    viz._sizeLegendFinal = null;
     return {plotFormattedData: [], plotAxisData: [], x2Exists: false, y2Exists: false};
   }
 
@@ -141,23 +180,12 @@ export const formatPlotData: TransformStage = ({viz}) => {
     ? viz._data.map(prepData).filter(isPlottableRow)
     : formattedData;
 
-  if (viz._size) {
-    const rExtent = extent(axisData, (d: Record<string, unknown>) =>
-      viz._size(d.data),
-    );
-    viz._sizeScaleD3 = scaleConstructors[
-      `scale${viz.schema.sizeScale.charAt(0).toUpperCase()}${viz.schema.sizeScale.slice(1)}`
-    ]()
-      .domain(rExtent as unknown as [number, number])
-      .range([
-        rExtent[0] === rExtent[1]
-          ? viz.schema.sizeMax
-          : min([viz.schema.sizeMax / 2, viz.schema.sizeMin]),
-        viz.schema.sizeMax,
-      ]);
-  } else {
-    viz._sizeScaleD3 = () => viz.schema.sizeMin;
-  }
+  viz._sizeScaleD3 = viz._size
+    ? plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
+    : () => viz.schema.sizeMin;
+  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => d.shape === "Circle")
+    ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
+    : null;
 
   const x2Exists = axisData.some((d: Record<string, unknown>) => d.x2 !== undefined);
   const y2Exists = axisData.some((d: Record<string, unknown>) => d.y2 !== undefined);

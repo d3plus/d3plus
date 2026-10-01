@@ -16,6 +16,7 @@ import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {cornerInsets, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
+import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
@@ -123,7 +124,9 @@ export function buildLegendData(viz: VizInstance): LegendData {
     search). A top legend (centered) insets both sides via the shared
     `cornerInsets` helper (the same one `textBlockLayout` uses), staying
     centered on the chart; a right legend drops below the zoom panel, a left
-    legend below the top-left panel. Extracted from `renderLegendFeature` to
+    legend below the top-left panel. Against the bottom-right panel, a
+    bottom legend pulls its right edge in (`insetRight`) and a side legend
+    shortens to end above it (`shorten`). Extracted from `renderLegendFeature` to
     keep it under the per-function line budget.
 */
 function legendCornerClearance(
@@ -131,7 +134,7 @@ function legendCornerClearance(
   position: string | false,
   layoutMargin: Required<MarginClaim>,
   padding: {top: number; right: number; bottom: number; left: number},
-): {inset: number; drop: number} {
+): {inset: number; drop: number; insetRight: number; shorten: number} {
   const inset =
     position === "top"
       ? cornerInsets(
@@ -149,7 +152,12 @@ function legendCornerClearance(
     position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
       ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
       : 0;
-  return {inset, drop: dropRight || dropLeft};
+  // The bottom-right corner panel (size legend): a bottom legend pulls its
+  // right edge in beside it, a left/right legend stops short above it.
+  const corner = bottomRightClearance(
+    viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
+  );
+  return {inset, drop: dropRight || dropLeft, insetRight: corner.inset, shorten: corner.drop};
 }
 
 /**
@@ -184,7 +192,7 @@ function renderLegendFeature(
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  const {inset, drop} = legendCornerClearance(viz, position, layoutMargin, padding);
+  const {inset, drop, insetRight, shorten} = legendCornerClearance(viz, position, layoutMargin, padding);
   const transform = {
     transform: `translate(${
       (wide ? layoutMargin.left + padding.left : layoutMargin.left) + inset
@@ -220,7 +228,7 @@ function renderLegendFeature(
       (wide
         ? viz.schema.height - (layoutMargin.bottom + layoutMargin.top)
         : viz.schema.height -
-            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top)) - drop,
+            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top)) - drop - shorten,
     )
     .locale(viz.schema.locale)
     .parent(viz)
@@ -233,7 +241,7 @@ function renderLegendFeature(
       (wide
         ? viz.schema.width -
             (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
-        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - inset * 2,
+        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - inset * 2 - insetRight,
     )
     .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepContext)(viz.schema.shapeConfig, "legend"))
     .shapeConfig({

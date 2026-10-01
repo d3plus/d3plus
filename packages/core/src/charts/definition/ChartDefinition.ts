@@ -13,6 +13,7 @@ import type {SceneNode} from "@d3plus/render";
 import type {FeatureModule} from "../features/features.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
 interface ChartDefinitionBase {
   /** Stable name for tagging and class generation. */
@@ -35,6 +36,19 @@ interface ChartDefinitionBase {
       `runChartDraw` — the chart relies on its parent's `_draw` only.
   */
   layoutStage?: TransformStage;
+  /**
+      Optional size-legend scale, called before layout so the bottom-right
+      corner panel can reserve room: the value → pixel-radius scale the chart
+      will draw with, for a chart area of `available` px (the area before the
+      legend's own reservation, so any area-dependent radius only shrinks
+      from here). Return null when nothing is sized. The chart's layout
+      stores the scale it actually drew with on `viz._sizeLegendFinal`, which
+      is what the legend paints.
+  */
+  sizeLegendScale?: (
+    viz: VizInstance,
+    available: {width: number; height: number},
+  ) => SizeLegendScale | null;
   /** Optional pure threshold algorithm (replaces `Viz._thresholdFunction`). */
   thresholdFunction?: (viz: VizInstance, data: unknown[]) => unknown[];
   /**

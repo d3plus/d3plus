@@ -19,6 +19,7 @@ import type {DataPoint} from "@d3plus/data";
 import {chartBounds} from "../features/chartGeometry.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
 interface NetworkLayoutNode extends SimulationNodeDatum {
   id: string;
@@ -213,6 +214,57 @@ function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
   });
 }
 
+/**
+    Gives every node an `fx`/`fy`: its own x/y, or — when any node lacks
+    them — a force-simulated position. The simulation depends only on the
+    node ids and links, so its result is cached on `v.ctx` and reused by the
+    size legend's pre-layout estimate and the layout that follows it.
+*/
+function positionNetworkNodes(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: NetworkNode[],
+  links: NetworkLink[],
+): void {
+  if (!nodes.some(n => n.fx === undefined || n.fy === undefined)) return;
+  const key = `${nodes.map(n => n.id).join("\u0000")}|${links
+    .map(l => `${l.source.id}>${l.target.id}:${l.size}`)
+    .join("\u0000")}`;
+  const cache = v.ctx.networkForceCache as {key: string; positions: [number, number][]} | undefined;
+  if (cache && cache.key === key) {
+    nodes.forEach((n, i) => {
+      n.fx = cache.positions[i][0];
+      n.fy = cache.positions[i][1];
+    });
+    return;
+  }
+  runForceLayout(nodes, links);
+  v.ctx.networkForceCache = {key, positions: nodes.map(n => [n.fx, n.fy])};
+}
+
+/**
+    Network's size-legend scale for a chart area of `width` × `height`: the
+    same node set, positions, and fitted radius scale the layout builds, run
+    on a scratch copy of the nodes. The fit only shrinks as the area does, so
+    the layout's final radii never exceed this estimate's.
+*/
+export function networkSizeLegendScale(
+  v: Parameters<TransformStage>[0]["viz"],
+  width: number,
+  height: number,
+): SizeLegendScale | null {
+  if (!v._size) return null;
+  if (!Array.isArray(v._filteredData) || !Array.isArray(v.schema.nodes) || !Array.isArray(v.schema.links))
+    return null;
+  const nodes = buildNetworkNodes(v);
+  if (!nodes.length) return null;
+  const {nodeLookup, linkLookup} = v.ctx;
+  const links = buildNetworkLinks(v, nodes);
+  v.ctx.nodeLookup = nodeLookup;
+  v.ctx.linkLookup = linkLookup;
+  positionNetworkNodes(v, nodes, links);
+  return scaleNetworkNodes(v, nodes, width, height) as unknown as SizeLegendScale;
+}
+
 /** Positions nodes within bounds and assigns final r/width/height via a fitted radius scale. */
 function scaleNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
@@ -340,12 +392,10 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   const nodes = buildNetworkNodes(v);
   const links = buildNetworkLinks(v, nodes);
 
-  const missingCoords = nodes.some(
-    n => n.fx === undefined || n.fy === undefined,
-  );
-  if (missingCoords) runForceLayout(nodes, links);
+  positionNetworkNodes(v, nodes, links);
 
   const r = scaleNetworkNodes(v, nodes, width, height);
+  v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   normalizeLinkStrokes(v, links, r);
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");

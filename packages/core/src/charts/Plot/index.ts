@@ -45,7 +45,7 @@ const plotSchema = [
   {key: "y2Sort", coerce: "identity" as const},
 ];
 
-import {plotDef} from "./pipeline.js";
+import {plotDef, plotSizeLegendScale} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {
@@ -389,6 +389,14 @@ export default class Plot extends Viz {
   }
 
   /**
+      The bubble radius scale, for the size legend (see `plotSizeLegendScale`).
+      @private
+  */
+  _sizeLegendScale() {
+    return plotSizeLegendScale(this as unknown as VizInstance);
+  }
+
+  /**
       Paint phase: production axis rendering, shape buffer setup, and shape
       emission with event handlers. Receives all cross-phase locals from
       _draw via `pCtx` (so this method has zero coupling to _draw's local
@@ -568,9 +576,10 @@ Additionally, each config object can also contain an optional "layer" key, which
       Sets the size of bubbles to the given Number, data key, or function.
 */
   size(_?: PlotAccessorArg | false): this | PlotAccessor {
-    return arguments.length
-      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string)), this)
-      : this._size;
+    if (!arguments.length) return this._size;
+    this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string);
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
+    return this;
   }
 
   /**

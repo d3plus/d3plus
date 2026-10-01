@@ -17,6 +17,7 @@
       3. `zoomControls(viz)` — zoom HTML overlay (architectural carve-out)
       4. `minimapFeature.layout(viz)` — zoomed-chart viewport indicator
       5. `topLeftControlsFeature.layout(viz)` — back/table-view/search panel
+      5b. `bottomRightControlsFeature.layout(viz)` — size-legend corner panel
       6. `attributionFeature.layout(viz)` — bottom-right attribution panel
       7. `tableViewFeature.layout(viz)` — chart-sized data-table overlay
       8. `viz._drawSceneToTarget()` — paint scene via SvgRenderer/CanvasRenderer
@@ -36,6 +37,7 @@ import {minimapFeature} from "../drawSteps/minimap.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
 import {resolveDrillMorph} from "./drillMorph.js";
 import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
+import {bottomRightControlsFeature} from "../drawSteps/bottomRightControls.js";
 import {tableViewFeature} from "../drawSteps/tableView.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -78,10 +80,17 @@ export function runVizPipeline(viz: Viz): void {
     Runs the post-draw features (see above) and appends their panels. Anything
     that re-runs `viz._draw()` outside this pipeline — Rings re-centering on a
     click, say — must call this after it: `_draw()` resets the feature panels,
-    so skipping it drops the corner controls and attribution.
+    so skipping it drops the corner controls, size legend, and attribution.
 */
 export function runPostDrawFeatures(viz: Viz): void {
-  const post = runLayout({viz}, [zoomFeature, minimapFeature, topLeftControlsFeature, attributionFeature, tableViewFeature]);
+  const post = runLayout({viz}, [
+    zoomFeature,
+    minimapFeature,
+    topLeftControlsFeature,
+    bottomRightControlsFeature,
+    attributionFeature,
+    tableViewFeature,
+  ]);
   if (post.panels.length)
     viz._featurePanels = [...(viz._featurePanels || []), ...post.panels];
 }
