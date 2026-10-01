@@ -45,3 +45,19 @@ jsdomit("textWidth falls back to the DOM-free decoder when DOMParser is absent",
   assert.ok(decoded > 0, "measures a non-zero width via the fallback");
   assert.strictEqual(decoded, literal, "&amp; is decoded to & (same measured width)");
 });
+
+// A DOMParser that yields no documentElement (not something a real HTML parser
+// produces) makes htmlDecode measure the input as given. Restored by the jsdom
+// teardown.
+jsdomit("textWidth measures the raw input when DOMParser yields no document element", () => {
+  const style = {"font-family": "Verdana", "font-size": 14};
+  const decoded = textWidth("A & B", style);
+  assert.strictEqual(textWidth("A &amp; B", style), decoded, "precondition: real DOMParser decodes");
+
+  global.DOMParser = class {
+    parseFromString() {
+      return {documentElement: null};
+    }
+  };
+  assert.ok(textWidth("A &amp; B", style) > decoded, "&amp; is measured undecoded");
+});
