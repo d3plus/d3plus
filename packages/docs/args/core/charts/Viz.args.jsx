@@ -7,21 +7,6 @@ import {Viz as D3plusViz} from "@d3plus/react";
 export const Viz = ({ config }) => <D3plusViz config={config} />;
 
 export const argTypes = {
-  _drawSceneToTarget: {
-    control: {
-      type: "number"
-    },
-    description: "Renders this chart through the @d3plus/render pluggable backends. Called\nautomatically by `render()`. The compute pass draws into `this._select`\n(an auto-created svg INSIDE the user's target div) — that svg is the\noff-stage detached compute svg. SvgRenderer mounts to the user's target\ndiv (the parent), as a sibling to the detached compute svg. The compute\nsvg's children get cleared so only the scene output is visible.",
-    table: {
-      defaultValue: {
-        summary: "undefined"
-      }
-    },
-    type: {
-      required: false,
-      summary: "number"
-    }
-  },
   active: {
     control: {},
     description: "The active callback function for highlighting shapes.",

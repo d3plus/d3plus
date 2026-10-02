@@ -121,7 +121,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
-| [`nest`](#nest) |  |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
@@ -225,10 +225,6 @@ Creates SVG areas based on an array of data.
 #### Extends
 
 - [`Shape`](#shape-1)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -1319,23 +1315,6 @@ The y1 (bottom edge) position accessor for the area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Bar`](#bar).[`_transition`](#property-_transition-6) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -1360,10 +1339,6 @@ Creates an SVG scale based on an array of data.
 - [`AxisRight`](#axisright)
 - [`AxisTop`](#axistop)
 - [`Timeline`](#timeline)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -2153,35 +2128,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks"></a> `_availableTicks` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_configdefault-1"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | - | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | - | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-1"></a> `_data` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata"></a> `_gridLineData?` | `object`[] | - | - | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-1"></a> `_group` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_labelrotation"></a> `_labelRotation` | `boolean` \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint"></a> `_managesOwnScenePaint?` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin"></a> `_margin` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position"></a> `_position` | `object` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-1"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-1"></a> `_select` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape"></a> `_tickShape?` | [`Shape`](#shape-1) | - | - | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickunit"></a> `_tickUnit` | `number` | - | - | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-1"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-1"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks"></a> `_visibleTicks` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-1"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-1"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -2198,10 +2144,6 @@ Shorthand method for creating an axis where the ticks are drawn below the horizo
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -3063,35 +3005,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-1"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_configdefault-2"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale-1"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative-1"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-2"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-1"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-2"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_labelrotation-1"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace-1"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale-1"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint-1"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin-1"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-1"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-1"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-2"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-2"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-1"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickunit-1"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass-1"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-2"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat-1"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-2"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks-1"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-2"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-2"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -3108,10 +3021,6 @@ Shorthand method for creating an axis where the ticks are drawn to the left of t
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -3973,35 +3882,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-2"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_configdefault-3"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale-2"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative-2"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-3"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-2"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-3"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_labelrotation-2"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace-2"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale-2"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint-2"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin-2"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-2"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-2"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-3"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-3"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-2"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickunit-2"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass-2"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-3"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat-2"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-3"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks-2"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-3"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-3"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -4018,10 +3898,6 @@ Shorthand method for creating an axis where the ticks are drawn to the right of 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -4883,35 +4759,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-3"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_configdefault-4"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale-3"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative-3"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-4"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-3"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-4"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_labelrotation-3"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace-3"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale-3"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint-3"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin-3"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-3"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-3"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-4"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-4"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-3"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickunit-3"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass-3"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-4"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat-3"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-4"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks-3"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-4"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-4"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -4928,10 +4775,6 @@ Shorthand method for creating an axis where the ticks are drawn above the horizo
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -5793,35 +5636,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-4"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_configdefault-5"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale-4"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative-4"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-5"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-4"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-5"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_labelrotation-4"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace-4"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale-4"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint-4"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin-4"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-4"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-4"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-5"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-5"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-4"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickunit-4"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass-4"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-5"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat-4"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-5"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks-4"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-5"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-5"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -5839,33 +5653,7 @@ Creates SVG bars based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-1"></a>
 
@@ -6886,23 +6674,6 @@ The y1 (bottom edge) position accessor for each bar.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-1"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-6"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-6"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-1"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-1"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-6"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-1"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-1"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-1"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-1"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-6"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-1"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-1"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-6"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-1"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-6"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-6"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-6"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -7325,8 +7096,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-7"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_uuid-7"></a> `_uuid` | `string` | - | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-7"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-7"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -7343,10 +7112,6 @@ Creates SVG box based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -8089,14 +7854,6 @@ Configuration object for the whisker.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_box"></a> `_box` | [`Rect`](#rect) | - | - | core/types/src/shapes/Box.d.ts:16 |
-| <a id="property-_configdefault-8"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-7"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Box.d.ts:14 |
-| <a id="property-_median"></a> `_median` | [`Rect`](#rect) | - | - | core/types/src/shapes/Box.d.ts:17 |
-| <a id="property-_select-7"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Box.d.ts:15 |
-| <a id="property-_uuid-8"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_whisker"></a> `_whisker` | [`Whisker`](#whisker) | - | - | core/types/src/shapes/Box.d.ts:18 |
-| <a id="property-_whiskerendpoint"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | core/types/src/shapes/Box.d.ts:19 |
 | <a id="property-ctx-8"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-8"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -8114,33 +7871,7 @@ Creates SVG circles based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-1"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-3"></a>
 
@@ -9025,23 +8756,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-2"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-9"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-8"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-2"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-2"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-7"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-2"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-2"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-2"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-2"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-8"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-2"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-2"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-7"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-2"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-9"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-9"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-9"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -9058,10 +8772,6 @@ Creates an SVG color scale based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -9860,22 +9570,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_axisclass"></a> `_axisClass` | [`Axis`](#axis) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:16 |
-| <a id="property-_axistest"></a> `_axisTest` | [`Axis`](#axis) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:17 |
-| <a id="property-_colorscale"></a> `_colorScale?` | `D3Scale`\<`string`\> | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:18 |
-| <a id="property-_configdefault-10"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-9"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:19 |
-| <a id="property-_gradientfill"></a> `_gradientFill?` | `string` | Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. | - | core/types/src/components/ColorScale/ColorScale.d.ts:28 |
-| <a id="property-_group-8"></a> `_group` | `Selection` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:20 |
-| <a id="property-_labelclass-3"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:21 |
-| <a id="property-_labelmax"></a> `_labelMax` | `string` \| *required* | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:23 |
-| <a id="property-_labelmin"></a> `_labelMin` | `string` \| *required* | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:22 |
-| <a id="property-_legendclass"></a> `_legendClass` | [`Legend`](#legend) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:24 |
-| <a id="property-_outerbounds-5"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:25 |
-| <a id="property-_rectclass"></a> `_rectClass` | [`Rect`](#rect) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:26 |
-| <a id="property-_scenerenderer-8"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:29 |
-| <a id="property-_select-9"></a> `_select` | `Selection` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:15 |
-| <a id="property-_uuid-10"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-10"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-10"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -9910,10 +9604,6 @@ image().data([data])();
 ```ts
 image().data([data])(function() { alert("draw complete!"); })
 ```
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -10066,8 +9756,6 @@ scene graph rather than emit d3-selection DOM.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-_data-10"></a> `_data` | [`DataPoint`](#datapoint)[] | core/types/src/shapes/Image.d.ts:21 |
-| <a id="property-_select-10"></a> `_select` | `Selection` | core/types/src/shapes/Image.d.ts:20 |
 | <a id="property-schema-11"></a> `schema` | `Record`\<`string`, `any`\> | core/types/src/shapes/Image.d.ts:19 |
 
 ***
@@ -10083,10 +9771,6 @@ Creates an SVG legend based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -10748,23 +10432,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-11"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-11"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/Legend/Legend.d.ts:13 |
-| <a id="property-_group-9"></a> `_group` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:19 |
-| <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | core/types/src/components/Legend/Legend.d.ts:14 |
-| <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Legend/Legend.d.ts:15 |
-| <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | core/types/src/components/Legend/Legend.d.ts:18 |
-| <a id="property-_scenerenderer-9"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/Legend/Legend.d.ts:26 |
-| <a id="property-_select-11"></a> `_select` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:16 |
-| <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:21 |
-| <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | core/types/src/components/Legend/Legend.d.ts:17 |
-| <a id="property-_titleclass-5"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Legend/Legend.d.ts:12 |
-| <a id="property-_titlegroup"></a> `_titleGroup` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:20 |
-| <a id="property-_titleheight"></a> `_titleHeight` | `number` | - | - | core/types/src/components/Legend/Legend.d.ts:22 |
-| <a id="property-_titlewidth"></a> `_titleWidth` | `number` | - | - | core/types/src/components/Legend/Legend.d.ts:23 |
-| <a id="property-_uuid-11"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_wraplines"></a> `_wrapLines` | (() => `void`) \| *required* | - | - | core/types/src/components/Legend/Legend.d.ts:24 |
-| <a id="property-_wraprows"></a> `_wrapRows` | (() => `void`) \| *required* | - | - | core/types/src/components/Legend/Legend.d.ts:25 |
 | <a id="property-ctx-11"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-12"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -10781,10 +10448,6 @@ Creates SVG lines based on an array of data.
 #### Extends
 
 - [`Shape`](#shape-1)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -11671,23 +11334,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-3"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-12"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-12"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-3"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-3"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-10"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-3"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-4"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-3"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-3"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-10"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-12"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-3"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-3"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-8"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-3"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-12"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-12"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-13"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -11705,33 +11351,7 @@ Creates SVG Paths based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-2"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-6"></a>
 
@@ -12616,23 +12236,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-4"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-13"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-13"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-4"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-4"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-11"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-4"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-5"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-4"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-4"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-11"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-13"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-4"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-4"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-9"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-4"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-13"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-13"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-14"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -12650,123 +12253,7 @@ Creates an x/y plot based on an array of data.
 
 - [`Viz`](#viz)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:118
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_drawSceneToTarget`](#_drawscenetotarget-1)
-
-<a id="_paint"></a>
-
-##### \_paint()
-
-> **\_paint**(`pCtx`: `PlotPaintContext`): `this`
-
-Defined in: core/types/src/charts/Plot/index.d.ts:106
-
-Paint phase: production axis rendering, shape buffer setup, and shape
-emission with event handlers. Receives all cross-phase locals from
-_draw via `pCtx` (so this method has zero coupling to _draw's local
-scope beyond the explicit context).
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `pCtx` | `PlotPaintContext` |
-
-###### Returns
-
-`this`
-
-<a id="_schedulescenerepaint"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:161
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_scheduleSceneRepaint`](#_schedulescenerepaint-1)
-
-<a id="_wireplotshapeevents"></a>
-
-##### \_wirePlotShapeEvents()
-
-> **\_wirePlotShapeEvents**(`shape`: `object`, `shapeKey`: `string`, `events`: `string`[]): `void`
-
-Defined in: core/types/src/charts/Plot/index.d.ts:51
-
-Wires user-registered `on()` event handlers onto a freshly-configured
-shape instance. Splits the registered events into three buckets:
-global (`"click"`), shape-scoped (`"click.shape"`), and
-shape-class-scoped (`"click.Bar"` etc.). All three forward into
-`this.schema.on[event](d.data, d.i, x, event)`. Extracted from
-Plot._paint so the chart-level event wiring is in one place.
-
-On the scene path (SvgRenderer/CanvasRenderer) these d3-selection
-bindings don't fire — compute-mode shapes mount no per-shape DOM.
-Pointer events are instead routed by `Viz._drawSceneToTarget`'s
-renderer bridge: it hit-tests via `Renderer.pick`, reads the picked
-node's stamped `shapeType`, and dispatches the matching global,
-`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three
-buckets this method wires, so SVG and Canvas behave identically.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `shape` | \{ `on`: `unknown`; \} |
-| `shape.on` |
-| `shapeKey` | `string` |
-| `events` | `string`[] |
-
-###### Returns
-
-`void`
 
 <a id="active-7"></a>
 
@@ -16302,10 +15789,6 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-14"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Viz`](#viz).[`_configDefault`](#property-_configdefault-21) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_trendline"></a> `_trendLine` | `TrendLineType` | - | - | core/types/src/charts/Plot/index.d.ts:17 |
-| <a id="property-_trendlineconfig"></a> `_trendLineConfig` | `Record`\<`string`, `unknown`\> | - | - | core/types/src/charts/Plot/index.d.ts:18 |
-| <a id="property-_uuid-14"></a> `_uuid` | `string` | - | [`Viz`](#viz).[`_uuid`](#property-_uuid-21) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-14"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Viz`](#viz).[`ctx`](#property-ctx-21) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-15"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Viz`](#viz).[`schema`](#property-schema-22) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -16323,33 +15806,7 @@ Creates SVG rectangles based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-3"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-8"></a>
 
@@ -17234,23 +16691,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-5"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-15"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-14"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-5"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-5"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-12"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-5"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-6"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-5"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-5"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-12"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-14"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-5"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-5"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-10"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-5"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-15"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-15"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-16"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -17277,29 +16717,7 @@ An abstracted class for generating shapes.
 - [`Path`](#path)
 - [`Rect`](#rect)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-4"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
 
 <a id="active-9"></a>
 
@@ -18104,23 +17522,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-6"></a> `_activeGroup` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-16"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-15"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-6"></a> `_enter` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-6"></a> `_exit` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-13"></a> `_group` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-6"></a> `_hoverGroup` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-7"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-6"></a> `_name` | `string` | - | - | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-6"></a> `_path` | `Record`\<`string`, `unknown`\> | - | - | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-13"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | - | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-15"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-6"></a> `_tagName` | `string` | - | - | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-6"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | - | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-11"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-6"></a> `_update` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-16"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-16"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-17"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -18153,10 +17554,6 @@ new SizeLegend()
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -18834,12 +18231,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-17"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_layout"></a> `_layout` | `SizeLegendLayout` | - | - | core/types/src/components/SizeLegend/SizeLegend.d.ts:45 |
-| <a id="property-_maxradius"></a> `_maxRadius?` | `number` | Drops values whose circles would outgrow this radius; set by a zoomed chart. | - | core/types/src/components/SizeLegend/SizeLegend.d.ts:47 |
-| <a id="property-_scenerenderer-14"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/SizeLegend/SizeLegend.d.ts:49 |
-| <a id="property-_select-16"></a> `_select?` | `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\> | - | - | core/types/src/components/SizeLegend/SizeLegend.d.ts:48 |
-| <a id="property-_uuid-17"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-17"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-18"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -18856,10 +18247,6 @@ Creates a wrapped text box for each point in an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -19459,10 +18846,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-18"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-16"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/TextBox.d.ts:46 |
-| <a id="property-_select-17"></a> `_select` | `Selection` | - | - | core/types/src/components/TextBox.d.ts:45 |
-| <a id="property-_uuid-18"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-18"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-19"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -19479,10 +18862,6 @@ Creates an interactive timeline brush component for selecting time periods withi
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -20405,44 +19784,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-5"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_brush"></a> `_brush` | `BrushBehavior`\<`unknown`\> | - | - | core/types/src/components/Timeline/Timeline.d.ts:14 |
-| <a id="property-_brushgroup"></a> `_brushGroup` | `Selection` | - | - | core/types/src/components/Timeline/Timeline.d.ts:15 |
-| <a id="property-_buttonbehaviorcurrent"></a> `_buttonBehaviorCurrent` | `string` | - | - | core/types/src/components/Timeline/Timeline.d.ts:9 |
-| <a id="property-_configdefault-19"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_d3scale-5"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_d3scalenegative-5"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_data-17"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-5"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:32 |
-| <a id="property-_group-14"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_hiddenhandles"></a> `_hiddenHandles` | `boolean` | - | - | core/types/src/components/Timeline/Timeline.d.ts:10 |
-| <a id="property-_labelrotation-5"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_labelspace-5"></a> `_labelSpace?` | `number` | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | core/types/src/components/Axis/Axis.d.ts:20 |
-| <a id="property-_lastscale-5"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-_managesownscenepaint-5"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:44 |
-| <a id="property-_margin-5"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_onplaytoggle"></a> `_onPlayToggle?` | () => `void` | - | - | core/types/src/components/Timeline/Timeline.d.ts:13 |
-| <a id="property-_outerbounds-7"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_paddingleft"></a> `_paddingLeft` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:16 |
-| <a id="property-_playbuttonclass"></a> `_playButtonClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Timeline/Timeline.d.ts:11 |
-| <a id="property-_playtimer"></a> `_playTimer` | `number` \| `false` | - | - | core/types/src/components/Timeline/Timeline.d.ts:12 |
-| <a id="property-_position-5"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:26 |
-| <a id="property-_scenerenderer-15"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:43 |
-| <a id="property-_select-18"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-5"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:31 |
-| <a id="property-_tickswidth"></a> `_ticksWidth` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:17 |
-| <a id="property-_tickunit-5"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_titleclass-6"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_transition-12"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_userformat-5"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_uuid-19"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_visibleticks-5"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:40 |
 | <a id="property-ctx-19"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-20"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -20459,10 +19800,6 @@ Creates HTML tooltips in the body of a webpage.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -21443,12 +20780,6 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-20"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-18"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/Tooltip.d.ts:9 |
-| <a id="property-_parentel"></a> `_parentEl?` | `HTMLElement` | v4: optional per-chart parent element (default: global #d3plus-portal). | - | core/types/src/components/Tooltip.d.ts:11 |
-| <a id="property-_portalel"></a> `_portalEl?` | `HTMLElement` | v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to `<body>`). Tracked per-instance so that charts each own a distinct portal — and so `parent()` switches only remove THIS instance's portal, not a sibling Tooltip's. | - | core/types/src/components/Tooltip.d.ts:18 |
-| <a id="property-_tooltiprefs"></a> `_tooltipRefs` | `Record`\<`string`, \{ `arrowDistance`: `number`; `arrowEl`: `HTMLElement`; `arrowHeight`: `number`; `reference`: `VirtualElement` \| `HTMLElement`; `tooltip`: `HTMLElement`; \}\> | - | - | core/types/src/components/Tooltip.d.ts:19 |
-| <a id="property-_uuid-20"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-20"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-21"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -21470,56 +20801,7 @@ The base class every d3plus chart extends. Owns the shared configuration surface
 
 - [`Plot`](#plot)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget-1"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:118
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-<a id="_schedulescenerepaint-1"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:161
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
 
 <a id="active-10"></a>
 
@@ -24457,8 +23739,6 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-21"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | `VizBase._configDefault` | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_uuid-21"></a> `_uuid` | `string` | - | `VizBase._uuid` | core/types/src/utils/BaseClass.d.ts:18 |
 | <a id="property-ctx-21"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | `VizBase.ctx` | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-22"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | `VizBase.schema` | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -24475,10 +23755,6 @@ Creates SVG whisker based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -25157,12 +24433,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-22"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:19 |
-| <a id="property-_data-19"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Whisker.d.ts:14 |
-| <a id="property-_line"></a> `_line` | [`Line`](#line) | - | - | core/types/src/shapes/Whisker.d.ts:16 |
-| <a id="property-_select-19"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Whisker.d.ts:15 |
-| <a id="property-_uuid-22"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_whiskerendpoint-1"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | core/types/src/shapes/Whisker.d.ts:17 |
 | <a id="property-ctx-22"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
 | <a id="property-schema-23"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
@@ -26231,14 +25501,16 @@ output is deterministic for a given input.
 
 > **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:11
+Defined in: data/types/src/nest.d.ts:12
+
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | - |
-| `keys` | `KeyAccessor` \| `KeyAccessor`[] | An array of key accessors that signify each nest level. |
+| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
 
 #### Returns
 
@@ -26252,7 +25524,7 @@ Defined in: data/types/src/nest.d.ts:11
 
 > **nestGroups**(`data`: [`DataPoint`](#datapoint)[], `fns`: `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:17
+Defined in: data/types/src/nest.d.ts:18
 
 Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
 

@@ -8,7 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {pathToFileURL} from "node:url";
-import {Application, ReflectionKind} from "typedoc";
+import {Application, Converter, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
 const log = Logger("documentation");
@@ -381,6 +381,20 @@ async function generateMarkdown() {
       tsconfig: `${folder}/tsconfig.json`,
       outputs: [{name: "markdown", path: tempDir}],
       ...markdownOptions,
+    });
+
+    // Members named with a leading underscore are internal by convention
+    // (see AGENTS.md), whatever their TypeScript visibility. Drop them before
+    // rendering so neither the README nor the Storybook args document them.
+    app.converter.on(Converter.EVENT_RESOLVE_BEGIN, context => {
+      for (const reflection of Object.values(context.project.reflections)) {
+        if (
+          reflection.name.startsWith("_") &&
+          reflection.parent &&
+          reflection.parent.kind === ReflectionKind.Class
+        )
+          context.project.removeReflection(reflection);
+      }
     });
 
     const project = await app.convert();
