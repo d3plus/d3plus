@@ -121,7 +121,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
-| [`nest`](#nest) |  |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
@@ -13561,85 +13561,13 @@ When the width or height of the chart is less than or equal to this pixel value,
 
 `number` \| [`Plot`](#plot)
 
-<a id="downloadbutton"></a>
-
-##### downloadButton()
-
-> **downloadButton**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
-
-Shows a button that allows for downloading the current visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `boolean` |
-
-###### Returns
-
-`boolean` \| [`Plot`](#plot)
-
-###### Inherited from
-
-[`Viz`](#viz).[`downloadButton`](#downloadbutton-1)
-
-<a id="downloadconfig"></a>
-
-##### downloadConfig()
-
-> **downloadConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
-
-Sets specific options of the saveElement function used when downloading the visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-[`Viz`](#viz).[`downloadConfig`](#downloadconfig-1)
-
-<a id="downloadposition"></a>
-
-##### downloadPosition()
-
-> **downloadPosition**(`_?`: `string`): `string` \| [`Plot`](#plot)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
-
-Defines which control group to add the download button into.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `string` |
-
-###### Returns
-
-`string` \| [`Plot`](#plot)
-
-###### Inherited from
-
-[`Viz`](#viz).[`downloadPosition`](#downloadposition-1)
-
 <a id="fontfamily"></a>
 
 ##### fontFamily()
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Plot`](#plot) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:124
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
 
 The font family used throughout the visualization.
 
@@ -13663,7 +13591,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Plot`](#plot) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -13707,7 +13635,7 @@ The pixel space between groups of bars.
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13731,7 +13659,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:124
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13755,7 +13683,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -13783,7 +13711,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -13807,7 +13735,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:142
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -13873,7 +13801,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:146
 
 Whether to display the legend.
 
@@ -13897,7 +13825,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:162
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:150
 
 Configuration object passed to the legend's config method.
 
@@ -13921,7 +13849,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:166
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -13945,7 +13873,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:170
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -13969,7 +13897,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:174
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:162
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -13993,7 +13921,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:178
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:166
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -14017,7 +13945,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:182
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:170
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -14041,7 +13969,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:186
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:174
 
 Configuration object for the legend tooltip.
 
@@ -22134,85 +22062,13 @@ When `true` (the default) and `detectVisible` is enabled, the Viz releases its D
 
 `VizBase.detectVisibleUnload`
 
-<a id="downloadbutton-1"></a>
-
-##### downloadButton()
-
-> **downloadButton**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
-
-Shows a button that allows for downloading the current visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `boolean` |
-
-###### Returns
-
-`boolean` \| [`Viz`](#viz)
-
-###### Inherited from
-
-`VizBase.downloadButton`
-
-<a id="downloadconfig-1"></a>
-
-##### downloadConfig()
-
-> **downloadConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
-
-Sets specific options of the saveElement function used when downloading the visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-`VizBase.downloadConfig`
-
-<a id="downloadposition-1"></a>
-
-##### downloadPosition()
-
-> **downloadPosition**(`_?`: `string`): `string` \| [`Viz`](#viz)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
-
-Defines which control group to add the download button into.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `string` |
-
-###### Returns
-
-`string` \| [`Viz`](#viz)
-
-###### Inherited from
-
-`VizBase.downloadPosition`
-
 <a id="fontfamily-1"></a>
 
 ##### fontFamily()
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Viz`](#viz) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:124
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
 
 The font family used throughout the visualization.
 
@@ -22236,7 +22092,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Viz`](#viz) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -22260,7 +22116,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22284,7 +22140,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:124
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22308,7 +22164,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -22336,7 +22192,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -22360,7 +22216,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:142
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -22386,7 +22242,7 @@ per-datum object key — pass a function for that).
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:146
 
 Whether to display the legend.
 
@@ -22410,7 +22266,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:162
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:150
 
 Configuration object passed to the legend's config method.
 
@@ -22434,7 +22290,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:166
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:154
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -22458,7 +22314,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:170
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:158
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -22482,7 +22338,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:174
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:162
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -22506,7 +22362,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:178
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:166
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -22530,7 +22386,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:182
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:170
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -22554,7 +22410,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:186
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:174
 
 Configuration object for the legend tooltip.
 
@@ -26231,14 +26087,16 @@ output is deterministic for a given input.
 
 > **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:11
+Defined in: data/types/src/nest.d.ts:12
+
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | - |
-| `keys` | `KeyAccessor` \| `KeyAccessor`[] | An array of key accessors that signify each nest level. |
+| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
 
 #### Returns
 
@@ -26252,7 +26110,7 @@ Defined in: data/types/src/nest.d.ts:11
 
 > **nestGroups**(`data`: [`DataPoint`](#datapoint)[], `fns`: `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:17
+Defined in: data/types/src/nest.d.ts:18
 
 Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
 
