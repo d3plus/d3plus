@@ -50,16 +50,17 @@ export function computeLegendLineData(
     const shape = legend.schema.shape(d, i);
     const r = legend._fetchConfig("r", d, i) as number;
 
+    const height = legend._fetchConfig("height", d, i) as number;
     let res: Record<string, unknown> = {
       data: d,
       i,
       id: legend.schema.id(d, i),
       shape,
       shapeR: r,
+      // A Line swatch fills a square, like a Rect's, so swatches line up.
       shapeWidth:
-        shape === "Circle" ? r * 2 : legend._fetchConfig("width", d, i),
-      shapeHeight:
-        shape === "Circle" ? r * 2 : legend._fetchConfig("height", d, i),
+        shape === "Circle" ? r * 2 : shape === "Line" ? height : legend._fetchConfig("width", d, i),
+      shapeHeight: shape === "Circle" ? r * 2 : height,
       y: 0,
     };
 
@@ -317,7 +318,35 @@ export function renderLegendTitle(legend: Legend): void {
     .render();
 }
 
-/** Builds the per-shape data and renders the Circle/Rect swatch groups. */
+/** A Line swatch's dot radius, as a share of its size: its stroke pokes out either side. */
+const LINE_DOT = 0.3;
+
+/** A Line swatch's stroke thickness, in pixels. */
+const LINE_STROKE = 2;
+
+/**
+    Per-shape overrides that draw a "Line" legend entry as a line glyph: a
+    short stroke (in the Rect group, which also carries the item's label and
+    hover target) through a small dot (in the Circle group).
+*/
+function lineSwatchConfig(legend: Legend, shapeName: string): Record<string, unknown> {
+  type Wrapped = {shape?: unknown; data: DataPoint; i: number};
+  const isLine = (d: Wrapped) => d.shape === "Line";
+  const fetch = (key: string, d: Wrapped) => legend._fetchConfig(key, d.data, d.i);
+  const line = (d: Wrapped) => legend._lineData[d.i];
+  return shapeName === "Rect"
+    ? {
+      width: (d: Wrapped) => (isLine(d) ? line(d).shapeWidth : fetch("width", d)),
+      height: (d: Wrapped) => (isLine(d) ? LINE_STROKE : fetch("height", d)),
+    }
+    : {
+      r: (d: Wrapped) => (isLine(d) ? (line(d).shapeHeight as number) * LINE_DOT : fetch("r", d)),
+      label: (d: Wrapped & {label?: unknown}) => (isLine(d) ? false : d.label),
+      hitArea: (d: Wrapped) => (isLine(d) ? null : fetch("hitArea", d)),
+    };
+}
+
+/** Builds the per-shape data and renders the Circle/Rect swatch groups (Line entries draw in both). */
 export function renderLegendShapes(legend: Legend): void {
   legend._shapes = [];
   const baseConfig = configPrep.bind(legend as unknown as VizContext)(legend.schema.shapeConfig, "legend"),
@@ -347,13 +376,14 @@ export function renderLegendShapes(legend: Legend): void {
       new (shapes as unknown as Record<string, new () => Shape>)[shapeName]()
         .renderMode("compute")
         .parent(legend)
-        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName))
+        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName || d.shape === "Line"))
         .duration(legend.schema.duration)
         .labelConfig({padding: 0})
         .select(legend._shapeGroup.node())
         .verticalAlign("top")
         .config(baseConfig)
         .config(config)
+        .config(lineSwatchConfig(legend, shapeName))
         .render(),
     );
   });

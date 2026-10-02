@@ -8,6 +8,7 @@ import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
+import {tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SharedHover} from "./sharedHover.js";
 
@@ -43,16 +44,6 @@ function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
   const raw = accessor ? accessor(row.datum, row.index) : hover.value;
   return [axisName(viz, k), axisValue(viz, k, raw)];
 }
-
-/**
-    A small swatch filled with the series stroke, before the series name: a
-    dot for Lines (echoing their markers), a square for Bars and Areas.
-*/
-const swatch = (color?: string, shape?: string): string => {
-  if (!color) return "";
-  const radius = shape === "Line" || shape === "Circle" ? "50%" : "1px";
-  return `<span class="d3plus-tooltip-swatch" style="display: inline-block; width: 8px; height: 8px; margin-right: 6px; vertical-align: middle; border-radius: ${radius}; background: ${color}"></span>`;
-};
 
 /**
     The tooltip's client position: the discrete-axis coordinate locked to the
@@ -112,7 +103,7 @@ export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event:
     .title(() => axisName(viz, cont))
     .thead(axisRow(viz, hover.axis, hover))
     .tbody(hover.rows.map(r => [
-      `${swatch(r.color, r.shape)}${r.name}`,
+      withSwatch(tooltipSwatch(r.color, r.shape), r.name),
       axisValue(viz, cont, r.value),
     ]))
     .footer(false)
@@ -132,7 +123,7 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
   const deeper = viz._drawDepth < viz.schema.groupBy.length - 1;
   const tip = prepareTooltip(viz)
     .data([row.datum])
-    .title(() => viz._drawLabel(row.datum, row.index))
+    .title(() => withSwatch(tooltipSwatch(row.color, row.shape), viz._drawLabel(row.datum, row.index)))
     .footer(deeper && viz.schema.on["click.shape"] ? viz.schema.translate("Click to Expand") : false)
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig));
   const extra = tip.tbody();

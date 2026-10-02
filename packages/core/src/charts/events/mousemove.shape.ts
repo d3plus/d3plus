@@ -2,7 +2,9 @@ import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
+import {nodeColor, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type Viz from "../viz/Viz.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     @module mouseMoveShape
@@ -61,6 +63,12 @@ export default function (
     while (tooltipDatum && tooltipDatum.__d3plus__ && tooltipDatum.data)
       tooltipDatum = tooltipDatum.data as typeof tooltipDatum;
 
+    // The title leads with a swatch of the hovered mark, as in the legend.
+    const pick = this._lastScenePick;
+    const swatch = pick && !pick.isLegend
+      ? tooltipSwatch(nodeColor(this as unknown as VizInstance, pick.node), pick.shapeType ?? undefined)
+      : "";
+
     this._tooltipClass
       .data([tooltipDatum])
       .footer(
@@ -68,7 +76,7 @@ export default function (
           ? this.schema.translate("Click to Expand")
           : false,
       )
-      .title(this._drawLabel)
+      .title((dd: DataPoint, ii: number) => withSwatch(swatch, this._drawLabel(dd, ii)))
       .position(position)
       .config(configPrep.bind(this as unknown as VizContext)(this.schema.tooltipConfig))
       .render();

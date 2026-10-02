@@ -120,8 +120,7 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
     },
     labelBounds: (dd: DataPoint, i: number) => {
       const d = legend._lineData[i];
-      let x = (d.shapeWidth as number) / 2;
-      if (d.shape === "Circle") x -= (d.shapeR as number) / 2;
+      const x = (d.shapeWidth as number) / 2;
       const height = max([d.shapeHeight as number, d.height as number]);
       const rtlMod = legend._rtl
         ? (d.shapeWidth as number) + (d.width as number) + legend.schema.padding * 2
@@ -146,6 +145,8 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
       // key than its swatch, so hovering across the swatch→label padding would
       // otherwise read as leaving one item and entering another.
       pointerEvents: constant("none"),
+      // Every swatch's label starts right after it (a Circle's own labels center).
+      textAnchor: "start",
       verticalAlign: "middle",
     },
     opacity: 1,
