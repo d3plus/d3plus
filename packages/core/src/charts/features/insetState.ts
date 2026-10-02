@@ -10,7 +10,7 @@
 
 import {colorContrast} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
-import type {Box} from "@d3plus/math";
+import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -25,13 +25,13 @@ export type InsetOrient = "column" | "row";
 /** The region a chart offers for inset chrome, in surface coordinates. */
 export interface InsetRegion {
   /** The area chrome may be drawn in (e.g. the plot area). */
-  bounds: Box;
+  bounds: Bounds;
   /** The boxes of the chart's marks, which chrome must stay clear of. */
-  obstacles: Box[];
+  obstacles: Bounds[];
 }
 
 /** Where the inset chrome landed: its background box, in surface coordinates. */
-export interface InsetPlacement extends Box {
+export interface InsetPlacement extends Bounds {
   key: InsetKey;
   orient: InsetOrient;
   /** Which side of its open space the box hugs, so content smaller than it can keep to that side. */

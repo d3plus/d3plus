@@ -6,7 +6,7 @@
 */
 
 import {path2polygon, pathBounds} from "@d3plus/math";
-import type {Box} from "@d3plus/math";
+import type {Bounds} from "@d3plus/math";
 import type {SceneNode, TextNode, Transform} from "@d3plus/render";
 
 type Point = [number, number];
@@ -30,10 +30,10 @@ function applyTransform([px, py]: Point, t: Transform | undefined): Point {
 const PATH_STEP = 10;
 
 /** A zero-size box at a series vertex. */
-const vertexBox = ([x, y]: Point): Box => ({x, y, width: 0, height: 0});
+const vertexBox = ([x, y]: Point): Bounds => ({x, y, width: 0, height: 0});
 
 /** One box per laid-out line of a text node, from its anchor, baseline, and font size. */
-function textBoxes(node: TextNode): Box[] {
+function textBoxes(node: TextNode): Bounds[] {
   const size = node.font?.size ?? 0;
   const anchor = node.font?.anchor ?? "start";
   const baseline = node.font?.baseline ?? "alphabetic";
@@ -47,7 +47,7 @@ function textBoxes(node: TextNode): Box[] {
 }
 
 /** Boxes of a node's own geometry, before its transform. Line/area series and paths contribute one box per outline point. */
-function ownBoxes(node: SceneNode): Box[] {
+function ownBoxes(node: SceneNode): Bounds[] {
   switch (node.type) {
     case "rect":
     case "image":
@@ -77,7 +77,7 @@ function mapper(chain: Transform[]): (p: Point) => Point {
 }
 
 /** The axis-aligned box around a box mapped through `map`. */
-function mapBox(b: Box, map: (p: Point) => Point): Box {
+function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
   const corners = [
     map([b.x, b.y]), map([b.x + b.width, b.y]),
     map([b.x, b.y + b.height]), map([b.x + b.width, b.y + b.height]),
@@ -100,8 +100,8 @@ export function markBoxes(
   nodes: SceneNode[],
   base?: Transform,
   skip?: (node: SceneNode) => boolean,
-): Box[] {
-  const out: Box[] = [];
+): Bounds[] {
+  const out: Bounds[] = [];
   const walk = (list: SceneNode[], chain: Transform[]): void => {
     for (const node of list) {
       if (String(node.key).endsWith("::hit") || (skip && skip(node))) continue;

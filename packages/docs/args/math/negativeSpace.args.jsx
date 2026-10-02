@@ -16,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "box"
+      summary: "bounds"
     }
   },
   obstacles: {
@@ -29,7 +29,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array.&lt;box&gt;"
+      summary: "array.&lt;bounds&gt;"
     }
   },
   options: {

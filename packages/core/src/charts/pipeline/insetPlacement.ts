@@ -19,7 +19,7 @@
 */
 
 import {negativeSpace} from "@d3plus/math";
-import type {Box} from "@d3plus/math";
+import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -45,7 +45,7 @@ import {resolveSpec} from "./resolveSpec.js";
 */
 export function sceneInsetRegion(
   viz: VizInstance,
-  bounds?: Box,
+  bounds?: Bounds,
   skip?: (node: SceneNode) => boolean,
 ): InsetRegion {
   const {width, height} = chartBounds(viz);
@@ -144,21 +144,21 @@ const CORNERS: Array<Pick<InsetPlacement, "alignX" | "alignY">> = [
     axis otherwise.
 */
 export function fitInset(
-  rects: Box[],
-  bounds: Box,
+  rects: Bounds[],
+  bounds: Bounds,
   width: number,
   height: number,
-): (Box & Pick<InsetPlacement, "alignX" | "alignY">) | null {
+): (Bounds & Pick<InsetPlacement, "alignX" | "alignY">) | null {
   const eps = 0.5;
   const fits = rects.filter(r => r.width >= width && r.height >= height);
   if (!fits.length) return null;
-  const edges = (r: Box) => ({
+  const edges = (r: Bounds) => ({
     right: Math.abs(r.x + r.width - (bounds.x + bounds.width)) < eps,
     left: Math.abs(r.x - bounds.x) < eps,
     bottom: Math.abs(r.y + r.height - (bounds.y + bounds.height)) < eps,
     top: Math.abs(r.y - bounds.y) < eps,
   });
-  const place = (r: Box, alignX: InsetPlacement["alignX"], alignY: InsetPlacement["alignY"]) => ({
+  const place = (r: Bounds, alignX: InsetPlacement["alignX"], alignY: InsetPlacement["alignY"]) => ({
     x: alignX === "right" ? r.x + r.width - width : alignX === "left" ? r.x : r.x + (r.width - width) / 2,
     y: alignY === "bottom" ? r.y + r.height - height : alignY === "top" ? r.y : r.y + (r.height - height) / 2,
     width,
@@ -192,8 +192,8 @@ const ATTRIBUTION_HEIGHT = 22;
     there is one, otherwise from its text, up to the half of the chart it
     may span before collapsing to a badge).
 */
-function chromeBoxes(viz: VizInstance): Box[] {
-  const boxes: Box[] = [];
+function chromeBoxes(viz: VizInstance): Bounds[] {
+  const boxes: Bounds[] = [];
   const {width, height} = chartBounds(viz);
   const zoom = zoomControlsBox(viz as never);
   if (zoom) {
@@ -215,7 +215,7 @@ function chromeBoxes(viz: VizInstance): Box[] {
 }
 
 /** The open rects in the chart's region, kept `padding` clear of the marks and the region's edges. */
-function openSpace(viz: VizInstance): {rects: Box[]; bounds: Box; area: {width: number; height: number}} | null {
+function openSpace(viz: VizInstance): {rects: Bounds[]; bounds: Bounds; area: {width: number; height: number}} | null {
   const region = viz._insetRegion?.();
   if (!region) return null;
   const {padding} = insetStyle(viz);

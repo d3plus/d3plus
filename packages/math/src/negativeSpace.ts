@@ -3,7 +3,7 @@ import {polygonHull} from "d3-polygon";
 import type {Point} from "./lineIntersection.js";
 
 /** An axis-aligned box: top-left corner plus size. */
-export interface Box {
+export interface Bounds {
   x: number;
   y: number;
   width: number;
@@ -21,7 +21,7 @@ export interface NegativeSpaceOptions {
   /** Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. */
   divisions?: number;
   /** Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). */
-  exclude?: Box[];
+  exclude?: Bounds[];
 }
 
 /** Edges of the polygon, as `[from, to]` pairs (the polygon is implicitly closed). */
@@ -86,10 +86,10 @@ function gridLines(values: number[], lo: number, hi: number, divisions: number):
     @param options Padding and minimum-size options.
 */
 export default function negativeSpace(
-  bounds: Box,
-  obstacles: Box[],
+  bounds: Bounds,
+  obstacles: Bounds[],
   options: NegativeSpaceOptions = {},
-): Box[] {
+): Bounds[] {
   const {padding = 0, minWidth = 1, minHeight = 1, divisions = 48, exclude = []} = options;
   const bx0 = bounds.x, by0 = bounds.y;
   const bx1 = bounds.x + bounds.width, by1 = bounds.y + bounds.height;
@@ -151,7 +151,7 @@ export default function negativeSpace(
   // rectangle at its own height. Every maximal empty rectangle is one of
   // these; the ones that could still grow downward are dropped.
   const seen = new Set<string>();
-  const results: Box[] = [];
+  const results: Bounds[] = [];
   const heights = new Uint32Array(nx);
   for (let j = 0; j < ny; j++) {
     for (let i = 0; i < nx; i++) heights[i] = occupied[j][i] ? 0 : heights[i] + 1;

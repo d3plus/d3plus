@@ -53,7 +53,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Interfaces | Description |
 | --- | --- |
-| [`Box`](#box) | An axis-aligned box: top-left corner plus size. |
+| [`Bounds`](#bounds) | An axis-aligned box: top-left corner plus size. |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
 | [`RegressionOptions`](#regressionoptions) |  |
 | [`RegressionResult`](#regressionresult) |  |
@@ -184,9 +184,9 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 ### negativeSpace()
 
-> **negativeSpace**(`bounds`: [`Box`](#box), `obstacles`: [`Box`](#box)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Box`](#box)[]
+> **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
 
-Defined in: negativeSpace.ts:88
+Defined in: [negativeSpace.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L88)
 
 Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
 outside the marks described by `obstacles`. The marks are treated as a single
@@ -201,13 +201,13 @@ output is deterministic for a given input.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `bounds` | [`Box`](#box) | The region to search, such as a chart's plot area. |
-| `obstacles` | [`Box`](#box)[] | The bounding boxes of the marks drawn inside `bounds`. |
+| `bounds` | [`Bounds`](#bounds) | The region to search, such as a chart's plot area. |
+| `obstacles` | [`Bounds`](#bounds)[] | The bounding boxes of the marks drawn inside `bounds`. |
 | `options` | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options. |
 
 #### Returns
 
-[`Box`](#box)[]
+[`Bounds`](#bounds)[]
 
 ***
 
@@ -583,11 +583,11 @@ The inverse cumulative distribution function (quantile) of Student's t-distribut
 
 ## Interfaces
 
-<a id="box"></a>
+<a id="bounds"></a>
 
-### Box
+### Bounds
 
-Defined in: negativeSpace.ts:6
+Defined in: [negativeSpace.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L6)
 
 An axis-aligned box: top-left corner plus size.
 
@@ -595,10 +595,10 @@ An axis-aligned box: top-left corner plus size.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-height"></a> `height` | `number` | negativeSpace.ts:10 |
-| <a id="property-width"></a> `width` | `number` | negativeSpace.ts:9 |
-| <a id="property-x"></a> `x` | `number` | negativeSpace.ts:7 |
-| <a id="property-y"></a> `y` | `number` | negativeSpace.ts:8 |
+| <a id="property-height"></a> `height` | `number` | [negativeSpace.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L10) |
+| <a id="property-width"></a> `width` | `number` | [negativeSpace.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L9) |
+| <a id="property-x"></a> `x` | `number` | [negativeSpace.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L7) |
+| <a id="property-y"></a> `y` | `number` | [negativeSpace.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L8) |
 
 ***
 
@@ -606,17 +606,19 @@ An axis-aligned box: top-left corner plus size.
 
 ### NegativeSpaceOptions
 
-Defined in: negativeSpace.ts:14
+Defined in: [negativeSpace.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L14)
+
+Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid.
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-divisions"></a> `divisions?` | `number` | Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. | negativeSpace.ts:22 |
-| <a id="property-exclude"></a> `exclude?` | [`Box`](#box)[] | Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). | negativeSpace.ts:24 |
-| <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | negativeSpace.ts:20 |
-| <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | negativeSpace.ts:18 |
-| <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | negativeSpace.ts:16 |
+| <a id="property-divisions"></a> `divisions?` | `number` | Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. | [negativeSpace.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L22) |
+| <a id="property-exclude"></a> `exclude?` | [`Bounds`](#bounds)[] | Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). | [negativeSpace.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L24) |
+| <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | [negativeSpace.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L20) |
+| <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | [negativeSpace.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L18) |
+| <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | [negativeSpace.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L16) |
 
 ***
 

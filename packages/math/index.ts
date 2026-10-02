@@ -19,4 +19,4 @@ export {default as shapeEdgePoint} from "./src/shapeEdgePoint.js";
 export {default as simplify} from "./src/simplify.js";
 export {default as studentTQuantile, studentTCdf} from "./src/studentTQuantile.js";
 export type {RegressionOptions, RegressionResult, RegressionType} from "./src/regression.js";
-export type {Box, NegativeSpaceOptions} from "./src/negativeSpace.js";
+export type {Bounds, NegativeSpaceOptions} from "./src/negativeSpace.js";
