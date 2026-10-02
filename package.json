@@ -64,6 +64,8 @@
     "canvas": "^3.1.0",
     "chokidar": "^4.0.3",
     "eslint": "^9.21.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.13.0",
     "jsdom": "^26.0.0",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9",

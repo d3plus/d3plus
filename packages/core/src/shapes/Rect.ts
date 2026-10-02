@@ -24,7 +24,7 @@ const rectSchema: ConfigField[] = [
 ];
 
 /**
-    Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
+    Creates SVG rectangles based on an array of data.
 */
 export default class Rect extends Shape {
   /**

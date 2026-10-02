@@ -7,7 +7,6 @@
  * @param {string} code an expression that evaluates to the data array.
  */
 export default function datafy(code) {
-  // eslint-disable-next-line no-new-func
   const data = new Function(`return (${code});`)();
   Object.defineProperty(data, "__source", {value: code});
   return data;

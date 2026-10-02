@@ -36,6 +36,9 @@ export interface TimeLocaleDefinition {
   ];
 }
 
+/**
+    d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.
+*/
 const locale: Record<string, TimeLocaleDefinition> = {
   "ar-SA": {
     dateTime: "%x, %X",

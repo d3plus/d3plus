@@ -10,9 +10,9 @@ interface NestEntry {
 type KeyAccessor = (d: DataPoint) => string | number | boolean | undefined;
 
 /**
-    @summary Extends the base behavior of d3.nest to allow for multiple depth levels.
-    @param keys An array of key accessors that signify each nest level.
-    @private
+    Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
+    @param data The flat data array to nest.
+    @param keys One key accessor, or an array of them, one per nest level.
 */
 export default function (
   data: DataPoint[],

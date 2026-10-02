@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates SVG areas based on an array of data.",
+        component: "Creates SVG bars based on an array of data.",
       },
     },
   }

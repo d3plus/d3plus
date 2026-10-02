@@ -8,7 +8,7 @@ import React from "react";
 export const argTypes = {
   data: {
     control: {},
-    description: "",
+    description: "input data, as an array of number values",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -23,7 +23,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
-    description: "",
+    description: "number of desired classes. This cannot be greater than the number of values in the data array.",
     table: {
       defaultValue: {
         summary: "undefined"

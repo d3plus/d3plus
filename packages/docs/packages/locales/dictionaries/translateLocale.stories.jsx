@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../args/export/default.args";
-import {default as saveElement} from "@d3plus/export";
+import {argTypes} from "../../../args/locales/dictionaries/translateLocale.args";
+import {translateLocale} from "@d3plus/locales";
 
 export default {
-  title: "Export/default",
+  title: "Locales/Dictionaries/translateLocale",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "saveElement",
+        component: "Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as en-US or es-ES. Each entry maps the English string to its translation.",
       },
     },
   }

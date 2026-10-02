@@ -54,9 +54,10 @@ export default function (script) {
 
   Logger.warn = msg => {
     if (spinner) {
-      spinner.warning(msg || spinner.text);
-      spinner = null;
-    }
+      const {text} = spinner;
+      spinner.warning(msg || text);
+      spinner = yoctoSpinner({text, color: "cyan"}).start();
+    } else yoctoSpinner().warning(msg);
   };
 
   return Logger;

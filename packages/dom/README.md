@@ -37,6 +37,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`date`](#date) | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats. |
 | [`elem`](#elem) | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optiona |
 | [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false |
+| [`getSize`](#getsize) | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with  |
 | [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
@@ -227,6 +228,28 @@ Given either a single font-family or a list of fonts, returns the name of the fi
 #### Returns
 
 `string` \| `false`
+
+***
+
+<a id="getsize"></a>
+
+### getSize()
+
+> **getSize**(`elem`: `HTMLElement`): \[`number` \| `undefined`, `number` \| `undefined`\]
+
+Defined in: [getSize.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/getSize.ts#L58)
+
+Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `elem` | `HTMLElement` |
+
+#### Returns
+
+\[`number` \| `undefined`, `number` \| `undefined`\]
 
 ***
 

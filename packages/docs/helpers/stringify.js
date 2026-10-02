@@ -15,20 +15,20 @@ export default function (config, indent = 2) {
   return (
     JSON.stringify(config, replacer, indent)
       // "data" cleanup
-      .replace(/\"(\{[^\}]+\})\"/g, "$1")
-      .replace(/\\"([A-z0-9]+)\\"\:/g, "$1:")
-      .replace(/([^\s]):([^\s^\/])/g, "$1: $2")
+      .replace(/"(\{[^}]+\})"/g, "$1")
+      .replace(/\\"([A-z0-9]+)\\":/g, "$1:")
+      .replace(/([^\s]):([^\s^/])/g, "$1: $2")
       .replace(/([^\s]),([^\s])/g, "$1, $2")
-      .replace(/\[([^\]^\{]+)\]/g, str =>
+      .replace(/\[([^\]^{]+)\]/g, str =>
         str.replace(/ /gm, "").replace(/\n/gm, " "),
       )
 
       // remove parentheses from keys
-      .replace(/\"([A-z0-9]+)\"\:/g, "$1:")
+      .replace(/"([A-z0-9]+)":/g, "$1:")
 
       // cleans up funcitons
-      .replace(/\"([^=].+=)> ([^\"].+)\"/g, "$1> $2")
-      .replace(/\:\s\"function\(([^\"].+)\"/g, "($1")
+      .replace(/"([^=].+=)> ([^"].+)"/g, "$1> $2")
+      .replace(/:\s"function\(([^"].+)"/g, "($1")
       .replace(/\\n/g, "\n")
       .replace(/\\"/g, '"')
       .replace(/( *)(.*)"__d3plus_source_(\d+)__"/g, (_, pad, before, i) =>

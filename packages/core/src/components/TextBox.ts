@@ -406,7 +406,7 @@ const textBoxSchema: ConfigField[] = [
 ];
 
 /**
-    Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+    Creates a wrapped text box for each point in an array of data.
 */
 export default class TextBox extends BaseClass {
   // installFluent generates the config accessors (text, fontSize, x, …) at

@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Rotates a point around a given origin.",
+        component: "Rotates a polygon around a given origin.",
       },
     },
   }

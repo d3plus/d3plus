@@ -59,8 +59,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`AxisBottom`](#axisbottom) | Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functional |
 | [`AxisLeft`](#axisleft) | Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all fun |
 | [`AxisRight`](#axisright) | Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all fu |
-| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionalit |
-| [`Bar`](#bar) | Creates SVG areas based on an array of data. |
+| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functional |
+| [`Bar`](#bar) | Creates SVG bars based on an array of data. |
 | [`BaseClass`](#baseclass) | Provides shared configuration, event handling, and locale management inherited by all d3plus classes. |
 | [`Box`](#box) | Creates SVG box based on an array of data. |
 | [`Circle`](#circle) | Creates SVG circles based on an array of data. |
@@ -70,13 +70,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Line`](#line) | Creates SVG lines based on an array of data. |
 | [`Path`](#path) | Creates SVG Paths based on an array of data. |
 | [`Plot`](#plot) | Creates an x/y plot based on an array of data. |
-| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-st |
+| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. |
 | [`Shape`](#shape) | An abstracted class for generating shapes. |
 | [`SizeLegend`](#sizelegend) | A nested-circle legend for a size scale: concentric circles sharing a |
-| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-tex |
+| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. |
 | [`Timeline`](#timeline) | Creates an interactive timeline brush component for selecting time periods within a visualization. |
 | [`Tooltip`](#tooltip) | Creates HTML tooltips in the body of a webpage. |
-| [`Viz`](#viz) | Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-sta |
+| [`Viz`](#viz) | The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessor |
 | [`Whisker`](#whisker) | Creates SVG whisker based on an array of data. |
 
 | Functions | Description |
@@ -4833,7 +4833,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/Axis/AxisTop.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/AxisTop.ts#L6)
 
-Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.
 
 #### Extends
 
@@ -5743,7 +5743,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [shapes/Bar.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Bar.ts#L22)
 
-Creates SVG areas based on an array of data.
+Creates SVG bars based on an array of data.
 
 #### Extends
 
@@ -8985,7 +8985,7 @@ Creates an SVG color scale based on an array of data.
 
 Defined in: [components/ColorScale/ColorScale.ts:301](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L301)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Returns
 
@@ -8997,7 +8997,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: [components/ColorScale/ColorScale.ts:302](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L302)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Parameters
 
@@ -9159,7 +9159,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 Defined in: [components/ColorScale/ColorScale.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L321)
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Returns
 
@@ -9171,7 +9171,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 
 Defined in: [components/ColorScale/ColorScale.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L322)
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Parameters
 
@@ -9261,7 +9261,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 Defined in: [components/ColorScale/ColorScale.ts:350](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L350)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Returns
 
@@ -9273,7 +9273,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: [components/ColorScale/ColorScale.ts:351](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L351)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Parameters
 
@@ -9564,7 +9564,7 @@ Parent config used by the wrapper.
 
 Defined in: [components/ColorScale/ColorScale.ts:370](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L370)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Returns
 
@@ -9576,7 +9576,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: [components/ColorScale/ColorScale.ts:371](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L371)
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Parameters
 
@@ -16227,7 +16227,7 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 Defined in: [shapes/Rect.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Rect.ts#L29)
 
-Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
+Creates SVG rectangles based on an array of data.
 
 #### Extends
 
@@ -18761,7 +18761,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/TextBox.ts:411](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L411)
 
-Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+Creates a wrapped text box for each point in an array of data.
 
 #### Extends
 
@@ -21370,7 +21370,7 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 Defined in: [charts/viz/Viz.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L56)
 
-Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
+The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 
 #### Extends
 

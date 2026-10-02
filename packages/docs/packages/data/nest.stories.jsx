@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../args/text/trim.args";
-import {trim} from "@d3plus/text";
+import {argTypes} from "../../args/data/nest.args";
+import {nest} from "@d3plus/data";
 
 export default {
-  title: "Text/trim",
+  title: "Data/nest",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "Cross-browser implementation of [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).",
+        component: "Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.",
       },
     },
   }

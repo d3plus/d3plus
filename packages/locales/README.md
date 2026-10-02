@@ -35,9 +35,9 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | Variables | Description |
 | --- | --- |
 | [`formatLocale`](#formatlocale) |  |
-| [`locale`](#locale) |  |
-| [`titleCaseLocale`](#titlecaselocale) |  |
-| [`translateLocale`](#translatelocale) |  |
+| [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when |
+| [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kep |
+| [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, to |
 
 | Interfaces | Description |
 | --- | --- |
@@ -86,7 +86,9 @@ Defined in: [dictionaries/formatLocale.ts:17](https://github.com/d3plus/d3plus/b
 
 > `const` **locale**: `Record`\<`string`, [`TimeLocaleDefinition`](#timelocaledefinition)\>
 
-Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L39)
+Defined in: [dictionaries/timeLocale.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/timeLocale.ts#L42)
+
+d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.
 
 ***
 
@@ -96,7 +98,9 @@ Defined in: [dictionaries/timeLocale.ts:39](https://github.com/d3plus/d3plus/blo
 
 > `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
 
-Defined in: [dictionaries/titleCaseLocale.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L35)
+Defined in: [dictionaries/titleCaseLocale.ts:38](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L38)
+
+Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.
 
 ***
 
@@ -106,7 +110,9 @@ Defined in: [dictionaries/titleCaseLocale.ts:35](https://github.com/d3plus/d3plu
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: [dictionaries/translateLocale.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L43)
+Defined in: [dictionaries/translateLocale.ts:46](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L46)
+
+Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
 
 ## Interfaces
 

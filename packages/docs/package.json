@@ -16,7 +16,8 @@
   "scripts": {
     "build": "storybook build --docs -o build",
     "dev": "node ../../scripts/dev.js",
-    "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000"
+    "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000",
+    "test": "eslint packages args helpers docs .storybook"
   },
   "dependencies": {
     "@d3plus/color": "workspace:*",
@@ -26,6 +27,8 @@
     "@d3plus/locales": "workspace:*",
     "@d3plus/react": "workspace:*",
     "@types/react": "^19.1.0",
+    "d3-selection": "^3.0.0",
+    "d3-time-format": "^4.1.0",
     "next": "^15.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

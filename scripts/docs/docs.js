@@ -12,10 +12,11 @@ import {Application, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
 const log = Logger("documentation");
+const prune = process.argv.includes("--prune");
 
 import readmeHeader from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
-import storiesStub from "./stubs/stories.js";
+import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
 import {chartDefMap} from "./stubs/chartDefs.js";
 import {buildPublicDocs, getCommentText, typeToNames} from "./typedoc.js";
 
@@ -37,6 +38,59 @@ function injectChartConfig(readme, defMap) {
     readme = readme.replace(re, block);
   }
   return readme;
+}
+
+/**
+ * Imports a package's built ESM entry and returns the Set of its export names,
+ * or null when the build is missing. Node caches the import, so this is free
+ * after collectConfigDefaults has loaded the same module.
+ */
+async function loadPackageExports(folder) {
+  const entry = path.resolve(folder, "es/index.js");
+  if (!fs.existsSync(entry)) return null;
+  try {
+    const mod = await import(pathToFileURL(entry).href);
+    return new Set(Object.keys(mod));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Flags args/stories files under packages/docs that this run did not write and
+ * whose name is not a current export of the package (an export that was
+ * removed or renamed). Hand-maintained files are safe: chart files are kept
+ * because the chart is still exported, and a story file with hand-written
+ * stories below the marker is only reported, never deleted. Orphans are
+ * reported by default and removed with `--prune`.
+ */
+function pruneOrphans(folder, written, exportedNames) {
+  if (!exportedNames) return;
+  const pkg = path.basename(folder);
+  const targets = [
+    [path.resolve(folder, `../docs/args/${pkg}`), ".args.jsx"],
+    [path.resolve(folder, `../docs/packages/${pkg}`), ".stories.jsx"],
+  ];
+  for (const [root, ext] of targets) {
+    if (!fs.existsSync(root)) continue;
+    for (const rel of fs.readdirSync(root, {recursive: true})) {
+      const file = path.join(root, rel);
+      if (!file.endsWith(ext) || written.has(file)) continue;
+      if (exportedNames.has(path.basename(file, ext))) continue;
+      const shown = path.relative(process.cwd(), file);
+      if (ext === ".stories.jsx") {
+        const body = fs.readFileSync(file, "utf8").split(storyMarker)[1];
+        if (body && body.trim()) {
+          log.warn(`orphan story with hand-written stories, delete it manually: ${shown}`);
+          continue;
+        }
+      }
+      if (prune) {
+        fs.rmSync(file);
+        log.warn(`pruned orphan: ${shown}`);
+      } else log.warn(`orphan (run with --prune to delete): ${shown}`);
+    }
+  }
 }
 
 /**
@@ -383,8 +437,15 @@ async function generateMarkdown() {
     // Types + descriptions for those accessors, borrowed from the config interfaces.
     const interfaceDocs = collectInterfaceDocs(project);
 
+    const written = new Set();
     stories.forEach(story => {
       const {meta, name} = story;
+      if (name === "default") {
+        log.warn(
+          `${meta.path}: anonymous default export reached the generator as "default"; re-export it by name from ${folder}/index.ts`,
+        );
+        return;
+      }
       // Storybook stories are for the public chart/component/shape CLASSES and
       // small utility FUNCTIONS — not the internal helpers (pipeline stages,
       // feature modules, fluent installers, axis math, renderer internals) that
@@ -421,6 +482,7 @@ async function generateMarkdown() {
       const argsFolder = path.dirname(argsPath);
       fs.mkdirSync(argsFolder, {recursive: true});
       fs.writeFileSync(argsPath, argsContent);
+      written.add(path.resolve(argsPath));
 
       const storyPath = path.join(
         folder,
@@ -438,7 +500,9 @@ async function generateMarkdown() {
       const storyFolder = path.dirname(storyPath);
       fs.mkdirSync(storyFolder, {recursive: true});
       fs.writeFileSync(storyPath, storyContent);
+      written.add(path.resolve(storyPath));
     });
+    pruneOrphans(folder, written, await loadPackageExports(folder));
 
     log.done();
     console.log("");

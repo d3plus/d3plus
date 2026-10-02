@@ -32,6 +32,9 @@ const intl = [
   "JSON", "SQL", "HTTP", "HTTPS", "URL", "DNS", "VPN", "SDK",
 ];
 
+/**
+    Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.
+*/
 const titleCaseLocale: Record<string, TitleCaseRules> = {
   // Fallback for languages without an explicit entry — title-cases every word
   // (no minor-word list to keep lowercase). A no-op for scripts that have no

@@ -30,6 +30,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
+| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
@@ -42,7 +43,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
-| [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
 | [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
@@ -63,6 +64,29 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`RegressionType`](#regressiontype) |  |
 
 ## Functions
+
+<a id="ckmeans"></a>
+
+### ckmeans()
+
+> **ckmeans**(`data`: `number`[], `nClusters`: `number`): `number`[][]
+
+Defined in: [ckmeans.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/math/src/ckmeans.ts#L223)
+
+Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | `number`[] | input data, as an array of number values |
+| `nClusters` | `number` | number of desired classes. This cannot be greater than the number of values in the data array. |
+
+#### Returns
+
+`number`[][]
+
+***
 
 <a id="closest"></a>
 
@@ -396,7 +420,7 @@ An array containing two values, the closest point on the left and the closest po
 
 Defined in: [polygonRotate.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/polygonRotate.ts#L10)
 
-Rotates a point around a given origin.
+Rotates a polygon around a given origin.
 
 #### Parameters
 
