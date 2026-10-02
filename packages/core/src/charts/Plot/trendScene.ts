@@ -1,6 +1,7 @@
 /**
     Paints the fitted trend lines (`viz._trendFits`) behind the plot's marks:
-    per fit, an optional confidence band and the line itself, in one
+    per fit, an optional confidence band and the line itself (plus its
+    projection past the data, styled by `projectionConfig`), in one
     stably-keyed group so frames tween rather than re-enter.
 */
 import type {SceneNode} from "@d3plus/render";
@@ -19,7 +20,10 @@ export type TrendNode = SceneNode & {
 };
 
 /** `trendLineConfig` keys that drive the fit or band; the rest style the Line. */
-const FIT_KEYS = ["group", "order", "confidence", "confidenceLevel", "confidenceConfig", "tooltip", "stroke"];
+const FIT_KEYS = [
+  "group", "order", "confidence", "confidenceLevel", "confidenceConfig",
+  "projection", "projectionConfig", "tooltip", "stroke",
+];
 
 /**
     Stamps a subtree as trend chrome: pickable only when it carries a tooltip
@@ -63,13 +67,23 @@ function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisF
   const paint = Object.fromEntries(
     Object.entries(config).filter(([key]) => !FIT_KEYS.includes(key)),
   );
-  const line = makeShape("Line")
-    .renderMode("compute")
-    .duration(viz.schema.duration)
-    .data(fit.samples)
-    .config({...paint, id, label: false, stroke: fit.color})
-    .config({x: (d: TrendSample) => x(d.x), y: (d: TrendSample) => y(d.y)});
-  children.push(...collectComputed(line).map(n => stamp(n, fit, config.tooltip !== false)));
+  const line = (samples: TrendSample[], key: () => string, style: Record<string, unknown>) => {
+    if (samples.length < 2) return;
+    const shape = makeShape("Line")
+      .renderMode("compute")
+      .duration(viz.schema.duration)
+      .data(samples)
+      .config({...paint, id: key, label: false, stroke: fit.color})
+      .config(style)
+      .config({x: (d: TrendSample) => x(d.x), y: (d: TrendSample) => y(d.y)});
+    children.push(...collectComputed(shape).map(n => stamp(n, fit, config.tooltip !== false)));
+  };
+  line(fit.samples.filter(d => !d.projected), id, {});
+  line(
+    fit.samples.filter(d => d.projected),
+    () => `trend-${fit.id}-projection`,
+    (config.projectionConfig || {}) as Record<string, unknown>,
+  );
   if (!children.length) return null;
   return {type: "group", key: `plot-trend-${fit.id}`, children} as SceneNode;
 }

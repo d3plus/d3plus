@@ -364,6 +364,21 @@ TrendLineTypes.args = {
 };
 TrendLineTypes.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Besides `\"linear\"`, `trendLine` accepts `\"exponential\"`, `\"logarithmic\"`, `\"power\"` and `\"polynomial\"` (with `trendLineConfig.order` setting the degree). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line."}}};
 
+export const TrendLineProjection = Template.bind({});
+TrendLineProjection.args = {
+  data: TrendLine.args.data,
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: "linear",
+  trendLineConfig: {
+    group: "all",
+    confidence: true,
+    projection: {to: 14}
+  }
+};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a continuous axis, `trendLineConfig.projection` with `{to}` extends the fit to that value; the x axis widens to fit it. A number would step that many times past the last value, by the median gap between values. With `confidence`, the band beyond the data is a prediction interval, wider than the confidence band, since it covers where individual new points could fall."}}};
+
 export const MultipleShapes = Template.bind({});
 MultipleShapes.args = {
   data: [

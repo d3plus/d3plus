@@ -611,6 +611,8 @@ Additionally, each config object can also contain an optional "layer" key, which
       - `confidence`: draws a confidence band around a linear fit (default `false`).
       - `confidenceLevel`: the band's confidence level (default `0.95`).
       - `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).
+      - `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.
+      - `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: "2 4"}`).
       - `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).
       - Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.
 

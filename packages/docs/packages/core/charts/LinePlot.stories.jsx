@@ -330,6 +330,50 @@ TrendLine.args = {
 };
 TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation."}}};
 
+export const TrendLineProjection = Template.bind({});
+TrendLineProjection.args = {
+  data: TrendLine.args.data,
+  groupBy: "id",
+  time: "date",
+  x: "date",
+  y: "value",
+  trendLine: true,
+  trendLineConfig: {
+    confidence: true,
+    projection: {to: 2030}
+  }
+};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.projection` extends each trend line past the end of its data, widening the axis to fit. Give it `{to}` an end value (here the year 2030) or a number of steps. The projected stretch draws dotted, and a linear fit's confidence band opens into a wider prediction interval: the range a future value is likely to fall in, which grows the further out it reaches. Hover the plot over a projected year to compare every series' projected value and range."}}};
+
+export const TrendLineProjectionSteps = Template.bind({});
+TrendLineProjectionSteps.args = {
+  data: [
+    {id: "Solar", year: 2017, value: 12},
+    {id: "Solar", year: 2018, value: 15},
+    {id: "Solar", year: 2019, value: 19},
+    {id: "Solar", year: 2020, value: 22},
+    {id: "Solar", year: 2021, value: 28},
+    {id: "Solar", year: 2022, value: 34},
+    {id: "Solar", year: 2023, value: 41},
+    {id: "Wind", year: 2017, value: 30},
+    {id: "Wind", year: 2018, value: 32},
+    {id: "Wind", year: 2019, value: 33},
+    {id: "Wind", year: 2020, value: 37},
+    {id: "Wind", year: 2021, value: 38},
+    {id: "Wind", year: 2022, value: 41},
+    {id: "Wind", year: 2023, value: 42}
+  ],
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  trendLine: "exponential",
+  trendLineConfig: {
+    projection: 5,
+    projectionConfig: {strokeDasharray: "1 4", strokeWidth: 3}
+  }
+};
+TrendLineProjectionSteps.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "A number projects that many steps past the last value, at the data's own spacing: here 5 more years. Dates step by their calendar interval (years, quarters, months, days…). Any fit type projects, and `projectionConfig` styles the projected stretch over the line's own styles. Hover a projected line for its value at the nearest projected year."}}};
+
 export const DashedLines = Template.bind({});
 DashedLines.args = {
   data: [
