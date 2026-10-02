@@ -49,4 +49,49 @@ export function SwatchRow({colors, labels = [], separators = [], size, gap = 12}
   );
 }
 
+/**
+ * Several rows of swatches on one grid, so the nth swatch of every row sits in
+ * the same column however long the labels are. Each row is `{colors, labels?}`
+ * with the same number of colors; `separators` are drawn between the columns
+ * of every row, vertically centered on the squares.
+ */
+export function SwatchRows({rows, separators = [], size = 48, gap = 12}) {
+  const columns = Math.max(0, ...rows.map(row => row.colors.length));
+  const template = Array.from({length: columns}, (_, i) =>
+    i < columns - 1 && separators[i] !== undefined ? "max-content max-content" : "max-content",
+  ).join(" ");
+  const separatorStyle = {
+    height: size,
+    display: "flex",
+    alignItems: "center",
+    color: "#999",
+    fontSize: 18,
+  };
+  return (
+    <div
+      style={{
+        display: "inline-grid",
+        gridTemplateColumns: template,
+        columnGap: gap,
+        rowGap: 16,
+        justifyItems: "center",
+        alignItems: "start",
+      }}
+    >
+      {rows.map(({colors, labels = []}, r) =>
+        colors.map((color, i) => (
+          <React.Fragment key={`${r}-${i}`}>
+            <Swatch color={color} label={labels[i]} size={size} />
+            {i < colors.length - 1 && separators[i] !== undefined ? (
+              <span aria-hidden="true" style={separatorStyle}>
+                {separators[i]}
+              </span>
+            ) : null}
+          </React.Fragment>
+        )),
+      )}
+    </div>
+  );
+}
+
 export default Swatch;
