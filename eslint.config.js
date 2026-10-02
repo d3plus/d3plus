@@ -121,6 +121,9 @@ export default [
     rules: {
       "max-lines": "off",
       "max-lines-per-function": "off",
+      // Tests may name the globals they rely on in a `/* global … */` comment
+      // even when the environment already provides them.
+      "no-redeclare": ["error", {builtinGlobals: false}],
     },
   },
 ];
