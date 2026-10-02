@@ -260,7 +260,7 @@ it("the minimap works on a Plot-family chart, whose zoom rescales axes rather th
             beforeVisible,
             afterVisible: visible(after),
             hasSize: rect.width > 0 && rect.height > 0,
-            viewportFrac: viewport.width / rect.width,
+            viewportFrac: viewport.height / rect.height,
             picture: viz._zoomTransform,
           });
         });
@@ -270,6 +270,75 @@ it("the minimap works on a Plot-family chart, whose zoom rescales axes rather th
   assert.strictEqual(out.beforeVisible, false, "minimap hidden at 1x on a Plot chart too");
   assert.strictEqual(out.afterVisible, true, "minimap appears once a Plot chart is zoomed in");
   assert.ok(out.hasSize, "minimap has a real size");
-  assert.ok(Math.abs(out.viewportFrac - 0.5) < 0.05, "viewport box reflects the live d3-zoom scale (2x), even though Plot clears the picture transform");
+  assert.ok(Math.abs(out.viewportFrac - 0.5) < 0.05, `viewport box reflects the live d3-zoom scale (2x), even though Plot clears the picture transform (got ${out.viewportFrac})`);
   assert.strictEqual(out.picture, undefined, "Plot's zoom rescales axes — no picture-zoom transform");
+});
+
+it("on a Plot that zooms only one axis, the viewport box shrinks along that axis alone", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const data = [{id: "a", value: 3}, {id: "b", value: 2}, {id: "c", value: 1}];
+        const viz = new window.d3plus.BarChart().select("#s").zoomMax(16).data(data).groupBy("id").x("id").y("value").duration(0);
+        const live = () => ({...(viz._zoomEventTarget || viz._container).node().__zoom});
+        viz.render(() => {
+          document.querySelector("#s .zoom-in").click();
+          const outer = document.querySelector("#s .d3plus-minimap");
+          const rect = outer.getBoundingClientRect();
+          const vp = document.querySelector("#s .d3plus-minimap-viewport");
+          const box = vp.getBoundingClientRect();
+          const beforeDrag = live();
+
+          const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+          const at = (type, x, y) =>
+            vp.dispatchEvent(new window.PointerEvent(type, {
+              bubbles: true, cancelable: true, pointerId: 1, clientX: x, clientY: y,
+            }));
+          at("pointerdown", cx, cy);
+          at("pointermove", cx + 8, cy + 5);
+          at("pointerup", cx + 8, cy + 5);
+          const afterDrag = live();
+
+          resolve({
+            widthFrac: box.width / rect.width,
+            heightFrac: box.height / rect.height,
+            left: box.left - rect.left - outer.clientLeft,
+            beforeDrag,
+            afterDrag,
+          });
+        });
+      }),
+  );
+
+  assert.ok(Math.abs(out.widthFrac - 1) < 0.05, `viewport box keeps the minimap's full width (got ${out.widthFrac})`);
+  assert.ok(Math.abs(out.heightFrac - 0.5) < 0.05, `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`);
+  assert.ok(Math.abs(out.left) < 1, `viewport box is flush with the minimap's left edge (got ${out.left})`);
+  assert.strictEqual(out.afterDrag.x, out.beforeDrag.x, "dragging doesn't pan the un-zoomed x dimension");
+  assert.notStrictEqual(out.afterDrag.y, out.beforeDrag.y, "dragging pans the zoomed y dimension");
+});
+
+it("on a Plot that zooms both axes, the viewport box shrinks along both", async function () {
+  this.timeout(60000);
+
+  const out = await render(
+    '<div id="s" style="width:400px;height:300px;"></div>',
+    () =>
+      new Promise(resolve => {
+        const data = [];
+        for (let x = 0; x < 10; x++) data.push({id: "a", x, y: 10 + x * 2});
+        const viz = new window.d3plus.LinePlot().select("#s").discrete(false).zoomMax(16).data(data).groupBy("id").x("x").y("y").duration(0);
+        viz.render(() => {
+          document.querySelector("#s .zoom-in").click();
+          const rect = document.querySelector("#s .d3plus-minimap").getBoundingClientRect();
+          const box = document.querySelector("#s .d3plus-minimap-viewport").getBoundingClientRect();
+          resolve({widthFrac: box.width / rect.width, heightFrac: box.height / rect.height});
+        });
+      }),
+  );
+
+  assert.ok(Math.abs(out.widthFrac - 0.5) < 0.05, `viewport box width reflects the 2x x-axis zoom (got ${out.widthFrac})`);
+  assert.ok(Math.abs(out.heightFrac - 0.5) < 0.05, `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`);
 });

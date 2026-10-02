@@ -41,6 +41,19 @@ function liveTransform(viz: Viz): ZoomTransform {
   return node ? zoomTransform(node) : zoomIdentity;
 }
 
+/**
+    Which screen dimensions the zoom actually scales. Every chart zooms its
+    picture uniformly, except a Plot, which rescales only its linear axes —
+    a bar chart with a discrete x axis zooms vertically alone, so the
+    viewport box keeps the minimap's full width.
+    @private
+*/
+function zoomedDims(viz: Viz): {x: boolean; y: boolean} {
+  const scales = viz._plotZoomBase?.scales;
+  if (!scales) return {x: true, y: true};
+  return {x: Boolean(scales.x || scales.x2), y: Boolean(scales.y || scales.y2)};
+}
+
 /** A keyboard nudge step, in minimap pixels — Shift takes a bigger step. */
 const KEY_STEP = 10;
 const KEY_STEP_SHIFT = 40;
@@ -54,7 +67,10 @@ const ARROW_KEYS: Record<string, [number, number]> = {
 /** Re-centers the chart, at scale `k`, on a content-space point — the shared math behind click-to-jump and wheel-zoom. @private */
 function centerOn(viz: Viz, px: number, py: number, k: number, duration: number): void {
   const [[ax0, ay0], [ax1, ay1]] = viz._zoomBehavior.translateExtent();
-  zoomTo(viz, k, (ax0 + ax1) / 2 - px * k, (ay0 + ay1) / 2 - py * k, duration);
+  const dims = zoomedDims(viz), t = liveTransform(viz);
+  const x = dims.x ? (ax0 + ax1) / 2 - px * k : t.x;
+  const y = dims.y ? (ay0 + ay1) / 2 - py * k : t.y;
+  zoomTo(viz, k, x, y, duration);
 }
 
 /** Maps a pointer position local to the minimap's outer box into content-space. @private */
@@ -106,11 +122,13 @@ function paint(viz: Viz, mmW: number, mmH: number, styles: MinimapStyles, state:
   const [[ax0, ay0], [ax1, ay1]] = viz._zoomBehavior.translateExtent();
   const areaW = ax1 - ax0, areaH = ay1 - ay0;
   const frac = Math.min(1, 1 / t.k);
+  const dims = zoomedDims(viz);
+  const fracW = dims.x ? frac : 1, fracH = dims.y ? frac : 1;
   // Un-apply the current transform — the same algebra `zoomToBounds`
   // uses to go from displayed bounds back to unzoomed surface space.
   const contentX0 = (ax0 - t.x) / t.k, contentY0 = (ay0 - t.y) / t.k;
-  const fracX = Math.max(0, Math.min(1 - frac, areaW ? (contentX0 - ax0) / areaW : 0));
-  const fracY = Math.max(0, Math.min(1 - frac, areaH ? (contentY0 - ay0) / areaH : 0));
+  const fracX = Math.max(0, Math.min(1 - fracW, areaW ? (contentX0 - ax0) / areaW : 0));
+  const fracY = Math.max(0, Math.min(1 - fracH, areaH ? (contentY0 - ay0) / areaH : 0));
 
   paintMinimapStyle(viewportEl, styles.viewport, state.dragging ? styles.viewportActive : {});
   paintMinimapStyle(viewportEl, {
@@ -119,8 +137,8 @@ function paint(viz: Viz, mmW: number, mmH: number, styles: MinimapStyles, state:
     "touch-action": "none",
     left: `${fracX * mmW}px`,
     top: `${fracY * mmH}px`,
-    width: `${Math.max(1, frac * mmW)}px`,
-    height: `${Math.max(1, frac * mmH)}px`,
+    width: `${Math.max(1, fracW * mmW)}px`,
+    height: `${Math.max(1, fracH * mmH)}px`,
   });
 
   paintMinimapStyle(labelEl, styles.label);
@@ -178,8 +196,9 @@ function viewportEvents(
       if (!state.dragging || pe.pointerId !== state.dragPointerId) return;
       const [[ax0], [ax1]] = viz._zoomBehavior.translateExtent();
       const scaleFactor = (ax1 - ax0) / mmW;
-      const dx = (pe.clientX - state.dragStart.x) * scaleFactor * state.dragStart.k;
-      const dy = (pe.clientY - state.dragStart.y) * scaleFactor * state.dragStart.k;
+      const dims = zoomedDims(viz);
+      const dx = dims.x ? (pe.clientX - state.dragStart.x) * scaleFactor * state.dragStart.k : 0;
+      const dy = dims.y ? (pe.clientY - state.dragStart.y) * scaleFactor * state.dragStart.k : 0;
       // duration 0 — 1:1 responsiveness, matching every other per-pixel
       // pan/zoom tick (`zoomed()`'s own reasoning: a queued transition
       // per pointermove would visibly lag).
@@ -199,8 +218,9 @@ function viewportEvents(
       const scaleFactor = (ax1 - ax0) / mmW;
       const step = ke.shiftKey ? KEY_STEP_SHIFT : KEY_STEP;
       const t = liveTransform(viz);
-      const dx = dir[0] * step * scaleFactor * t.k;
-      const dy = dir[1] * step * scaleFactor * t.k;
+      const dims = zoomedDims(viz);
+      const dx = dims.x ? dir[0] * step * scaleFactor * t.k : 0;
+      const dy = dims.y ? dir[1] * step * scaleFactor * t.k : 0;
       // A discrete step, not a per-pixel drag tick — animates like the
       // zoom buttons' own clicks rather than jumping instantly.
       zoomTo(viz, t.k, t.x - dx, t.y - dy, viz.schema.duration);
