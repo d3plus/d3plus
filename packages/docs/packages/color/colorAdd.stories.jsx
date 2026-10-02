@@ -22,7 +22,7 @@ export default {
 // from the source code. Stories below this line can be modified.
 
 
-import {SwatchRow} from "../../helpers/Swatch.jsx";
+import {SwatchRows} from "../../helpers/Swatch.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 // Each row is [c1, c2] or [c1, c2, o1, o2]; the mixed color is computed live.
@@ -39,16 +39,13 @@ const mixes = rows =>
   });
 
 const Mixes = ({rows}) => (
-  <div style={{display: "grid", gap: 16}}>
-    {mixes(rows).map(({c1, c2, o2, result, call}) => (
-      <SwatchRow
-        key={call}
-        colors={[c1, c2, result]}
-        labels={[c1, o2 === undefined ? c2 : `${c2} × ${o2}`, result]}
-        separators={["+", "="]}
-      />
-    ))}
-  </div>
+  <SwatchRows
+    rows={mixes(rows).map(({c1, c2, o2, result}) => ({
+      colors: [c1, c2, result],
+      labels: [c1, o2 === undefined ? c2 : `${c2} × ${o2}`, result],
+    }))}
+    separators={["+", "="]}
+  />
 );
 
 const params = (rows, story) => ({

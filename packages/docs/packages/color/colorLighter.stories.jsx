@@ -22,7 +22,7 @@ export default {
 // from the source code. Stories below this line can be modified.
 
 
-import {SwatchRow} from "../../helpers/Swatch.jsx";
+import {SwatchRows} from "../../helpers/Swatch.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 // Each row is [color] or [color, strength]; the lightened color is live.
@@ -35,11 +35,7 @@ const calls = rows =>
   }));
 
 const Rows = ({rows}) => (
-  <div style={{display: "grid", gap: 16}}>
-    {calls(rows).map(({call, colors, labels}) => (
-      <SwatchRow key={call} colors={colors} labels={labels} separators={["→"]} />
-    ))}
-  </div>
+  <SwatchRows rows={calls(rows).map(({colors, labels}) => ({colors, labels}))} separators={["→"]} />
 );
 
 const params = (rows, story) => ({
