@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../args/data/dataFold.args";
-import {dataFold} from "@d3plus/data";
+import {argTypes} from "../../../args/locales/dictionaries/locale.args";
+import {locale} from "@d3plus/locales";
 
 export default {
-  title: "Data/dataFold",
+  title: "Locales/Dictionaries/locale",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects.",
+        component: "d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.",
       },
     },
   }

@@ -1,6 +1,6 @@
 const capitalize = str => str.replace(/\b[a-z]/g, char => char.toUpperCase());
 
-const warning = `// WARNING: do not edit above this line of code directly, it is generated
+export const warning = `// WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 `;
 

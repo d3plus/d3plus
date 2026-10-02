@@ -59,8 +59,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`AxisBottom`](#axisbottom) | Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functional |
 | [`AxisLeft`](#axisleft) | Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all fun |
 | [`AxisRight`](#axisright) | Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all fu |
-| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionalit |
-| [`Bar`](#bar) | Creates SVG areas based on an array of data. |
+| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functional |
+| [`Bar`](#bar) | Creates SVG bars based on an array of data. |
 | [`BaseClass`](#baseclass) | Provides shared configuration, event handling, and locale management inherited by all d3plus classes. |
 | [`Box`](#box) | Creates SVG box based on an array of data. |
 | [`Circle`](#circle) | Creates SVG circles based on an array of data. |
@@ -70,13 +70,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Line`](#line) | Creates SVG lines based on an array of data. |
 | [`Path`](#path) | Creates SVG Paths based on an array of data. |
 | [`Plot`](#plot) | Creates an x/y plot based on an array of data. |
-| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-st |
+| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. |
 | [`Shape`](#shape) | An abstracted class for generating shapes. |
 | [`SizeLegend`](#sizelegend) | A nested-circle legend for a size scale: concentric circles sharing a |
-| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-tex |
+| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. |
 | [`Timeline`](#timeline) | Creates an interactive timeline brush component for selecting time periods within a visualization. |
 | [`Tooltip`](#tooltip) | Creates HTML tooltips in the body of a webpage. |
-| [`Viz`](#viz) | Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-sta |
+| [`Viz`](#viz) | The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessor |
 | [`Whisker`](#whisker) | Creates SVG whisker based on an array of data. |
 
 | Functions | Description |
@@ -87,6 +87,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`assign`](#assign) | A deeply recursive version of `Object.assign`. |
 | [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
 | [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the |
+| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
@@ -109,6 +110,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
 | [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
 | [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
+| [`getSize`](#getsize) | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with  |
 | [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
@@ -119,6 +121,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
+| [`nest`](#nest) |  |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
@@ -129,7 +132,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
-| [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
 | [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
 | [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
@@ -153,10 +156,10 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false |
 | [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
 | [`formatLocale`](#formatlocale) |  |
-| [`locale`](#locale) |  |
+| [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when |
 | [`RESET`](#reset) | String constant used to reset an individual config property. |
-| [`titleCaseLocale`](#titlecaselocale) |  |
-| [`translateLocale`](#translatelocale) |  |
+| [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kep |
+| [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, to |
 
 | Interfaces | Description |
 | --- | --- |
@@ -4920,7 +4923,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/Axis/AxisTop.d.ts:5
 
-Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.
 
 #### Extends
 
@@ -5830,7 +5833,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/shapes/Bar.d.ts:9
 
-Creates SVG areas based on an array of data.
+Creates SVG bars based on an array of data.
 
 #### Extends
 
@@ -9072,7 +9075,7 @@ Creates an SVG color scale based on an array of data.
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:57
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Returns
 
@@ -9084,7 +9087,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:58
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Parameters
 
@@ -9246,7 +9249,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:67
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Returns
 
@@ -9258,7 +9261,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:68
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Parameters
 
@@ -9348,7 +9351,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:82
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Returns
 
@@ -9360,7 +9363,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:83
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Parameters
 
@@ -9651,7 +9654,7 @@ Parent config used by the wrapper.
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:93
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Returns
 
@@ -9663,7 +9666,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:94
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Parameters
 
@@ -16314,7 +16317,7 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 Defined in: core/types/src/shapes/Rect.d.ts:8
 
-Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
+Creates SVG rectangles based on an array of data.
 
 #### Extends
 
@@ -18848,7 +18851,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/TextBox.d.ts:43
 
-Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+Creates a wrapped text box for each point in an array of data.
 
 #### Extends
 
@@ -21457,7 +21460,7 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 Defined in: core/types/src/charts/viz/Viz.d.ts:9
 
-Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
+The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 
 #### Extends
 
@@ -25331,6 +25334,29 @@ to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
 
 ***
 
+<a id="ckmeans"></a>
+
+### ckmeans()
+
+> **ckmeans**(`data`: `number`[], `nClusters`: `number`): `number`[][]
+
+Defined in: math/types/src/ckmeans.d.ts:6
+
+Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | `number`[] | input data, as an array of number values |
+| `nClusters` | `number` | number of desired classes. This cannot be greater than the number of values in the data array. |
+
+#### Returns
+
+`number`[][]
+
+***
+
 <a id="closest"></a>
 
 ### closest()
@@ -25898,6 +25924,28 @@ An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-r
 
 ***
 
+<a id="getsize"></a>
+
+### getSize()
+
+> **getSize**(`elem`: `HTMLElement`): \[`number` \| `undefined`, `number` \| `undefined`\]
+
+Defined in: dom/types/src/getSize.d.ts:4
+
+Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `elem` | `HTMLElement` |
+
+#### Returns
+
+\[`number` \| `undefined`, `number` \| `undefined`\]
+
+***
+
 <a id="hash"></a>
 
 ### hash()
@@ -26177,13 +26225,34 @@ output is deterministic for a given input.
 
 ***
 
+<a id="nest"></a>
+
+### nest()
+
+> **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
+
+Defined in: data/types/src/nest.d.ts:11
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | [`DataPoint`](#datapoint)[] | - |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | An array of key accessors that signify each nest level. |
+
+#### Returns
+
+`NestEntry`[]
+
+***
+
 <a id="nestgroups"></a>
 
 ### nestGroups()
 
 > **nestGroups**(`data`: [`DataPoint`](#datapoint)[], `fns`: `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:18
+Defined in: data/types/src/nest.d.ts:17
 
 Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
 
@@ -26429,7 +26498,7 @@ An array containing two values, the closest point on the left and the closest po
 
 Defined in: math/types/src/polygonRotate.d.ts:8
 
-Rotates a point around a given origin.
+Rotates a polygon around a given origin.
 
 #### Parameters
 
@@ -27096,7 +27165,9 @@ Creates a line plot based on an array of data.
 
 > `const` **locale**: `Record`\<`string`, [`TimeLocaleDefinition`](#timelocaledefinition)\>
 
-Defined in: locales/types/src/dictionaries/timeLocale.d.ts:38
+Defined in: locales/types/src/dictionaries/timeLocale.d.ts:41
+
+d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.
 
 ***
 
@@ -27279,7 +27350,9 @@ fraction of its stack total is available to tooltip accessors as `share`.
 
 > `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
 
-Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:25
+Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:28
+
+Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.
 
 ***
 
@@ -27289,7 +27362,9 @@ Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:25
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: locales/types/src/dictionaries/translateLocale.d.ts:42
+Defined in: locales/types/src/dictionaries/translateLocale.d.ts:45
+
+Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
 
 ***
 

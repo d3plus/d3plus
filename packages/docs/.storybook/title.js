@@ -10,7 +10,7 @@ addons.register("Title", api => {
         ? storyData.title.replace(/\//g, " / ")
         : false;
       document.title = prefix ? `${prefix} - ${SITE_TITLE}` : SITE_TITLE;
-    } catch (e) {
+    } catch {
       document.title = SITE_TITLE;
     }
   };

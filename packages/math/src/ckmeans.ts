@@ -219,7 +219,6 @@ function fillMatrices(
     Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
     @param data input data, as an array of number values
     @param nClusters number of desired classes. This cannot be greater than the number of values in the data array.
-    @private
 */
 export default function (data: number[], nClusters: number): number[][] {
   if (nClusters > data.length) {

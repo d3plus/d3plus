@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../../args/core/utils/uuid.args";
-import {uuid} from "@d3plus/core";
+import {argTypes} from "../../../args/locales/dictionaries/titleCaseLocale.args";
+import {titleCaseLocale} from "@d3plus/locales";
 
 export default {
-  title: "Core/Utils/uuid",
+  title: "Locales/Dictionaries/titleCaseLocale",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "Generates a unique identifier string.",
+        component: "Per-language rules used by titleCase, keyed by two-letter language code plus a default fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.",
       },
     },
   }

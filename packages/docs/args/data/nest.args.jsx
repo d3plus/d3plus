@@ -6,11 +6,9 @@ import React from "react";
 
 
 export const argTypes = {
-  arrayOfArray: {
-    control: {
-      type: "object"
-    },
-    description: "Array of elements",
+  data: {
+    control: {},
+    description: "The flat data array to nest.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -18,23 +16,20 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array"
+      summary: "array.&lt;datapoint&gt;"
     }
   },
-  data: {
-    control: {
-      type: "text"
-    },
-    defaultValue: "\"data\"",
-    description: "The key used for the flat data array if exists inside of the JSON object.",
+  keys: {
+    control: {},
+    description: "One key accessor, or an array of them, one per nest level.",
     table: {
       defaultValue: {
-        summary: "\"data\""
+        summary: "undefined"
       }
     },
     type: {
-      required: false,
-      summary: "string"
+      required: true,
+      summary: "keyaccessor | array.&lt;keyaccessor&gt;"
     }
   }
 };

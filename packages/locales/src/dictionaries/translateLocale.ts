@@ -40,6 +40,9 @@ export interface TranslationStrings {
   "Zoom Out": string;
 }
 
+/**
+    Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
+*/
 const translateLocale: Record<string, TranslationStrings> = {
   "ar-SA": {
     and: "\u0648",

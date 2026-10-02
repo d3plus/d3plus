@@ -3,16 +3,16 @@
 
 import React from "react";
 
-import {argTypes} from "../../args/dom/htmlDecode.args";
-import {htmlDecode} from "@d3plus/dom";
+import {argTypes} from "../../args/dom/getSize.args";
+import {getSize} from "@d3plus/dom";
 
 export default {
-  title: "Dom/htmlDecode",
+  title: "Dom/getSize",
   argTypes,
   parameters: {
     docs: {
       description: {
-        component: "Strips HTML and \"un-escapes\" escape characters.",
+        component: "Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.",
       },
     },
   }

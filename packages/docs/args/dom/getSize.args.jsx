@@ -6,11 +6,9 @@ import React from "react";
 
 
 export const argTypes = {
-  str: {
-    control: {
-      type: "text"
-    },
-    description: "The string to trim.",
+  elem: {
+    control: {},
+    description: "",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -18,7 +16,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "string"
+      summary: "htmlelement"
     }
   }
 };
