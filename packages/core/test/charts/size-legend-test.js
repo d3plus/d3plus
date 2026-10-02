@@ -83,6 +83,9 @@ const bubbles = `[
   {id: "c", x: 3, y: 4, v: 1000}, {id: "d", x: 4, y: 2, v: 520},
 ]`;
 const bubbleChart = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v")${extra || ""}`;
+// The margin-placement tests keep the panel in its corner rather than inside
+// the plot's open space (see legend-inset-test.js for that placement).
+const inMargin = extra => bubbleChart(`.legendInset(false)${extra || ""}`);
 
 it("size legend: a bubble chart draws the key from its own radius scale", async () => {
   const out = await probe(bubbleChart(".sizeMin(4).sizeMax(30)"));
@@ -95,10 +98,10 @@ it("size legend: a bubble chart draws the key from its own radius scale", async 
 });
 
 it("size legend: by default the chart body ends left of the panel, at full height", async () => {
-  const out = await probe(bubbleChart());
+  const out = await probe(inMargin());
   assert.strictEqual(out.box.side, "right");
   assert.ok(out.marginRight >= out.box.width, "right margin clears the panel");
-  const flat = await probe(bubbleChart(".sizeLegend(false)"));
+  const flat = await probe(inMargin(".sizeLegend(false)"));
   assert.strictEqual(out.marginBottom, flat.marginBottom, "no bottom margin taken");
   const {x, y} = out.paintedTransform;
   assert.ok(x >= out.chartWidth - out.box.width - 1e-6, "painted inside the reserved box");
@@ -106,10 +109,10 @@ it("size legend: by default the chart body ends left of the panel, at full heigh
 });
 
 it("size legend: sizeLegendPosition('bottom') ends the chart body above the panel instead", async () => {
-  const out = await probe(bubbleChart(".sizeLegendPosition('bottom')"));
+  const out = await probe(inMargin(".sizeLegendPosition('bottom')"));
   assert.strictEqual(out.box.side, "bottom");
   assert.ok(out.marginBottom >= out.box.bottom + out.box.height);
-  const flat = await probe(bubbleChart(".sizeLegend(false)"));
+  const flat = await probe(inMargin(".sizeLegend(false)"));
   assert.strictEqual(out.marginRight, flat.marginRight, "no right margin taken");
 });
 
@@ -124,7 +127,7 @@ it("size legend: hidden by sizeLegend(false), without a size accessor, or for a 
 });
 
 it("size legend: a bottom legend narrows to sit beside the panel", async () => {
-  const legendSrc = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v").legendPosition("bottom")${extra}`;
+  const legendSrc = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v").legendPosition("bottom").legendInset(false)${extra}`;
   const without = await probe(legendSrc(".sizeLegend(false)"));
   // Right side (default): the widened right margin narrows it by the panel plus a gap.
   const right = await probe(legendSrc(""));
@@ -144,7 +147,7 @@ it("size legend: a bottom legend narrows to sit beside the panel", async () => {
 });
 
 it("size legend: a right colorScale shortens to end above the panel", async () => {
-  const csSrc = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v").colorScale("v").colorScalePosition("right")${extra}`;
+  const csSrc = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v").colorScale("v").colorScalePosition("right").legendInset(false)${extra}`;
   const withPanel = await probe(csSrc(""));
   const without = await probe(csSrc(".sizeLegend(false)"));
   assert.ok(withPanel.colorScaleHeight < without.colorScaleHeight);

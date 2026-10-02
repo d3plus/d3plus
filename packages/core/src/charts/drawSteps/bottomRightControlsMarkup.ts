@@ -21,6 +21,7 @@
 import type {SceneNode} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {insetBackground, insetPlacementFor, insetStyle} from "../features/insetState.js";
 
 /**
     One item's contribution to the bottom-right panel: its size as reserved
@@ -50,6 +51,8 @@ export interface BottomRightBox {
       body ends above it (bottom legends/colorScales sit beside it).
   */
   side: "right" | "bottom";
+  /** Drawn inside the chart's negative space instead (see `pipeline/insetPlacement.ts`): claims no margin and nothing insets around it. */
+  inset?: boolean;
   items: BottomRightContribution[];
 }
 
@@ -69,6 +72,12 @@ export function bottomRightControlsBox(viz: VizInstance): BottomRightBox | null 
   return box && box.width && box.height ? box : null;
 }
 
+/** The panel when it occupies the chart's corner, so margins and neighbors make room for it; null when it doesn't. */
+function cornerBox(viz: VizInstance): BottomRightBox | null {
+  const box = bottomRightControlsBox(viz);
+  return box && !box.inset ? box : null;
+}
+
 /**
     How far content in the bottom band must pull in its right edge to clear
     the panel: content whose bottom edge sits `bottom` px above the chart's
@@ -77,7 +86,7 @@ export function bottomRightControlsBox(viz: VizInstance): BottomRightBox | null 
     panel.
 */
 export function bottomRightControlsInset(viz: VizInstance, bottom: number, right: number): number {
-  const box = bottomRightControlsBox(viz);
+  const box = cornerBox(viz);
   // A right-side panel already widened the right margin bottom content lays out against.
   if (!box || box.side === "right" || bottom >= box.bottom + box.height) return 0;
   const inset = box.width - right;
@@ -90,7 +99,7 @@ export function bottomRightControlsInset(viz: VizInstance, bottom: number, right
     when nothing is showing.
 */
 export function bottomRightControlsDrop(viz: VizInstance, bottom: number): number {
-  const box = bottomRightControlsBox(viz);
+  const box = cornerBox(viz);
   if (!box) return 0;
   return Math.max(0, box.bottom + box.height - bottom);
 }
@@ -118,7 +127,7 @@ export function bottomRightClearance(
     panel. Zero for a right-side panel.
 */
 export function bottomRightControlsShortfall(viz: VizInstance, bottom: number): number {
-  const box = bottomRightControlsBox(viz);
+  const box = cornerBox(viz);
   return box && box.side === "bottom" ? Math.max(0, box.bottom + box.height - bottom) : 0;
 }
 
@@ -128,8 +137,44 @@ export function bottomRightControlsShortfall(viz: VizInstance, bottom: number): 
     panel. Zero for a bottom-side panel.
 */
 export function bottomRightControlsRightShortfall(viz: VizInstance, right: number): number {
-  const box = bottomRightControlsBox(viz);
+  const box = cornerBox(viz);
   return box && box.side === "right" ? Math.max(0, box.width + BOTTOM_RIGHT_GAP - right) : 0;
+}
+
+/**
+    The panel's scene when it's drawn inside the chart: the items painted
+    from their final state, in a row on a background box that hugs them,
+    aligned within the placed box the way the placement anchored it.
+*/
+function buildInsetPanel(viz: VizInstance, box: BottomRightBox, zoom: number): SceneNode | null {
+  const placed = insetPlacementFor(viz, "sizeLegend");
+  if (!placed) return null;
+  const {margin} = insetStyle(viz);
+  const painted = box.items
+    .map(item => ({item, paint: item.paint(zoom)}))
+    .filter((p): p is {item: BottomRightContribution; paint: NonNullable<ReturnType<BottomRightContribution["paint"]>>} => Boolean(p.paint));
+  if (!painted.length) return null;
+  const width = painted.reduce((w, p, i) => w + p.paint.width + (i ? BOTTOM_RIGHT_GAP : 0), 0) + margin * 2;
+  const height = Math.max(...painted.map(p => p.paint.height)) + margin * 2;
+  const x = placed.alignX === "left"
+    ? placed.x
+    : placed.alignX === "center" ? placed.x + (placed.width - width) / 2 : placed.x + placed.width - width;
+  const y = placed.alignY === "top"
+    ? placed.y
+    : placed.alignY === "middle" ? placed.y + (placed.height - height) / 2 : placed.y + placed.height - height;
+  const children: SceneNode[] = [insetBackground(viz, {...placed, x, y, width, height})];
+  let right = x + width - margin;
+  const baseline = y + height - margin;
+  for (const {item, paint} of painted) {
+    children.push({
+      type: "group",
+      key: item.key,
+      transform: {x: right - paint.width, y: baseline - paint.height},
+      children: [paint.node],
+    });
+    right -= paint.width + BOTTOM_RIGHT_GAP;
+  }
+  return {type: "group", key: "viz-bottomRight", children};
 }
 
 /**
@@ -138,6 +183,7 @@ export function bottomRightControlsRightShortfall(viz: VizInstance, right: numbe
 */
 export function buildBottomRightPanel(viz: VizInstance, box: BottomRightBox): SceneNode | null {
   const zoom = viz._zoomTransform?.scale ?? 1;
+  if (box.inset) return buildInsetPanel(viz, box, zoom);
   const children: SceneNode[] = [];
   let right = viz.schema.width;
   const baseline = viz.schema.height - box.bottom;

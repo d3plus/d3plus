@@ -26,6 +26,8 @@ const pageFn = ({count}) =>
       .color(d => `hsl(${(Number(d.id.split(" ")[1]) * 360) / count}, 60%, 50%)`)
       .width(958)
       .height(350)
+      // These cases cover the legend's margin claim, not placing it inside the plot.
+      .legendInset(false)
       .duration(0);
     chart.render(() =>
       resolve({

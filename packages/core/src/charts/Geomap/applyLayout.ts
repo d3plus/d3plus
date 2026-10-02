@@ -213,6 +213,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   v._sizeLegendFinal = pointData.length ? r : null;
 
   if (!v._zoomSet || !ctx.extentBounds) {
+    // The point-radius padding belongs with the extent it was computed for,
+    // so a later draw that reuses the cached extent fits the same way.
+    ctx.effectivePadding = undefined;
     const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v.schema.fitKey) : coordData;
 
     ctx.extentBounds = {
@@ -229,7 +232,6 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   }
 
   const effectivePadding = ctx.effectivePadding || v.schema.projectionPadding;
-  ctx.effectivePadding = undefined;
 
   v.schema.projection = v.schema.projection.fitExtent(
     ctx.extentBounds.features.length

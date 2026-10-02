@@ -46,6 +46,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyGeomapLayout, geomapPointData, geomapPointSizeScale} from "./applyLayout.js";
 import {geomapEmit} from "./emit.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 type GeomapFluent = {
   fitFilter: (_?: unknown) => unknown;
@@ -371,6 +372,7 @@ export const geomapDef: ChartDefinition = {
     return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
   },
   emit: geomapEmit,
+  insetRegion: sceneInsetRegion,
 
   // Clip the geography to the map rectangle — the same box as the ocean rect and
   // the imperative inner <svg> viewport — so projected paths and points can't

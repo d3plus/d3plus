@@ -17,6 +17,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
+import {drawWithInset, sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
@@ -109,6 +110,7 @@ export const ringsDef: ChartDefinition = {
   layoutStage: applyRingsLayout,
   sizeLegendScale: (viz, {width, height}) => ringsSizeLegendScale(viz, width, height),
   emit: ringsEmit,
+  insetRegion: sceneInsetRegion,
 
   setup: (viz: VizInstance) => {
     installRingsAccessors(viz);
@@ -159,7 +161,7 @@ export const ringsDef: ChartDefinition = {
       viz.schema.center = d.id;
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
-      viz._draw();
+      drawWithInset(viz);
       // _draw() resets the feature panels; re-run the post-draw features so
       // the corner controls, size legend, and attribution come back.
       runPostDrawFeatures(viz);

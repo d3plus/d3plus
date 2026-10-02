@@ -21,6 +21,7 @@ import {colorContrast} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
 
 import type {FeatureModule} from "../features/features.js";
+import {isInsetPending} from "../features/insetState.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomSizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
@@ -115,7 +116,8 @@ export function reserveBottomRight(
     if (c) items.push(c);
   }
   const side = viz.schema.sizeLegendPosition === "bottom" ? "bottom" : "right";
-  viz._bottomRightBox = items.length ? {...measureBottomRight(items), bottom, side, items} : null;
+  const inset = isInsetPending(viz, "sizeLegend");
+  viz._bottomRightBox = items.length ? {...measureBottomRight(items), bottom, side, inset, items} : null;
 }
 
 export const bottomRightControlsFeature: FeatureModule = {

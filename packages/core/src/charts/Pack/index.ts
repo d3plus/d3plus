@@ -23,6 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyPackLayout} from "./applyLayout.js";
 import {packEmit} from "./emit.js";
 import {recursionCircles} from "./recursionCircles.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 type SortFn = (a: HierarchyCircularNode<DataPoint>, b: HierarchyCircularNode<DataPoint>) => number;
 type HoverFn = (fn: (h: DataPoint) => boolean) => unknown;
@@ -33,6 +34,7 @@ export const packDef: ChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPackLayout,
   emit: packEmit,
+  insetRegion: sceneInsetRegion,
 
   chartTransform: (viz: VizInstance) => ({
     x: viz._margin.left + ((viz.ctx.packOffsetX as number) ?? 0),

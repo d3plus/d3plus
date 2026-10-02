@@ -41,6 +41,7 @@ import type {
   Tooltip,
 } from "../../components/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+import type {InsetKey, InsetPlacement, InsetRegion} from "../features/insetState.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
@@ -352,6 +353,12 @@ export interface VizInstance {
   _sizeLegendClass?: SizeLegend;
   /** The bottom-right corner panel reserved in `vizDrawPure` for this draw (see `bottomRightControlsMarkup.ts`). */
   _bottomRightBox?: BottomRightBox | null;
+  /** Chrome being laid out for the chart's interior this pass, which claims no margin (see `pipeline/insetPlacement.ts`). */
+  _insetPending?: Set<InsetKey> | null;
+  /** The chrome drawn inside the chart's negative space this draw, and where. */
+  _insetPlacement?: InsetPlacement | null;
+  /** The default `legendPosition`/`colorScalePosition` accessors; a different one means the user picked a side. */
+  _insetAutoPositions?: {legend: unknown; colorScale: unknown};
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
@@ -466,6 +473,8 @@ export interface VizInstance {
   _thresholdFunction?(data: DataPoint[], tree?: unknown): DataPoint[];
   /** The chart's size-legend radius scale, estimated before layout for the given chart area (see `ChartDefinition.sizeLegendScale`). */
   _sizeLegendScale?(available: {width: number; height: number}): SizeLegendScale | null;
+  /** The region chart chrome may be drawn inside, with the chart's marks as obstacles (see `ChartDefinition.insetRegion`). */
+  _insetRegion?(): InsetRegion | null;
   toScene?(): SceneNode;
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;

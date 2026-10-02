@@ -96,6 +96,25 @@ export {
   zoomSizeLegendScale,
 } from "./src/components/SizeLegend/sizeLegendLayout.js";
 export type {SizeLegendLayout, SizeLegendScale, SizeLegendSize} from "./src/components/SizeLegend/sizeLegendLayout.js";
+export {drawWithInset, fitInset, sceneInsetRegion} from "./src/charts/pipeline/insetPlacement.js";
+export {markBoxes} from "./src/charts/features/sceneBounds.js";
+export {
+  INSET_PRIORITY,
+  insetBackground,
+  insetComponentOffset,
+  insetFrame,
+  insetOrient,
+  insetPlacementFor,
+  insetStyle,
+  isInsetPending,
+} from "./src/charts/features/insetState.js";
+export type {
+  InsetKey,
+  InsetOrient,
+  InsetPlacement,
+  InsetRegion,
+  InsetStyle,
+} from "./src/charts/features/insetState.js";
 export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js";
 export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
 
