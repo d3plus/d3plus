@@ -138,52 +138,56 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
-    colorMax: {
-      control: {
-        type: "text"
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
       },
-      defaultValue: "#1c7ed6",
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
+    colorMax: {
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "#1c7ed6"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "unknown"
       }
     },
     colorMid: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#f8f9fa",
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "#f8f9fa"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "unknown"
       }
     },
     colorMin: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#c92a2a",
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "#c92a2a"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "unknown"
       }
     },
     config: {

@@ -9986,7 +9986,7 @@ scene graph rather than emit d3-selection DOM.
 
 ### Legend
 
-Defined in: [components/Legend/Legend.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L44)
+Defined in: [components/Legend/Legend.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L45)
 
 Creates an SVG legend based on an array of data.
 
@@ -10006,7 +10006,7 @@ Creates an SVG legend based on an array of data.
 
 > **active**(`_`: `unknown`): `this`
 
-Defined in: [components/Legend/Legend.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L237)
+Defined in: [components/Legend/Legend.ts:241](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L241)
 
 The active method for all shapes.
 
@@ -10134,7 +10134,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [components/Legend/Legend.ts:247](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L247)
+Defined in: [components/Legend/Legend.ts:251](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L251)
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -10146,7 +10146,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [components/Legend/Legend.ts:248](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L248)
+Defined in: [components/Legend/Legend.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L252)
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -10166,7 +10166,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **hover**(`_`: `unknown`): `this`
 
-Defined in: [components/Legend/Legend.ts:256](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L256)
+Defined in: [components/Legend/Legend.ts:260](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L260)
 
 The hover method for all shapes.
 
@@ -10393,7 +10393,7 @@ console.log("data for legend clicked:", d);
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Legend/Legend.ts:268](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L268)
+Defined in: [components/Legend/Legend.ts:272](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L272)
 
 Returns the outer bounds of the legend content. Must be called after rendering.
 
@@ -10455,7 +10455,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Legend/Legend.ts:198](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L198)
+Defined in: [components/Legend/Legend.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L199)
 
 Renders the current Legend to the page.
 
@@ -10477,7 +10477,7 @@ Renders the current Legend to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Legend/Legend.ts:275](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L275)
+Defined in: [components/Legend/Legend.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L279)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -10489,7 +10489,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [components/Legend/Legend.ts:276](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L276)
+Defined in: [components/Legend/Legend.ts:280](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L280)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -10511,7 +10511,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Legend/Legend.ts:289](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L289)
+Defined in: [components/Legend/Legend.ts:293](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L293)
 
 Methods that correspond to the key/value pairs for each shape.
 
@@ -10527,7 +10527,7 @@ Methods that correspond to the key/value pairs for each shape.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Legend/Legend.ts:290](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L290)
+Defined in: [components/Legend/Legend.ts:294](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L294)
 
 Methods that correspond to the key/value pairs for each shape.
 
@@ -10553,7 +10553,7 @@ Methods that correspond to the key/value pairs for each shape.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Legend/Legend.ts:300](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L300)
+Defined in: [components/Legend/Legend.ts:304](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L304)
 
 Title configuration of the legend.
 
@@ -10565,7 +10565,7 @@ Title configuration of the legend.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Legend/Legend.ts:301](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L301)
+Defined in: [components/Legend/Legend.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L305)
 
 Title configuration of the legend.
 
@@ -10585,7 +10585,7 @@ Title configuration of the legend.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Legend/Legend.ts:140](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L140)
+Defined in: [components/Legend/Legend.ts:141](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L141)
 
 Produces a backend-agnostic scene graph for this legend with no DOM dependency:
 the title is composed from its TextBox.toScene(), and each swatch group is
@@ -10659,22 +10659,22 @@ return d === "Back" ? "Get outta here" : d;
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-_configdefault-11"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-11"></a> `_data` | `DataPoint`[] | - | - | [components/Legend/Legend.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L50) |
-| <a id="property-_group-9"></a> `_group` | `Selection` | - | - | [components/Legend/Legend.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L56) |
-| <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | [components/Legend/Legend.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L51) |
-| <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | [components/Legend/Legend.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L52) |
-| <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | [components/Legend/Legend.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L55) |
-| <a id="property-_scenerenderer-9"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | [components/Legend/Legend.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L65) |
-| <a id="property-_select-11"></a> `_select` | `Selection` | - | - | [components/Legend/Legend.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L53) |
-| <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | [components/Legend/Legend.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L58) |
-| <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | [components/Legend/Legend.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L54) |
-| <a id="property-_titleclass-5"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | [components/Legend/Legend.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L49) |
-| <a id="property-_titlegroup"></a> `_titleGroup` | `Selection` | - | - | [components/Legend/Legend.ts:57](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L57) |
-| <a id="property-_titleheight"></a> `_titleHeight` | `number` | - | - | [components/Legend/Legend.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L59) |
-| <a id="property-_titlewidth"></a> `_titleWidth` | `number` | - | - | [components/Legend/Legend.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L60) |
+| <a id="property-_data-11"></a> `_data` | `DataPoint`[] | - | - | [components/Legend/Legend.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L51) |
+| <a id="property-_group-9"></a> `_group` | `Selection` | - | - | [components/Legend/Legend.ts:57](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L57) |
+| <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | [components/Legend/Legend.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L52) |
+| <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | [components/Legend/Legend.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L53) |
+| <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | [components/Legend/Legend.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L56) |
+| <a id="property-_scenerenderer-9"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | [components/Legend/Legend.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L66) |
+| <a id="property-_select-11"></a> `_select` | `Selection` | - | - | [components/Legend/Legend.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L54) |
+| <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | [components/Legend/Legend.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L59) |
+| <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | [components/Legend/Legend.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L55) |
+| <a id="property-_titleclass-5"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | [components/Legend/Legend.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L50) |
+| <a id="property-_titlegroup"></a> `_titleGroup` | `Selection` | - | - | [components/Legend/Legend.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L58) |
+| <a id="property-_titleheight"></a> `_titleHeight` | `number` | - | - | [components/Legend/Legend.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L60) |
+| <a id="property-_titlewidth"></a> `_titleWidth` | `number` | - | - | [components/Legend/Legend.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L61) |
 | <a id="property-_uuid-11"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_wraplines"></a> `_wrapLines` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L61) |
-| <a id="property-_wraprows"></a> `_wrapRows` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L62) |
+| <a id="property-_wraplines"></a> `_wrapLines` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L62) |
+| <a id="property-_wraprows"></a> `_wrapRows` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L63) |
 | <a id="property-ctx-11"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-12"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -13321,7 +13321,7 @@ Defaults to an empty array (`[]`).
 
 Defined in: [charts/viz/Viz.ts:708](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L708)
 
-Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
 ###### Returns
 
@@ -21870,7 +21870,7 @@ Defaults to an empty array (`[]`).
 
 Defined in: [charts/viz/Viz.ts:708](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L708)
 
-Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
 ###### Returns
 

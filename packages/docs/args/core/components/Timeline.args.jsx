@@ -153,6 +153,19 @@ export const argTypes = assign(
         summary: "number"
       }
     },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
     config: {
       control: {},
       description: "Methods that correspond to the key/value pairs and returns this class.",

@@ -116,6 +116,19 @@ export const argTypes = assign(
         summary: "constoraccessor"
       }
     },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
     config: {
       control: {},
       description: "Narrowed `.config()` for Shape. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",

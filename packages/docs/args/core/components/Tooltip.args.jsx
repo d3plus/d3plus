@@ -139,6 +139,19 @@ export const argTypes = assign(
         summary: "string"
       }
     },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
     config: {
       control: {},
       description: "Methods that correspond to the key/value pairs and returns this class.",
@@ -410,7 +423,20 @@ export const argTypes = assign(
     },
     tdStyle: {
       control: {},
-      description: "An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.",
+      description: "An object with CSS keys and values to be applied to all <td> elements inside of each <tr>. Values may be `(d, i)` functions, where `i` is the cell's column index.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    thStyle: {
+      control: {},
+      description: "An object with CSS keys and values to be applied to all <th> elements inside of the <thead>. Values may be `(d, i)` functions, where `i` is the cell's column index.",
       table: {
         defaultValue: {
           summary: "undefined"

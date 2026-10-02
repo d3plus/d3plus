@@ -179,6 +179,19 @@ export const argTypes = {
       summary: "string | false | function"
     }
   },
+  colorDefaults: {
+    control: {},
+    description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: true,
+      summary: "colordefaultsconfig"
+    }
+  },
   colorOrdinal: {
     control: {
       type: "boolean"
@@ -376,7 +389,7 @@ export const argTypes = {
     control: {
       type: "number"
     },
-    description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
+    description: "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -385,6 +398,21 @@ export const argTypes = {
     type: {
       required: false,
       summary: "number"
+    }
+  },
+  detectVisibleUnload: {
+    control: {
+      type: "boolean"
+    },
+    description: "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "boolean"
     }
   },
   discrete: {

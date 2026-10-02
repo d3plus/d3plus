@@ -40,6 +40,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
+| [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
 | [`stylize`](#stylize) | Applies each key/value in an object as a style. |
@@ -213,7 +214,7 @@ Manages the enter/update/exit pattern for a single DOM element, applying enter, 
 
 > **fontExists**(`font`: `string` \| `string`[]): `string` \| `false`
 
-Defined in: [fontExists.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontExists.ts#L13)
+Defined in: [fontExists.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontExists.ts#L34)
 
 Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
 
@@ -300,6 +301,28 @@ Detects if a variable is a javascript Object.
 
 ***
 
+<a id="onfontsloaded"></a>
+
+### onFontsLoaded()
+
+> **onFontsLoaded**(`callback`: () => `void`): () => `void`
+
+Defined in: [fontLoading.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontLoading.ts#L44)
+
+Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `callback` | () => `void` | The function to run after the font loads. |
+
+#### Returns
+
+() => `void`
+
+***
+
 <a id="parsesides"></a>
 
 ### parseSides()
@@ -369,7 +392,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L89)
+Defined in: [textWidth.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L98)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -388,7 +411,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:93](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L93)
+Defined in: [textWidth.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L102)
 
 ##### Parameters
 

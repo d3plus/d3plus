@@ -135,7 +135,7 @@ verbose: false,
 
 > **linearConfidence**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
 
-Defined in: linearConfidence.ts:8
+Defined in: [linearConfidence.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/linearConfidence.ts#L8)
 
 Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
 
@@ -384,7 +384,7 @@ Rotates a point around a given origin.
 
 > **regression**(`points`: \[`number`, `number`\][], `type?`: [`RegressionType`](#regressiontype), `options?`: [`RegressionOptions`](#regressionoptions)): [`RegressionResult`](#regressionresult) \| `null`
 
-Defined in: regression.ts:127
+Defined in: [regression.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L127)
 
 Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
 
@@ -509,7 +509,7 @@ Vladimir Agafonkin
 
 > **studentTCdf**(`t`: `number`, `df`: `number`): `number`
 
-Defined in: studentTQuantile.ts:64
+Defined in: [studentTQuantile.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L64)
 
 The cumulative distribution function of Student's t-distribution.
 
@@ -532,7 +532,7 @@ The cumulative distribution function of Student's t-distribution.
 
 > **studentTQuantile**(`p`: `number`, `df`: `number`): `number`
 
-Defined in: studentTQuantile.ts:74
+Defined in: [studentTQuantile.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L74)
 
 The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.
 
@@ -553,13 +553,13 @@ The inverse cumulative distribution function (quantile) of Student's t-distribut
 
 ### RegressionOptions
 
-Defined in: regression.ts:29
+Defined in: [regression.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L29)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | regression.ts:31 |
+| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | [regression.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L31) |
 
 ***
 
@@ -567,18 +567,18 @@ Defined in: regression.ts:29
 
 ### RegressionResult
 
-Defined in: regression.ts:8
+Defined in: [regression.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L8)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | regression.ts:18 |
-| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | regression.ts:26 |
-| <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | regression.ts:24 |
-| <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | regression.ts:20 |
-| <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | regression.ts:22 |
-| <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | regression.ts:10 |
+| <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
+| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | [regression.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L26) |
+| <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | [regression.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L24) |
+| <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
+| <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
+| <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | [regression.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L10) |
 
 ## Type Aliases
 
@@ -588,4 +588,4 @@ Defined in: regression.ts:8
 
 > **RegressionType** = `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"`
 
-Defined in: regression.ts:1
+Defined in: [regression.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L1)
