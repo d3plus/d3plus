@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {SyntaxHighlighter} from "storybook/internal/components";
 import {ThemeProvider, convert} from "storybook/theming";
 
@@ -24,7 +24,7 @@ export function prettyHtml(html) {
 
 /**
  * Mounts `initial` markup in a dashed container, runs `setup(node)` against
- * it after layout (a d3-selection mutation, a measurement…), and prints
+ * it once mounted (a d3-selection mutation, a measurement…), and prints
  * `output(node)` as a syntax-highlighted block underneath: the live DOM on
  * top, what it became below. `output` defaults to the container's pretty
  * printed innerHTML. `setup` may return a cleanup function and re-runs when
@@ -41,7 +41,7 @@ export default function DomExample({
   const ref = useRef(null);
   const [text, setText] = useState("");
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const node = ref.current;
     if (!node) return undefined;
     const cleanup = setup ? setup(node) : undefined;
@@ -58,9 +58,11 @@ export default function DomExample({
         >
           {initial}
         </div>
-        <SyntaxHighlighter language={language} copyable bordered padded>
-          {text}
-        </SyntaxHighlighter>
+        {text ? (
+          <SyntaxHighlighter language={language} copyable bordered padded>
+            {text}
+          </SyntaxHighlighter>
+        ) : null}
       </div>
     </ThemeProvider>
   );
