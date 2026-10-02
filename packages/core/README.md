@@ -136,10 +136,6 @@ Creates SVG areas based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
 
 <a id="active"></a>
@@ -1229,23 +1225,6 @@ The y1 (bottom edge) position accessor for the area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Bar`](#bar).[`_transition`](#property-_transition-6) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -1270,10 +1249,6 @@ Creates an SVG scale based on an array of data.
 - [`AxisRight`](#axisright)
 - [`AxisTop`](#axistop)
 - [`Timeline`](#timeline)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -2061,39 +2036,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks"></a> `_availableTicks` | `unknown`[] | *required* | - | - | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_configdefault-1"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | - | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | - | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-1"></a> `_data` | `unknown`[] | *required* | - | - | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata"></a> `_gridLineData?` | `object`[] | *required* | - | - | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-1"></a> `_group` | `Selection` | *required* | - | - | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_labelrotation"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | - | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | - | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | - | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | - | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_outerbounds"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | - | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_position"></a> `_position` | `object` | *required* | - | - | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-1"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | - | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-1"></a> `_select` | `Selection` | *required* | - | - | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | - | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickunit"></a> `_tickUnit` | `number` | *required* | - | - | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | - | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-1"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | - | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | - | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-1"></a> `_uuid` | `string` | *required* | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks"></a> `_visibleTicks` | `unknown`[] | *required* | - | - | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-1"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-1"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-1"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-1"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -2108,10 +2054,6 @@ Shorthand method for creating an axis where the ticks are drawn below the horizo
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -2971,39 +2913,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-1"></a> `_availableTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_configdefault-2"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale-1"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative-1"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-2"></a> `_data` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_data`](#property-_data-1) | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata-1"></a> `_gridLineData?` | `object`[] | *required* | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-2"></a> `_group` | `Selection` | *required* | - | [`Axis`](#axis).[`_group`](#property-_group-1) | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_labelrotation-1"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace-1"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale-1"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint-1"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin-1"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_margin`](#property-_margin) | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_outerbounds-1"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_position-1"></a> `_position` | `object` | *required* | - | [`Axis`](#axis).[`_position`](#property-_position) | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-2"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-2"></a> `_select` | `Selection` | *required* | - | [`Axis`](#axis).[`_select`](#property-_select-1) | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape-1"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickunit-1"></a> `_tickUnit` | `number` | *required* | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass-1"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-2"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat-1"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-2"></a> `_uuid` | `string` | *required* | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks-1"></a> `_visibleTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-2"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-2"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-2"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-2"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -3018,10 +2931,6 @@ Shorthand method for creating an axis where the ticks are drawn to the left of t
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -3881,39 +3790,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-2"></a> `_availableTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_configdefault-3"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale-2"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative-2"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-3"></a> `_data` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_data`](#property-_data-1) | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata-2"></a> `_gridLineData?` | `object`[] | *required* | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-3"></a> `_group` | `Selection` | *required* | - | [`Axis`](#axis).[`_group`](#property-_group-1) | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_labelrotation-2"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace-2"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale-2"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint-2"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin-2"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_margin`](#property-_margin) | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_outerbounds-2"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_position-2"></a> `_position` | `object` | *required* | - | [`Axis`](#axis).[`_position`](#property-_position) | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-3"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-3"></a> `_select` | `Selection` | *required* | - | [`Axis`](#axis).[`_select`](#property-_select-1) | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape-2"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickunit-2"></a> `_tickUnit` | `number` | *required* | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass-2"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-3"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat-2"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-3"></a> `_uuid` | `string` | *required* | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks-2"></a> `_visibleTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-3"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-3"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-3"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-3"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -3928,10 +3808,6 @@ Shorthand method for creating an axis where the ticks are drawn to the right of 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -4791,39 +4667,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-3"></a> `_availableTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_configdefault-4"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale-3"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative-3"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-4"></a> `_data` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_data`](#property-_data-1) | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata-3"></a> `_gridLineData?` | `object`[] | *required* | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-4"></a> `_group` | `Selection` | *required* | - | [`Axis`](#axis).[`_group`](#property-_group-1) | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_labelrotation-3"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace-3"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale-3"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint-3"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin-3"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_margin`](#property-_margin) | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_outerbounds-3"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_position-3"></a> `_position` | `object` | *required* | - | [`Axis`](#axis).[`_position`](#property-_position) | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-4"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-4"></a> `_select` | `Selection` | *required* | - | [`Axis`](#axis).[`_select`](#property-_select-1) | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape-3"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickunit-3"></a> `_tickUnit` | `number` | *required* | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass-3"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-4"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat-3"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-4"></a> `_uuid` | `string` | *required* | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks-3"></a> `_visibleTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-4"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-4"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-4"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-4"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -4838,10 +4685,6 @@ Shorthand method for creating an axis where the ticks are drawn above the horizo
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -5701,39 +5544,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-4"></a> `_availableTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_configdefault-5"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale-4"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative-4"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-5"></a> `_data` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_data`](#property-_data-1) | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata-4"></a> `_gridLineData?` | `object`[] | *required* | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-5"></a> `_group` | `Selection` | *required* | - | [`Axis`](#axis).[`_group`](#property-_group-1) | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_labelrotation-4"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace-4"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale-4"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint-4"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin-4"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_margin`](#property-_margin) | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_outerbounds-4"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_position-4"></a> `_position` | `object` | *required* | - | [`Axis`](#axis).[`_position`](#property-_position) | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-5"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-5"></a> `_select` | `Selection` | *required* | - | [`Axis`](#axis).[`_select`](#property-_select-1) | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape-4"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickunit-4"></a> `_tickUnit` | `number` | *required* | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass-4"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-5"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat-4"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-5"></a> `_uuid` | `string` | *required* | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks-4"></a> `_visibleTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-5"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-5"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-5"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-5"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -5749,33 +5563,7 @@ Creates SVG bars based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
-
-Defined in: [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | `DataPoint`[] | The raw data array to filter. |
-
-###### Returns
-
-`DataPoint`[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-1"></a>
 
@@ -6796,23 +6584,6 @@ The y1 (bottom edge) position accessor for each bar.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-1"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-6"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-6"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-1"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-1"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-6"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-1"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-1"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-1"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-1"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-6"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-1"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-1"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-6"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-1"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-6"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-6"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-6"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -7235,8 +7006,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-7"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_uuid-7"></a> `_uuid` | `string` | - | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-7"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-7"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -7253,10 +7022,6 @@ Creates SVG box based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -7999,14 +7764,6 @@ Configuration object for the whisker.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_box"></a> `_box` | [`Rect`](#rect) | - | - | [shapes/Box.ts:260](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L260) |
-| <a id="property-_configdefault-8"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-7"></a> `_data` | `DataPoint`[] | - | - | [shapes/Box.ts:258](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L258) |
-| <a id="property-_median"></a> `_median` | [`Rect`](#rect) | - | - | [shapes/Box.ts:261](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L261) |
-| <a id="property-_select-7"></a> `_select` | `Selection` | - | - | [shapes/Box.ts:259](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L259) |
-| <a id="property-_uuid-8"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_whisker"></a> `_whisker` | [`Whisker`](#whisker) | - | - | [shapes/Box.ts:262](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L262) |
-| <a id="property-_whiskerendpoint"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | [shapes/Box.ts:263](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L263) |
 | <a id="property-ctx-8"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-8"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -8024,33 +7781,7 @@ Creates SVG circles based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-1"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
-
-Defined in: [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | `DataPoint`[] | The raw data array to filter. |
-
-###### Returns
-
-`DataPoint`[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-3"></a>
 
@@ -8935,23 +8666,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-2"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-9"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-8"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-2"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-2"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-7"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-2"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-2"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-2"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-2"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-8"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-2"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-2"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-7"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-2"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-9"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-9"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-9"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -8968,10 +8682,6 @@ Creates an SVG color scale based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -9770,22 +9480,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_axisclass"></a> `_axisClass` | [`Axis`](#axis) | - | - | [components/ColorScale/ColorScale.ts:70](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L70) |
-| <a id="property-_axistest"></a> `_axisTest` | [`Axis`](#axis) | - | - | [components/ColorScale/ColorScale.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L71) |
-| <a id="property-_colorscale"></a> `_colorScale?` | `D3Scale`\<`string`\> | - | - | [components/ColorScale/ColorScale.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L72) |
-| <a id="property-_configdefault-10"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-9"></a> `_data` | `DataPoint`[] | - | - | [components/ColorScale/ColorScale.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L73) |
-| <a id="property-_gradientfill"></a> `_gradientFill?` | `string` | Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. | - | [components/ColorScale/ColorScale.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L82) |
-| <a id="property-_group-8"></a> `_group` | `Selection` | - | - | [components/ColorScale/ColorScale.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L74) |
-| <a id="property-_labelclass-3"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | [components/ColorScale/ColorScale.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L75) |
-| <a id="property-_labelmax"></a> `_labelMax` | `string` \| *required* | - | - | [components/ColorScale/ColorScale.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L77) |
-| <a id="property-_labelmin"></a> `_labelMin` | `string` \| *required* | - | - | [components/ColorScale/ColorScale.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L76) |
-| <a id="property-_legendclass"></a> `_legendClass` | [`Legend`](#legend) | - | - | [components/ColorScale/ColorScale.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L78) |
-| <a id="property-_outerbounds-5"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | [components/ColorScale/ColorScale.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L79) |
-| <a id="property-_rectclass"></a> `_rectClass` | [`Rect`](#rect) | - | - | [components/ColorScale/ColorScale.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L80) |
-| <a id="property-_scenerenderer-8"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | [components/ColorScale/ColorScale.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L85) |
-| <a id="property-_select-9"></a> `_select` | `Selection` | - | - | [components/ColorScale/ColorScale.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L69) |
-| <a id="property-_uuid-10"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-10"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-10"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -9820,10 +9514,6 @@ image().data([data])();
 ```ts
 image().data([data])(function() { alert("draw complete!"); })
 ```
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -9976,8 +9666,6 @@ scene graph rather than emit d3-selection DOM.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-_data-10"></a> `_data` | `DataPoint`[] | [shapes/Image.ts:47](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L47) |
-| <a id="property-_select-10"></a> `_select` | `Selection` | [shapes/Image.ts:46](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L46) |
 | <a id="property-schema-11"></a> `schema` | `Record`\<`string`, `any`\> | [shapes/Image.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Image.ts#L45) |
 
 ***
@@ -9993,10 +9681,6 @@ Creates an SVG legend based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -10658,23 +10342,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-11"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-11"></a> `_data` | `DataPoint`[] | - | - | [components/Legend/Legend.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L51) |
-| <a id="property-_group-9"></a> `_group` | `Selection` | - | - | [components/Legend/Legend.ts:57](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L57) |
-| <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | [components/Legend/Legend.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L52) |
-| <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | [components/Legend/Legend.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L53) |
-| <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | [components/Legend/Legend.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L56) |
-| <a id="property-_scenerenderer-9"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | [components/Legend/Legend.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L66) |
-| <a id="property-_select-11"></a> `_select` | `Selection` | - | - | [components/Legend/Legend.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L54) |
-| <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | [components/Legend/Legend.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L59) |
-| <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | [components/Legend/Legend.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L55) |
-| <a id="property-_titleclass-5"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | [components/Legend/Legend.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L50) |
-| <a id="property-_titlegroup"></a> `_titleGroup` | `Selection` | - | - | [components/Legend/Legend.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L58) |
-| <a id="property-_titleheight"></a> `_titleHeight` | `number` | - | - | [components/Legend/Legend.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L60) |
-| <a id="property-_titlewidth"></a> `_titleWidth` | `number` | - | - | [components/Legend/Legend.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L61) |
-| <a id="property-_uuid-11"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_wraplines"></a> `_wrapLines` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L62) |
-| <a id="property-_wraprows"></a> `_wrapRows` | (() => `void`) \| *required* | - | - | [components/Legend/Legend.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Legend/Legend.ts#L63) |
 | <a id="property-ctx-11"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-12"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -10691,10 +10358,6 @@ Creates SVG lines based on an array of data.
 #### Extends
 
 - [`Shape`](#shape-1)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -11581,23 +11244,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-3"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-12"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-12"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-3"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-3"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-10"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-3"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-4"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-3"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-3"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-10"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-12"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-3"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-3"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-8"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-3"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-12"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-12"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-13"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -11615,33 +11261,7 @@ Creates SVG Paths based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-2"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
-
-Defined in: [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | `DataPoint`[] | The raw data array to filter. |
-
-###### Returns
-
-`DataPoint`[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-6"></a>
 
@@ -12526,23 +12146,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-4"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-13"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-13"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-4"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-4"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-11"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-4"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-5"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-4"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-4"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-11"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-13"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-4"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-4"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-9"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-4"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-13"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-13"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-14"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -12560,123 +12163,7 @@ Creates an x/y plot based on an array of data.
 
 - [`Viz`](#viz)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: [charts/viz/Viz.ts:373](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L373)
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_drawSceneToTarget`](#_drawscenetotarget-1)
-
-<a id="_paint"></a>
-
-##### \_paint()
-
-> **\_paint**(`pCtx`: `PlotPaintContext`): [`Plot`](#plot)
-
-Defined in: [charts/Plot/index.ts:435](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L435)
-
-Paint phase: production axis rendering, shape buffer setup, and shape
-emission with event handlers. Receives all cross-phase locals from
-_draw via `pCtx` (so this method has zero coupling to _draw's local
-scope beyond the explicit context).
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `pCtx` | `PlotPaintContext` |
-
-###### Returns
-
-[`Plot`](#plot)
-
-<a id="_schedulescenerepaint"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: [charts/viz/Viz.ts:707](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L707)
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_scheduleSceneRepaint`](#_schedulescenerepaint-1)
-
-<a id="_wireplotshapeevents"></a>
-
-##### \_wirePlotShapeEvents()
-
-> **\_wirePlotShapeEvents**(`shape`: `object`, `shapeKey`: `string`, `events`: `string`[]): `void`
-
-Defined in: [charts/Plot/index.ts:311](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L311)
-
-Wires user-registered `on()` event handlers onto a freshly-configured
-shape instance. Splits the registered events into three buckets:
-global (`"click"`), shape-scoped (`"click.shape"`), and
-shape-class-scoped (`"click.Bar"` etc.). All three forward into
-`this.schema.on[event](d.data, d.i, x, event)`. Extracted from
-Plot._paint so the chart-level event wiring is in one place.
-
-On the scene path (SvgRenderer/CanvasRenderer) these d3-selection
-bindings don't fire — compute-mode shapes mount no per-shape DOM.
-Pointer events are instead routed by `Viz._drawSceneToTarget`'s
-renderer bridge: it hit-tests via `Renderer.pick`, reads the picked
-node's stamped `shapeType`, and dispatches the matching global,
-`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three
-buckets this method wires, so SVG and Canvas behave identically.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `shape` | \{ `on`: `unknown`; \} |
-| `shape.on` |
-| `shapeKey` | `string` |
-| `events` | `string`[] |
-
-###### Returns
-
-`void`
 
 <a id="active-7"></a>
 
@@ -16212,10 +15699,6 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-14"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Viz`](#viz).[`_configDefault`](#property-_configdefault-21) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_trendline"></a> `_trendLine` | `TrendLineType` | - | - | [charts/Plot/index.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L95) |
-| <a id="property-_trendlineconfig"></a> `_trendLineConfig` | `Record`\<`string`, `unknown`\> | - | - | [charts/Plot/index.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L96) |
-| <a id="property-_uuid-14"></a> `_uuid` | `string` | - | [`Viz`](#viz).[`_uuid`](#property-_uuid-21) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-14"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Viz`](#viz).[`ctx`](#property-ctx-21) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-15"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Viz`](#viz).[`schema`](#property-schema-22) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -16233,33 +15716,7 @@ Creates SVG rectangles based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-3"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
-
-Defined in: [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | `DataPoint`[] | The raw data array to filter. |
-
-###### Returns
-
-`DataPoint`[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-8"></a>
 
@@ -17144,23 +16601,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-5"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-15"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-14"></a> `_data` | `DataPoint`[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-5"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-5"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-12"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-5"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-6"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-5"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-5"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-12"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-14"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-5"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-5"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-10"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-5"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-15"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-15"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-16"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -17187,29 +16627,7 @@ An abstracted class for generating shapes.
 - [`Path`](#path)
 - [`Rect`](#rect)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-4"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: `DataPoint`[]): `DataPoint`[]
-
-Defined in: [shapes/Shape.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L124)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | `DataPoint`[] | The raw data array to filter. |
-
-###### Returns
-
-`DataPoint`[]
 
 <a id="active-9"></a>
 
@@ -18014,23 +17432,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-6"></a> `_activeGroup` | `Selection` | - | - | [shapes/Shape.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L130) |
-| <a id="property-_configdefault-16"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-15"></a> `_data` | `DataPoint`[] | - | - | [shapes/Shape.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L116) |
-| <a id="property-_enter-6"></a> `_enter` | `Selection` | - | - | [shapes/Shape.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L127) |
-| <a id="property-_exit-6"></a> `_exit` | `Selection` | - | - | [shapes/Shape.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L128) |
-| <a id="property-_group-13"></a> `_group` | `Selection` | - | - | [shapes/Shape.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L125) |
-| <a id="property-_hovergroup-6"></a> `_hoverGroup` | `Selection` | - | - | [shapes/Shape.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L129) |
-| <a id="property-_labelclass-7"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | [shapes/Shape.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L117) |
-| <a id="property-_name-6"></a> `_name` | `string` | - | - | [shapes/Shape.ts:118](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L118) |
-| <a id="property-_path-6"></a> `_path` | `Record`\<`string`, `unknown`\> | - | - | [shapes/Shape.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L131) |
-| <a id="property-_scenerenderer-13"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | - | [shapes/Shape.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L133) |
-| <a id="property-_select-15"></a> `_select` | `Selection` | - | - | [shapes/Shape.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L121) |
-| <a id="property-_tagname-6"></a> `_tagName` | `string` | - | - | [shapes/Shape.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L119) |
-| <a id="property-_texturedefs-6"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | - | [shapes/Shape.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L120) |
-| <a id="property-_transition-11"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | [shapes/Shape.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L122) |
-| <a id="property-_update-6"></a> `_update` | `Selection` | - | - | [shapes/Shape.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L126) |
-| <a id="property-_uuid-16"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-16"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-17"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -18063,10 +17464,6 @@ new SizeLegend()
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -18744,12 +18141,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-17"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_layout"></a> `_layout` | `SizeLegendLayout` | - | - | [components/SizeLegend/SizeLegend.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/SizeLegend/SizeLegend.ts#L76) |
-| <a id="property-_maxradius"></a> `_maxRadius?` | `number` | Drops values whose circles would outgrow this radius; set by a zoomed chart. | - | [components/SizeLegend/SizeLegend.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/SizeLegend/SizeLegend.ts#L78) |
-| <a id="property-_scenerenderer-14"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | [components/SizeLegend/SizeLegend.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/SizeLegend/SizeLegend.ts#L80) |
-| <a id="property-_select-16"></a> `_select?` | `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\> | - | - | [components/SizeLegend/SizeLegend.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/SizeLegend/SizeLegend.ts#L79) |
-| <a id="property-_uuid-17"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-17"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-18"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -18766,10 +18157,6 @@ Creates a wrapped text box for each point in an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -19369,10 +18756,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-18"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-16"></a> `_data` | `DataPoint`[] | - | - | [components/TextBox.ts:417](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L417) |
-| <a id="property-_select-17"></a> `_select` | `Selection` | - | - | [components/TextBox.ts:416](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L416) |
-| <a id="property-_uuid-18"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-18"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-19"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -19389,10 +18772,6 @@ Creates an interactive timeline brush component for selecting time periods withi
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -20313,48 +19692,10 @@ return d === "Back" ? "Get outta here" : d;
 
 #### Properties
 
-| Property | Type | Default | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-5"></a> `_availableTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | [components/Axis/Axis.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L102) |
-| <a id="property-_brush"></a> `_brush` | `BrushBehavior`\<`unknown`\> | *required* | - | - | [components/Timeline/Timeline.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L53) |
-| <a id="property-_brushgroup"></a> `_brushGroup` | `Selection` | *required* | - | - | [components/Timeline/Timeline.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L54) |
-| <a id="property-_buttonbehaviorcurrent"></a> `_buttonBehaviorCurrent` | `string` | *required* | - | - | [components/Timeline/Timeline.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L45) |
-| <a id="property-_configdefault-19"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | *required* | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_d3scale-5"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | [components/Axis/Axis.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L98) |
-| <a id="property-_d3scalenegative-5"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | [components/Axis/Axis.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L99) |
-| <a id="property-_data-17"></a> `_data` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_data`](#property-_data-1) | [components/Axis/Axis.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L77) |
-| <a id="property-_gridlinedata-5"></a> `_gridLineData?` | `object`[] | *required* | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | [components/Axis/Axis.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L97) |
-| <a id="property-_group-14"></a> `_group` | `Selection` | *required* | - | [`Axis`](#axis).[`_group`](#property-_group-1) | [components/Axis/Axis.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L100) |
-| <a id="property-_hiddenhandles"></a> `_hiddenHandles` | `boolean` | *required* | - | - | [components/Timeline/Timeline.ts:46](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L46) |
-| <a id="property-_labelrotation-5"></a> `_labelRotation` | `boolean` \| *required* | `undefined` | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | [components/Axis/Axis.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L78) |
-| <a id="property-_labelspace-5"></a> `_labelSpace?` | `number` | *required* | The measured size of the tick-label/title space, before margins (see `fixedSize`). | [`Axis`](#axis).[`_labelSpace`](#property-_labelspace) | [components/Axis/Axis.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L82) |
-| <a id="property-_lastscale-5"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | [components/Axis/Axis.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L101) |
-| <a id="property-_managesownscenepaint-5"></a> `_managesOwnScenePaint?` | `boolean` | *required* | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | [components/Axis/Axis.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L111) |
-| <a id="property-_margin-5"></a> `_margin` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_margin`](#property-_margin) | [components/Axis/Axis.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L79) |
-| <a id="property-_onplaytoggle"></a> `_onPlayToggle?` | () => `void` | *required* | - | - | [components/Timeline/Timeline.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L52) |
-| <a id="property-_outerbounds-7"></a> `_outerBounds` | `Record`\<`string`, `number`\> | *required* | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | [components/Axis/Axis.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L80) |
-| <a id="property-_paddingleft"></a> `_paddingLeft` | `number` | *required* | - | - | [components/Timeline/Timeline.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L55) |
-| <a id="property-_playbuttonclass"></a> `_playButtonClass` | [`TextBox`](#textbox) | *required* | - | - | [components/Timeline/Timeline.ts:47](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L47) |
-| <a id="property-_playtimer"></a> `_playTimer` | `number` \| `false` | *required* | - | - | [components/Timeline/Timeline.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L48) |
-| <a id="property-_position-5"></a> `_position` | `object` | *required* | - | [`Axis`](#axis).[`_position`](#property-_position) | [components/Axis/Axis.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L83) |
-| `_position.height` | `string` | *required* | - | - | [components/Axis/Axis.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L86) |
-| `_position.horizontal` | `boolean` | *required* | - | - | [components/Axis/Axis.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L84) |
-| `_position.opposite` | `string` | *required* | - | - | [components/Axis/Axis.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L89) |
-| `_position.width` | `string` | *required* | - | - | [components/Axis/Axis.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L85) |
-| `_position.x` | `string` | *required* | - | - | [components/Axis/Axis.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L87) |
-| `_position.y` | `string` | *required* | - | - | [components/Axis/Axis.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L88) |
-| <a id="property-_scenerenderer-15"></a> `_sceneRenderer?` | `SvgRenderer` | *required* | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | [components/Axis/Axis.ts:108](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L108) |
-| <a id="property-_select-18"></a> `_select` | `Selection` | *required* | - | [`Axis`](#axis).[`_select`](#property-_select-1) | [components/Axis/Axis.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L76) |
-| <a id="property-_tickshape-5"></a> `_tickShape?` | [`Shape`](#shape-1) | *required* | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | [components/Axis/Axis.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L96) |
-| <a id="property-_tickswidth"></a> `_ticksWidth` | `number` | *required* | - | - | [components/Timeline/Timeline.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Timeline/Timeline.ts#L56) |
-| <a id="property-_tickunit-5"></a> `_tickUnit` | `number` | *required* | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | [components/Axis/Axis.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L91) |
-| <a id="property-_titleclass-6"></a> `_titleClass` | [`TextBox`](#textbox) | *required* | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | [components/Axis/Axis.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L92) |
-| <a id="property-_transition-12"></a> `_transition` | `Transition`\<`BaseType`\> | *required* | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | [components/Axis/Axis.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L104) |
-| <a id="property-_userformat-5"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | `undefined` | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | [components/Axis/Axis.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L105) |
-| <a id="property-_uuid-19"></a> `_uuid` | `string` | *required* | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_visibleticks-5"></a> `_visibleTicks` | `unknown`[] | *required* | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | [components/Axis/Axis.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L103) |
-| <a id="property-ctx-19"></a> `ctx` | `Record`\<`string`, `unknown`\> | *required* | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
-| <a id="property-schema-20"></a> `schema` | `Record`\<`string`, `any`\> | *required* | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-19"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
+| <a id="property-schema-20"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
 ***
 
@@ -20369,10 +19710,6 @@ Creates HTML tooltips in the body of a webpage.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -21353,12 +20690,6 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-20"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-18"></a> `_data` | `DataPoint`[] | - | - | [components/Tooltip.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L319) |
-| <a id="property-_parentel"></a> `_parentEl?` | `HTMLElement` | v4: optional per-chart parent element (default: global #d3plus-portal). | - | [components/Tooltip.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L321) |
-| <a id="property-_portalel"></a> `_portalEl?` | `HTMLElement` | v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to `<body>`). Tracked per-instance so that charts each own a distinct portal — and so `parent()` switches only remove THIS instance's portal, not a sibling Tooltip's. | - | [components/Tooltip.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L328) |
-| <a id="property-_tooltiprefs"></a> `_tooltipRefs` | `Record`\<`string`, \{ `arrowDistance`: `number`; `arrowEl`: `HTMLElement`; `arrowHeight`: `number`; `reference`: `VirtualElement` \| `HTMLElement`; `tooltip`: `HTMLElement`; \}\> | - | - | [components/Tooltip.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Tooltip.ts#L329) |
-| <a id="property-_uuid-20"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-20"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-21"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -21380,56 +20711,7 @@ The base class every d3plus chart extends. Owns the shared configuration surface
 
 - [`Plot`](#plot)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget-1"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: [charts/viz/Viz.ts:373](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L373)
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-<a id="_schedulescenerepaint-1"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: [charts/viz/Viz.ts:707](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L707)
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
 
 <a id="active-10"></a>
 
@@ -24367,8 +23649,6 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-21"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | `VizBase._configDefault` | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_uuid-21"></a> `_uuid` | `string` | - | `VizBase._uuid` | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
 | <a id="property-ctx-21"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | `VizBase.ctx` | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-22"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | `VizBase.schema` | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 
@@ -24385,10 +23665,6 @@ Creates SVG whisker based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -25067,12 +24343,6 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-22"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | [utils/BaseClass.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L104) |
-| <a id="property-_data-19"></a> `_data` | `DataPoint`[] | - | - | [shapes/Whisker.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.ts#L42) |
-| <a id="property-_line"></a> `_line` | [`Line`](#line) | - | - | [shapes/Whisker.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.ts#L44) |
-| <a id="property-_select-19"></a> `_select` | `Selection` | - | - | [shapes/Whisker.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.ts#L43) |
-| <a id="property-_uuid-22"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | [utils/BaseClass.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L103) |
-| <a id="property-_whiskerendpoint-1"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | [shapes/Whisker.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.ts#L45) |
 | <a id="property-ctx-22"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | [utils/BaseClass.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L101) |
 | <a id="property-schema-23"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | [utils/BaseClass.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/BaseClass.ts#L99) |
 

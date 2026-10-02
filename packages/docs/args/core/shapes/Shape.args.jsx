@@ -22,19 +22,6 @@ export const argTypes = assign(
    */
   
   {
-    _dataFilter: {
-      control: {},
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "array.&lt;datapoint&gt;"
-      }
-    },
     active: {
       control: {},
       description: "The active callback function for highlighting shapes.",

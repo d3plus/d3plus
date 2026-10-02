@@ -22,49 +22,6 @@ export const argTypes = assign(
    */
   
   {
-    _drawSceneToTarget: {
-      control: {
-        type: "number"
-      },
-      description: "Renders this chart through the @d3plus/render pluggable backends. Called\nautomatically by `render()`. The compute pass draws into `this._select`\n(an auto-created svg INSIDE the user's target div) — that svg is the\noff-stage detached compute svg. SvgRenderer mounts to the user's target\ndiv (the parent), as a sibling to the detached compute svg. The compute\nsvg's children get cleared so only the scene output is visible.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    _paint: {
-      control: {},
-      description: "Paint phase: production axis rendering, shape buffer setup, and shape\nemission with event handlers. Receives all cross-phase locals from\n_draw via `pCtx` (so this method has zero coupling to _draw's local\nscope beyond the explicit context).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "plotpaintcontext"
-      }
-    },
-    _wirePlotShapeEvents: {
-      control: {
-        type: "object"
-      },
-      description: "Wires user-registered `on()` event handlers onto a freshly-configured\nshape instance. Splits the registered events into three buckets:\nglobal (`\"click\"`), shape-scoped (`\"click.shape\"`), and\nshape-class-scoped (`\"click.Bar\"` etc.). All three forward into\n`this.schema.on[event](d.data, d.i, x, event)`. Extracted from\nPlot._paint so the chart-level event wiring is in one place.\n\nOn the scene path (SvgRenderer/CanvasRenderer) these d3-selection\nbindings don't fire — compute-mode shapes mount no per-shape DOM.\nPointer events are instead routed by `Viz._drawSceneToTarget`'s\nrenderer bridge: it hit-tests via `Renderer.pick`, reads the picked\nnode's stamped `shapeType`, and dispatches the matching global,\n`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three\nbuckets this method wires, so SVG and Canvas behave identically.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object"
-      }
-    },
     active: {
       control: {},
       description: "The active callback function for highlighting shapes.",
