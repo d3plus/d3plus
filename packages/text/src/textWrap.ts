@@ -86,9 +86,18 @@ interface WrapPass {
     at that line's height for a circle.
     @private
 */
+/** Widths of the characters the flow loop adds or removes between words. */
+interface GapMetrics {
+  /** The advance of one ordinary space in the wrap's font. */
+  space: number;
+  /** The advance of the hyphen a soft hyphen renders as at a line break. */
+  hyphen: number;
+}
+
 function flowWords(
   words: string[],
   sizes: number[],
+  gaps: GapMetrics,
   config: WrapConfig,
   lineWidth: (line: number) => number,
 ): WrapPass {
@@ -100,12 +109,9 @@ function flowWords(
     widthProg = 0;
 
   const lineData: string[] = [],
-    // The running width each line consumed while wrapping. This is the sum
-    // of the per-word widths the break logic actually compared against the
-    // line's allowed width, which can differ from re-measuring the finished
-    // line as a single string (e.g. a soft hyphen counts toward the break
-    // decision but is stripped from the rendered line, and trailing spaces
-    // measure as 0).
+    // The running width each line consumed while wrapping: the per-word
+    // widths the break logic compared against the line's allowed width, plus
+    // the gaps between them, which tracks the rendered line.
     lineWidths: number[] = [];
 
   for (let i = 0; i < words.length; i++) {
@@ -115,9 +121,15 @@ function flowWords(
     // this loop once per candidate line count.
     const wordWidth = sizes[i];
     const width = lineWidth(line);
+    // A line ending in a soft hyphen gives that hyphen's width back if the
+    // next syllable joins it, so the fit check is made without it.
+    const joinHyphen =
+      i && lineData[line - 1] && lineData[line - 1].endsWith(softHyphen)
+        ? gaps.hyphen
+        : 0;
 
     // newline if breaking character or not enough width
-    if (textProg.slice(-1) === "\n" || widthProg + wordWidth > width) {
+    if (textProg.slice(-1) === "\n" || widthProg - joinHyphen + wordWidth > width) {
       if (!i && !overflow) {
         truncated = true;
         break;
@@ -150,9 +162,11 @@ function flowWords(
       }
     } else if (!i) lineData[0] = word;
     else {
-      // Strip soft hyphen when syllables stay on the same line
-      if (lineData[line - 1].endsWith(softHyphen)) {
+      // Strip the soft hyphen when syllables stay on the same line; its glyph
+      // was counted with the previous syllable and no longer renders.
+      if (joinHyphen) {
         lineData[line - 1] = lineData[line - 1].slice(0, -1);
+        widthProg -= joinHyphen;
       }
       lineData[line - 1] += word;
     }
@@ -160,9 +174,18 @@ function flowWords(
     textProg += word;
     widthProg += wordWidth;
     lineWidths[line - 1] = widthProg;
+    // A word's measured width stops at its last glyph, so the space it
+    // carries only takes up room once another word follows it on the line.
+    // Rendered text collapses a run of spaces to one, so a run counts once.
+    if (endsWithSpace(word)) widthProg += gaps.space;
   }
 
   return {lineData, lineWidths, truncated};
+}
+
+/** Whether a word carries one or more ordinary spaces after it. */
+function endsWithSpace(word: string): boolean {
+  return / $/.test(word);
 }
 
 /**
@@ -225,6 +248,7 @@ function measureLines(
 function flowCircle(
   words: string[],
   sizes: number[],
+  gaps: GapMetrics,
   config: WrapConfig,
   style: Record<string, string | number>,
 ): WrapPass {
@@ -245,6 +269,7 @@ function flowCircle(
     const pass = flowWords(
       words,
       sizes,
+      gaps,
       {...config, maxLines: n},
       circleLineWidth(radius, n, lineHeight, fontSize),
     );
@@ -275,7 +300,7 @@ function flowCircle(
   // size and re-wraps into something that fits — returning a non-truncated
   // result would claim the text fit and leave it overflowing the circle. Empty
   // input (no words) is genuinely not truncated, so leave that flag alone.
-  const fallback = flowWords(words, sizes, config, () => 2 * radius);
+  const fallback = flowWords(words, sizes, gaps, config, () => 2 * radius);
   return words.length ? {...fallback, truncated: true} : fallback;
 }
 
@@ -297,11 +322,20 @@ function wrapSentence(phrase: unknown, config: WrapConfig): TextWrapResult {
   };
 
   const sizes = textWidth(words, style) as number[];
+  // Measurement stops at a word's last glyph, so the spaces between words
+  // are counted separately. A non-breaking space keeps the font's space
+  // advance where a trailing ordinary space collapses to nothing. The soft
+  // hyphen ending a syllable measures as the hyphen it renders at a break,
+  // which the loop removes again when syllables stay together.
+  const gaps: GapMetrics = {
+    space: textWidth("\u00a0", style) as number,
+    hyphen: (textWidth(softHyphen, style) as number) || (textWidth("-", style) as number),
+  };
 
   const {lineData, lineWidths, truncated, visibleWidths} =
     shape === "circle"
-      ? flowCircle(words, sizes, config, style)
-      : flowWords(words, sizes, config, () => width);
+      ? flowCircle(words, sizes, gaps, config, style)
+      : flowWords(words, sizes, gaps, config, () => width);
 
   // Clean remaining soft hyphens from all lines
   const lines = lineData.map(l => l.replaceAll(softHyphen, ""));

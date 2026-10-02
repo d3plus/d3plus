@@ -1,5 +1,6 @@
 import assert from "assert";
 import {default as textWrap} from "../es/src/textWrap.js";
+import {default as textWidth} from "../../dom/es/src/textWidth.js";
 import it from "./jsdom.js";
 
 it("textWrap", () => {
@@ -8,9 +9,11 @@ it("textWrap", () => {
   const sentence = "Hello D3plus, please wrap this sentence for me.",
     testWrap = textWrap().fontFamily(font).fontSize(14)(sentence);
 
-  assert.ok(
-    testWrap.lines[0] === "Hello D3plus, please wrap this" &&
-      testWrap.lines[1] === "sentence for me.",
+  // "Hello D3plus, please wrap this" measures 213px at this font, wider than
+  // the default 200px box, so "this" has to start the second line.
+  assert.deepStrictEqual(
+    testWrap.lines,
+    ["Hello D3plus, please wrap", "this sentence for me."],
     "returning wrapped lines",
   );
   assert.strictEqual(
@@ -205,4 +208,48 @@ it("textWrap circle", () => {
         .overflow(true)("Superlongword tail"),
     "overflow with a first word wider than the line does not crash",
   );
+});
+
+it("textWrap keeps every line within the configured width", () => {
+  const font = "Verdana";
+  const style = {"font-family": font, "font-size": 14};
+  const sentences = [
+    "Hello D3plus, please wrap this sentence for me.",
+    "The quick brown fox jumps over the lazy dog while the sun sets behind the hills.",
+    "Two  Space Test with  double  spaces between words",
+    "internationalization standards committee",
+  ];
+  for (const width of [120, 160, 200, 260]) {
+    for (const sentence of sentences) {
+      const wrapped = textWrap().fontFamily(font).fontSize(14).width(width).height(400)(sentence);
+      wrapped.lines.forEach((line, i) => {
+        const visible = textWidth(line, style);
+        const single = line.trim().split(/\s+/).length === 1;
+        assert.ok(
+          single || visible <= width + 0.01,
+          `"${line}" (${visible.toFixed(2)}px) fits ${width}px`,
+        );
+        assert.ok(
+          Math.abs(wrapped.widths[i] - visible) < 0.5,
+          `reported width for "${line}" (${wrapped.widths[i].toFixed(2)}) matches its measured width (${visible.toFixed(2)})`,
+        );
+      });
+    }
+  }
+});
+
+it("textWrap counts the spaces between words, not the one after the last", () => {
+  const font = "Verdana";
+  const style = {"font-family": font, "font-size": 14};
+  const words = ["alpha", "beta", "gamma"];
+  const widths = words.map(word => textWidth(word, style));
+  const space = textWidth("\u00a0", style);
+  // Room for the three words and the two gaps between them, and nothing more:
+  // the trailing space after "gamma" must not force a break.
+  const exact = widths.reduce((a, b) => a + b, 0) + 2 * space;
+  const fits = textWrap().fontFamily(font).fontSize(14).width(Math.ceil(exact))(words.join(" ") + " ");
+  assert.deepStrictEqual(fits.lines.map(line => line.trimEnd()), ["alpha beta gamma"], "two gaps fit exactly");
+  // One space less than the gaps need, and the last word wraps.
+  const tight = textWrap().fontFamily(font).fontSize(14).width(Math.floor(exact - space))(words.join(" "));
+  assert.deepStrictEqual(tight.lines, ["alpha beta", "gamma"], "the gaps count toward the line width");
 });
