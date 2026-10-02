@@ -216,9 +216,10 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
     .locale(viz.schema.locale)
     .parent(viz)
     .select(legendGroup)
-    .shape((d: DataPoint, i: number) =>
-      viz.schema.shape(d, i) === "Circle" ? "Circle" : "Rect",
-    )
+    .shape((d: DataPoint, i: number) => {
+      const shape = viz.schema.shape(d, i);
+      return shape === "Circle" || shape === "Line" ? shape : "Rect";
+    })
     .verticalAlign(frame.verticalAlign)
     .width(frame.width)
     .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepContext)(viz.schema.shapeConfig, "legend"))

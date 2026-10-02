@@ -7,6 +7,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
+import {visibleColor} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
 import type {TrendFit} from "./trendLines.js";
@@ -70,8 +71,6 @@ export function contentPoint(viz: VizInstance, point: [number, number]): [number
   ];
 }
 
-const visibleColor = (s: unknown): string | undefined =>
-  typeof s === "string" && s !== "none" && s !== "transparent" ? s : undefined;
 
 const discreteKey = (v: unknown): string =>
   v instanceof Date ? String(v.getTime()) : String(v);

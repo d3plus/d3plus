@@ -9,6 +9,7 @@ import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
+import {tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {prepareTooltip} from "./sharedTooltip.js";
 import type {TrendFit} from "./trendLines.js";
@@ -95,7 +96,7 @@ export function renderTrendTooltip(viz: VizInstance, trend: TrendFit, event: Sce
   prepareTooltip(viz)
     .data([trend.row || {}])
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig))
-    .title(() => trend.label)
+    .title(() => withSwatch(tooltipSwatch(trend.color, "Line"), trend.label))
     .thead([])
     .tbody(trendTooltipRows(viz, trend))
     .footer(false)

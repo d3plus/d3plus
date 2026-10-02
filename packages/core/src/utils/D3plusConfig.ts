@@ -438,6 +438,13 @@ export interface D3plusConfig {
   /** Configuration for the legend component. */
   legendConfig?: {
     label?: DataPointAccessor<string>;
+    /**
+        Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"`
+        (a dot with a short stroke through it). Defaults to the shape of the
+        series it stands for: a dot for Circles, the line glyph for Lines, and
+        a square for everything else.
+    */
+    shape?: "Rect" | "Circle" | "Line" | DataPointAccessor<string>;
     shapeConfig?: Record<string, string | number>;
   };
   /** Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. */

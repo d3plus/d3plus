@@ -44,15 +44,18 @@ const probe = ([kind, config, data, fx, target]) =>
       requestAnimationFrame(() => setTimeout(() => {
         const tip = document.querySelector(".d3plus-tooltip");
         const cells = tip
-          // Per row: [[name, swatch fill, swatch radius, colored text spans], [value]].
+          // Per row: [[name, swatch fill, swatch kind, colored text spans], [value]].
           ? Array.from(tip.querySelectorAll("tbody tr")).map(tr =>
             Array.from(tr.querySelectorAll("td")).map(td => {
               const sw = td.querySelector(".d3plus-tooltip-swatch");
+              // A Line swatch is a stroke through a dot (its last child).
+              const line = sw && sw.classList.contains("d3plus-tooltip-swatch-line");
+              const paint = line ? sw.lastElementChild : sw;
               return [
                 td.textContent,
-                sw ? sw.style.backgroundColor : null,
-                sw ? sw.style.borderRadius : null,
-                td.querySelectorAll("span:not(.d3plus-tooltip-swatch)").length + (td.style.color ? 1 : 0),
+                paint ? paint.style.backgroundColor : null,
+                sw ? line ? "line" : sw.style.borderRadius === "50%" ? "dot" : "square" : null,
+                Array.from(td.querySelectorAll("span:not(.d3plus-tooltip-swatch):not(.d3plus-tooltip-swatch span)")).filter(s => s.style.color).length + (td.style.color ? 1 : 0),
               ];
             }))
           : [];
@@ -108,7 +111,7 @@ const run = (kind, config = {}, rows = data, fx = 0.34, target = null) =>
 
 after(closeBrowser);
 
-it("shared tooltip — LinePlot: empty-space hover lists every series, with stroke-colored dots", async () => {
+it("shared tooltip — LinePlot: empty-space hover lists every series, with stroke-colored line glyphs", async () => {
   const r = await run("LinePlot");
   assert.ok(r.surface, "hover surface emitted");
   assert.ok(r.crosshair, "crosshair drawn");
@@ -119,7 +122,7 @@ it("shared tooltip — LinePlot: empty-space hover lists every series, with stro
   const strokes = Object.fromEntries(r.lines.map(([k, s]) => [k, s]));
   for (const [[name, fill, radius, coloredName], [, valueFill, , coloredValue]] of r.cells) {
     assert.ok(fill, `${name} has a swatch`);
-    assert.strictEqual(radius, "50%", `${name} swatch is a dot (Line)`);
+    assert.strictEqual(radius, "line", `${name} swatch is a line glyph`);
     assert.strictEqual(fill.replace(/\s/g, ""), strokes[name].replace(/\s/g, ""), `${name} swatch filled with its stroke`);
     assert.strictEqual(valueFill, null, "no swatch on the value");
     assert.strictEqual(coloredName + coloredValue, 0, "text keeps the default color");
@@ -140,7 +143,7 @@ it("shared tooltip — StackedArea reports raw (unstacked) values", async () => 
   const r = await run("StackedArea");
   assert.ok(r.crosshairOrder > 0, "crosshair draws in front of the areas");
   assert.strictEqual(r.markers, 0, "no markers on areas");
-  assert.ok(r.cells.every(([[, , radius]]) => radius === "1px"), "Area swatches are squares");
+  assert.ok(r.cells.every(([[, , radius]]) => radius === "square"), "Area swatches are squares");
   assert.deepStrictEqual(r.cells.map(([name, value]) => [name[0], value[0]]),
     [["Gamma", "31"], ["Beta", "21"], ["Alpha", "11"]]);
 });
@@ -177,7 +180,7 @@ it("shared tooltip — stacked bars list the stack and highlight it", async () =
   const r = await run("BarChart", {stacked: true}, data, 0.1, '[data-key="Beta_2010"]');
   assert.ok(r.crosshair, "crosshair drawn");
   assert.ok(r.crosshairOrder < 0, "crosshair draws behind the bars");
-  assert.ok(r.cells.every(([[, , radius]]) => radius === "1px"), "Bar swatches are squares");
+  assert.ok(r.cells.every(([[, , radius]]) => radius === "square"), "Bar swatches are squares");
   assert.deepStrictEqual(r.cells.map(([name, value]) => [name[0], value[0]]),
     [["Gamma", "30"], ["Beta", "20"], ["Alpha", "10"]]);
   for (const id of ["Alpha", "Beta", "Gamma"]) {
