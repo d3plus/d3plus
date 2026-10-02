@@ -3,11 +3,11 @@ import {group} from "d3-array";
 import type {DataPoint} from "./DataPoint.js";
 
 interface NestEntry {
-  key: string | number | boolean;
+  key: string | number | boolean | undefined;
   values: NestEntry[] | DataPoint[];
 }
 
-type KeyAccessor = (d: DataPoint) => string | number | boolean;
+type KeyAccessor = (d: DataPoint) => string | number | boolean | undefined;
 
 /**
     @summary Extends the base behavior of d3.nest to allow for multiple depth levels.
@@ -22,7 +22,7 @@ export default function (
 
   const nestedData = nestGroups(data, keys);
 
-  return bubble(nestedData);
+  return bubble(nestedData, keys.length);
 }
 
 /**
@@ -33,22 +33,28 @@ export default function (
 export function nestGroups(data: DataPoint[], fns: KeyAccessor[]): NestEntry[] {
   if (!fns.length) return data as unknown as NestEntry[];
   return [...group(data, fns[0])].map(([key, values]) => ({
-    key: key as string | number | boolean,
+    key,
     values: nestGroups(values, fns.slice(1)),
   }));
 }
 
 /**
-    Bubbles up values that do not nest to the furthest key.
-    @param values The "values" of a nest object.
+    Bubbles up values that do not nest to the furthest key: an entry whose next
+    level resolved to no key is replaced by its leaf row, so rows whose keys run
+    out early become leaves at that depth instead of an empty level.
+    @param values The entries of one nest level.
+    @param depth The number of key levels from `values` down, inclusive.
     @private
 */
-function bubble(values: NestEntry[]): NestEntry[] {
+function bubble(values: NestEntry[], depth: number): NestEntry[] {
+  if (depth < 2) return values;
   return values.map(d => {
     if (d.key && d.values) {
-      if ((d.values[0] as NestEntry).key === "undefined")
-        return (d.values[0] as NestEntry).values[0] as unknown as NestEntry;
-      else d.values = bubble(d.values as NestEntry[]);
+      const children = d.values as NestEntry[];
+      const first = children[0];
+      if (first && (first.key === undefined || first.key === "undefined"))
+        return first.values[0] as unknown as NestEntry;
+      else d.values = bubble(children, depth - 1);
     }
 
     return d;
