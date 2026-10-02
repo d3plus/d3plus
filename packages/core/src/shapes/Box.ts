@@ -248,7 +248,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
 }
 
 /**
-    Creates SVG box based on an array of data.
+    Creates SVG box-and-whisker plots based on an array of data, one per group of values.
 */
 export default class Box extends BaseClass {
   // installFluent generates the config accessors (orient, x, rectWidth, …) at

@@ -121,7 +121,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
-| [`nest`](#nest) |  |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
@@ -26231,14 +26231,16 @@ output is deterministic for a given input.
 
 > **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:11
+Defined in: data/types/src/nest.d.ts:12
+
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | - |
-| `keys` | `KeyAccessor` \| `KeyAccessor`[] | An array of key accessors that signify each nest level. |
+| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
 
 #### Returns
 
@@ -26252,7 +26254,7 @@ Defined in: data/types/src/nest.d.ts:11
 
 > **nestGroups**(`data`: [`DataPoint`](#datapoint)[], `fns`: `KeyAccessor`[]): `NestEntry`[]
 
-Defined in: data/types/src/nest.d.ts:17
+Defined in: data/types/src/nest.d.ts:18
 
 Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.
 

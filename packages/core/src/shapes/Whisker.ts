@@ -32,7 +32,7 @@ const whiskerSchema: ConfigField[] = [
 ];
 
 /**
-    Creates SVG whisker based on an array of data.
+    Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 */
 export default class Whisker extends BaseClass {
   // installFluent generates the config accessors (length, orient, x, …) at

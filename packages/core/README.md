@@ -56,13 +56,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`Area`](#area) | Creates SVG areas based on an array of data. |
 | [`Axis`](#axis) | Creates an SVG scale based on an array of data. |
-| [`AxisBottom`](#axisbottom) | Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functional |
-| [`AxisLeft`](#axisleft) | Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all fun |
-| [`AxisRight`](#axisright) | Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all fu |
-| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functional |
+| [`AxisBottom`](#axisbottom) | Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does. |
+| [`AxisLeft`](#axisleft) | Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does. |
+| [`AxisRight`](#axisright) | Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does. |
+| [`AxisTop`](#axistop) | Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does. |
 | [`Bar`](#bar) | Creates SVG bars based on an array of data. |
 | [`BaseClass`](#baseclass) | Provides shared configuration, event handling, and locale management inherited by all d3plus classes. |
-| [`Box`](#box) | Creates SVG box based on an array of data. |
+| [`Box`](#box) | Creates SVG box-and-whisker plots based on an array of data, one per group of values. |
 | [`Circle`](#circle) | Creates SVG circles based on an array of data. |
 | [`ColorScale`](#colorscale) | Creates an SVG color scale based on an array of data. |
 | [`Image`](#image) | Creates SVG images based on an array of data. |
@@ -77,7 +77,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Timeline`](#timeline) | Creates an interactive timeline brush component for selecting time periods within a visualization. |
 | [`Tooltip`](#tooltip) | Creates HTML tooltips in the body of a webpage. |
 | [`Viz`](#viz) | The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessor |
-| [`Whisker`](#whisker) | Creates SVG whisker based on an array of data. |
+| [`Whisker`](#whisker) | Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint sha |
 
 | Functions | Description |
 | --- | --- |
@@ -2103,7 +2103,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/Axis/AxisBottom.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/AxisBottom.ts#L6)
 
-Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
@@ -3013,7 +3013,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/Axis/AxisLeft.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/AxisLeft.ts#L6)
 
-Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
@@ -3923,7 +3923,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/Axis/AxisRight.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/AxisRight.ts#L6)
 
-Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
@@ -4833,7 +4833,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [components/Axis/AxisTop.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/AxisTop.ts#L6)
 
-Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
@@ -7248,7 +7248,7 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: [shapes/Box.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L253)
 
-Creates SVG box based on an array of data.
+Creates SVG box-and-whisker plots based on an array of data, one per group of values.
 
 #### Extends
 
@@ -24380,7 +24380,7 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 Defined in: [shapes/Whisker.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Whisker.ts#L37)
 
-Creates SVG whisker based on an array of data.
+Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 
 #### Extends
 
