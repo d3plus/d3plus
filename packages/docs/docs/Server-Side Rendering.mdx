@@ -11,7 +11,7 @@ of hydration.
 
 Every chart type is supported, including **Geomap** (basemap tiles are fetched
 and inlined server-side) and the **Canvas** backend for raster output. The
-[same scene graph](?path=/docs/guides-rendering--docs) that paints in the browser
+[same scene graph](/docs/guides-rendering--d3plus) that paints in the browser
 is realized headlessly, so server output matches the client.
 
 ## Installing
@@ -163,7 +163,7 @@ await renderToStaticPNG(map, {
 
 ## React & frameworks
 
-The [React wrapper](?path=/docs/guides-frameworks--docs) renders on the client
+The [React wrapper](/docs/guides-frameworks--d3plus) renders on the client
 inside `useEffect`, so it is safe to include in server-rendered apps — it simply
 paints after mount. Its components carry the `"use client"` directive, so they
 work in the Next.js App Router without extra boundaries.

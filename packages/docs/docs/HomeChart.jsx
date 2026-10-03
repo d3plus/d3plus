@@ -1,6 +1,7 @@
 import React from "react";
 import {Treemap} from "@d3plus/react";
 import {Source} from "@storybook/addon-docs/blocks";
+import {useTheme} from "storybook/theming";
 import stringify from "../helpers/stringify";
 
 const Logo = () => {
@@ -19,9 +20,9 @@ const Logo = () => {
   const code = `<Treemap config={${stringify(config)}} />`;
 
   const mobile = window !== undefined && window.innerWidth <= 768;
-  const darkMode =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  // Follow the docs theme rather than the OS setting, so the code block
+  // matches the page it sits on.
+  const darkMode = useTheme().base === "dark";
 
   const wrapperStyle = {
     alignItems: "align-start",

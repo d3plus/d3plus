@@ -43,12 +43,21 @@ const hiddenAxis = {
   shapeConfig: {opacity: 0},
 };
 
+// On the dark theme the axis labels, ticks, and domain line need light
+// strokes; the light theme keeps the chart defaults.
+const axisColors = darkMode
+  ? {
+      barConfig: {stroke: "#adb5bd"},
+      shapeConfig: {stroke: "#adb5bd", labelConfig: {fontColor: colorDefaults.light}},
+    }
+  : {barConfig: {}, shapeConfig: {}};
 const visibleAxis = {
-  barConfig: {opacity: 1},
+  barConfig: {opacity: 1, ...axisColors.barConfig},
   gridConfig: {opacity: 1},
   shapeConfig: {
     duration: 250,
     opacity: 1,
+    ...axisColors.shapeConfig,
   },
 };
 

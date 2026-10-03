@@ -23,8 +23,9 @@
     letter-spacing: 0;
   }
 
-  /* hides top control bar */
-  .sb-bar {
+  /* hides the preview toolbar; the mobile navigation header shares the
+     sb-bar class and has to stay, or phones can't open the menu */
+  section.sb-bar[data-testid="sb-preview-toolbar"] {
     display: none !important;
   }
 

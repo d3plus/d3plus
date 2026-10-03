@@ -7,6 +7,13 @@
 
 <style>
 
+  /* phones inflate the text of blocks they judge too small to read, which
+     made some code blocks larger than others; keep every size as set */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   pre {
     font-family: ui-monospace, monospace !important;
   }
