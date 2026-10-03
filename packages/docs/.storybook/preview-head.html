@@ -18,6 +18,23 @@
     font-family: ui-monospace, monospace !important;
   }
 
+  /* on phones, wide tables (the args/controls table, markdown tables) scroll
+     within their own box instead of widening the whole page */
+  @media (max-width: 600px) {
+    .sbdocs table,
+    .docblock-argstable {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    /* inline code is set not to wrap, so a long span widened the page */
+    .sbdocs :not(pre) > code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+
   .sbdocs-wrapper {
     padding: 2rem !important;
   }
