@@ -73,6 +73,12 @@
   .docs-story > div:first-child { /* viz container */
     padding: 0 !important;
   }
+  /* a tighter canvas gutter on phones lets more examples fit without scrolling */
+  @media (max-width: 600px) {
+    .docs-story {
+      padding: 12px !important;
+    }
+  }
 
   /* removes inner viz padding */
   .innerZoomElementWrapper > div:first-child {
@@ -82,11 +88,13 @@
     display: block;
   }
 
-  /* size container div */
+  /* size container div; content wider than the canvas (swatch rows, call
+     grids on a phone) scrolls sideways instead of being cropped */
   .sb-story {
     align-items: stretch;
     display: flex;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     width: 100%;
   }
   .sb-story > div {
