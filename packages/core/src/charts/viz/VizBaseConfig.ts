@@ -282,33 +282,6 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Shows a button that allows for downloading the current visualization.
-*/
-  downloadButton(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this.schema.downloadButton = _), this)
-      : this.schema.downloadButton;
-  }
-
-  /**
-      Sets specific options of the saveElement function used when downloading the visualization.
-*/
-  downloadConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    return arguments.length
-      ? ((this.schema.downloadConfig = assign(this.schema.downloadConfig, _!)), this)
-      : this.schema.downloadConfig;
-  }
-
-  /**
-      Defines which control group to add the download button into.
-*/
-  downloadPosition(_?: string): this | string {
-    return arguments.length
-      ? ((this.schema.downloadPosition = _), this)
-      : this.schema.downloadPosition;
-  }
-
-  /**
       The font family used throughout the visualization.
 */
   fontFamily(_?: string | string[]): this | string | string[] {

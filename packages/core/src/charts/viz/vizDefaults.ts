@@ -200,9 +200,6 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.detectVisible = true;
   viz.schema.detectVisibleInterval = 1000;
   viz.schema.detectVisibleUnload = true;
-  viz.schema.downloadButton = false;
-  viz.schema.downloadConfig = {type: "png"};
-  viz.schema.downloadPosition = "top";
   viz.schema.duration = 600;
   viz.schema.fontFamily = fontFamily;
   viz._hidden = [];

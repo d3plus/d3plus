@@ -445,49 +445,6 @@ export const argTypes = assign(
         summary: "any"
       }
     },
-    downloadButton: {
-      control: {
-        type: "boolean"
-      },
-      description: "Shows a button that allows for downloading the current visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    downloadConfig: {
-      control: {},
-      description: "Sets specific options of the saveElement function used when downloading the visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    downloadPosition: {
-      control: {
-        type: "text"
-      },
-      description: "Defines which control group to add the download button into.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
     duration: {
       control: {
         type: "number"

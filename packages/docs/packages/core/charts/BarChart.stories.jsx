@@ -422,21 +422,6 @@ CustomTooltip.args = {
   }
 };
 CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}, docs: {description: {story: "Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting."}}};
-
-export const DownloadButton = Template.bind({});
-DownloadButton.args = {
-  data: featureData,
-  groupBy: "region",
-  x: "quarter",
-  y: "revenue",
-  downloadButton: true,
-  downloadConfig: {type: "png"}
-};
-DownloadButton.parameters = {
-  controls: {include: ["downloadButton", "downloadConfig", "downloadPosition"]},
-  docs: {description: {story: "Enable a built-in download button with `downloadButton: true`. `downloadConfig.type` accepts `\"png\"`, `\"jpg\"`, or `\"svg\"`."}}
-};
-
 export const Localized = Template.bind({});
 Localized.args = {
   data: featureData.map(d => ({...d, revenue: d.revenue * 1000000})),
