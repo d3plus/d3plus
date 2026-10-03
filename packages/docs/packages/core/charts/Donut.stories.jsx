@@ -54,3 +54,33 @@ CustomHoleSize.args = {
   innerRadius: 120
 };
 CustomHoleSize.parameters = {controls: {include: ["innerRadius"]}, docs: {description: {story: "Raise `innerRadius` (here 120px) to enlarge the center hole, thinning the ring into a narrow band."}}};
+
+export const SortedWithLegend = Template.bind({});
+SortedWithLegend.args = {
+  data: [
+    {Topping: "Powdered sugar", Sold: 40},
+    {Topping: "Cinnamon", Sold: 20},
+    {Topping: "Sprinkles", Sold: 25},
+    {Topping: "Fruits", Sold: 30},
+    {Topping: "Cream", Sold: 15}
+  ],
+  groupBy: "Topping",
+  legendPosition: "right",
+  sort: funcify((a, b) => b.Sold - a.Sold, "(a, b) => b.Sold - a.Sold"),
+  value: "Sold"
+};
+SortedWithLegend.parameters = {controls: {include: ["sort", "legendPosition"]}, docs: {description: {story: "`sort` orders the arcs clockwise from the top, here largest first, and `legendPosition: \"right\"` moves the legend beside the ring so the labels and the arcs read in the same order."}}};
+
+export const DrillDown = Template.bind({});
+DrillDown.args = {
+  data: [
+    {category: "Fruit", id: "Apple", value: 30}, {category: "Fruit", id: "Banana", value: 22},
+    {category: "Fruit", id: "Cherry", value: 18},
+    {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
+    {category: "Vegetable", id: "Kale", value: 8}
+  ],
+  depth: 0,
+  groupBy: ["category", "id"],
+  value: "value"
+};
+DrillDown.parameters = {controls: {include: ["depth", "groupBy"]}, docs: {description: {story: "A two-level `groupBy` with `depth: 0` shows one arc per category; clicking an arc drills into its children and a back button returns. The ring behaves exactly like the Pie it extends."}}};

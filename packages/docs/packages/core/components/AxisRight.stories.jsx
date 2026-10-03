@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.",
+        component: "Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.",
       },
     },
   }

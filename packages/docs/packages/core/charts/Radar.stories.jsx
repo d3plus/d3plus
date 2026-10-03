@@ -65,3 +65,31 @@ MultipleSeries.parameters = {
   controls: {include: ["metric", "value"]},
   docs: {description: {story: "Two series overlaid on the same axes, one filled polygon per group."}}
 };
+
+const skillData = ["Analyst", "Engineer", "Designer"].flatMap((group, g) =>
+  ["Research", "Writing", "Coding", "Design", "Testing", "Planning", "Presenting", "Mentoring"].map((metric, m) => ({
+    group,
+    metric,
+    value: 3 + ((m * 3 + g * 5) % 7),
+  })),
+);
+
+export const MoreMetrics = Template.bind({});
+MoreMetrics.args = {
+  data: skillData,
+  groupBy: "group",
+  metric: "metric",
+  value: "value"
+};
+MoreMetrics.parameters = {controls: {include: ["metric", "value"]}, docs: {description: {story: "Eight `metric` values make eight evenly spaced spokes, and three `groupBy` series become three overlaid polygons, which is the typical skills-profile use of a radar."}}};
+
+export const LevelsAndPadding = Template.bind({});
+LevelsAndPadding.args = {
+  data: skillData,
+  groupBy: "group",
+  levels: 3,
+  metric: "metric",
+  outerPadding: 90,
+  value: "value"
+};
+LevelsAndPadding.parameters = {controls: {include: ["levels", "outerPadding"]}, docs: {description: {story: "`levels` sets how many concentric rings are drawn behind the polygons (three here instead of the default), and `outerPadding` reserves space between the outermost ring and the edge for the spoke labels."}}};

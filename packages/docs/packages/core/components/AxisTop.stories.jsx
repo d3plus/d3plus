@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Shorthand method for creating an axis where the ticks are drawn above the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.",
+        component: "Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does.",
       },
     },
   }

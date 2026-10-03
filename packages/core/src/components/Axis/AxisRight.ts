@@ -1,7 +1,7 @@
 import {default as Axis} from "./Axis.js";
 
 /**
-    Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+    Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.
 */
 export default class AxisRight extends Axis {
   /**
