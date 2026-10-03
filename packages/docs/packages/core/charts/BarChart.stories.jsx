@@ -141,6 +141,17 @@ TrendLine.args = {
 };
 TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLine` works on the discrete axis too: each series gets a line fit across its bars, sampled at every category and drawn behind them. Categories that aren't numbers or dates are fit by their order along the axis."}}};
 
+export const TrendLineProjection = Template.bind({});
+TrendLineProjection.args = {
+  data: TrendLine.args.data,
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  trendLine: true,
+  trendLineConfig: {projection: 3}
+};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it."}}};
+
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
   data: [

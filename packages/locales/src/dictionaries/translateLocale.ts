@@ -25,6 +25,7 @@ export interface TranslationStrings {
   Polynomial: string;
   Power: string;
   "Powered by D3plus": string;
+  Projected: string;
   Range: string;
   "Relative Frequency": string;
   "Reset Zoom": string;
@@ -78,6 +79,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Power: "\u0642\u0648\u0629",
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
+    Projected: "\u0645\u062a\u0648\u0642\u0639",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
     "Relative Frequency": "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a",
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
@@ -121,6 +123,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
+    Projected: "Proyectado",
     Range: "Rango",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
@@ -162,6 +165,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
+    Projected: "Projetado",
     Range: "Intervalo",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
@@ -203,6 +207,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
+    Projected: "\u9884\u6d4b",
     Range: "\u8303\u56f4",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",

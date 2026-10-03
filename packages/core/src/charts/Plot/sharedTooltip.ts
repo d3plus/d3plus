@@ -10,13 +10,13 @@ import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import {tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import type {SharedHover} from "./sharedHover.js";
+import type {SharedHover, SharedRow} from "./sharedHover.js";
 
 type Axis = "x" | "y";
 const other = (k: Axis): Axis => (k === "x" ? "y" : "x");
 
 /** An axis's display name: its configured title, else its data key. */
-function axisName(viz: VizInstance, k: Axis): string {
+export function axisName(viz: VizInstance, k: Axis): string {
   const config = viz[`_${k}Config`] as {title?: unknown} | undefined;
   if (config && typeof config.title === "string") return config.title;
   const key = viz[`_${k}Key`];
@@ -28,7 +28,7 @@ function axisName(viz: VizInstance, k: Axis): string {
     through d3plus's date formatter, continuous-axis numbers abbreviated, and
     anything else (e.g. a numeric year on the discrete axis) as-is.
 */
-function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
+export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   const config = viz[`_${k}Config`] as {tickFormat?: (d: unknown) => string} | undefined;
   if (config && typeof config.tickFormat === "function") return config.tickFormat(value);
   if (value instanceof Date) return formatDate(value, [value]);
@@ -41,7 +41,8 @@ function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
 function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
   const row = hover.rows[0];
   const accessor = viz[`_${k}`];
-  const raw = accessor ? accessor(row.datum, row.index) : hover.value;
+  // A projected row's datum is a source row of its series, not this column.
+  const raw = accessor && !row.projected ? accessor(row.datum, row.index) : hover.value;
   return [axisName(viz, k), axisValue(viz, k, raw)];
 }
 
@@ -89,6 +90,28 @@ export function restoreTooltip(viz: VizInstance): void {
   viz._sharedTooltipSaved = undefined;
 }
 
+/** A projected row's band bounds, as " (low – high)"; empty otherwise. */
+function bounds(viz: VizInstance, k: Axis, row: SharedRow): string {
+  const band = row.projected;
+  if (!band || band.lci === undefined || band.hci === undefined) return "";
+  return ` (${axisValue(viz, k, band.lci)} – ${axisValue(viz, k, band.hci)})`;
+}
+
+/**
+    Marks a shared column's projected values (`trendLineConfig.projection`):
+    on the discrete value in the header when every row is projected, or on
+    each projected row's name when the column mixes in plotted values.
+*/
+function markProjected(viz: VizInstance, hover: SharedHover): {header: string[]; names: string[]} {
+  const label = ` (${viz.schema.translate("Projected")})`;
+  const header = axisRow(viz, hover.axis, hover);
+  const all = hover.rows.every(r => r.projected);
+  return {
+    header: all ? [header[0], `${header[1]}${label}`] : header,
+    names: hover.rows.map(r => (r.projected && !all ? `${r.name}${label}` : r.name)),
+  };
+}
+
 /**
     The shared tooltip: title from the continuous axis, a header row naming
     the hovered discrete value, then one `[name, value]` row per series, the
@@ -97,14 +120,15 @@ export function restoreTooltip(viz: VizInstance): void {
 */
 export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event: SceneEvent): void {
   const cont = other(hover.axis);
+  const {header, names} = markProjected(viz, hover);
   prepareTooltip(viz)
     .data([hover.rows[0].datum])
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig))
     .title(() => axisName(viz, cont))
-    .thead(axisRow(viz, hover.axis, hover))
-    .tbody(hover.rows.map(r => [
-      withSwatch(tooltipSwatch(r.color, r.shape), r.name),
-      axisValue(viz, cont, r.value),
+    .thead(header)
+    .tbody(hover.rows.map((r, i) => [
+      withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+      `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
     ]))
     .footer(false)
     .arrow(false)

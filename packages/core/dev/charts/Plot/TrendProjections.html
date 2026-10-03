@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../umd/d3plus-core.full.js"></script>
+  <style>
+    body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px; font-family: sans-serif; }
+    .chart { height: 360px; }
+    h3 { margin: 0 0 4px; font-size: 14px; }
+  </style>
+
+</head>
+
+<body>
+  <div><h3>LinePlot, numeric years, 5 steps per series</h3><div class="chart" id="years"></div></div>
+  <div><h3>LinePlot, time axis, prediction fan to 2030</h3><div class="chart" id="fan"></div></div>
+  <div><h3>LinePlot, monthly dates, 6 months</h3><div class="chart" id="monthly"></div></div>
+  <div><h3>LinePlot, series ending at different years</h3><div class="chart" id="ragged"></div></div>
+  <div><h3>BarChart, 3 future years</h3><div class="chart" id="bar"></div></div>
+  <div><h3>Horizontal BarChart, 3 future years</h3><div class="chart" id="hbar"></div></div>
+  <div><h3>StackedArea (projects the totals)</h3><div class="chart" id="stacked"></div></div>
+  <div><h3>Scatter, all points, to x = 20 with fan</h3><div class="chart" id="scatter"></div></div>
+  <div><h3>Polynomial, custom projectionConfig</h3><div class="chart" id="poly"></div></div>
+  <div><h3>Category axis (projection ignored)</h3><div class="chart" id="category"></div></div>
+  <div>
+    <label><input type="checkbox" id="canvas"> Canvas renderer</label>
+  </div>
+</body>
+
+<script>
+
+  // Deterministic jitter, so the page renders the same every load.
+  let seed = 11;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
+
+  const years = [];
+  ["Alpha", "Beta", "Gamma"].forEach((id, s) => {
+    for (let year = 2012; year <= 2024; year++) {
+      years.push({id, year, date: `${year}-01-01`, value: 30 + 12 * s + (year - 2012) * (4 - s * 1.5) + rand() * 10});
+    }
+  });
+
+  const months = [];
+  ["Web", "Store"].forEach((id, s) => {
+    for (let m = 0; m < 18; m++) {
+      const d = new Date(2023, m, 1);
+      months.push({id, date: d, value: 100 + s * 40 + m * (5 + s * 2) + rand() * 20});
+    }
+  });
+
+  const charts = [];
+  const make = (Chart, select, config) => {
+    const chart = new d3plus[Chart]().select(select).config(config);
+    charts.push(chart);
+    return chart.render();
+  };
+
+  make("LinePlot", "#years", {
+    data: years, groupBy: "id", x: "year", y: "value",
+    trendLine: true, trendLineConfig: {projection: 5}
+  });
+
+  make("LinePlot", "#fan", {
+    data: years.filter(d => d.id !== "Gamma"), groupBy: "id", x: "date", y: "value", time: "date",
+    trendLine: true, trendLineConfig: {confidence: true, projection: {to: 2030}}
+  });
+
+  make("LinePlot", "#monthly", {
+    data: months, groupBy: "id", x: "date", y: "value", time: "date",
+    trendLine: true, trendLineConfig: {projection: 6}
+  });
+
+  make("LinePlot", "#ragged", {
+    data: years.filter(d => d.id !== "Beta" || d.year <= 2019), groupBy: "id", x: "year", y: "value",
+    trendLine: true, trendLineConfig: {projection: 3, confidence: true}
+  });
+
+  make("BarChart", "#bar", {
+    data: years.filter(d => d.year >= 2018 && d.id !== "Gamma"), groupBy: "id", x: "year", y: "value",
+    trendLine: true, trendLineConfig: {projection: 3}
+  });
+
+  make("BarChart", "#hbar", {
+    data: years.filter(d => d.year >= 2018 && d.id === "Alpha"), groupBy: "id", discrete: "y", x: "value", y: "year",
+    trendLine: true, trendLineConfig: {projection: 3}
+  });
+
+  make("StackedArea", "#stacked", {
+    data: years, groupBy: "id", x: "year", y: "value",
+    trendLine: true, trendLineConfig: {projection: 4}
+  });
+
+  make("Plot", "#scatter", {
+    data: Array.from({length: 40}, (_, i) => ({id: `p${i}`, x: 1 + i * 0.3, y: 5 + 2.5 * (1 + i * 0.3) + rand() * 10})),
+    groupBy: "id", x: "x", y: "y",
+    trendLine: true, trendLineConfig: {group: "all", confidence: true, projection: {to: 20}}
+  });
+
+  make("LinePlot", "#poly", {
+    data: years.filter(d => d.id === "Alpha").map(d => ({...d, value: 50 + 0.6 * (d.year - 2016) ** 2 + rand() * 6})),
+    groupBy: "id", x: "year", y: "value",
+    trendLine: "polynomial",
+    trendLineConfig: {projection: 4, projectionConfig: {stroke: "#c92a2a", strokeDasharray: "1 3", strokeWidth: 3}}
+  });
+
+  make("BarChart", "#category", {
+    data: ["Seed", "Sprout", "Sapling", "Young", "Mature"].map((stage, i) => ({id: "Height", stage, value: 2 + i * 3})),
+    groupBy: "id", x: "stage", y: "value", xSort: () => 0,
+    trendLine: true, trendLineConfig: {projection: 3}
+  });
+
+  document.querySelector("#canvas").addEventListener("change", e => {
+    charts.forEach(chart => chart.renderer(e.target.checked ? "canvas" : "svg").render());
+  });
+
+</script>
+
+</html>

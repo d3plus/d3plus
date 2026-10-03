@@ -277,6 +277,12 @@ export interface TrendLineConfig {
   confidenceLevel?: number;
   /** Area shape config for the confidence band. Its fill defaults to the line color. */
   confidenceConfig?: Record<string, unknown>;
+  /**
+      Extends each trend line past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off).
+  */
+  projection?: number | {to: number | string | Date};
+  /** Line shape config for the projected stretch, merged over the line's own styles. Defaults to `{strokeDasharray: "2 4"}`. */
+  projectionConfig?: Record<string, unknown>;
   /** Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. */
   tooltip?: boolean;
   /** Line color. Defaults to the series color (dark gray when `group` is `"all"`). */
@@ -652,7 +658,8 @@ export interface D3plusConfig {
   /**
       Options for the trend lines: `group` (`"series"` or `"all"`), the
       polynomial `order`, a `confidence` band with `confidenceLevel` and
-      `confidenceConfig`, `tooltip`, and Line styles (`stroke`,
+      `confidenceConfig`, a `projection` into the future with
+      `projectionConfig`, `tooltip`, and Line styles (`stroke`,
       `strokeWidth`, `strokeDasharray`, …).
   */
   trendLineConfig?: TrendLineConfig;

@@ -3,6 +3,7 @@ export {default as closest} from "./src/closest.js";
 export {default as largestRect} from "./src/largestRect.js";
 export {default as lineIntersection} from "./src/lineIntersection.js";
 export {default as linearConfidence} from "./src/linearConfidence.js";
+export {default as linearPrediction} from "./src/linearPrediction.js";
 export {default as negativeSpace} from "./src/negativeSpace.js";
 export {default as path2polygon} from "./src/path2polygon.js";
 export {default as pathBounds} from "./src/pathBounds.js";

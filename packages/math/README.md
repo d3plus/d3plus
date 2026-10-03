@@ -34,6 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
+| [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
@@ -165,6 +166,29 @@ verbose: false,
 Defined in: [linearConfidence.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/linearConfidence.ts#L8)
 
 Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `level` | `number` | `0.95` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+***
+
+<a id="linearprediction"></a>
+
+### linearPrediction()
+
+> **linearPrediction**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: [linearPrediction.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/linearPrediction.ts#L8)
+
+Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`. Wider than the confidence band of `linearConfidence`, since it covers the scatter of individual values as well as the uncertainty of the fitted line, which makes it the band to draw around a forecast. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
 
 #### Parameters
 

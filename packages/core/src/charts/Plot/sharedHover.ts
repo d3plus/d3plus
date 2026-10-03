@@ -10,7 +10,7 @@ import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 import {visibleColor} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
-import type {TrendFit} from "./trendLines.js";
+import type {TrendFit, TrendSample} from "./trendLines.js";
 import {renderTrendTooltip} from "./trendTooltip.js";
 
 /** One series' entry in the shared tooltip. */
@@ -23,6 +23,8 @@ export interface SharedRow {
   shape?: string;
   datum: DataPoint;
   index: number;
+  /** A trend line's projected value, not a plotted one: its band bounds, when drawn. */
+  projected?: {lci?: number; hci?: number};
 }
 
 /**
@@ -75,10 +77,18 @@ export function contentPoint(viz: VizInstance, point: [number, number]): [number
 const discreteKey = (v: unknown): string =>
   v instanceof Date ? String(v.getTime()) : String(v);
 
+/** A column's entry for one series, or for a trend line's projected value (`trend`). */
+interface Member {
+  wrapped: Wrapped;
+  color?: string;
+  shape?: string;
+  trend?: {fit: TrendFit; sample: TrendSample};
+}
+
 interface Column {
   px: number;
   value: unknown;
-  members: Map<string, {wrapped: Wrapped; color?: string; shape?: string}>;
+  members: Map<string, Member>;
   bars: Set<DataPoint>;
   markers: {datum: DataPoint; x: number; y: number}[];
 }
@@ -169,7 +179,38 @@ function collectColumns(
     }
   };
   (viz._chartScene || []).forEach(node => walk(node as ShapeNode));
+  if (position) addProjectedColumns(viz, axis, columns, position);
   return columns;
+}
+
+/**
+    Adds each trend line's projected steps (see `trendLineConfig.projection`)
+    as column members, so the crosshair snaps onto future positions and lists
+    every series' projected value there.
+*/
+function addProjectedColumns(
+  viz: VizInstance,
+  axis: "x" | "y",
+  columns: Map<string, Column>,
+  position: (d: DataPoint) => number,
+): void {
+  for (const fit of viz._trendFits || []) {
+    if (fit.axis !== axis || viz._trendLineConfig?.tooltip === false) continue;
+    for (const sample of fit.samples) {
+      if (!sample.step) continue;
+      const value = sample[axis];
+      const px = position(value as DataPoint);
+      if (!Number.isFinite(px)) continue;
+      const key = discreteKey(value);
+      let column = columns.get(key);
+      if (!column) {
+        column = {px, value, members: new Map(), bars: new Set(), markers: []};
+        columns.set(key, column);
+      }
+      const wrapped = (fit.row || {}) as Wrapped;
+      column.members.set(`${fit.id}::projected`, {wrapped, color: fit.color, shape: "Line", trend: {fit, sample}});
+    }
+  }
 }
 
 /** A row for one column member; null when its value isn't numeric or its tooltip is off. */
@@ -177,8 +218,16 @@ function memberRow(
   viz: VizInstance,
   axis: "x" | "y",
   id: string,
-  member: {wrapped: Wrapped; color?: string; shape?: string},
+  member: Member,
 ): SharedRow | null {
+  if (member.trend) {
+    const {fit, sample} = member.trend;
+    const value = Number(sample[axis === "x" ? "y" : "x"]);
+    if (!Number.isFinite(value)) return null;
+    const name = String(fit.label);
+    const datum = (fit.row || {}) as DataPoint;
+    return {id, name, value, color: member.color, shape: "Line", datum, index: 0, projected: {lci: sample.lci, hci: sample.hci}};
+  }
   const valueOf = axis === "x" ? viz._y : viz._x;
   const datum = (member.wrapped.data || member.wrapped) as DataPoint;
   const index = typeof member.wrapped.i === "number" ? member.wrapped.i : 0;
@@ -251,7 +300,7 @@ function resolveHover(
         const row = memberRow(viz, axis, id, member);
         if (row) rows.push(row);
       });
-      if (rows.length >= 2) {
+      if (rows.length >= 2 || rows.some(r => r.projected)) {
         sortRows(viz, axis, rows);
         const stack = best.bars.size ? {rows: best.bars, bars: found.bars} : undefined;
         return {mode: "shared", axis, px: best.px, value: best.value, rows, markers: best.markers, layer, stack};
@@ -344,7 +393,8 @@ function handleTrendHover(viz: VizInstance, trend: TrendFit, event: SceneEvent):
   const prev = viz._sharedHoverState;
   viz._sharedHoverActive = true;
   viz._sharedHoverState = null;
-  renderTrendTooltip(viz, trend, event);
+  const cursor = Array.isArray(event.point) ? contentPoint(viz, event.point) : undefined;
+  renderTrendTooltip(viz, trend, event, cursor);
   if (prev) {
     if (prev.mode === "shared" && typeof viz._hover === "function") viz.hover!(false);
     viz._scheduleSceneRepaint();
