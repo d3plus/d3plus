@@ -14,3 +14,6 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   sharp: true
+
+overrides:
+  'browserslist': '4.28.7'
