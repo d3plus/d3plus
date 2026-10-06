@@ -11,7 +11,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig} from "../features/emitHelpers.js";
+import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 
@@ -32,7 +32,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
 
   const locale = viz.schema.locale;
   const drawLabel = viz._drawLabel;
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Rect");
 
   const rectNodes: SceneNode[] = nodes.map(d => {
     const fill = resolveAccessor<string>(sc.fill, d.data, d.i);
@@ -48,7 +48,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       height: d.y1 - d.y0,
       datum: d.data,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, d.data, d.i, fill),
         stroke:
           typeof stroke === "string" || stroke == null
             ? stroke

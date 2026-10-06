@@ -473,7 +473,7 @@ export const geomapDef: ChartDefinition = {
               ? (sc.fill as (d: DataPoint, i: number) => unknown)(d, i)
               : sc.fill;
             const col = color(c as string);
-            return col ? col.darker() : (c as string);
+            return col ? col.darker().toString() : (c as string);
           },
           strokeWidth: 1,
         },
