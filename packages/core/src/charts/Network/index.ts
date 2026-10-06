@@ -24,6 +24,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyNetworkLayout, networkSizeLegendScale} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
   return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
@@ -261,6 +262,7 @@ function setupNetworkFluent(v: NetworkViz) {
     // Scene-emit charts dim via applyInteractionOpacity during toScene(), so a
     // hover change only takes effect if a repaint is scheduled.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
+    broadcastLink(this, "hover", _);
     return this;
   };
 }

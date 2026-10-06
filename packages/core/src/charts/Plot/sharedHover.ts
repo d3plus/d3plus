@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
 import {visibleColor} from "../features/tooltipSwatch.js";
+import {linkAs} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
@@ -415,6 +416,11 @@ function sharedHighlight(viz: VizInstance, hover: SharedHover, prevMode?: string
   if (hover.mode === "single") {
     if (prevMode === "shared") clear();
   }
-  else if (stack) viz.hover!((d: DataPoint) => stack.rows.has(d) || !stack.bars.has(d));
+  else if (stack) {
+    // Non-bar marks stay bright in the column hover, but only the stack's
+    // own rows are what linked charts should match.
+    linkAs(viz, (d: DataPoint) => stack.rows.has(d));
+    viz.hover!((d: DataPoint) => stack.rows.has(d) || !stack.bars.has(d));
+  }
   else clear();
 }

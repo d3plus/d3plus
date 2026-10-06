@@ -126,8 +126,10 @@ export const argTypes = assign(
       }
     },
     color: {
-      control: {},
-      description: "",
+      control: {
+        type: "object"
+      },
+      description: "The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -135,7 +137,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "string | array.&lt;string&gt;"
       }
     },
     colorDefaults: {

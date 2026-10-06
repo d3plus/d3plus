@@ -77,6 +77,37 @@ series; hovering highlights it. Control it with `legend` and `legendConfig`:
 }} />
 ```
 
+## Linked charts
+
+Give several charts the same `link` group and they move together: hovering,
+`active`, `highlight` (including the search box), and legend hide/solo clicks in
+one are mirrored in every other chart in the group. It's plain config, so it
+works the same from vanilla JS, React, or a serialized `config` object:
+
+```jsx
+<Treemap config={{data, groupBy: ["region", "country"], sum: "revenue", link: "dashboard"}} />
+<BarChart config={{data, groupBy: "country", x: "country", y: "revenue", link: "dashboard"}} />
+```
+
+Charts match rows by **value**, not by position. By default each chart uses its
+own id (its current `groupBy` level). Use the object form to choose another key,
+which can be named differently in each chart:
+
+```js
+link: {group: "dashboard", by: "country_id"}   // a data key or (d, i) => value
+```
+
+Because matching goes by value, a coarse chart can drive a finer one. Hovering a
+region tile lights up every bar whose row carries that `region`. A chart with no
+row for the hovered value dims all of its marks. Legend toggles follow the same
+rule: a legend entry is solo'd when any of its values is solo'd elsewhere, and
+hidden once all of its values are hidden.
+
+To stop mirroring one interaction, set it to `false`:
+`link: {group: "dashboard", hover: false}` still shares legend toggles and
+highlights. See the
+[linked charts example](/docs/core-charts-viz--d3plus#linked-charts).
+
 ## Timeline
 
 Adding a `time` accessor enables a timeline beneath the chart. Viewers can scrub

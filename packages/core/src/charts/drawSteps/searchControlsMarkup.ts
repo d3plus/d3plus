@@ -15,6 +15,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
+import {forEachSceneRow} from "../viz/sceneRows.js";
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
 import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
@@ -294,9 +295,6 @@ export function searchHighlightPredicate(
   return (d: DataPoint, i: number) => matchesSearchNeedle(viz, d, i, needle);
 }
 
-/** Scene mark types a match is searched against — mirrors `interactionOpacity.ts`'s own `MARK_TYPES`. */
-const MARK_TYPES = new Set(["rect", "circle", "line", "area", "path"]);
-
 /** One matching mark: its scene node (for `.key`/geometry), the unwrapped source row, and its index. */
 export interface SearchMatch {
   node: SceneNode;
@@ -307,43 +305,21 @@ export interface SearchMatch {
 /**
     Every currently-rendered mark matching the given term, in scene order.
     Walks `viz._chartScene` (the actual painted scene, post-layout) rather
-    than the raw data array, unwrapping each node's datum the same way
-    `applyInteractionOpacity` does, so a grouped/aggregated chart matches by
-    rendered mark, not by raw input row — and de-dupes by datum reference so
-    a mark's separate label node doesn't double-count it. An empty term
-    matches nothing (there's no "everything" state to jump through).
+    than the raw data array, via `forEachSceneRow` — the same row/index
+    resolution `applyInteractionOpacity` uses — so a grouped/aggregated chart
+    matches by rendered mark, not by raw input row, and the index a custom
+    searchAccessor sees always matches the one the highlight predicate was
+    evaluated with (Enter/Shift+Enter never jumps to a different mark than the
+    one that's actually highlighted). An empty term matches nothing (there's
+    no "everything" state to jump through).
 */
 export function searchMatches(viz: Viz, term: string): SearchMatch[] {
   const needle = term.trim().toLowerCase();
   if (!needle) return [];
-  const nodes = viz._chartScene || [];
-  const seen = new Set<unknown>();
   const results: SearchMatch[] = [];
-  const walk = (node: SceneNode): void => {
-    if (MARK_TYPES.has(node.type) && node.datum !== undefined) {
-      const raw = node.datum as (DataPoint & {data?: DataPoint}) | undefined;
-      const row = (raw && raw.data ? raw.data : raw) as DataPoint;
-      if (row !== undefined && !seen.has(row)) {
-        seen.add(row);
-        // Mirrors applyInteractionOpacity's own fallback order exactly
-        // (interactionOpacity.ts) — node.index, then the row's own `.i`,
-        // then 0 — so the index a custom searchAccessor sees here always
-        // matches the index the highlight predicate was evaluated with,
-        // and Enter/Shift+Enter never jumps to a different mark than the
-        // one that's actually highlighted.
-        const i =
-          typeof node.index === "number"
-            ? node.index
-            : typeof (row as {i?: number}).i === "number"
-              ? (row as {i: number}).i
-              : 0;
-        if (matchesSearchNeedle(viz, row, i, needle)) results.push({node, row, index: i});
-      }
-    }
-    const kids = (node as {children?: SceneNode[]}).children;
-    if (kids) kids.forEach(walk);
-  };
-  nodes.forEach(walk);
+  forEachSceneRow(viz._chartScene || [], (row, i, node) => {
+    if (matchesSearchNeedle(viz, row, i, needle)) results.push({node, row, index: i});
+  });
   return results;
 }
 

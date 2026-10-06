@@ -691,6 +691,19 @@ export const argTypes = {
       summary: "record"
     }
   },
+  link: {
+    control: {},
+    description: "Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior.",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "linkoption"
+    }
+  },
   loadingHTML: {
     control: {
       type: "text"

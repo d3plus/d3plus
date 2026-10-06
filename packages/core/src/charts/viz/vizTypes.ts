@@ -217,6 +217,10 @@ export interface VizInstance {
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** The `link` group this chart is registered under (see `linkGroup.ts`). */
+  _linkGroup?: string;
+  /** The categorical scale `initColorDefaults` created; linked charts still using it share their group's instead. */
+  _autoColorScale?: unknown;
   /** Whether the search control's input is currently open. */
   _searchOpen?: boolean;
   /** The search control's current (lowercased) search term. */
@@ -479,6 +483,7 @@ export interface VizInstance {
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;
   hover?(_?: unknown): unknown;
+  highlight?(_?: unknown): unknown;
   /* Fluent accessors invoked imperatively by features/pipeline (installFluent). */
   timeFilter?(_?: ((d: DataPoint, i: number) => boolean) | false): VizInstance;
   render?(callback?: () => void): VizInstance;

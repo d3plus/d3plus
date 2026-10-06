@@ -68,6 +68,7 @@ import {plotInsetRegion} from "./insetRegion.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
+import {linkedColorDefaults} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Accessor function or string key for a plotted value. */
@@ -139,7 +140,7 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i), this.schema.colorDefaults),
+      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i), linkedColorDefaults(this)),
       r: constant(3),
     };
     this._lineMarkers = defaults.lineMarkers as boolean;

@@ -24,6 +24,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyChordLayout} from "./applyLayout.js";
 import {chordEmit} from "./emit.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 type ChordEdge = DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
 
@@ -140,6 +141,7 @@ export const chordDef: ChartDefinition = {
       // Scene-emit charts dim via the scene's interaction-opacity pass, not
       // `_shapes`; a hover change only takes effect once a repaint is scheduled.
       if (this._sceneRenderer) this._scheduleSceneRepaint();
+      broadcastLink(this, "hover", _);
       return this;
     };
   },
