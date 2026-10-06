@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../umd/d3plus-core.full.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 8px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 0 16px 16px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      Renderer:
+      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
+      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <button id="highlight">Highlight Europe</button>
+      <button id="clear">Clear highlight</button>
+    </div>
+    <div class="grid">
+      <div class="viz" id="treemap"></div>
+      <div class="viz" id="bars"></div>
+      <div class="viz" id="lines"></div>
+    </div>
+
+    <script>
+
+      const regions = {
+        Americas: ["Brazil", "Chile", "Mexico"],
+        Europe: ["France", "Germany", "Spain"],
+        Asia: ["India", "Japan"],
+      };
+      const data = [];
+      Object.entries(regions).forEach(([region, countries], ri) => {
+        countries.forEach((country, ci) => {
+          for (let year = 2018; year <= 2024; year++) {
+            data.push({region, country, year, revenue: 8 + ri * 4 + ci * 9 + (year - 2018) * (ci + ri + 1)});
+          }
+        });
+      });
+      const latest = data.filter(d => d.year === 2024);
+
+      // The treemap and bar chart match on their own id (country); the line
+      // plot names its key explicitly to show the object form.
+      const charts = [
+        new d3plus.Treemap()
+          .select("#treemap")
+          .data(latest)
+          .groupBy(["region", "country"])
+          .sum("revenue")
+          .title("Revenue share, 2024")
+          .link("dev-dashboard"),
+        new d3plus.BarChart()
+          .select("#bars")
+          .data(latest)
+          .groupBy("country")
+          .color("region")
+          .x("country")
+          .y("revenue")
+          .title("Revenue by country, 2024")
+          .link("dev-dashboard"),
+        new d3plus.LinePlot()
+          .select("#lines")
+          .data(data)
+          .groupBy("country")
+          .color("region")
+          .x("year")
+          .y("revenue")
+          .title("Revenue over time")
+          .link({group: "dev-dashboard", by: "country"}),
+      ];
+
+      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      draw("svg");
+
+      document.querySelectorAll("input[name=renderer]").forEach(input =>
+        input.addEventListener("change", () => draw(input.value)));
+      document.querySelector("#highlight").addEventListener("click", () =>
+        charts[0].highlight(d => d.region === "Europe"));
+      document.querySelector("#clear").addEventListener("click", () =>
+        charts[0].highlight(false));
+
+    </script>
+
+  </body>
+
+</html>

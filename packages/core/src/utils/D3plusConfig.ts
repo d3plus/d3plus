@@ -2,6 +2,7 @@ import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
+import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {
   SizeLegendLineConfig,
@@ -296,6 +297,8 @@ export interface TrendLineConfig {
 }
 
 export interface ColorScaleConfig {
+  /** The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. */
+  color?: string | string[];
   /**
       For a linear scale, the `[min, max]` values used by the color scale; values
       outside this range map to the nearest color.
@@ -485,6 +488,8 @@ export interface D3plusConfig {
   legendTooltip?: TooltipConfig;
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
+  /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
+  link?: LinkOption;
   /** Whether to show the loading message. */
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */

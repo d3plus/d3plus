@@ -117,6 +117,21 @@ export type {
 } from "./src/charts/features/insetState.js";
 export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js";
 export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
+export {
+  broadcastLegend,
+  broadcastLink,
+  linkAs,
+  linkKeys,
+  linkedColorDefaults,
+  linkMembers,
+  linkPredicate,
+  linkValues,
+  registerLink,
+  resolveLink,
+  unregisterLink,
+} from "./src/charts/viz/linkGroup.js";
+export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
+export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";

@@ -15,6 +15,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
+import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
 type Predicate = (d: DataPoint, i: number) => boolean;
@@ -36,9 +37,6 @@ function deemphasize(c: string): string {
   h.s = 0;
   return `${h}`;
 }
-
-/** Scene mark types that carry a fill/stroke a hover/active emphasis applies to. */
-const MARK_TYPES = new Set(["rect", "circle", "line", "area", "path"]);
 
 /**
     Emphasizes a matched mark's stroke on hover/active — the v3 `hoverStyle` /
@@ -140,6 +138,22 @@ export function applyColorScaleBucketOpacity(
   return nodes.map(walk);
 }
 
+/**
+    Whether `predicate` matches `row` or any row it wraps. A mark's datum
+    unwraps to its source row in one step, but its data label is wrapped once
+    more (label → mark datum → row), so a label is only recognized as its
+    mark's by following the `__d3plus__` chain down to the row.
+*/
+function matchesChain(predicate: Predicate, row: DataPoint, i: number): boolean {
+  let d = row as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+  if (predicate(d, i)) return true;
+  while (d && d.__d3plus__ && d.data) {
+    d = d.data as typeof d;
+    if (predicate(d, i)) return true;
+  }
+  return false;
+}
+
 export function applyInteractionOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
@@ -170,7 +184,7 @@ export function applyInteractionOpacity(
           : typeof (row as {i?: number}).i === "number"
             ? (row as {i: number}).i
             : 0;
-      if (!predicate!(row, i)) {
+      if (!matchesChain(predicate, row, i)) {
         const paint = (node.paint ?? {}) as Record<string, unknown>;
         if (gray) {
           // highlight: recolor the mark to the de-emphasis gray so the
@@ -190,15 +204,17 @@ export function applyInteractionOpacity(
         // adds no outline. An active node keeps the stronger active stroke even
         // while hovered, rather than dropping to the thinner hover stroke.
         if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
-          const active = kind === "active" || (activePredicate?.(row, i) ?? false);
+          const active =
+            kind === "active" || (activePredicate ? matchesChain(activePredicate, row, i) : false);
           next = active ? emphasizeStroke(node, 1, 3) : emphasizeStroke(node, 0.5, 2);
         }
         if (isHover) {
           // Raise the hovered node above its siblings. Both renderers paint by
           // ascending `z`; restore is automatic — the next repaint rebuilds the
-          // scene with no `z`. Only for hover: a matched mark's data label is a
-          // separate (un-raised) node, so raising the mark would paint it over
-          // its own label. Highlight relies on color-vs-gray, not z-order.
+          // scene with no `z`. A matched mark's data label matches too (see
+          // `matchesChain`), so it's raised with its mark and, emitted after it,
+          // still paints on top. Only for hover: highlight relies on
+          // color-vs-gray, not z-order.
           next = {...next, z: HOVER_RAISE_Z} as SceneNode;
         }
       }

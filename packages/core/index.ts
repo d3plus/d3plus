@@ -73,6 +73,7 @@ export type {
   TooltipConfig,
   TrendLineConfig,
 } from "./src/utils/index.js";
+export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
 
 export type {
   AnyShapeConfig,

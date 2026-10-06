@@ -22,6 +22,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -99,6 +100,7 @@ function installRingsAccessors(viz: VizInstance): void {
     // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
     // hover change only takes effect once a repaint is scheduled.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
+    broadcastLink(this, "hover", _);
     return this;
   };
 }

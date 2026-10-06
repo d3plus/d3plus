@@ -17,6 +17,7 @@ import {initInsetDefaults, insetComponentScene} from "../features/insetState.js"
 import type {InsetKey, InsetRegion} from "../features/insetState.js";
 import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
+import {unregisterLink} from "./linkGroup.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
@@ -721,6 +722,7 @@ export default class Viz extends VizBase {
       Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
+    unregisterLink(this as unknown as VizInstance);
     this._resizeObserver?.disconnect();
     this._fontsUnsubscribe?.();
     this._fontsUnsubscribe = undefined;

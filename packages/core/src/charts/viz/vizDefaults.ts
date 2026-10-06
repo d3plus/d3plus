@@ -25,7 +25,9 @@ import mouseleave from "../events/mouseleave.js";
 import mousemoveLegend from "../events/mousemove.legend.js";
 import mousemoveShape from "../events/mousemove.shape.js";
 
+import {linkedColorDefaults, registerLink} from "./linkGroup.js";
 import type Viz from "./Viz.js";
+import type {VizInstance} from "./vizTypes.js";
 
 function debounce<A extends unknown[]>(
   func: (...args: A) => void,
@@ -90,6 +92,7 @@ const vizSchema = [
   {key: "filter", coerce: "identity" as const},
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
+  {key: "link", coerce: "identity" as const, onSet: (viz: VizInstance) => registerLink(viz)},
   {key: "minimap", coerce: "identity" as const},
   {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
@@ -171,10 +174,9 @@ function initColorDefaults(viz: Viz): void {
   viz.schema.color = (d: DataPoint, i: number) => viz.schema.groupBy[0](d, i);
   // Each viz gets its own categorical scale so assignments don't leak
   // across charts on the same page.
-  viz.schema.colorDefaults = {
-    ...colorDefaults,
-    scale: scaleOrdinal<string>().range(colorDefaults.scale.range()),
-  };
+  const scale = scaleOrdinal<string>().range(colorDefaults.scale.range());
+  viz.schema.colorDefaults = {...colorDefaults, scale};
+  viz._autoColorScale = scale;
   viz._colorScaleClass = new ColorScale();
   viz.schema.colorScaleConfig = {
     axisConfig: {
@@ -378,7 +380,7 @@ function initShapeDefaults(viz: Viz): void {
       // hues, so the color itself carries the ordering.
       if (viz.schema.colorOrdinal && viz._ordinalColorScale)
         return viz._ordinalColorScale(key);
-      return colorAssign(key, viz.schema.colorDefaults);
+      return colorAssign(key, linkedColorDefaults(viz));
     },
     labelConfig: {
       // Marked so chart emitters layering user label config keep their own

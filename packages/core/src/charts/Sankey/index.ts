@@ -26,6 +26,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -141,6 +142,7 @@ export const sankeyDef: ChartDefinition = {
       // interaction-opacity pass re-reads `_hover` and dims non-matching nodes.
       // Coalesced to one paint per frame (see Viz._scheduleSceneRepaint).
       if (this._sceneRenderer) this._scheduleSceneRepaint();
+      broadcastLink(this, "hover", _);
       return this;
     };
   },

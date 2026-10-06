@@ -763,11 +763,11 @@ export const argTypes = assign(
     },
     lineMarkerConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i), this.schema.colorDefaults), r: 3}",
+      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
       description: "Shape config for the Circle shapes drawn by the lineMarkers method.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => colorAssign(this._id(d, i), this.schema.colorDefaults), r: 3}",
+          detail: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
           summary: "function"
         }
       },

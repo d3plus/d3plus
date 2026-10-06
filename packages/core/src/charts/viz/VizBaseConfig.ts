@@ -6,6 +6,8 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, BaseClass, constant} from "../../utils/index.js";
+import {broadcastLink} from "./linkGroup.js";
+import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
 
 /**
@@ -39,6 +41,7 @@ export default class VizBaseConfig extends BaseClass {
       if (this._sceneRenderer) this._scheduleSceneRepaint();
     }
 
+    broadcastLink(this as unknown as VizInstance, "active", _);
     return this;
   }
 
@@ -425,6 +428,7 @@ Defaults to an empty array (`[]`).
     )
       this._scheduleSceneRepaint();
 
+    broadcastLink(this as unknown as VizInstance, "hover", _);
     return this;
   }
 
@@ -443,6 +447,7 @@ Defaults to an empty array (`[]`).
     // Scene-rendered charts express de-emphasis via the scene's
     // interaction-opacity pass, so repaint to apply/clear the gray treatment.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
+    broadcastLink(this as unknown as VizInstance, "highlight", _);
     return this;
   }
 
