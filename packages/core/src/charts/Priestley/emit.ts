@@ -9,7 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig} from "../features/emitHelpers.js";
+import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
 
@@ -30,7 +30,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
   const xScale = viz.ctx.xScale as (v: number | Date) => number;
   const yScale = viz.ctx.yScale as (k: string) => number;
   const bandWidth = viz.ctx.bandWidth as number;
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Rect");
 
   const rectNodes: SceneNode[] = data.map((d, i) => {
     const fill = resolveAccessor<string>(sc.fill, d.data, i);
@@ -56,7 +56,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
       height: bandWidth,
       datum: d.data,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, d.data, i, fill),
         stroke,
         strokeWidth,
       },

@@ -400,7 +400,7 @@ function initShapeDefaults(viz: Viz): void {
       // A fill that doesn't parse as a color (e.g. "none"/"transparent" on a
       // confidence band) has no darker shade — fall back to the fill itself.
       const col = color(c as string);
-      return col ? col.darker(0.25) : c;
+      return col ? col.darker(0.25).toString() : c;
     },
     role: "presentation",
     strokeWidth: constant(0),

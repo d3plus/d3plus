@@ -28,6 +28,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import * as shapes from "../../shapes/index.js";
+import {textureKey} from "../../shapes/textureKey.js";
 
 /** The shape registry indexed by key, typed as constructable classes. */
 const shapeCtors = shapes as unknown as Record<string, new () => shapes.Shape>;
@@ -82,12 +83,33 @@ export function resolveAccessor<T>(
 }
 
 /**
+    Resolve a datum's scene fill from a shape-config record: a
+    `pattern:<json>` token when `sc.texture` is set for the datum (the
+    renderer backends materialize it), otherwise the resolved `fill` when
+    it is a string. `fill` is the datum's already-resolved `sc.fill`.
+*/
+export function textureFill(
+  sc: Record<string, unknown>,
+  d: DataPoint,
+  i: number | undefined,
+  fill: unknown,
+): string | undefined {
+  const key = textureKey(
+    resolveAccessor<unknown>(sc.texture, d, i),
+    () => fill,
+    () => resolveAccessor<unknown>(sc.stroke, d, i),
+    sc.textureDefault as Record<string, unknown> | undefined,
+  );
+  if (key) return `pattern:${key}`;
+  return typeof fill === "string" ? fill : undefined;
+}
+
+/**
     Resolve the standard paint properties (`fill`, `stroke`, `strokeWidth`,
     `opacity`) from a shape-config record for a single datum. Returns a
-    `Paint`-shaped object compatible with `SceneNode.paint`. `fill` is
-    forced to `string | undefined` to match `Paint.fill` (texture/object
-    fills fall through to `undefined`; the existing flat-data emits already
-    do this same coercion).
+    `Paint`-shaped object compatible with `SceneNode.paint`. `fill` resolves
+    through `textureFill`, so a texture becomes a `pattern:<json>` token and
+    a non-string fill becomes `undefined`.
 */
 export function paintFromShapeConfig(
   sc: Record<string, unknown>,
@@ -106,7 +128,7 @@ export function paintFromShapeConfig(
   const opacity = resolveAccessor<number>(sc.opacity, d, i);
   const ve = resolveAccessor<string>(sc.vectorEffect, d, i);
   return {
-    fill: typeof fill === "string" ? fill : undefined,
+    fill: textureFill(sc, d, i, fill),
     stroke,
     strokeWidth,
     opacity,

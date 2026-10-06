@@ -11,7 +11,7 @@ import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig} from "../features/emitHelpers.js";
+import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 function resolveAccessor<T>(
@@ -101,7 +101,7 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
     endAngle: d.endAngle,
     datum: d.data,
     paint: {
-      fill: typeof fill === "string" ? fill : undefined,
+      fill: textureFill(sc, d.data as DataPoint, d.i ?? 0, fill),
       stroke,
       strokeWidth,
       // Explicit (not the field's usual `undefined`) for the same reason
@@ -164,7 +164,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const arcMaker = (d: Slice) => arcGen(d) ?? "";
   const resolveInnerRadius = arcGen.innerRadius();
   const resolveOuterRadius = arcGen.outerRadius();
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Path");
 
   // A drill-down click armed this draw AND the clicked node was itself a Pie
   // wedge (parentStartAngle/parentEndAngle only ever come from this chart's
