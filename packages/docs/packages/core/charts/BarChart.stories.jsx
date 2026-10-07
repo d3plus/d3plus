@@ -528,3 +528,37 @@ StackOrderByField.args = {
   y: "units"
 };
 StackOrderByField.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: \"profit\", order: \"ascending\"}` to reverse."}}};
+
+const housingStarts = [
+  {year: 2019, starts: 1290},
+  {year: 2020, starts: 1380},
+  {year: 2021, starts: 1601},
+  {year: 2022, starts: 1553},
+  {year: 2023, starts: 1420},
+  {year: 2024, starts: 1367}
+];
+
+export const BaselineBreak = Template.bind({});
+BaselineBreak.args = {
+  baselineBreak: true,
+  data: housingStarts,
+  groupBy: "year",
+  x: "year",
+  y: "starts",
+  yDomain: [1200, 1700]
+};
+BaselineBreak.parameters = {controls: {include: ["baselineBreak", "yDomain"]}, docs: {description: {story: "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`). See [#645](https://github.com/d3plus/d3plus/issues/645)."}}};
+
+export const HorizontalBaselineBreak = Template.bind({});
+HorizontalBaselineBreak.args = {
+  data: housingStarts,
+  discrete: "y",
+  groupBy: "year",
+  x: "starts",
+  xConfig: {
+    baselineBreakConfig: {angle: 45, gap: 6, size: 14},
+    domain: [1200, 1700]
+  },
+  y: "year"
+};
+HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};

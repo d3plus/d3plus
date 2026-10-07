@@ -17,6 +17,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
+import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -375,8 +376,8 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     title: false,
     tickSize: 0,
   };
-  const defaultX2Config = x2Exists ? {data: x2Data} : defaultConfig;
-  const defaultY2Config = y2Exists ? {data: y2Data} : defaultConfig;
+  const defaultX2Config = {...(x2Exists ? {data: x2Data} : defaultConfig), baselineBreak: false};
+  const defaultY2Config = {...(y2Exists ? {data: y2Data} : defaultConfig), baselineBreak: false};
   const showX =
     viz.schema.discrete === "x"
       ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
@@ -391,6 +392,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     locale: viz.schema.locale,
     rounding: viz.schema.yDomain || isSpanAxis(viz, "y") ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
+    ...baselineBreakAxisConfig(viz, "y"),
   };
   if (!showX && showY) {
     yC.barConfig = {stroke: "transparent"};
@@ -446,6 +448,38 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     plotY2Domain: y2Domain,
   };
 };
+
+/**
+    Settles the opposite (value) axes' domains: an axis `domain` from
+    `xConfig`/`yConfig` wins outright; otherwise the domain stretches to reach
+    the `baseline`, unless a user domain deliberately stops short of it on a
+    breaking axis (see `baselineBreak`). Mutates `domains`.
+*/
+function applyOppDomains(
+  viz: Parameters<TransformStage>[0]["viz"],
+  domains: Record<string, DomainValue[]>,
+  opps: string[],
+  configScales: {x: string; y: string},
+): void {
+  opps.forEach(o => {
+    if (viz[`_${o}Config`].domain) {
+      // `.slice()` first so we never mutate the user's config array in
+      // place — on the next render the (already-reversed) array would
+      // reverse back, alternating chart correctness across renders.
+      const d = (viz[`_${o}Config`].domain as DomainValue[]).slice();
+      if (viz.schema.discrete === "x") d.reverse();
+      domains[o] = d;
+    } else if (
+      o &&
+      viz.schema.baseline !== void 0 &&
+      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y)
+    ) {
+      const b = viz.schema.baseline;
+      if (domains[o] && domains[o][0] > b) domains[o][0] = b;
+      else if (domains[o] && domains[o][1] < b) domains[o][1] = b;
+    }
+  });
+}
 
 /**
     `computePlotScales` — fourth stage of Plot's pipeline. Takes the per-axis
@@ -541,20 +575,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     }
   });
 
-  opps.forEach(o => {
-    if (viz[`_${o}Config`].domain) {
-      // `.slice()` first so we never mutate the user's config array in
-      // place — on the next render the (already-reversed) array would
-      // reverse back, alternating chart correctness across renders.
-      const d = (viz[`_${o}Config`].domain as DomainValue[]).slice();
-      if (viz.schema.discrete === "x") d.reverse();
-      domains[o] = d;
-    } else if (o && viz.schema.baseline !== void 0) {
-      const b = viz.schema.baseline;
-      if (domains[o] && domains[o][0] > b) domains[o][0] = b;
-      else if (domains[o] && domains[o][1] < b) domains[o][1] = b;
-    }
-  });
+  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale});
 
   const x = scaleConstructors[`scale${xScale}`]()
     .domain(domains.x)

@@ -35,6 +35,19 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    baselineBreakConfig: {
+      control: {},
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark), `angle` (degrees each mark tilts from perpendicular), plus\n`stroke`/`stroke-width` and other line styles.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
     brushFilter: {
       control: {},
       description: "Brush event filter.",

@@ -26,6 +26,7 @@ import {installFluent} from "../../fluent.js";
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
   {key: "baseline", coerce: "identity" as const},
+  {key: "baselineBreak", coerce: "identity" as const},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},

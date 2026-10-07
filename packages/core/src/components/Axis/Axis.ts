@@ -13,6 +13,8 @@ import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
 import {gridStroke} from "./gridStroke.js";
+import {breakPosition} from "./axisBreak.js";
+import type {AxisBaselineBreak} from "./axisBreak.js";
 import {
   axisToScene,
   buildTickData,
@@ -29,6 +31,8 @@ import type {ConfigField} from "../../fluent.js";
 /** Axis's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const axisSchema: ConfigField[] = [
   {key: "align", coerce: "identity", default: "middle"},
+  {key: "baseline", coerce: "identity", default: 0},
+  {key: "baselineBreak", coerce: "identity", default: false},
   {key: "domain", coerce: "identity", default: [0, 10]},
   {key: "domainTicks", coerce: "identity", default: true},
   {key: "duration", coerce: "identity", default: 600},
@@ -95,6 +99,8 @@ export default class Axis extends BaseClass {
   _gridLineData?: {id: unknown}[];
   _d3Scale: D3Scale | null = null;
   _d3ScaleNegative: D3Scale | null = null;
+  /** The active baseline break, set by the layout pass (see `baselineBreak`). */
+  _baselineBreak: AxisBaselineBreak | null = null;
   _group!: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
   _availableTicks: unknown[];
@@ -121,6 +127,17 @@ export default class Axis extends BaseClass {
     this._data = [];
     this._labelRotation = false;
     this.schema.barConfig = {
+      stroke: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg, this.schema.colorDefaults);
+      },
+      "stroke-width": 1,
+    };
+    this.schema.baselineBreakConfig = {
+      angle: 30,
+      gap: 5,
+      size: 12,
+      space: 36,
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
         return colorContrast(bg, this.schema.colorDefaults);
@@ -218,6 +235,10 @@ export default class Axis extends BaseClass {
       @param d @private
 */
   _getPosition(d: unknown): number {
+    if (this._baselineBreak && typeof d === "number") {
+      const pos = breakPosition(this._baselineBreak, d);
+      if (pos !== undefined) return pos;
+    }
     if (this.schema.scale === "log") {
       if (d === 0)
         return (this._d3Scale || this._d3ScaleNegative)!.range()[
@@ -239,6 +260,7 @@ export default class Axis extends BaseClass {
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.range();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.range());
+    if (this._baselineBreak) ticks.push(this._baselineBreak.position);
     return (ticks[0] as number) > (ticks[1] as number)
       ? (extent(ticks as number[]) as unknown[]).reverse()
       : (extent(ticks as number[]) as unknown[]);
@@ -427,6 +449,22 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this.schema.barConfig = Object.assign(this.schema.barConfig, _)), this)
       : this.schema.barConfig;
+  }
+
+  /**
+      Style of the break drawn when `baselineBreak` is on and the domain stops
+      short of `baseline`: `space` (pixels of axis between the baseline tick
+      and the first tick after the break), `gap` (pixels between the two
+      break marks, where the axis line is not drawn), `size` (length of each
+      mark), `angle` (degrees each mark tilts from perpendicular), plus
+      `stroke`/`stroke-width` and other line styles.
+*/
+  baselineBreakConfig(): Record<string, unknown>;
+  baselineBreakConfig(_: Record<string, unknown>): this;
+  baselineBreakConfig(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.baselineBreakConfig = Object.assign(this.schema.baselineBreakConfig, _)), this)
+      : this.schema.baselineBreakConfig;
   }
 
   /**

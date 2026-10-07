@@ -16,6 +16,7 @@ import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
+import {axisBarNodes} from "./axisBreak.js";
 
 export {isNegative};
 
@@ -559,10 +560,7 @@ export function axisToScene(axis: Axis): GroupNode {
   }
 
   const bar = barLinePoints(axis);
-  if (bar) {
-    const barPaint = configToPaint(axis, axis.schema.barConfig as Record<string, unknown>);
-    children.push({type: "line", key: "bar", points: bar.points, paint: barPaint});
-  }
+  if (bar) children.push(...axisBarNodes(axis, bar.points, cfg => configToPaint(axis, cfg)));
 
   if (
     axis._titleClass &&

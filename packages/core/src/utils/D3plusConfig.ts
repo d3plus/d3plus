@@ -51,6 +51,34 @@ type AxisScale =
 
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
+  /**
+      The baseline value: where a Plot's bars and areas start, and the value
+      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+  */
+  baseline?: number;
+  /**
+      When the domain of a linear value axis stops short of the `baseline`
+      (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the
+      axis's end tick and breaks the axis between it and the domain: a short
+      stretch of axis holds the baseline tick and two tilted marks with a gap
+      in the axis line, then the domain spans the rest. Style it with the
+      axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
+      value domain (`yDomain`/`yConfig.domain`, or the x versions for
+      horizontal bars), and bars start at the baseline tick; turned off, a
+      `yDomain` stretches to reach the baseline while a `yConfig.domain` is
+      kept and cuts its bars off at the axis. Defaults to `true` for BarChart
+      and `false` for other Plots and a standalone Axis.
+  */
+  baselineBreak?: boolean;
+  /**
+      Style of the baseline break: `space` (pixels of axis between the baseline
+      tick and the first tick after the break, default `36`), `gap` (pixels
+      between the two marks, where the axis line is not drawn, default `5`),
+      `size` (length of each mark, default `12`), `angle` (degrees each mark
+      tilts from perpendicular to the axis, default `30`), plus `stroke`,
+      `stroke-width`, and the other line styles `barConfig` takes.
+  */
+  baselineBreakConfig?: Record<string, string | number>;
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;
@@ -376,8 +404,25 @@ export interface D3plusConfig {
   backControlClassName?: string;
   /** Padding between bars in pixels. */
   barPadding?: number;
-  /** The baseline for the x/y plot. */
+  /**
+      The baseline value: where a Plot's bars and areas start, and the value
+      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+  */
   baseline?: number;
+  /**
+      When the domain of a linear value axis stops short of the `baseline`
+      (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the
+      axis's end tick and breaks the axis between it and the domain: a short
+      stretch of axis holds the baseline tick and two tilted marks with a gap
+      in the axis line, then the domain spans the rest. Style it with the
+      axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
+      value domain (`yDomain`/`yConfig.domain`, or the x versions for
+      horizontal bars), and bars start at the baseline tick; turned off, a
+      `yDomain` stretches to reach the baseline while a `yConfig.domain` is
+      kept and cuts its bars off at the axis. Defaults to `true` for BarChart
+      and `false` for other Plots and a standalone Axis.
+  */
+  baselineBreak?: boolean;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */

@@ -42,6 +42,8 @@ export interface PlotZoomBase {
   chartTransform: {x: number; y: number};
   scales: Partial<Record<AxisName, LinearScale>>;
   labelSpace: Partial<Record<AxisName, number>>;
+  /** Axes drawn with a baseline break; a zoom keeps the break only on these. */
+  breaks: Partial<Record<AxisName, boolean>>;
 }
 
 /** Which of the plot's axes are simple linear axes (the zoomable ones). */
@@ -83,12 +85,14 @@ export function paintZoomablePlot(
 
   const scales: PlotZoomBase["scales"] = {};
   const labelSpace: PlotZoomBase["labelSpace"] = {};
+  const breaks: PlotZoomBase["breaks"] = {};
   for (const axis of linearAxes(pCtx)) {
     const axisInstance = viz[`_${axis}Axis`];
     const d3Scale = axisInstance?._d3Scale as LinearScale & {copy(): LinearScale} | undefined;
     if (d3Scale && typeof d3Scale.invert === "function") {
       scales[axis] = d3Scale.copy();
       labelSpace[axis] = axisInstance?._labelSpace;
+      breaks[axis] = Boolean(axisInstance?._baselineBreak);
     }
   }
   // Shape sizes for the automatic `zoomMax` come from the unzoomed paint.
@@ -96,7 +100,7 @@ export function paintZoomablePlot(
   if (!Object.keys(scales).length) return nodes;
 
   const {x = 0, y = 0} = viz._chartTransform || {};
-  viz._plotZoomBase = {pCtx, layout, chartTransform: {x, y}, scales, labelSpace};
+  viz._plotZoomBase = {pCtx, layout, chartTransform: {x, y}, scales, labelSpace, breaks};
   if (current && (current.k !== 1 || current.x || current.y)) {
     const zoomed = rescalePlot(viz, current);
     if (zoomed) return zoomed;
@@ -145,9 +149,16 @@ export function rescalePlot(
   // the scale's nice ticks (forcing in the arbitrary domain endpoints would
   // crowd out their neighbors), and pin the label space to its unzoomed size
   // so wider tick labels overflow outward rather than shifting the axis line.
+  // A baseline break stays only where the unzoomed axis had one, so the
+  // rescaled domain maps onto the same pixel range it was read from.
   zoomed.zoomAxes = {};
   for (const axis of Object.keys(scales) as AxisName[])
-    zoomed.zoomAxes[axis] = {rounding: "none", domainTicks: false, fixedSize: base.labelSpace[axis]};
+    zoomed.zoomAxes[axis] = {
+      rounding: "none",
+      domainTicks: false,
+      fixedSize: base.labelSpace[axis],
+      ...(base.breaks[axis] ? {} : {baselineBreak: false}),
+    };
 
   const identity = t.k === 1 && !t.x && !t.y;
   const clip: ClipShape | undefined = identity && !keepClip

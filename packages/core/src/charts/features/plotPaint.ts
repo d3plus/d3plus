@@ -20,6 +20,7 @@ import * as shapes from "../../shapes/index.js";
 import {renderAxes} from "./axes.js";
 import {emitEndLabels} from "./axisEndLabels.js";
 import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
+import {valueAxisExtent} from "../Plot/baselineBreak.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
@@ -448,7 +449,7 @@ function emitShapeLoop(
   const {labelWidths, largestLabel} = pCtx;
   const {width} = pCtx;
   const {opp, showLineLabels} = pCtx;
-  const {x, y, xRange, yRange, labelPositions} = mCtx;
+  const {x, y, xRange, yRange, labelPositions, yOffset} = mCtx;
 
   const events = Object.keys(viz.schema.on);
   // Precompute id→index and discrete→index Maps once per draw. Without
@@ -469,6 +470,7 @@ function emitShapeLoop(
     showLineLabels, labelWidths, largestLabel, labelPositions,
     width,
     values: [],
+    valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
