@@ -21,7 +21,6 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-
 import {useState} from "react";
 import {select} from "d3-selection";
 

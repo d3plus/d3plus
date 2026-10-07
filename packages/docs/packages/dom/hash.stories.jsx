@@ -21,7 +21,6 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-
 import CallGrid from "../../helpers/CallGrid.jsx";
 
 const a = {groupBy: "id", x: d => d.year, tooltipConfig: {title: d => d.name}};

@@ -21,7 +21,6 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-
 import CallGrid from "../../../helpers/CallGrid.jsx";
 
 // configPrep reads the chart's shapeConfig, duration, and global events from

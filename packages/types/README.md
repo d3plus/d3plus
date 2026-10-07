@@ -136,6 +136,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
 | [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
+| [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
 | [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
@@ -25706,6 +25707,30 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 #### Returns
 
 `boolean`
+
+***
+
+<a id="saveelement"></a>
+
+### saveElement()
+
+> **saveElement**(`elem`: `HTMLElement` \| `SVGElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
+
+Defined in: export/types/src/saveElement.d.ts:43
+
+Downloads an HTML Element as a bitmap PNG image.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `elem` | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export. |
+| `options?` | `SaveElementOptions` | Additional options to specify. |
+| `renderOptions?` | `SaveElementRenderOptions` | Custom options to be passed to the html-to-image function. |
+
+#### Returns
+
+`void`
 
 ***
 

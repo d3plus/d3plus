@@ -148,7 +148,7 @@ Creates SVG areas based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -164,7 +164,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -190,7 +190,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -206,7 +206,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -342,7 +342,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -358,7 +358,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -384,7 +384,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -400,7 +400,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -426,7 +426,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -442,7 +442,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -468,7 +468,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -484,7 +484,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -757,7 +757,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -781,7 +781,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -797,7 +797,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -865,7 +865,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -881,7 +881,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -907,7 +907,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -923,7 +923,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -947,7 +947,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -5575,7 +5575,7 @@ Creates SVG bars based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -5591,7 +5591,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -5617,7 +5617,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -5633,7 +5633,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -5769,7 +5769,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -5785,7 +5785,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -5811,7 +5811,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -5827,7 +5827,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -5853,7 +5853,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -5869,7 +5869,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -5895,7 +5895,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -5911,7 +5911,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -6184,7 +6184,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -6208,7 +6208,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6224,7 +6224,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6292,7 +6292,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -6308,7 +6308,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -6334,7 +6334,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -6350,7 +6350,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -6374,7 +6374,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -7793,7 +7793,7 @@ Creates SVG circles based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -7809,7 +7809,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -7835,7 +7835,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -7851,7 +7851,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -7987,7 +7987,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -8003,7 +8003,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -8029,7 +8029,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -8045,7 +8045,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -8071,7 +8071,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -8087,7 +8087,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -8113,7 +8113,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -8129,7 +8129,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -8402,7 +8402,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -8426,7 +8426,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -8442,7 +8442,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -8510,7 +8510,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -8526,7 +8526,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -8552,7 +8552,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -8568,7 +8568,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -8592,7 +8592,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -10371,7 +10371,7 @@ Creates SVG lines based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -10387,7 +10387,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -10413,7 +10413,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -10429,7 +10429,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -10565,7 +10565,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10581,7 +10581,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -10607,7 +10607,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -10623,7 +10623,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -10649,7 +10649,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -10665,7 +10665,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -10691,7 +10691,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -10707,7 +10707,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -10980,7 +10980,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -11004,7 +11004,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11020,7 +11020,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11088,7 +11088,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -11104,7 +11104,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -11130,7 +11130,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -11146,7 +11146,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -11170,7 +11170,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -11273,7 +11273,7 @@ Creates SVG Paths based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -11289,7 +11289,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -11315,7 +11315,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -11331,7 +11331,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -11467,7 +11467,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -11483,7 +11483,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -11509,7 +11509,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -11525,7 +11525,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -11551,7 +11551,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -11567,7 +11567,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -11593,7 +11593,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -11609,7 +11609,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -11882,7 +11882,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -11906,7 +11906,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11922,7 +11922,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -11990,7 +11990,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -12006,7 +12006,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -12032,7 +12032,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -12048,7 +12048,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -12072,7 +12072,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -15658,7 +15658,7 @@ Creates SVG rectangles based on an array of data.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -15674,7 +15674,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -15700,7 +15700,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -15716,7 +15716,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -15852,7 +15852,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -15868,7 +15868,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -15894,7 +15894,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -15910,7 +15910,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -15936,7 +15936,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -15952,7 +15952,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -15978,7 +15978,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -15994,7 +15994,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -16267,7 +16267,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -16291,7 +16291,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -16307,7 +16307,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -16375,7 +16375,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -16391,7 +16391,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -16417,7 +16417,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -16433,7 +16433,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -16457,7 +16457,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -16542,7 +16542,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Shape
 
-Defined in: [shapes/Shape.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L110)
+Defined in: [shapes/Shape.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L111)
 
 An abstracted class for generating shapes.
 
@@ -16569,7 +16569,7 @@ An abstracted class for generating shapes.
 
 > **active**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:632](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L632)
+Defined in: [shapes/Shape.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L603)
 
 The active callback function for highlighting shapes.
 
@@ -16581,7 +16581,7 @@ The active callback function for highlighting shapes.
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:633](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L633)
+Defined in: [shapes/Shape.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L604)
 
 The active callback function for highlighting shapes.
 
@@ -16603,7 +16603,7 @@ The active callback function for highlighting shapes.
 
 > **activeStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L647)
+Defined in: [shapes/Shape.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L618)
 
 The style to apply to active shapes.
 
@@ -16615,7 +16615,7 @@ The style to apply to active shapes.
 
 > **activeStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L648)
+Defined in: [shapes/Shape.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L619)
 
 The style to apply to active shapes.
 
@@ -16701,7 +16701,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **config**(): [`BaseShapeConfig`](#baseshapeconfig)
 
-Defined in: [shapes/Shape.ts:742](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L742)
+Defined in: [shapes/Shape.ts:713](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L713)
 
 Narrowed `.config()` for Shape. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -16719,7 +16719,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **config**(`_`: `Partial`\<[`BaseShapeConfig`](#baseshapeconfig)\>): `this`
 
-Defined in: [shapes/Shape.ts:743](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L743)
+Defined in: [shapes/Shape.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L714)
 
 Narrowed `.config()` for Shape. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -16747,7 +16747,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Shape.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L659)
+Defined in: [shapes/Shape.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L630)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -16759,7 +16759,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Shape.ts:660](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L660)
+Defined in: [shapes/Shape.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L631)
 
 The data array used to create shapes. A shape will be drawn for each object in the array.
 
@@ -16781,7 +16781,7 @@ The data array used to create shapes. A shape will be drawn for each object in t
 
 > **hover**(): ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`
 
-Defined in: [shapes/Shape.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L668)
+Defined in: [shapes/Shape.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L639)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -16793,7 +16793,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:669](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L669)
+Defined in: [shapes/Shape.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L640)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -16815,7 +16815,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hoverStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L682)
+Defined in: [shapes/Shape.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L653)
 
 The style to apply to hovered shapes.
 
@@ -16827,7 +16827,7 @@ The style to apply to hovered shapes.
 
 > **hoverStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L683)
+Defined in: [shapes/Shape.ts:654](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L654)
 
 The style to apply to hovered shapes.
 
@@ -16849,7 +16849,7 @@ The style to apply to hovered shapes.
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:693](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L693)
+Defined in: [shapes/Shape.ts:664](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L664)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -16861,7 +16861,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L694)
+Defined in: [shapes/Shape.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L665)
 
 A pass-through to the config method of the TextBox class used to create a shape's labels.
 
@@ -17130,7 +17130,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L524)
+Defined in: [shapes/Shape.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L495)
 
 ###### Parameters
 
@@ -17150,7 +17150,7 @@ Defined in: [shapes/Shape.ts:524](https://github.com/d3plus/d3plus/blob/main/pac
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Shape.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L704)
+Defined in: [shapes/Shape.ts:675](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L675)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17162,7 +17162,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L705)
+Defined in: [shapes/Shape.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L676)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17226,7 +17226,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **sort**(): ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`
 
-Defined in: [shapes/Shape.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L715)
+Defined in: [shapes/Shape.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L686)
 
 A comparator function used to sort shapes for layering order.
 
@@ -17238,7 +17238,7 @@ A comparator function used to sort shapes for layering order.
 
 > **sort**(`_`: ((`a`: `DataPoint`, `b`: `DataPoint`) => `number`) \| `null`): `this`
 
-Defined in: [shapes/Shape.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L716)
+Defined in: [shapes/Shape.ts:687](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L687)
 
 A comparator function used to sort shapes for layering order.
 
@@ -17260,7 +17260,7 @@ A comparator function used to sort shapes for layering order.
 
 > **textureDefault**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Shape.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L728)
+Defined in: [shapes/Shape.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L699)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -17272,7 +17272,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **textureDefault**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Shape.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L729)
+Defined in: [shapes/Shape.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L700)
 
 A series of global texture methods to be used for all textures (ie. `{stroke: "darkorange", strokeWidth: 2}`).
 
@@ -17292,7 +17292,7 @@ A series of global texture methods to be used for all textures (ie. `{stroke: "d
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Shape.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L421)
+Defined in: [shapes/Shape.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Shape.ts#L392)
 
 Produces a backend-agnostic scene graph for this shape's data, reusing the
 same accessors render() applies to the DOM. This is the migration seam toward
@@ -25539,7 +25539,7 @@ Line-specific config (curve + defined).
 
 ### LinkConfig
 
-Defined in: charts/viz/linkGroup.ts:31
+Defined in: [charts/viz/linkGroup.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L31)
 
 The object form of the `link` config: a group name plus the key and interactions to mirror.
 
@@ -25547,13 +25547,13 @@ The object form of the `link` config: a group name plus the key and interactions
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-active-7"></a> `active?` | `boolean` | Mirror `active`. Defaults to `true`. | charts/viz/linkGroup.ts:39 |
-| <a id="property-by"></a> `by?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | The value two charts' rows match on. A string is a data key. Defaults to the chart's own id. | charts/viz/linkGroup.ts:35 |
-| <a id="property-color-1"></a> `color?` | `boolean` | Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. | charts/viz/linkGroup.ts:45 |
-| <a id="property-group"></a> `group` | `string` | Charts that share a group name are linked. | charts/viz/linkGroup.ts:33 |
-| <a id="property-highlight-1"></a> `highlight?` | `boolean` | Mirror `highlight` (including the search box). Defaults to `true`. | charts/viz/linkGroup.ts:41 |
-| <a id="property-hover-7"></a> `hover?` | `boolean` | Mirror hover. Defaults to `true`. | charts/viz/linkGroup.ts:37 |
-| <a id="property-legend-1"></a> `legend?` | `boolean` | Mirror legend hide/solo clicks. Defaults to `true`. | charts/viz/linkGroup.ts:43 |
+| <a id="property-active-7"></a> `active?` | `boolean` | Mirror `active`. Defaults to `true`. | [charts/viz/linkGroup.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L39) |
+| <a id="property-by"></a> `by?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | The value two charts' rows match on. A string is a data key. Defaults to the chart's own id. | [charts/viz/linkGroup.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L35) |
+| <a id="property-color-1"></a> `color?` | `boolean` | Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. | [charts/viz/linkGroup.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L45) |
+| <a id="property-group"></a> `group` | `string` | Charts that share a group name are linked. | [charts/viz/linkGroup.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L33) |
+| <a id="property-highlight-1"></a> `highlight?` | `boolean` | Mirror `highlight` (including the search box). Defaults to `true`. | [charts/viz/linkGroup.ts:41](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L41) |
+| <a id="property-hover-7"></a> `hover?` | `boolean` | Mirror hover. Defaults to `true`. | [charts/viz/linkGroup.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L37) |
+| <a id="property-legend-1"></a> `legend?` | `boolean` | Mirror legend hide/solo clicks. Defaults to `true`. | [charts/viz/linkGroup.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L43) |
 
 ***
 
@@ -26123,7 +26123,7 @@ Defined in: [charts/viz/vizTypes.ts:93](https://github.com/d3plus/d3plus/blob/ma
 
 > **LinkOption** = `string` \| `false` \| [`LinkConfig`](#linkconfig)
 
-Defined in: charts/viz/linkGroup.ts:49
+Defined in: [charts/viz/linkGroup.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/linkGroup.ts#L49)
 
 `link` as a group name, the full object form, or `false` for unlinked.
 
