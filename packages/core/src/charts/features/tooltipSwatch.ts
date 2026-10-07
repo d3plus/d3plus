@@ -67,17 +67,34 @@ function findNode(nodes: SceneNode[], key: string): PaintNode | undefined {
   return undefined;
 }
 
+/** Key suffixes of nodes drawn on behalf of another mark: a transparent hover target, a bar's error bar. */
+const OWNED_SUFFIXES = ["::hit", "::confidence"];
+
+/**
+    The mark a picked scene node stands in for: the visible sibling of a
+    transparent hover target (a `::hit` node), or the bar of an error bar (a
+    `::confidence` node). Any other node is its own mark.
+    @param viz The chart, whose scene holds the mark.
+    @param node The picked scene node.
+*/
+export function ownerNode<T extends SceneNode>(viz: VizInstance, node: T | undefined): T | undefined {
+  const key = node && (node as PaintNode).key;
+  if (typeof key !== "string") return node;
+  let owner = key;
+  for (const suffix of OWNED_SUFFIXES)
+    while (owner.endsWith(suffix)) owner = owner.slice(0, -suffix.length);
+  return owner === key ? node : (findNode(viz._chartScene || [], owner) as T | undefined) || node;
+}
+
 /**
     The color a picked scene node draws in: a Line's stroke, otherwise its
-    fill (or stroke, for an unfilled mark). A transparent hover target (a
-    `::hit` node) reads its visible sibling's paint.
-    @param viz The chart, whose scene holds the sibling.
+    fill (or stroke, for an unfilled mark). A node drawn on behalf of another
+    mark (see `ownerNode`) reads that mark's paint.
+    @param viz The chart, whose scene holds the mark.
     @param node The picked scene node.
 */
 export function nodeColor(viz: VizInstance, node: SceneNode | undefined): string | undefined {
-  let n = node as PaintNode | undefined;
-  if (n && typeof n.key === "string" && n.key.endsWith("::hit"))
-    n = findNode(viz._chartScene || [], n.key.slice(0, -"::hit".length)) || n;
+  const n = ownerNode(viz, node as PaintNode | undefined);
   return n && paintColor(n);
 }
 

@@ -517,7 +517,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       The confidence interval as an array of [lower, upper] bounds.
+       The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
@@ -543,7 +543,10 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       Configuration object for shapes rendered as confidence intervals.
+       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `1.5`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval.
+
+@example
+       .confidenceConfig({Bar: {stroke: "#333", strokeWidth: 2, capWidth: 8}})
 */
   confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length

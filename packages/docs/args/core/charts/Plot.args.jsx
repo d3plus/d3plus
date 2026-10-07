@@ -341,7 +341,7 @@ export const argTypes = assign(
     },
     confidence: {
       control: {},
-      description: "The confidence interval as an array of [lower, upper] bounds.",
+      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -355,7 +355,7 @@ export const argTypes = assign(
     confidenceConfig: {
       control: {},
       defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-      description: "Configuration object for shapes rendered as confidence intervals.",
+      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `1.5`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",

@@ -498,14 +498,21 @@ export interface D3plusConfig {
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
-      to disable.
+      to disable. Lines draw it as a band, bars as error bars.
   */
   confidence?:
     | [
-        string | ((d: DataPoint, i: number) => number),
-        string | ((d: DataPoint, i: number) => number),
+        string | ((d: DataPoint, i: number) => number) | false,
+        string | ((d: DataPoint, i: number) => number) | false,
       ]
     | false;
+  /**
+      Styles the `confidence` interval: a line's band (an Area) or a bar's
+      error bar (a Path, with `stroke`, `strokeWidth`, and `capWidth` — the end
+      caps' length in pixels or as a percentage string of the bar's thickness).
+      Keys nested under `Area` or `Bar` apply only to that shape.
+  */
+  confidenceConfig?: Record<string, unknown>;
   /**
       Paint for the shared tooltip's crosshair guide line (`stroke`,
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
