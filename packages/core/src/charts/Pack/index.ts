@@ -28,6 +28,9 @@ import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 type SortFn = (a: HierarchyCircularNode<DataPoint>, b: HierarchyCircularNode<DataPoint>) => number;
 type HoverFn = (fn: (h: DataPoint) => boolean) => unknown;
 
+/** A merged field's values: an array as-is, or a single value wrapped. */
+const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
+
 export const packDef: ChartDefinition = {
   name: "Pack",
 
@@ -140,12 +143,11 @@ export const packDef: ChartDefinition = {
             const ids = viz._ids(d, i);
             const hoverData = recursionCircles(d);
             callHover(h => {
+              // Every data field of `h` falls within the legend entry's merged
+              // values (a single value, or an array of them).
               const matches = Object.keys(h)
-                .filter(key => key !== "value")
-                .every(key => {
-                  const v = d[key];
-                  return v != null && (v as unknown as unknown[]).includes(h[key]);
-                });
+                .filter(key => key !== "value" && !key.startsWith("__d3plus"))
+                .every(key => d[key] != null && asArray(h[key]).every(v => asArray(d[key]).includes(v)));
               if (matches) hoverData.push(h);
               else if (ids.includes(h.key as string)) {
                 hoverData.push(...recursionCircles(h, [h]));
