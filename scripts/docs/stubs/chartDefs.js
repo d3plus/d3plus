@@ -18,6 +18,10 @@ function renderDefault(node) {
     case "BooleanLiteral": return String(node.value);
     case "NullLiteral": return "null";
     case "ArrayExpression": return "[]";
+    case "UnaryExpression":
+      return node.operator === "-" && node.argument?.type === "NumericLiteral"
+        ? `-${node.argument.value}`
+        : null;
     case "ObjectExpression": return "{…}";
     case "CallExpression": {
       const callee = node.callee?.value;
