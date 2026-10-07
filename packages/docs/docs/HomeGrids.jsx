@@ -8,6 +8,7 @@ const charts = [
   ["Bump Chart", "bumpchart"],
   ["Chord", "chord"],
   ["Donut", "donut"],
+  ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
   ["Line Plot", "lineplot"],

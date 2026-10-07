@@ -5,6 +5,7 @@ export {
   BumpChart,
   Chord,
   Donut,
+  Gauge,
   Geomap,
   Histogram,
   LinePlot,
@@ -74,6 +75,8 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
+export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 
 export type {
   AnyShapeConfig,
