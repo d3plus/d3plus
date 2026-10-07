@@ -498,7 +498,8 @@ export interface D3plusConfig {
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
-      to disable. Lines draw it as a band, bars as error bars.
+      to disable (no band or error bars, no axis widening, no tooltip bounds).
+      Lines draw it as a band, bars as error bars.
   */
   confidence?:
     | [
@@ -510,7 +511,8 @@ export interface D3plusConfig {
       Styles the `confidence` interval: a line's band (an Area) or a bar's
       error bar (a Path, with `stroke`, `strokeWidth`, and `capWidth` — the end
       caps' length in pixels or as a percentage string of the bar's thickness).
-      Keys nested under `Area` or `Bar` apply only to that shape.
+      Keys nested under `Area` or `Bar` apply only to that shape. `tooltip:
+      false` leaves the bounds out of tooltips.
   */
   confidenceConfig?: Record<string, unknown>;
   /**

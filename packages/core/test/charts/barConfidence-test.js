@@ -1,6 +1,6 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart} from "../../es/index.js";
+import {BarChart, RESET} from "../../es/index.js";
 import {runStages} from "../../es/internal.js";
 import {
   computePlotAxisValues,
@@ -137,4 +137,34 @@ it("BarChart — a stacked negative bar's bounds sit below its end", () => {
   const viz = new BarChart().data(diverging).groupBy("id").x("q").y("v").stacked(true)
     .confidence(["lo", "hi"]);
   assert.deepStrictEqual(domains(viz).y, [-9, 11]);
+});
+
+it("confidence(false) — turns the interval off", () => {
+  const viz = new BarChart().confidence(["lo", "hi"]);
+  assert.ok(Array.isArray(viz.confidence()), "on");
+  assert.strictEqual(viz.confidence(false), viz, "chains");
+  assert.strictEqual(viz.confidence(), false, "off");
+  assert.strictEqual(new BarChart().confidence(), false, "off by default");
+  assert.strictEqual(new BarChart().confidence([false, false]).confidence(), false, "no bounds is off");
+  assert.strictEqual(new BarChart().config({confidence: ["lo", "hi"]}).config({confidence: false}).confidence(), false, "via config");
+  const one = new BarChart().confidence([false, "hi"]).confidence();
+  assert.strictEqual(one[0], false, "one-sided keeps the missing side off");
+  assert.strictEqual(one[1]({hi: 3}), 3, "and reads the other");
+});
+
+it("confidence — RESET restores the default (off)", () => {
+  const viz = new BarChart();
+  viz.config({width: 400});
+  viz.config({confidence: ["lo", "hi"]});
+  assert.ok(Array.isArray(viz.confidence()));
+  viz.config({confidence: RESET});
+  assert.strictEqual(viz.confidence(), false);
+});
+
+it("confidence(false) — the axis no longer widens for the bounds", () => {
+  const off = () => new BarChart().data(rows).groupBy("id").x("q").y("v").confidence(["lo", "hi"]).confidence(false);
+  assert.deepStrictEqual(domains(off()).y, [5, 20]);
+  const stacked = new BarChart().data(rows.map(d => ({...d, hi: d.v + 30}))).groupBy("id").x("q").y("v")
+    .stacked(true).confidence(["lo", "hi"]).confidence(false);
+  assert.deepStrictEqual(domains(stacked).y, [0, 35]);
 });

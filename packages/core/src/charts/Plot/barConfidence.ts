@@ -234,6 +234,7 @@ export function emitBarConfidence(ctx: ShapeEmitContext, bars: SceneNode[]): Sce
   });
   const capWidth = config.capWidth;
   delete config.capWidth;
+  delete config.tooltip;
   const discrete = viz.schema.discrete === "y" ? "y" : "x";
   const layoutOf = (d: PlotDatum): ErrorBarLayout => layouts.get(d)!;
 

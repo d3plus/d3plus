@@ -52,6 +52,10 @@ import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
 /** Margin object with all four sides. */
+
+/** Reads one `confidence` bound from a data row. */
+export type ConfidenceAccessor = (d: DataPoint, i: number) => unknown;
+
 export interface Margin {
   top: number;
   bottom: number;
@@ -392,7 +396,8 @@ export interface VizInstance {
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */
   _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
-  _confidence?: [number, number] | false;
+  /** The `confidence` bounds as `[lower, upper]` accessors (either may be `false`), or `false` when off. */
+  _confidence?: [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
   _barPadding?: number;

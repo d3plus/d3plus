@@ -10,6 +10,7 @@ import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {confidenceRows, confidenceSuffix, rangeSuffix} from "./confidenceTooltip.js";
 import type {SharedHover, SharedRow} from "./sharedHover.js";
 
 type Axis = "x" | "y";
@@ -91,11 +92,15 @@ export function restoreTooltip(viz: VizInstance): void {
   viz._sharedTooltipSaved = undefined;
 }
 
-/** A projected row's band bounds, as " (low – high)"; empty otherwise. */
+/**
+    A row's range after its value, as " (low – high)": a projected row's band
+    bounds, or a plotted row's `confidence` bounds; empty otherwise.
+*/
 function bounds(viz: VizInstance, k: Axis, row: SharedRow): string {
+  const format = (v: number): string => axisValue(viz, k, v);
   const band = row.projected;
-  if (!band || band.lci === undefined || band.hci === undefined) return "";
-  return ` (${axisValue(viz, k, band.lci)} – ${axisValue(viz, k, band.hci)})`;
+  if (band) return band.lci === undefined || band.hci === undefined ? "" : rangeSuffix(band.lci, band.hci, format);
+  return confidenceSuffix(viz, row.datum, row.index, format);
 }
 
 /**
@@ -116,8 +121,9 @@ function markProjected(viz: VizInstance, hover: SharedHover): {header: string[];
 /**
     The shared tooltip: title from the continuous axis, a header row naming
     the hovered discrete value, then one `[name, value]` row per series, the
-    name led by a swatch in its series stroke. User `tooltipConfig` styles
-    apply first; the shared title/rows win.
+    name led by a swatch in its series stroke and the value followed by its
+    `confidence` range. User `tooltipConfig` styles apply first; the shared
+    title/rows win.
 */
 export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event: SceneEvent): void {
   const cont = other(hover.axis);
@@ -140,8 +146,8 @@ export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event:
 /**
     The single-mark tooltip (one series, `tooltipShared(false)`, or a
     side-by-side bar): the default title (the mark's label, unless
-    `tooltipConfig` sets one), its x and y values, then any rows the chart's
-    `tooltipConfig` adds.
+    `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
+    then any rows the chart's `tooltipConfig` adds.
 */
 export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event: SceneEvent): void {
   const row = hover.rows[0];
@@ -155,7 +161,12 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
   const tbody = tip.tbody();
   const extra = typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
   leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
-    .tbody([axisRow(viz, "x", hover), axisRow(viz, "y", hover), ...(Array.isArray(extra) ? extra : [])])
+    .tbody([
+      axisRow(viz, "x", hover),
+      axisRow(viz, "y", hover),
+      ...(row.projected ? [] : confidenceRows(viz, row.datum, row.index, v => axisValue(viz, other(hover.axis), v))),
+      ...(Array.isArray(extra) ? extra : []),
+    ])
     .arrow(false)
     .position(snappedPosition(viz, hover, event))
     .render();

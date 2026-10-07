@@ -596,7 +596,7 @@ ErrorBars.args = {
   x: "region",
   y: "share"
 };
-ErrorBars.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and hovering an error bar shows its bar's tooltip."}}};
+ErrorBars.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off."}}};
 
 export const ErrorBarsHorizontal = Template.bind({});
 ErrorBarsHorizontal.args = {
@@ -626,4 +626,4 @@ ErrorBarsStacked.args = {
   x: "region",
   y: "share"
 };
-ErrorBarsStacked.parameters = {controls: {include: ["confidence", "confidenceConfig", "stacked"]}, docs: {description: {story: "On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's."}}};
+ErrorBarsStacked.parameters = {controls: {include: ["confidence", "confidenceConfig", "stacked"]}, docs: {description: {story: "On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's. The shared tooltip lists each segment's own bounds after its value."}}};

@@ -324,14 +324,14 @@ const lineEmit: ShapeEmitter = ctx => {
       viz._confidenceConfig,
     );
 
-    area
-      .config(
-        assign(
-          shapeConfigFor(viz, "Line", confidenceConfig),
-          shapeConfigFor(viz, "Area", confidenceConfig),
-        ),
-      )
-      .render();
+    const bandConfig = assign(
+      shapeConfigFor(viz, "Line", confidenceConfig),
+      shapeConfigFor(viz, "Area", confidenceConfig),
+    );
+    // Error-bar and tooltip keys aren't Area styles.
+    delete bandConfig.capWidth;
+    delete bandConfig.tooltip;
+    area.config(bandConfig).render();
 
     out.push(...collectComputed(area));
   }

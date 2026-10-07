@@ -301,7 +301,7 @@ ConfidenceIntervals.args = {
   x: "year",
   y: "amount"
 };
-ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent."}}};
+ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent. Hovering lists each line's bounds after its value."}}};
 
 export const TrendLine = Template.bind({});
 TrendLine.args = {
