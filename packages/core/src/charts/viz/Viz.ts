@@ -382,6 +382,7 @@ export default class Viz extends VizBase {
     if (!userTarget) return;
     const mountTarget = mountTargetFor(kind, userTarget as Element);
     const scene = this.toScene();
+    this._paintedScene = scene;
     const w = this.schema.width || 400;
     const h = this.schema.height || 300;
     // Reuse the renderer instance if it matches the kind, to avoid mount

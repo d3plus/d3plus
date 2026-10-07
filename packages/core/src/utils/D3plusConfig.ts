@@ -120,6 +120,12 @@ export interface TooltipConfig {
   /** The inner padding of each tooltip. */
   padding?: ((d: DataPoint) => string | number) | string | number;
   title?: ((d: DataPoint) => string) | string;
+  /**
+      Whether a chart's tooltip title leads with a swatch of the hovered
+      shape's color and shape. `true` by default; set it in `legendTooltip`
+      to drop the swatch from legend tooltips only.
+  */
+  titleSwatch?: boolean;
   body?: ((d: DataPoint) => string) | string;
   thead?:
     | ((d: DataPoint) => [string, string][])

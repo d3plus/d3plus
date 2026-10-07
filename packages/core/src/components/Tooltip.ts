@@ -29,6 +29,7 @@ const tooltipSchema: ConfigField[] = [
   {key: "tbody", coerce: "identity", default: []},
   {key: "thead", coerce: "identity", default: []},
   {key: "title", coerce: "const", default: accessor("title", "")},
+  {key: "titleSwatch", coerce: "identity", default: true},
   {key: "maxWidth", coerce: "const", default: constant("300px")},
   {key: "minWidth", coerce: "const", default: constant("200px")},
   {key: "width", coerce: "const", default: constant("auto")},

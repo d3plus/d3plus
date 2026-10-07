@@ -504,6 +504,22 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    titleSwatch: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Whether a chart's tooltip title leads with a swatch of the hovered\nshape's color and shape. `true` by default; set it in `legendTooltip`\nto drop the swatch from legend tooltips only.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     tooltipStyle: {
       control: {},
       description: "Overall CSS styles applied to the tooltip container.",
