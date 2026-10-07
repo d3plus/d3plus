@@ -28,7 +28,7 @@ import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
-import type {ClipShape, SceneNode, Transform, TransitionRect} from "@d3plus/render";
+import type {ClipShape, Scene, SceneNode, Transform, TransitionRect} from "@d3plus/render";
 
 import type {
   Axis,
@@ -181,6 +181,8 @@ export interface VizInstance {
 
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
+  /** The whole scene last painted (chart, legend, colorScale, chrome). */
+  _paintedScene?: Scene;
   _chartTransform?: Transform;
   _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];

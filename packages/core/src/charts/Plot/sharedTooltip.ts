@@ -8,7 +8,7 @@ import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
-import {tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
+import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SharedHover, SharedRow} from "./sharedHover.js";
 
@@ -73,14 +73,15 @@ function snappedPosition(viz: VizInstance, hover: SharedHover, event: SceneEvent
     Holds the tooltip's own arrow/thead/tbody to restore once the snapped
     hover ends (see `restoreTooltip`), so the next legend or default tooltip
     isn't left with these rows — and resets thead/tbody to them before each
-    render so rows never accumulate.
+    render so rows never accumulate. Also restores the default title swatch,
+    which `tooltipConfig` may then turn off.
 */
 export function prepareTooltip(viz: VizInstance) {
   const tip = viz._tooltipClass!;
   if (!viz._sharedTooltipSaved)
     viz._sharedTooltipSaved = {arrow: tip.arrow(), thead: tip.thead(), tbody: tip.tbody()};
   const saved = viz._sharedTooltipSaved;
-  return tip.thead(saved.thead).tbody(saved.tbody);
+  return tip.thead(saved.thead).tbody(saved.tbody).titleSwatch(true);
 }
 
 /** Puts back what `prepareTooltip` held. */
@@ -147,11 +148,11 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
   const deeper = viz._drawDepth < viz.schema.groupBy.length - 1;
   const tip = prepareTooltip(viz)
     .data([row.datum])
-    .title(() => withSwatch(tooltipSwatch(row.color, row.shape), viz._drawLabel(row.datum, row.index)))
+    .title(() => viz._drawLabel(row.datum, row.index))
     .footer(deeper && viz.schema.on["click.shape"] ? viz.schema.translate("Click to Expand") : false)
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig));
   const extra = tip.tbody();
-  tip
+  leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
     .tbody([axisRow(viz, "x", hover), axisRow(viz, "y", hover), ...(Array.isArray(extra) ? extra : [])])
     .arrow(false)
     .position(snappedPosition(viz, hover, event))

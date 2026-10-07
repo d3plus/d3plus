@@ -10,7 +10,7 @@ import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
-import {tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
+import {leadTitleWithSwatch, tooltipSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {axisName, axisValue, prepareTooltip} from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
@@ -140,10 +140,11 @@ export function renderTrendTooltip(
       : native
         ? [native.clientX, native.clientY]
         : event.point;
-  prepareTooltip(viz)
+  const tip = prepareTooltip(viz)
     .data([trend.row || {}])
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig))
-    .title(() => withSwatch(tooltipSwatch(trend.color, "Line"), trend.label))
+    .title(() => trend.label);
+  leadTitleWithSwatch(tip, tooltipSwatch(trend.color, "Line"))
     .thead([])
     .tbody(trendTooltipRows(viz, trend, cursor ? nearestProjectedSample(viz, trend, cursor) : undefined))
     .footer(false)

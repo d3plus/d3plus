@@ -65,7 +65,10 @@ const titleSwatch = (src, pick) =>
         const svg = document.querySelector("#viz svg.d3plus-render-svg");
         const el = new Function("svg", `return (${pick})(svg);`)(svg);
         const b = el.getBoundingClientRect();
-        el.dispatchEvent(new MouseEvent("mousemove", {clientX: b.left + b.width / 2, clientY: b.top + b.height / 2, bubbles: true}));
+        const [cx, cy] = [b.left + b.width / 2, b.top + b.height / 2];
+        // Whatever is on top at that point takes the event, as for a real pointer.
+        const target = document.elementFromPoint(cx, cy) || el;
+        target.dispatchEvent(new MouseEvent("mousemove", {clientX: cx, clientY: cy, bubbles: true}));
         requestAnimationFrame(() => setTimeout(() => {
           const title = document.querySelector(".d3plus-tooltip .d3plus-tooltip-title");
           const sw = title && title.querySelector(".d3plus-tooltip-swatch");
@@ -115,13 +118,113 @@ it("tooltip title — a single Line tooltip leads with the line glyph", async ()
   assert.ok(r.color, "in the line's stroke color");
 });
 
-it("tooltip title — a user title replaces the swatch", async () => {
+it("tooltip title — a user title still leads with the swatch", async () => {
   const r = await titleSwatch(
     "(lib, data) => new lib.Treemap().data(data.filter(d => d.year === 2018)).groupBy('id').sum('value').tooltipConfig({title: d => `Custom ${d.id}`})",
     "svg => svg.querySelector('[data-key=\"treemap-Beta\"]')",
   );
   assert.strictEqual(r.text, "Custom Beta");
-  assert.strictEqual(r.kind, null);
+  assert.strictEqual(r.kind, "square");
+});
+
+it("tooltip title — a shape's label leads with its shape's swatch", async () => {
+  const r = await titleSwatch(
+    "(lib, data) => new lib.Treemap().data(data.filter(d => d.year === 2018)).groupBy('id').sum('value')",
+    "svg => Array.from(svg.querySelectorAll('text')).find(t => t.textContent.trim() === 'Beta')",
+  );
+  assert.strictEqual(r.text, "Beta");
+  assert.strictEqual(r.kind, "square");
+  assert.ok(r.color, "in the shape's fill");
+});
+
+/** A small Network: its tooltip title comes from the chart's own `tooltipConfig`. */
+const network = `(lib, data) => new lib.Network()
+  .nodes([{id: "Alpha", x: 0, y: 0}, {id: "Beta", x: 1, y: 1}, {id: "Gamma", x: 2, y: 0}])
+  .links([{source: "Alpha", target: "Beta"}, {source: "Beta", target: "Gamma"}])
+  .data(data.filter(d => d.year === 2018))`;
+
+/** The first chart (non-legend) element of a tag. */
+const chartEl = tag => `svg => Array.from(svg.querySelectorAll('${tag}'))
+  .find(n => !n.closest('[data-key="viz-legend"]') && !/::hit$/.test(n.getAttribute('data-key') || ''))`;
+
+it("tooltip title — a Network node leads with a dot", async () => {
+  const r = await titleSwatch(network, chartEl("circle"));
+  assert.strictEqual(r.kind, "dot");
+  assert.ok(r.color, "in the node's fill");
+});
+
+/** A legend element: its swatch (`circle`/`rect`) or its label (`text`). */
+const legendEl = (tag, id) => `svg => Array.from(svg.querySelectorAll('[data-key="viz-legend"] ${tag}'))
+  .find(n => !/::hit$/.test(n.getAttribute('data-key') || '') && ${tag === "text" ? `n.textContent.trim() === '${id}'` : "n.getBoundingClientRect().width > 8"})`;
+
+it("legend tooltip — a swatch and its label both lead with the swatch", async () => {
+  // The legend colors the parent groups, one level up from the cells.
+  const src = `(lib, data) => new lib.Treemap().groupBy(["group", "id"]).sum("value")
+    .data(data.filter(d => d.year === 2018).map(d => ({...d, group: d.id === "Gamma" ? "Two" : "One"})))`;
+  const swatch = await titleSwatch(src, legendEl("rect"));
+  assert.strictEqual(swatch.kind, "square", "hovering the swatch");
+  const label = await titleSwatch(src, legendEl("text", "One"));
+  assert.strictEqual(label.text, "One");
+  assert.strictEqual(label.kind, "square", "hovering the label");
+  assert.ok(label.color);
+});
+
+it("legend tooltip — a Line series' label leads with the line glyph", async () => {
+  const r = await titleSwatch(
+    "(lib, data) => new lib.LinePlot().data(data).groupBy('id').x('year').y('value')",
+    legendEl("text", "Alpha"),
+  );
+  assert.strictEqual(r.text, "Alpha");
+  assert.strictEqual(r.kind, "line");
+});
+
+it("titleSwatch — false in tooltipConfig drops every title swatch", async () => {
+  const src = `(lib, data) => new lib.Treemap().groupBy(["group", "id"]).sum("value").tooltipConfig({titleSwatch: false})
+    .data(data.filter(d => d.year === 2018).map(d => ({...d, group: d.id === "Gamma" ? "Two" : "One"})))`;
+  const shape = await titleSwatch(src, "svg => svg.querySelector('[data-key=\"treemap-Beta\"]')");
+  assert.strictEqual(shape.text, "Beta");
+  assert.strictEqual(shape.kind, null, "on a shape");
+  const legend = await titleSwatch(src, legendEl("text", "One"));
+  assert.strictEqual(legend.text, "One");
+  assert.strictEqual(legend.kind, null, "on a legend entry");
+});
+
+it("titleSwatch — false in legendTooltip drops only legend swatches", async () => {
+  const r = await render('<div id="viz" style="width:700px;height:400px"></div>', data =>
+    new Promise(resolve => {
+      const viz = new window.d3plus.Treemap().groupBy(["group", "id"]).sum("value").legendTooltip({titleSwatch: false})
+        .data(data.filter(d => d.year === 2018).map(d => ({...d, group: d.id === "Gamma" ? "Two" : "One"})))
+        .duration(0).select("#viz");
+      const hover = el => new Promise(res => {
+        const b = el.getBoundingClientRect();
+        const [cx, cy] = [b.left + b.width / 2, b.top + b.height / 2];
+        (document.elementFromPoint(cx, cy) || el)
+          .dispatchEvent(new MouseEvent("mousemove", {clientX: cx, clientY: cy, bubbles: true}));
+        requestAnimationFrame(() => setTimeout(() => {
+          const title = document.querySelector(".d3plus-tooltip .d3plus-tooltip-title");
+          res(!!(title && title.querySelector(".d3plus-tooltip-swatch")));
+        }, 30));
+      });
+      viz.render(async () => {
+        const svg = document.querySelector("#viz svg.d3plus-render-svg");
+        const label = Array.from(svg.querySelectorAll('[data-key="viz-legend"] text')).find(t => t.textContent.trim() === "One");
+        const legend = await hover(label);
+        // A shape hovered after the legend gets its swatch back.
+        const shape = await hover(svg.querySelector('[data-key="treemap-Beta"]'));
+        resolve({legend, shape});
+      });
+    }), data);
+  assert.deepStrictEqual(r, {legend: false, shape: true});
+});
+
+it("colorScale tooltip — a bucket's label leads with its swatch", async () => {
+  const src = `(lib, data) => new lib.Matrix().groupBy(["id", "year"]).row("id").column("year").data(data)
+    .colorScale("value").colorScaleConfig({scale: "jenks"}).colorScalePosition("right")`;
+  const pick = `svg => Array.from(svg.querySelectorAll('[data-key="viz-colorScale"] text'))
+    .find(t => /\\d/.test(t.textContent))`;
+  const r = await titleSwatch(src, pick);
+  assert.strictEqual(r.kind, "square");
+  assert.ok(r.color, "in the bucket's color");
 });
 
 it("legend — mixed swatches and their labels line up", async () => {

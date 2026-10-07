@@ -7,7 +7,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
-import {visibleColor} from "../features/tooltipSwatch.js";
+import {nodeColor, visibleColor} from "../features/tooltipSwatch.js";
 import {linkAs} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
@@ -286,7 +286,8 @@ function resolveHover(
   const pick = event.pick ? (event.pick.node as ShapeNode) : undefined;
   const onMark = isMark(pick) && pick.shapeType !== "Box";
   const single = (column: Column | null, id: string, px: number, wrapped?: Wrapped): SharedHover | null => {
-    const member = column?.members.get(id) ?? (wrapped ? {wrapped, color: undefined} : undefined);
+    const member = column?.members.get(id)
+      ?? (wrapped ? {wrapped, color: nodeColor(viz, pick), shape: pick?.shapeType} : undefined);
     const row = member ? memberRow(viz, axis, id, member) : null;
     if (!row || !Number.isFinite(px)) return null;
     const markers = column ? column.markers.filter(m => String(m.datum.id) === id) : [];

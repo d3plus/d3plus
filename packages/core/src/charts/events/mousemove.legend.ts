@@ -2,9 +2,11 @@ import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
+import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import type Viz from "../viz/Viz.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     @module mouseMoveLegend
@@ -92,9 +94,12 @@ export default function (
           ? this._legendClass.label()
           : legendLabel.bind(this),
       )
+      .titleSwatch(true)
       .position(position)
       .config(configPrep.bind(this as unknown as VizContext)(this.schema.tooltipConfig))
-      .config(configPrep.bind(this as unknown as VizContext)(this.schema.legendTooltip))
+      .config(configPrep.bind(this as unknown as VizContext)(this.schema.legendTooltip));
+    // The title leads with the hovered entry's swatch, as on the chart.
+    leadTitleWithSwatch(this._tooltipClass, pickSwatch(this as unknown as VizInstance, this._lastScenePick))
       .render();
   }
 }
