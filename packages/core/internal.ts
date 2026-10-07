@@ -229,6 +229,82 @@ export {
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
 
+// ── Small multiples (`facet` / `facetConfig`) ────────────────────────────────
+export {
+  coerceFacet,
+  FACET_ASPECT,
+  FACET_PADDING,
+  FACET_TITLE_DEFAULTS,
+  facetActive,
+  resolveFacetConfig,
+} from "./src/charts/facet/facetConfig.js";
+export type {
+  FacetAccessor,
+  FacetCell,
+  FacetEdges,
+  FacetHooks,
+  FacetPanelContext,
+  FacetPanelState,
+  FacetSort,
+  FacetValue,
+  ResolvedFacetConfig,
+} from "./src/charts/facet/facetConfig.js";
+export {
+  compareFacetValues,
+  facetFilteredData,
+  facetGroups,
+  facetKey,
+  facetTimeFilter,
+  formatFacetValue,
+  groupFacets,
+  sortFacetValues,
+  toFacetValue,
+} from "./src/charts/facet/facetData.js";
+export type {FacetGroup} from "./src/charts/facet/facetData.js";
+export {facetDimensions, facetGrid, fittedArea} from "./src/charts/facet/facetGrid.js";
+export type {FacetArea, FacetGridOptions} from "./src/charts/facet/facetGrid.js";
+export {
+  facetBodyNode,
+  facetPanelNode,
+  facetTitleNodes,
+  measureFacetTitles,
+  prefixKeys,
+} from "./src/charts/facet/facetScene.js";
+export type {FacetTitle} from "./src/charts/facet/facetScene.js";
+export {clearPanelSlots, facetPanelAt, withFacetPanel} from "./src/charts/facet/facetPanel.js";
+export {
+  expandArea,
+  LABEL_COMBOS,
+  labelExpansions,
+  labelGutter,
+  labelKey,
+  NO_SIDES,
+  panelBase,
+} from "./src/charts/facet/facetGutter.js";
+export type {FacetLabels, FacetSides} from "./src/charts/facet/facetGutter.js";
+export {
+  drawChart,
+  drawFacets,
+  facetAreaMargin,
+  facetTitleBand,
+  facetTitleStyle,
+  facetTitleTexts,
+  panelLabels,
+  panelTitle,
+} from "./src/charts/facet/drawFacets.js";
+export {
+  listAxis,
+  panelAxisConfig,
+  plotFacetHooks,
+  plotFacetInsets,
+  plotFacetPanel,
+  sharePlotScales,
+  unionExtent,
+} from "./src/charts/Plot/plotFacet.js";
+export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
+export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
+export {computeFilteredData, computeTimeFilter} from "./src/charts/pipeline/vizPreDrawPure.js";
+
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
 export type {VizContext} from "./src/charts/pipeline/vizContext.js";

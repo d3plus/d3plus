@@ -27,6 +27,14 @@ import {vizDrawPure} from "./vizDrawPure.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 export function vizDraw(viz: Viz): void {
+  // A small-multiples panel draws only the chart body, inside the margins
+  // the facet layout set; the chrome was laid out once for every panel.
+  if (viz._facetStep === "panel") {
+    viz._chartScene = [];
+    viz._chartTransform = undefined;
+    viz._shapes = [];
+    return;
+  }
   const ctx = vizDrawPure(viz);
   const d = ctx.marginDelta;
   if (d) {

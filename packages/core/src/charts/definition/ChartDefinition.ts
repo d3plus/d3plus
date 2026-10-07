@@ -10,6 +10,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import type {FacetHooks} from "../facet/facetConfig.js";
 import type {FeatureModule} from "../features/features.js";
 import type {InsetRegion} from "../features/insetState.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
@@ -58,6 +59,13 @@ interface ChartDefinitionBase {
       chart has no room to offer.
   */
   insetRegion?: (viz: VizInstance) => InsetRegion | null;
+  /**
+      Optional small-multiples hooks (see `facet/facetConfig.ts`): the panel
+      aspect the chart reads best at, and for charts with scales, how panels
+      share them. A chart without any still draws as small multiples, each
+      panel drawn the way the whole chart is.
+  */
+  facet?: FacetHooks;
   /** Optional pure threshold algorithm (replaces `Viz._thresholdFunction`). */
   thresholdFunction?: (viz: VizInstance, data: unknown[]) => unknown[];
   /**

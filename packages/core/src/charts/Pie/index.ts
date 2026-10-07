@@ -60,6 +60,9 @@ export const pieDef: DataDrivenChartDefinition = {
     return {x: -r, y: -r, width: r * 2, height: r * 2};
   },
 
+  // Small-multiple panels as close to square as the grid allows.
+  facet: {aspect: 1},
+
   ctx: {
     pie: d3Pie(),
   },

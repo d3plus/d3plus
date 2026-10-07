@@ -413,7 +413,9 @@ function setupAxisTransforms(
     x: {x: viz._margin.left, y: viz._margin.top + x2Height + topOffset},
     x2: {x: viz._margin.left, y: viz._margin.top + topOffset},
     y: {x: viz._margin.left + xTrans, y: viz._margin.top + topOffset},
-    y2: {x: -viz._margin.right, y: viz._margin.top + topOffset},
+    // The y2 axis draws at the right edge of the width it measured against,
+    // which already excludes any margins set before the chrome claimed its own.
+    y2: {x: viz._margin.left - pCtx.horizontalMargin, y: viz._margin.top + topOffset},
   };
   return (which: "x" | "x2" | "y" | "y2") => ({
     x: axisAbsoluteTransforms[which].x - chartTransform.x,

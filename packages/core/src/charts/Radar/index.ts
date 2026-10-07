@@ -44,6 +44,9 @@ export const radarDef: ChartDefinition = {
     return {x: -width / 2, y: -height / 2, width, height};
   },
 
+  // Small-multiple panels as close to square as the grid allows.
+  facet: {aspect: 1},
+
   ctx: {},
 
   fields: [

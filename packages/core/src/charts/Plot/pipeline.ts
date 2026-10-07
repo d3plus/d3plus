@@ -20,6 +20,7 @@ import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
+import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
@@ -192,7 +193,8 @@ export const formatPlotData: TransformStage = ({viz}) => {
   }
 
   viz._sizeScaleD3 = viz._size
-    ? plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
+    ? viz._plotFacetScales?.size ??
+      plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
     : () => viz.schema.sizeMin;
   viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => d.shape === "Circle")
     ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
@@ -354,7 +356,8 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
     });
   }
 
-  return {plotScales: {...plotScales!, x, y, x2, y2}};
+  // A small-multiples panel with shared scales draws with every panel's padding.
+  return {plotScales: applyPaddedDomains(viz, {...plotScales!, x, y, x2, y2})};
 };
 
 /**

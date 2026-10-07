@@ -258,7 +258,7 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
   const stackGroup = plotStackGroup as (d: DataPoint, i: number) => string;
   const opp = viz.schema.discrete ? (viz.schema.discrete === "x" ? "y" : "x") : undefined;
 
-  return viz.schema.stacked
+  const out = viz.schema.stacked
     ? computeStackedDomains(viz, {
         data,
         axisData,
@@ -274,4 +274,9 @@ export const computePlotInitialDomains: TransformStage = ({viz, plotFormattedDat
         yData: yData || [],
         y2Data: y2Data || [],
       });
+  // A small-multiples panel with shared scales takes every panel's domains.
+  const shared = viz._plotFacetScales?.domains;
+  if (shared && out.plotInitialDomains)
+    out.plotInitialDomains = {...out.plotInitialDomains, ...shared};
+  return out;
 };

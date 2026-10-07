@@ -500,6 +500,34 @@ export const argTypes = assign(
         summary: "number"
       }
     },
+    facet: {
+      control: {
+        type: "text"
+      },
+      description: "Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | false | function"
+      }
+    },
+    facetConfig: {
+      control: {},
+      description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "facetconfig"
+      }
+    },
     fontFamily: {
       control: {
         type: "text"

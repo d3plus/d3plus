@@ -68,6 +68,7 @@ import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
 import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {plotInsetRegion} from "./insetRegion.js";
+import {plotFacetHooks} from "./plotFacet.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
@@ -79,18 +80,7 @@ type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
 /** Function-or-string-key value accepted by accessor setters. */
 type PlotAccessorArg = string | PlotAccessor;
 
-import {default as BarBuffer} from "../plotBuffers/Bar.js";
-import {default as BoxBuffer} from "../plotBuffers/Box.js";
-import {default as CircleBuffer} from "../plotBuffers/Circle.js";
-import {default as LineBuffer} from "../plotBuffers/Line.js";
-import {default as RectBuffer} from "../plotBuffers/Rect.js";
-const defaultBuffers = {
-  Bar: BarBuffer,
-  Box: BoxBuffer,
-  Circle: CircleBuffer,
-  Line: LineBuffer,
-  Rect: RectBuffer,
-};
+import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
@@ -416,6 +406,15 @@ export default class Plot extends Viz {
   }
 
   /**
+      Small multiples: shared domains, outer-edge axis labels, and the
+      per-panel state the shared tooltip reads (see `Plot/plotFacet.ts`).
+      @private
+  */
+  _facetHooks() {
+    return plotFacetHooks;
+  }
+
+  /**
       The bubble radius scale, for the size legend (see `plotSizeLegendScale`).
       @private
   */
@@ -461,6 +460,8 @@ export default class Plot extends Viz {
       @private
 */
   _zoomRescale(t: ZoomState, duration = 0): boolean {
+    // Small multiples zoom as one picture: there's no single set of axes to rescale.
+    if (this._facetPanels) return false;
     const nodes = zoomPlot(this as unknown as VizInstance, t, duration);
     if (!nodes) return false;
     this._chartScene = nodes;

@@ -1,0 +1,70 @@
+import {Meta} from '@storybook/addon-docs/blocks';
+
+<Meta title="Guides/Small Multiples" />
+
+# Small Multiples
+
+Small multiples repeat one chart for each value of a key: a grid of equally sized panels, each drawing the same chart from its own rows. Because every panel uses the same encoding, readers compare them at a glance. Any chart type can be split this way, from a BarChart or LinePlot to a Pie, Treemap, Matrix, or Geomap.
+
+```jsx
+<BarChart config={{
+  data, groupBy: "product", x: "year", y: "sales",
+  facet: "region",                          // one panel per region
+  facetConfig: {columns: 3, padding: 20},
+}} />
+```
+
+`facet` takes a data key or a `(d, i) => value` accessor. Each distinct value gets its own panel, titled with that value. Rows without a value aren't drawn. Set `facet` to `false` to go back to a single chart.
+
+## What the panels share
+
+The panels make up one chart, not several:
+
+- **One set of chrome.** The title, subtitle, total, legend, colorScale, timeline, and zoom, back, search, and table-view controls appear once, around the whole grid.
+- **One color for each series.** A series has the same color in every panel, and a colorScale spans the values every panel draws.
+- **Interactions across panels.** Hovering a mark highlights its series in every panel. Clicking a legend entry hides or solos that series everywhere, and drilling into a group drills every panel. Tooltips describe the mark under the pointer, and a Plot's shared tooltip and crosshair follow the panel the pointer is over.
+- **One timeline.** Every panel shows the same period. The grid stays the same as the timeline moves or legend entries are toggled, so a panel with no rows in the current period stays in place, showing only its title.
+
+Zooming magnifies the whole grid as one picture.
+
+## Layout
+
+`facetConfig` lays out the grid:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `columns`, `rows` | automatic | The grid's shape. By default, the shape that draws the panels largest for the chart is chosen: close to square for a Pie, Donut, Radar, Pack, Rings, Network, or Matrix, and a little wider than tall for everything else. Setting either one fixes it. |
+| `padding` | `20` | Space between panels, in pixels. |
+| `sort` | `"ascending"` | Panel order: `"ascending"`, `"descending"`, `"data"` (order of first appearance), a `(a, b) => number` comparator over facet values, or an array of values (values it leaves out go last). |
+| `title` | the facet value | A `(value, rows) => string` function for each panel's title, or `false` to hide panel titles. Dates are formatted for their interval. |
+| `titleConfig` | 12px, semibold, centered | [TextBox](/docs/core-components-textbox--d3plus) config for panel titles: `fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, and so on. By default the color contrasts with the chart's background. |
+
+```jsx
+facetConfig: {
+  columns: 4,
+  sort: ["Asia", "Europe", "Americas"],
+  title: (region, rows) => `${region} (${rows.length})`,
+  titleConfig: {fontSize: 14, textAnchor: "start"},
+}
+```
+
+## Shared and independent scales
+
+In the Plot family (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker, BumpChart, and Plot itself), every panel uses the same x and y scales by default. Each axis spans every panel's values, including stacks, bubble sizes, and whiskers, so equal heights mean equal values in any panel.
+
+Because the scales match, axes are labeled only along the grid's edges. The left column labels the y axis and the bottom panels label the x axis, and those panels get extra room for their labels so every plot area is the same size. Set `axes: "all"` to label every panel. BumpChart labels every panel by default, since each panel ranks its own series.
+
+```jsx
+facetConfig: {scales: "independent"}   // each panel fits its own rows
+facetConfig: {axes: "all"}             // shared scales, labels on every panel
+```
+
+With `scales: "independent"`, each panel fits its own data and labels its own axes. Use it when panels differ so much in size that a shared scale would flatten the small ones.
+
+## Charts without axes
+
+A data-driven chart such as a Pie, Treemap, or Pack is drawn in each panel exactly as it would be drawn on its own, fitted to the panel. A Treemap's areas or a Pack's circles are sized within their own panel. A Geomap fits each panel's map to its own rectangle and draws its ocean and tiles in every panel.
+
+## Examples
+
+See the [small multiples examples](/docs/core-charts-viz--d3plus#small-multiples): a [BarChart](/docs/core-charts-viz--d3plus#small-multiples), a [LinePlot with a fixed grid](/docs/core-charts-viz--d3plus#small-multiples-line-plot), [independent scales](/docs/core-charts-viz--d3plus#small-multiples-independent-scales), [Donuts in a custom order](/docs/core-charts-viz--d3plus#small-multiples-donut), [Treemaps with a timeline and custom titles](/docs/core-charts-viz--d3plus#small-multiples-treemap), and [Matrices sharing a colorScale](/docs/core-charts-viz--d3plus#small-multiples-matrix).

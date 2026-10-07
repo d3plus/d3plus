@@ -69,6 +69,9 @@ export const matrixDef: ChartDefinition = {
     };
   },
 
+  // Small-multiple panels as close to square as the grid allows.
+  facet: {aspect: 1},
+
   ctx: {
     rowAxis: new Axis(),
     columnAxis: new Axis(),

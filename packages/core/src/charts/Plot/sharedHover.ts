@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
 import {nodeColor, visibleColor} from "../features/tooltipSwatch.js";
+import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
@@ -369,10 +370,11 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
   if (hover) {
     viz._sharedHoverActive = true;
     const {mode, axis, px, value, markers, layer} = hover;
-    viz._sharedHoverState = {mode, axis, px, value, markers, layer};
+    const panel = facetPanelAt(viz, event.point)?.key;
+    viz._sharedHoverState = {mode, axis, px, value, markers, layer, panel};
     if (mode === "shared") renderSharedTooltip(viz, hover, event);
     else renderSingleTooltip(viz, hover, event);
-    if (!prev || prev.px !== px || prev.mode !== mode) {
+    if (!prev || prev.px !== px || prev.mode !== mode || prev.panel !== panel) {
       sharedHighlight(viz, hover, prev?.mode);
       viz._scheduleSceneRepaint();
     }

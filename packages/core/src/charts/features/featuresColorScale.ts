@@ -18,6 +18,8 @@ import type {FeatureModule} from "./features.js";
 import {sanitizePosition} from "./features.js";
 import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
+import type {FacetAccessor} from "../facet/facetConfig.js";
+import {facetKey} from "../facet/facetData.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -30,14 +32,19 @@ interface ColorScaleFrame {
   align: string;
 }
 
-/** The colorScale's data: the chart's data rolled up per time/id, keeping rows with a colorScale value. */
+/**
+    The colorScale's data: the chart's data rolled up per time/id (and per
+    small-multiples panel, the values the panels color by), keeping rows with
+    a colorScale value.
+*/
 function colorScaleData(viz: VizInstance): MergedDataPoint[] {
+  const facet = viz.schema.facet as FacetAccessor | undefined;
   const data = Array.from(
     rollup(
       viz._data,
       (leaves: DataPoint[]) => merge(leaves, viz.schema.aggs),
       (d: DataPoint, i: number) =>
-        `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${viz._ids(d, i).join("_")}`,
+        `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${facet ? facetKey(facet(d, i)) : "all"}-${viz._ids(d, i).join("_")}`,
     ).values(),
   );
   return data.filter((d: MergedDataPoint, i: number) => {

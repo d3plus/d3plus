@@ -67,6 +67,9 @@ export const packDef: ChartDefinition = {
     }) as HoverFn;
   },
 
+  // Small-multiple panels as close to square as the grid allows.
+  facet: {aspect: 1},
+
   ctx: {
     pack: pack(),
   },

@@ -25,7 +25,7 @@ const Template = (args) => <Viz config={configify(args, argTypes)} />;
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-import {BarChart, Treemap} from "@d3plus/react";
+import {BarChart, Donut, LinePlot, Matrix, Treemap} from "@d3plus/react";
 
 
 const note = {margin: 0, fontSize: 14, lineHeight: 1.5, color: "#495057", maxWidth: 720};
@@ -123,6 +123,197 @@ new BarChart()
     },
     description: {
       story: "Hover a tile, search, or click a legend entry in either chart and the other follows. `link` takes a group name, or `{group, by}` to choose the value rows match on (default: each chart's own id). Matching is by value, so a region tile in the Treemap lights up every country bar in that region. Set `hover`, `active`, `highlight`, or `legend` to `false` in the object form to stop mirroring that interaction.",
+    },
+  },
+};
+
+// Small multiples: one panel per region, from deterministic sample data.
+const smRegions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+const smProducts = ["Coffee", "Cocoa", "Tea"];
+const smYears = [2019, 2020, 2021, 2022, 2023];
+const smData = smRegions.flatMap((region, r) => smProducts.flatMap((product, p) => smYears.map((year, y) => ({
+  region, product, year,
+  exports: Math.round((20 + ((r * 11 + p * 7 + y * 5) % 17) * 4) * (1 + r * 0.6)),
+}))));
+const smLatest = smData.filter(d => d.year === 2023);
+const smBox = {height: 520};
+
+export const SmallMultiples = () => (
+  <div style={smBox}>
+    <BarChart config={{
+      data: smData, groupBy: "product", x: "year", y: "exports",
+      title: "Exports by region",
+      facet: "region",
+    }} />
+  </div>
+);
+SmallMultiples.parameters = {
+  docs: {
+    source: {
+      code: `import {BarChart} from "@d3plus/core";
+
+// One panel per region, sharing one legend, title, and set of y-axis values.
+new BarChart()
+  .select("#chart")
+  .data(data)
+  .groupBy("product")
+  .x("year")
+  .y("exports")
+  .title("Exports by region")
+  .facet("region")
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "`facet` splits a chart into a grid of equally sized panels, one per distinct value of a data key (or accessor). Every panel is the same chart drawn from its own rows, sharing one legend, title, timeline, and set of controls. Hover a bar to highlight its series in every panel, or click a legend entry to hide it everywhere. Panels share their x/y scales by default, so the axes are labeled only along the grid's left and bottom edges.",
+    },
+  },
+};
+
+export const SmallMultiplesLinePlot = () => (
+  <div style={smBox}>
+    <LinePlot config={{
+      data: smData, groupBy: "product", x: "year", y: "exports",
+      facet: "region",
+      facetConfig: {columns: 5, padding: 12},
+    }} />
+  </div>
+);
+SmallMultiplesLinePlot.parameters = {
+  docs: {
+    source: {
+      code: `new LinePlot()
+  .data(data)
+  .groupBy("product")
+  .x("year")
+  .y("exports")
+  .facet("region")
+  .facetConfig({columns: 5, padding: 12})
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "`facetConfig` sets the grid's `columns` and/or `rows` (picked automatically by default, to draw the panels as large as the chart's shape allows) and the `padding` between panels. The shared tooltip and crosshair follow the panel under the pointer.",
+    },
+  },
+};
+
+export const SmallMultiplesIndependentScales = () => (
+  <div style={smBox}>
+    <BarChart config={{
+      data: smData, groupBy: "product", x: "year", y: "exports", stacked: true,
+      facet: "region",
+      facetConfig: {scales: "independent"},
+    }} />
+  </div>
+);
+SmallMultiplesIndependentScales.parameters = {
+  docs: {
+    source: {
+      code: `new BarChart()
+  .data(data)
+  .groupBy("product")
+  .x("year")
+  .y("exports")
+  .stacked(true)
+  .facet("region")
+  .facetConfig({scales: "independent"})
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "With `scales: \"independent\"`, each panel fits its own rows, which shows the shape of small regions at the cost of comparing heights across panels. Every panel then labels its own axes.",
+    },
+  },
+};
+
+export const SmallMultiplesDonut = () => (
+  <div style={smBox}>
+    <Donut config={{
+      data: smLatest, groupBy: "product", value: "exports",
+      title: "2023 export mix",
+      facet: "region",
+      facetConfig: {sort: ["Asia", "Europe", "Americas", "Africa", "Oceania"]},
+    }} />
+  </div>
+);
+SmallMultiplesDonut.parameters = {
+  docs: {
+    source: {
+      code: `new Donut()
+  .data(data)
+  .groupBy("product")
+  .value("exports")
+  .title("2023 export mix")
+  .facet("region")
+  .facetConfig({sort: ["Asia", "Europe", "Americas", "Africa", "Oceania"]})
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "Any chart type can be faceted. `sort` orders the panels: `\"ascending\"` (the default), `\"descending\"`, `\"data\"` (first appearance), a comparator, or an explicit list of values.",
+    },
+  },
+};
+
+export const SmallMultiplesTreemap = () => (
+  <div style={smBox}>
+    <Treemap config={{
+      data: smData, groupBy: "product", sum: "exports", time: "year",
+      facet: "region",
+      facetConfig: {
+        title: (region, rows) => `${region}: ${rows.reduce((s, d) => s + d.exports, 0)}`,
+        titleConfig: {fontSize: 13, textAnchor: "start"},
+      },
+    }} />
+  </div>
+);
+SmallMultiplesTreemap.parameters = {
+  docs: {
+    source: {
+      code: `new Treemap()
+  .data(data)
+  .groupBy("product")
+  .sum("exports")
+  .time("year")
+  .facet("region")
+  .facetConfig({
+    title: (region, rows) => \`\${region}: \${rows.reduce((s, d) => s + d.exports, 0)}\`,
+    titleConfig: {fontSize: 13, textAnchor: "start"}
+  })
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "One timeline drives every panel. `title` formats each panel's title from its facet value and rows (or `false` hides them), and `titleConfig` styles them.",
+    },
+  },
+};
+
+export const SmallMultiplesMatrix = () => (
+  <div style={smBox}>
+    <Matrix config={{
+      data: smData, groupBy: ["product", "year"], row: "product", column: "year",
+      colorScale: "exports",
+      facet: "region",
+    }} />
+  </div>
+);
+SmallMultiplesMatrix.parameters = {
+  docs: {
+    source: {
+      code: `new Matrix()
+  .data(data)
+  .groupBy(["product", "year"])
+  .row("product")
+  .column("year")
+  .colorScale("exports")
+  .facet("region")
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story: "A colorScale is shared too: one scale, spanning the values every panel draws, colors all of them.",
     },
   },
 };
