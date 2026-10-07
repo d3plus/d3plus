@@ -573,6 +573,49 @@ export interface D3plusConfig {
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
   legendTooltip?: TooltipConfig;
+  /**
+      Formats the Radar's level value labels. Receives the ring's value and
+      returns its label. Defaults to the abbreviated number format the axes
+      use (`1.5k`, `2M`, …).
+  */
+  levelFormat?: (d: number) => string | number;
+  /**
+      Direction of the Radar's level value labels, in degrees clockwise from
+      12 o'clock. `0` (the default) runs the labels straight up from the
+      center. Spokes start at 3 o'clock, so the spoke for the metric at index
+      `i` of `n` sits at `90 + 360 * i / n` degrees.
+  */
+  levelLabelAngle?: number;
+  /** Style of the Radar's level value labels and their backdrops. */
+  levelLabelConfig?: {
+    /** Backdrop fill behind each label, or `false` for none. Defaults to the chart's background color. */
+    background?: string | false;
+    /** Opacity of the label backdrop. Defaults to `0.85`. */
+    backgroundOpacity?: number;
+    /** Corner radius of the label backdrop, in pixels. Defaults to `2`. */
+    borderRadius?: number;
+    /** Text color. Defaults to the color that contrasts with the chart's background. */
+    fontColor?: string;
+    /** Font family. Defaults to the chart's `fontFamily`. */
+    fontFamily?: string | string[];
+    /** Text opacity. Defaults to `1`. */
+    fontOpacity?: number;
+    /** Font size, in pixels. Defaults to `10`. */
+    fontSize?: number;
+    /** Font weight. Defaults to `400`. */
+    fontWeight?: number | string;
+    /** Space between the text and the edge of its backdrop, in pixels. Defaults to `2`. */
+    padding?: number;
+  };
+  /** Whether the Radar labels each level ring with its value. Defaults to `true`. */
+  levelLabels?: boolean;
+  /**
+      The Radar's level rings. A number (default `6`) is the approximate ring
+      count: the radial domain is rounded out to "nice" values and the rings
+      sit on its ticks, the same way axis ticks are chosen. An array sets the
+      exact ring values.
+  */
+  levels?: number | number[];
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */

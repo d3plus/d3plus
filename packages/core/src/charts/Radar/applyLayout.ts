@@ -1,23 +1,32 @@
 /**
     `applyRadarLayout` — Radar's chart-specific layout stage. Computes per-
-    axis angular positions, per-group polygon vertices, the max value for
-    radius normalization, and the per-polygon `pathConfig` (with event-
-    handler wrappers that translate cursor → nearest vertex). Emits flat
-    SceneNodes for background circles, axis labels, and radial spokes into
-    `_chartScene`. Stashes `groupData` + `pathConfig` on `viz.ctx`.
+    axis angular positions, the radial value domain + level rings (see
+    `levels.ts`), per-group polygon vertices, and the per-polygon
+    `pathConfig` (with event-handler wrappers that translate cursor →
+    nearest vertex). Emits flat SceneNodes for level rings, axis labels, and
+    radial spokes into `_chartScene`. Stashes `groupData`, `pathConfig`, and
+    the level value labels (`levelLabelNodes`) on `viz.ctx`.
 */
 
-import {groups, max, min, sum} from "d3-array";
+import {groups, min, sum} from "d3-array";
 import {pointer} from "d3-selection";
 
+import {colorContrast} from "@d3plus/color";
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
+import {backgroundColor, textWidth} from "@d3plus/dom";
+import {formatAbbreviate} from "@d3plus/format";
 import type {SceneNode} from "@d3plus/render";
+import {fontFamily as defaultFontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import type {D3plusConfig} from "../../utils/D3plusConfig.js";
+
+import {emitRadarLevelLabels, radarLevelLabels, radarLevels, radarRadius} from "./levels.js";
+import type {RadarLevels} from "./levels.js";
 
 const TAU = Math.PI * 2;
 
@@ -44,24 +53,20 @@ interface GroupDatum {
   d: string;
 }
 
-/** Emits background concentric circles, one per level, onto `chartScene`. */
+/** Emits one background circle per level ring onto `chartScene`. */
 const emitRadialCircles = (
   viz: Parameters<TransformStage>[0]["viz"],
   chartScene: SceneNode[],
   axisShapeConfig: Record<string, unknown>,
-  levels: number,
-  radius: number,
+  rings: number[],
 ): void => {
   const circleConfig = shapeConfigFor(viz, "Circle", axisShapeConfig);
   delete circleConfig.label;
 
-  // Background concentric circles, one per level.
-  const radialCircleChildren: SceneNode[] = [];
-  for (let d = 0; d < levels; d++) {
-    const r = radius * ((d + 1) / levels);
+  const radialCircleChildren: SceneNode[] = rings.map((r, d) => {
     const datum = {id: d, r} as unknown as DataPoint;
     const paint = paintFromShapeConfig(circleConfig, datum, d);
-    radialCircleChildren.push({
+    return {
       type: "circle",
       key: `radar-radial-${d}`,
       cx: 0,
@@ -69,8 +74,8 @@ const emitRadialCircles = (
       r,
       datum,
       paint,
-    } as SceneNode);
-  }
+    } as SceneNode;
+  });
   if (radialCircleChildren.length) {
     chartScene.push({
       type: "group",
@@ -78,6 +83,48 @@ const emitRadialCircles = (
       children: radialCircleChildren,
     } as SceneNode);
   }
+};
+
+/** Resolves `levelLabelConfig` + `levelFormat` and builds the level label nodes. */
+const buildLevelLabelNodes = (
+  viz: Parameters<TransformStage>[0]["viz"],
+  {domain, ticks}: RadarLevels,
+  radius: number,
+): SceneNode[] => {
+  if (!viz.schema.levelLabels) return [];
+  const cfg = (viz.schema.levelLabelConfig ?? {}) as NonNullable<D3plusConfig["levelLabelConfig"]>;
+  const bg = viz._select ? backgroundColor(viz._select.node()) : "rgb(255, 255, 255)";
+  const fontSize = cfg.fontSize ?? 10;
+  const fontWeight = cfg.fontWeight ?? 400;
+  const fontFamily = fontFamilyStringify(
+    cfg.fontFamily ?? (viz.schema.fontFamily as string | string[] | undefined) ?? defaultFontFamily,
+  );
+  const style = {"font-family": fontFamily, "font-size": fontSize, "font-weight": fontWeight};
+  const userFormat = viz.schema.levelFormat as ((d: number) => string | number) | undefined;
+  const format = (d: number): string =>
+    typeof userFormat === "function"
+      ? String(userFormat(d))
+      : formatAbbreviate(d, viz.schema.locale as string);
+  const labels = radarLevelLabels({
+    ticks,
+    domain,
+    radius,
+    angle: Number(viz.schema.levelLabelAngle) || 0,
+    format,
+    measure: text => textWidth(text, style),
+    fontSize,
+    padding: cfg.padding ?? 2,
+  });
+  return emitRadarLevelLabels(labels, {
+    fontColor: cfg.fontColor ?? colorContrast(bg, viz.schema.colorDefaults),
+    fontFamily,
+    fontOpacity: cfg.fontOpacity ?? 1,
+    fontSize,
+    fontWeight,
+    background: cfg.background === undefined ? bg : cfg.background,
+    backgroundOpacity: cfg.backgroundOpacity ?? 0.85,
+    borderRadius: cfg.borderRadius ?? 2,
+  });
 };
 
 /** Emits axis labels and radial spokes for each axis vertex onto `chartScene`. */
@@ -117,7 +164,7 @@ const emitAxisDecorations = (
     return {
       type: "path",
       key: `radar-spoke-${p.id}`,
-      d: `M0,0 ${-p.x},${-p.y}`,
+      d: `M0,0 ${p.x},${p.y}`,
       datum: p as unknown as DataPoint,
       paint,
     } as SceneNode;
@@ -162,7 +209,6 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
 
   const outerPadding = viz.schema.outerPadding as number;
-  const levels = viz.schema.levels as number;
   const metricFn = viz.schema.metric as (d: DataPoint, i: number) => unknown;
   const valueFn = viz.schema.value as (d: DataPoint, i: number) => number;
   const axisConfig = viz.schema.axisConfig as {
@@ -176,17 +222,16 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   const nestedAxisData = groups(filtered, metricFn);
   const nestedGroupData = groups(filtered, viz._id, metricFn);
 
-  const maxValue = max(
-    nestedGroupData
-      .map(([, innerEntries]) =>
-        innerEntries.map(([, vals]) => sum(vals, (x, i) => valueFn(x, i))),
-      )
-      .flat(),
+  const values = nestedGroupData.flatMap(([, innerEntries]) =>
+    innerEntries.map(([, vals]) => sum(vals, (x, i) => valueFn(x, i))),
   );
+  const levels = radarLevels(values, viz.schema.levels as number | number[]);
+  const {domain} = levels;
 
-  if (!maxValue) {
+  if (!values.length || domain[0] === domain[1]) {
     viz.ctx.groupData = [];
     viz.ctx.pathConfig = {};
+    viz.ctx.levelLabelNodes = [];
     return {shapeData: []};
   }
 
@@ -199,7 +244,10 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     : (viz._chartScene = [] as SceneNode[]);
 
   const axisShapeConfig = (axisConfig.shapeConfig ?? {}) as Record<string, unknown>;
-  emitRadialCircles(viz, chartScene, axisShapeConfig, levels, radius);
+  const rings = levels.ticks
+    .map(t => radarRadius(t, domain, radius))
+    .filter(r => r > 0 && r <= radius);
+  emitRadialCircles(viz, chartScene, axisShapeConfig, rings);
 
   const labelConfig = (viz.schema.shapeConfig as Record<string, unknown>)?.labelConfig as {
     fontSize?: (d: unknown, i: number) => number;
@@ -247,7 +295,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   const groupData: GroupDatum[] = nestedGroupData.map(([hKey, innerEntries]) => {
     const q = innerEntries.map(([, vals], i) => {
       const value = sum(vals, (x, ii) => valueFn(x, ii));
-      const r = (value / maxValue) * radius;
+      const r = radarRadius(value, domain, radius);
       const radians = (TAU / totalAxis) * i;
       return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
     });
@@ -274,5 +322,6 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
 
   viz.ctx.groupData = groupData;
   viz.ctx.pathConfig = pathConfig;
+  viz.ctx.levelLabelNodes = buildLevelLabelNodes(viz, levels, radius);
   return {shapeData: groupData};
 };

@@ -92,4 +92,43 @@ LevelsAndPadding.args = {
   outerPadding: 90,
   value: "value"
 };
-LevelsAndPadding.parameters = {controls: {include: ["levels", "outerPadding"]}, docs: {description: {story: "`levels` sets how many concentric rings are drawn behind the polygons (three here instead of the default), and `outerPadding` reserves space between the outermost ring and the edge for the spoke labels."}}};
+LevelsAndPadding.parameters = {controls: {include: ["levels", "outerPadding"]}, docs: {description: {story: "`levels` sets roughly how many concentric rings are drawn behind the polygons (three here instead of the default six). Like axis ticks, the rings land on round values, so the count is a target rather than an exact number. `outerPadding` reserves space between the outermost ring and the edge for the spoke labels."}}};
+
+const scoreData = ["2024", "2025"].flatMap((group, g) =>
+  ["Speed", "Power", "Range", "Comfort", "Safety", "Price", "Design", "Support"].map((metric, m) => ({
+    group,
+    metric,
+    value: 30 + ((m * 23 + g * 37) % 65),
+  })),
+);
+
+export const LevelLabels = Template.bind({});
+LevelLabels.args = {
+  data: scoreData,
+  groupBy: "group",
+  levelFormat: funcify(
+    d => `${d}%`,
+    "d => `${d}%`"
+  ),
+  levels: [0, 25, 50, 75, 100],
+  metric: "metric",
+  value: "value"
+};
+LevelLabels.parameters = {controls: {include: ["levels", "levelFormat", "levelLabels"]}, docs: {description: {story: "Each ring is labeled with its value along the vertical axis. Passing an array to `levels` sets the exact ring values (here a 0–100 scale), and `levelFormat` formats each label. Set `levelLabels` to `false` to hide them."}}};
+
+export const LevelLabelStyling = Template.bind({});
+LevelLabelStyling.args = {
+  data: skillData,
+  groupBy: "group",
+  levelLabelAngle: 22.5,
+  levelLabelConfig: {
+    borderRadius: 4,
+    fontSize: 11,
+    fontWeight: 600,
+    padding: 3
+  },
+  levels: 4,
+  metric: "metric",
+  value: "value"
+};
+LevelLabelStyling.parameters = {controls: {include: ["levelLabelAngle", "levelLabelConfig", "levels"]}, docs: {description: {story: "`levelLabelAngle` turns the labels to any direction, in degrees clockwise from 12 o'clock — 22.5 runs them between the top two spokes instead of along one. `levelLabelConfig` styles the text and its backdrop (`background: false` removes the backdrop)."}}};

@@ -45,6 +45,10 @@ export const radarDef: ChartDefinition = {
 
   fields: [
     {key: "discrete", default: "metric"},
+    {key: "levelFormat"},
+    {key: "levelLabelAngle", default: 0},
+    {key: "levelLabelConfig", default: {}, merge: true},
+    {key: "levelLabels", default: true},
     {key: "levels", default: 6},
     {
       key: "metric",
