@@ -11,6 +11,10 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     let leaveDatum = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
     while (leaveDatum && leaveDatum.__d3plus__ && leaveDatum.data)
       leaveDatum = leaveDatum.data as typeof leaveDatum;
+    // A node without a datum (a plot background, an inset backing) set no
+    // hover or tooltip, so there is nothing to clear — and resetting hover
+    // here would wipe the one the next mark just set.
+    if (!leaveDatum) return;
 
     // A shape and its text label are separate scene nodes over the same datum,
     // so crossing between them fires a leave for one then an enter for the
