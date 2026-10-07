@@ -23,7 +23,7 @@ import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
-import {paintColorScaleInset, placeColorScaleDom} from "../features/featuresColorScale.js";
+import {paintColorScaleInset} from "../features/featuresColorScale.js";
 import {buildLegendData, paintLegendInset} from "../features/featuresLegend.js";
 import {sanitizePosition} from "../features/features.js";
 import {markBoxes} from "../features/sceneBounds.js";
@@ -116,7 +116,6 @@ function measure(
   key: InsetKey,
   orient: InsetOrient,
   area: {width: number; height: number},
-  final = false,
 ): {width: number; height: number} | null {
   if (key === "sizeLegend") {
     const box = bottomRightControlsBox(viz);
@@ -124,7 +123,7 @@ function measure(
   }
   return key === "legend"
     ? paintLegendInset(viz, orient, area)
-    : paintColorScaleInset(viz, orient, area, final);
+    : paintColorScaleInset(viz, orient, area);
 }
 
 /** The chart corners an inset box is tried in, most preferred first. */
@@ -245,8 +244,6 @@ function choose(viz: VizInstance, keys: InsetKey[]): {placement: InsetPlacement 
       const size = measure(viz, key, orient, space.area);
       const spot = size && fitInset(space.rects, space.bounds, size.width + margin * 2, size.height + margin * 2);
       if (spot) {
-        // A smooth-gradient colorScale paints its own DOM copy only on its final layout.
-        if (key === "colorScale") measure(viz, key, orient, space.area, true);
         return {placement: {key, orient, ...spot}, showing};
       }
     }
@@ -293,5 +290,4 @@ export function drawWithInset(viz: VizInstance): void {
     return;
   }
   viz._insetPlacement = placement;
-  if (placement.key === "colorScale") placeColorScaleDom(viz);
 }

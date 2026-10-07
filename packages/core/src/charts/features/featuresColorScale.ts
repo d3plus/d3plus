@@ -5,7 +5,6 @@
     `pipeline/insetPlacement.ts`) — lays out at the origin and claims nothing.
 */
 import {min, rollup} from "d3-array";
-import {interrupt} from "d3-transition";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint, MergedDataPoint} from "@d3plus/data";
@@ -17,7 +16,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {FeatureModule} from "./features.js";
 import {sanitizePosition} from "./features.js";
-import {insetComponentOffset, insetFrame, insetOrient, isInsetPending} from "./insetState.js";
+import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
 
 /** Where and how the colorScale lays itself out for one render. */
@@ -48,11 +47,11 @@ function colorScaleData(viz: VizInstance): MergedDataPoint[] {
 }
 
 /**
-    Configures and renders the chart's `_colorScaleClass` into `frame`.
-    `measure` lays it out without painting a smooth gradient's own DOM copy,
-    for the layouts an inside-the-chart placement only measures.
+    Configures and lays out the chart's `_colorScaleClass` into `frame`. It
+    always runs in compute mode: Viz.toScene composes its scene, so the
+    colorScale never paints a DOM copy of its own.
 */
-function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean, measure = false): void {
+function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean): void {
   const transform = {
     opacity: frame.orient ? 1 : 0,
     transform: `translate(${frame.x}, ${frame.y})`,
@@ -68,25 +67,8 @@ function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean
 
   if (!viz.schema.colorScale) return;
 
-  // Discrete (bucket/jenks/quantile) colorScales render their swatches via an
-  // internal Legend, which composes cleanly through the Viz scene — so run
-  // them in compute mode (like the legend) so the Viz's toScene owns them and
-  // hover/active dimming applies. Without this they render full-mode, where
-  // paintComponentScene paints a full-opacity copy that overlays and defeats
-  // the dimming. The smooth-gradient variant stays full-mode: its gradient
-  // fill is materialized through paintComponentScene, not the Viz scene.
-  const csCfg = (viz.schema.colorScaleConfig || {}) as {
-    scale?: string;
-    bucketAxis?: boolean;
-  };
-  const csDiscrete =
-    !csCfg.bucketAxis &&
-    ["buckets", "jenks", "quantile"].includes(
-      typeof csCfg.scale === "string" ? csCfg.scale : "",
-    );
-
   viz._colorScaleClass!
-    .renderMode(csDiscrete || measure ? "compute" : "full")
+    .renderMode("compute")
     .align(frame.align)
     .duration(viz.schema.duration)
     .data(colorScaleData(viz))
@@ -109,14 +91,12 @@ function colorScalePosition(viz: VizInstance): ReturnType<typeof sanitizePositio
     Lays the colorScale out to be drawn inside the chart: at the origin —
     Viz.toScene moves it into place — vertically (`"column"`) or
     horizontally (`"row"`), sized against the chart area `area`. Returns its
-    measured size, or null when it isn't showing. Only the `final` layout
-    paints a smooth gradient's DOM copy.
+    measured size, or null when it isn't showing.
 */
 export function paintColorScaleInset(
   viz: VizInstance,
   orient: InsetOrient,
   area: {width: number; height: number},
-  final = false,
 ): {width: number; height: number} | null {
   const show = Boolean(viz.schema.colorScale) && colorScalePosition(viz) !== false &&
     !viz.schema.colorScaleConfig.select;
@@ -129,27 +109,10 @@ export function paintColorScaleInset(
     height: orient === "column" ? min([maxSize, frame.height])! : frame.height,
     orient: orient === "column" ? "right" : "bottom",
     align: "start",
-  }, show, !final);
+  }, show);
   if (!show) return null;
   const {width, height} = viz._colorScaleClass!.outerBounds();
   return width && height ? {width, height} : null;
-}
-
-/**
-    Moves the colorScale's DOM group to its inside-the-chart spot. The
-    smooth-gradient variant paints itself into that group (full render
-    mode) as well as contributing to the chart's scene, so the group has to
-    sit where Viz.toScene draws the scene copy.
-*/
-export function placeColorScaleDom(viz: VizInstance): void {
-  const cs = viz._colorScaleClass;
-  const offset = cs ? insetComponentOffset(viz, "colorScale", cs.outerBounds()) : null;
-  const group = cs && cs._select && typeof cs._select.node === "function" ? cs._select.node() : null;
-  if (!offset || !group) return;
-  // Cancel the group's own move transition, which would otherwise carry it
-  // back to the origin it was laid out at.
-  interrupt(group as Element);
-  (group as Element).setAttribute("transform", `translate(${offset.x}, ${offset.y})`);
 }
 
 /**
