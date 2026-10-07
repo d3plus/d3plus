@@ -122,13 +122,11 @@ LevelLabelStyling.args = {
   groupBy: "group",
   levelLabelAngle: 22.5,
   levelLabelConfig: {
-    borderRadius: 4,
     fontSize: 11,
-    fontWeight: 600,
-    padding: 3
+    fontWeight: 600
   },
   levels: 4,
   metric: "metric",
   value: "value"
 };
-LevelLabelStyling.parameters = {controls: {include: ["levelLabelAngle", "levelLabelConfig", "levels"]}, docs: {description: {story: "`levelLabelAngle` turns the labels to any direction, in degrees clockwise from 12 o'clock — 22.5 runs them between the top two spokes instead of along one. `levelLabelConfig` styles the text and its backdrop (`background: false` removes the backdrop)."}}};
+LevelLabelStyling.parameters = {controls: {include: ["levelLabelAngle", "levelLabelConfig", "levels"]}, docs: {description: {story: "`levelLabelAngle` turns the labels to any direction, in degrees clockwise from 12 o'clock — 22.5 runs them between the top two spokes instead of along one. `levelLabelConfig` styles the label text. The labels sit beneath the polygons, so data drawn over a ring covers its label."}}};

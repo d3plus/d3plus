@@ -3,9 +3,9 @@
     axis angular positions, the radial value domain + level rings (see
     `levels.ts`), per-group polygon vertices, and the per-polygon
     `pathConfig` (with event-handler wrappers that translate cursor →
-    nearest vertex). Emits flat SceneNodes for level rings, axis labels, and
-    radial spokes into `_chartScene`. Stashes `groupData`, `pathConfig`, and
-    the level value labels (`levelLabelNodes`) on `viz.ctx`.
+    nearest vertex). Emits flat SceneNodes for level rings, axis labels,
+    radial spokes, and level value labels into `_chartScene` (beneath the
+    polygons). Stashes `groupData` + `pathConfig` on `viz.ctx`.
 */
 
 import {groups, min, sum} from "d3-array";
@@ -113,7 +113,6 @@ const buildLevelLabelNodes = (
     format,
     measure: text => textWidth(text, style),
     fontSize,
-    padding: cfg.padding ?? 2,
   });
   return emitRadarLevelLabels(labels, {
     fontColor: cfg.fontColor ?? colorContrast(bg, viz.schema.colorDefaults),
@@ -121,9 +120,6 @@ const buildLevelLabelNodes = (
     fontOpacity: cfg.fontOpacity ?? 1,
     fontSize,
     fontWeight,
-    background: cfg.background === undefined ? bg : cfg.background,
-    backgroundOpacity: cfg.backgroundOpacity ?? 0.85,
-    borderRadius: cfg.borderRadius ?? 2,
   });
 };
 
@@ -231,7 +227,6 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   if (!values.length || domain[0] === domain[1]) {
     viz.ctx.groupData = [];
     viz.ctx.pathConfig = {};
-    viz.ctx.levelLabelNodes = [];
     return {shapeData: []};
   }
 
@@ -291,6 +286,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     .sort((a, b) => Number(a.key) - Number(b.key));
 
   emitAxisDecorations(viz, chartScene, axisConfig, axisShapeConfig, polarAxis);
+  chartScene.push(...buildLevelLabelNodes(viz, levels, radius));
 
   const groupData: GroupDatum[] = nestedGroupData.map(([hKey, innerEntries]) => {
     const q = innerEntries.map(([, vals], i) => {
@@ -322,6 +318,5 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
 
   viz.ctx.groupData = groupData;
   viz.ctx.pathConfig = pathConfig;
-  viz.ctx.levelLabelNodes = buildLevelLabelNodes(viz, levels, radius);
   return {shapeData: groupData};
 };

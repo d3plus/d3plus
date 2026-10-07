@@ -1,8 +1,7 @@
 /**
     `radarEmit` — Path SceneNodes for each radar polygon, using
-    `groupData` + `pathConfig` stashed on `viz.ctx`, followed by the level
-    value labels (`levelLabelNodes`) so they paint above the polygons. Emits
-    flat SceneNodes directly (no transient Shape compute pass).
+    `groupData` + `pathConfig` stashed on `viz.ctx`. Emits flat SceneNodes
+    directly (no transient Shape compute pass).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -36,7 +35,5 @@ export const radarEmit: ChartEmit = ({viz}) => {
       aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode);
   }
-  const levelLabelNodes = viz.ctx.levelLabelNodes as SceneNode[] | undefined;
-  if (levelLabelNodes?.length) out.push(...levelLabelNodes);
   return out;
 };

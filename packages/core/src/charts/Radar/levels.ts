@@ -59,9 +59,7 @@ export interface RadarLevelLabel {
   /** Center of the label, relative to the radar's center. */
   x: number;
   y: number;
-  /** Measured width of `text`. */
-  textWidth: number;
-  /** Backdrop size (text plus padding). */
+  /** Text size: measured width and font-size height. */
   width: number;
   height: number;
 }
@@ -76,7 +74,6 @@ export interface RadarLevelLabelOpts {
   /** Measures a label's text width in pixels. */
   measure: (text: string) => number;
   fontSize: number;
-  padding: number;
 }
 
 /**
@@ -85,7 +82,7 @@ export interface RadarLevelLabelOpts {
     direction, only every n-th label is kept (counting out from the center).
 */
 export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
-  const {ticks, domain, radius, angle, format, measure, fontSize, padding} = opts;
+  const {ticks, domain, radius, angle, format, measure, fontSize} = opts;
   const radians = (angle * Math.PI) / 180;
   const dx = Math.sin(radians);
   const dy = -Math.cos(radians);
@@ -94,19 +91,17 @@ export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
     .map((value): RadarLevelLabel => {
       const r = radarRadius(value, domain, radius);
       const text = format(value);
-      const textWidth = measure(text);
       return {
         value,
         text,
         r,
         x: r * dx,
         y: r * dy,
-        textWidth,
-        width: textWidth + padding * 2,
-        height: fontSize + padding * 2,
+        width: measure(text),
+        height: fontSize,
       };
     });
-  // Extent of each backdrop projected onto the label direction.
+  // Extent of each label projected onto the label direction.
   const extentOf = (l: RadarLevelLabel): number =>
     Math.abs(l.width * dx) + Math.abs(l.height * dy);
   const extent = Math.max(0, ...labels.map(extentOf));
@@ -125,12 +120,9 @@ export interface RadarLevelLabelPaint {
   fontOpacity: number;
   fontSize: number;
   fontWeight: number | string;
-  background: string | false;
-  backgroundOpacity: number;
-  borderRadius: number;
 }
 
-/** Builds the backdrop + text scene nodes for laid-out level labels. */
+/** Builds the text scene nodes for laid-out level labels. */
 export function emitRadarLevelLabels(
   labels: RadarLevelLabel[],
   paint: RadarLevelLabelPaint,
@@ -138,20 +130,6 @@ export function emitRadarLevelLabels(
   if (!labels.length) return [];
   const children: SceneNode[] = [];
   for (const l of labels) {
-    if (paint.background) {
-      children.push({
-        type: "rect",
-        key: `radar-level-label-bg-${l.value}`,
-        interactive: false,
-        x: l.x - l.width / 2,
-        y: l.y - l.height / 2,
-        width: l.width,
-        height: l.height,
-        rx: paint.borderRadius,
-        ry: paint.borderRadius,
-        paint: {fill: paint.background, fillOpacity: paint.backgroundOpacity, stroke: "none"},
-      });
-    }
     children.push({
       type: "text",
       key: `radar-level-label-${l.value}`,
@@ -159,7 +137,7 @@ export function emitRadarLevelLabels(
       x: 0,
       y: 0,
       transform: {x: l.x, y: l.y},
-      lines: [{text: l.text, x: 0, y: paint.fontSize * 0.35, width: l.textWidth}],
+      lines: [{text: l.text, x: 0, y: paint.fontSize * 0.35, width: l.width}],
       font: {
         family: paint.fontFamily,
         size: paint.fontSize,

@@ -16,7 +16,6 @@ const labelOpts = over => ({
   format: String,
   measure: text => text.length * 6,
   fontSize: 10,
-  padding: 2,
   ...over,
 });
 
@@ -26,9 +25,6 @@ const paint = over => ({
   fontOpacity: 1,
   fontSize: 10,
   fontWeight: 400,
-  background: "rgb(255, 255, 255)",
-  backgroundOpacity: 0.85,
-  borderRadius: 2,
   ...over,
 });
 
@@ -100,24 +96,26 @@ it("radarLevelLabels formats and measures each label", () => {
   const labels = radarLevelLabels(labelOpts({format: d => `${d}%`}));
   assert.deepStrictEqual(labels.map(l => l.text), ["0%", "50%", "100%"]);
   const l = labels[2];
-  assert.strictEqual(l.textWidth, 24);
-  assert.strictEqual(l.width, 24 + 4, "width adds padding on both sides");
-  assert.strictEqual(l.height, 10 + 4);
+  assert.strictEqual(l.width, 24, "measured text width");
+  assert.strictEqual(l.height, 10, "font size");
 });
 
 it("radarLevelLabels thins out labels that would overlap along the direction", () => {
   const ticks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-  // 20px between rings vertically, 14px-tall backdrops → every label fits.
+  // 20px between rings vertically, 10px-tall labels → every label fits.
   const roomy = radarLevelLabels(labelOpts({ticks}));
   assert.strictEqual(roomy.length, ticks.length);
   // 10px between rings → every other label.
   const tight = radarLevelLabels(labelOpts({ticks, radius: 100}));
   assert.deepStrictEqual(tight.map(l => l.value), [0, 20, 40, 60, 80, 100]);
+  // Larger text → every third label.
+  const big = radarLevelLabels(labelOpts({ticks, radius: 100, fontSize: 20}));
+  assert.deepStrictEqual(big.map(l => l.value), [0, 30, 60, 90]);
 });
 
 it("radarLevelLabels drops labels that would reach into the metric labels", () => {
   // Horizontal: the outer label is 30px wide, so it pokes 15px past the ring.
-  const labels = radarLevelLabels(labelOpts({angle: 90, measure: () => 26}));
+  const labels = radarLevelLabels(labelOpts({angle: 90, measure: () => 30}));
   assert.deepStrictEqual(labels.map(l => l.value), [0, 50]);
 });
 
@@ -126,35 +124,23 @@ it("radarLevelLabels skips ticks outside the domain", () => {
   assert.deepStrictEqual(labels.map(l => l.value), [0, 50]);
 });
 
-it("emitRadarLevelLabels builds a non-interactive group of backdrops + text", () => {
+it("emitRadarLevelLabels builds a non-interactive group of text nodes", () => {
   const labels = radarLevelLabels(labelOpts());
   const [group] = emitRadarLevelLabels(labels, paint());
   assert.strictEqual(group.type, "group");
   assert.strictEqual(group.key, "radar-level-labels");
   assert.strictEqual(group.interactive, false);
-  const rects = group.children.filter(c => c.type === "rect");
-  const texts = group.children.filter(c => c.type === "text");
-  assert.strictEqual(rects.length, 3);
-  assert.strictEqual(texts.length, 3);
-  assert.ok(group.children.every(c => c.interactive === false));
+  assert.strictEqual(group.children.length, 3);
+  assert.ok(group.children.every(c => c.type === "text" && c.interactive === false), "text only, no backdrops");
 
-  const [rect, text] = group.children.slice(4, 6);
+  const text = group.children[2];
   assert.strictEqual(text.lines[0].text, "100");
+  assert.strictEqual(text.lines[0].width, labels[2].width);
   assert.deepStrictEqual(text.transform, {x: labels[2].x, y: labels[2].y});
   assert.strictEqual(text.font.anchor, "middle");
+  assert.strictEqual(text.font.size, 10);
   assert.strictEqual(text.paint.fill, "rgb(0, 0, 0)");
-  close(rect.x + rect.width / 2, labels[2].x, "backdrop centered on x");
-  close(rect.y + rect.height / 2, labels[2].y, "backdrop centered on y");
-  assert.strictEqual(rect.paint.fill, "rgb(255, 255, 255)");
-  assert.strictEqual(rect.paint.fillOpacity, 0.85);
-  assert.strictEqual(rect.rx, 2);
-});
-
-it("emitRadarLevelLabels omits backdrops when background is false", () => {
-  const labels = radarLevelLabels(labelOpts());
-  const [group] = emitRadarLevelLabels(labels, paint({background: false}));
-  assert.ok(group.children.every(c => c.type === "text"));
-  assert.strictEqual(group.children.length, 3);
+  assert.strictEqual(text.paint.opacity, 1);
 });
 
 it("emitRadarLevelLabels returns nothing for no labels", () => {

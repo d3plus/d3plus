@@ -30,11 +30,24 @@ const probeSvg = ([rows, configSrc]) =>
         .select("#viz");
       viz.render(() => {
         const root = document.querySelector("#viz svg");
-        const nodes = viz.ctx.levelLabelNodes;
-        const children = nodes.length ? nodes[0].children : [];
+        const group = viz._chartScene.find(n => n.key === "radar-level-labels");
+        const children = group ? group.children : [];
+        // Document order of level label texts vs. data polygons (`M x y L …`).
+        const labelSet = new Set(children.map(c => c.lines[0].text));
+        const order = Array.from(root.querySelectorAll("text, path"))
+          .map(el =>
+            el.tagName === "text" && labelSet.has(el.textContent)
+              ? "label"
+              : el.tagName === "path" && /^M [-\d.]+ [-\d.]+ L/.test(el.getAttribute("d") || "")
+                ? "polygon"
+                : null,
+          )
+          .filter(Boolean);
         resolve({
           nodeTexts: children.filter(c => c.type === "text").map(c => c.lines[0].text),
-          nodeRects: children.filter(c => c.type === "rect").length,
+          nodeTypes: Array.from(new Set(children.map(c => c.type))),
+          lastLabel: order.lastIndexOf("label"),
+          firstPolygon: order.indexOf("polygon"),
           positions: children.filter(c => c.type === "text").map(c => c.transform),
           fontSize: children.find(c => c.type === "text")?.font.size,
           fontColor: children.find(c => c.type === "text")?.paint.fill,
@@ -54,7 +67,9 @@ it("Radar draws rings on nice values and labels them along the top by default", 
   this.timeout(60000);
   const r = await render(body, probeSvg, [data, "{}"]);
   assert.deepStrictEqual(r.nodeTexts, ["0", "50", "100", "150", "200", "250", "300", "350"]);
-  assert.strictEqual(r.nodeRects, r.nodeTexts.length, "one backdrop per label");
+  assert.deepStrictEqual(r.nodeTypes, ["text"], "labels are text only, no backdrops");
+  assert.ok(r.firstPolygon > -1 && r.lastLabel > -1, "labels and polygons rendered");
+  assert.ok(r.lastLabel < r.firstPolygon, "labels are drawn beneath the polygons");
   assert.strictEqual(r.rings.length, 7, "rings at 50, 100, …, 350");
   const step = r.rings[0];
   r.rings.forEach((ring, i) => assert.ok(Math.abs(ring - step * (i + 1)) <= 1, `ring ${i} evenly spaced`));
@@ -113,9 +128,8 @@ it("levelLabelAngle moves the labels and levelLabelConfig styles them", async fu
   this.timeout(60000);
   const r = await render(body, probeSvg, [
     data,
-    "{levelLabelAngle: 180, levelLabelConfig: {fontSize: 14, fontColor: 'rgb(1, 2, 3)', background: false}}",
+    "{levelLabelAngle: 180, levelLabelConfig: {fontSize: 14, fontColor: 'rgb(1, 2, 3)'}}",
   ]);
-  assert.strictEqual(r.nodeRects, 0, "background: false drops the backdrops");
   assert.strictEqual(r.fontSize, 14);
   assert.strictEqual(r.fontColor, "rgb(1, 2, 3)");
   r.positions.forEach(p => {

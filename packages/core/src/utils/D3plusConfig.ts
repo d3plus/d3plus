@@ -586,14 +586,8 @@ export interface D3plusConfig {
       `i` of `n` sits at `90 + 360 * i / n` degrees.
   */
   levelLabelAngle?: number;
-  /** Style of the Radar's level value labels and their backdrops. */
+  /** Style of the Radar's level value labels. */
   levelLabelConfig?: {
-    /** Backdrop fill behind each label, or `false` for none. Defaults to the chart's background color. */
-    background?: string | false;
-    /** Opacity of the label backdrop. Defaults to `0.85`. */
-    backgroundOpacity?: number;
-    /** Corner radius of the label backdrop, in pixels. Defaults to `2`. */
-    borderRadius?: number;
     /** Text color. Defaults to the color that contrasts with the chart's background. */
     fontColor?: string;
     /** Font family. Defaults to the chart's `fontFamily`. */
@@ -604,8 +598,6 @@ export interface D3plusConfig {
     fontSize?: number;
     /** Font weight. Defaults to `400`. */
     fontWeight?: number | string;
-    /** Space between the text and the edge of its backdrop, in pixels. Defaults to `2`. */
-    padding?: number;
   };
   /** Whether the Radar labels each level ring with its value. Defaults to `true`. */
   levelLabels?: boolean;
