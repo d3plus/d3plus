@@ -8,6 +8,16 @@ declare module "d3-geo-projection";
 
 declare module "hyphenated";
 
+// d3-timer ships no TypeScript types; @d3plus/render schedules against its clock.
+declare module "d3-timer" {
+  export interface Timer {
+    restart(callback: (elapsed: number) => void, delay?: number, time?: number): void;
+    stop(): void;
+  }
+  export function now(): number;
+  export function timer(callback: (elapsed: number) => void, delay?: number, time?: number): Timer;
+}
+
 // Optional peer dependency of @d3plus/ssr; ships no TypeScript types.
 declare module "jsdom";
 

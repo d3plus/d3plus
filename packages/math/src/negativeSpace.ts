@@ -24,20 +24,37 @@ export interface NegativeSpaceOptions {
   exclude?: Bounds[];
 }
 
-/** Edges of the polygon, as `[from, to]` pairs (the polygon is implicitly closed). */
-function polygonEdges(poly: Point[]): Array<[Point, Point]> {
-  return poly.map((p, i) => [p, poly[(i + 1) % poly.length]] as [Point, Point]);
+/** One separating axis of a convex polygon: an edge normal and the polygon's extent along it. */
+interface HullAxis {
+  ax: number;
+  ay: number;
+  lo: number;
+  hi: number;
+  tol: number;
 }
 
-/** Projects every point onto an axis, returning [min, max]. */
-function project(points: Point[], ax: number, ay: number): [number, number] {
-  let lo = Infinity, hi = -Infinity;
-  for (const [x, y] of points) {
-    const v = x * ax + y * ay;
-    if (v < lo) lo = v;
-    if (v > hi) hi = v;
-  }
-  return [lo, hi];
+const EPS = 1e-9;
+
+/**
+    The separating axes of a convex polygon — each edge's normal, with the
+    polygon projected onto it. They depend only on the polygon, so they are
+    computed once and reused for every rectangle tested against it.
+*/
+function hullAxes(poly: Point[]): HullAxis[] {
+  const axes: HullAxis[] = [];
+  poly.forEach((a, i) => {
+    const b = poly[(i + 1) % poly.length];
+    const ax = -(b[1] - a[1]), ay = b[0] - a[0];
+    if (!ax && !ay) return;
+    let lo = Infinity, hi = -Infinity;
+    for (const [x, y] of poly) {
+      const v = x * ax + y * ay;
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    axes.push({ax, ay, lo, hi, tol: EPS * Math.hypot(ax, ay)});
+  });
+  return axes;
 }
 
 /**
@@ -46,19 +63,16 @@ function project(points: Point[], ax: number, ay: number): [number, number] {
 */
 function rectHitsConvex(
   x0: number, y0: number, x1: number, y1: number,
-  poly: Point[], polyBox: [number, number, number, number], edges: Array<[Point, Point]>,
+  polyBox: [number, number, number, number], axes: HullAxis[],
 ): boolean {
-  const eps = 1e-9;
-  if (x1 <= polyBox[0] + eps || x0 >= polyBox[2] - eps) return false;
-  if (y1 <= polyBox[1] + eps || y0 >= polyBox[3] - eps) return false;
-  const corners: Point[] = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-  for (const [a, b] of edges) {
-    const ax = -(b[1] - a[1]), ay = b[0] - a[0];
-    if (!ax && !ay) continue;
-    const [p0, p1] = project(poly, ax, ay);
-    const [r0, r1] = project(corners, ax, ay);
-    const tol = eps * Math.hypot(ax, ay);
-    if (r1 <= p0 + tol || r0 >= p1 - tol) return false;
+  if (x1 <= polyBox[0] + EPS || x0 >= polyBox[2] - EPS) return false;
+  if (y1 <= polyBox[1] + EPS || y0 >= polyBox[3] - EPS) return false;
+  for (const {ax, ay, lo, hi, tol} of axes) {
+    // The rectangle's extent along the axis, from its corners.
+    const a = x0 * ax, b = x1 * ax, c = y0 * ay, d = y1 * ay;
+    const r0 = Math.min(a, b) + Math.min(c, d);
+    const r1 = Math.max(a, b) + Math.max(c, d);
+    if (r1 <= lo + tol || r0 >= hi - tol) return false;
   }
   return true;
 }
@@ -119,7 +133,7 @@ export default function negativeSpace(
       Math.max(...hull.map(p => p[0])), Math.max(...hull.map(p => p[1])),
     ]
     : [0, 0, 0, 0];
-  const edges = polygonEdges(hull);
+  const axes = hullAxes(hull);
 
   const xs = gridLines([...hull.map(p => p[0]), ...blocks.flatMap(b => [b.x, b.x + b.width])], bx0, bx1, divisions);
   const ys = gridLines([...hull.map(p => p[1]), ...blocks.flatMap(b => [b.y, b.y + b.height])], by0, by1, divisions);
@@ -133,7 +147,7 @@ export default function negativeSpace(
     const row = new Uint8Array(nx);
     for (let i = 0; i < nx; i++) {
       const [x0, y0, x1, y1] = [xs[i], ys[j], xs[i + 1], ys[j + 1]];
-      row[i] = (hull.length && rectHitsConvex(x0, y0, x1, y1, hull, hullBox, edges)) || hitsBlock(x0, y0, x1, y1) ? 1 : 0;
+      row[i] = (hull.length && rectHitsConvex(x0, y0, x1, y1, hullBox, axes)) || hitsBlock(x0, y0, x1, y1) ? 1 : 0;
     }
     occupied.push(row);
   }
