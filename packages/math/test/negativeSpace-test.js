@@ -57,3 +57,22 @@ it("negativeSpace", () => {
   assert.ok(withControls.some(b => b.x === 10 && b.y === 0 && b.width === 90 && b.height === 90), "the space between them stays open");
   assert.ok(negativeSpace(bounds, [], {exclude: [{x: 0, y: 0, width: 100, height: 50}]}).every(b => b.y >= 50), "excludes without marks");
 });
+
+it("negativeSpace stays exact and fast around a many-sided hull", () => {
+  // The bounding boxes of 120 arcs around a circle hull into a many-sided
+  // polygon — the shape a Pie or Sunburst hands the inset legend search.
+  const area = {x: 0, y: 0, width: 600, height: 600};
+  const arcs = Array.from({length: 120}, (_, i) => {
+    const a = (i / 120) * Math.PI * 2;
+    return {x: 300 + 220 * Math.cos(a) - 8, y: 300 + 220 * Math.sin(a) - 8, width: 16, height: 16};
+  });
+  const start = Date.now();
+  const rects = negativeSpace(area, arcs, {padding: 4});
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed < 500, `searched in ${elapsed}ms`);
+  assert.ok(rects.length >= 4, "an open box in every corner");
+  for (const corner of [{x: 0, y: 0}, {x: 590, y: 0}, {x: 0, y: 590}, {x: 590, y: 590}])
+    assert.ok(rects.some(r => overlaps(r, {...corner, width: 10, height: 10})), `corner ${corner.x},${corner.y} is open`);
+  for (const r of rects)
+    assert.ok(!overlaps(r, {x: 290, y: 290, width: 20, height: 20}), "nothing inside the ring");
+});
