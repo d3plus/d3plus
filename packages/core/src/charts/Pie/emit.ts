@@ -199,8 +199,10 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   // Each label sits in its slice's largest inscribed rectangle: the name
   // above and the share percentage below, meeting at the rectangle's center.
   // Short rectangles skip the share line so it can't crowd out the name.
+  // With a single angle the search is cheap, so sample more origins than the
+  // default for a tighter box.
   const labelBoxes = slices.map(d => {
-    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0});
+    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0, nTries: 40});
     if (!r) return false;
     const x = r.cx - r.width / 2;
     const y = r.cy - r.height / 2;

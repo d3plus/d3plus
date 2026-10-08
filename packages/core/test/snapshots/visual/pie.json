@@ -1,7 +1,7 @@
 {
   "counts": {
     "path": 6,
-    "text": 10,
+    "text": 11,
     "rect": 10
   },
   "shapes": [
@@ -185,6 +185,10 @@
     },
     {
       "s": "Epsilon",
+      "a": "middle"
+    },
+    {
+      "s": "10%",
       "a": "middle"
     },
     {

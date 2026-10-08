@@ -12,6 +12,12 @@ import pointDistanceSquared from "./pointDistanceSquared.js";
 const aspectRatioStep = 0.5; // step size for the aspect ratio
 const angleStep = 5; // step size for angles (in degrees); has linear impact on running time
 
+// R2 low-discrepancy sequence steps (1/g and 1/g², g the plastic number):
+// evenly spread sample points that are the same on every call.
+const plastic = 1.324717957244746;
+const r2x = 1 / plastic;
+const r2y = 1 / (plastic * plastic);
+
 interface LargestRectEvent {
   type: string;
   [key: string]: unknown;
@@ -114,9 +120,10 @@ function parseOrigins(origin: LargestRectOptions["origin"]): Point[] {
 }
 
 /**
-    Seeds candidate center points with the polygon centroid plus random
-    interior points. Mutates and returns `origins`, or null if the centroid
-    cannot be found.
+    Seeds candidate center points with the polygon centroid plus interior
+    points drawn from an R2 sequence over the bounding box, so the same
+    polygon always yields the same rectangle. Mutates and returns `origins`,
+    or null if the centroid cannot be found.
 */
 function generateOrigins(
   poly: Point[],
@@ -133,12 +140,12 @@ function generateOrigins(
   if (polygonContains(poly, centroid)) origins.push(centroid);
 
   const {minx, miny, boxWidth, boxHeight} = bbox;
-  while (nTries) {
-    const rndX = Math.random() * boxWidth + minx;
-    const rndY = Math.random() * boxHeight + miny;
-    const rndPoint: Point = [rndX, rndY];
-    if (polygonContains(poly, rndPoint)) origins.push(rndPoint);
-    nTries--;
+  for (let n = 1; n <= nTries; n++) {
+    const point: Point = [
+      ((0.5 + n * r2x) % 1) * boxWidth + minx,
+      ((0.5 + n * r2y) % 1) * boxHeight + miny,
+    ];
+    if (polygonContains(poly, point)) origins.push(point);
   }
   return origins;
 }
@@ -291,7 +298,7 @@ An angle of zero means that the longer side of the polygon (the width) will be a
     @param options.aspectRatio The ratio between the width and height of the rectangle. The value can be a number, a string which is parsed to a number, or an array of numbers specifying the possible aspect ratios of the final rectangle.
     @param options.maxAspectRatio The maximum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
     @param options.minAspectRatio The minimum aspect ratio (width/height) allowed for the rectangle. This property should only be used if the aspectRatio is not provided.
-    @param options.nTries The number of randomly drawn points inside the polygon which the algorithm explores as possible center points of the maximal rectangle.
+    @param options.nTries The number of evenly spread sample points (an R2 sequence over the bounding box) inside the polygon which the algorithm explores as possible center points of the maximal rectangle.
     @param options.minHeight The minimum height of the rectangle.
     @param options.minWidth The minimum width of the rectangle.
     @param options.tolerance The simplification tolerance factor, between 0 and 1. A larger tolerance corresponds to more extensive simplification.
