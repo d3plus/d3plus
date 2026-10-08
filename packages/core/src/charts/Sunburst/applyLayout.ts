@@ -80,12 +80,32 @@ export function sunburstGhosts(
 }
 
 /**
-    Detects a zoom-out — the previous center disc is drawn as a ring arc of
-    the new layout, or failing that its nearest drawn ancestor — and gives
-    every arc that returns with it the start it sweeps in from: the mirror of
-    `sunburstGhosts`, collapsed through that node's new geometry into the
-    previous (zoomed) rings, so it grows out of 0 or 2π as the zoomed arcs
-    shrink back into their slot. Empty for any other change of layout.
+    The node a zoom-out comes back through: the previous center disc, now a
+    ring arc of the new layout (or, for a jump of several levels, its nearest
+    drawn ancestor). Undefined for any other change of layout.
+    @param previous The previous draw's nodes.
+    @param next This draw's nodes.
+*/
+export function sunburstZoomOutFocus(
+  previous: SunburstNode[],
+  next: SunburstNode[],
+): SunburstNode | undefined {
+  const center = previous.find(n => n.depth === 0);
+  if (!center) return undefined;
+  const isPrefix = (n: SunburstNode) =>
+    n.path.length <= center.path.length &&
+    n.path.every((k, j) => k === center.path[j]);
+  return next
+    .filter(n => n.depth > 0 && isPrefix(n))
+    .sort((a, b) => b.path.length - a.path.length)[0];
+}
+
+/**
+    Gives every arc a zoom-out brings back the start it sweeps in from: the
+    mirror of `sunburstGhosts`, collapsed through the zoom-out's focus (see
+    `sunburstZoomOutFocus`) into the previous (zoomed) rings, so it grows out
+    of 0 or 2π as the zoomed arcs shrink back into their slot. Empty for any
+    other change of layout.
     @param previous The previous draw's nodes.
     @param next This draw's nodes.
     @param previousRadii The previous draw's radii per ring.
@@ -96,14 +116,7 @@ export function sunburstReturning(
   previousRadii: [number, number][],
 ): Map<string, SunburstArc> {
   const enter = new Map<string, SunburstArc>();
-  const center = previous.find(n => n.depth === 0);
-  if (!center) return enter;
-  const isPrefix = (n: SunburstNode) =>
-    n.path.length <= center.path.length &&
-    n.path.every((k, j) => k === center.path[j]);
-  const focus = next
-    .filter(n => n.depth > 0 && isPrefix(n))
-    .sort((a, b) => b.path.length - a.path.length)[0];
+  const focus = sunburstZoomOutFocus(previous, next);
   if (!focus) return enter;
   const drawn = new Set(previous.map(n => n.id));
   const origin = {
@@ -119,18 +132,16 @@ export function sunburstReturning(
 }
 
 /**
-    Keeps the labels of arcs a zoom-out brings back off this draw, so none
-    appears over an arc that is still sweeping into place, then repaints with
-    them once the sweep ends so they fade in. The release is timed from the
-    paint, which follows this stage within the same synchronous pipeline, and
-    any later layout cancels it.
+    Keeps the given arcs' labels off this draw, then repaints with them once
+    the transition ends so they fade in. A zoom-out holds every label: the
+    returning ones would appear over arcs still sweeping into place, and the
+    zoomed view's own would slide across the middle on their way to their new
+    arcs. The release is timed from the paint, which follows this stage within
+    the same synchronous pipeline, and any later layout cancels it.
 */
-export function holdReturningLabels(
-  viz: VizInstance,
-  returning: Map<string, SunburstArc>,
-): void {
+export function holdLabels(viz: VizInstance, ids: Iterable<string>): void {
   const duration = Number(viz.schema.duration) || 0;
-  const held = duration > 0 ? new Set(returning.keys()) : new Set<string>();
+  const held = duration > 0 ? new Set(ids) : new Set<string>();
   viz.ctx.sunburstHeldLabels = held;
   viz.ctx.sunburstLabelRelease = undefined;
   if (!held.size) return;
@@ -253,10 +264,10 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
       : new Map<string, SunburstArc>();
   viz.ctx.sunburstLaid = nodes;
   viz.ctx.sunburstRadii = radii;
-  holdReturningLabels(
-    viz,
-    viz.ctx.sunburstEnterArcs as Map<string, SunburstArc>,
-  );
+  const zoomedOut = previous
+    ? sunburstZoomOutFocus(previous, nodes)
+    : undefined;
+  holdLabels(viz, zoomedOut ? nodes.map(n => n.id) : []);
 
   const lookup = viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>;
   for (const node of nodes) {

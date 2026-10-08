@@ -173,11 +173,6 @@ export const sunburstDef: DataDrivenChartDefinition = {
         tbody: [shareRow(viz)],
       }),
     },
-    // The legend stays in its margin: an inset legend would hop between
-    // corners as zooming changes the free space, and searching for room
-    // re-lays the chart out several times per render, long enough to cut the
-    // zoom animation short.
-    {key: "legendInset", default: false},
     {
       key: "legendTooltip",
       merge: true,

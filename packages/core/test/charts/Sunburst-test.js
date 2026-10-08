@@ -485,10 +485,12 @@ it("Sunburst: buckets the leaves under the threshold into one arc per parent", a
   );
 });
 
-it("Sunburst: zooming out plays the zoom-in in reverse, holding returning labels until the sweep ends", async function () {
+it("Sunburst: zooming out plays the zoom-in in reverse, holding labels until the sweep ends", async function () {
   this.timeout(60000);
   const out = await page(async () => {
-    const chart = await window.build();
+    // Sampled by wall-clock time, so keep the render quick: placing an inset
+    // legend lays the chart out several times per render.
+    const chart = await window.build({config: {legendInset: false}});
     chart.duration(600);
     const dOf = path => {
       const el = document.querySelector(
@@ -546,10 +548,12 @@ it("Sunburst: zooming out plays the zoom-in in reverse, holding returning labels
       `${k} hasn't reached its final shape mid-animation`,
     );
   }
-  assert.ok(
-    out.end.texts > out.scene.texts,
-    "returning labels appear once the sweep ends",
+  assert.strictEqual(
+    out.scene.texts,
+    0,
+    "no label slides across the rings mid zoom-out",
   );
+  assert.ok(out.end.texts > 0, "labels appear once the sweep ends");
 });
 
 it("Sunburst: zooming out one of two levels returns the outer level's siblings, on Canvas too", async function () {

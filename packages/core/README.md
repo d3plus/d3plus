@@ -25675,13 +25675,12 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `sum` | `accessor(…)` |
 | `shapeConfig` | — |
 | `tooltipConfig` | — |
-| `legendInset` | `false` |
 | `legendTooltip` | — |
 | `legendSort` | — |
 | `legend` | — |
 
 
-Defined in: [charts/Sunburst/index.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sunburst/index.ts#L215)
+Defined in: [charts/Sunburst/index.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sunburst/index.ts#L210)
 
 Draws a hierarchy as concentric rings, one per `groupBy` level, where each
 node's arc angle is proportional to its summed value. Click an arc to zoom
