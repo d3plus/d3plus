@@ -51,6 +51,7 @@ export const barChartDef: ChartDefinition = {
 
 /**
     Creates a bar chart based on an array of data. When stacked, each bar's
-    fraction of its stack total is available to tooltip accessors as `share`.
+    fraction of its stack total is available to tooltip accessors as `share`
+    (unless the data has its own `share` field).
 */
 export default makeChart(barChartDef, Plot);

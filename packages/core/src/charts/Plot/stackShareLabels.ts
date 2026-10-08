@@ -1,5 +1,5 @@
 /**
-    Share-percentage labels for stacked Bars: each bar's `share` of the
+    Share-percentage labels for stacked Bars: each bar's share of the
     stack at its discrete position, beneath its name.
 
     Applied to a configured compute-mode shape just before it renders, so it
@@ -12,6 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {Shape} from "../../shapes/index.js";
+import {shareOf as rowShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A label bounds box, as returned by a shape's `labelBounds`. */
@@ -51,7 +52,7 @@ export function splitShareBox(b: Box, padding: number): [Box, Box] | null {
     already returns as an array (their own multi-line layout) are left alone.
 */
 export function applyStackShareLabels(viz: VizInstance, s: Shape): void {
-  const shareOf = (d: DataPoint) => d.share as number;
+  const shareOf = (d: DataPoint) => rowShare(d) as number;
 
   const label = s.label() as LabelFn;
   const bounds = s.labelBounds() as BoundsFn | undefined;

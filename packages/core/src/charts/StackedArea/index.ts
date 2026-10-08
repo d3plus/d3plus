@@ -23,6 +23,7 @@ export const stackedAreaDef: ChartDefinition = {
 
 /**
     Creates a stacked area plot based on an array of data. Each point's
-    fraction of its stack total is available to tooltip accessors as `share`.
+    fraction of its stack total is available to tooltip accessors as `share`
+    (unless the data has its own `share` field).
 */
 export default makeChart(stackedAreaDef, AreaPlot);

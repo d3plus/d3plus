@@ -8,7 +8,8 @@
       builds `discreteKeys`/`stackKeys`/`stackData`, fills in missing Area
       filler points, runs d3-stack with the configured order/offset, then
       derives `domains` from the stack extents. Each stacked row and its
-      source datum also gets a `share` of its stack's total.
+      source datum also gets its share of its stack's total (see
+      `stampShare`).
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
       either the data values (for the discrete axis or user-sorted axes) or
       extent (for continuous).
@@ -23,6 +24,7 @@ import * as d3Shape from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
+import {stampShare} from "../features/shareKey.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -90,11 +92,11 @@ function fillMissingAreaPoints(
 
 /**
     Stamps each stacked row (and its source datum, which tooltip accessors
-    receive) with `share`: its value as a fraction of the total stack at its
-    discrete position. Both sides use absolute values, so a diverging stack's
-    negative segments get positive shares and every stack's shares sum to 1.
-    Runs before filler points are added, since a filler reuses another point's
-    source datum.
+    receive) with its share (`stampShare`): its value as a fraction of the
+    total stack at its discrete position. Both sides use absolute values, so
+    a diverging stack's negative segments get positive shares and every
+    stack's shares sum to 1. Runs before filler points are added, since a
+    filler reuses another point's source datum.
 */
 function stampStackShares(data: Row[], opp: string | undefined): void {
   const stacked = data.filter((d: Row) => ["Area", "Bar"].includes(d.shape as string));
@@ -104,8 +106,8 @@ function stampStackShares(data: Row[], opp: string | undefined): void {
   for (const d of stacked) {
     const total = totals.get(d.discrete);
     const share = total ? Math.abs(+(d[opp as string] as number) || 0) / total : 0;
-    d.share = share;
-    if (d.data) (d.data as DataPoint).share = share;
+    stampShare(d, share);
+    if (d.data) stampShare(d.data as Row, share);
   }
 }
 

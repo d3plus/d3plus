@@ -1,11 +1,12 @@
 /**
     Default "Share" tooltip row for stacked Plot charts (StackedArea, stacked
-    BarChart), reading the `share` that `computePlotInitialDomains` stamps on
+    BarChart), reading the share that `computePlotInitialDomains` stamps on
     each stacked datum.
 */
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
+import {shareOf} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -17,8 +18,8 @@ export function stackShareTooltipConfig(viz: VizInstance) {
     () => viz.schema.translate("Share"),
     (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
       // A legend swatch aggregates a series across every discrete position,
-      // so its merged `share` is an array with no meaningful total.
-      const share = x.share as number;
+      // so its merged share is an array with no meaningful total.
+      const share = shareOf(x) as number;
       if (!Number.isFinite(share)) return "";
       return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
     },

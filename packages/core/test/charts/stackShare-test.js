@@ -64,6 +64,34 @@ it("charts/stackShare stamps each point's fraction of its stack total (#783)", (
   assert.deepStrictEqual(data.map(d => d.share), [0.25, 0.75, 0.5, 0.5]);
 });
 
+it("charts/stackShare keeps a data field named share and stamps its own share alongside", () => {
+  const data = [
+    {id: "a", x: 2000, y: 1, share: 10},
+    {id: "b", x: 2000, y: 3, share: 30},
+  ];
+  const rows = runStack(data);
+  assert.deepStrictEqual(data.map(d => d.share), [10, 30], "the user's share is untouched");
+  assert.deepStrictEqual(data.map(d => d.__d3plusShare), [0.25, 0.75]);
+  assert.deepStrictEqual(rows.map(d => d.__d3plusShare).sort(), [0.25, 0.75], "the stacked rows carry it too");
+  // A second stacking pass (a redraw) still leaves the user's field alone.
+  data[0].y = 3;
+  runStack(data);
+  assert.deepStrictEqual(data.map(d => d.share), [10, 30]);
+  assert.deepStrictEqual(data.map(d => d.__d3plusShare), [0.5, 0.5]);
+});
+
+it("charts/stackShare updates its own share on a redraw", () => {
+  const data = [
+    {id: "a", x: 2000, y: 1},
+    {id: "b", x: 2000, y: 3},
+  ];
+  runStack(data);
+  data[0].y = 3;
+  runStack(data);
+  assert.deepStrictEqual(data.map(d => d.share), [0.5, 0.5]);
+  assert.deepStrictEqual(data.map(d => d.__d3plusShare), [0.5, 0.5]);
+});
+
 it("charts/stackShare leaves a series' real share intact when filler points reuse its datum", () => {
   // "b" is missing at 2001, so a zero filler point reusing b's 2000 datum is
   // pushed into the stack — it must not overwrite that datum's share with 0.
@@ -87,8 +115,9 @@ it("charts/stackShare gives a diverging stack's negative segments positive share
 
 it("charts/stackShare StackedArea tooltip shows the share, blank for legend aggregates", () => {
   const cell = new StackedArea().tooltipConfig().tbody()[0][1];
-  assert.strictEqual(cell({}, 0, {share: 0.25}), "25%");
-  assert.strictEqual(cell({}, 0, {share: [0.25, 0.5]}), "");
+  assert.strictEqual(cell({}, 0, {__d3plusShare: 0.25}), "25%");
+  assert.strictEqual(cell({}, 0, {__d3plusShare: [0.25, 0.5]}), "");
+  assert.strictEqual(cell({}, 0, {share: 0.25}), "", "ignores a data field named share");
   assert.strictEqual(cell({}, 0, {}), "");
 });
 
@@ -99,7 +128,7 @@ it("charts/stackShare BarChart shows the Share row only while stacked", () => {
   const rows = bar.tooltipConfig().tbody();
   assert.strictEqual(rows.length, 1);
   assert.strictEqual(rows[0][0](), "Share");
-  assert.strictEqual(rows[0][1]({}, 0, {share: 0.5}), "50%");
+  assert.strictEqual(rows[0][1]({}, 0, {__d3plusShare: 0.5}), "50%");
 });
 
 it("charts/stackShare stamps shares on stacked bars", () => {
@@ -136,7 +165,7 @@ const shareShape = (data, height) => {
 };
 
 it("charts/stackShare adds a share line under stacked Bar labels", () => {
-  const s = shareShape([{id: "a", x: 0, y: 1, share: 0.25}], 100);
+  const s = shareShape([{id: "a", x: 0, y: 1, __d3plusShare: 0.25}], 100);
   const records = s._buildLabelData();
   assert.deepStrictEqual(records.map(r => r.text), ["a", "25%"]);
   const align = s.labelConfig().verticalAlign;
@@ -144,9 +173,14 @@ it("charts/stackShare adds a share line under stacked Bar labels", () => {
 });
 
 it("charts/stackShare keeps the name's own layout when the share won't fit", () => {
-  const s = shareShape([{id: "a", x: 0, y: 1, share: 0.25}], 20);
+  const s = shareShape([{id: "a", x: 0, y: 1, __d3plusShare: 0.25}], 20);
   const records = s._buildLabelData();
   assert.strictEqual(records[0].height, 20, "name keeps the full box");
   assert.strictEqual(records[1].height, 0, "share gets no room");
   assert.strictEqual(s.labelConfig().verticalAlign(records[0], 0), "top");
+});
+
+it("charts/stackShare labels read d3plus's share, not a data field named share", () => {
+  const s = shareShape([{id: "a", x: 0, y: 1, share: 30, __d3plusShare: 0.25}], 100);
+  assert.deepStrictEqual(s._buildLabelData().map(r => r.text), ["a", "25%"]);
 });

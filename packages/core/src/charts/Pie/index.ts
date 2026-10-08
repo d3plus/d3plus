@@ -15,6 +15,7 @@ import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
+import {summedShare} from "../features/shareKey.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -134,12 +135,8 @@ export const pieDef: DataDrivenChartDefinition = {
                   ? ""
                   : `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
               }
-              // A Legend bucket aggregates multiple rows, so `share` arrives
-              // as an array of the members' shares — sum it; a single cell's
-              // share is a plain number.
-              const share = Array.isArray(x.share)
-                ? (x.share as number[]).reduce((a, b) => a + b, 0)
-                : (x.share as number);
+              // A Legend bucket aggregates multiple rows; sum its members' shares.
+              const share = summedShare(x);
               if (!Number.isFinite(share)) return "";
               return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
             },

@@ -24,6 +24,7 @@ import type {DataPoint} from "@d3plus/data";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import type Viz from "../viz/Viz.js";
+import {isInternalKey} from "../features/shareKey.js";
 import {overlayHost} from "./zoomControlsMarkup.js";
 import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
 import {
@@ -309,7 +310,8 @@ function defaultRowOrder(viz: Viz, rows: DataPoint[]): DataPoint[] {
 }
 
 /**
-    The union of every row's own keys, in first-seen order. A plain
+    The union of every row's own keys (minus the ones d3plus writes for its
+    own use, e.g. `__d3plusShare`), in first-seen order. A plain
     `Object.keys(rows[0])` would silently drop any column absent from the
     first row but present on a later one — a real risk for data that's been
     filtered/merged upstream and isn't perfectly homogeneous — so this scans
@@ -321,7 +323,7 @@ function allColumns(rows: DataPoint[]): string[] {
   const seen = new Set<string>();
   for (const row of rows) {
     for (const key of Object.keys(row)) {
-      if (!seen.has(key)) {
+      if (!seen.has(key) && !isInternalKey(key)) {
         seen.add(key);
         columns.push(key);
       }
