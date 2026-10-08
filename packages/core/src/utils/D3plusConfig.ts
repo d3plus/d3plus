@@ -582,8 +582,10 @@ export interface D3plusConfig {
   /**
       Direction of the Radar's level value labels, in degrees clockwise from
       12 o'clock. `0` (the default) runs the labels straight up from the
-      center. Spokes start at 3 o'clock, so the spoke for the metric at index
-      `i` of `n` sits at `90 + 360 * i / n` degrees.
+      center. Each label sits just inside its ring, offset to the clockwise
+      side of that direction so neither line crosses the text. Spokes start
+      at 3 o'clock, so the spoke for the metric at index `i` of `n` sits at
+      `90 + 360 * i / n` degrees.
   */
   levelLabelAngle?: number;
   /** Style of the Radar's level value labels. */

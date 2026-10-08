@@ -45,23 +45,24 @@ export function radarRadius(value: number, domain: [number, number], radius: num
   return span ? ((value - domain[0]) / span) * radius : 0;
 }
 
-/**
-    How far (px) a level label may extend past the outer ring. The metric
-    labels start 10px beyond it.
-*/
-const OUTER_OVERFLOW = 8;
+/** Gap (px) between a level label and the label direction's spoke. */
+const SPOKE_GAP = 3;
+/** Gap (px) between a level label and the inside of its ring. */
+const RING_GAP = 2;
 
 export interface RadarLevelLabel {
   value: number;
   text: string;
   /** Distance from the center, in pixels. */
   r: number;
-  /** Center of the label, relative to the radar's center. */
+  /** Center of the label's box, relative to the radar's center. */
   x: number;
   y: number;
   /** Text size: measured width and font-size height. */
   width: number;
   height: number;
+  /** Horizontal text anchor, so the text grows away from the spoke. */
+  anchor: "start" | "middle" | "end";
 }
 
 export interface RadarLevelLabelOpts {
@@ -77,41 +78,50 @@ export interface RadarLevelLabelOpts {
 }
 
 /**
-    Lays out one value label per ring, centered on the ring where it crosses
-    the label direction. When neighboring labels would overlap along that
+    Lays out one value label per ring, in the open space beside the point
+    where the ring crosses the label direction: offset to the clockwise side
+    of that direction and pulled just inside the ring, so neither line runs
+    through the text. When neighboring labels would overlap along the
     direction, only every n-th label is kept (counting out from the center).
 */
 export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
   const {ticks, domain, radius, angle, format, measure, fontSize} = opts;
   const radians = (angle * Math.PI) / 180;
+  // Unit vectors along the label direction (d) and perpendicular to its
+  // clockwise side (p), in screen coordinates (y down).
   const dx = Math.sin(radians);
   const dy = -Math.cos(radians);
+  const px = -dy;
+  const py = dx;
+  const anchor = px > 1e-6 ? "start" : px < -1e-6 ? "end" : "middle";
+  // Half-extent of a width × height box projected onto a unit vector.
+  const half = (w: number, h: number, ux: number, uy: number): number =>
+    (Math.abs(ux) * w + Math.abs(uy) * h) / 2;
   const labels = ticks
     .filter(t => t >= domain[0] && t <= domain[1])
     .map((value): RadarLevelLabel => {
       const r = radarRadius(value, domain, radius);
       const text = format(value);
+      const width = measure(text);
+      const height = fontSize;
+      const side = SPOKE_GAP + half(width, height, px, py);
+      const along = r - RING_GAP - half(width, height, dx, dy);
       return {
         value,
         text,
         r,
-        x: r * dx,
-        y: r * dy,
-        width: measure(text),
-        height: fontSize,
+        x: along * dx + side * px,
+        y: along * dy + side * py,
+        width,
+        height,
+        anchor,
       };
     });
-  // Extent of each label projected onto the label direction.
-  const extentOf = (l: RadarLevelLabel): number =>
-    Math.abs(l.width * dx) + Math.abs(l.height * dy);
-  const extent = Math.max(0, ...labels.map(extentOf));
+  const extent = Math.max(0, ...labels.map(l => 2 * half(l.width, l.height, dx, dy)));
   let gap = Infinity;
   for (let i = 1; i < labels.length; i++) gap = Math.min(gap, labels[i].r - labels[i - 1].r);
   const stride = gap > 0 ? Math.max(1, Math.ceil((extent + 2) / gap)) : labels.length;
-  // Labels reaching past the outer ring into the metric labels' padding are dropped.
-  return labels.filter(
-    (l, i) => i % stride === 0 && l.r + extentOf(l) / 2 <= radius + OUTER_OVERFLOW,
-  );
+  return labels.filter((_l, i) => i % stride === 0);
 }
 
 export interface RadarLevelLabelPaint {
@@ -130,19 +140,20 @@ export function emitRadarLevelLabels(
   if (!labels.length) return [];
   const children: SceneNode[] = [];
   for (const l of labels) {
+    const offset = l.anchor === "start" ? -l.width / 2 : l.anchor === "end" ? l.width / 2 : 0;
     children.push({
       type: "text",
       key: `radar-level-label-${l.value}`,
       interactive: false,
       x: 0,
       y: 0,
-      transform: {x: l.x, y: l.y},
+      transform: {x: l.x + offset, y: l.y},
       lines: [{text: l.text, x: 0, y: paint.fontSize * 0.35, width: l.width}],
       font: {
         family: paint.fontFamily,
         size: paint.fontSize,
         weight: paint.fontWeight,
-        anchor: "middle",
+        anchor: l.anchor,
         baseline: "alphabetic",
       },
       paint: {fill: paint.fontColor, opacity: paint.fontOpacity},

@@ -48,7 +48,9 @@ const probeSvg = ([rows, configSrc]) =>
           nodeTypes: Array.from(new Set(children.map(c => c.type))),
           lastLabel: order.lastIndexOf("label"),
           firstPolygon: order.indexOf("polygon"),
-          positions: children.filter(c => c.type === "text").map(c => c.transform),
+          positions: children
+            .filter(c => c.type === "text")
+            .map(c => ({...c.transform, anchor: c.font.anchor})),
           fontSize: children.find(c => c.type === "text")?.font.size,
           fontColor: children.find(c => c.type === "text")?.paint.fill,
           rings: viz._chartScene
@@ -73,10 +75,13 @@ it("Radar draws rings on nice values and labels them along the top by default", 
   assert.strictEqual(r.rings.length, 7, "rings at 50, 100, …, 350");
   const step = r.rings[0];
   r.rings.forEach((ring, i) => assert.ok(Math.abs(ring - step * (i + 1)) <= 1, `ring ${i} evenly spaced`));
-  r.positions.forEach(p => {
-    assert.ok(Math.abs(p.x) < 1e-9, "labels run straight up (x = 0)");
-    assert.ok(p.y <= 0, "labels run straight up (y ≤ 0)");
+  r.positions.forEach((p, i) => {
+    assert.strictEqual(p.anchor, "start", "text grows away from the vertical spoke");
+    assert.ok(Math.abs(p.x - 3) < 1e-9, `labels start 3px right of the vertical spoke (${p.x})`);
+    if (i) assert.ok(p.y < 0, "labels run up the chart");
   });
+  for (let i = 1; i < r.positions.length; i++)
+    assert.ok(r.positions[i].y < r.positions[i - 1].y, "labels climb ring by ring");
   ["100", "200", "300"].forEach(t => assert.ok(r.domTexts.includes(t), `SVG renders "${t}"`));
 });
 
@@ -132,9 +137,10 @@ it("levelLabelAngle moves the labels and levelLabelConfig styles them", async fu
   ]);
   assert.strictEqual(r.fontSize, 14);
   assert.strictEqual(r.fontColor, "rgb(1, 2, 3)");
-  r.positions.forEach(p => {
-    assert.ok(Math.abs(p.x) < 1e-9, "180° runs straight down (x = 0)");
-    assert.ok(p.y >= 0, "180° runs straight down (y ≥ 0)");
+  r.positions.forEach((p, i) => {
+    assert.strictEqual(p.anchor, "end", "text grows leftward, away from the downward spoke");
+    assert.ok(Math.abs(p.x + 3) < 1e-9, `labels end 3px left of the spoke (${p.x})`);
+    if (i) assert.ok(p.y > 0, "180° runs down the chart");
   });
 });
 
