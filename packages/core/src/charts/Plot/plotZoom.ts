@@ -151,13 +151,15 @@ export function rescalePlot(
   // crowd out their neighbors), and pin the label space to its unzoomed size
   // so wider tick labels overflow outward rather than shifting the axis line.
   // A baseline break stays only where the unzoomed axis had one, so the
-  // rescaled domain maps onto the same pixel range it was read from.
+  // rescaled domain maps onto the same pixel range it was read from. The
+  // domain is repeated here so it also wins over an `xConfig.domain`.
   zoomed.zoomAxes = {};
   for (const axis of Object.keys(scales) as AxisName[])
     zoomed.zoomAxes[axis] = {
       rounding: "none",
       domainTicks: false,
       fixedSize: base.labelSpace[axis],
+      domain: zoomed[`${axis}Domain`],
       ...(base.breaks[axis] ? {} : {baselineBreak: false}),
     };
 

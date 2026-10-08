@@ -1,0 +1,111 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <script src="../../../umd/d3plus-core.full.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 440px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Basic population pyramid</h3><div class="viz" id="basic"></div></div>
+    <div><h3>Stacked sub-groups per side</h3><div class="viz" id="stacked"></div></div>
+    <div><h3>percent(true) + comparison outline (2000)</h3><div class="viz" id="percent"></div></div>
+    <div><h3>Timeline across years (axisPersist)</h3><div class="viz" id="timeline"></div></div>
+    <div><h3>Canvas renderer</h3><div class="viz" id="canvas"></div></div>
+    <div><h3>sides(["Female", "Male"]), symmetric(false)</h3><div class="viz" id="sides"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // A synthetic, aging population: fewer births and a baby boom that moves
+  // up the pyramid each decade.
+  const bands = Array.from({length: 21}, (_, i) => i === 20 ? "100+" : `${i * 5}-${i * 5 + 4}`);
+  const population = (band, year, sex) => {
+    const age = band * 5;
+    const shift = (year - 2000) / 10;
+    const births = 1 - 0.07 * shift * Math.max(0, 1 - age / 40);
+    const boom = 1 + 0.3 * Math.exp(-((age - (35 + 10 * shift)) ** 2) / 120);
+    const survival = Math.exp(-Math.pow(age / (70 + 3 * shift + (sex === "Female" ? 5 : 0)), 5));
+    return Math.round(1200000 * births * boom * survival);
+  };
+  const rows = [];
+  [2000, 2010, 2020].forEach(year => bands.forEach((age, band) => ["Male", "Female"].forEach(sex => {
+    const value = population(band, year, sex);
+    rows.push({year, age, sex, population: value, population2000: population(band, 2000, sex)});
+  })));
+  const latest = rows.filter(d => d.year === 2020);
+  const urban = latest.flatMap(d => [
+    {...d, area: "Urban", population: Math.round(d.population * 0.62), population2000: Math.round(d.population2000 * 0.62)},
+    {...d, area: "Rural", population: Math.round(d.population * 0.38), population2000: Math.round(d.population2000 * 0.38)},
+  ]);
+
+  new d3plus.Pyramid()
+    .select("#basic")
+    .data(latest)
+    .groupBy("sex")
+    .y("age")
+    .x("population")
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#stacked")
+    .data(urban)
+    .groupBy(["sex", "area"])
+    .y("age")
+    .x("population")
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#percent")
+    .data(latest)
+    .groupBy("sex")
+    .y("age")
+    .x("population")
+    .percent(true)
+    .comparison("population2000")
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#timeline")
+    .data(rows)
+    .groupBy("sex")
+    .y("age")
+    .x("population")
+    .time("year")
+    .axisPersist(true)
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#canvas")
+    .data(urban)
+    .groupBy(["sex", "area"])
+    .y("age")
+    .x("population")
+    .comparison("population2000")
+    .renderer("canvas")
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#sides")
+    .data(latest)
+    .groupBy("sex")
+    .y("age")
+    .x("population")
+    .sides(["Female", "Male"])
+    .symmetric(false)
+    .render();
+
+</script>
+
+</html>

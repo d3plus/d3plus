@@ -136,15 +136,16 @@ export const formatPlotData: TransformStage = ({viz}) => {
 
   const timeAxis = xTime || x2Time || yTime || y2Time;
 
+  const stackSeries = (d: DataPoint, i: number) =>
+    viz._stackGroup
+      ? viz._stackGroup(d, i)
+      : viz.schema.groupBy.length > 1
+        ? viz._ids(d, i).slice(0, -1).join("_")
+        : "group";
+
   const stackGroup = (d: DataPoint, i: number) =>
     `${!timeAxis && viz.schema.time ? viz.schema.time(d, i) : "time"}_${
-      viz.schema.stacked
-        ? `${
-            viz.schema.groupBy.length > 1
-              ? viz._ids(d, i).slice(0, -1).join("_")
-              : "group"
-          }`
-        : `${viz._ids(d, i).join("_")}`
+      viz.schema.stacked ? stackSeries(d, i) : `${viz._ids(d, i).join("_")}`
     }`;
 
   const prepData = (d: DataPoint, i: number) => {

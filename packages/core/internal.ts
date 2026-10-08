@@ -27,6 +27,22 @@ export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
+export {
+  absoluteFormat,
+  frameTotals,
+  pyramidExtent,
+  pyramidSides,
+  pyramidTotal,
+  sideSign,
+  symmetricDomain,
+} from "./src/charts/Pyramid/pyramidData.js";
+export {pyramidStackOrder} from "./src/charts/Pyramid/stackOrder.js";
+export {
+  bandStep,
+  comparisonOutline,
+  dashArray,
+  sideTitleBoxes,
+} from "./src/charts/Pyramid/scene.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {chordDef} from "./src/charts/Chord/index.js";
@@ -40,6 +56,7 @@ export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {packDef} from "./src/charts/Pack/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
+export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";

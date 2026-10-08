@@ -261,11 +261,8 @@ function measureXTestAxes(
     xTest.range([xOffsetLeft, undefined]).measure();
   }
 
-  const topOffset = showY
-    ? (
-        yTest.shapeConfig().labelConfig as {fontSize: () => number}
-      ).fontSize() / 2
-    : 0;
+  const yLabelConfig = yTest.shapeConfig().labelConfig as {fontSize: () => number};
+  const topOffset = (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
 
   const xOffsetRight = max([
     0,

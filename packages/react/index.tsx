@@ -17,6 +17,7 @@ import {
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
+  Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
   Rings as RingsClass,
@@ -119,6 +120,10 @@ export const Plot = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Priestley visualization. */
 export const Priestley = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={PriestleyClass} {...props} />
+);
+/** React component for rendering a d3plus Pyramid visualization. */
+export const Pyramid = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={PyramidClass} {...props} />
 );
 /** React component for rendering a d3plus Radar visualization. */
 export const Radar = (props: D3plusComponentProps) => (
