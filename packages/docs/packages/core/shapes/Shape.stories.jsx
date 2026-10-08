@@ -38,7 +38,7 @@ Reference.parameters = {
   controls: {sort: "alpha"},
   docs: {
     source: {
-      code: `import {Treemap} from "@d3plus/core";
+      code: `import {Rect, Treemap} from "@d3plus/core";
 
 // Any Shape setting can be passed through a chart's shapeConfig…
 new Treemap().shapeConfig({
@@ -49,8 +49,12 @@ new Treemap().shapeConfig({
 });
 
 // …or set on a shape class used on its own.
-import {Rect} from "@d3plus/core";
-new Rect().select("#svg").data(rows).fill("#1c7ed6").render();`,
+const data = [
+  {id: "a", x: 60, y: 40, width: 80, height: 40},
+  {id: "b", x: 160, y: 40, width: 80, height: 40},
+];
+
+new Rect().select("#svg").data(data).fill("#1c7ed6").render();`,
       language: "jsx",
     },
     description: {

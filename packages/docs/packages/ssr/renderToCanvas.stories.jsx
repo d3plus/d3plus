@@ -27,8 +27,15 @@ const code = `import {writeFileSync} from "node:fs";
 import {LinePlot} from "@d3plus/core";
 import {renderToCanvas} from "@d3plus/ssr";
 
+const data = [
+  {city: "Boston", year: 2000, population: 589},
+  {city: "Boston", year: 2010, population: 617},
+  {city: "Denver", year: 2000, population: 555},
+  {city: "Denver", year: 2010, population: 600},
+];
+
 const canvas = await renderToCanvas(
-  new LinePlot().data(rows).groupBy("city").x("year").y("population"),
+  new LinePlot().data(data).groupBy("city").x("year").y("population"),
   {width: 800, height: 500},
 );
 

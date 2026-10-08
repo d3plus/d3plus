@@ -27,8 +27,15 @@ const code = `import {writeFileSync} from "node:fs";
 import {BarChart} from "@d3plus/core";
 import {renderToStaticSVG} from "@d3plus/ssr";
 
+const data = [
+  {region: "North", quarter: "Q1", revenue: 120},
+  {region: "North", quarter: "Q2", revenue: 140},
+  {region: "South", quarter: "Q1", revenue: 90},
+  {region: "South", quarter: "Q2", revenue: 110},
+];
+
 const svg = await renderToStaticSVG(
-  new BarChart().data(rows).groupBy("region").x("quarter").y("revenue"),
+  new BarChart().data(data).groupBy("region").x("quarter").y("revenue"),
   {width: 800, height: 500},
 );
 // '<svg xmlns="http://www.w3.org/2000/svg" …>…</svg>'

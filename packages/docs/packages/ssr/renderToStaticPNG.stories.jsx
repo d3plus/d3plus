@@ -27,8 +27,14 @@ const code = `import {writeFileSync} from "node:fs";
 import {Treemap} from "@d3plus/core";
 import {renderToStaticPNG} from "@d3plus/ssr";
 
+const data = [
+  {parent: "Fruit", id: "Apples", value: 30},
+  {parent: "Fruit", id: "Pears", value: 12},
+  {parent: "Vegetables", id: "Carrots", value: 18},
+];
+
 const png = await renderToStaticPNG(
-  new Treemap().data(rows).groupBy(["parent", "id"]).sum("value"),
+  new Treemap().data(data).groupBy(["parent", "id"]).sum("value"),
   {width: 800, height: 500, pixelRatio: 2},
 );
 // Uint8Array (a Node Buffer) holding a 1600×1000 PNG
