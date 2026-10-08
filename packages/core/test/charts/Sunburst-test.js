@@ -488,9 +488,7 @@ it("Sunburst: buckets the leaves under the threshold into one arc per parent", a
 it("Sunburst: zooming out plays the zoom-in in reverse, holding labels until the sweep ends", async function () {
   this.timeout(60000);
   const out = await page(async () => {
-    // Sampled by wall-clock time, so keep the render quick: placing an inset
-    // legend lays the chart out several times per render.
-    const chart = await window.build({config: {legendInset: false}});
+    const chart = await window.build();
     chart.duration(600);
     const dOf = path => {
       const el = document.querySelector(
