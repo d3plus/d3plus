@@ -222,13 +222,13 @@ function emitBackgroundRect(viz: Viz, out: SceneNode[], xRange: number[], yRange
   const bgConfig = viz._backgroundConfig;
   if (bgConfig && bgConfig.fill && bgConfig.fill !== "transparent") {
     // Coords are relative to `_chartTransform` (margin.left, margin.top +
-    // x2Height + topOffset), so we subtract the chart-transform offset.
+    // x2Height + topOffset), the origin `xRange` is already measured from.
     // yRange[0] = x2Height, so the y simplification is
     // (yRange[1] - yRange[0]) / 2.
     const bgRect = makeShape("Rect")
       .renderMode("compute")
       .data([{}])
-      .x(xRange[0] - viz._margin.left + (xRange[1] - xRange[0]) / 2)
+      .x(xRange[0] + (xRange[1] - xRange[0]) / 2)
       .width(xRange[1] - xRange[0])
       .y((yRange[1] - yRange[0]) / 2)
       .height(yRange[1] - yRange[0])
@@ -645,8 +645,10 @@ export function plotPaintMeasured(
     width: xRange[1] - xRange[0],
     height: yRange[1] - yRange[0],
   };
+  // `xRange` is measured from the chart area's left edge, which is where
+  // `_chartTransform` puts content space's origin.
   viz._plotArea = {
-    x: xRange[0] - viz._margin.left,
+    x: xRange[0],
     y: 0,
     width: xRange[1] - xRange[0],
     height: yRange[1] - yRange[0],
