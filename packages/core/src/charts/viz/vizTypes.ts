@@ -51,11 +51,10 @@ import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
-/** Margin object with all four sides. */
-
 /** Reads one `confidence` bound from a data row. */
 export type ConfidenceAccessor = (d: DataPoint, i: number) => unknown;
 
+/** Margin object with all four sides. */
 export interface Margin {
   top: number;
   bottom: number;
