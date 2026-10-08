@@ -3,6 +3,7 @@ import assert from "assert";
 import {scaleLinear, scalePoint} from "d3-scale";
 import {
   applyPaddedDomains,
+  frozenAxis,
   listAxis,
   panelAxisConfig,
   plotFacetHooks,
@@ -92,5 +93,23 @@ describe("Plot facet helpers", () => {
     assert.deepStrictEqual(out.y.domain(), [10, -2]);
     assert.deepStrictEqual(y.domain(), [0, 5], "the panel's scale is copied, not mutated");
     assert.strictEqual(out.xScale, "Point");
+  });
+
+  it("frozenAxis: positions keep this draw's scales after the axis renders again", () => {
+    const axis = {
+      _d3Scale: scaleLinear().domain([0, 10]).range([0, 100]),
+      _d3ScaleNegative: null,
+      schema: {scale: "linear"},
+      _getPosition(d) {
+        return this._d3Scale(d);
+      },
+    };
+    const frozen = frozenAxis(axis);
+    axis._d3Scale.domain([0, 100]);
+    axis._d3Scale = scaleLinear().domain([0, 1]).range([0, 10]);
+    axis.schema.scale = "log";
+    assert.strictEqual(frozen._getPosition(5), 50);
+    assert.strictEqual(frozen.schema.scale, "linear");
+    assert.strictEqual(frozen._d3ScaleNegative, null);
   });
 });

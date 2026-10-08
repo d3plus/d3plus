@@ -117,6 +117,7 @@ export {
   measureEndLabels,
   placeEndLabels,
 } from "./src/charts/features/axisEndLabels.js";
+export {frozenAxis} from "./src/charts/features/frozenAxis.js";
 export {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
 
 // ── Axis breaks (#645, #766, #767) ───────────────────────────────────────────

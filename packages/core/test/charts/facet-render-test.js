@@ -198,6 +198,52 @@ it("the shared tooltip and crosshair follow the panel under the pointer", async 
   assert.strictEqual(out.cleared, null, "leaving the chart clears it");
 });
 
+for (const renderer of ["svg", "canvas"]) {
+  for (const scales of ["shared", "independent"]) {
+    it(`the crosshair spans the hovered panel's plot area, in that panel only (${renderer}, ${scales} scales)`, async function () {
+      this.timeout(60000);
+      const out = await page(`
+        const regions5 = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+        const data = [];
+        regions5.forEach((region, r) => ["Coffee", "Cocoa", "Tea"].forEach((product, p) => years.forEach((year, y) =>
+          data.push({region, product, year, value: Math.round((20 + ((r * 11 + p * 7 + y * 5) % 17) * 4) * (1 + r * 0.6))}))));
+        const chart = new d3plus.LinePlot().select("#viz").data(data)
+          .groupBy("product").x("year").y("value").facet("region")
+          .facetConfig({columns: 3, scales: arg}).renderer("${renderer}").duration(0);
+        await done(chart);
+        const results = [];
+        for (const key of ["facet-Africa", "facet-Americas", "facet-Asia", "facet-Oceania"]) {
+          const panel = chart._facetPanels.find(p => p.key === key);
+          const a = panel.state._plotArea, t = panel.chartTransform;
+          pointer(chart, "mousemove", [t.x + a.x + a.width * 0.6, t.y + a.y + a.height * 0.5]);
+          await frames();
+          const lines = [];
+          walk(chart._paintedScene.root.children, n => {
+            const k = String(n.key);
+            if (n.type === "path" && k.endsWith("/crosshair")) {
+              const ys = (n.d.match(/-?[\\d.]+/g) || []).map(Number).filter((v, i) => i % 2 === 1);
+              lines.push({panel: panelOf(k), x: n.transform.x, top: n.transform.y + Math.min(...ys), bottom: n.transform.y + Math.max(...ys)});
+            }
+          });
+          results.push({key, edges: panel.cell.edges, state: chart._sharedHoverState && chart._sharedHoverState.panel, area: {x: a.x, y: a.y, width: a.width, height: a.height}, lines});
+          pointer(chart, "mouseleave", [0, 0]);
+          await frames();
+        }
+        return results;
+      `, scales);
+      for (const r of out) {
+        assert.strictEqual(r.state, r.key, `${r.key} owns the hover`);
+        assert.deepStrictEqual(r.lines.map(l => l.panel), [r.key], `one crosshair, in ${r.key}`);
+        const [line] = r.lines;
+        assert.ok(Math.abs(line.top - r.area.y) < 0.5, `${r.key}: starts at the plot top (${line.top} vs ${r.area.y})`);
+        assert.ok(Math.abs(line.bottom - (r.area.y + r.area.height)) < 0.5, `${r.key}: ends at the plot bottom (${line.bottom} vs ${r.area.y + r.area.height})`);
+        assert.ok(line.x >= r.area.x && line.x <= r.area.x + r.area.width, `${r.key}: inside the plot horizontally`);
+      }
+      assert.ok(out.some(r => r.edges.left) && out.some(r => !r.edges.left && !r.edges.bottom) && out.some(r => r.edges.bottom && !r.edges.left), "edge and interior panels");
+    });
+  }
+}
+
 it("repaints add each panel's hover surface once, without touching the chart's own scene", async function () {
   this.timeout(60000);
   const out = await page(`
