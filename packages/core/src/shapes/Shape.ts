@@ -233,7 +233,7 @@ export default class Shape extends BaseClass {
     const styleLogic = (_: unknown): unknown => {
       return typeof _ !== "function"
         ? _
-        : d.nested && d.key && d.values
+        : d.nested && d.key !== undefined && d.values
           ? (_ as AccessorFn)(
               (d.values as unknown as DataPoint[])[0],
               this._data.indexOf((d.values as unknown as DataPoint[])[0]),
@@ -304,7 +304,7 @@ export default class Shape extends BaseClass {
 */
   _styleVal(fn: unknown, d: DataPoint, i: number): unknown {
     if (typeof fn !== "function") return fn;
-    if (d.nested && d.key && d.values)
+    if (d.nested && d.key !== undefined && d.values)
       return (fn as AccessorFn)(d.data as DataPoint, d.i as number);
     return (fn as AccessorFn)(d, i);
   }
