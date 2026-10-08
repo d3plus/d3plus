@@ -9,6 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import {stampShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {sunburstEmit} from "./emit.js";
@@ -271,8 +272,8 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
 
   const lookup = viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>;
   for (const node of nodes) {
-    // The tooltip and legend read a row's share straight off the row.
-    (node.datum as DataPoint & {share?: number}).share = node.share;
+    // The tooltip and legend read a row's share off the row (see shareKey.ts).
+    stampShare(node.datum, node.share);
     lookup.set(node.datum, node);
   }
   viz.ctx.sunburstOuterRadius = outerRadius;

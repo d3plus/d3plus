@@ -234,3 +234,28 @@ it("Sunburst partition: sunburstLineage walks from a node out to its outermost d
     [a2.id, JSON.stringify(["A"])],
   );
 });
+
+it("Sunburst partition: mergeBranch drops a share d3plus stamped on its rows but keeps a data field named share", () => {
+  const stamped = [
+    {group: "A", value: 3, share: 0.3, __d3plusShare: 0.3},
+    {group: "A", value: 7, share: 0.7, __d3plusShare: 0.7},
+  ];
+  const merged = mergeBranch(stamped);
+  assert.strictEqual(
+    merged.__d3plusShare,
+    undefined,
+    "no earlier draw's share folded in",
+  );
+  assert.strictEqual(merged.share, undefined);
+  assert.strictEqual(merged.value, 10);
+  assert.strictEqual(stamped[0].__d3plusShare, 0.3, "source rows untouched");
+  const own = mergeBranch([
+    {group: "A", value: 3, share: 12, __d3plusShare: 0.3},
+    {group: "A", value: 7, share: 30, __d3plusShare: 0.7},
+  ]);
+  assert.strictEqual(
+    own.share,
+    42,
+    "the user's own share field merges as data",
+  );
+});

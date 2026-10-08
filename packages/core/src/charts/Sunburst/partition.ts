@@ -11,6 +11,8 @@ import type {HierarchyNode} from "d3-hierarchy";
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {SHARE_KEY} from "../features/shareKey.js";
+
 /** A `groupBy` accessor. */
 export type SunburstKey = (d: DataPoint, i: number) => unknown;
 
@@ -153,6 +155,19 @@ export interface SunburstLayoutInputs {
 const TAU = Math.PI * 2;
 
 /**
+    A row without the share d3plus stamped on it (see shareKey.ts), so merging
+    rows never folds an earlier draw's shares into a parent; a data field named
+    `share` is kept.
+*/
+function withoutStampedShare(row: DataPoint): DataPoint {
+  if (!(SHARE_KEY in row)) return row;
+  const copy = {...row};
+  if (copy.share === copy[SHARE_KEY]) delete copy.share;
+  delete copy[SHARE_KEY];
+  return copy;
+}
+
+/**
     Merges the rows under a branch into the one row its arc represents. A
     branch that holds a threshold bucket is not a bucket itself — even when the
     bucket is its only row — so the bucket markers don't carry up into it.
@@ -161,7 +176,7 @@ export function mergeBranch(
   rows: DataPoint[],
   aggs?: Parameters<typeof merge>[1],
 ): DataPoint {
-  const merged = merge(rows, aggs) as DataPoint;
+  const merged = merge(rows.map(withoutStampedShare), aggs) as DataPoint;
   delete merged._isAggregation;
   delete merged._threshold;
   return merged;

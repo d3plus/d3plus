@@ -595,3 +595,41 @@ it("Sunburst: zooming out one of two levels returns the outer level's siblings, 
   );
   assert.ok(out.changed, "the canvas is still animating mid-way");
 });
+
+it("Sunburst: keeps a data field named share, with d3plus's Share row beside it", async function () {
+  this.timeout(60000);
+  const out = await page(async () => {
+    window.DATA = window.DATA.map((d, i) => ({...d, share: i + 1}));
+    const chart = await window.build();
+    const leaf = window.arcFor(chart, ["Backend", "API", "Orders"]);
+    const parent = window.arcFor(chart, ["Backend"]);
+    window.route(chart, "mouseenter", leaf);
+    window.route(chart, "mousemove", leaf);
+    await window.wait(50);
+    const rows = [...document.querySelectorAll(".d3plus-tooltip-tbody tr")].map(
+      tr => [...tr.querySelectorAll("td")].map(td => td.textContent),
+    );
+    return {
+      leafShare: leaf.datum.share,
+      leafComputed: leaf.datum.__d3plusShare,
+      parentShare: parent.datum.share,
+      rows,
+    };
+  });
+  // Orders is the sixth row (share: 6) and 460 of the 2630 total.
+  assert.strictEqual(out.leafShare, 6, "the row keeps its own share");
+  assert.ok(
+    Math.abs(out.leafComputed - 460 / 2630) < 1e-9,
+    "d3plus's share lives under its own key",
+  );
+  assert.strictEqual(
+    out.parentShare,
+    5 + 6 + 7 + 8,
+    "a parent merges its rows' own share fields",
+  );
+  const share = out.rows.find(r => r[0] === "Share");
+  assert.ok(
+    share && share[1] === "17.5%",
+    `Share row shows d3plus's fraction: ${JSON.stringify(out.rows)}`,
+  );
+});

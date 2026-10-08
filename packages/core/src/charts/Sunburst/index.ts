@@ -23,6 +23,7 @@ import {
   totalFeature,
 } from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
+import {summedShare} from "../features/shareKey.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -54,10 +55,8 @@ function shareRow(viz: VizInstance): unknown[] {
         );
         return s == null ? "" : pct(s);
       }
-      // A Legend bucket aggregates rows, so `share` arrives as an array.
-      const share = Array.isArray(x.share)
-        ? (x.share as number[]).reduce((a, b) => a + b, 0)
-        : (x.share as number);
+      // A Legend bucket aggregates rows; sum its members' shares.
+      const share = summedShare(x);
       return Number.isFinite(share) ? pct(share) : "";
     },
   ];

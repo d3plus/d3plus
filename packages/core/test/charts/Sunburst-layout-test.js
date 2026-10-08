@@ -78,6 +78,11 @@ it("Sunburst layout stage: applySunburstLayout: lays out every arc inside the ch
   for (const n of shapeData)
     assert.strictEqual(viz.ctx.sunburstNodes.get(n.datum), n);
   assert.strictEqual(
+    viz._filteredData[2].__d3plusShare,
+    0.6,
+    "d3plus's share, under its own key",
+  );
+  assert.strictEqual(
     viz._filteredData[2].share,
     0.6,
     "the row carries its share for the tooltip",
