@@ -93,17 +93,6 @@ it("Sunburst labelFit: fitRotation returns the largest whole font size that fits
   );
 });
 
-it("Sunburst labelFit: labelRotations spans tangential to radial through horizontal, flattest first", () => {
-  assert.deepStrictEqual(labelRotations(45), [0, 15, -15, 30, -30, 45, -45]);
-  const r = labelRotations(330);
-  assert.strictEqual(r[0], 0);
-  assert.ok(r.includes(-30) && r.includes(60), "tangential -30°, radial 60°");
-  assert.ok(
-    r.every(a => a > -90 && a <= 90),
-    "never upside down",
-  );
-});
-
 it("Sunburst labelFit: sunburstLabelBox centers an upright label in the center disc", () => {
   const box = sunburstLabelBox(
     {innerRadius: 0, outerRadius: 60, startAngle: 0, endAngle: TAU},
@@ -115,23 +104,39 @@ it("Sunburst labelFit: sunburstLabelBox centers an upright label in the center d
   );
 });
 
-it("Sunburst labelFit: sunburstLabelBox reads horizontally when that is comfortable", () => {
-  // A narrow arc near 11 o'clock: along the radius allows the largest text,
-  // but a flatter rotation still fits it comfortably.
+it("Sunburst labelFit: labelRotations gives exactly two rotations, 90° apart, never upside down", () => {
+  for (let a = 0; a < 360; a += 7.5) {
+    const {tangential, radial} = labelRotations(a);
+    assert.ok(
+      tangential >= -90 && tangential <= 90 && radial >= -90 && radial <= 90,
+      `${a}°`,
+    );
+    assert.strictEqual(
+      Math.abs(tangential - radial),
+      90,
+      `${a}°: ${tangential} vs ${radial}`,
+    );
+  }
+  assert.deepStrictEqual(labelRotations(45), {tangential: 45, radial: -45});
+  assert.deepStrictEqual(labelRotations(180), {tangential: 0, radial: 90});
+});
+
+it("Sunburst labelFit: sunburstLabelBox reads along a wide arc", () => {
   const arc = {
-    innerRadius: 80,
-    outerRadius: 160,
-    startAngle: deg(325),
-    endAngle: deg(355),
+    innerRadius: 100,
+    outerRadius: 140,
+    startAngle: deg(20),
+    endAngle: deg(70),
   };
-  const box = sunburstLabelBox(arc, metrics("Jobs"));
-  assert.ok(Math.abs(box.rotate) <= 30, `rotate ${box.rotate}`);
-  const strict = sunburstLabelBox(arc, metrics("Jobs"), {comfort: 1});
+  const box = sunburstLabelBox(arc, metrics("Orders"));
+  assert.strictEqual(box.orientation, "tangential");
+  assert.strictEqual(box.rotate, 45);
+  const along = fitRotation(arc, [box.x, box.y], 45, metrics("Orders"));
+  const across = fitRotation(arc, [box.x, box.y], -45, metrics("Orders"));
   assert.ok(
-    Math.abs(strict.rotate) > Math.abs(box.rotate),
-    "demanding the largest size turns the label further",
+    along.fontSize >= (across ? across.fontSize : 0),
+    "the larger fit wins",
   );
-  assert.ok(strict.fontSize >= box.fontSize);
 });
 
 it("Sunburst labelFit: sunburstLabelBox turns a label radial on a thin sliver", () => {

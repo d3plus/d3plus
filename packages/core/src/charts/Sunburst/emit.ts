@@ -90,9 +90,9 @@ function labelStyle(value: unknown, d: DataPoint, fallback: unknown): unknown {
   return v ?? fallback;
 }
 
-type Fillable = Pick<SunburstNode, "datum" | "i" | "level" | "spread">;
+type Fillable = Pick<SunburstNode, "datum" | "i" | "level">;
 
-/** Resolves an arc's fill: the shape config's fill, shaded by ring and sibling rank on the default color path. */
+/** Resolves an arc's fill: the shape config's fill, shaded by ring on the default color path. */
 function fillResolver(
   viz: Parameters<ChartEmit>[0]["viz"],
   sc: Record<string, unknown>,
@@ -106,10 +106,7 @@ function fillResolver(
     const fill = resolveAccessor<unknown>(sc.fill, node.datum, node.i ?? 0);
     if (typeof fill !== "string") return undefined;
     return shade
-      ? sunburstShadeFill(
-          fill,
-          sunburstShadeAmount(node.level, node.spread, shadeConfig),
-        )
+      ? sunburstShadeFill(fill, sunburstShadeAmount(node.level, shadeConfig))
       : fill;
   };
 }

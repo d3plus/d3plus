@@ -1,7 +1,6 @@
 /**
     Pure label fitting for the Sunburst: splits a label into whole words, and
-    finds the box (and rotation) that fits those words inside an arc, favoring
-    rotations close to horizontal.
+    finds whether they fit inside an arc along the ring or along the radius.
 
     Angles follow d3-shape's convention: 0 is 12 o'clock, increasing clockwise.
     Box rotations are in degrees, clockwise, and always within (-90, 90] so text
@@ -19,7 +18,7 @@ const SOFT_HYPHEN = "­";
 
 /** Where an arc's label goes: a box centered at (x, y), rotated `rotate` degrees about its center. */
 export interface SunburstLabelBox {
-  orientation: "center" | "tangential" | "radial" | "horizontal" | "angled";
+  orientation: "center" | "tangential" | "radial";
   x: number;
   y: number;
   width: number;
@@ -46,12 +45,6 @@ export interface SunburstLabelFitOptions {
   lineHeight?: number;
   /** Most lines a label may wrap to. Default 3. */
   maxLines?: number;
-  /**
-      A rotation counts as comfortable when its text is at least this share of
-      the largest size any rotation allows; the comfortable rotation closest to
-      horizontal wins. Default 0.7.
-  */
-  comfort?: number;
 }
 
 /**
@@ -222,19 +215,15 @@ export function fitRotation(
 }
 
 /**
-    The rotations worth trying at polar angle `a` (degrees): along the arc,
-    along the radius, horizontal, and every 15° step between them — ordered
-    from the most horizontal.
+    The two rotations a label may take at polar angle `a` (degrees): along the
+    ring and along the radius, 90° apart, each flipped so it never reads upside
+    down.
 */
-export function labelRotations(a: number): number[] {
-  const tangential = tangentialRotation(a);
-  const radial = radialRotation(a);
-  const lo = Math.min(tangential, radial, 0);
-  const hi = Math.max(tangential, radial, 0);
-  const angles = new Set([0, tangential, radial]);
-  for (let step = Math.ceil(lo / 15) * 15; step <= hi; step += 15)
-    angles.add(step);
-  return [...angles].sort((x, y) => Math.abs(x) - Math.abs(y) || y - x);
+export function labelRotations(a: number): {
+  tangential: number;
+  radial: number;
+} {
+  return {tangential: tangentialRotation(a), radial: radialRotation(a)};
 }
 
 function withDefaults(
@@ -246,7 +235,6 @@ function withDefaults(
     padding: 2,
     lineHeight: 1.2,
     maxLines: 3,
-    comfort: 0.7,
     ...options,
   };
 }
@@ -254,17 +242,15 @@ function withDefaults(
 /**
     Decides whether, and how, a label fits inside an arc.
 
-    The full-circle center disc gets an upright box. A ring arc tries the
-    rotations from `labelRotations`, each centered on the arc's middle, and
-    finds the largest font size its words fit at without breaking a word.
-    Among the rotations that reach a comfortable size (`comfort` × the largest
-    any rotation allows), the one closest to horizontal wins — so a label only
-    turns toward the radius when it has to. Returns null when no rotation fits
-    the label at `fontMin`.
+    The full-circle center disc gets an upright box. A ring arc tries its two
+    rotations — along the ring and along the radius, each centered on the
+    arc's middle — finds the largest font size its words fit at without
+    breaking a word, and keeps whichever is larger (along the ring on a tie).
+    Returns null when neither fits the label at `fontMin`.
 
     @param arc The node's polar extent.
     @param metrics The label's word widths at a 1px font size.
-    @param options Font range, padding, line height, line limit, and comfort.
+    @param options Font range, padding, line height, and line limit.
 */
 export function sunburstLabelBox(
   arc: SunburstArc,
@@ -288,24 +274,21 @@ export function sunburstLabelBox(
   const mid = (arc.startAngle + arc.endAngle) / 2;
   const rm = (arc.innerRadius + arc.outerRadius) / 2;
   const center: [number, number] = [rm * Math.sin(mid), -rm * Math.cos(mid)];
-  const a = degrees(mid);
-  const fits = labelRotations(a)
-    .map(rotate => ({
-      rotate,
-      fit: fitRotation(arc, center, rotate, metrics, opts),
-    }))
-    .filter(c => c.fit);
-  if (!fits.length) return null;
-  const largest = Math.max(...fits.map(c => c.fit!.fontSize));
-  const chosen = fits.find(c => c.fit!.fontSize >= largest * opts.comfort)!;
-  const {rotate} = chosen;
-  const orientation =
-    rotate === tangentialRotation(a)
-      ? "tangential"
-      : rotate === radialRotation(a)
-        ? "radial"
-        : rotate === 0
-          ? "horizontal"
-          : "angled";
-  return {orientation, x: center[0], y: center[1], rotate, ...chosen.fit!};
+  const {tangential, radial} = labelRotations(degrees(mid));
+  const along = fitRotation(arc, center, tangential, metrics, opts);
+  const across = fitRotation(arc, center, radial, metrics, opts);
+  const box = (
+    orientation: "tangential" | "radial",
+    rotate: number,
+    fit: NonNullable<typeof along>,
+  ) => ({
+    orientation,
+    x: center[0],
+    y: center[1],
+    rotate,
+    ...fit,
+  });
+  if (along && (!across || along.fontSize >= across.fontSize))
+    return box("tangential", tangential, along);
+  return across ? box("radial", radial, across) : null;
 }

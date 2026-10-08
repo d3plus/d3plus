@@ -1,7 +1,6 @@
 import assert from "assert";
 import {
   applySunburstLayout,
-  rememberSpreads,
   sunburstFocus,
   sunburstGhosts,
 } from "../../es/src/charts/Sunburst/applyLayout.js";
@@ -131,7 +130,6 @@ it("Sunburst layout stage: sunburstGhosts keeps only the arcs the next layout dr
       id: "x",
       depth: 1,
       level: 1,
-      spread: 0.5,
       startAngle: 0,
       endAngle: 1,
       datum: {},
@@ -152,11 +150,7 @@ it("Sunburst layout stage: sunburstGhosts keeps only the arcs the next layout dr
     ghosts.map(g => g.id),
     ["x"],
   );
-  assert.deepStrictEqual(
-    [ghosts[0].level, ghosts[0].spread],
-    [1, 0.5],
-    "keeps its shade inputs",
-  );
+  assert.strictEqual(ghosts[0].level, 1, "keeps its ring for shading");
   assert.deepStrictEqual(ghosts[0].arc, {
     innerRadius: 0,
     outerRadius: 10,
@@ -192,17 +186,4 @@ it("Sunburst emit helpers: sunburstLabel reads the label at the node's own level
   };
   assert.strictEqual(sunburstLabel(viz, node), "label");
   assert.deepStrictEqual(calls, [[node.datum, 3, 1]]);
-});
-
-it("Sunburst layout stage: rememberSpreads gives the center disc the spread it had in its ring", () => {
-  const viz = {ctx: {}};
-  rememberSpreads(viz, [{id: "a", depth: 1, spread: 0.75}]);
-  const center = {id: "a", depth: 0, spread: 0};
-  const child = {id: "b", depth: 1, spread: 0.5};
-  rememberSpreads(viz, [center, child]);
-  assert.strictEqual(center.spread, 0.75);
-  assert.strictEqual(viz.ctx.sunburstSpreads.get("b"), 0.5);
-  const unseen = {id: "z", depth: 0, spread: 0};
-  rememberSpreads(viz, [unseen]);
-  assert.strictEqual(unseen.spread, 0);
 });

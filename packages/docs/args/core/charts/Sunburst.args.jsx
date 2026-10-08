@@ -89,7 +89,7 @@ export const argTypes = assign(
         type: "boolean",
       },
       description:
-        "Lightens every arc below the top ring by its ring and by its rank among its siblings (largest darkest), so neighboring arcs read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
+        "Lightens each ring below the top one a step more than the ring inside it, so the rings read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
       table: {
         defaultValue: {
           summary: true,
@@ -103,15 +103,15 @@ export const argTypes = assign(
     shadeConfig: {
       control: {},
       description:
-        "Shading strengths, as `colorLighter` amounts (0–1): `depth` per `groupBy` level below the top ring, `sibling` across siblings from the largest (none) to the smallest, and the `max` any arc lightens, which keeps the palest outer slivers in their branch's hue.",
+        "Shading strengths, as `colorLighter` amounts (0–1): `step` per `groupBy` level below the top ring, up to `max`, which keeps the deepest rings in their branch's hue.",
       table: {
         defaultValue: {
-          summary: "{depth: 0.1, sibling: 0.32, max: 0.5}",
+          summary: "{step: 0.22, max: 0.6}",
         },
       },
       type: {
         required: false,
-        summary: "{depth?: number, sibling?: number, max?: number}",
+        summary: "{step?: number, max?: number}",
       },
     },
     sort: {

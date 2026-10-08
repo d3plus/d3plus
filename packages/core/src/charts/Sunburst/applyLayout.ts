@@ -46,7 +46,6 @@ export interface SunburstGhost {
   datum: DataPoint;
   i: number | undefined;
   level: number;
-  spread: number;
   arc: SunburstArc;
 }
 
@@ -75,25 +74,8 @@ export function sunburstGhosts(
       datum: n.datum,
       i: n.i,
       level: n.level,
-      spread: n.spread,
       arc: sunburstCollapse(n, n.depth, origin, radii),
     }));
-}
-
-/**
-    Keeps every arc's sibling spread across draws: the center disc has no
-    siblings in its own zoomed layout, so it takes the spread it was drawn with
-    in the ring it came from, and keeps its shade.
-*/
-export function rememberSpreads(viz: VizInstance, nodes: SunburstNode[]): void {
-  const spreads = (viz.ctx.sunburstSpreads ??= new Map<
-    string,
-    number
-  >()) as Map<string, number>;
-  for (const node of nodes) {
-    if (node.depth === 0) node.spread = spreads.get(node.id) ?? node.spread;
-    else spreads.set(node.id, node.spread);
-  }
 }
 
 /** The center slot's radius from the `innerRadius` config: a pixel value, or a function of the outer radius. */
@@ -153,8 +135,6 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
     aggs: viz.schema.aggs as Parameters<typeof sunburstLayout>[0]["aggs"],
     radii,
   });
-
-  rememberSpreads(viz, nodes);
 
   const origin = viz.ctx.sunburstZoomOrigin as SunburstZoomOrigin | undefined;
   const previous = viz.ctx.sunburstLaid as SunburstNode[] | undefined;

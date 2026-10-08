@@ -128,15 +128,14 @@ export const sunburstDef: DataDrivenChartDefinition = {
     */
     {key: "ringSize", default: "equal"},
     /**
-        Lightens each arc below the top ring by its ring and by its rank among
-        its siblings (see `shadeConfig`). Applies only to the default colors: a
-        custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given.
+        Lightens each ring below the top one a step more than the ring inside
+        it (see `shadeConfig`). Applies only to the default colors: a custom
+        `color`, `shapeConfig.fill`, or `colorScale` is drawn as given.
     */
     {key: "shade", default: true},
     /**
-        Shading strengths: `depth` per `groupBy` level below the top ring,
-        `sibling` across siblings from the largest (none) to the smallest, and
-        the `max` any arc lightens (`colorLighter` amounts, 0–1).
+        Shading strengths, as `colorLighter` amounts (0–1): `step` per
+        `groupBy` level below the top ring, up to `max`.
     */
     {
       key: "shadeConfig",

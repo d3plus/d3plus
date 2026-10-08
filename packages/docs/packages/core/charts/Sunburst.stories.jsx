@@ -85,7 +85,7 @@ MultiLevel.parameters = {
   docs: {
     description: {
       story:
-        "A three-level `groupBy` draws three rings. Each branch keeps its top-level color, lightened per ring and per sibling (largest darkest). Labels appear only where their whole words fit, as close to horizontal as reads comfortably. Hover an arc to highlight it with its ancestors.",
+        "A three-level `groupBy` draws three rings. Each branch keeps its top-level color, a step lighter per ring. Labels appear only where their whole words fit, running along the ring or along the radius, whichever fits them larger. Hover an arc to highlight it with its ancestors.",
     },
   },
 };
@@ -157,14 +157,14 @@ Shading.args = {
   data: codebase,
   groupBy: ["area", "module", "file"],
   sum: "size",
-  shadeConfig: {depth: 0.15, sibling: 0.2, max: 0.45},
+  shadeConfig: {step: 0.3, max: 0.5},
 };
 Shading.parameters = {
   controls: {include: ["shade", "shadeConfig"]},
   docs: {
     description: {
       story:
-        "`shadeConfig` sets how much each ring (`depth`) and each step down the sibling order (`sibling`) lightens an arc, up to `max`; `shade: false` draws every arc in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.",
+        "`shadeConfig` sets how much each ring lightens (`step`), up to `max`; `shade: false` draws every arc in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.",
     },
   },
 };

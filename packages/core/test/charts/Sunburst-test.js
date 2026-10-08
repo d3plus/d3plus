@@ -1,6 +1,7 @@
 import assert from "assert";
 import {hsl} from "d3-color";
 import {colorLighter} from "@d3plus/color";
+import {labelRotations} from "../../es/src/charts/Sunburst/labelFit.js";
 import {render, closeBrowser} from "../playwright.js";
 
 // The Viz render pipeline awaits browser layout that never resolves under
@@ -77,7 +78,7 @@ it("Sunburst: draws one arc per node of a two-level hierarchy", async function (
   assert.ok(out.hollow, "the unfocused center stays empty");
 });
 
-it("Sunburst: draws three rings, shading each top-level color lighter per ring and per sibling", async function () {
+it("Sunburst: draws three rings, shading each top-level color a step lighter per ring", async function () {
   this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
@@ -109,23 +110,27 @@ it("Sunburst: draws three rings, shading each top-level color lighter per ring a
     out.frontend,
     "a different branch gets a different color",
   );
-  // Pages (700) outweighs Components (530); Dashboard (520) outweighs Settings (180).
+  // The shade depends on the ring alone, not on an arc's size among its siblings.
   assert.strictEqual(
     out.pages,
-    colorLighter(out.frontend, 0.1),
-    "largest child: one ring lighter",
+    colorLighter(out.frontend, 0.22),
+    "second ring",
   );
   assert.strictEqual(
     out.components,
-    colorLighter(out.frontend, 0.42),
-    "smallest child: plus the full sibling spread",
+    out.pages,
+    "the same ring, the same shade",
   );
   assert.strictEqual(
     out.dashboard,
-    colorLighter(out.frontend, 0.2),
-    "two rings out",
+    colorLighter(out.frontend, 0.44),
+    "third ring",
   );
-  assert.strictEqual(out.settings, colorLighter(out.frontend, 0.5), "capped");
+  assert.strictEqual(
+    out.settings,
+    out.dashboard,
+    "the same ring, the same shade",
+  );
   const hue = c => hsl(c).h;
   for (const c of [out.pages, out.components, out.dashboard, out.settings])
     assert.ok(
@@ -138,7 +143,7 @@ it("Sunburst: draws three rings, shading each top-level color lighter per ring a
   );
 });
 
-it("Sunburst: shade(false), a user color, and a user fill all draw colors unshaded", async function () {
+it("Sunburst: shadeConfig tunes the shading; shade(false), a user color, and a user fill draw unshaded", async function () {
   this.timeout(60000);
   const out = await page(async () => {
     const fills = async config => {
@@ -153,7 +158,8 @@ it("Sunburst: shade(false), a user color, and a user fill all draw colors unshad
         color: d => (d.area === "Frontend" ? "#2f9e44" : "#e03131"),
       }),
       fill: await fills({shapeConfig: {fill: () => "#ae3ec9"}}),
-      weak: await fills({shadeConfig: {depth: 0, sibling: 0.1}}),
+      weak: await fills({shadeConfig: {step: 0.1}}),
+      capped: await fills({shadeConfig: {step: 0.4, max: 0.5}}),
     };
   });
   assert.strictEqual(new Set(out.off).size, 1, "shade(false)");
@@ -169,17 +175,22 @@ it("Sunburst: shade(false), a user color, and a user fill all draw colors unshad
   );
   assert.strictEqual(
     out.weak[1],
-    out.weak[0],
-    "no depth strength: the largest child matches its parent",
+    colorLighter(out.weak[0], 0.1),
+    "custom step",
   );
   assert.strictEqual(
     out.weak[2],
-    colorLighter(out.weak[0], 0.1),
-    "custom sibling strength",
+    colorLighter(out.weak[0], 0.2),
+    "custom step, two rings out",
+  );
+  assert.strictEqual(
+    out.capped[2],
+    colorLighter(out.capped[0], 0.5),
+    "custom cap",
   );
 });
 
-it("Sunburst: labels break only between words and lean horizontal", async function () {
+it("Sunburst: labels break only between words and run along the ring or the radius", async function () {
   this.timeout(60000);
   const out = await page(async () => {
     const long = window.DATA.map(d => ({
@@ -195,10 +206,22 @@ it("Sunburst: labels break only between words and lean horizontal", async functi
       );
     const labels = chart._chartScene
       .filter(n => n.type === "text")
-      .map(n => ({
-        lines: lines(n),
-        rotate: (n.transform && n.transform.rotate) || 0,
-      }));
+      .map(n => {
+        const arc = window
+          .arcs(chart)
+          .find(a => n.key && n.key.startsWith(a.key + "_"));
+        const mid = arc
+          ? ((arc.arc.startAngle + arc.arc.endAngle) / 2) * (180 / Math.PI)
+          : null;
+        const disc = Boolean(arc && arc.arc.innerRadius === 0);
+        return {
+          key: n.key,
+          lines: lines(n),
+          rotate: (n.transform && n.transform.rotate) || 0,
+          mid,
+          disc,
+        };
+      });
     const split = window.d3plus.sunburstSplit("Containerization orchestration");
     const metrics = window.d3plus.sunburstLabelMetrics("Docs Guides", s =>
       s.map(w => w.length),
@@ -207,10 +230,22 @@ it("Sunburst: labels break only between words and lean horizontal", async functi
     await window.wait(100);
     const zoomed = chart._chartScene
       .filter(n => n.type === "text")
-      .map(n => ({
-        lines: lines(n),
-        rotate: (n.transform && n.transform.rotate) || 0,
-      }));
+      .map(n => {
+        const arc = window
+          .arcs(chart)
+          .find(a => n.key && n.key.startsWith(a.key + "_"));
+        const mid = arc
+          ? ((arc.arc.startAngle + arc.arc.endAngle) / 2) * (180 / Math.PI)
+          : null;
+        const disc = Boolean(arc && arc.arc.innerRadius === 0);
+        return {
+          key: n.key,
+          lines: lines(n),
+          rotate: (n.transform && n.transform.rotate) || 0,
+          mid,
+          disc,
+        };
+      });
     return {labels, split, metrics, zoomed};
   });
   const words = new Set(
@@ -237,16 +272,25 @@ it("Sunburst: labels break only between words and lean horizontal", async functi
   assert.deepStrictEqual(out.metrics, {words: [4, 6], space: 1});
   const all = [...out.labels, ...out.zoomed];
   assert.ok(
-    all.every(l => l.rotate > -90 && l.rotate <= 90),
+    all.every(l => l.rotate >= -90 && l.rotate <= 90),
     "never upside down",
   );
-  const flat = all.filter(l => Math.abs(l.rotate) <= 45).length;
+  for (const l of all) {
+    assert.ok(l.mid !== null, `label ${l.key} pairs with its arc`);
+    if (l.disc) {
+      assert.strictEqual(l.rotate, 0, "the center label stays upright");
+      continue;
+    }
+    const {tangential, radial} = labelRotations(((l.mid % 360) + 360) % 360);
+    assert.ok(
+      [tangential, radial].some(x => Math.abs(l.rotate - x) < 1e-6),
+      `${l.lines.join(" ")} at ${l.mid.toFixed(1)}° rotates ${l.rotate}°, not along the ring (${tangential}°) or radius (${radial}°)`,
+    );
+  }
   assert.ok(
-    flat > all.length / 2,
-    `most labels within 45° of horizontal (${flat}/${all.length})`,
+    all.some(l => l.rotate !== 0),
+    "ring labels turn with their arcs",
   );
-  const api = out.zoomed.find(l => l.lines.join(" ") === "API");
-  assert.strictEqual(api.rotate, 0, "a roomy zoomed arc reads horizontally");
 });
 
 it("Sunburst: colors every arc by its summed value under a colorScale", async function () {
