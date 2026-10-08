@@ -77,11 +77,16 @@ export interface AxisConfig {
       `size` (length of each mark, drawn outward from the axis line on the
       tick side so it never reaches into the plot, default `10`), `angle`
       (degrees each mark tilts from perpendicular to the axis, default `30`),
-      `mask` (whether a Plot cuts a matching gap across the shapes that cross
-      the break, default `false`), plus `stroke`, `stroke-width`, and the
-      other line styles `barConfig` takes.
+      `lines` (whether a Plot runs a straight line across the plot from the
+      foot of each mark, perpendicular to the axis, default `true`; they draw
+      even when the axis's gridlines are hidden), `lineConfig` (those lines'
+      `stroke`, `stroke-width`, and other line styles, layered over the
+      gridline style), `mask` (whether a Plot cuts the gap between the two
+      lines straight across the shapes, default `false`), plus `stroke`,
+      `stroke-width`, and the other line styles `barConfig` takes, for the
+      marks.
   */
-  baselineBreakConfig?: Record<string, string | number | boolean>;
+  baselineBreakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /**
       Value ranges to remove from a linear axis: one `[start, end]` pair, or a
       list of them (`[[start, end], [start, end]]`). Each range collapses to a
@@ -95,11 +100,11 @@ export interface AxisConfig {
   break?: false | [number, number] | [number, number][];
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
-      `angle`, and line styles as `baselineBreakConfig`, plus `mask` (whether a
-      Plot cuts a matching gap across the shapes that cross the break,
-      default `true`).
+      `angle`, `lines`, `lineConfig`, and mark line styles as
+      `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between
+      the break's two lines straight across the shapes) defaulting to `true`.
   */
-  breakConfig?: Record<string, string | number | boolean>;
+  breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;

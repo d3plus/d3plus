@@ -74,6 +74,42 @@ export {
 } from "./src/charts/features/axisEndLabels.js";
 export {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
 
+// ── Axis breaks (#645, #766, #767) ───────────────────────────────────────────
+export {
+  brokenScale,
+  brokenScaleTicks,
+  isBrokenScale,
+  normalizeBreaks,
+} from "./src/components/Axis/brokenScale.js";
+export type {BreakRange, BrokenScale, BrokenScaleSpec, ScaleSegment} from "./src/components/Axis/brokenScale.js";
+export {
+  applyAxisBreaks,
+  axisBarNodes,
+  baselineBreakStyle,
+  breakGap,
+  breakStyle,
+  breakTickValues,
+  brokenBarScene,
+  resolveBaselineBreak,
+} from "./src/components/Axis/axisBreak.js";
+export type {AxisBaselineBreak, AxisBreak, BreakStyle} from "./src/components/Axis/axisBreak.js";
+export {
+  bandPolygon,
+  breakLineNodes,
+  breakLinePaint,
+  maskBreaks,
+  maskPath,
+  unwrapBreakMasks,
+} from "./src/charts/Plot/plotBreaks.js";
+export {
+  baselineBreakAxisConfig,
+  clampBarConfig,
+  plotAxisConfig,
+  userDomainBreaksBaseline,
+  valueAxis,
+  valueAxisExtent,
+} from "./src/charts/Plot/baselineBreak.js";
+
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {
   colorScaleFeature,

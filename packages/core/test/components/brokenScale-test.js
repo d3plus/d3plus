@@ -5,7 +5,7 @@ import {
   brokenScaleTicks,
   isBrokenScale,
   normalizeBreaks,
-} from "../../es/src/components/Axis/brokenScale.js";
+} from "../../es/internal.js";
 
 /**
     Piecewise scales behind axis breaks (#766): removed value ranges collapse

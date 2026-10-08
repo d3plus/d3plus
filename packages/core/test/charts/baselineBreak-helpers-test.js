@@ -6,7 +6,7 @@ import {
   userDomainBreaksBaseline,
   valueAxis,
   valueAxisExtent,
-} from "../../es/src/charts/Plot/baselineBreak.js";
+} from "../../es/internal.js";
 import {buildXConfig} from "../../es/src/charts/features/xAxisConfig.js";
 import {BarChart, LinePlot} from "../../es/index.js";
 

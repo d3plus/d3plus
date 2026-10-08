@@ -1,7 +1,6 @@
 import assert from "assert";
 import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../es/index.js";
-import {applyAxisBreaks, breakGap, breakStyle} from "../../es/src/components/Axis/axisBreak.js";
-import {isBrokenScale} from "../../es/src/components/Axis/brokenScale.js";
+import {applyAxisBreaks, breakGap, breakStyle, isBrokenScale} from "../../es/internal.js";
 import it from "../jsdom.js";
 
 /**
@@ -24,9 +23,9 @@ const sceneLines = axis =>
 
 it("breakStyle reads breakConfig, with mask on by default", () => {
   const axis = new AxisLeft();
-  assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: true});
-  axis.breakConfig({mask: false, space: 50});
-  assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 50, mask: false});
+  assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: true, lines: true});
+  axis.breakConfig({mask: false, space: 50, lines: false});
+  assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 50, mask: false, lines: false});
   assert.strictEqual(breakStyle(axis, "baselineBreakConfig").mask, false, "the baseline break defaults to no mask");
 });
 

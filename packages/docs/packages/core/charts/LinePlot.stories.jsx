@@ -650,4 +650,4 @@ AxisBreak.args = {
   y: "ms",
   yBreak: [70, 900]
 };
-AxisBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "A single spike can squash the rest of a line. `yBreak` removes 70–900 from the y axis, so the everyday values keep their detail; the axis marks the break and the line is cut where it crosses it. Tooltips still report the real values."}}};
+AxisBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "A single spike can squash the rest of a line. `yBreak` removes 70–900 from the y axis, so the everyday values keep their detail; the axis marks the break, two lines run across the plot from it, and the line is cut straight between them. Tooltips still report the real values."}}};

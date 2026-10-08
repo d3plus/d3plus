@@ -138,6 +138,8 @@ export default class Axis extends BaseClass {
     const breakDefaults = (mask: boolean) => ({
       angle: 30,
       gap: 5,
+      lineConfig: {},
+      lines: true,
       mask,
       size: 10,
       space: 36,
@@ -457,9 +459,12 @@ export default class Axis extends BaseClass {
       occupies), `gap` (pixels between its two marks, where the axis line is
       not drawn), `size` (length of each mark, drawn outward from the axis
       line on the tick side so it never reaches into the plot), `angle`
-      (degrees each mark tilts from perpendicular), `mask` (whether a Plot
-      cuts a matching gap across the shapes that cross the break, default
-      `true`), plus `stroke`/`stroke-width` and other line styles.
+      (degrees each mark tilts from perpendicular), `lines` (whether a Plot
+      runs a line across the plot from each mark, default `true`),
+      `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+      the gridline style), `mask` (whether a Plot cuts the gap between the
+      lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+      and other line styles for the marks.
 */
   breakConfig(): Record<string, unknown>;
   breakConfig(_: Record<string, unknown>): this;
@@ -476,9 +481,10 @@ export default class Axis extends BaseClass {
       break marks, where the axis line is not drawn), `size` (length of each
       mark, drawn outward from the axis line on the tick side so it never
       reaches into the plot), `angle` (degrees each mark tilts from
-      perpendicular), `mask` (whether a Plot cuts a matching gap across the
-      bars that cross the break, default `false`), plus `stroke`/`stroke-width`
-      and other line styles.
+      perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+      the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+      cuts the gap between those lines across the bars, default `false`),
+      plus `stroke`/`stroke-width` and other line styles for the marks.
 */
   baselineBreakConfig(): Record<string, unknown>;
   baselineBreakConfig(_: Record<string, unknown>): this;

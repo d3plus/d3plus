@@ -21,7 +21,7 @@ import {renderAxes} from "./axes.js";
 import {emitEndLabels} from "./axisEndLabels.js";
 import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
 import {valueAxisExtent} from "../Plot/baselineBreak.js";
-import {maskBreaks} from "../Plot/breakMask.js";
+import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
@@ -575,8 +575,10 @@ export function plotEmit(
 
     emitBackgroundRect(viz, out, xRange, yRange);
 
-    // Gridlines sit just above the background, behind the data shapes.
+    // Gridlines sit just above the background, behind the data shapes, with
+    // each axis break's lines across the plot among them.
     out.push(...axisScenes.grid);
+    out.push(...breakLineNodes(viz, {xRange, yRange, x2Height: pCtx.x2Height}));
 
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 

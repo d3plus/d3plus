@@ -15,7 +15,7 @@
 import type {ClipShape, SceneNode} from "@d3plus/render";
 
 import {PLOT_ZOOM_CONTENT_KEY, plotPaintMeasured} from "../features/plotPaint.js";
-import {unwrapBreakMasks} from "./breakMask.js";
+import {unwrapBreakMasks} from "./plotBreaks.js";
 import type {PlotMeasureResult, PlotPaintContext} from "../features/plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 

@@ -34,9 +34,18 @@ const probe = (src, opts = {}) =>
             const masks = [];
             const bars = [];
             const shapes = new Set();
+            const lines = [];
+            let order = 0;
+            let firstShape = Infinity;
             const walk = (n, inMask) => {
+              order++;
               const isMask = String(n.key).startsWith("plot-break-mask");
-              if (isMask) masks.push({key: n.key, rings: n.clip.d.split("Z").filter(Boolean).length});
+              if (isMask) {
+                const holes = n.clip.d.split("Z").filter(Boolean).slice(1).map(r => r.replace("M", "").split("L").map(pt => pt.split(",").map(Number)));
+                masks.push({key: n.key, rings: holes.length + 1, holes});
+              }
+              if (String(n.key).startsWith("break-line")) lines.push({key: n.key, points: n.points, order, stroke: n.paint.stroke});
+              if (n.shapeType && order < firstShape) firstShape = order;
               if (n.shapeType) shapes.add(`${n.shapeType}:${inMask || isMask}`);
               const row = n.datum && (n.datum.data || n.datum);
               if (n.shapeType === "Bar" && n.type === "rect")
@@ -51,7 +60,7 @@ const probe = (src, opts = {}) =>
               zero: axis._getPosition(0),
               range: axis._getRange(),
             });
-            const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes]};
+            const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes], lines, firstShape};
             if (opts.pixel) {
               const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
               const ratio = canvas.width / canvas.getBoundingClientRect().width;
@@ -96,6 +105,16 @@ it("BarChart: yBreak fits a tall outlier bar, labeling both edges and masking th
   const d = out.bars.find(b => b.id === "D");
   assert.strictEqual(d.v, 960, "the datum (and so the tooltip) keeps its real value");
   assert.ok(Math.abs(d.y + d.h - out.y.zero) <= 1, "bars still start at 0");
+  assert.deepStrictEqual(out.lines.map(l => l.key), ["break-line-y-0-0", "break-line-y-0-1"], "two break lines");
+  out.lines.forEach(l => {
+    assert.strictEqual(l.points[0][1], l.points[1][1], "horizontal");
+    assert.ok(l.points[1][0] - l.points[0][0] > 500, "across the plot");
+    assert.ok(l.order < out.firstShape, "behind the shapes");
+  });
+  const [hole] = out.masks[0].holes;
+  assert.strictEqual(new Set(hole.map(p => p[1])).size, 2, "the cut is a straight band");
+  const ys = out.lines.map(l => l.points[0][1]);
+  hole.forEach(p => assert.ok(p[1] > Math.min(...ys) && p[1] < Math.max(...ys), "between the two lines"));
 });
 
 it("LinePlot: yBreak breaks the axis and masks the line", async function () {
@@ -113,6 +132,9 @@ it("BarChart: horizontal bars break the x axis with xBreak", async function () {
   assert.deepStrictEqual(out.x.breaks, [{start: 80, end: 900, baseline: false}]);
   assert.deepStrictEqual(out.y.breaks, [], "the discrete axis doesn't break");
   assert.deepStrictEqual(out.masks.map(m => m.key), ["plot-break-mask-x"]);
+  assert.strictEqual(out.lines.length, 2);
+  out.lines.forEach(l => assert.strictEqual(l.points[0][0], l.points[1][0], "vertical break lines"));
+  assert.strictEqual(new Set(out.masks[0].holes[0].map(p => p[0])).size, 2, "a vertical band");
 });
 
 it("BarChart: several breaks each get a glyph and a masked band", async function () {
@@ -124,7 +146,8 @@ it("BarChart: several breaks each get a glyph and a masked band", async function
   );
   assert.strictEqual(out.y.breaks.length, 2);
   ["break-0-0", "break-1-0"].forEach(k => assert.ok(out.y.lines.includes(k), k));
-  assert.ok(out.masks[0].rings > 3, "outer ring plus holes for both bands");
+  assert.strictEqual(out.masks[0].rings, 3, "outer ring plus one straight hole per break");
+  assert.strictEqual(out.lines.length, 4, "two lines per break");
 });
 
 it("BarChart: breakConfig.mask false keeps the glyph but leaves shapes whole", async function () {
@@ -145,8 +168,21 @@ it("BarChart: the baseline break looks the same, unmasked unless asked", async f
   assert.deepStrictEqual(out.y.breaks, [{start: 0, end: 1100, baseline: true}]);
   assert.deepStrictEqual(out.y.lines, ["bar-baseline", "bar", "baseline-break-0", "baseline-break-1"]);
   assert.deepStrictEqual(out.masks, [], "no mask by default");
+  assert.strictEqual(out.lines.length, 2, "the baseline break draws its lines too");
+  out.lines.forEach(l => assert.ok(l.points[0][1] > out.y.zero - 36 && l.points[0][1] < out.y.zero, "between 0 and the domain"));
   const masked = await probe(`${src}.yConfig({baselineBreakConfig: {mask: true}})`, {data});
   assert.deepStrictEqual(masked.masks.map(m => m.key), ["plot-break-mask-y"], "mask on request");
+});
+
+it("Break lines draw with the grid hidden, and lines: false turns them off", async function () {
+  this.timeout(60000);
+  const src = `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`;
+  const hidden = await probe(`${src}.yConfig({gridConfig: {stroke: "transparent"}})`);
+  assert.strictEqual(hidden.lines.length, 2);
+  assert.ok(hidden.lines.every(l => l.stroke && l.stroke !== "transparent"), "visible strokes");
+  const off = await probe(`${src}.yConfig({breakConfig: {lines: false}})`);
+  assert.strictEqual(off.lines.length, 0);
+  assert.strictEqual(off.masks.length, 1, "the mask is independent of the lines");
 });
 
 it("BarChart: the Canvas renderer cuts the masked gap across a bar", async function () {

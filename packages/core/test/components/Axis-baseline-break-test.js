@@ -6,7 +6,7 @@ import {
   breakTickValues,
   brokenBarScene,
   resolveBaselineBreak,
-} from "../../es/src/components/Axis/axisBreak.js";
+} from "../../es/internal.js";
 import it from "../jsdom.js";
 
 /**
@@ -38,9 +38,9 @@ const lines = axis =>
 
 it("baselineBreakStyle reads the glyph settings, falling back on bad values", () => {
   const axis = new Axis();
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: false});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: false, lines: true});
   axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50, mask: "yes"});
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50, mask: false});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50, mask: false, lines: true});
 });
 
 it("resolveBaselineBreak finds the domain edge nearest the baseline", () => {

@@ -45,6 +45,8 @@ export interface BreakStyle {
   space: number;
   /** Whether a Plot cuts a gap across the shapes that cross the break. */
   mask: boolean;
+  /** Whether a Plot draws the break's two lines across the plot. */
+  lines: boolean;
 }
 
 const num = (v: unknown, fallback: number): number =>
@@ -62,6 +64,7 @@ export function breakStyle(
     size: Math.max(0, num(cfg.size, 10)),
     space: Math.max(0, num(cfg.space, 36)),
     mask: typeof cfg.mask === "boolean" ? cfg.mask : key === "breakConfig",
+    lines: cfg.lines !== false,
   };
 }
 
