@@ -37,7 +37,20 @@ export const argTypes = assign(
     },
     baselineBreakConfig: {
       control: {},
-      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), plus `stroke`/`stroke-width` and other line styles.",
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `mask` (whether a Plot cuts a matching gap across the\nbars that cross the break, default `false`), plus `stroke`/`stroke-width`\nand other line styles.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    breakConfig: {
+      control: {},
+      description: "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `mask` (whether a Plot\ncuts a matching gap across the shapes that cross the break, default\n`true`), plus `stroke`/`stroke-width` and other line styles.",
       table: {
         defaultValue: {
           summary: "undefined"

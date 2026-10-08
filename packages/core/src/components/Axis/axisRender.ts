@@ -16,7 +16,7 @@ import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
-import {axisBarNodes} from "./axisBreak.js";
+import {axisBarNodes, brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 
 export {isNegative};
 
@@ -91,6 +91,7 @@ export function calculateTicks(
   scale: D3Scale,
   minorTicks: boolean = false,
 ): unknown[] {
+  if (isBrokenScale(scale)) return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks));
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();

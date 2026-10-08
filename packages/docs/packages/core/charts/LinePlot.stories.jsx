@@ -633,3 +633,21 @@ QuarterlyData.args = {
   }
 };
 QuarterlyData.parameters = {controls: {include: ["time"]}, docs: {description: {story: "Point `data` at a remote URL to load records directly, and set `time` (and `x`) to the `Quarter` field so d3plus parses the quarterly periods into an ordered time axis."}}};
+
+export const AxisBreak = Template.bind({});
+AxisBreak.args = {
+  data: [
+    {id: "Requests", day: 1, ms: 42},
+    {id: "Requests", day: 2, ms: 48},
+    {id: "Requests", day: 3, ms: 45},
+    {id: "Requests", day: 4, ms: 940},
+    {id: "Requests", day: 5, ms: 51},
+    {id: "Requests", day: 6, ms: 47},
+    {id: "Requests", day: 7, ms: 55}
+  ],
+  groupBy: "id",
+  x: "day",
+  y: "ms",
+  yBreak: [70, 900]
+};
+AxisBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "A single spike can squash the rest of a line. `yBreak` removes 70–900 from the y axis, so the everyday values keep their detail; the axis marks the break and the line is cut where it crosses it. Tooltips still report the real values."}}};

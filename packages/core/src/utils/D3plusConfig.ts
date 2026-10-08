@@ -77,10 +77,29 @@ export interface AxisConfig {
       `size` (length of each mark, drawn outward from the axis line on the
       tick side so it never reaches into the plot, default `10`), `angle`
       (degrees each mark tilts from perpendicular to the axis, default `30`),
-      plus `stroke`, `stroke-width`, and the other line styles `barConfig`
-      takes.
+      `mask` (whether a Plot cuts a matching gap across the shapes that cross
+      the break, default `false`), plus `stroke`, `stroke-width`, and the
+      other line styles `barConfig` takes.
   */
-  baselineBreakConfig?: Record<string, string | number>;
+  baselineBreakConfig?: Record<string, string | number | boolean>;
+  /**
+      Value ranges to remove from a linear axis: one `[start, end]` pair, or a
+      list of them (`[[start, end], [start, end]]`). Each range collapses to a
+      short fixed gap in the axis, marked like the baseline break, with no
+      ticks or gridlines inside it and both of its edges labeled; the values
+      on either side keep one shared scale. Reversed pairs are flipped,
+      overlapping ones merged, and ranges that don't lie strictly inside the
+      domain (or that don't leave room for the data) are ignored. Only
+      positions change — tooltips and labels still show the real values.
+  */
+  break?: false | [number, number] | [number, number][];
+  /**
+      Style of the ranges set with `break`: the same `space`, `gap`, `size`,
+      `angle`, and line styles as `baselineBreakConfig`, plus `mask` (whether a
+      Plot cuts a matching gap across the shapes that cross the break,
+      default `true`).
+  */
+  breakConfig?: Record<string, string | number | boolean>;
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;
@@ -747,6 +766,12 @@ export interface D3plusConfig {
   x?: string | number | ((d: DataPoint, i: number) => unknown);
   /** Configuration for the x-axis. */
   xConfig?: AxisConfig;
+  /**
+      Value range(s) to remove from the x axis — `[start, end]` or a list of
+      them — drawn as a break in the axis with a gap cut across the shapes
+      that cross it (see the axis `break` and `breakConfig`).
+  */
+  xBreak?: [number, number] | [number, number][];
   /** The x domain as an array. If either value is undefined, it is calculated from the data. */
   xDomain?: (number | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -759,6 +784,13 @@ export interface D3plusConfig {
   y?: string | number | ((d: DataPoint, i: number) => unknown);
   /** Configuration for the y-axis. */
   yConfig?: AxisConfig;
+  /**
+      Value range(s) to remove from the y axis — `[start, end]` or a list of
+      them, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the
+      axis with a gap cut across the shapes that cross it (see the axis
+      `break` and `breakConfig`).
+  */
+  yBreak?: [number, number] | [number, number][];
   /** The y domain as an array. If either value is undefined, it is calculated from the data. */
   yDomain?: (number | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */

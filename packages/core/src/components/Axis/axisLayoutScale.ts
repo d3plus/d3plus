@@ -14,7 +14,7 @@ import {formatLocale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
 
 import type Axis from "./Axis.js";
-import {breakTickValues, resolveBaselineBreak} from "./axisBreak.js";
+import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -357,9 +357,9 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
     ticks = ticks.map(Number);
     labels = labels.map(Number);
   }
-  if (axis._baselineBreak) {
-    ticks = breakTickValues(axis._baselineBreak, ticks);
-    labels = breakTickValues(axis._baselineBreak, labels);
+  if (axis._breaks.length) {
+    ticks = breakTickValues(axis._breaks, ticks);
+    labels = breakTickValues(axis._breaks, labels);
   }
   ticks = ticks.sort(
     (a: unknown, b: unknown) => axis._getPosition(a) - axis._getPosition(b),
@@ -445,13 +445,9 @@ export function setAxisScale(
   axis._d3ScaleNegative = null;
   if (axis.schema.scale === "log") applyLogScaleSplit(axis);
 
-  // A baseline break shortens the scale's range at the baseline end; that
-  // stretch of axis holds the baseline tick and the break glyph instead.
-  axis._baselineBreak = resolveBaselineBreak(axis, range);
-  if (axis._baselineBreak) {
-    const {position, edgePosition} = axis._baselineBreak;
-    axis._d3Scale!.range(range.map((r: number) => (r === position ? edgePosition : r)));
-  }
+  // Breaks (an automatic baseline break and any `break` ranges) swap the
+  // linear scale for a broken one that skips the removed values.
+  applyAxisBreaks(axis, range);
 
   const {ticks: rawTicks, labels} = resolveTicksLabels(axis);
   applyTickSuffixUnit(axis, labels);

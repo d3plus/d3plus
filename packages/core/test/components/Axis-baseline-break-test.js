@@ -2,10 +2,9 @@ import assert from "assert";
 import {Axis, AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../es/index.js";
 import {
   axisBarNodes,
-  baselineBreakScene,
   baselineBreakStyle,
-  breakPosition,
   breakTickValues,
+  brokenBarScene,
   resolveBaselineBreak,
 } from "../../es/src/components/Axis/axisBreak.js";
 import it from "../jsdom.js";
@@ -39,9 +38,9 @@ const lines = axis =>
 
 it("baselineBreakStyle reads the glyph settings, falling back on bad values", () => {
   const axis = new Axis();
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36});
-  axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50});
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: false});
+  axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50, mask: "yes"});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50, mask: false});
 });
 
 it("resolveBaselineBreak finds the domain edge nearest the baseline", () => {
@@ -82,19 +81,16 @@ it("resolveBaselineBreak stays off when the break doesn't apply", () => {
   );
 });
 
-it("breakPosition pins the baseline to the axis end and interpolates across the break", () => {
-  const brk = {value: 0, position: 400, edge: 1100, edgePosition: 364};
-  assert.strictEqual(breakPosition(brk, 0), 400, "baseline at the axis end");
-  assert.strictEqual(breakPosition(brk, -50), 400, "beyond the baseline clamps to the axis end");
-  assert.strictEqual(breakPosition(brk, 550), 382, "halfway between baseline and edge");
-  assert.strictEqual(breakPosition(brk, 1100), undefined, "the domain itself is left to the scale");
-  assert.strictEqual(breakPosition(brk, 1500), undefined);
-});
-
-it("breakTickValues drops ticks inside the break and adds the baseline", () => {
-  const brk = {value: 0, position: 400, edge: 1100, edgePosition: 364};
-  assert.deepStrictEqual(breakTickValues(brk, [500, 1100, 1500, 2000]), [1100, 1500, 2000, 0]);
-  assert.deepStrictEqual(breakTickValues(brk, [0, 1100]), [0, 1100], "keeps an existing baseline once");
+it("breakTickValues drops ticks inside a break and adds a baseline break's baseline", () => {
+  const base = {start: 0, end: 1100, startPosition: 400, endPosition: 364, baseline: true, mask: false};
+  assert.deepStrictEqual(breakTickValues([base], [500, 1100, 1500, 2000]), [1100, 1500, 2000, 0]);
+  assert.deepStrictEqual(breakTickValues([base], [0, 1100]), [0, 1100], "keeps an existing baseline once");
+  const inner = {start: 1300, end: 1700, startPosition: 200, endPosition: 164, baseline: false, mask: true};
+  assert.deepStrictEqual(
+    breakTickValues([inner], [1200, 1300, 1500, 1700, 1800]),
+    [1200, 1300, 1700, 1800],
+    "an explicit break drops what's inside it, keeps its edges, and adds no baseline",
+  );
 });
 
 it("a broken axis maps the baseline to its end and the domain over the rest", () => {
@@ -226,14 +222,14 @@ it("without baselineBreak the axis draws a single bar line", () => {
   assert.ok(!axis._visibleTicks.includes(0), "no baseline tick");
 });
 
-it("axisBarNodes falls back to one line, and baselineBreakScene builds the split bar", () => {
+it("axisBarNodes falls back to one line, and brokenBarScene builds the split bar", () => {
   const axis = compute(new AxisBottom().domain([0, 10]));
   const points = [[0, 5], [100, 5]];
   const plain = axisBarNodes(axis, points, () => ({stroke: "blue"}));
   assert.deepStrictEqual(plain, [{type: "line", key: "bar", points, paint: {stroke: "blue"}}]);
 
-  const brk = {value: 0, position: 0, edge: 10, edgePosition: 36};
-  const nodes = baselineBreakScene(axis, brk, [[36, 5], [100, 5]], {stroke: "a"}, {stroke: "b"});
+  const brk = {start: 0, end: 10, startPosition: 0, endPosition: 36, baseline: true, mask: false};
+  const nodes = brokenBarScene(axis, [brk], [[36, 5], [100, 5]], {stroke: "a"}, () => ({stroke: "b"}));
   assert.deepStrictEqual(nodes.map(n => n.key), ["bar-baseline", "bar", "baseline-break-0", "baseline-break-1"]);
   assert.deepStrictEqual(nodes[0].points, [[0, 5], [15.5, 5]]);
   assert.deepStrictEqual(nodes[1].points, [[20.5, 5], [100, 5]]);

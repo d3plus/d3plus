@@ -1,10 +1,21 @@
 /**
-    Plot's side of the baseline axis break (see `components/Axis/axisBreak.ts`):
-    which axis may break, the config handed to that axis, whether a
+    Plot's side of axis breaks (see `components/Axis/axisBreak.ts`): the
+    `xBreak`/`yBreak` and baseline-break config handed to each axis, whether a
     user-supplied domain should stay clear of the baseline, and the clamp
     that keeps bars inside the plot area.
 */
 import type {VizInstance} from "../viz/vizTypes.js";
+
+/**
+    A primary axis's user config (`xConfig`/`yConfig`) with the Plot's
+    `xBreak`/`yBreak` folded in as the axis `break`. The break is always set,
+    so clearing `yBreak` clears it from a reused axis; a `break` inside
+    `yConfig` wins.
+*/
+export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
+  const brk = viz.schema[`${axis}Break`];
+  return {break: brk === undefined ? false : brk, ...(viz[`_${axis}Config`] as Record<string, unknown>)};
+}
 
 /** The value (non-discrete) axis of a Plot. */
 export const valueAxis = (viz: VizInstance): "x" | "y" =>

@@ -1,51 +1,72 @@
 /**
-    Baseline axis breaks. When a linear axis has `baselineBreak` on and its
-    domain stops short of `baseline` (e.g. a value axis set to [1100, 2100]
-    with a baseline of 0), the axis becomes piecewise: the baseline sits at
-    the axis end, a short fixed-length segment holds a break glyph, and the
-    domain maps linearly over the rest of the range.
+    Axis breaks. A linear axis can remove value ranges from itself — `break`
+    takes a `[start, end]` range (or a list of them) — and each removed range
+    is drawn as a fixed pixel gap marked by two short tilted lines on the tick
+    side of the axis, with the axis line itself gapped between them. The
+    automatic baseline break (`baselineBreak`) is the same machinery applied
+    to the range between the `baseline` and a domain that stops short of it.
 */
 import type {LineNode, Paint, SceneNode} from "@d3plus/render";
 
 import type Axis from "./Axis.js";
+import {brokenScale, normalizeBreaks} from "./brokenScale.js";
+import type {ScaleEdgeBreak} from "./brokenScale.js";
+
+export {brokenScaleTicks, isBrokenScale} from "./brokenScale.js";
 
 /** The resolved geometry of an active baseline break. */
-export interface AxisBaselineBreak {
-  /** The baseline value, drawn at the axis end. */
-  value: number;
-  /** Pixel position of the baseline (the axis end). */
-  position: number;
-  /** The domain bound nearest the baseline: the first value after the break. */
-  edge: number;
-  /** Pixel position of `edge`. */
-  edgePosition: number;
+export type AxisBaselineBreak = ScaleEdgeBreak;
+
+/** A resolved axis break, in values and pixels. */
+export interface AxisBreak {
+  /** The break's value edge nearest the baseline. */
+  start: number;
+  /** The break's other value edge. */
+  end: number;
+  /** Pixel position of `start`. */
+  startPosition: number;
+  /** Pixel position of `end`. */
+  endPosition: number;
+  /** Whether this is the automatic baseline break. */
+  baseline: boolean;
+  /** Whether shapes crossing the break get a gap cut across them (see `mask`). */
+  mask: boolean;
 }
 
-/** The style of the break glyph, read from `baselineBreakConfig`. */
-export interface BaselineBreakStyle {
+/** The style of a break glyph, read from `breakConfig`/`baselineBreakConfig`. */
+export interface BreakStyle {
   /** Degrees each break mark tilts away from perpendicular to the axis. */
   angle: number;
   /** Pixels between the two break marks, where the axis line is not drawn. */
   gap: number;
   /** Length of each break mark, drawn outward from the axis line on the tick side. */
   size: number;
-  /** Pixels of axis between the baseline tick and the first tick after the break. */
+  /** Pixels of axis each break occupies. */
   space: number;
+  /** Whether a Plot cuts a gap across the shapes that cross the break. */
+  mask: boolean;
 }
 
 const num = (v: unknown, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? v : fallback;
 
-/** Reads the numeric glyph settings from an axis's `baselineBreakConfig`. */
-export function baselineBreakStyle(axis: Axis): BaselineBreakStyle {
-  const cfg = (axis.schema.baselineBreakConfig || {}) as Record<string, unknown>;
+/** Reads the glyph settings from one of an axis's break configs. */
+export function breakStyle(
+  axis: Axis,
+  key: "breakConfig" | "baselineBreakConfig" = "breakConfig",
+): BreakStyle {
+  const cfg = (axis.schema[key] || {}) as Record<string, unknown>;
   return {
     angle: num(cfg.angle, 30),
     gap: Math.max(0, num(cfg.gap, 5)),
     size: Math.max(0, num(cfg.size, 10)),
     space: Math.max(0, num(cfg.space, 36)),
+    mask: typeof cfg.mask === "boolean" ? cfg.mask : key === "breakConfig",
   };
 }
+
+/** Reads the baseline break's glyph settings (`baselineBreakConfig`). */
+export const baselineBreakStyle = (axis: Axis): BreakStyle => breakStyle(axis, "baselineBreakConfig");
 
 /**
     Resolves whether `axis` needs a baseline break for its current domain and
@@ -77,38 +98,67 @@ export function resolveBaselineBreak(
 }
 
 /**
-    Maps `d` through the break's baseline segment: the baseline (and anything
-    beyond it) pins to the axis end, and values between the baseline and the
-    domain edge interpolate across the break. Returns `undefined` for values
-    inside the domain, which the linear scale maps.
+    Replaces a linear axis's scale with a broken one when it has a baseline
+    break or any `break` ranges inside its domain, and records the resolved
+    breaks on `axis._breaks`. Explicit breaks are dropped when the range
+    can't hold them and still leave twice a break's space for the data.
 */
-export function breakPosition(brk: AxisBaselineBreak, d: number): number | undefined {
-  const t = (d - brk.value) / (brk.edge - brk.value);
-  if (!(t < 1)) return undefined;
-  if (t <= 0) return brk.position;
-  return brk.position + t * (brk.edgePosition - brk.position);
+export function applyAxisBreaks(axis: Axis, range: number[]): void {
+  axis._baselineBreak = resolveBaselineBreak(axis, range);
+  axis._breaks = [];
+  if (axis.schema.scale !== "linear" || !axis._d3Scale) return;
+  const edge = axis._baselineBreak;
+  const domain = (axis._d3Scale.domain() as number[]).map(Number);
+  const inner = range.slice(0, 2).map(r => (edge && r === edge.position ? edge.edgePosition : r));
+  const {space, mask} = breakStyle(axis);
+  let breaks = normalizeBreaks(axis.schema.break, Math.min(...domain), Math.max(...domain));
+  if (Math.abs(inner[1] - inner[0]) - breaks.length * space < space * 2) breaks = [];
+  if (!edge && !breaks.length) return;
+
+  const scale = brokenScale({domain, range: inner, breaks, space, edge});
+  axis._d3Scale = scale;
+  const baseline = typeof axis.schema.baseline === "number" ? axis.schema.baseline : 0;
+  if (edge)
+    axis._breaks.push({
+      start: edge.value,
+      end: edge.edge,
+      startPosition: edge.position,
+      endPosition: edge.edgePosition,
+      baseline: true,
+      mask: baselineBreakStyle(axis).mask,
+    });
+  breaks.forEach(([a, b]) => {
+    const [start, end] = Math.abs(b - baseline) < Math.abs(a - baseline) ? [b, a] : [a, b];
+    axis._breaks.push({start, end, startPosition: scale(start), endPosition: scale(end), baseline: false, mask});
+  });
 }
 
 /**
-    Drops tick values that fall inside the break (strictly between the
-    baseline and the domain edge) and makes sure the baseline itself is
-    present, so the axis reads "baseline, break, edge, …".
+    Drops tick values that fall inside a break and makes sure a baseline
+    break's baseline is present, so the axis reads "baseline, break, edge, …".
 */
-export function breakTickValues(brk: AxisBaselineBreak, values: unknown[]): unknown[] {
-  const lo = Math.min(brk.value, brk.edge);
-  const hi = Math.max(brk.value, brk.edge);
+export function breakTickValues(breaks: AxisBreak[], values: unknown[]): unknown[] {
   const kept = values.filter(v => {
     const n = Number(v);
-    return !(n > lo && n < hi);
+    return !breaks.some(b => n > Math.min(b.start, b.end) && n < Math.max(b.start, b.end));
   });
-  if (!kept.some(v => Number(v) === brk.value)) kept.push(brk.value);
+  breaks.forEach(b => {
+    if (b.baseline && !kept.some(v => Number(v) === b.start)) kept.push(b.start);
+  });
   return kept;
 }
 
+/** The pixel gap (`[from, to]`, ascending) a break leaves in the axis line. */
+export function breakGap(axis: Axis, brk: AxisBreak): [number, number] {
+  const {gap} = breakStyle(axis, brk.baseline ? "baselineBreakConfig" : "breakConfig");
+  const center = (brk.startPosition + brk.endPosition) / 2;
+  return [center - gap / 2, center + gap / 2];
+}
+
 /**
-    The axis's domain bar: a single line, or — with an active baseline break —
-    the split bar plus its break glyph. `toPaint` resolves a line-style config
-    (`barConfig`, `baselineBreakConfig`) into a Paint.
+    The axis's domain bar: a single line, or — on a broken axis — the bar
+    split at each break plus the break glyphs. `toPaint` resolves a line-style
+    config (`barConfig`, `breakConfig`, `baselineBreakConfig`) into a Paint.
 */
 export function axisBarNodes(
   axis: Axis,
@@ -116,53 +166,78 @@ export function axisBarNodes(
   toPaint: (cfg: Record<string, unknown>) => Paint,
 ): SceneNode[] {
   const barPaint = toPaint(axis.schema.barConfig as Record<string, unknown>);
-  const brk = axis._baselineBreak;
-  if (!brk) return [{type: "line", key: "bar", points, paint: barPaint}];
-  const markPaint = toPaint(axis.schema.baselineBreakConfig as Record<string, unknown>);
-  return baselineBreakScene(axis, brk, points, barPaint, markPaint);
+  const breaks = axis._breaks || [];
+  if (!breaks.length) return [{type: "line", key: "bar", points, paint: barPaint}];
+  return brokenBarScene(axis, breaks, points, barPaint, toPaint);
 }
 
 /**
-    The domain bar of a broken axis plus its break glyph: the bar is split
-    into a short baseline segment and the main segment, with the gap between
-    them bounded by two parallel, tilted marks drawn on the tick side of the
-    axis line, so nothing reaches into the plot. `points` is the unbroken bar.
+    The domain bar of a broken axis plus its break glyphs. The bar runs from
+    the baseline (on a baseline break) or its own start to its far end, gapped
+    at every break; each gap is bounded by two parallel marks drawn outward on
+    the tick side of the axis line, so nothing reaches into the plot. A
+    baseline break's segment is keyed `bar-baseline` and its marks
+    `baseline-break-0/1`; the bar's segments are `bar`, `bar-1`, … and an
+    explicit break's marks `break-<i>-0/1`. `points` is the unbroken bar.
 */
-export function baselineBreakScene(
+export function brokenBarScene(
   axis: Axis,
-  brk: AxisBaselineBreak,
+  breaks: AxisBreak[],
   points: [number, number][],
   barPaint: Paint,
-  markPaint: Paint,
+  toPaint: (cfg: Record<string, unknown>) => Paint,
 ): SceneNode[] {
   const horizontal = axis._position.horizontal;
   const along = horizontal ? 0 : 1;
   const cross = points[0][1 - along];
-  const ends = points.map(p => p[along]);
-  const far = Math.abs(ends[0] - brk.position) > Math.abs(ends[1] - brk.position) ? ends[0] : ends[1];
-  const dir = Math.sign(brk.edgePosition - brk.position);
-  const {angle, gap, size} = baselineBreakStyle(axis);
-  const center = (brk.position + brk.edgePosition) / 2;
-  const gapStart = center - (dir * gap) / 2;
-  const gapEnd = center + (dir * gap) / 2;
-
   const pt = (a: number, c: number): [number, number] => (horizontal ? [a, c] : [c, a]);
-  const rad = (angle * Math.PI) / 180;
-  // Marks start on the axis line and run outward on the tick side (away from
-  // the plot), tilting `angle` degrees from perpendicular toward the baseline.
+  const ends = points.map(p => p[along]);
+  const edge = breaks.find(b => b.baseline);
+  if (edge) ends.push(edge.startPosition);
+  const lo = Math.min(...ends);
+  const hi = Math.max(...ends);
   const outward = ["top", "left"].includes(axis.schema.orient) ? -1 : 1;
-  const dAlong = Math.sin(rad) * size;
-  const dCross = Math.cos(rad) * size;
-  const mark = (a: number): [number, number][] => [
-    pt(a, cross),
-    pt(a - dir * dAlong, cross + outward * dCross),
-  ];
 
-  const nodes: LineNode[] = [
-    {type: "line", key: "bar-baseline", points: [pt(brk.position, cross), pt(gapStart, cross)], paint: barPaint},
-    {type: "line", key: "bar", points: [pt(gapEnd, cross), pt(far, cross)], paint: barPaint},
-    {type: "line", key: "baseline-break-0", points: mark(gapStart), paint: markPaint},
-    {type: "line", key: "baseline-break-1", points: mark(gapEnd), paint: markPaint},
-  ];
+  const gaps = breaks.map(b => breakGap(axis, b)).sort((a, b) => a[0] - b[0]);
+  const spans: [number, number][] = [];
+  let from = lo;
+  gaps.forEach(([g0, g1]) => {
+    spans.push([from, g0]);
+    from = g1;
+  });
+  spans.push([from, hi]);
+  const baselineIndex = edge ? (edge.startPosition <= lo ? 0 : spans.length - 1) : -1;
+  // Segments run away from the baseline end of the axis.
+  const flip = baselineIndex > 0;
+  let barIndex = 0;
+  const nodes: LineNode[] = spans.map(([a, b], i) => {
+    const key = i === baselineIndex ? "bar-baseline" : barIndex++ ? `bar-${barIndex - 1}` : "bar";
+    const ends: [number, number][] = [pt(a, cross), pt(b, cross)];
+    return {type: "line", key, points: flip ? ends.reverse() : ends, paint: barPaint};
+  });
+  // The baseline segment leads, then the bar's own segments.
+  if (baselineIndex > 0) nodes.unshift(...nodes.splice(baselineIndex, 1));
+
+  let explicit = 0;
+  breaks.forEach(brk => {
+    const cfgKey = brk.baseline ? "baselineBreakConfig" : "breakConfig";
+    const {angle, size} = breakStyle(axis, cfgKey);
+    const paint = toPaint(axis.schema[cfgKey] as Record<string, unknown>);
+    const dir = Math.sign(brk.endPosition - brk.startPosition);
+    const rad = (angle * Math.PI) / 180;
+    // Marks start on the axis line and run outward on the tick side (away
+    // from the plot), tilting `angle` degrees from perpendicular toward the
+    // baseline side of the break.
+    const dAlong = Math.sin(rad) * size;
+    const dCross = Math.cos(rad) * size;
+    const mark = (a: number): [number, number][] => [pt(a, cross), pt(a - dir * dAlong, cross + outward * dCross)];
+    const prefix = brk.baseline ? "baseline-break" : `break-${explicit++}`;
+    const [g0, g1] = breakGap(axis, brk);
+    const [first, second] = dir < 0 ? [g1, g0] : [g0, g1];
+    nodes.push(
+      {type: "line", key: `${prefix}-0`, points: mark(first), paint},
+      {type: "line", key: `${prefix}-1`, points: mark(second), paint},
+    );
+  });
   return nodes;
 }

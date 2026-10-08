@@ -13,8 +13,7 @@ import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
 import {gridStroke} from "./gridStroke.js";
-import {breakPosition} from "./axisBreak.js";
-import type {AxisBaselineBreak} from "./axisBreak.js";
+import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
 import {
   axisToScene,
   buildTickData,
@@ -33,6 +32,7 @@ const axisSchema: ConfigField[] = [
   {key: "align", coerce: "identity", default: "middle"},
   {key: "baseline", coerce: "identity", default: 0},
   {key: "baselineBreak", coerce: "identity", default: false},
+  {key: "break", coerce: "identity", default: false},
   {key: "domain", coerce: "identity", default: [0, 10]},
   {key: "domainTicks", coerce: "identity", default: true},
   {key: "duration", coerce: "identity", default: 600},
@@ -101,6 +101,8 @@ export default class Axis extends BaseClass {
   _d3ScaleNegative: D3Scale | null = null;
   /** The active baseline break, set by the layout pass (see `baselineBreak`). */
   _baselineBreak: AxisBaselineBreak | null = null;
+  /** Every active break (baseline and explicit), set by the layout pass. */
+  _breaks: AxisBreak[] = [];
   _group!: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
   _availableTicks: unknown[];
@@ -133,9 +135,10 @@ export default class Axis extends BaseClass {
       },
       "stroke-width": 1,
     };
-    this.schema.baselineBreakConfig = {
+    const breakDefaults = (mask: boolean) => ({
       angle: 30,
       gap: 5,
+      mask,
       size: 10,
       space: 36,
       stroke: () => {
@@ -143,7 +146,9 @@ export default class Axis extends BaseClass {
         return colorContrast(bg, this.schema.colorDefaults);
       },
       "stroke-width": 1,
-    };
+    });
+    this.schema.baselineBreakConfig = breakDefaults(false);
+    this.schema.breakConfig = breakDefaults(true);
     this.schema.gridConfig = {
       stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
       "stroke-width": 1,
@@ -235,10 +240,6 @@ export default class Axis extends BaseClass {
       @param d @private
 */
   _getPosition(d: unknown): number {
-    if (this._baselineBreak && typeof d === "number") {
-      const pos = breakPosition(this._baselineBreak, d);
-      if (pos !== undefined) return pos;
-    }
     if (this.schema.scale === "log") {
       if (d === 0)
         return (this._d3Scale || this._d3ScaleNegative)!.range()[
@@ -452,13 +453,32 @@ export default class Axis extends BaseClass {
   }
 
   /**
+      Style of the breaks set with `break`: `space` (pixels of axis each break
+      occupies), `gap` (pixels between its two marks, where the axis line is
+      not drawn), `size` (length of each mark, drawn outward from the axis
+      line on the tick side so it never reaches into the plot), `angle`
+      (degrees each mark tilts from perpendicular), `mask` (whether a Plot
+      cuts a matching gap across the shapes that cross the break, default
+      `true`), plus `stroke`/`stroke-width` and other line styles.
+*/
+  breakConfig(): Record<string, unknown>;
+  breakConfig(_: Record<string, unknown>): this;
+  breakConfig(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.breakConfig = Object.assign(this.schema.breakConfig, _)), this)
+      : this.schema.breakConfig;
+  }
+
+  /**
       Style of the break drawn when `baselineBreak` is on and the domain stops
       short of `baseline`: `space` (pixels of axis between the baseline tick
       and the first tick after the break), `gap` (pixels between the two
       break marks, where the axis line is not drawn), `size` (length of each
       mark, drawn outward from the axis line on the tick side so it never
       reaches into the plot), `angle` (degrees each mark tilts from
-      perpendicular), plus `stroke`/`stroke-width` and other line styles.
+      perpendicular), `mask` (whether a Plot cuts a matching gap across the
+      bars that cross the break, default `false`), plus `stroke`/`stroke-width`
+      and other line styles.
 */
   baselineBreakConfig(): Record<string, unknown>;
   baselineBreakConfig(_: Record<string, unknown>): this;

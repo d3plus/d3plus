@@ -562,3 +562,19 @@ HorizontalBaselineBreak.args = {
   y: "year"
 };
 HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};
+
+export const OutlierBarBreak = Template.bind({});
+OutlierBarBreak.args = {
+  data: [
+    {region: "North", sales: 42},
+    {region: "South", sales: 58},
+    {region: "East", sales: 35},
+    {region: "Online", sales: 960},
+    {region: "West", sales: 51}
+  ],
+  groupBy: "region",
+  x: "region",
+  y: "sales",
+  yBreak: [80, 900]
+};
+OutlierBarBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges, and a gap is cut across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (set `mask: false` to leave the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767)."}}};

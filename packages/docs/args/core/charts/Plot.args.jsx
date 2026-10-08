@@ -1844,6 +1844,21 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    xBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the x axis — `[start, end]` or a list of\nthem — drawn as a break in the axis with a gap cut across the shapes\nthat cross it (see the axis `break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
+      }
+    },
     xConfig: {
       control: {},
       defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
@@ -1973,6 +1988,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    yBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the y axis — `[start, end]` or a list of\nthem, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the\naxis with a gap cut across the shapes that cross it (see the axis\n`break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
       }
     },
     yConfig: {
