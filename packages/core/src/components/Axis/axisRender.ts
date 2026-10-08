@@ -10,14 +10,14 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
+import {addDomainEnds, isNegative} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 
-/* catches for -0 and less*/
-export const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
+export {isNegative};
 
 const floorPow = (d: number): number =>
   Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
@@ -167,28 +167,7 @@ export function calculateTicks(
     });
   }
 
-  // forces min/max into ticks, if not present
-  if (this.schema.domainTicks === false) return ticks;
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 1 : 0]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[0])) {
-      ticks.unshift(domain[0]);
-    }
-  }
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 0 : 1]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[1])) {
-      ticks.push(domain[1]);
-    }
-  }
-
-  return ticks;
+  return addDomainEnds(this, ticks, domain, scaleClone, !minorTicks);
 }
 
 /** Laid-out artifacts produced by `measureAxis` that the paint phase consumes. */
