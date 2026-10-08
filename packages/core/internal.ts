@@ -63,7 +63,10 @@ export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/ch
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
-export {sunburstLabelBox, sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
+export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
+export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
+export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
+export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";

@@ -5,6 +5,7 @@ import {
   nestSunburst,
   sunburstLayout,
   sunburstLineage,
+  siblingSpread,
   sunburstSort,
 } from "../../es/src/charts/Sunburst/partition.js";
 import {sunburstRadii} from "../../es/src/charts/Sunburst/geometry.js";
@@ -232,5 +233,28 @@ it("Sunburst partition: sunburstLineage walks from a node out to its outermost d
   assert.deepStrictEqual(
     sunburstLineage(a2).map(n => n.id),
     [a2.id, JSON.stringify(["A"])],
+  );
+});
+
+it("Sunburst partition: siblingSpread ranks drawn siblings by value, largest first", () => {
+  const nodes = layout();
+  const spread = path => nodes.find(n => n.id === JSON.stringify(path)).spread;
+  assert.strictEqual(spread(["B"]), 0, "largest top-level group");
+  assert.strictEqual(spread(["A"]), 1);
+  assert.strictEqual(spread(["A", "a1"]), 0);
+  assert.strictEqual(spread(["A", "a2"]), 1);
+  const parent = {children: []};
+  const kids = [30, 0, 10, 20].map(value => ({value, parent}));
+  parent.children = kids;
+  assert.deepStrictEqual(
+    kids.map(siblingSpread),
+    [0, 0, 1, 0.5],
+    "zero-value siblings don't count",
+  );
+  assert.strictEqual(siblingSpread({value: 1}), 0, "the root");
+  assert.strictEqual(
+    siblingSpread({value: 1, parent: {children: [{value: 1}]}}),
+    0,
+    "an only child",
   );
 });

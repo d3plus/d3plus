@@ -1,6 +1,7 @@
 /**
     Pure polar geometry for the Sunburst: ring radii per hierarchy depth, the
-    per-arc pad angle, and where (and in which orientation) an arc's label fits.
+    per-arc pad angle, zoom collapse targets, and the label rotations that
+    never read upside down.
 
     Angles follow d3-shape's convention: 0 is 12 o'clock, increasing clockwise.
 */
@@ -14,16 +15,6 @@ export interface SunburstArc {
   outerRadius: number;
   startAngle: number;
   endAngle: number;
-}
-
-/** Where an arc's label goes: a box centered at (x, y), rotated `rotate` degrees about its center. */
-export interface SunburstLabelBox {
-  orientation: "center" | "radial" | "tangential";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotate: number;
 }
 
 const TAU = Math.PI * 2;
@@ -114,45 +105,8 @@ export function sunburstPadAngle(
   return padRadius ? padPixel / padRadius : 0;
 }
 
-/** The largest box (w, h) of the given thickness `along` the radius that sits centered in the arc. */
-function radialFit(arc: SunburstArc, padding: number): [number, number] {
-  const {innerRadius: ir, outerRadius: or} = arc;
-  const span = arc.endAngle - arc.startAngle;
-  const w = Math.max(0, or - ir - padding * 2);
-  const near = ir + padding;
-  const far = or - padding;
-  const angular = span < Math.PI ? near * Math.tan(span / 2) : near;
-  const rim = Math.sqrt(Math.max(0, or * or - far * far));
-  return [w, Math.max(0, 2 * Math.min(angular, rim) - padding * 2)];
-}
-
-/** The largest box running along the arc's tangent, at most `heightShare` of the ring thick. */
-function tangentialFit(
-  arc: SunburstArc,
-  padding: number,
-  heightShare = 0.6,
-): [number, number] {
-  const {innerRadius: ir, outerRadius: or} = arc;
-  const span = arc.endAngle - arc.startAngle;
-  const rm = (ir + or) / 2;
-  const h = Math.max(0, (or - ir) * heightShare);
-  const near = rm - h / 2;
-  const far = rm + h / 2;
-  const angular = span < Math.PI ? near * Math.tan(span / 2) : Infinity;
-  const rim = Math.sqrt(Math.max(0, or * or - far * far));
-  return [Math.max(0, 2 * Math.min(angular, rim) - padding * 2), h];
-}
-
-/**
-    The largest font height a box can hold for a label `aspect` times wider than
-    it is tall — the score that picks a label's orientation.
-*/
-function fontRoom(w: number, h: number, aspect: number): number {
-  return Math.min(h, w / aspect);
-}
-
-/** Normalizes an angle in degrees into [0, 360). */
-function degrees(radians: number): number {
+/** Normalizes an angle in radians into degrees in [0, 360). */
+export function degrees(radians: number): number {
   const d = (radians * 180) / Math.PI;
   return ((d % 360) + 360) % 360;
 }
@@ -171,59 +125,4 @@ export function radialRotation(a: number): number {
 */
 export function tangentialRotation(a: number): number {
   return a > 90 && a < 270 ? a - 180 : a >= 270 ? a - 360 : a;
-}
-
-/**
-    Decides whether, and how, a label fits inside an arc.
-
-    The full-circle center slot gets an upright box inscribed in its disc. A
-    ring arc compares the box that runs along its tangent with the one that
-    runs along its radius and keeps whichever lets a typical label (`aspect`
-    times wider than tall) be drawn larger: wide arcs read tangentially, thin
-    slivers of the outer rings read radially. Returns null when neither box can
-    hold text at `fontMin` pixels.
-
-    @param arc The node's polar extent.
-    @param options `fontMin` (px, default 8), `padding` (px, default 2), and the
-        expected label `aspect` ratio (default 4).
-*/
-export function sunburstLabelBox(
-  arc: SunburstArc,
-  options: {fontMin?: number; padding?: number; aspect?: number} = {},
-): SunburstLabelBox | null {
-  const {fontMin = 8, padding = 2, aspect = 4} = options;
-  const span = arc.endAngle - arc.startAngle;
-  if (!(span > 0) || !(arc.outerRadius > arc.innerRadius)) return null;
-
-  if (arc.innerRadius <= 0 && span >= TAU - 1e-6) {
-    const r = arc.outerRadius;
-    const box = {
-      orientation: "center" as const,
-      x: 0,
-      y: 0,
-      width: r * 1.6,
-      height: r * 0.9,
-      rotate: 0,
-    };
-    return fontRoom(box.width, box.height, aspect) >= fontMin ? box : null;
-  }
-
-  const [tw, th] = tangentialFit(arc, padding);
-  const [rw, rh] = radialFit(arc, padding);
-  const tangentialRoom = fontRoom(tw, th, aspect);
-  const radialRoom = fontRoom(rw, rh, aspect);
-  const radial = radialRoom > tangentialRoom;
-  if (Math.max(tangentialRoom, radialRoom) < fontMin) return null;
-
-  const mid = (arc.startAngle + arc.endAngle) / 2;
-  const rm = (arc.innerRadius + arc.outerRadius) / 2;
-  const a = degrees(mid);
-  return {
-    orientation: radial ? "radial" : "tangential",
-    x: rm * Math.sin(mid),
-    y: -rm * Math.cos(mid),
-    width: radial ? rw : tw,
-    height: radial ? rh : th,
-    rotate: radial ? radialRotation(a) : tangentialRotation(a),
-  };
 }

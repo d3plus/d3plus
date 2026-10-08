@@ -1,8 +1,8 @@
 import assert from "assert";
 import {
+  degrees,
   radialRotation,
   sunburstCollapse,
-  sunburstLabelBox,
   sunburstPadAngle,
   sunburstRadii,
   tangentialRotation,
@@ -87,116 +87,6 @@ it("Sunburst geometry: label rotation: runs tangential text along the arc and ne
   assert.strictEqual(tangentialRotation(270), -90);
 });
 
-it("Sunburst geometry: sunburstLabelBox: centers an upright box in the full center disc", () => {
-  const box = sunburstLabelBox({
-    innerRadius: 0,
-    outerRadius: 50,
-    startAngle: 0,
-    endAngle: TAU,
-  });
-  assert.strictEqual(box.orientation, "center");
-  assert.deepStrictEqual([box.x, box.y, box.rotate], [0, 0, 0]);
-  assert.ok(box.width > box.height);
-});
-
-it("Sunburst geometry: sunburstLabelBox: reads a wide arc tangentially, centered on its middle radius", () => {
-  const box = sunburstLabelBox({
-    innerRadius: 100,
-    outerRadius: 140,
-    startAngle: 0,
-    endAngle: Math.PI / 2,
-  });
-  assert.strictEqual(box.orientation, "tangential");
-  close(Math.hypot(box.x, box.y), 120, "middle radius");
-  close(box.rotate, 45, "tangent at 45°");
-  assert.ok(box.width > box.height);
-});
-
-it("Sunburst geometry: sunburstLabelBox: reads a thin sliver radially", () => {
-  const box = sunburstLabelBox({
-    innerRadius: 150,
-    outerRadius: 250,
-    startAngle: Math.PI / 2,
-    endAngle: Math.PI / 2 + 0.12,
-  });
-  assert.strictEqual(box.orientation, "radial");
-  assert.ok(Math.abs(box.rotate) < 5, "near-horizontal at 3 o'clock");
-  assert.ok(box.width > box.height);
-});
-
-it("Sunburst geometry: sunburstLabelBox: keeps every box corner inside its arc", () => {
-  const arc = {
-    innerRadius: 80,
-    outerRadius: 120,
-    startAngle: 0.3,
-    endAngle: 0.9,
-  };
-  const box = sunburstLabelBox(arc);
-  const rad = (box.rotate * Math.PI) / 180;
-  for (const [dx, dy] of [
-    [-1, -1],
-    [1, -1],
-    [1, 1],
-    [-1, 1],
-  ]) {
-    const lx = (dx * box.width) / 2,
-      ly = (dy * box.height) / 2;
-    const x = box.x + lx * Math.cos(rad) - ly * Math.sin(rad);
-    const y = box.y + lx * Math.sin(rad) + ly * Math.cos(rad);
-    const r = Math.hypot(x, y);
-    const a = Math.atan2(x, -y);
-    assert.ok(
-      r >= arc.innerRadius - 1e-6 && r <= arc.outerRadius + 1e-6,
-      `radius ${r}`,
-    );
-    assert.ok(
-      a >= arc.startAngle - 1e-6 && a <= arc.endAngle + 1e-6,
-      `angle ${a}`,
-    );
-  }
-});
-
-it("Sunburst geometry: sunburstLabelBox: returns null where no label fits", () => {
-  assert.strictEqual(
-    sunburstLabelBox({
-      innerRadius: 100,
-      outerRadius: 104,
-      startAngle: 0,
-      endAngle: 0.02,
-    }),
-    null,
-  );
-  assert.strictEqual(
-    sunburstLabelBox({
-      innerRadius: 100,
-      outerRadius: 140,
-      startAngle: 1,
-      endAngle: 1,
-    }),
-    null,
-  );
-  assert.strictEqual(
-    sunburstLabelBox({
-      innerRadius: 0,
-      outerRadius: 5,
-      startAngle: 0,
-      endAngle: TAU,
-    }),
-    null,
-  );
-});
-
-it("Sunburst geometry: sunburstLabelBox: raises the bar with fontMin", () => {
-  const arc = {
-    innerRadius: 100,
-    outerRadius: 130,
-    startAngle: 0,
-    endAngle: 0.4,
-  };
-  assert.ok(sunburstLabelBox(arc, {fontMin: 6}));
-  assert.strictEqual(sunburstLabelBox(arc, {fontMin: 40}), null);
-});
-
 const radii = [
   [0, 50],
   [50, 100],
@@ -259,4 +149,10 @@ it("Sunburst geometry: sunburstCollapse: maps an angle inside the focus proporti
   );
   close(mid.startAngle, TAU / 4, "quarter");
   close(mid.endAngle, TAU / 2, "half");
+});
+
+it("Sunburst geometry: degrees normalizes radians into [0, 360)", () => {
+  assert.strictEqual(degrees(Math.PI / 2), 90);
+  assert.strictEqual(degrees(-Math.PI / 2), 270);
+  assert.strictEqual(degrees(TAU + Math.PI), 180);
 });

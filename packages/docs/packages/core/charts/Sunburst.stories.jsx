@@ -85,6 +85,14 @@ MultiLevel.parameters = {
   docs: {
     description: {
       story:
+        "A three-level `groupBy` draws three rings. Each branch keeps its top-level color, lightened per ring and per sibling (largest darkest). Labels appear only where their whole words fit, as close to horizontal as reads comfortably. Hover an arc to highlight it with its ancestors.",
+    },
+  },
+};
+  controls: {include: ["groupBy", "depth"]},
+  docs: {
+    description: {
+      story:
         "A three-level `groupBy` draws three rings. Labels appear only where they fit, running along the arc on wide arcs and along the radius on thin ones. Hover an arc to highlight it with its ancestors.",
     },
   },
@@ -140,6 +148,23 @@ SmallDataThreshold.parameters = {
     description: {
       story:
         "`threshold: 0.03` merges the files below 3% of the total within each module into one bucket labeled by `thresholdName`, keeping slivers from cluttering the outer ring.",
+    },
+  },
+};
+
+export const Shading = Template.bind({});
+Shading.args = {
+  data: codebase,
+  groupBy: ["area", "module", "file"],
+  sum: "size",
+  shadeConfig: {depth: 0.15, sibling: 0.2, max: 0.45},
+};
+Shading.parameters = {
+  controls: {include: ["shade", "shadeConfig"]},
+  docs: {
+    description: {
+      story:
+        "`shadeConfig` sets how much each ring (`depth`) and each step down the sibling order (`sibling`) lightens an arc, up to `max`; `shade: false` draws every arc in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.",
     },
   },
 };

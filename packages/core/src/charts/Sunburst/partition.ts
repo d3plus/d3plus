@@ -53,6 +53,11 @@ export interface SunburstNode {
   share: number;
   /** Share of the parent node. */
   parentShare: number;
+  /**
+      Rank among its drawn siblings by value, largest first, scaled to 0–1
+      (0 for the largest, or an only child).
+  */
+  spread: number;
   startAngle: number;
   endAngle: number;
   innerRadius: number;
@@ -167,6 +172,16 @@ export function mergeBranch(
   return merged;
 }
 
+/** A hierarchy node's rank among its drawn (non-empty) siblings by value, largest first, scaled to 0–1. */
+export function siblingSpread<T>(node: HierarchyNode<T>): number {
+  if (!node.parent) return 0;
+  const siblings = (node.parent.children ?? [])
+    .filter(c => (c.value ?? 0) > 0)
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  if (siblings.length < 2) return 0;
+  return Math.max(0, siblings.indexOf(node)) / (siblings.length - 1);
+}
+
 /**
     Lays out the Sunburst. Returns every drawn node, parents before children:
     the focused node first (as the center disc) when there is one, then each
@@ -222,6 +237,7 @@ export function sunburstLayout(inputs: SunburstLayoutInputs): SunburstNode[] {
       innerRadius,
       outerRadius,
       hasChildren: Boolean(n.children && n.children.length),
+      spread: siblingSpread(n),
       parent: n.parent ? byBranch.get(n.parent.data) : undefined,
     };
     byBranch.set(branch, node);

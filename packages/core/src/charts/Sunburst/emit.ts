@@ -5,6 +5,8 @@
 
 import {arc as d3Arc} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
+import {fontExists, textWidth} from "@d3plus/dom";
+import {fontFamily} from "@d3plus/text";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import type {ArcGeometry, SceneNode} from "@d3plus/render";
@@ -18,8 +20,15 @@ import {
 } from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
-import {sunburstLabelBox, sunburstPadAngle} from "./geometry.js";
-import type {SunburstLabelBox} from "./geometry.js";
+import {sunburstPadAngle} from "./geometry.js";
+import {sunburstLabelBox, sunburstSplit} from "./labelFit.js";
+import type {SunburstLabelBox, SunburstLabelMetrics} from "./labelFit.js";
+import {
+  sunburstShadeActive,
+  sunburstShadeAmount,
+  sunburstShadeFill,
+} from "./shade.js";
+import type {SunburstShadeConfig} from "./shade.js";
 import type {SunburstNode} from "./partition.js";
 import type {SunburstGhost} from "./applyLayout.js";
 
@@ -56,6 +65,94 @@ export function sunburstLabel(
   return viz._drawLabel(node.datum, node.i ?? 0, node.level);
 }
 
+/**
+    A label's whole words measured at a 1px font size; `measure` returns the
+    widths of the strings it's given at that size.
+*/
+export function sunburstLabelMetrics(
+  text: string,
+  measure: (strings: string[]) => number[],
+): SunburstLabelMetrics {
+  const words = sunburstSplit(text)
+    .map(w => w.trim())
+    .filter(Boolean);
+  if (!words.length) return {words: [], space: 0};
+  const [space, ...widths] = measure(["\u00a0", ...words]);
+  return {words: widths, space};
+}
+
+/** Resolves a label style value that may be a per-datum accessor. */
+function labelStyle(value: unknown, d: DataPoint, fallback: unknown): unknown {
+  const v =
+    typeof value === "function"
+      ? (value as (d: DataPoint, i: number) => unknown)(d, 0)
+      : value;
+  return v ?? fallback;
+}
+
+type Fillable = Pick<SunburstNode, "datum" | "i" | "level" | "spread">;
+
+/** Resolves an arc's fill: the shape config's fill, shaded by ring and sibling rank on the default color path. */
+function fillResolver(
+  viz: Parameters<ChartEmit>[0]["viz"],
+  sc: Record<string, unknown>,
+): (node: Fillable) => string | undefined {
+  const shade = sunburstShadeActive(viz.schema, {
+    color: viz.ctx.sunburstDefaultColor,
+    fill: viz.ctx.sunburstDefaultFill,
+  });
+  const shadeConfig = viz.schema.shadeConfig as Partial<SunburstShadeConfig>;
+  return (node: Fillable): string | undefined => {
+    const fill = resolveAccessor<unknown>(sc.fill, node.datum, node.i ?? 0);
+    if (typeof fill !== "string") return undefined;
+    return shade
+      ? sunburstShadeFill(
+          fill,
+          sunburstShadeAmount(node.level, node.spread, shadeConfig),
+        )
+      : fill;
+  };
+}
+
+/** Where each node's label fits, measured in the label font; nodes without room are left out. */
+function labelBoxes(
+  viz: Parameters<ChartEmit>[0]["viz"],
+  nodes: SunburstNode[],
+  labelConfig: Record<string, unknown>,
+  options: {
+    fontMin: number;
+    fontMax: number;
+    padAngle: number;
+    padPixel: number;
+  },
+): Map<SunburstNode, SunburstLabelBox> {
+  const {fontMin, fontMax, padAngle, padPixel} = options;
+  const boxes = new Map<SunburstNode, SunburstLabelBox>();
+  for (const node of nodes) {
+    const style = {
+      "font-family": fontExists(
+        labelStyle(labelConfig.fontFamily, node.datum, fontFamily) as string[],
+      ) as string,
+      "font-size": 100,
+      "font-weight": labelStyle(
+        labelConfig.fontWeight,
+        node.datum,
+        400,
+      ) as number,
+    };
+    const metrics = sunburstLabelMetrics(sunburstLabel(viz, node), strings =>
+      (textWidth(strings, style) as number[]).map(w => w / 100),
+    );
+    const box = sunburstLabelBox(
+      sunburstArcGeometry(node, padAngle, padPixel),
+      metrics,
+      {fontMin, fontMax},
+    );
+    if (box) boxes.set(node, box);
+  }
+  return boxes;
+}
+
 export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as SunburstNode[];
   if (!nodes.length) return [];
@@ -65,10 +162,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const padPixel = Number(viz.schema.padPixel) || 0;
   const sumFn = viz.schema.sum as (d: DataPoint) => number;
   const locale = viz.schema.locale;
-  const fillOf = (node: SunburstNode): string | undefined => {
-    const fill = resolveAccessor<unknown>(sc.fill, node.datum, node.i ?? 0);
-    return typeof fill === "string" ? fill : undefined;
-  };
+  const fillOf = fillResolver(viz, sc);
 
   const pathNodes: SceneNode[] = nodes.map(node => {
     const i = node.i ?? 0;
@@ -104,7 +198,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
       d: arcPath(arc) ?? "",
       arc,
       paint: {
-        fill: fillOf({datum: g.datum, i: g.i} as SunburstNode),
+        fill: fillOf(g),
         opacity: 1,
       },
     } as SceneNode;
@@ -116,14 +210,14 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   >;
   const fontMin =
     typeof labelConfig.fontMin === "number" ? labelConfig.fontMin : 8;
-  const boxes = new Map<SunburstNode, SunburstLabelBox>();
-  for (const node of nodes) {
-    const box = sunburstLabelBox(
-      sunburstArcGeometry(node, padAngle, padPixel),
-      {fontMin},
-    );
-    if (box) boxes.set(node, box);
-  }
+  const fontMax =
+    typeof labelConfig.fontMax === "number" ? labelConfig.fontMax : 24;
+  const boxes = labelBoxes(viz, nodes, labelConfig, {
+    fontMin,
+    fontMax,
+    padAngle,
+    padPixel,
+  });
   const labeled = nodes.filter(n => boxes.has(n));
 
   const labelNodes = emitLabels({
@@ -140,8 +234,10 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
       return {x: -width / 2, y: -height / 2, width, height};
     },
     labelConfig: {
-      fontMax: 24,
+      fontMax,
       fontMin,
+      // Words wrap only at spaces; the label box was sized for whole words.
+      split: sunburstSplit,
       fontResize: true,
       padding: 0,
       textAnchor: "middle",

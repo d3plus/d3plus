@@ -25669,6 +25669,8 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `padAngle` | `0` |
 | `padPixel` | `0` |
 | `ringSize` | `"equal"` |
+| `shade` | `true` |
+| `shadeConfig` | — |
 | `sort` | — |
 | `sum` | `accessor(…)` |
 | `shapeConfig` | — |
@@ -25678,7 +25680,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: charts/Sunburst/index.ts:189
+Defined in: [charts/Sunburst/index.ts:211](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sunburst/index.ts#L211)
 
 Draws a hierarchy as concentric rings, one per `groupBy` level, where each
 node's arc angle is proportional to its summed value. Click an arc to zoom

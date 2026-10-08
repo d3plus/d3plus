@@ -34,6 +34,7 @@ import {applySunburstLayout} from "./applyLayout.js";
 import {sunburstEmit} from "./emit.js";
 import {sunburstHandlers} from "./interaction.js";
 import {sunburstSort} from "./partition.js";
+import {sunburstShadeDefaults} from "./shade.js";
 import type {SunburstSort} from "./partition.js";
 
 /** The "Share" tooltip row: a node's share of the drawn whole. */
@@ -95,6 +96,11 @@ export const sunburstDef: DataDrivenChartDefinition = {
   },
 
   setup: (viz: VizInstance) => {
+    // Shading applies only while these stay the chart's own defaults.
+    viz.ctx.sunburstDefaultColor = viz.schema.color;
+    viz.ctx.sunburstDefaultFill = (
+      viz.schema.shapeConfig as Record<string, unknown>
+    ).fill;
     Object.assign(
       viz.schema.on,
       sunburstHandlers(
@@ -121,6 +127,22 @@ export const sunburstDef: DataDrivenChartDefinition = {
         gives every ring the same area.
     */
     {key: "ringSize", default: "equal"},
+    /**
+        Lightens each arc below the top ring by its ring and by its rank among
+        its siblings (see `shadeConfig`). Applies only to the default colors: a
+        custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given.
+    */
+    {key: "shade", default: true},
+    /**
+        Shading strengths: `depth` per `groupBy` level below the top ring,
+        `sibling` across siblings from the largest (none) to the smallest, and
+        the `max` any arc lightens (`colorLighter` amounts, 0–1).
+    */
+    {
+      key: "shadeConfig",
+      merge: true,
+      factory: () => ({...sunburstShadeDefaults}),
+    },
     {
       key: "sort",
       default: ((a, b) => (b.value ?? 0) - (a.value ?? 0)) as SunburstSort,
