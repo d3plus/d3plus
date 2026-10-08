@@ -25,6 +25,7 @@ const charts = [
   ["Rings", "rings"],
   ["Sankey", "sankey"],
   ["Stacked Area", "stackedarea"],
+  ["Sunburst", "sunburst"],
   ["Tree", "tree"],
   ["Treemap", "treemap"],
 ];

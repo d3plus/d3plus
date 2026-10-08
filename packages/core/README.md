@@ -52,6 +52,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Rings`](#rings) | Creates a ring visualization based on a defined set of nodes and edges. |
 | [`Sankey`](#sankey) | Creates a Sankey visualization based on a defined set of nodes and links. |
 | [`StackedArea`](#stackedarea) | Creates a stacked area plot based on an array of data. Each point's |
+| [`Sunburst`](#sunburst) | Draws a hierarchy as concentric rings, one per `groupBy` level, where each |
 | [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
 | [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
 
@@ -25653,6 +25654,35 @@ Defined in: [charts/StackedArea/index.ts:29](https://github.com/d3plus/d3plus/bl
 Creates a stacked area plot based on an array of data. Each point's
 fraction of its stack total is available to tooltip accessors as `share`
 (unless the data has its own `share` field).
+
+***
+
+<a id="sunburst"></a>
+
+### Sunburst
+
+Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides these defaults:
+
+| Method | Default |
+| --- | --- |
+| `innerRadius` | — |
+| `padAngle` | `0` |
+| `padPixel` | `0` |
+| `ringSize` | `"equal"` |
+| `sort` | — |
+| `sum` | `accessor(…)` |
+| `shapeConfig` | — |
+| `tooltipConfig` | — |
+| `legendTooltip` | — |
+| `legendSort` | — |
+| `legend` | — |
+
+
+Defined in: charts/Sunburst/index.ts:189
+
+Draws a hierarchy as concentric rings, one per `groupBy` level, where each
+node's arc angle is proportional to its summed value. Click an arc to zoom
+into it; click the center (or Back) to zoom out.
 
 ***
 

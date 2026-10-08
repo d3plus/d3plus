@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sunburst</title>
+    <meta name="description" content="A three-level Sunburst of a codebase by area, module and file; click an arc to zoom in, the center to zoom out. Commented setters toggle depth, shading, ring size, padding, threshold and canvas." />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    var data = [
+      {area: "Frontend", module: "Components", file: "Button", size: 120},
+      {area: "Frontend", module: "Components", file: "Modal", size: 240},
+      {area: "Frontend", module: "Components", file: "Table", size: 410},
+      {area: "Frontend", module: "Components", file: "Tooltip", size: 90},
+      {area: "Frontend", module: "Pages", file: "Dashboard", size: 520},
+      {area: "Frontend", module: "Pages", file: "Settings", size: 180},
+      {area: "Frontend", module: "Pages", file: "Profile", size: 140},
+      {area: "Frontend", module: "Styles", file: "Theme", size: 60},
+      {area: "Frontend", module: "Styles", file: "Layout", size: 45},
+      {area: "Backend", module: "API", file: "Users", size: 330},
+      {area: "Backend", module: "API", file: "Orders", size: 460},
+      {area: "Backend", module: "API", file: "Search", size: 210},
+      {area: "Backend", module: "Database", file: "Migrations", size: 380},
+      {area: "Backend", module: "Database", file: "Models", size: 290},
+      {area: "Backend", module: "Jobs", file: "Email", size: 70},
+      {area: "Backend", module: "Jobs", file: "Reports", size: 150},
+      {area: "Infrastructure", module: "CI", file: "Pipelines", size: 95},
+      {area: "Infrastructure", module: "CI", file: "Caching", size: 30},
+      {area: "Infrastructure", module: "Deploy", file: "Containers", size: 160},
+      {area: "Infrastructure", module: "Deploy", file: "Terraform", size: 210},
+      {area: "Docs", module: "Guides", file: "Getting Started", size: 85},
+      {area: "Docs", module: "Guides", file: "Theming", size: 40},
+      {area: "Docs", module: "Reference", file: "API Reference", size: 260},
+    ];
+
+    new d3plus.Sunburst()
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      // .depth(1)
+      // .ringSize("area")
+      // .padPixel(2)
+      // .threshold(0.02)
+      // .renderer("canvas")
+      .render();
+  </script>
+</html>

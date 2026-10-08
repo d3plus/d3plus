@@ -8,6 +8,7 @@ export interface TranslationStrings {
   "Click to Highlight": string;
   "Click to Show": string;
   "Click to Show All": string;
+  "Click to Zoom Out": string;
   Comparison: string;
   Count: string;
   Density: string;
@@ -33,6 +34,7 @@ export interface TranslationStrings {
   "Reset Zoom": string;
   Search: string;
   Share: string;
+  "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
   Total: string;
@@ -61,6 +63,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "\u0627\u0646\u0642\u0631 \u0644\u0644\u0639\u0631\u0636",
     "Click to Show All":
       "\u0627\u0646\u0642\u0631 \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
+    "Click to Zoom Out": "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
@@ -89,6 +92,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
     Search: "\u0628\u062d\u062b",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
+    "Share of Parent": "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
     "Shift+Click to Hide":
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
@@ -110,6 +114,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clic para Resaltar",
     "Click to Show": "Clic para Mostrar",
     "Click to Show All": "Clic para Mostrar Todo",
+    "Click to Zoom Out": "Clic para Alejar",
     Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
     Density: "Densidad",
@@ -135,6 +140,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Restablecer Zoom",
     Search: "Buscar",
     Share: "Porcentaje",
+    "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     Total: "Total",
@@ -154,6 +160,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clique para Destacar",
     "Click to Show": "Clique para Mostrar",
     "Click to Show All": "Clique para Mostrar Tudo",
+    "Click to Zoom Out": "Clique para Afastar",
     Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
     Density: "Densidade",
@@ -179,6 +186,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Redefinir Zoom",
     Search: "Pesquisar",
     Share: "Porcentagem",
+    "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     Total: "Total",
@@ -198,6 +206,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Click to Show": "\u5355\u51fb\u663e\u793a",
     "Click to Show All": "\u5355\u51fb\u663e\u793a\u5168\u90e8",
+    "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
     Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
     Density: "\u5bc6\u5ea6",
@@ -223,6 +232,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
     Search: "\u641c\u7d22",
     Share: "\u5171\u4eab",
+    "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     Total: "\u603b",
