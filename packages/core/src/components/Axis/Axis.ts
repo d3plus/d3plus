@@ -101,6 +101,8 @@ export default class Axis extends BaseClass {
   _visibleTicks: unknown[];
   _transition!: ReturnType<typeof transition>;
   _userFormat: ((d: unknown) => string) | false | undefined;
+  /** The tick label formatter the last layout pass resolved (`tickFormat`, else the scale's default). */
+  _labelFormat?: (d: unknown) => string;
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
   _sceneRenderer?: SvgRenderer;
