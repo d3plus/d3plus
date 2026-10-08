@@ -46,6 +46,7 @@ const Logo = () => {
         <div
           style={{
             height,
+            pointerEvents: "none",
             transform: `scale(${scale})`,
             transformOrigin: "0 0",
             width,

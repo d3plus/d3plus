@@ -62,11 +62,16 @@ const axisTicks = max => ({
   ticks: tickRange(max, 2),
 });
 
+// Every frame resets `data` and `legend`, so a frame's series never carry into
+// the next one through config merging. The logo is decorative: no tooltips.
 export const sharedConfig = {
+  data: [],
   height,
+  legend: false,
   noDataMessage: false,
   search: false,
   tableView: false,
+  tooltip: false,
   width,
   xDomain: [0, xSquares],
   yDomain: [0, ySquares],
@@ -197,17 +202,180 @@ const plusLines = center => [
   {id: "plus-vertical", x: center, y: middle - plusSize},
 ];
 
-function randomY(x) {
-  const max = (ySquares - 1) * (x / xSquares);
-  return Math.random() * max + 1;
-}
+// A seeded generator keeps the chart frames identical on every load: the
+// legend frame's series always leave its top-left corner open for the inset
+// legend, and the annotated chart's lines always clear its labels.
+let seed = 7;
+const random = () => {
+  seed = (seed * 16807) % 2147483647;
+  return (seed - 1) / 2147483646;
+};
 
-const createLines = id =>
-  Array.from({length: xSquares}, (_, index) => ({
-    id,
-    x: index,
-    y: randomY(index),
-  }));
+const ink = darkMode ? colorDefaults.light : colorDefaults.dark;
+const muted = "#868e96";
+const smallText = {
+  fontColor: ink,
+  fontMax: 12,
+  fontResize: false,
+  fontSize: 12,
+  fontWeight: 600,
+  lineHeight: 14,
+  padding: 0,
+  textAnchor: "middle",
+  verticalAlign: "middle",
+};
+
+const bars = [
+  {id: "curve-mask", value: 2},
+  {id: "ascender", value: 5},
+  {id: "3", value: 3},
+  {id: "ascender-mask", value: 8},
+].map((d, i) => ({
+  ...d,
+  x: barSpacing * (i + 1),
+  width: cellSize * 2,
+  label: d.value,
+}));
+const band = {id: "band", x: xSquares / 2, y: 6.5, label: "target"};
+const peak = {x: 17, y: 10};
+const ringRadius = 1.6;
+const callout = {id: "callout", x: 24, y: 10.6, label: "new high"};
+
+// Two jagged series that stay under the bars' value labels.
+const chartLines = id =>
+  Array.from({length: xSquares}, (_, x) => {
+    const y = 1 + random() * (6.5 * (x / xSquares) + 0.5);
+    const bar = bars.find(b => Math.abs(b.x - x) <= 1.5);
+    return {id, x, y: bar ? Math.min(y, bar.value - 0.7) : y};
+  });
+const lineData = [
+  ...chartLines("plus-horizontal"),
+  ...chartLines("plus-vertical"),
+];
+const leader = [
+  {id: "leader", x: peak.x + ringRadius * 0.8, y: peak.y + ringRadius * 0.45},
+  {id: "leader", x: callout.x - 3, y: callout.y},
+];
+
+const chartCircles = [
+  {id: "curve", r: cellSize, ...peak, fill: dColor},
+  {id: "curve-mask", r: cellSize * 0.75, x: 5, y: 7.5, fill: dColor},
+  {
+    id: "ring",
+    r: cellSize * ringRadius,
+    ...peak,
+    fill: "transparent",
+    stroke: dColor,
+  },
+];
+// Where the highlighted point and callout start from, just under the "D"
+// series in the legend frame so they stay inside its marks.
+const collapsedPeakY = 6;
+const collapsedCalloutY = 7.5;
+const chartRects = [
+  {...band, width: cellSize * xSquares, height: cellSize * 2},
+  ...bars.map(d => ({...d, height: cellSize * d.value, y: d.value / 2})),
+  {...callout, width: cellSize * 6, height: cellSize * 1.6},
+];
+
+/**
+    The annotated chart's annotations. With `collapsed`, every shape keeps its
+    id at zero size, so the frame before it hands its shapes over and the
+    chart grows in instead of popping in: the bars, lines, and the left point
+    rise from the x axis, the band opens in place, and the highlighted point
+    and callout rise from just under the "D" series. Collapsed shapes still
+    count as marks when the inset legend looks for room, so none of them sit
+    above the legend frame's lines.
+*/
+const chartAnnotations = (collapsed = false) => [
+  {
+    data: collapsed
+      ? chartCircles.map(d => ({
+          ...d,
+          r: 0,
+          y: d.id === "curve-mask" ? 0 : collapsedPeakY,
+        }))
+      : chartCircles,
+    fill: d => d.fill,
+    shape: "Circle",
+    stroke: d => d.stroke || d.fill,
+    strokeDasharray: "3 2",
+    strokeWidth: d => (d.stroke && !collapsed ? 1.5 : 0),
+  },
+  {
+    data: collapsed
+      ? chartRects.map(d => ({
+          ...d,
+          height: 0,
+          width: d.id === "callout" ? 0 : d.width,
+          y: d.id === "callout" ? collapsedCalloutY : d.id === "band" ? d.y : 0,
+        }))
+      : chartRects,
+    fill: d =>
+      d.id === "band" ? muted : d.id === "callout" ? background : threeColor,
+    fillOpacity: d => (d.id === "band" ? 0.15 : 1),
+    label: d => (collapsed ? false : d.label),
+    labelBounds: (d, i, s) =>
+      d.id === "band"
+        ? {x: -s.width / 2 + 4, y: -s.height / 2 + 2, width: 48, height: 16}
+        : d.id === "callout"
+          ? {
+              x: -s.width / 2,
+              y: -s.height / 2,
+              width: s.width,
+              height: s.height,
+            }
+          : {
+              x: -s.width / 2 - 8,
+              y: -s.height / 2 - 17,
+              width: s.width + 16,
+              height: 16,
+            },
+    labelConfig: smallText,
+    shape: "Rect",
+    // The band and callout have no border, so no edge sweeps across their
+    // text as they shrink away.
+    stroke: d => (bars.some(b => b.id === d.id) ? threeAccent : "transparent"),
+    strokeWidth: d => (bars.some(b => b.id === d.id) && !collapsed ? 1 : 0),
+    texture: d => (d.id === "band" || d.id === "callout" ? false : "lines"),
+    textureDefault: {
+      size: cellSize / 2,
+      background: threeColor,
+      stroke: threeAccent,
+      strokeWidth: 1,
+    },
+  },
+  {
+    data: collapsed
+      ? [
+          ...lineData.map(d => ({...d, y: 0})),
+          ...leader.map(() => ({...leader[0], y: collapsedPeakY})),
+        ]
+      : [...lineData, ...leader],
+    shape: "Line",
+    stroke: d => (d.id === "leader" ? muted : plusColor),
+    strokeDasharray: d => (d.id.includes("horizontal") ? "10 2" : false),
+    strokeWidth: d => (collapsed ? 0 : d.id === "leader" ? 1 : 2),
+  },
+];
+
+// Three series named after the logo's letters, so the inset legend reads
+// "D 3 +" in the letters' colors.
+const seriesOrder = ["D", "3", "+"];
+const seriesColor = {D: dColor, 3: threeColor, "+": plusColor};
+const walk = (id, start, drift) => {
+  let y = start;
+  return Array.from({length: xSquares + 1}, (_, x) => {
+    y = Math.max(0.8, Math.min(8.5, y + drift + (random() - 0.5) * 1.2));
+    const spread = 0.3 + x / 60;
+    return {id, x, y, lci: y - spread, hci: y + spread};
+  });
+};
+const seriesData = [
+  ...walk("D", 1.2, 0.22),
+  ...walk("3", 3.2, 0.06),
+  ...walk("+", 5.5, -0.1),
+];
 
 const logoFrame = {
   annotations: [
@@ -336,71 +504,24 @@ export const animationFrames = [
   },
 
   {
-    annotations: [
-      {
-        data: [
-          {id: "curve", r: cellSize, x: 17, y: 10},
-          {id: "curve-mask", r: cellSize * 0.75, x: 5, y: 7},
-        ],
-        fill: dColor,
-        shape: "Circle",
-      },
+    annotations: chartAnnotations(true),
+    color: d => seriesColor[d.id],
+    confidence: ["lci", "hci"],
+    confidenceConfig: {fillOpacity: 0.25},
+    data: seriesData,
+    groupBy: "id",
+    legend: true,
+    legendConfig: {shapeConfig: {labelConfig: {fontSize: 12}}},
+    legendSort: (a, b) => seriesOrder.indexOf(a.id) - seriesOrder.indexOf(b.id),
+    shape: "Line",
+    shapeConfig: {Line: {strokeWidth: 2}},
+    x: "x",
+    y: "y",
+    ...axes(visibleAxis),
+  },
 
-      {
-        data: [
-          {
-            id: "curve-mask",
-            width: cellSize * 2,
-            height: cellSize * 2,
-            x: barSpacing * 1,
-            y: 1,
-          },
-          {
-            id: "ascender",
-            width: cellSize * 2,
-            height: cellSize * 5,
-            x: barSpacing * 2,
-            y: 2.5,
-          },
-          {
-            id: "ascender-mask",
-            width: cellSize * 2,
-            height: cellSize * 3,
-            x: barSpacing * 3,
-            y: 1.5,
-          },
-          {
-            id: "3",
-            width: cellSize * 2,
-            height: cellSize * 8,
-            x: barSpacing * 4,
-            y: 4,
-          },
-        ],
-        fill: threeColor,
-        label: false,
-        shape: "Rect",
-        stroke: threeAccent,
-        strokeWidth: 2,
-        texture: "lines",
-        textureDefault: {
-          size: cellSize / 2,
-          background: threeColor,
-          stroke: threeAccent,
-          strokeWidth: 1,
-        },
-      },
-      {
-        data: [
-          ...createLines("plus-horizontal"),
-          ...createLines("plus-vertical"),
-        ],
-        shape: "Line",
-        stroke: plusColor,
-        strokeDasharray: d => (d.id.includes("horizontal") ? "10 2" : false),
-        strokeWidth: 2,
-      },
-    ],
+  {
+    annotations: chartAnnotations(),
     ...axes(visibleAxis),
   },
 
