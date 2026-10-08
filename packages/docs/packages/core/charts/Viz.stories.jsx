@@ -26,6 +26,7 @@ const Template = (args) => <Viz config={configify(args, argTypes)} />;
 // from the source code. Stories below this line can be modified.
 
 import {BarChart, Donut, LinePlot, Matrix, Treemap} from "@d3plus/react";
+import datafy from "../../../helpers/datafy";
 
 
 const note = {margin: 0, fontSize: 14, lineHeight: 1.5, color: "#495057", maxWidth: 720};
@@ -127,14 +128,18 @@ new BarChart()
   },
 };
 
-// Small multiples: one panel per region, from deterministic sample data.
-const smRegions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
-const smProducts = ["Coffee", "Cocoa", "Tea"];
-const smYears = [2019, 2020, 2021, 2022, 2023];
-const smData = smRegions.flatMap((region, r) => smProducts.flatMap((product, p) => smYears.map((year, y) => ({
-  region, product, year,
-  exports: Math.round((20 + ((r * 11 + p * 7 + y * 5) % 17) * 4) * (1 + r * 0.6)),
-}))));
+// Small multiples: one panel per region, from deterministic sample data. The
+// generator is also what each "Show code" snippet prints as its `data`.
+const smData = datafy(`(() => {
+  const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+  const products = ["Coffee", "Cocoa", "Tea"];
+  const years = [2019, 2020, 2021, 2022, 2023];
+  return regions.flatMap((region, r) => products.flatMap((product, p) => years.map((year, y) => ({
+    region, product, year,
+    exports: Math.round((20 + ((r * 11 + p * 7 + y * 5) % 17) * 4) * (1 + r * 0.6)),
+  }))));
+})()`);
+const smDataCode = `const data = ${smData.__source};\n\n`;
 const smLatest = smData.filter(d => d.year === 2023);
 const smBox = {height: 520};
 
@@ -152,7 +157,7 @@ SmallMultiples.parameters = {
     source: {
       code: `import {BarChart} from "@d3plus/core";
 
-// One panel per region, sharing one legend, title, and set of y-axis values.
+${smDataCode}// One panel per region, sharing one legend, title, and set of y-axis values.
 new BarChart()
   .select("#chart")
   .data(data)
@@ -175,25 +180,25 @@ export const SmallMultiplesLinePlot = () => (
     <LinePlot config={{
       data: smData, groupBy: "product", x: "year", y: "exports",
       facet: "region",
-      facetConfig: {columns: 5, padding: 12},
+      facetConfig: {padding: 12},
     }} />
   </div>
 );
 SmallMultiplesLinePlot.parameters = {
   docs: {
     source: {
-      code: `new LinePlot()
+      code: `${smDataCode}new LinePlot()
   .data(data)
   .groupBy("product")
   .x("year")
   .y("exports")
   .facet("region")
-  .facetConfig({columns: 5, padding: 12})
+  .facetConfig({padding: 12})
   .render();`,
       language: "jsx",
     },
     description: {
-      story: "`facetConfig` sets the grid's `columns` and/or `rows` (picked automatically by default, to draw the panels as large as the chart's shape allows) and the `padding` between panels. The shared tooltip and crosshair follow the panel under the pointer.",
+      story: "The grid sizes itself: the column count is the one that draws the panels largest for the chart's shape, so there is nothing to set. `facetConfig.padding` changes the space between panels. To pin the grid instead, set `columns` and/or `rows` (`facetConfig: {columns: 5}` puts every region in one row). The shared tooltip and crosshair follow the panel under the pointer.",
     },
   },
 };
@@ -210,7 +215,7 @@ export const SmallMultiplesIndependentScales = () => (
 SmallMultiplesIndependentScales.parameters = {
   docs: {
     source: {
-      code: `new BarChart()
+      code: `${smDataCode}new BarChart()
   .data(data)
   .groupBy("product")
   .x("year")
@@ -240,7 +245,9 @@ export const SmallMultiplesDonut = () => (
 SmallMultiplesDonut.parameters = {
   docs: {
     source: {
-      code: `new Donut()
+      code: `const data = ${smData.__source}.filter(d => d.year === 2023);
+
+new Donut()
   .data(data)
   .groupBy("product")
   .value("exports")
@@ -271,7 +278,7 @@ export const SmallMultiplesTreemap = () => (
 SmallMultiplesTreemap.parameters = {
   docs: {
     source: {
-      code: `new Treemap()
+      code: `${smDataCode}new Treemap()
   .data(data)
   .groupBy("product")
   .sum("exports")
@@ -302,7 +309,7 @@ export const SmallMultiplesMatrix = () => (
 SmallMultiplesMatrix.parameters = {
   docs: {
     source: {
-      code: `new Matrix()
+      code: `${smDataCode}new Matrix()
   .data(data)
   .groupBy(["product", "year"])
   .row("product")

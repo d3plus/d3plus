@@ -9,8 +9,7 @@ Small multiples repeat one chart for each value of a key: a grid of equally size
 ```jsx
 <BarChart config={{
   data, groupBy: "product", x: "year", y: "sales",
-  facet: "region",                          // one panel per region
-  facetConfig: {columns: 3, padding: 20},
+  facet: "region"   // one panel per region
 }} />
 ```
 
@@ -29,11 +28,13 @@ Zooming magnifies the whole grid as one picture.
 
 ## Layout
 
-`facetConfig` lays out the grid:
+The grid sizes itself. D3plus tries every column count and keeps the one that draws the panels largest for the chart's shape: close to square for a Pie, Donut, Radar, Pack, Rings, Network, or Matrix, and a little wider than tall for everything else. Most charts need no layout options at all.
+
+`facetConfig` adjusts the grid when you want something else:
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `columns`, `rows` | automatic | The grid's shape. By default, the shape that draws the panels largest for the chart is chosen: close to square for a Pie, Donut, Radar, Pack, Rings, Network, or Matrix, and a little wider than tall for everything else. Setting either one fixes it. |
+| `columns`, `rows` | automatic | Optional. Pins the grid's shape; setting either one fixes it and the other follows from the panel count. |
 | `padding` | `20` | Space between panels, in pixels. |
 | `sort` | `"ascending"` | Panel order: `"ascending"`, `"descending"`, `"data"` (order of first appearance), a `(a, b) => number` comparator over facet values, or an array of values (values it leaves out go last). |
 | `title` | the facet value | A `(value, rows) => string` function for each panel's title, or `false` to hide panel titles. Dates are formatted for their interval. |
@@ -41,7 +42,7 @@ Zooming magnifies the whole grid as one picture.
 
 ```jsx
 facetConfig: {
-  columns: 4,
+  columns: 4,   // optional: pin the grid to 4 columns
   sort: ["Asia", "Europe", "Americas"],
   title: (region, rows) => `${region} (${rows.length})`,
   titleConfig: {fontSize: 14, textAnchor: "start"},
@@ -67,4 +68,4 @@ A data-driven chart such as a Pie, Treemap, or Pack is drawn in each panel exact
 
 ## Examples
 
-See the [small multiples examples](/docs/core-charts-viz--d3plus#small-multiples): a [BarChart](/docs/core-charts-viz--d3plus#small-multiples), a [LinePlot with a fixed grid](/docs/core-charts-viz--d3plus#small-multiples-line-plot), [independent scales](/docs/core-charts-viz--d3plus#small-multiples-independent-scales), [Donuts in a custom order](/docs/core-charts-viz--d3plus#small-multiples-donut), [Treemaps with a timeline and custom titles](/docs/core-charts-viz--d3plus#small-multiples-treemap), and [Matrices sharing a colorScale](/docs/core-charts-viz--d3plus#small-multiples-matrix).
+See the [small multiples examples](/docs/core-charts-viz--d3plus#small-multiples): a [BarChart](/docs/core-charts-viz--d3plus#small-multiples), a [LinePlot with custom panel padding](/docs/core-charts-viz--d3plus#small-multiples-line-plot), [independent scales](/docs/core-charts-viz--d3plus#small-multiples-independent-scales), [Donuts in a custom order](/docs/core-charts-viz--d3plus#small-multiples-donut), [Treemaps with a timeline and custom titles](/docs/core-charts-viz--d3plus#small-multiples-treemap), and [Matrices sharing a colorScale](/docs/core-charts-viz--d3plus#small-multiples-matrix).
