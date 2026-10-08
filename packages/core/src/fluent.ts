@@ -14,6 +14,7 @@
 import type {VizInstance} from "./charts/viz/vizTypes.js";
 import accessor from "./utils/accessor.js";
 import constant from "./utils/constant.js";
+import RESET from "./utils/RESET.js";
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return (
@@ -22,6 +23,62 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
     !Array.isArray(v) &&
     Object.getPrototypeOf(v) === Object.prototype
   );
+}
+
+/**
+    Marks a setter that resolves `RESET` tokens in its own argument, so
+    `BaseClass.config()` hands such values through untouched.
+    @private
+*/
+export const RESOLVES_RESET = Symbol("d3plus.resolvesReset");
+
+/** Copies plain objects deeply and arrays shallowly; other values pass through. */
+function cloneConfig(value: unknown): unknown {
+  if (isPlainObject(value)) return mergeInto({}, value);
+  if (Array.isArray(value)) return value.slice();
+  return value;
+}
+
+function mergeInto(
+  target: Record<string, unknown>,
+  patch: Record<string, unknown>,
+  defaults?: unknown,
+): Record<string, unknown> {
+  for (const k of Object.keys(patch)) {
+    const value = patch[k];
+    const fallback = isPlainObject(defaults) ? defaults[k] : undefined;
+    if (value === RESET) {
+      if (fallback === undefined) delete target[k];
+      else target[k] = cloneConfig(fallback);
+    } else if (isPlainObject(value)) {
+      const current = target[k];
+      target[k] = mergeInto(isPlainObject(current) ? current : {}, value, fallback);
+    } else target[k] = cloneConfig(value);
+  }
+  return target;
+}
+
+/**
+    Deep-merges `patch` over `base` into a new object, leaving both inputs
+    untouched. Plain objects merge key by key at every depth; arrays are
+    replaced by a copy; functions, primitives, and class instances are
+    replaced. A `RESET` value restores the matching entry of `defaults` (or
+    removes the key when `defaults` has none).
+    @param base The current value.
+    @param patch The values to merge over it.
+    @param defaults The value `RESET` tokens in `patch` restore from.
+*/
+export function mergeConfig(
+  base: Record<string, unknown>,
+  patch: Record<string, unknown>,
+  defaults?: unknown,
+): Record<string, unknown> {
+  return mergeInto(cloneConfig(base) as Record<string, unknown>, patch, defaults);
+}
+
+function containsReset(value: unknown): boolean {
+  if (value === RESET) return true;
+  return isPlainObject(value) && Object.values(value).some(containsReset);
 }
 
 /**
@@ -47,10 +104,14 @@ export interface ConfigField {
   */
   factory?: (viz: VizInstance) => unknown;
   /**
-      Merge semantics: when set, default/factory output is merged into the
-      existing value (shallow assign) instead of replacing it. Use for
-      config bags (`shapeConfig`, `tooltipConfig`) that should extend the
-      parent's defaults rather than overwrite them.
+      Config-bag semantics, for keys like `shapeConfig` and `axisConfig`.
+      Both the default/factory output (over the value a parent class seeded)
+      and every setter argument are deep-merged over the stored value with
+      `mergeConfig`: nested plain objects merge key by key, while arrays,
+      functions, and primitives replace. The stored value is always a fresh
+      object, so neither the caller's argument nor a shared default is ever
+      mutated. A `RESET` token, for the whole value or at any depth inside it,
+      restores that entry of the `config()` default snapshot.
   */
   merge?: boolean;
   /** Side-effect run after the value is stored, both at init and on every set. */
@@ -135,6 +196,19 @@ export function createFluent<C extends Record<string, unknown>>(
   return api as FluentInstance<C> & Record<string, (value?: unknown) => unknown>;
 }
 
+interface FluentHost {
+  schema: Record<string, unknown>;
+  _defaultConfig?: () => Record<string, unknown>;
+}
+
+function mergeFieldValue(host: FluentHost, key: string, value: unknown): unknown {
+  const defaults = containsReset(value) ? host._defaultConfig?.()[key] : undefined;
+  if (value === RESET) return cloneConfig(defaults);
+  if (!isPlainObject(value)) return value;
+  const existing = host.schema[key];
+  return mergeConfig(isPlainObject(existing) ? existing : {}, value, defaults);
+}
+
 /**
     Class-instance variant: mixes generated accessors onto an existing `this`,
     storing each field as `this.schema.<key>`. A chart class inherits its
@@ -188,8 +262,8 @@ export function installFluent(
       if (field.decorate) value = field.decorate(target, value);
       const existing = target.schema[key];
       const merged =
-        field.merge && isPlainObject(existing) && isPlainObject(value)
-          ? Object.assign({}, existing, value)
+        field.merge && isPlainObject(value)
+          ? mergeConfig(isPlainObject(existing) ? existing : {}, value)
           : value;
       target.schema[key] = merged;
       field.onSet?.(target, merged);
@@ -207,22 +281,16 @@ export function installFluent(
   for (const field of schema) {
     if (Object.prototype.hasOwnProperty.call(proto, field.key)) continue;
     const key = field.key;
-    proto[key] = function (
-      this: {schema: Record<string, unknown>},
-      ...args: unknown[]
-    ) {
+    proto[key] = function (this: FluentHost, ...args: unknown[]) {
       if (!args.length) return this.schema[key];
       const value = coerceValue(field, args[0]);
-      const existing = this.schema[key];
-      const next =
-        field.merge && isPlainObject(existing) && isPlainObject(value)
-          ? Object.assign({}, existing, value)
-          : value;
+      const next = field.merge ? mergeFieldValue(this, key, value) : value;
       this.schema[key] = next;
       // `onSet` is declared only by Viz chart defs; at runtime `this` is that
       // Viz instance, so the cast across the generic accessor body is sound.
       field.onSet?.(this as unknown as VizInstance, next);
       return this;
     };
+    if (field.merge) proto[key][RESOLVES_RESET] = true;
   }
 }
