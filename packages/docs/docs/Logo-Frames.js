@@ -84,26 +84,10 @@ const hiddenAxis = {
   shapeConfig: {opacity: 0},
 };
 
-// On the dark theme the axis labels, ticks, and domain line need light
-// strokes, and the grid a stroke as faint as the light theme's.
-const axisColors = darkMode
-  ? {
-      barConfig: {stroke: "#adb5bd"},
-      gridConfig: {stroke: "#343a40"},
-      shapeConfig: {
-        stroke: "#adb5bd",
-        labelConfig: {fontColor: colorDefaults.light},
-      },
-    }
-  : {barConfig: {}, gridConfig: {}, shapeConfig: {}};
 const visibleAxis = {
-  barConfig: {opacity: 1, ...axisColors.barConfig},
-  gridConfig: {opacity: 1, ...axisColors.gridConfig},
-  shapeConfig: {
-    duration: 250,
-    opacity: 1,
-    ...axisColors.shapeConfig,
-  },
+  barConfig: {opacity: 1},
+  gridConfig: {opacity: 1},
+  shapeConfig: {duration: 250, opacity: 1},
 };
 const axes = config => ({
   xConfig: {...axisTicks(xSquares), ...config},
