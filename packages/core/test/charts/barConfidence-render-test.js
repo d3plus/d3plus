@@ -229,3 +229,56 @@ for (const renderer of ["svg", "canvas"]) {
     near(r.crosshair, r.barCenter, "the hover crosshair snaps to the bar's center");
   });
 }
+
+/** Renders a BarChart and reports its error bars, their mask ancestry, and the value axis range. */
+const drawBroken = ([config, rows]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus.BarChart()
+      .data(rows).groupBy("id").x("id").y("v")
+      .confidence(["lo", "hi"])
+      .config(config)
+      .width(500).height(400).duration(0)
+      .select("#viz");
+    viz.render(() => {
+      const errorBars = [];
+      const walk = (nodes, masks) => nodes.forEach(n => {
+        const inMask = masks.concat(String(n.key).startsWith("plot-break-mask") && n.clip ? [n.key] : []);
+        if (/::confidence$/.test(`${n.key}`)) errorBars.push({key: n.key, d: n.d, masks: inMask});
+        if (n.children) walk(n.children, inMask);
+      });
+      walk(viz._chartScene, []);
+      resolve({errorBars, range: viz._yAxis._getRange(), domain: viz._yAxis._d3Scale.domain()});
+    });
+  });
+
+it("an error bar crossing a yBreak is cut by the break mask, like its bar", async function () {
+  this.timeout(60000);
+  const rows = [
+    {id: "North", v: 42, lo: 38, hi: 47},
+    {id: "Online", v: 960, lo: 850, hi: 990},
+    {id: "West", v: 51, lo: 45, hi: 56},
+  ];
+  const r = await render("<div id='viz' style='width:500px;height:400px'></div>", drawBroken, [{yBreak: [80, 900]}, rows]);
+  assert.strictEqual(r.errorBars.length, 3);
+  for (const e of r.errorBars)
+    assert.ok(e.masks.length, `${e.key} sits inside the break mask`);
+  const online = r.errorBars.find(e => e.key === "Online_Online::confidence");
+  assert.strictEqual(segments(online.d).length, 2, "the bound inside the break (850) gets no cap");
+  assert.ok(Math.max(...r.domain) >= 990, `the axis fits the upper bound (${r.domain})`);
+});
+
+it("a baseline break's yDomain clamps error bars to the axis, uncapping cut-off bounds", async function () {
+  this.timeout(60000);
+  const rows = [
+    {id: "North", v: 52, lo: 45, hi: 58},
+    {id: "South", v: 57, lo: 54, hi: 66},
+  ];
+  const r = await render("<div id='viz' style='width:500px;height:400px'></div>", drawBroken, [{yDomain: [50, 60]}, rows]);
+  const [top, bottom] = [Math.min(...r.range), Math.max(...r.range)];
+  for (const e of r.errorBars) {
+    const parts = segments(e.d);
+    const ys = parts.flatMap(p => [p[1], p[3]]);
+    assert.ok(ys.every(y => y >= top - 1 && y <= bottom + 1), `${e.key} stays on the axis (${ys} in ${top}–${bottom})`);
+    assert.strictEqual(parts.length, 2, `${e.key} keeps only the cap of the bound it reaches`);
+  }
+});

@@ -9,7 +9,9 @@ import {
 } from "../../es/src/charts/Plot/pipeline.js";
 import {
   capLength,
+  clampErrorBar,
   confidenceBounds,
+  inAxisBreak,
   CONFIDENCE_KEY_SUFFIX,
   errorBarPath,
   stackedBound,
@@ -167,4 +169,30 @@ it("confidence(false) — the axis no longer widens for the bounds", () => {
   const stacked = new BarChart().data(rows.map(d => ({...d, hi: d.v + 30}))).groupBy("id").x("q").y("v")
     .stacked(true).confidence(["lo", "hi"]).confidence(false);
   assert.deepStrictEqual(domains(stacked).y, [0, 35]);
+});
+
+it("clampErrorBar — keeps an error bar on the axis, dropping cut-off caps", () => {
+  assert.deepStrictEqual(clampErrorBar(80, 20, 50, [0, 100]),
+    {lower: 80, upper: 20, end: 50, caps: {lower: true, upper: true}}, "inside: untouched");
+  assert.deepStrictEqual(clampErrorBar(120, -10, 50, [0, 100]),
+    {lower: 100, upper: 0, end: 50, caps: {lower: false, upper: false}}, "both cut off");
+  assert.deepStrictEqual(clampErrorBar(undefined, 20, 150, [0, 100]),
+    {lower: undefined, upper: 20, end: 100, caps: {lower: false, upper: true}}, "one-sided, end clamped");
+  assert.deepStrictEqual(clampErrorBar(120, 20, 50),
+    {lower: 120, upper: 20, end: 50, caps: {lower: true, upper: true}}, "no extent, no clamp");
+});
+
+it("errorBarPath — leaves out the caps it's told to", () => {
+  assert.strictEqual(errorBarPath("x", 50, 10, 100, 120, 80, {lower: false}), "M50,120L50,80M45,80L55,80");
+  assert.strictEqual(errorBarPath("x", 50, 10, 100, 120, 80, {lower: false, upper: false}), "M50,120L50,80");
+});
+
+it("inAxisBreak — a value strictly inside a break's range", () => {
+  const breaks = [{start: 80, end: 900}, {start: 0, end: -50}];
+  assert.strictEqual(inAxisBreak(breaks, 850), true);
+  assert.strictEqual(inAxisBreak(breaks, -10), true, "either edge order");
+  assert.strictEqual(inAxisBreak(breaks, 900), false, "an edge is on the axis");
+  assert.strictEqual(inAxisBreak(breaks, 950), false);
+  assert.strictEqual(inAxisBreak(undefined, 850), false);
+  assert.strictEqual(inAxisBreak(breaks, undefined), false);
 });
