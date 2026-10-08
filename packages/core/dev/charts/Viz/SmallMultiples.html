@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Small Multiples</title>
+    <meta name="description" content="Faceted charts: a BarChart by region with shared scales, a LinePlot with independent scales, Donuts with an explicit panel sort, and Treemaps driven by one timeline with formatted panel titles.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 8px 16px;
+      }
+      .stack {
+        display: grid;
+        gap: 24px;
+        padding: 0 16px 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 480px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      Renderer:
+      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
+      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+    </div>
+    <div class="stack">
+      <section>
+        <h3>BarChart faceted by region (shared scales)</h3>
+        <div class="viz" id="bars"></div>
+      </section>
+      <section>
+        <h3>LinePlot, facetConfig({scales: "independent"})</h3>
+        <div class="viz" id="lines"></div>
+      </section>
+      <section>
+        <h3>Donut faceted by region, explicit sort</h3>
+        <div class="viz" id="donut"></div>
+      </section>
+      <section>
+        <h3>Treemap faceted by region, with a timeline and panel title formatter</h3>
+        <div class="viz" id="treemap"></div>
+      </section>
+    </div>
+
+    <script>
+
+      const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+      const products = ["Coffee", "Cocoa", "Tea"];
+      const years = [2019, 2020, 2021, 2022, 2023];
+      const data = regions.flatMap((region, r) => products.flatMap((product, p) => years.map((year, y) => ({
+        region, product, year,
+        exports: Math.round((20 + ((r * 11 + p * 7 + y * 5) % 17) * 4) * (1 + r * 0.6)),
+      }))));
+      const latest = data.filter(d => d.year === 2023);
+
+      const charts = [
+        new d3plus.BarChart()
+          .select("#bars")
+          .data(data)
+          .groupBy("product")
+          .x("year")
+          .y("exports")
+          .title("Exports by region")
+          .facet("region"),
+        new d3plus.LinePlot()
+          .select("#lines")
+          .data(data)
+          .groupBy("product")
+          .x("year")
+          .y("exports")
+          .facet("region")
+          .facetConfig({scales: "independent"}),
+        new d3plus.Donut()
+          .select("#donut")
+          .data(latest)
+          .groupBy("product")
+          .value("exports")
+          .title("2023 export mix")
+          .facet("region")
+          .facetConfig({sort: ["Asia", "Europe", "Americas", "Africa", "Oceania"]}),
+        new d3plus.Treemap()
+          .select("#treemap")
+          .data(data)
+          .groupBy("product")
+          .sum("exports")
+          .time("year")
+          .facet("region")
+          .facetConfig({
+            title: (region, rows) => `${region}: ${rows.reduce((s, d) => s + d.exports, 0)}`,
+          }),
+      ];
+
+      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      draw("svg");
+
+      document.querySelectorAll("input[name=renderer]").forEach(input =>
+        input.addEventListener("change", () => draw(input.value)));
+
+    </script>
+
+  </body>
+
+</html>
