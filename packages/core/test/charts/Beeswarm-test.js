@@ -503,3 +503,48 @@ it("Beeswarm repacks on zoom without NaN", async function () {
   assert.strictEqual(out.nan, 0);
   assert.ok(minGap(out.circles) > -0.5, "zoomed swarm has no overlaps");
 });
+
+it("Beeswarm places circles through a broken value axis; a break on the lane axis is ignored", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const data = window.__rows(120).map((d, i) => ({...d, value: i % 2 ? d.value : d.value + 200}));
+    const {el, viz} = await window.__draw("Beeswarm", v =>
+      v.data(data).groupBy("id").x("value").y("region").xBreak([90, 180]).yBreak([1, 2]));
+    const left = el.querySelector("svg").getBoundingClientRect().left + viz._chartTransform.x;
+    return {
+      circles: window.__circles(el),
+      xs: Object.fromEntries(data.map(d => [d.id, left + viz._xAxis._getPosition(d.value)])),
+      xBreaks: viz._xAxis._breaks.length,
+      yBreaks: (viz._yAxis._breaks || []).length,
+      mask: !!viz._chartScene.find(function find(n) {
+        return (typeof n.key === "string" && n.key.startsWith("plot-break-mask")) || (n.children || []).some(find);
+      }),
+      nan: window.__nan(el),
+    };
+  });
+  assert.strictEqual(out.xBreaks, 1, "the value axis breaks");
+  assert.strictEqual(out.yBreaks, 0, "the categorical lane axis has nothing to break");
+  assert.ok(out.mask, "plot content is masked across the break");
+  assert.strictEqual(out.nan, 0);
+  assert.ok(minGap(out.circles) > -0.5, "no overlaps across the broken scale");
+  Object.entries(out.xs).forEach(([id, x]) =>
+    assert.ok(Math.abs(out.circles[id].x - x) < 0.5, `${id} sits at its broken-scale x`));
+});
+
+it("A short single-lane swarm labels its x ends; a tall one keeps the full x axis", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const data = window.__rows(60);
+    const ends = ({el}) => el.querySelectorAll("[data-key='plot-x-end-labels'] text").length;
+    const short = await window.__draw("Beeswarm", v => v.data(data).groupBy("id").x("value").height(120));
+    const tall = await window.__draw("Beeswarm", v => v.data(data).groupBy("id").x("value"));
+    return {
+      short: {ends: ends(short), ticks: short.el.querySelectorAll("[data-key='plot-x-axis'] text").length, nan: window.__nan(short.el)},
+      tall: {ends: ends(tall), ticks: tall.el.querySelectorAll("[data-key='plot-x-axis'] text").length},
+    };
+  });
+  assert.ok(out.short.ends > 0, "short chart draws end labels");
+  assert.strictEqual(out.short.nan, 0);
+  assert.strictEqual(out.tall.ends, 0, "tall swarm draws no end labels");
+  assert.ok(out.tall.ticks > 3, "tall swarm keeps its tick labels");
+});
