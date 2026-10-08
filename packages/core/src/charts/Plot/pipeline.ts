@@ -16,6 +16,7 @@ import * as scales from "d3-scale";
 import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-array";
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
+import {withAxisInk} from "./axisInk.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -429,11 +430,11 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 
   return {
     plotDefaultConfig: defaultConfig,
-    plotDefaultX2Config: defaultX2Config,
-    plotDefaultY2Config: defaultY2Config,
+    plotDefaultX2Config: withAxisInk(viz, defaultX2Config),
+    plotDefaultY2Config: withAxisInk(viz, defaultY2Config),
     plotShowX: showX,
     plotShowY: showY,
-    plotYC: yC,
+    plotYC: withAxisInk(viz, yC),
     plotBarLabels: barLabels,
     plotXTicks: tickFor("x", xScale),
     plotX2Ticks: tickFor("x2", x2Scale),
