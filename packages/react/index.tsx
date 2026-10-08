@@ -3,6 +3,7 @@
 import {
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
+  Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
   Chord as ChordClass,
@@ -64,6 +65,10 @@ export const AreaPlot = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BarChart visualization. */
 export const BarChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BarChartClass} {...props} />
+);
+/** React component for rendering a d3plus Beeswarm visualization. */
+export const Beeswarm = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={BeeswarmClass} {...props} />
 );
 /** React component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = (props: D3plusComponentProps) => (

@@ -31,6 +31,7 @@ import type {Shape} from "../../shapes/index.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
+import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -126,12 +127,18 @@ function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown>
     Shared tail: wire shape events, apply the user's shapeConfig, render in
     compute mode, and collect the resulting scene nodes.
 */
-function finishShape(ctx: ShapeEmitContext, key: string, s: Shape): SceneNode[] {
+function finishShape(
+  ctx: ShapeEmitContext,
+  key: string,
+  s: Shape,
+  override?: (userConfig: Record<string, unknown>) => Record<string, unknown>,
+): SceneNode[] {
   const {viz, events} = ctx;
   viz._wirePlotShapeEvents!(s, key, events);
   const userConfig = shapeConfigFor(viz, key);
   if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
   s.config(userConfig);
+  if (override) s.config(override(userConfig));
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
   s.render();
   return collectComputed(s);
@@ -144,6 +151,33 @@ const genericEmit: ShapeEmitter = (ctx, key) => {
     .config(buildInner(ctx, key))
     .data(ctx.values);
   return finishShape(ctx, key, s);
+};
+
+/**
+    Circle — in swarm mode, each circle is packed off its lane's centerline
+    (see `Plot/swarm.ts`); otherwise the generic path.
+*/
+const circleEmit: ShapeEmitter = (ctx, key) => {
+  if (!ctx.viz._swarm) return genericEmit(ctx, key);
+  const {viz, values, x, y, xRange, yRange} = ctx;
+  const s = makeShape("Circle")
+    .renderMode("compute")
+    .config(buildInner(ctx, "Circle"))
+    .data(values);
+  return finishShape(ctx, "Circle", s, userConfig => {
+    const r = userConfig.r as ((d: DataPoint, i: number) => number) | number;
+    const placed = swarmPlacements(viz, {
+      values, x, y, xRange, yRange,
+      lanes: viz._swarm!.cross === "x" ? ctx.xDomain : ctx.yDomain,
+      r: typeof r === "function" ? r : () => r,
+    });
+    const at = (d: DataPoint) => placed.get(d) as SwarmPlacement;
+    return {
+      x: (d: DataPoint) => at(d).x,
+      y: (d: DataPoint) => at(d).y,
+      r: (d: DataPoint) => at(d).r,
+    };
+  });
 };
 
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
@@ -354,6 +388,7 @@ const lineEmit: ShapeEmitter = ctx => {
 /** Shape key → dedicated emitter. Keys absent here use `genericEmit`. */
 export const shapeEmitters: Record<string, ShapeEmitter> = {
   Bar: barEmit,
+  Circle: circleEmit,
   Line: lineEmit,
 };
 

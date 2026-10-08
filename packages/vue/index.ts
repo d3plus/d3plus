@@ -1,6 +1,7 @@
 import {
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
+  Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
   Chord as ChordClass,
@@ -56,6 +57,8 @@ export {createD3plusComponent, D3plusConfigKey} from "./src/createComponent.js";
 export const AreaPlot = createD3plusComponent(AreaPlotClass, "chart");
 /** Vue component for rendering a d3plus BarChart visualization. */
 export const BarChart = createD3plusComponent(BarChartClass, "chart");
+/** Vue component for rendering a d3plus Beeswarm visualization. */
+export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 /** Vue component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */

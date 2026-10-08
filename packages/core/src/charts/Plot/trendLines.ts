@@ -294,7 +294,7 @@ export const computePlotTrendFits: TransformStage = ({viz, plotFormattedData, xD
   const projected = resolveTrendType(viz._trendLine)
     ? projectionPositions(order, viz._trendLineConfig?.projection)
     : [];
-  const fits = (viz._trendFits = computeTrendFits(viz, plotFormattedData || [], order, projected));
+  const fits = (viz._trendFits = viz._swarm ? [] : computeTrendFits(viz, plotFormattedData || [], order, projected));
   if (!fits.length) return {};
   const extra = trendDomainValues(fits);
   const out = axis === "x"

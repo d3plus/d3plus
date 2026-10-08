@@ -1,6 +1,7 @@
 export {
   AreaPlot,
   BarChart,
+  Beeswarm,
   BoxWhisker,
   BumpChart,
   Chord,
