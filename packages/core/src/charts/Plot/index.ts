@@ -7,9 +7,8 @@ const {theme: openColor} = pkg;
 
 import {
   colorAssign,
-  colorContrast,
 } from "@d3plus/color";
-import {assign, backgroundColor} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 
 import {
   AxisBottom,
@@ -64,6 +63,7 @@ import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
+import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {plotInsetRegion} from "./insetRegion.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
@@ -178,9 +178,7 @@ export default class Plot extends Viz {
           const range = this._xAxis.range();
           const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
           if (range[0] === position) return "transparent";
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg, this.schema.colorDefaults);
-          return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+          return gridStroke(this._select?.node(), this.schema.colorDefaults);
         },
       },
     };
@@ -203,9 +201,7 @@ export default class Plot extends Viz {
           const range = this._yAxis.range();
           const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);
           if (range[range.length - 1] === position) return "transparent";
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg, this.schema.colorDefaults);
-          return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+          return gridStroke(this._select?.node(), this.schema.colorDefaults);
         },
       },
     };
