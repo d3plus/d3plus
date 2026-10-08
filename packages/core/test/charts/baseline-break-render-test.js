@@ -43,18 +43,27 @@ const probe = (src, opts = {}) =>
             };
             viz._chartScene.forEach(walk);
             const scene = axis.toScene().children;
+            // Break-mark cross-axis coordinates, against the axis line.
+            const marks = scene
+              .filter(n => String(n.key).startsWith("baseline-break"))
+              .map(n => n.points.map(p => p[vertical ? 0 : 1]));
+            const barLine = scene.find(n => n.key === "bar");
+            const axisLine = barLine ? barLine.points[0][vertical ? 0 : 1] : undefined;
             const grid = scene
               .filter(n => typeof n.key === "string" && n.key.startsWith("grid-"))
               .map(n => n.points[0][vertical ? 1 : 0]);
             if (opts.zoom) viz._zoomRescale({k: 1, x: 0, y: 0});
             resolve({
               brk: axis._baselineBreak,
+              vertical,
               range: axis._getRange(),
               domain: axis._d3Scale.domain(),
               ticks: axis._visibleTicks.map(Number),
               zero: axis._getPosition(0),
               lines: scene.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
               grid,
+              marks,
+              axisLine,
               bars,
               canvas: !!document.querySelector("#viz canvas.d3plus-render-canvas"),
               zoomed: opts.zoom
@@ -79,6 +88,11 @@ function assertBroken(out, {end}) {
   assert.ok(out.ticks.includes(0) && out.ticks.includes(1100), "0 and the domain min are ticks");
   assert.ok(!out.ticks.some(t => t > 0 && t < 1100), "no ticks inside the break");
   assert.ok(out.lines.includes("baseline-break-0") && out.lines.includes("baseline-break-1"), "break glyph drawn");
+  // Marks sit outside the plot: left of a y axis line, below an x axis line.
+  const outward = out.vertical ? -1 : 1;
+  out.marks.flat().forEach(c =>
+    assert.ok((c - out.axisLine) * outward >= 0, `break mark at ${c} stays outside the plot (axis line ${out.axisLine})`),
+  );
   const [g0, g1] = [lo([out.brk.position, out.brk.edgePosition]), hi([out.brk.position, out.brk.edgePosition])];
   assert.ok(!out.grid.some(g => g > g0 && g < g1), "no gridline inside the break");
   assert.strictEqual(out.bars.length, 4);
@@ -119,6 +133,8 @@ it("BarChart: an all-negative domain breaks at the top, with 0 as the top tick",
   assert.strictEqual(out.zero, lo(out.range), "0 sits at the top of the axis");
   assert.ok(out.ticks.includes(0) && out.ticks.includes(-1100));
   out.bars.forEach(([a]) => assert.ok(Math.abs(a - out.zero) <= 1, "bars hang from the 0 tick"));
+  assert.strictEqual(out.marks.length, 2);
+  out.marks.flat().forEach(c => assert.ok(c <= out.axisLine, `break mark at ${c} stays left of the y axis line`));
 });
 
 it("BarChart: the Canvas renderer draws the broken axis too", async function () {

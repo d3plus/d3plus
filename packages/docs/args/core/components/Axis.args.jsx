@@ -85,7 +85,7 @@ export const argTypes = assign(
     },
     baselineBreakConfig: {
       control: {},
-      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark), `angle` (degrees each mark tilts from perpendicular), plus\n`stroke`/`stroke-width` and other line styles.",
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), plus `stroke`/`stroke-width` and other line styles.",
       table: {
         defaultValue: {
           summary: "undefined"

@@ -27,7 +27,7 @@ export interface BaselineBreakStyle {
   angle: number;
   /** Pixels between the two break marks, where the axis line is not drawn. */
   gap: number;
-  /** Length of each break mark, in pixels. */
+  /** Length of each break mark, drawn outward from the axis line on the tick side. */
   size: number;
   /** Pixels of axis between the baseline tick and the first tick after the break. */
   space: number;
@@ -42,7 +42,7 @@ export function baselineBreakStyle(axis: Axis): BaselineBreakStyle {
   return {
     angle: num(cfg.angle, 30),
     gap: Math.max(0, num(cfg.gap, 5)),
-    size: Math.max(0, num(cfg.size, 12)),
+    size: Math.max(0, num(cfg.size, 10)),
     space: Math.max(0, num(cfg.space, 36)),
   };
 }
@@ -125,7 +125,8 @@ export function axisBarNodes(
 /**
     The domain bar of a broken axis plus its break glyph: the bar is split
     into a short baseline segment and the main segment, with the gap between
-    them bounded by two parallel, tilted marks. `points` is the unbroken bar.
+    them bounded by two parallel, tilted marks drawn on the tick side of the
+    axis line, so nothing reaches into the plot. `points` is the unbroken bar.
 */
 export function baselineBreakScene(
   axis: Axis,
@@ -147,12 +148,14 @@ export function baselineBreakScene(
 
   const pt = (a: number, c: number): [number, number] => (horizontal ? [a, c] : [c, a]);
   const rad = (angle * Math.PI) / 180;
-  // Each mark tilts `angle` degrees from perpendicular to the axis.
-  const dAlong = (Math.sin(rad) * size) / 2;
-  const dCross = (Math.cos(rad) * size) / 2;
+  // Marks start on the axis line and run outward on the tick side (away from
+  // the plot), tilting `angle` degrees from perpendicular toward the baseline.
+  const outward = ["top", "left"].includes(axis.schema.orient) ? -1 : 1;
+  const dAlong = Math.sin(rad) * size;
+  const dCross = Math.cos(rad) * size;
   const mark = (a: number): [number, number][] => [
-    pt(a - dir * dAlong, cross + dCross),
-    pt(a + dir * dAlong, cross - dCross),
+    pt(a, cross),
+    pt(a - dir * dAlong, cross + outward * dCross),
   ];
 
   const nodes: LineNode[] = [

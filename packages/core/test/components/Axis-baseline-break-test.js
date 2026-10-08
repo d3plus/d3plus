@@ -1,5 +1,5 @@
 import assert from "assert";
-import {Axis, AxisBottom, AxisLeft} from "../../es/index.js";
+import {Axis, AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../es/index.js";
 import {
   axisBarNodes,
   baselineBreakScene,
@@ -39,7 +39,7 @@ const lines = axis =>
 
 it("baselineBreakStyle reads the glyph settings, falling back on bad values", () => {
   const axis = new Axis();
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 12, space: 36});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36});
   axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50});
   assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50});
 });
@@ -154,12 +154,46 @@ it("a broken axis splits its bar line and draws two parallel tilted marks", () =
   const vec = m => [m.points[1][0] - m.points[0][0], m.points[1][1] - m.points[0][1]];
   const [v0, v1] = [vec(m0), vec(m1)];
   assert.ok(Math.abs(v0[0] - v1[0]) < 1e-9 && Math.abs(v0[1] - v1[1]) < 1e-9, "marks are parallel");
-  assert.ok(Math.abs(Math.hypot(...v0) - 12) < 1e-9, "marks are 12px long");
+  assert.ok(Math.abs(Math.hypot(...v0) - 10) < 1e-9, "marks are 10px long");
   const tilt = (Math.atan2(Math.abs(v0[1]), Math.abs(v0[0])) * 180) / Math.PI;
   assert.ok(Math.abs(tilt - 30) < 1e-9, `marks tilt 30° from perpendicular (got ${tilt})`);
   const mid = m => (m.points[0][1] + m.points[1][1]) / 2;
   assert.strictEqual(Math.abs(mid(m0) - mid(m1)), 5, "marks sit the gap apart");
   assert.ok(m0.paint.stroke, "marks are stroked");
+});
+
+/**
+    For each orientation: the axis, the cross-axis coordinate index, and the
+    sign of the tick side (where labels sit, away from the plot).
+*/
+const orientations = [
+  ["left", () => new AxisLeft().domain([2100, 1100]).height(400).width(300), 0, -1],
+  ["right", () => new AxisRight().domain([2100, 1100]).height(400).width(300), 0, 1],
+  ["bottom", () => new AxisBottom().domain([1100, 2100]).width(400).height(100), 1, 1],
+  ["top", () => new AxisTop().domain([1100, 2100]).width(400).height(100), 1, -1],
+  ["left, all-negative", () => new AxisLeft().domain([-1100, -2100]).height(400).width(300), 0, -1],
+  ["bottom, all-negative", () => new AxisBottom().domain([-2100, -1100]).width(400).height(100), 1, 1],
+];
+
+orientations.forEach(([name, make, crossIndex, outward]) => {
+  it(`break marks stay on the tick side of a ${name} axis`, () => {
+    const axis = compute(make().baselineBreak(true));
+    assert.ok(axis._baselineBreak, "break is active");
+    const {bar, "baseline-break-0": m0, "baseline-break-1": m1} = lines(axis);
+    const line = bar.points[0][crossIndex];
+    [m0, m1].forEach(m => {
+      assert.strictEqual(m.points[0][crossIndex], line, "mark starts on the axis line");
+      const reach = (m.points[1][crossIndex] - line) * outward;
+      assert.ok(reach > 0, `mark runs outward (${reach})`);
+      m.points.forEach(p =>
+        assert.ok((p[crossIndex] - line) * outward >= 0, `no point crosses into the plot (${p})`),
+      );
+    });
+    // The far ends lean toward the baseline, matching on both marks.
+    const along = 1 - crossIndex;
+    const lean = m => (m.points[1][along] - m.points[0][along]) * Math.sign(axis._baselineBreak.edgePosition - axis._baselineBreak.position);
+    assert.ok(lean(m0) < 0 && Math.abs(lean(m0) - lean(m1)) < 1e-9, "parallel, leaning toward the baseline");
+  });
 });
 
 it("baselineBreakConfig styles the glyph", () => {

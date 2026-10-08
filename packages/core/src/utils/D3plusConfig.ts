@@ -74,9 +74,11 @@ export interface AxisConfig {
       Style of the baseline break: `space` (pixels of axis between the baseline
       tick and the first tick after the break, default `36`), `gap` (pixels
       between the two marks, where the axis line is not drawn, default `5`),
-      `size` (length of each mark, default `12`), `angle` (degrees each mark
-      tilts from perpendicular to the axis, default `30`), plus `stroke`,
-      `stroke-width`, and the other line styles `barConfig` takes.
+      `size` (length of each mark, drawn outward from the axis line on the
+      tick side so it never reaches into the plot, default `10`), `angle`
+      (degrees each mark tilts from perpendicular to the axis, default `30`),
+      plus `stroke`, `stroke-width`, and the other line styles `barConfig`
+      takes.
   */
   baselineBreakConfig?: Record<string, string | number>;
   /** Grid values of the axis. */

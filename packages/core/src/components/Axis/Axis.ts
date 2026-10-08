@@ -136,7 +136,7 @@ export default class Axis extends BaseClass {
     this.schema.baselineBreakConfig = {
       angle: 30,
       gap: 5,
-      size: 12,
+      size: 10,
       space: 36,
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
@@ -456,8 +456,9 @@ export default class Axis extends BaseClass {
       short of `baseline`: `space` (pixels of axis between the baseline tick
       and the first tick after the break), `gap` (pixels between the two
       break marks, where the axis line is not drawn), `size` (length of each
-      mark), `angle` (degrees each mark tilts from perpendicular), plus
-      `stroke`/`stroke-width` and other line styles.
+      mark, drawn outward from the axis line on the tick side so it never
+      reaches into the plot), `angle` (degrees each mark tilts from
+      perpendicular), plus `stroke`/`stroke-width` and other line styles.
 */
   baselineBreakConfig(): Record<string, unknown>;
   baselineBreakConfig(_: Record<string, unknown>): this;
