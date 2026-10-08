@@ -315,11 +315,10 @@ function computeTextBoxDatum(
       else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
     };
 
-    // Constraint the font size
-    fS = max([fS, fMin])!;
-    fS = min([fS, fMax])!;
-
     if (resize) {
+      // fontMin/fontMax bound the resize search; a fixed fontSize is used as given.
+      fS = max([fS, fMin])!;
+      fS = min([fS, fMax])!;
       lH = fS * lHRatio;
       wrapper.fontSize(fS).lineHeight(lH);
       style["font-size"] = fS;
