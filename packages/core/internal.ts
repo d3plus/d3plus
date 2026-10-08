@@ -58,6 +58,18 @@ export {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/pipeline/vizPreD
 // ── Plot paint phase + axis rendering ────────────────────────────────────────
 export {plotEmit, plotPaint} from "./src/charts/features/plotPaint.js";
 export {renderAxes} from "./src/charts/features/axes.js";
+export {
+  allotEndLabelWidths,
+  alignAxisLine,
+  domainEnds,
+  emitEndLabels,
+  END_LABEL_AXIS_CONFIG,
+  endLabelSpace,
+  labelsXEnds,
+  layoutEndLabels,
+  measureEndLabels,
+  placeEndLabels,
+} from "./src/charts/features/axisEndLabels.js";
 export {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
 
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
@@ -138,6 +150,7 @@ export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
 export type {VizContext} from "./src/charts/pipeline/vizContext.js";
 export type {VizPreDrawResult} from "./src/charts/pipeline/vizPreDrawPure.js";
 export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
+export type {EndLabel, EndLabelBox, EndLabelMeasure, XLabelMode} from "./src/charts/features/axisEndLabels.js";
 export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {VizInstance, VizRenderer} from "./src/charts/viz/vizTypes.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";

@@ -18,6 +18,8 @@ import type {ClipShape, SceneNode} from "@d3plus/render";
 import type Axis from "../../components/Axis/Axis.js";
 import * as shapes from "../../shapes/index.js";
 import {renderAxes} from "./axes.js";
+import {emitEndLabels} from "./axisEndLabels.js";
+import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
@@ -171,6 +173,8 @@ export interface PlotPaintContext {
   barLabels: string[];
   showLineLabels: boolean;
   stackGroup: unknown;
+  /** How the x axis is labeled (see `axisEndLabels.ts`); "axis" when omitted. */
+  xLabelMode?: XLabelMode;
   /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
   zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
 }
@@ -205,9 +209,11 @@ export interface PlotMeasureResult {
   y2Width: number | undefined;
   yBounds: {width: number; height: number; x: number; y: number};
   y2Bounds: {width: number; height: number; x: number; y: number};
-  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis}[];
+  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean}[];
   yOffset: number;
   labelPositions: Record<string, number>;
+  /** The x axis's positioned end labels (see `axisEndLabels.ts`); empty unless its ends are labeled. */
+  xEndLabels?: EndLabelBox[];
 }
 
 /**
@@ -521,7 +527,7 @@ function collectAxisScenes(
 ): {grid: SceneNode[]; rest: SceneNode[]} {
   const grid: SceneNode[] = [];
   const rest: SceneNode[] = [];
-  axisSceneQueue.forEach(({key, transform, axis}) => {
+  axisSceneQueue.forEach(({key, transform, axis, gridOnly}) => {
     if (!axis || typeof axis.toScene !== "function") return;
     const scene = axis.toScene();
     if (!scene) return;
@@ -533,7 +539,7 @@ function collectAxisScenes(
       tagAxisGroup(g);
       grid.push(g);
     }
-    if (restChildren.length) {
+    if (restChildren.length && !gridOnly) {
       const r: SceneNode = {type: "group", key, transform, children: restChildren};
       tagAxisGroup(r);
       rest.push(r);
@@ -598,8 +604,11 @@ export function plotEmit(
       ? [{type: "group", key: PLOT_ZOOM_CONTENT_KEY, ...(clip ? {clip} : {}), children: out} as SceneNode]
       : out;
 
-    // Ticks, tick labels, domain bar, and title render on top of the shapes.
-    return [...content, ...axisScenes.rest];
+    const endLabels = emitEndLabels(viz._xAxis!, mCtx.xEndLabels ?? []);
+    if (endLabels) tagAxisGroup(endLabels);
+
+    // Ticks, tick labels, domain bar, title, and end labels render on top of the shapes.
+    return [...content, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
 }
 
 /** Key of the group `plotEmit` wraps a zoomable plot's non-axis content in. */

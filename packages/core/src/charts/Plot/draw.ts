@@ -291,6 +291,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     xOffsetRight,
     topOffset,
     xHeight,
+    xLabelMode,
   } = measureAxes(
     viz,
     {
@@ -318,7 +319,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     showX, showY, defaultConfig, defaultX2Config, defaultY2Config, yC, xC,
     xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, largestLabel, xRangeMax,
     xTest, yTest, x2Test, y2Test, yBounds, y2Bounds, yWidth, y2Width, xHeight, x2Height,
-    xOffsetLeft, xOffsetRight, topOffset, xTestRange, x2TestRange, height, width,
+    xOffsetLeft, xOffsetRight, topOffset, xTestRange, x2TestRange, height, width, xLabelMode,
     opp, barLabels, showLineLabels, stackGroup, horizontalMargin, verticalMargin,
   } as unknown as PlotPaintContext;
   return viz._paint!(pCtx);
