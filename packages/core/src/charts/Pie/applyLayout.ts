@@ -12,6 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import {stampShare} from "../features/shareKey.js";
 
 export const applyPieLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
@@ -46,11 +47,10 @@ export const applyPieLayout: TransformStage = ({viz}) => {
     d.__d3plus__ = true;
     d.i = i;
     // The tooltip binds the unwrapped row, so the slice's share of the total
-    // must live on the row for the tooltip accessor to read it. Mirrors
-    // Treemap stamping `share` onto `d.data`.
+    // must live on the row for the tooltip accessor to read it.
     const share = total ? d.value / total : 0;
     (d as {share?: number}).share = share;
-    (d.data as DataPoint & {share?: number}).share = share;
+    stampShare(d.data, share);
   });
 
   const innerRadius = viz.schema.innerRadius as

@@ -10,6 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import {stampShare} from "../features/shareKey.js";
 
 /** A laid-out treemap leaf node (carries `share` + `rank` populated below). */
 export type TreemapShapeNode = Omit<HierarchyRectangularNode<DataPoint>, "id"> & {
@@ -102,7 +103,7 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   shapeData.forEach(d => {
     const share = sumFn(d.data as DataPoint) / total;
     d.share = share;
-    (d.data as DataPoint & {share?: number}).share = share;
+    stampShare(d.data as DataPoint, share);
   });
 
   return {shapeData};

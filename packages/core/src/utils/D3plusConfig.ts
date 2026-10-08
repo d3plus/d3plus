@@ -127,6 +127,11 @@ export interface TooltipConfig {
   */
   titleSwatch?: boolean;
   body?: ((d: DataPoint) => string) | string;
+  /**
+      Header rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and
+      stacked Plot charts `x.share` is the row's fraction of its total, unless
+      the data has its own `share` field (then `x.share` is that field).
+  */
   thead?:
     | ((d: DataPoint) => [string, string][])
     | Array<
@@ -135,6 +140,11 @@ export interface TooltipConfig {
           | string
         >
       >;
+  /**
+      Body rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and
+      stacked Plot charts `x.share` is the row's fraction of its total, unless
+      the data has its own `share` field (then `x.share` is that field).
+  */
   tbody?:
     | ((d: DataPoint) => [string, string][])
     | Array<
