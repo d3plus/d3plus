@@ -36,6 +36,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`BumpChart`](#bumpchart) | Creates a bump chart based on an array of data. |
 | [`Chord`](#chord) | Creates a Chord diagram based on a defined set of nodes and links. |
 | [`Donut`](#donut) | Extends the Pie visualization to create a donut chart. |
+| [`Gauge`](#gauge) | Creates a gauge (speedometer) from an array of data: a single dial that |
 | [`Geomap`](#geomap) | Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate  |
 | [`Histogram`](#histogram) | Creates a histogram from an array of raw observations: the `value` of each |
 | [`LinePlot`](#lineplot) | Creates a line plot based on an array of data. |
@@ -181,6 +182,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the |
 | [`DataPoint`](#datapoint) | DataPoint |
 | [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
+| [`GaugeBand`](#gaugeband) | A colored zone along the dial, e.g. `{min: 80, color: "red"}`. |
 | [`ImageConfig`](#imageconfig) | Image-specific config (url + dimensions). |
 | [`LegendConfig`](#legendconfig) |  |
 | [`LineConfig`](#lineconfig) | Line-specific config (curve + defined). |
@@ -211,6 +213,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`ConstOrAccessor`](#constoraccessor) | A value that can either be a function (called per-datum) or a literal |
 | [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization, component, and shape classes. |
 | [`D3Selection`](#d3selection) | D3-style selection — deliberately loose. d3-selection's element/datum |
+| [`GaugeIndicator`](#gaugeindicator) | How a gauge shows its value: a needle, or an arc filled from the minimum. |
 | [`LinkOption`](#linkoption) | `link` as a group name, the full object form, or `false` for unlinked. |
 | [`RegressionType`](#regressiontype) |  |
 | [`StringOrAccessor`](#stringoraccessor) | A value that can be a function, a string key (wrapped in `accessor`), |
@@ -26264,6 +26267,25 @@ Defined in: locales/types/src/dictionaries/formatLocale.d.ts:15
 
 ***
 
+<a id="gauge"></a>
+
+### Gauge
+
+> `const` **Gauge**: () => `any`
+
+Defined in: core/types/src/charts/Gauge/index.d.ts:20
+
+Creates a gauge (speedometer) from an array of data: a single dial that
+reads each row's `value` against its `domain`. One row shows its value
+under the hub; several rows each get a needle (or a progress track),
+identified by the legend and tooltips.
+
+#### Returns
+
+`any`
+
+***
+
 <a id="geomap"></a>
 
 ### Geomap
@@ -27304,6 +27326,24 @@ A set of default locale formatters used when assigning suffixes and currency in 
 
 ***
 
+<a id="gaugeband"></a>
+
+### GaugeBand
+
+Defined in: core/types/src/charts/Gauge/gaugeGeometry.d.ts:9
+
+A colored zone along the dial, e.g. `{min: 80, color: "red"}`.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-color-1"></a> `color?` | `string` | The band's fill color. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:15 |
+| <a id="property-max"></a> `max?` | `number` | Where the band ends. Defaults to the domain's maximum. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:13 |
+| <a id="property-min"></a> `min?` | `number` | Where the band starts. Defaults to the previous band's end, or the domain's minimum. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:11 |
+
+***
+
 <a id="imageconfig-1"></a>
 
 ### ImageConfig
@@ -27428,7 +27468,7 @@ The object form of the `link` config: a group name plus the key and interactions
 | ------ | ------ | ------ | ------ |
 | <a id="property-active-7"></a> `active?` | `boolean` | Mirror `active`. Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:16 |
 | <a id="property-by"></a> `by?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | The value two charts' rows match on. A string is a data key. Defaults to the chart's own id. | core/types/src/charts/viz/linkGroup.d.ts:12 |
-| <a id="property-color-1"></a> `color?` | `boolean` | Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. | core/types/src/charts/viz/linkGroup.d.ts:22 |
+| <a id="property-color-2"></a> `color?` | `boolean` | Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. | core/types/src/charts/viz/linkGroup.d.ts:22 |
 | <a id="property-group"></a> `group` | `string` | Charts that share a group name are linked. | core/types/src/charts/viz/linkGroup.d.ts:10 |
 | <a id="property-highlight-1"></a> `highlight?` | `boolean` | Mirror `highlight` (including the search box). Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:18 |
 | <a id="property-hover-7"></a> `hover?` | `boolean` | Mirror hover. Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:14 |
@@ -28184,6 +28224,18 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:74
 ###### Returns
 
 `any`
+
+***
+
+<a id="gaugeindicator"></a>
+
+### GaugeIndicator
+
+> **GaugeIndicator** = `"needle"` \| `"progress"`
+
+Defined in: core/types/src/charts/Gauge/dialLayout.d.ts:8
+
+How a gauge shows its value: a needle, or an arc filled from the minimum.
 
 ***
 
