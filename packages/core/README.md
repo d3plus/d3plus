@@ -1239,7 +1239,7 @@ The y1 (bottom edge) position accessor for the area.
 
 ### Axis
 
-Defined in: [components/Axis/Axis.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L69)
+Defined in: [components/Axis/Axis.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L73)
 
 Creates an SVG scale based on an array of data.
 
@@ -1265,7 +1265,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -1277,9 +1277,113 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+<a id="baselinebreakconfig"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+<a id="breakconfig"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
 
 ###### Parameters
 
@@ -1405,7 +1509,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1417,7 +1521,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1439,7 +1543,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -1451,7 +1555,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -1473,7 +1577,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1485,7 +1589,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1577,7 +1681,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -1735,7 +1839,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -1747,7 +1851,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -1767,7 +1871,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -1829,7 +1933,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
+Defined in: [components/Axis/Axis.ts:353](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L353)
 
 Renders the current Axis to the page.
 
@@ -1851,7 +1955,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1869,7 +1973,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1897,7 +2001,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -1913,7 +2017,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -1939,7 +2043,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -1951,7 +2055,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -1971,7 +2075,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
+Defined in: [components/Axis/Axis.ts:345](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L345)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2070,7 +2174,7 @@ Axis preset whose ticks are drawn below the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -2086,7 +2190,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
 
@@ -2103,6 +2207,126 @@ Axis line style.
 ###### Inherited from
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
+
+<a id="baselinebreakconfig-1"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-1"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
 
 <a id="colordefaults-2"></a>
 
@@ -2218,7 +2442,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2234,7 +2458,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2260,7 +2484,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -2276,7 +2500,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -2302,7 +2526,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2318,7 +2542,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2414,7 +2638,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -2576,7 +2800,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -2592,7 +2816,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -2616,7 +2840,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2682,7 +2906,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
+Defined in: [components/Axis/Axis.ts:353](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L353)
 
 Renders the current Axis to the page.
 
@@ -2708,7 +2932,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2730,7 +2954,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2762,7 +2986,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -2778,7 +3002,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -2804,7 +3028,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -2820,7 +3044,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -2844,7 +3068,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
+Defined in: [components/Axis/Axis.ts:345](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L345)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2947,7 +3171,7 @@ Axis preset whose ticks are drawn to the left of the vertical domain path. Accep
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -2963,7 +3187,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
 
@@ -2980,6 +3204,126 @@ Axis line style.
 ###### Inherited from
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
+
+<a id="baselinebreakconfig-2"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-2"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
 
 <a id="colordefaults-3"></a>
 
@@ -3095,7 +3439,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3111,7 +3455,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3137,7 +3481,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -3153,7 +3497,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -3179,7 +3523,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3195,7 +3539,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3291,7 +3635,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -3453,7 +3797,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -3469,7 +3813,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -3493,7 +3837,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3559,7 +3903,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
+Defined in: [components/Axis/Axis.ts:353](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L353)
 
 Renders the current Axis to the page.
 
@@ -3585,7 +3929,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3607,7 +3951,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3639,7 +3983,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -3655,7 +3999,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -3681,7 +4025,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -3697,7 +4041,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -3721,7 +4065,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
+Defined in: [components/Axis/Axis.ts:345](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L345)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3824,7 +4168,7 @@ Axis preset whose ticks are drawn to the right of the vertical domain path. Acce
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -3840,7 +4184,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
 
@@ -3857,6 +4201,126 @@ Axis line style.
 ###### Inherited from
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
+
+<a id="baselinebreakconfig-3"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-3"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
 
 <a id="colordefaults-4"></a>
 
@@ -3972,7 +4436,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3988,7 +4452,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4014,7 +4478,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -4030,7 +4494,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -4056,7 +4520,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4072,7 +4536,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4168,7 +4632,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4330,7 +4794,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -4346,7 +4810,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -4370,7 +4834,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4436,7 +4900,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
+Defined in: [components/Axis/Axis.ts:353](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L353)
 
 Renders the current Axis to the page.
 
@@ -4462,7 +4926,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4484,7 +4948,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4516,7 +4980,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -4532,7 +4996,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -4558,7 +5022,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -4574,7 +5038,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -4598,7 +5062,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
+Defined in: [components/Axis/Axis.ts:345](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L345)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4701,7 +5165,7 @@ Axis preset whose ticks are drawn above the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -4717,7 +5181,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
 
@@ -4734,6 +5198,126 @@ Axis line style.
 ###### Inherited from
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
+
+<a id="baselinebreakconfig-4"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-4"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
 
 <a id="colordefaults-5"></a>
 
@@ -4849,7 +5433,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4865,7 +5449,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4891,7 +5475,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -4907,7 +5491,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -4933,7 +5517,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4949,7 +5533,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5045,7 +5629,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -5207,7 +5791,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -5223,7 +5807,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -5247,7 +5831,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5313,7 +5897,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
+Defined in: [components/Axis/Axis.ts:353](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L353)
 
 Renders the current Axis to the page.
 
@@ -5339,7 +5923,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5361,7 +5945,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5393,7 +5977,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -5409,7 +5993,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -5435,7 +6019,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -5451,7 +6035,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -5475,7 +6059,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
+Defined in: [components/Axis/Axis.ts:345](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L345)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -12160,7 +12744,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Plot
 
-Defined in: [charts/Plot/index.ts:95](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L95)
+Defined in: [charts/Plot/index.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L98)
 
 Creates an x/y plot based on an array of data.
 
@@ -12224,7 +12808,7 @@ Custom aggregation methods for each data key.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: [charts/Plot/index.ts:466](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L466)
+Defined in: [charts/Plot/index.ts:469](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L469)
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -12318,7 +12902,7 @@ Configuration object for the attribution style.
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L475)
+Defined in: [charts/Plot/index.ts:478](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L478)
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -12414,7 +12998,7 @@ An object containing CSS key/value pairs that is used to style the back button. 
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:484](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L484)
+Defined in: [charts/Plot/index.ts:487](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L487)
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -12434,7 +13018,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L493)
+Defined in: [charts/Plot/index.ts:496](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L496)
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -12662,7 +13246,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`number`, `number`\]
 
-Defined in: [charts/Plot/index.ts:521](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L521)
+Defined in: [charts/Plot/index.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L524)
 
 The confidence interval as an array of [lower, upper] bounds.
 
@@ -12694,7 +13278,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L538)
+Defined in: [charts/Plot/index.ts:541](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L541)
 
 Configuration object for shapes rendered as confidence intervals.
 
@@ -12756,7 +13340,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **crosshairConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:589](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L589)
+Defined in: [charts/Plot/index.ts:592](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L592)
 
 Paint for the shared tooltip's crosshair guide line (`stroke`,
 `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
@@ -12949,7 +13533,7 @@ When `true` (the default) and `detectVisible` is enabled, the Viz releases its D
 
 > **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L547)
+Defined in: [charts/Plot/index.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L550)
 
 When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
@@ -13017,7 +13601,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L556)
+Defined in: [charts/Plot/index.ts:559](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L559)
 
 The pixel space between groups of bars.
 
@@ -13163,7 +13747,7 @@ per-datum object key — pass a function for that).
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L565)
+Defined in: [charts/Plot/index.ts:568](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L568)
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -13183,7 +13767,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/Plot/index.ts:575](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L575)
+Defined in: [charts/Plot/index.ts:578](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L578)
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -13395,7 +13979,7 @@ Configuration object for the legend tooltip.
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L627)
+Defined in: [charts/Plot/index.ts:630](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L630)
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -13415,7 +13999,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:636](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L636)
+Defined in: [charts/Plot/index.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L639)
 
 Draws circle markers on each vertex of a Line.
 
@@ -14339,7 +14923,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L645)
+Defined in: [charts/Plot/index.ts:648](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L648)
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -14431,7 +15015,7 @@ Which margin the size legend claims in the chart's bottom-right corner. `"right"
 
 > **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: [charts/Plot/index.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L659)
+Defined in: [charts/Plot/index.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L662)
 
 Sets the vertical offset applied to stacked series. Accepts a named
 offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
@@ -14455,7 +15039,7 @@ stack offset function.
 
 > **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: [charts/Plot/index.ts:679](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L679)
+Defined in: [charts/Plot/index.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L682)
 
 Sets the order of stacked series, from the bottom of the stack upward.
 Accepts:
@@ -15011,7 +15595,7 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: [charts/Plot/index.ts:255](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L255)
+Defined in: [charts/Plot/index.ts:258](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L258)
 
 Composes the chart's scene graph: the native shape scenes from Viz.toScene
 (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
@@ -15207,7 +15791,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **trendLine**(`_?`: `TrendLineType`): [`Plot`](#plot) \| `TrendLineType`
 
-Defined in: [charts/Plot/index.ts:598](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L598)
+Defined in: [charts/Plot/index.ts:601](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L601)
 
 Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
 
@@ -15227,7 +15811,7 @@ Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) fo
 
 > **trendLineConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L618)
+Defined in: [charts/Plot/index.ts:621](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L621)
 
 Options for the trend lines drawn by `trendLine`, merged into the current config:
 - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
@@ -15258,7 +15842,7 @@ Stacked charts always fit one line to the stack totals.
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L688)
+Defined in: [charts/Plot/index.ts:691](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L691)
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -15278,7 +15862,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L702)
+Defined in: [charts/Plot/index.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L705)
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -15298,7 +15882,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:725](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L725)
+Defined in: [charts/Plot/index.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L728)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15318,7 +15902,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L716)
+Defined in: [charts/Plot/index.ts:719](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L719)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15338,7 +15922,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:734](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L734)
+Defined in: [charts/Plot/index.ts:737](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L737)
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -15358,7 +15942,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:748](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L748)
+Defined in: [charts/Plot/index.ts:751](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L751)
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -15378,7 +15962,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:777](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L777)
+Defined in: [charts/Plot/index.ts:780](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L780)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15398,7 +15982,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:764](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L764)
+Defined in: [charts/Plot/index.ts:767](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L767)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -18718,7 +19302,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
+Defined in: [components/Axis/Axis.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L452)
 
 Axis line style.
 
@@ -18734,7 +19318,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Axis line style.
 
@@ -18751,6 +19335,126 @@ Axis line style.
 ###### Inherited from
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
+
+<a id="baselinebreakconfig-5"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L492)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L493)
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-5"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: [components/Axis/Axis.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L472)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: [components/Axis/Axis.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L473)
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
 
 <a id="colordefaults-19"></a>
 
@@ -18866,7 +19570,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
+Defined in: [components/Axis/Axis.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L503)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -18882,7 +19586,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
+Defined in: [components/Axis/Axis.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L504)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -18908,7 +19612,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
+Defined in: [components/Axis/Axis.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L512)
 
 Grid config of the axis.
 
@@ -18924,7 +19628,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
+Defined in: [components/Axis/Axis.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L513)
 
 Grid config of the axis.
 
@@ -18984,7 +19688,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19000,7 +19704,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19096,7 +19800,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
+Defined in: [components/Axis/Axis.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L579)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -19210,7 +19914,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
+Defined in: [components/Axis/Axis.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L534)
 
 The orientation of the shape.
 
@@ -19226,7 +19930,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
+Defined in: [components/Axis/Axis.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L535)
 
 The orientation of the shape.
 
@@ -19250,7 +19954,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
+Defined in: [components/Axis/Axis.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L565)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -19376,7 +20080,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
+Defined in: [components/Axis/Axis.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L593)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -19398,7 +20102,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
+Defined in: [components/Axis/Axis.ts:594](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L594)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -19464,7 +20168,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
+Defined in: [components/Axis/Axis.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L608)
 
 Tick style of the axis.
 
@@ -19480,7 +20184,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
+Defined in: [components/Axis/Axis.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L609)
 
 Tick style of the axis.
 
@@ -19506,7 +20210,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
+Defined in: [components/Axis/Axis.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L619)
 
 Title configuration of the axis.
 
@@ -19522,7 +20226,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
+Defined in: [components/Axis/Axis.ts:620](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L620)
 
 Title configuration of the axis.
 
@@ -24395,16 +25099,18 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | Method | Default |
 | --- | --- |
 | `baseline` | `0` |
+| `baselineBreak` | `true` |
 | `discrete` | `"x"` |
 | `shape` | `"Bar"` |
 | `tooltipConfig` | — |
 | `legend` | — |
 
 
-Defined in: [charts/BarChart/index.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L56)
+Defined in: [charts/BarChart/index.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L59)
 
 Creates a bar chart based on an array of data. When stacked, each bar's
-fraction of its stack total is available to tooltip accessors as `share`.
+fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
 
 ***
 
@@ -24710,7 +25416,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Pie/index.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L167)
+Defined in: [charts/Pie/index.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L164)
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -24876,10 +25582,11 @@ Extends [`AreaPlot`](#areaplot) — accepts all of its configuration. Adds or ov
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/StackedArea/index.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/StackedArea/index.ts#L28)
+Defined in: [charts/StackedArea/index.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/StackedArea/index.ts#L29)
 
 Creates a stacked area plot based on an array of data. Each point's
-fraction of its stack total is available to tooltip accessors as `share`.
+fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
 
 ***
 
@@ -24924,7 +25631,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Treemap/index.ts:183](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L183)
+Defined in: [charts/Treemap/index.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L180)
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
@@ -25013,23 +25720,28 @@ Defined in: [utils/D3plusConfig.ts:52](https://github.com/d3plus/d3plus/blob/mai
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
 | <a id="property-barconfig"></a> `barConfig?` | `Record`\<`string`, `string` \| `number`\> | - | [utils/D3plusConfig.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L53) |
-| <a id="property-domainticks"></a> `domainTicks?` | `boolean` | Whether the domain's min and max are always shown as ticks, even when they aren't among the scale's own "nice" tick values (the nearest nice tick is dropped when it would crowd them). Defaults to `true`; zooming turns it off so a rescaled axis shows only nice values. | [utils/D3plusConfig.ts:90](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L90) |
-| <a id="property-fixedsize"></a> `fixedSize?` | `number` | Exact size of the space that contains the axis tick labels and title. Labels that need more room overflow outward instead of moving the axis line; zooming pins a rescaled axis this way so it doesn't shift. | [utils/D3plusConfig.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L68) |
-| <a id="property-grid"></a> `grid?` | `unknown`[] | Grid values of the axis. | [utils/D3plusConfig.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L55) |
-| <a id="property-gridconfig"></a> `gridConfig?` | `Record`\<`string`, `string` \| `number`\> | - | [utils/D3plusConfig.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L56) |
-| <a id="property-gridsize"></a> `gridSize?` | `number` | Grid size of the axis. | [utils/D3plusConfig.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L58) |
-| <a id="property-label-1"></a> `label?` | `string` | - | [utils/D3plusConfig.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L59) |
-| <a id="property-labeloffset"></a> `labelOffset?` | `number` \| `false` | - | [utils/D3plusConfig.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L62) |
-| <a id="property-labels"></a> `labels?` | `unknown`[] | Visible tick labels of the axis. | [utils/D3plusConfig.ts:61](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L61) |
-| <a id="property-maxsize"></a> `maxSize?` | `number` | Maximum size allowed for the space that contains the axis tick labels and title. | [utils/D3plusConfig.ts:70](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L70) |
-| <a id="property-minsize"></a> `minSize?` | `number` | Minimum size alloted for the space that contains the axis tick labels and title. | [utils/D3plusConfig.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L72) |
-| <a id="property-range"></a> `range?` | (`number` \| `undefined`)[] | Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value. | [utils/D3plusConfig.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L77) |
-| <a id="property-scale-1"></a> `scale?` | `AxisScale` | Scale of the axis. | [utils/D3plusConfig.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L79) |
-| <a id="property-tickformat"></a> `tickFormat?` | (`d`: `string` \| `number`) => `string` \| `number` | Tick formatter. | [utils/D3plusConfig.ts:81](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L81) |
-| <a id="property-ticks"></a> `ticks?` | `unknown`[] | Tick values of the axis. | [utils/D3plusConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L83) |
-| <a id="property-ticksize"></a> `tickSize?` | `number` | - | [utils/D3plusConfig.ts:91](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L91) |
-| <a id="property-timelocale"></a> `timeLocale?` | `Record`\<`string`, `unknown`\> | Defines a custom locale object to be used in time scales. Must include `dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and `shortMonths` (see [d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)). | [utils/D3plusConfig.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L98) |
-| <a id="property-title"></a> `title?` | `string` | Title of the axis. | [utils/D3plusConfig.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L100) |
+| <a id="property-baseline"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | [utils/D3plusConfig.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L58) |
+| <a id="property-baselinebreak"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | [utils/D3plusConfig.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L72) |
+| <a id="property-baselinebreakconfig"></a> `baselineBreakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the baseline break: `space` (pixels of axis between the baseline tick and the first tick after the break, default `36`), `gap` (pixels between the two marks, where the axis line is not drawn, default `5`), `size` (length of each mark, drawn outward from the axis line on the tick side so it never reaches into the plot, default `10`), `angle` (degrees each mark tilts from perpendicular to the axis, default `30`), `lines` (whether a Plot runs a straight line across the plot from the foot of each mark, perpendicular to the axis, default `true`; they take the axis line's `barConfig` style), `lineConfig` (those lines' `stroke`, `stroke-width`, and other line styles, layered over the axis line style), `mask` (whether a Plot cuts the gap between the two lines straight across the shapes, default `false`), plus `stroke`, `stroke-width`, and the other line styles `barConfig` takes, for the marks. | [utils/D3plusConfig.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L89) |
+| <a id="property-break"></a> `break?` | `false` \| \[`number`, `number`\] \| \[`number`, `number`\][] | Value ranges to remove from a linear axis: one `[start, end]` pair, or a list of them (`[[start, end], [start, end]]`). Each range collapses to a short fixed gap in the axis, marked like the baseline break, with no ticks or gridlines inside it and both of its edges labeled; the values on either side keep one shared scale. Reversed pairs are flipped, overlapping ones merged, and ranges that don't lie strictly inside the domain (or that don't leave room for the data) are ignored. Only positions change — tooltips and labels still show the real values. | [utils/D3plusConfig.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L100) |
+| <a id="property-breakconfig"></a> `breakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the ranges set with `break`: the same `space`, `gap`, `size`, `angle`, `lines`, `lineConfig`, and mark line styles as `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between the break's two lines straight across the shapes) defaulting to `true`. | [utils/D3plusConfig.ts:107](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L107) |
+| <a id="property-domainticks"></a> `domainTicks?` | `boolean` | Whether the domain's min and max are always shown as ticks, even when they aren't among the scale's own "nice" tick values (the nearest nice tick is dropped when it would crowd them). Defaults to `true`; zooming turns it off so a rescaled axis shows only nice values. | [utils/D3plusConfig.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L144) |
+| <a id="property-fixedsize"></a> `fixedSize?` | `number` | Exact size of the space that contains the axis tick labels and title. Labels that need more room overflow outward instead of moving the axis line; zooming pins a rescaled axis this way so it doesn't shift. | [utils/D3plusConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L122) |
+| <a id="property-grid"></a> `grid?` | `unknown`[] | Grid values of the axis. | [utils/D3plusConfig.ts:109](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L109) |
+| <a id="property-gridconfig"></a> `gridConfig?` | `Record`\<`string`, `string` \| `number`\> | - | [utils/D3plusConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L110) |
+| <a id="property-gridsize"></a> `gridSize?` | `number` | Grid size of the axis. | [utils/D3plusConfig.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L112) |
+| <a id="property-label-1"></a> `label?` | `string` | - | [utils/D3plusConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L113) |
+| <a id="property-labeloffset"></a> `labelOffset?` | `number` \| `false` | - | [utils/D3plusConfig.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L116) |
+| <a id="property-labels"></a> `labels?` | `unknown`[] | Visible tick labels of the axis. | [utils/D3plusConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L115) |
+| <a id="property-maxsize"></a> `maxSize?` | `number` | Maximum size allowed for the space that contains the axis tick labels and title. | [utils/D3plusConfig.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L124) |
+| <a id="property-minsize"></a> `minSize?` | `number` | Minimum size alloted for the space that contains the axis tick labels and title. | [utils/D3plusConfig.ts:126](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L126) |
+| <a id="property-range"></a> `range?` | (`number` \| `undefined`)[] | Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value. | [utils/D3plusConfig.ts:131](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L131) |
+| <a id="property-scale-1"></a> `scale?` | `AxisScale` | Scale of the axis. | [utils/D3plusConfig.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L133) |
+| <a id="property-tickformat"></a> `tickFormat?` | (`d`: `string` \| `number`) => `string` \| `number` | Tick formatter. | [utils/D3plusConfig.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L135) |
+| <a id="property-ticks"></a> `ticks?` | `unknown`[] | Tick values of the axis. | [utils/D3plusConfig.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L137) |
+| <a id="property-ticksize"></a> `tickSize?` | `number` | - | [utils/D3plusConfig.ts:145](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L145) |
+| <a id="property-timelocale"></a> `timeLocale?` | `Record`\<`string`, `unknown`\> | Defines a custom locale object to be used in time scales. Must include `dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and `shortMonths` (see [d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)). | [utils/D3plusConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L152) |
+| <a id="property-title"></a> `title?` | `string` | Title of the axis. | [utils/D3plusConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L154) |
 
 ***
 
@@ -25282,16 +25994,16 @@ Circle-specific config (radius).
 
 ### ColorScaleConfig
 
-Defined in: [utils/D3plusConfig.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L305)
+Defined in: [utils/D3plusConfig.ts:369](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L369)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-bucketformat"></a> `bucketFormat?` | (`start`: `number`, `i`: `number`, `buckets`: `number`[], `values`: `number`[]) => `string` | Formats the label for each bucket in a bucket-type scale ("jenks", "quantile", …). Passed the bucket's start value, its index, the full bucket array, and every data value used to build the buckets. | [utils/D3plusConfig.ts:318](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L318) |
-| <a id="property-bucketjoiner"></a> `bucketJoiner?` | (`min`: `string`, `max`: `string`) => `string` | Given a bucket's minimum and maximum values, returns the full label. | [utils/D3plusConfig.ts:325](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L325) |
-| <a id="property-color"></a> `color?` | `string` \| `string`[] | The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. | [utils/D3plusConfig.ts:307](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L307) |
-| <a id="property-domain"></a> `domain?` | `number`[] | For a linear scale, the `[min, max]` values used by the color scale; values outside this range map to the nearest color. | [utils/D3plusConfig.ts:312](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L312) |
+| <a id="property-bucketformat"></a> `bucketFormat?` | (`start`: `number`, `i`: `number`, `buckets`: `number`[], `values`: `number`[]) => `string` | Formats the label for each bucket in a bucket-type scale ("jenks", "quantile", …). Passed the bucket's start value, its index, the full bucket array, and every data value used to build the buckets. | [utils/D3plusConfig.ts:382](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L382) |
+| <a id="property-bucketjoiner"></a> `bucketJoiner?` | (`min`: `string`, `max`: `string`) => `string` | Given a bucket's minimum and maximum values, returns the full label. | [utils/D3plusConfig.ts:389](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L389) |
+| <a id="property-color"></a> `color?` | `string` \| `string`[] | The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. | [utils/D3plusConfig.ts:371](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L371) |
+| <a id="property-domain"></a> `domain?` | `number`[] | For a linear scale, the `[min, max]` values used by the color scale; values outside this range map to the nearest color. | [utils/D3plusConfig.ts:376](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L376) |
 
 ***
 
@@ -25299,7 +26011,7 @@ Defined in: [utils/D3plusConfig.ts:305](https://github.com/d3plus/d3plus/blob/ma
 
 ### D3plusConfig
 
-Defined in: [utils/D3plusConfig.ts:333](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L333)
+Defined in: [utils/D3plusConfig.ts:397](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L397)
 
 #### Indexable
 
@@ -25311,154 +26023,157 @@ Allows additional custom properties.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-active-4"></a> `active?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | The active callback function for highlighting shapes. | [utils/D3plusConfig.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L340) |
-| <a id="property-aggs"></a> `aggs?` | `object` | Custom aggregation functions keyed by data property. | [utils/D3plusConfig.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L342) |
-| <a id="property-ariahidden"></a> `ariaHidden?` | `boolean` | Hides the SVG from assistive technology when true (`aria-hidden`). | [utils/D3plusConfig.ts:344](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L344) |
-| <a id="property-attribution"></a> `attribution?` | `string` \| `boolean` | Text (rendered as HTML — any valid HTML string works, including anchor links) shown in the chart's bottom-right corner, most often a map tile credit. `false` (the default) shows nothing. A credit wider than half the chart area collapses to a small "ⓘ" badge that expands on hover, focus, or click. | [utils/D3plusConfig.ts:352](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L352) |
-| <a id="property-attributionicon"></a> `attributionIcon?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) | Overrides the "ⓘ" badge a long attribution collapses to, which otherwise renders as an inline SVG. A string is used as the badge's raw HTML content; a mount function, `(el: HTMLElement) => void | (() => void)`, is called once with the badge's reserved element so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | [utils/D3plusConfig.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L362) |
-| <a id="property-attributionstyle"></a> `attributionStyle?` | `Record`\<`string`, `unknown`\> | CSS key/value pairs used to style the attribution text. | [utils/D3plusConfig.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L364) |
-| <a id="property-backcontrolclassname"></a> `backControlClassName?` | `string` | Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. | [utils/D3plusConfig.ts:366](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L366) |
-| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | [utils/D3plusConfig.ts:368](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L368) |
-| <a id="property-baseline"></a> `baseline?` | `number` | The baseline for the x/y plot. | [utils/D3plusConfig.ts:370](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L370) |
-| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | [utils/D3plusConfig.ts:372](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L372) |
-| <a id="property-colordefaults"></a> `colorDefaults?` | [`ColorDefaultsConfig`](#colordefaultsconfig) | Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). | [utils/D3plusConfig.ts:374](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L374) |
-| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | [utils/D3plusConfig.ts:376](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L376) |
-| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | [utils/D3plusConfig.ts:378](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L378) |
-| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | [utils/D3plusConfig.ts:380](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L380) |
-| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | [utils/D3plusConfig.ts:381](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L381) |
-| `colorScaleConfig.centered?` | `boolean` | - | [utils/D3plusConfig.ts:382](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L382) |
-| `colorScaleConfig.colorMax?` | `string` | - | [utils/D3plusConfig.ts:386](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L386) |
-| `colorScaleConfig.colorMid?` | `string` | - | [utils/D3plusConfig.ts:385](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L385) |
-| `colorScaleConfig.colorMin?` | `string` | - | [utils/D3plusConfig.ts:384](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L384) |
-| `colorScaleConfig.colors?` | `string`[] | - | [utils/D3plusConfig.ts:383](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L383) |
-| `colorScaleConfig.scale?` | `AxisScale` | - | [utils/D3plusConfig.ts:387](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L387) |
-| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:390](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L390) |
-| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | [utils/D3plusConfig.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L392) |
-| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | [utils/D3plusConfig.ts:394](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L394) |
-| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: `DataPoint`, `i`: `number`) => `number`), `string` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | [utils/D3plusConfig.ts:400](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L400) |
-| <a id="property-crosshairconfig"></a> `crosshairConfig?` | `Record`\<`string`, `unknown`\> | Paint for the shared tooltip's crosshair guide line (`stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). | [utils/D3plusConfig.ts:410](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L410) |
-| <a id="property-data-5"></a> `data?` | `string` \| `DataPoint`[] | Data array or URL string to load data from. | [utils/D3plusConfig.ts:335](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L335) |
-| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | [utils/D3plusConfig.ts:412](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L412) |
-| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | [utils/D3plusConfig.ts:414](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L414) |
-| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | [utils/D3plusConfig.ts:416](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L416) |
-| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | [utils/D3plusConfig.ts:418](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L418) |
-| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | [utils/D3plusConfig.ts:420](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L420) |
-| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | [utils/D3plusConfig.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L422) |
-| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: `DataPoint`) => `string` \| `number`) \| (`d`: `DataPoint`) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | [utils/D3plusConfig.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L427) |
-| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | [utils/D3plusConfig.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L433) |
-| <a id="property-height-1"></a> `height?` | `number` | Overall height of the visualization in pixels. | [utils/D3plusConfig.ts:435](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L435) |
-| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L437) |
-| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: `DataPoint`, `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L439) |
-| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | [utils/D3plusConfig.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L443) |
-| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | [utils/D3plusConfig.ts:441](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L441) |
-| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | [utils/D3plusConfig.ts:445](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L445) |
-| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: `DataPoint`[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant. | [utils/D3plusConfig.ts:452](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L452) |
-| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | [utils/D3plusConfig.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L454) |
-| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | [utils/D3plusConfig.ts:455](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L455) |
-| `legendConfig.shape?` | `DataPointAccessor`\<`string`\> | Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"` (a dot with a short stroke through it). Defaults to the shape of the series it stands for: a dot for Circles, the line glyph for Lines, and a square for everything else. | [utils/D3plusConfig.ts:462](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L462) |
-| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | [utils/D3plusConfig.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L463) |
-| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | [utils/D3plusConfig.ts:466](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L466) |
-| <a id="property-legendinset"></a> `legendInset?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig)) => `boolean`) | Whether one legend may be drawn inside the empty space around the chart's marks instead of in a margin (size legend first, then legend, then colorScale), or an accessor receiving the resolved config. Defaults to `true`. | [utils/D3plusConfig.ts:472](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L472) |
-| <a id="property-legendinsetconfig"></a> `legendInsetConfig?` | `object` | Style of the semi-transparent box behind a legend drawn inside the chart. | [utils/D3plusConfig.ts:474](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L474) |
-| `legendInsetConfig.fill?` | `string` | Box fill; defaults to the chart's background color. | [utils/D3plusConfig.ts:476](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L476) |
-| `legendInsetConfig.fillOpacity?` | `number` | - | [utils/D3plusConfig.ts:477](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L477) |
-| `legendInsetConfig.margin?` | `number` | Space between the box's edge and the legend inside it. | [utils/D3plusConfig.ts:483](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L483) |
-| `legendInsetConfig.padding?` | `number` | Space kept between the box and the chart's marks and edges. | [utils/D3plusConfig.ts:485](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L485) |
-| `legendInsetConfig.rx?` | `number` | Corner radius. | [utils/D3plusConfig.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L481) |
-| `legendInsetConfig.stroke?` | `string` | - | [utils/D3plusConfig.ts:478](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L478) |
-| `legendInsetConfig.strokeWidth?` | `number` | - | [utils/D3plusConfig.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L479) |
-| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:488](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L488) |
-| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | [utils/D3plusConfig.ts:490](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L490) |
-| <a id="property-legendsort"></a> `legendSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort comparator for legend items. | [utils/D3plusConfig.ts:492](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L492) |
-| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | [utils/D3plusConfig.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L494) |
-| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | [utils/D3plusConfig.ts:496](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L496) |
-| <a id="property-link"></a> `link?` | [`LinkOption`](#linkoption) | Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. | [utils/D3plusConfig.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L498) |
-| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | [utils/D3plusConfig.ts:502](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L502) |
-| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | [utils/D3plusConfig.ts:500](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L500) |
-| <a id="property-locale"></a> `locale?` | `string` | Locale code used for text and number formatting. | [utils/D3plusConfig.ts:337](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L337) |
-| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | [utils/D3plusConfig.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L504) |
-| <a id="property-minimap"></a> `minimap?` | `boolean` | Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. | [utils/D3plusConfig.ts:506](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L506) |
-| <a id="property-minimapclassname"></a> `minimapClassName?` | `string` | Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. | [utils/D3plusConfig.ts:508](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L508) |
-| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | [utils/D3plusConfig.ts:510](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L510) |
-| <a id="property-ocean"></a> `ocean?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | Ocean color for geomaps (any CSS value including 'transparent'), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors. | [utils/D3plusConfig.ts:516](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L516) |
-| <a id="property-on-4"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | [utils/D3plusConfig.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L518) |
-| <a id="property-point"></a> `point?` | (`d`: `DataPoint`) => `number`[] | Coordinate accessor for point-based geomaps. | [utils/D3plusConfig.ts:520](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L520) |
-| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: `DataPoint`) => `number`) | Point size accessor for geomaps. | [utils/D3plusConfig.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L522) |
-| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | [utils/D3plusConfig.ts:526](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L526) |
-| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | [utils/D3plusConfig.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L524) |
-| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | [utils/D3plusConfig.ts:528](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L528) |
-| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | [utils/D3plusConfig.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L530) |
-| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | [utils/D3plusConfig.ts:532](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L532) |
-| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | [utils/D3plusConfig.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L534) |
-| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | [utils/D3plusConfig.ts:536](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L536) |
-| <a id="property-search"></a> `search?` | `boolean` | Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. | [utils/D3plusConfig.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L538) |
-| <a id="property-searchaccessor"></a> `searchAccessor?` | (`d`: `DataPoint`, `i`: `number`) => `string` | Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. | [utils/D3plusConfig.ts:540](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L540) |
-| <a id="property-searchcontrolclassname"></a> `searchControlClassName?` | `string` | Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. | [utils/D3plusConfig.ts:542](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L542) |
-| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | [utils/D3plusConfig.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L544) |
-| `shapeConfig.duration?` | `number` | - | [utils/D3plusConfig.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L545) |
-| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | [utils/D3plusConfig.ts:554](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L554) |
-| <a id="property-size"></a> `size?` | `string` | Size accessor key. | [utils/D3plusConfig.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L556) |
-| <a id="property-sizelegend"></a> `sizeLegend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) | Controls size-legend visibility — the nested-circle key drawn in the bottom-right corner of charts that size their marks. Shown by default whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height; pass `true` to always show it, `false` to hide it, or a `(config, scale, size) => boolean` accessor. | [utils/D3plusConfig.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L565) |
-| <a id="property-sizelegendconfig"></a> `sizeLegendConfig?` | [`SizeLegendConfig`](#sizelegendconfig-3) | Configuration for the size-legend component. | [utils/D3plusConfig.ts:569](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L569) |
-| <a id="property-sizelegendposition"></a> `sizeLegendPosition?` | `"right"` \| `"bottom"` | Which margin the size legend claims in the bottom-right corner: `"right"` (default) keeps the chart's full height, `"bottom"` its full width. | [utils/D3plusConfig.ts:575](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L575) |
-| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | [utils/D3plusConfig.ts:577](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L577) |
-| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | [utils/D3plusConfig.ts:584](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L584) |
-| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: `DataPoint`) => `unknown`); \} \| ((`d`: `DataPoint`) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | [utils/D3plusConfig.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L593) |
-| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Subtitle text, or an accessor returning it. | [utils/D3plusConfig.ts:599](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L599) |
-| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:601](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L601) |
-| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | [utils/D3plusConfig.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L603) |
-| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | [utils/D3plusConfig.ts:605](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L605) |
-| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | [utils/D3plusConfig.ts:607](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L607) |
-| <a id="property-tableview"></a> `tableView?` | `boolean` | Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. | [utils/D3plusConfig.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L609) |
-| <a id="property-tableviewclassname"></a> `tableViewClassName?` | `string` | Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. | [utils/D3plusConfig.ts:611](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L611) |
-| <a id="property-tableviewcontrolclassname"></a> `tableViewControlClassName?` | `string` | Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. | [utils/D3plusConfig.ts:613](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L613) |
-| <a id="property-tableviewcontrolstyle"></a> `tableViewControlStyle?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. | [utils/D3plusConfig.ts:615](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L615) |
-| <a id="property-tableviewcontrolstyleactive"></a> `tableViewControlStyleActive?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. | [utils/D3plusConfig.ts:617](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L617) |
-| <a id="property-tableviewcontrolstylehover"></a> `tableViewControlStyleHover?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. | [utils/D3plusConfig.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L619) |
-| <a id="property-tableviewdownload"></a> `tableViewDownload?` | `boolean` | Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. | [utils/D3plusConfig.ts:621](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L621) |
-| <a id="property-tableviewpagesize"></a> `tableViewPageSize?` | `number` \| `false` | Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. | [utils/D3plusConfig.ts:623](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L623) |
-| <a id="property-tableviewsort"></a> `tableViewSort?` | `boolean` | Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. | [utils/D3plusConfig.ts:625](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L625) |
-| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | [utils/D3plusConfig.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L627) |
-| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:629](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L629) |
-| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | [utils/D3plusConfig.ts:637](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L637) |
-| <a id="property-tileurl"></a> `tileUrl?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas. | [utils/D3plusConfig.ts:635](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L635) |
-| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | [utils/D3plusConfig.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L639) |
-| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | [utils/D3plusConfig.ts:641](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L641) |
-| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | [utils/D3plusConfig.ts:643](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L643) |
-| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L645) |
-| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Chart title or title accessor function. | [utils/D3plusConfig.ts:647](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L647) |
-| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | [utils/D3plusConfig.ts:649](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L649) |
-| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:651](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L651) |
-| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | [utils/D3plusConfig.ts:653](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L653) |
-| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | [utils/D3plusConfig.ts:655](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L655) |
-| <a id="property-tooltipshared"></a> `tooltipShared?` | `boolean` | Whether hovering a Plot's plot area shows one tooltip listing every series' value at the nearest discrete-axis position, with a crosshair through it. Applies when a discrete axis is set and at least two series share that position. | [utils/D3plusConfig.ts:662](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L662) |
-| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | [utils/D3plusConfig.ts:678](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L678) |
-| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | [utils/D3plusConfig.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L680) |
-| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | [utils/D3plusConfig.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L682) |
-| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:684](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L684) |
-| <a id="property-trendline"></a> `trendLine?` | `boolean` \| `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"` | Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it. | [utils/D3plusConfig.ts:668](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L668) |
-| <a id="property-trendlineconfig"></a> `trendLineConfig?` | [`TrendLineConfig`](#trendlineconfig-1) | Options for the trend lines: `group` (`"series"` or `"all"`), the polynomial `order`, a `confidence` band with `confidenceLevel` and `confidenceConfig`, a `projection` into the future with `projectionConfig`, `tooltip`, and Line styles (`stroke`, `strokeWidth`, `strokeDasharray`, …). | [utils/D3plusConfig.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L676) |
-| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | [utils/D3plusConfig.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L686) |
-| <a id="property-width-1"></a> `width?` | `number` | Overall width of the visualization in pixels. | [utils/D3plusConfig.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L688) |
-| <a id="property-x-5"></a> `x?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | [utils/D3plusConfig.ts:690](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L690) |
-| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:696](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L696) |
-| <a id="property-x2sort"></a> `x2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | [utils/D3plusConfig.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L700) |
-| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | [utils/D3plusConfig.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L692) |
-| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L694) |
-| <a id="property-xsort"></a> `xSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for x-axis values. | [utils/D3plusConfig.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L698) |
-| <a id="property-y-5"></a> `y?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | [utils/D3plusConfig.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L702) |
-| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:708](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L708) |
-| <a id="property-y2sort"></a> `y2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | [utils/D3plusConfig.ts:712](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L712) |
-| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | [utils/D3plusConfig.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L704) |
-| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:706](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L706) |
-| <a id="property-ysort"></a> `ySort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for y-axis values. | [utils/D3plusConfig.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L710) |
-| <a id="property-zoom"></a> `zoom?` | `boolean` | Enables pan/zoom with zoom-control buttons. On by default for every chart. | [utils/D3plusConfig.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L714) |
-| <a id="property-zoomcontrolclassname"></a> `zoomControlClassName?` | `string` | Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. | [utils/D3plusConfig.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L716) |
-| <a id="property-zoomcontrolicons"></a> `zoomControlIcons?` | `Partial`\<`Record`\<`"zoomIn"` \| `"zoomOut"` \| `"zoomReset"` \| `"zoomBrush"`, `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))\>\> | Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either raw HTML — used as that button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | [utils/D3plusConfig.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L726) |
-| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | [utils/D3plusConfig.ts:733](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L733) |
-| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. | [utils/D3plusConfig.ts:735](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L735) |
-| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | [utils/D3plusConfig.ts:737](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L737) |
-| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` \| `"modifier"` | Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the default) leaves page scrolling alone: only Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans only once zoomed in. `true` zooms on any wheel; `false` never does. | [utils/D3plusConfig.ts:744](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L744) |
+| <a id="property-active-4"></a> `active?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | The active callback function for highlighting shapes. | [utils/D3plusConfig.ts:404](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L404) |
+| <a id="property-aggs"></a> `aggs?` | `object` | Custom aggregation functions keyed by data property. | [utils/D3plusConfig.ts:406](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L406) |
+| <a id="property-ariahidden"></a> `ariaHidden?` | `boolean` | Hides the SVG from assistive technology when true (`aria-hidden`). | [utils/D3plusConfig.ts:408](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L408) |
+| <a id="property-attribution"></a> `attribution?` | `string` \| `boolean` | Text (rendered as HTML — any valid HTML string works, including anchor links) shown in the chart's bottom-right corner, most often a map tile credit. `false` (the default) shows nothing. A credit wider than half the chart area collapses to a small "ⓘ" badge that expands on hover, focus, or click. | [utils/D3plusConfig.ts:416](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L416) |
+| <a id="property-attributionicon"></a> `attributionIcon?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) | Overrides the "ⓘ" badge a long attribution collapses to, which otherwise renders as an inline SVG. A string is used as the badge's raw HTML content; a mount function, `(el: HTMLElement) => void | (() => void)`, is called once with the badge's reserved element so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | [utils/D3plusConfig.ts:426](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L426) |
+| <a id="property-attributionstyle"></a> `attributionStyle?` | `Record`\<`string`, `unknown`\> | CSS key/value pairs used to style the attribution text. | [utils/D3plusConfig.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L428) |
+| <a id="property-backcontrolclassname"></a> `backControlClassName?` | `string` | Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. | [utils/D3plusConfig.ts:430](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L430) |
+| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | [utils/D3plusConfig.ts:432](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L432) |
+| <a id="property-baseline-1"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | [utils/D3plusConfig.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L437) |
+| <a id="property-baselinebreak-1"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | [utils/D3plusConfig.ts:451](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L451) |
+| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | [utils/D3plusConfig.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L453) |
+| <a id="property-colordefaults"></a> `colorDefaults?` | [`ColorDefaultsConfig`](#colordefaultsconfig) | Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). | [utils/D3plusConfig.ts:455](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L455) |
+| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | [utils/D3plusConfig.ts:457](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L457) |
+| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | [utils/D3plusConfig.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L459) |
+| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | [utils/D3plusConfig.ts:461](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L461) |
+| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | [utils/D3plusConfig.ts:462](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L462) |
+| `colorScaleConfig.centered?` | `boolean` | - | [utils/D3plusConfig.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L463) |
+| `colorScaleConfig.colorMax?` | `string` | - | [utils/D3plusConfig.ts:467](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L467) |
+| `colorScaleConfig.colorMid?` | `string` | - | [utils/D3plusConfig.ts:466](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L466) |
+| `colorScaleConfig.colorMin?` | `string` | - | [utils/D3plusConfig.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L465) |
+| `colorScaleConfig.colors?` | `string`[] | - | [utils/D3plusConfig.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L464) |
+| `colorScaleConfig.scale?` | `AxisScale` | - | [utils/D3plusConfig.ts:468](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L468) |
+| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L471) |
+| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | [utils/D3plusConfig.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L473) |
+| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | [utils/D3plusConfig.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L475) |
+| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: `DataPoint`, `i`: `number`) => `number`), `string` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | [utils/D3plusConfig.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L481) |
+| <a id="property-crosshairconfig"></a> `crosshairConfig?` | `Record`\<`string`, `unknown`\> | Paint for the shared tooltip's crosshair guide line (`stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). | [utils/D3plusConfig.ts:491](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L491) |
+| <a id="property-data-5"></a> `data?` | `string` \| `DataPoint`[] | Data array or URL string to load data from. | [utils/D3plusConfig.ts:399](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L399) |
+| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | [utils/D3plusConfig.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L493) |
+| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | [utils/D3plusConfig.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L495) |
+| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | [utils/D3plusConfig.ts:497](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L497) |
+| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | [utils/D3plusConfig.ts:499](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L499) |
+| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | [utils/D3plusConfig.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L501) |
+| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | [utils/D3plusConfig.ts:503](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L503) |
+| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: `DataPoint`) => `string` \| `number`) \| (`d`: `DataPoint`) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | [utils/D3plusConfig.ts:508](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L508) |
+| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | [utils/D3plusConfig.ts:514](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L514) |
+| <a id="property-height-1"></a> `height?` | `number` | Overall height of the visualization in pixels. | [utils/D3plusConfig.ts:516](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L516) |
+| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L518) |
+| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: `DataPoint`, `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:520](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L520) |
+| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | [utils/D3plusConfig.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L524) |
+| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | [utils/D3plusConfig.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L522) |
+| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | [utils/D3plusConfig.ts:526](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L526) |
+| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: `DataPoint`[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant. | [utils/D3plusConfig.ts:533](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L533) |
+| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | [utils/D3plusConfig.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L535) |
+| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | [utils/D3plusConfig.ts:536](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L536) |
+| `legendConfig.shape?` | `DataPointAccessor`\<`string`\> | Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"` (a dot with a short stroke through it). Defaults to the shape of the series it stands for: a dot for Circles, the line glyph for Lines, and a square for everything else. | [utils/D3plusConfig.ts:543](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L543) |
+| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | [utils/D3plusConfig.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L544) |
+| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | [utils/D3plusConfig.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L547) |
+| <a id="property-legendinset"></a> `legendInset?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig)) => `boolean`) | Whether one legend may be drawn inside the empty space around the chart's marks instead of in a margin (size legend first, then legend, then colorScale), or an accessor receiving the resolved config. Defaults to `true`. | [utils/D3plusConfig.ts:553](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L553) |
+| <a id="property-legendinsetconfig"></a> `legendInsetConfig?` | `object` | Style of the semi-transparent box behind a legend drawn inside the chart. | [utils/D3plusConfig.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L555) |
+| `legendInsetConfig.fill?` | `string` | Box fill; defaults to the chart's background color. | [utils/D3plusConfig.ts:557](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L557) |
+| `legendInsetConfig.fillOpacity?` | `number` | - | [utils/D3plusConfig.ts:558](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L558) |
+| `legendInsetConfig.margin?` | `number` | Space between the box's edge and the legend inside it. | [utils/D3plusConfig.ts:564](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L564) |
+| `legendInsetConfig.padding?` | `number` | Space kept between the box and the chart's marks and edges. | [utils/D3plusConfig.ts:566](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L566) |
+| `legendInsetConfig.rx?` | `number` | Corner radius. | [utils/D3plusConfig.ts:562](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L562) |
+| `legendInsetConfig.stroke?` | `string` | - | [utils/D3plusConfig.ts:559](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L559) |
+| `legendInsetConfig.strokeWidth?` | `number` | - | [utils/D3plusConfig.ts:560](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L560) |
+| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:569](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L569) |
+| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | [utils/D3plusConfig.ts:571](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L571) |
+| <a id="property-legendsort"></a> `legendSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort comparator for legend items. | [utils/D3plusConfig.ts:573](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L573) |
+| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | [utils/D3plusConfig.ts:575](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L575) |
+| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | [utils/D3plusConfig.ts:577](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L577) |
+| <a id="property-link"></a> `link?` | [`LinkOption`](#linkoption) | Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. | [utils/D3plusConfig.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L579) |
+| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | [utils/D3plusConfig.ts:583](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L583) |
+| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | [utils/D3plusConfig.ts:581](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L581) |
+| <a id="property-locale"></a> `locale?` | `string` | Locale code used for text and number formatting. | [utils/D3plusConfig.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L401) |
+| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | [utils/D3plusConfig.ts:585](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L585) |
+| <a id="property-minimap"></a> `minimap?` | `boolean` | Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. | [utils/D3plusConfig.ts:587](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L587) |
+| <a id="property-minimapclassname"></a> `minimapClassName?` | `string` | Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. | [utils/D3plusConfig.ts:589](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L589) |
+| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | [utils/D3plusConfig.ts:591](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L591) |
+| <a id="property-ocean"></a> `ocean?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | Ocean color for geomaps (any CSS value including 'transparent'), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors. | [utils/D3plusConfig.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L597) |
+| <a id="property-on-4"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | [utils/D3plusConfig.ts:599](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L599) |
+| <a id="property-point"></a> `point?` | (`d`: `DataPoint`) => `number`[] | Coordinate accessor for point-based geomaps. | [utils/D3plusConfig.ts:601](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L601) |
+| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: `DataPoint`) => `number`) | Point size accessor for geomaps. | [utils/D3plusConfig.ts:603](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L603) |
+| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | [utils/D3plusConfig.ts:607](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L607) |
+| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | [utils/D3plusConfig.ts:605](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L605) |
+| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | [utils/D3plusConfig.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L609) |
+| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | [utils/D3plusConfig.ts:611](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L611) |
+| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | [utils/D3plusConfig.ts:613](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L613) |
+| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | [utils/D3plusConfig.ts:615](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L615) |
+| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | [utils/D3plusConfig.ts:617](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L617) |
+| <a id="property-search"></a> `search?` | `boolean` | Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. | [utils/D3plusConfig.ts:619](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L619) |
+| <a id="property-searchaccessor"></a> `searchAccessor?` | (`d`: `DataPoint`, `i`: `number`) => `string` | Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. | [utils/D3plusConfig.ts:621](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L621) |
+| <a id="property-searchcontrolclassname"></a> `searchControlClassName?` | `string` | Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. | [utils/D3plusConfig.ts:623](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L623) |
+| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | [utils/D3plusConfig.ts:625](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L625) |
+| `shapeConfig.duration?` | `number` | - | [utils/D3plusConfig.ts:626](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L626) |
+| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | [utils/D3plusConfig.ts:635](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L635) |
+| <a id="property-size"></a> `size?` | `string` | Size accessor key. | [utils/D3plusConfig.ts:637](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L637) |
+| <a id="property-sizelegend"></a> `sizeLegend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) | Controls size-legend visibility — the nested-circle key drawn in the bottom-right corner of charts that size their marks. Shown by default whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height; pass `true` to always show it, `false` to hide it, or a `(config, scale, size) => boolean` accessor. | [utils/D3plusConfig.ts:646](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L646) |
+| <a id="property-sizelegendconfig"></a> `sizeLegendConfig?` | [`SizeLegendConfig`](#sizelegendconfig-3) | Configuration for the size-legend component. | [utils/D3plusConfig.ts:650](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L650) |
+| <a id="property-sizelegendposition"></a> `sizeLegendPosition?` | `"right"` \| `"bottom"` | Which margin the size legend claims in the bottom-right corner: `"right"` (default) keeps the chart's full height, `"bottom"` its full width. | [utils/D3plusConfig.ts:656](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L656) |
+| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | [utils/D3plusConfig.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L658) |
+| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | [utils/D3plusConfig.ts:665](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L665) |
+| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: `DataPoint`) => `unknown`); \} \| ((`d`: `DataPoint`) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | [utils/D3plusConfig.ts:674](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L674) |
+| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Subtitle text, or an accessor returning it. | [utils/D3plusConfig.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L680) |
+| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:682](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L682) |
+| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | [utils/D3plusConfig.ts:684](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L684) |
+| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | [utils/D3plusConfig.ts:686](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L686) |
+| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | [utils/D3plusConfig.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L688) |
+| <a id="property-tableview"></a> `tableView?` | `boolean` | Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. | [utils/D3plusConfig.ts:690](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L690) |
+| <a id="property-tableviewclassname"></a> `tableViewClassName?` | `string` | Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. | [utils/D3plusConfig.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L692) |
+| <a id="property-tableviewcontrolclassname"></a> `tableViewControlClassName?` | `string` | Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. | [utils/D3plusConfig.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L694) |
+| <a id="property-tableviewcontrolstyle"></a> `tableViewControlStyle?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. | [utils/D3plusConfig.ts:696](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L696) |
+| <a id="property-tableviewcontrolstyleactive"></a> `tableViewControlStyleActive?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. | [utils/D3plusConfig.ts:698](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L698) |
+| <a id="property-tableviewcontrolstylehover"></a> `tableViewControlStyleHover?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. | [utils/D3plusConfig.ts:700](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L700) |
+| <a id="property-tableviewdownload"></a> `tableViewDownload?` | `boolean` | Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. | [utils/D3plusConfig.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L702) |
+| <a id="property-tableviewpagesize"></a> `tableViewPageSize?` | `number` \| `false` | Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. | [utils/D3plusConfig.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L704) |
+| <a id="property-tableviewsort"></a> `tableViewSort?` | `boolean` | Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. | [utils/D3plusConfig.ts:706](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L706) |
+| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | [utils/D3plusConfig.ts:708](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L708) |
+| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | [utils/D3plusConfig.ts:710](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L710) |
+| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | [utils/D3plusConfig.ts:718](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L718) |
+| <a id="property-tileurl"></a> `tileUrl?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas. | [utils/D3plusConfig.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L716) |
+| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | [utils/D3plusConfig.ts:720](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L720) |
+| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | [utils/D3plusConfig.ts:722](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L722) |
+| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | [utils/D3plusConfig.ts:724](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L724) |
+| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:726](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L726) |
+| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: `DataPoint`[]) => `string`) | Chart title or title accessor function. | [utils/D3plusConfig.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L728) |
+| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | [utils/D3plusConfig.ts:730](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L730) |
+| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:732](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L732) |
+| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | [utils/D3plusConfig.ts:734](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L734) |
+| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | [utils/D3plusConfig.ts:736](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L736) |
+| <a id="property-tooltipshared"></a> `tooltipShared?` | `boolean` | Whether hovering a Plot's plot area shows one tooltip listing every series' value at the nearest discrete-axis position, with a crosshair through it. Applies when a discrete axis is set and at least two series share that position. | [utils/D3plusConfig.ts:743](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L743) |
+| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | [utils/D3plusConfig.ts:759](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L759) |
+| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | [utils/D3plusConfig.ts:761](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L761) |
+| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | [utils/D3plusConfig.ts:763](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L763) |
+| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | [utils/D3plusConfig.ts:765](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L765) |
+| <a id="property-trendline"></a> `trendLine?` | `boolean` \| `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"` | Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it. | [utils/D3plusConfig.ts:749](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L749) |
+| <a id="property-trendlineconfig"></a> `trendLineConfig?` | [`TrendLineConfig`](#trendlineconfig-1) | Options for the trend lines: `group` (`"series"` or `"all"`), the polynomial `order`, a `confidence` band with `confidenceLevel` and `confidenceConfig`, a `projection` into the future with `projectionConfig`, `tooltip`, and Line styles (`stroke`, `strokeWidth`, `strokeDasharray`, …). | [utils/D3plusConfig.ts:757](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L757) |
+| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | [utils/D3plusConfig.ts:767](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L767) |
+| <a id="property-width-1"></a> `width?` | `number` | Overall width of the visualization in pixels. | [utils/D3plusConfig.ts:769](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L769) |
+| <a id="property-x-5"></a> `x?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | [utils/D3plusConfig.ts:771](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L771) |
+| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:783](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L783) |
+| <a id="property-x2sort"></a> `x2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | [utils/D3plusConfig.ts:787](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L787) |
+| <a id="property-xbreak"></a> `xBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the x axis — `[start, end]` or a list of them — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | [utils/D3plusConfig.ts:779](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L779) |
+| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | [utils/D3plusConfig.ts:773](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L773) |
+| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:781](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L781) |
+| <a id="property-xsort"></a> `xSort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for x-axis values. | [utils/D3plusConfig.ts:785](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L785) |
+| <a id="property-y-5"></a> `y?` | `string` \| `number` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | [utils/D3plusConfig.ts:789](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L789) |
+| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:802](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L802) |
+| <a id="property-y2sort"></a> `y2Sort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | [utils/D3plusConfig.ts:806](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L806) |
+| <a id="property-ybreak"></a> `yBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the y axis — `[start, end]` or a list of them, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | [utils/D3plusConfig.ts:798](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L798) |
+| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | [utils/D3plusConfig.ts:791](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L791) |
+| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | [utils/D3plusConfig.ts:800](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L800) |
+| <a id="property-ysort"></a> `ySort?` | (`a`: `DataPoint`, `b`: `DataPoint`) => `number` | Custom sort function for y-axis values. | [utils/D3plusConfig.ts:804](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L804) |
+| <a id="property-zoom"></a> `zoom?` | `boolean` | Enables pan/zoom with zoom-control buttons. On by default for every chart. | [utils/D3plusConfig.ts:808](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L808) |
+| <a id="property-zoomcontrolclassname"></a> `zoomControlClassName?` | `string` | Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. | [utils/D3plusConfig.ts:810](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L810) |
+| <a id="property-zoomcontrolicons"></a> `zoomControlIcons?` | `Partial`\<`Record`\<`"zoomIn"` \| `"zoomOut"` \| `"zoomReset"` \| `"zoomBrush"`, `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))\>\> | Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either raw HTML — used as that button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | [utils/D3plusConfig.ts:820](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L820) |
+| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | [utils/D3plusConfig.ts:827](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L827) |
+| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. | [utils/D3plusConfig.ts:829](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L829) |
+| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | [utils/D3plusConfig.ts:831](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L831) |
+| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` \| `"modifier"` | Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the default) leaves page scrolling alone: only Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans only once zoomed in. `true` zooms on any wheel; `false` never does. | [utils/D3plusConfig.ts:838](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L838) |
 
 ***
 
@@ -25510,15 +26225,15 @@ Image-specific config (url + dimensions).
 
 ### LegendConfig
 
-Defined in: [utils/D3plusConfig.ts:241](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L241)
+Defined in: [utils/D3plusConfig.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L305)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-active-5"></a> `active?` | `false` \| ((`d`: `DataPoint`, `i?`: `number`) => `boolean`) | The active method for all shapes. | [utils/D3plusConfig.ts:243](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L243) |
-| <a id="property-hover-5"></a> `hover?` | `false` \| ((`d`: `DataPoint`, `i?`: `number`) => `boolean`) | The hover method for all shapes. | [utils/D3plusConfig.ts:245](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L245) |
-| <a id="property-shape"></a> `shape?` | `Accessor`\<`string`\> | The shape type used for each legend entry. | [utils/D3plusConfig.ts:247](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L247) |
+| <a id="property-active-5"></a> `active?` | `false` \| ((`d`: `DataPoint`, `i?`: `number`) => `boolean`) | The active method for all shapes. | [utils/D3plusConfig.ts:307](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L307) |
+| <a id="property-hover-5"></a> `hover?` | `false` \| ((`d`: `DataPoint`, `i?`: `number`) => `boolean`) | The hover method for all shapes. | [utils/D3plusConfig.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L309) |
+| <a id="property-shape"></a> `shape?` | `Accessor`\<`string`\> | The shape type used for each legend entry. | [utils/D3plusConfig.ts:311](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L311) |
 
 ***
 
@@ -25795,22 +26510,22 @@ Rect-specific config (width + height on top of base).
 
 ### SizeLegendConfig
 
-Defined in: [utils/D3plusConfig.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L250)
+Defined in: [utils/D3plusConfig.ts:314](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L314)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-labelconfig-7"></a> `labelConfig?` | `SizeLegendTextConfig` | Value-label font: `fontColor`, `fontFamily`, `fontSize`. | [utils/D3plusConfig.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L266) |
-| <a id="property-labelpadding"></a> `labelPadding?` | `number` | Gap between each leader line and its label, in pixels. | [utils/D3plusConfig.ts:273](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L273) |
-| <a id="property-lineconfig"></a> `lineConfig?` | `SizeLegendLineConfig` | Leader-line paint: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. | [utils/D3plusConfig.ts:264](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L264) |
-| <a id="property-linelength"></a> `lineLength?` | `number` | Length of the leader lines past the largest circle, in pixels. | [utils/D3plusConfig.ts:271](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L271) |
-| <a id="property-padding"></a> `padding?` | `number` | - | [utils/D3plusConfig.ts:269](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L269) |
-| <a id="property-shapeconfig-1"></a> `shapeConfig?` | `SizeLegendShapeConfig` | Circle paint: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. | [utils/D3plusConfig.ts:262](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L262) |
-| <a id="property-tickformat-1"></a> `tickFormat?` | (`value`: `number`) => `string` | Formats each value's label. Defaults to the locale's abbreviated number format. | [utils/D3plusConfig.ts:258](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L258) |
-| <a id="property-title-2"></a> `title?` | `string` | Title above the circles. Defaults to the `size` key when `size` is set to a string. | [utils/D3plusConfig.ts:260](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L260) |
-| <a id="property-titleconfig-1"></a> `titleConfig?` | `SizeLegendTextConfig` | Title font: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. | [utils/D3plusConfig.ts:268](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L268) |
-| <a id="property-values"></a> `values?` | `number` \| `number`[] \| ((`domain`: \[`number`, `number`\]) => `number`[]) | The values to draw circles for: an array of values, how many to pick from the size domain (default 3: its min, max, and a round middle), or a function receiving the `[min, max]` domain and returning values. | [utils/D3plusConfig.ts:256](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L256) |
+| <a id="property-labelconfig-7"></a> `labelConfig?` | `SizeLegendTextConfig` | Value-label font: `fontColor`, `fontFamily`, `fontSize`. | [utils/D3plusConfig.ts:330](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L330) |
+| <a id="property-labelpadding"></a> `labelPadding?` | `number` | Gap between each leader line and its label, in pixels. | [utils/D3plusConfig.ts:337](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L337) |
+| <a id="property-lineconfig"></a> `lineConfig?` | `SizeLegendLineConfig` | Leader-line paint: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. | [utils/D3plusConfig.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L328) |
+| <a id="property-linelength"></a> `lineLength?` | `number` | Length of the leader lines past the largest circle, in pixels. | [utils/D3plusConfig.ts:335](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L335) |
+| <a id="property-padding"></a> `padding?` | `number` | - | [utils/D3plusConfig.ts:333](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L333) |
+| <a id="property-shapeconfig-1"></a> `shapeConfig?` | `SizeLegendShapeConfig` | Circle paint: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. | [utils/D3plusConfig.ts:326](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L326) |
+| <a id="property-tickformat-1"></a> `tickFormat?` | (`value`: `number`) => `string` | Formats each value's label. Defaults to the locale's abbreviated number format. | [utils/D3plusConfig.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L322) |
+| <a id="property-title-2"></a> `title?` | `string` | Title above the circles. Defaults to the `size` key when `size` is set to a string. | [utils/D3plusConfig.ts:324](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L324) |
+| <a id="property-titleconfig-1"></a> `titleConfig?` | `SizeLegendTextConfig` | Title font: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. | [utils/D3plusConfig.ts:332](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L332) |
+| <a id="property-values"></a> `values?` | `number` \| `number`[] \| ((`domain`: \[`number`, `number`\]) => `number`[]) | The values to draw circles for: an array of values, how many to pick from the size domain (default 3: its min, max, and a round middle), or a function receiving the `[min, max]` domain and returning values. | [utils/D3plusConfig.ts:320](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L320) |
 
 ***
 
@@ -25818,34 +26533,34 @@ Defined in: [utils/D3plusConfig.ts:250](https://github.com/d3plus/d3plus/blob/ma
 
 ### TextBoxConfig
 
-Defined in: [utils/D3plusConfig.ts:148](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L148)
+Defined in: [utils/D3plusConfig.ts:212](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L212)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-ellipsis"></a> `ellipsis?` | (`text`: `string`, `line`: `number`) => `string` | Handles truncated lines, returning the new line value. Passed the line's text and number; by default appends an ellipsis to every line except a first word that cannot fit (which returns ""). | [utils/D3plusConfig.ts:186](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L186) |
-| <a id="property-fontcolor"></a> `fontColor?` | `Accessor`\<`string`\> | The font color as an accessor function or static string. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L152) |
-| <a id="property-fontfamily"></a> `fontFamily?` | `Accessor`\<`string` \| `string`[]\> | The font-family to use: a font name, a comma-separated list of fallbacks, an array of fallbacks, or an accessor returning a string or array. The first available font on the client is used. | [utils/D3plusConfig.ts:160](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L160) |
-| <a id="property-fontmax"></a> `fontMax?` | `number` | The maximum font size in pixels, used when dynamically resizing fonts. | [utils/D3plusConfig.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L166) |
-| <a id="property-fontmin"></a> `fontMin?` | `number` | The minimum font size in pixels, used when dynamically resizing fonts. | [utils/D3plusConfig.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L164) |
-| <a id="property-fontopacity"></a> `fontOpacity?` | `Accessor`\<`number`\> | The font opacity as an accessor function or static number between 0 and 1. | [utils/D3plusConfig.ts:170](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L170) |
-| <a id="property-fontresize"></a> `fontResize?` | `Accessor`\<`boolean`\> | Toggles font resizing — a static boolean, or an accessor returning a boolean. | [utils/D3plusConfig.ts:168](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L168) |
-| <a id="property-fontsize"></a> `fontSize?` | `Accessor`\<`number`\> | The font size in pixels. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L154) |
-| <a id="property-fontstroke"></a> `fontStroke?` | `Accessor`\<`string`\> | The font stroke color for the rendered text. | [utils/D3plusConfig.ts:172](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L172) |
-| <a id="property-fontstrokewidth"></a> `fontStrokeWidth?` | `Accessor`\<`number`\> | The font stroke width for the rendered text. | [utils/D3plusConfig.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L174) |
-| <a id="property-fontweight"></a> `fontWeight?` | `Accessor`\<`string` \| `number`\> | The font weight. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L162) |
-| <a id="property-height-4"></a> `height?` | `Accessor`\<`number`\> | The height for each text box. | [utils/D3plusConfig.ts:196](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L196) |
-| <a id="property-lineheight"></a> `lineHeight?` | `Accessor`\<`number`\> | The line height, which is 1.2 times the font size by default. | [utils/D3plusConfig.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L176) |
-| <a id="property-maxlines"></a> `maxLines?` | `Accessor`\<`number` \| `null`\> | Restricts the maximum number of lines to wrap onto; null (unlimited) by default. | [utils/D3plusConfig.ts:178](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L178) |
-| <a id="property-overflow"></a> `overflow?` | `Accessor`\<`boolean`\> | Whether text is allowed to overflow its bounding box. | [utils/D3plusConfig.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L180) |
-| <a id="property-padding-1"></a> `padding?` | `Accessor`\<`string` \| `number`\> | The padding as a CSS shorthand string or number. Defaults to 0. | [utils/D3plusConfig.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L188) |
-| <a id="property-rotateanchor"></a> `rotateAnchor?` | `Accessor`\<\[`number`, `number`\]\> | The anchor point around which to rotate the text box. | [utils/D3plusConfig.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L190) |
-| <a id="property-split"></a> `split?` | (`text`: `string`) => `string`[] | The word split function: given a string, returns it split into an array of words. | [utils/D3plusConfig.ts:192](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L192) |
-| <a id="property-text"></a> `text?` | `Accessor`\<`string`\> | The text content for each box. | [utils/D3plusConfig.ts:150](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L150) |
-| <a id="property-width-4"></a> `width?` | `Accessor`\<`number`\> | The width for each text box. | [utils/D3plusConfig.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L194) |
-| <a id="property-x-10"></a> `x?` | `Accessor`\<`number`\> | The x position (left edge) for each text box. | [utils/D3plusConfig.ts:198](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L198) |
-| <a id="property-y-10"></a> `y?` | `Accessor`\<`number`\> | The y position (top edge) for each text box. | [utils/D3plusConfig.ts:200](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L200) |
+| <a id="property-ellipsis"></a> `ellipsis?` | (`text`: `string`, `line`: `number`) => `string` | Handles truncated lines, returning the new line value. Passed the line's text and number; by default appends an ellipsis to every line except a first word that cannot fit (which returns ""). | [utils/D3plusConfig.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L250) |
+| <a id="property-fontcolor"></a> `fontColor?` | `Accessor`\<`string`\> | The font color as an accessor function or static string. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:216](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L216) |
+| <a id="property-fontfamily"></a> `fontFamily?` | `Accessor`\<`string` \| `string`[]\> | The font-family to use: a font name, a comma-separated list of fallbacks, an array of fallbacks, or an accessor returning a string or array. The first available font on the client is used. | [utils/D3plusConfig.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L224) |
+| <a id="property-fontmax"></a> `fontMax?` | `number` | The maximum font size in pixels, used when dynamically resizing fonts. | [utils/D3plusConfig.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L230) |
+| <a id="property-fontmin"></a> `fontMin?` | `number` | The minimum font size in pixels, used when dynamically resizing fonts. | [utils/D3plusConfig.ts:228](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L228) |
+| <a id="property-fontopacity"></a> `fontOpacity?` | `Accessor`\<`number`\> | The font opacity as an accessor function or static number between 0 and 1. | [utils/D3plusConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L234) |
+| <a id="property-fontresize"></a> `fontResize?` | `Accessor`\<`boolean`\> | Toggles font resizing — a static boolean, or an accessor returning a boolean. | [utils/D3plusConfig.ts:232](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L232) |
+| <a id="property-fontsize"></a> `fontSize?` | `Accessor`\<`number`\> | The font size in pixels. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:218](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L218) |
+| <a id="property-fontstroke"></a> `fontStroke?` | `Accessor`\<`string`\> | The font stroke color for the rendered text. | [utils/D3plusConfig.ts:236](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L236) |
+| <a id="property-fontstrokewidth"></a> `fontStrokeWidth?` | `Accessor`\<`number`\> | The font stroke width for the rendered text. | [utils/D3plusConfig.ts:238](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L238) |
+| <a id="property-fontweight"></a> `fontWeight?` | `Accessor`\<`string` \| `number`\> | The font weight. Inferred from the DOM selection by default. | [utils/D3plusConfig.ts:226](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L226) |
+| <a id="property-height-4"></a> `height?` | `Accessor`\<`number`\> | The height for each text box. | [utils/D3plusConfig.ts:260](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L260) |
+| <a id="property-lineheight"></a> `lineHeight?` | `Accessor`\<`number`\> | The line height, which is 1.2 times the font size by default. | [utils/D3plusConfig.ts:240](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L240) |
+| <a id="property-maxlines"></a> `maxLines?` | `Accessor`\<`number` \| `null`\> | Restricts the maximum number of lines to wrap onto; null (unlimited) by default. | [utils/D3plusConfig.ts:242](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L242) |
+| <a id="property-overflow"></a> `overflow?` | `Accessor`\<`boolean`\> | Whether text is allowed to overflow its bounding box. | [utils/D3plusConfig.ts:244](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L244) |
+| <a id="property-padding-1"></a> `padding?` | `Accessor`\<`string` \| `number`\> | The padding as a CSS shorthand string or number. Defaults to 0. | [utils/D3plusConfig.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L252) |
+| <a id="property-rotateanchor"></a> `rotateAnchor?` | `Accessor`\<\[`number`, `number`\]\> | The anchor point around which to rotate the text box. | [utils/D3plusConfig.ts:254](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L254) |
+| <a id="property-split"></a> `split?` | (`text`: `string`) => `string`[] | The word split function: given a string, returns it split into an array of words. | [utils/D3plusConfig.ts:256](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L256) |
+| <a id="property-text"></a> `text?` | `Accessor`\<`string`\> | The text content for each box. | [utils/D3plusConfig.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L214) |
+| <a id="property-width-4"></a> `width?` | `Accessor`\<`number`\> | The width for each text box. | [utils/D3plusConfig.ts:258](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L258) |
+| <a id="property-x-10"></a> `x?` | `Accessor`\<`number`\> | The x position (left edge) for each text box. | [utils/D3plusConfig.ts:262](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L262) |
+| <a id="property-y-10"></a> `y?` | `Accessor`\<`number`\> | The y position (top edge) for each text box. | [utils/D3plusConfig.ts:264](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L264) |
 
 ***
 
@@ -25853,24 +26568,24 @@ Defined in: [utils/D3plusConfig.ts:148](https://github.com/d3plus/d3plus/blob/ma
 
 ### TimelineConfig
 
-Defined in: [utils/D3plusConfig.ts:203](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L203)
+Defined in: [utils/D3plusConfig.ts:267](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L267)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-brushfilter"></a> `brushFilter?` | () => `boolean` | Brush event filter. | [utils/D3plusConfig.ts:205](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L205) |
-| <a id="property-brushmin"></a> `brushMin?` | `number` | The minimum number of ticks that can be highlighted when using "ticks" `buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time periods is undesirable. | [utils/D3plusConfig.ts:211](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L211) |
-| <a id="property-buttonalign"></a> `buttonAlign?` | `"middle"` \| `"end"` \| `"start"` | Toggles the horizontal alignment of the button timeline. | [utils/D3plusConfig.ts:213](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L213) |
-| <a id="property-buttonbehavior"></a> `buttonBehavior?` | `"auto"` \| `"buttons"` \| `"ticks"` | Toggles the style of the timeline. | [utils/D3plusConfig.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L215) |
-| <a id="property-buttonheight"></a> `buttonHeight?` | `number` | Button height. | [utils/D3plusConfig.ts:217](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L217) |
-| <a id="property-buttonpadding"></a> `buttonPadding?` | `number` | Button padding. | [utils/D3plusConfig.ts:219](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L219) |
-| <a id="property-handleconfig"></a> `handleConfig?` | `Record`\<`string`, `unknown`\> | Handle style. | [utils/D3plusConfig.ts:221](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L221) |
-| <a id="property-handlesize"></a> `handleSize?` | `number` | Handle size. | [utils/D3plusConfig.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L223) |
-| <a id="property-playbutton"></a> `playButton?` | `boolean` | Determines the visibility of the play button to the left of the timeline, which cycles through the available periods at a rate set by `playButtonInterval`. | [utils/D3plusConfig.ts:228](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L228) |
-| <a id="property-playbuttoninterval"></a> `playButtonInterval?` | `number` | The interval, in milliseconds, between periods when cycling via the play button. Used only when the chart's `duration` is 0 (no transition); otherwise playback steps once per `duration` so each step animates in full. | [utils/D3plusConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L234) |
-| <a id="property-selection"></a> `selection?` | `number` \| `false` \| `Date` \| (`number` \| `Date`)[] | The current selection. Defaults to the most recent period in the timeline. | [utils/D3plusConfig.ts:236](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L236) |
-| <a id="property-snapping"></a> `snapping?` | `boolean` | Toggles the snapping value. | [utils/D3plusConfig.ts:238](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L238) |
+| <a id="property-brushfilter"></a> `brushFilter?` | () => `boolean` | Brush event filter. | [utils/D3plusConfig.ts:269](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L269) |
+| <a id="property-brushmin"></a> `brushMin?` | `number` | The minimum number of ticks that can be highlighted when using "ticks" `buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time periods is undesirable. | [utils/D3plusConfig.ts:275](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L275) |
+| <a id="property-buttonalign"></a> `buttonAlign?` | `"middle"` \| `"end"` \| `"start"` | Toggles the horizontal alignment of the button timeline. | [utils/D3plusConfig.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L277) |
+| <a id="property-buttonbehavior"></a> `buttonBehavior?` | `"auto"` \| `"buttons"` \| `"ticks"` | Toggles the style of the timeline. | [utils/D3plusConfig.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L279) |
+| <a id="property-buttonheight"></a> `buttonHeight?` | `number` | Button height. | [utils/D3plusConfig.ts:281](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L281) |
+| <a id="property-buttonpadding"></a> `buttonPadding?` | `number` | Button padding. | [utils/D3plusConfig.ts:283](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L283) |
+| <a id="property-handleconfig"></a> `handleConfig?` | `Record`\<`string`, `unknown`\> | Handle style. | [utils/D3plusConfig.ts:285](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L285) |
+| <a id="property-handlesize"></a> `handleSize?` | `number` | Handle size. | [utils/D3plusConfig.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L287) |
+| <a id="property-playbutton"></a> `playButton?` | `boolean` | Determines the visibility of the play button to the left of the timeline, which cycles through the available periods at a rate set by `playButtonInterval`. | [utils/D3plusConfig.ts:292](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L292) |
+| <a id="property-playbuttoninterval"></a> `playButtonInterval?` | `number` | The interval, in milliseconds, between periods when cycling via the play button. Used only when the chart's `duration` is 0 (no transition); otherwise playback steps once per `duration` so each step animates in full. | [utils/D3plusConfig.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L298) |
+| <a id="property-selection"></a> `selection?` | `number` \| `false` \| `Date` \| (`number` \| `Date`)[] | The current selection. Defaults to the most recent period in the timeline. | [utils/D3plusConfig.ts:300](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L300) |
+| <a id="property-snapping"></a> `snapping?` | `boolean` | Toggles the snapping value. | [utils/D3plusConfig.ts:302](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L302) |
 
 ***
 
@@ -25878,26 +26593,26 @@ Defined in: [utils/D3plusConfig.ts:203](https://github.com/d3plus/d3plus/blob/ma
 
 ### TooltipConfig
 
-Defined in: [utils/D3plusConfig.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L103)
+Defined in: [utils/D3plusConfig.ts:157](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L157)
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-arrow"></a> `arrow?` | `string` \| ((`d`: `DataPoint`) => `string`) | The inner HTML content of the arrow element, empty by default. | [utils/D3plusConfig.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L105) |
-| <a id="property-background"></a> `background?` | `string` \| ((`d`: `DataPoint`) => `string`) | The background color accessor for each tooltip. | [utils/D3plusConfig.ts:107](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L107) |
-| <a id="property-body"></a> `body?` | `string` \| ((`d`: `DataPoint`) => `string`) | - | [utils/D3plusConfig.ts:129](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L129) |
-| <a id="property-border"></a> `border?` | `string` \| ((`d`: `DataPoint`) => `string`) | The border accessor for each tooltip. | [utils/D3plusConfig.ts:109](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L109) |
-| <a id="property-borderradius"></a> `borderRadius?` | `string` \| ((`d`: `DataPoint`) => `string`) | The border-radius accessor for each tooltip. | [utils/D3plusConfig.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L111) |
-| <a id="property-footer"></a> `footer?` | `string` \| ((`d`: `DataPoint`) => `string`) | The footer content accessor for each tooltip. | [utils/D3plusConfig.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L113) |
-| <a id="property-maxwidth"></a> `maxWidth?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The max-width accessor for each tooltip. | [utils/D3plusConfig.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L115) |
-| <a id="property-minwidth"></a> `minWidth?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The min-width accessor for each tooltip. | [utils/D3plusConfig.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L117) |
-| <a id="property-offset"></a> `offset?` | `number` \| ((`d`: `DataPoint`) => `number`) | The pixel offset between the tooltip and its anchor point. | [utils/D3plusConfig.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L119) |
-| <a id="property-padding-2"></a> `padding?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The inner padding of each tooltip. | [utils/D3plusConfig.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L121) |
-| <a id="property-tbody"></a> `tbody?` | ((`d`: `DataPoint`) => \[`string`, `string`\][]) \| (`string` \| ((`d`: `DataPoint`, `i?`: `number`, `x?`: `object`) => `string`))[][] | - | [utils/D3plusConfig.ts:138](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L138) |
-| <a id="property-thead"></a> `thead?` | ((`d`: `DataPoint`) => \[`string`, `string`\][]) \| (`string` \| ((`d`: `DataPoint`, `i?`: `number`, `x?`: `object`) => `string`))[][] | - | [utils/D3plusConfig.ts:130](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L130) |
-| <a id="property-title-3"></a> `title?` | `string` \| ((`d`: `DataPoint`) => `string`) | - | [utils/D3plusConfig.ts:122](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L122) |
-| <a id="property-titleswatch"></a> `titleSwatch?` | `boolean` | Whether a chart's tooltip title leads with a swatch of the hovered shape's color and shape. `true` by default; set it in `legendTooltip` to drop the swatch from legend tooltips only. | [utils/D3plusConfig.ts:128](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L128) |
+| <a id="property-arrow"></a> `arrow?` | `string` \| ((`d`: `DataPoint`) => `string`) | The inner HTML content of the arrow element, empty by default. | [utils/D3plusConfig.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L159) |
+| <a id="property-background"></a> `background?` | `string` \| ((`d`: `DataPoint`) => `string`) | The background color accessor for each tooltip. | [utils/D3plusConfig.ts:161](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L161) |
+| <a id="property-body"></a> `body?` | `string` \| ((`d`: `DataPoint`) => `string`) | - | [utils/D3plusConfig.ts:183](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L183) |
+| <a id="property-border"></a> `border?` | `string` \| ((`d`: `DataPoint`) => `string`) | The border accessor for each tooltip. | [utils/D3plusConfig.ts:163](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L163) |
+| <a id="property-borderradius"></a> `borderRadius?` | `string` \| ((`d`: `DataPoint`) => `string`) | The border-radius accessor for each tooltip. | [utils/D3plusConfig.ts:165](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L165) |
+| <a id="property-footer"></a> `footer?` | `string` \| ((`d`: `DataPoint`) => `string`) | The footer content accessor for each tooltip. | [utils/D3plusConfig.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L167) |
+| <a id="property-maxwidth"></a> `maxWidth?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The max-width accessor for each tooltip. | [utils/D3plusConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L169) |
+| <a id="property-minwidth"></a> `minWidth?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The min-width accessor for each tooltip. | [utils/D3plusConfig.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L171) |
+| <a id="property-offset"></a> `offset?` | `number` \| ((`d`: `DataPoint`) => `number`) | The pixel offset between the tooltip and its anchor point. | [utils/D3plusConfig.ts:173](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L173) |
+| <a id="property-padding-2"></a> `padding?` | `string` \| `number` \| ((`d`: `DataPoint`) => `string` \| `number`) | The inner padding of each tooltip. | [utils/D3plusConfig.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L175) |
+| <a id="property-tbody"></a> `tbody?` | ((`d`: `DataPoint`) => \[`string`, `string`\][]) \| (`string` \| ((`d`: `DataPoint`, `i?`: `number`, `x?`: `object`) => `string`))[][] | Body rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and stacked Plot charts `x.share` is the row's fraction of its total, unless the data has its own `share` field (then `x.share` is that field). | [utils/D3plusConfig.ts:202](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L202) |
+| <a id="property-thead"></a> `thead?` | ((`d`: `DataPoint`) => \[`string`, `string`\][]) \| (`string` \| ((`d`: `DataPoint`, `i?`: `number`, `x?`: `object`) => `string`))[][] | Header rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and stacked Plot charts `x.share` is the row's fraction of its total, unless the data has its own `share` field (then `x.share` is that field). | [utils/D3plusConfig.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L189) |
+| <a id="property-title-3"></a> `title?` | `string` \| ((`d`: `DataPoint`) => `string`) | - | [utils/D3plusConfig.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L176) |
+| <a id="property-titleswatch"></a> `titleSwatch?` | `boolean` | Whether a chart's tooltip title leads with a swatch of the hovered shape's color and shape. `true` by default; set it in `legendTooltip` to drop the swatch from legend tooltips only. | [utils/D3plusConfig.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L182) |
 
 ***
 
@@ -25905,7 +26620,7 @@ Defined in: [utils/D3plusConfig.ts:103](https://github.com/d3plus/d3plus/blob/ma
 
 ### TrendLineConfig
 
-Defined in: [utils/D3plusConfig.ts:276](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L276)
+Defined in: [utils/D3plusConfig.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L340)
 
 #### Indexable
 
@@ -25917,17 +26632,17 @@ Other Line shape config.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-confidence-1"></a> `confidence?` | `boolean` | Draws a confidence band around a linear fit. Defaults to `false`. | [utils/D3plusConfig.ts:282](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L282) |
-| <a id="property-confidenceconfig"></a> `confidenceConfig?` | `Record`\<`string`, `unknown`\> | Area shape config for the confidence band. Its fill defaults to the line color. | [utils/D3plusConfig.ts:286](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L286) |
-| <a id="property-confidencelevel"></a> `confidenceLevel?` | `number` | The confidence band's level, between 0 and 1. Defaults to 0.95. | [utils/D3plusConfig.ts:284](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L284) |
-| <a id="property-group-1"></a> `group?` | `"series"` \| `"all"` | `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point. Stacked charts always fit the stack totals. | [utils/D3plusConfig.ts:278](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L278) |
-| <a id="property-order"></a> `order?` | `number` | The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. | [utils/D3plusConfig.ts:280](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L280) |
-| <a id="property-projection-1"></a> `projection?` | `number` \| \{ `to`: `string` \| `number` \| `Date`; \} | Extends each trend line past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off). | [utils/D3plusConfig.ts:290](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L290) |
-| <a id="property-projectionconfig"></a> `projectionConfig?` | `Record`\<`string`, `unknown`\> | Line shape config for the projected stretch, merged over the line's own styles. Defaults to `{strokeDasharray: "2 4"}`. | [utils/D3plusConfig.ts:292](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L292) |
-| <a id="property-stroke-7"></a> `stroke?` | `string` | Line color. Defaults to the series color (dark gray when `group` is `"all"`). | [utils/D3plusConfig.ts:296](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L296) |
-| <a id="property-strokedasharray-7"></a> `strokeDasharray?` | `string` | Line dash pattern. Defaults to `"6 4"`. | [utils/D3plusConfig.ts:300](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L300) |
-| <a id="property-strokewidth-7"></a> `strokeWidth?` | `number` | Line width in pixels. Defaults to 2. | [utils/D3plusConfig.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L298) |
-| <a id="property-tooltip-1"></a> `tooltip?` | `boolean` | Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. | [utils/D3plusConfig.ts:294](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L294) |
+| <a id="property-confidence-1"></a> `confidence?` | `boolean` | Draws a confidence band around a linear fit. Defaults to `false`. | [utils/D3plusConfig.ts:346](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L346) |
+| <a id="property-confidenceconfig"></a> `confidenceConfig?` | `Record`\<`string`, `unknown`\> | Area shape config for the confidence band. Its fill defaults to the line color. | [utils/D3plusConfig.ts:350](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L350) |
+| <a id="property-confidencelevel"></a> `confidenceLevel?` | `number` | The confidence band's level, between 0 and 1. Defaults to 0.95. | [utils/D3plusConfig.ts:348](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L348) |
+| <a id="property-group-1"></a> `group?` | `"series"` \| `"all"` | `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point. Stacked charts always fit the stack totals. | [utils/D3plusConfig.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L342) |
+| <a id="property-order"></a> `order?` | `number` | The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. | [utils/D3plusConfig.ts:344](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L344) |
+| <a id="property-projection-1"></a> `projection?` | `number` \| \{ `to`: `string` \| `number` \| `Date`; \} | Extends each trend line past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off). | [utils/D3plusConfig.ts:354](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L354) |
+| <a id="property-projectionconfig"></a> `projectionConfig?` | `Record`\<`string`, `unknown`\> | Line shape config for the projected stretch, merged over the line's own styles. Defaults to `{strokeDasharray: "2 4"}`. | [utils/D3plusConfig.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L356) |
+| <a id="property-stroke-7"></a> `stroke?` | `string` | Line color. Defaults to the series color (dark gray when `group` is `"all"`). | [utils/D3plusConfig.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L360) |
+| <a id="property-strokedasharray-7"></a> `strokeDasharray?` | `string` | Line dash pattern. Defaults to `"6 4"`. | [utils/D3plusConfig.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L364) |
+| <a id="property-strokewidth-7"></a> `strokeWidth?` | `number` | Line width in pixels. Defaults to 2. | [utils/D3plusConfig.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L362) |
+| <a id="property-tooltip-1"></a> `tooltip?` | `boolean` | Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. | [utils/D3plusConfig.ts:358](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L358) |
 
 ***
 
@@ -25979,7 +26694,7 @@ time (Plot's `shapeConfig`, axis decorators, etc.).
 
 > **ColorDefaultsConfig** = `Partial`\<`Omit`\<`ColorDefaults`, `"scale"`\>\> & `object`
 
-Defined in: [utils/D3plusConfig.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L329)
+Defined in: [utils/D3plusConfig.ts:393](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L393)
 
 `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors.
 
@@ -25987,7 +26702,7 @@ Defined in: [utils/D3plusConfig.ts:329](https://github.com/d3plus/d3plus/blob/ma
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `scale?` | `ColorDefaults`\[`"scale"`\] \| `string`[] | [utils/D3plusConfig.ts:330](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L330) |
+| `scale?` | `ColorDefaults`\[`"scale"`\] \| `string`[] | [utils/D3plusConfig.ts:394](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/D3plusConfig.ts#L394) |
 
 ***
 
