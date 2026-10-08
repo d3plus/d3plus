@@ -94,6 +94,13 @@ LinkedCharts.parameters = {
     source: {
       code: `import {BarChart, Treemap} from "@d3plus/core";
 
+const data = [
+  {region: "Americas", country: "Brazil", revenue: 42},
+  {region: "Americas", country: "Chile", revenue: 18},
+  {region: "Europe", country: "France", revenue: 35},
+  {region: "Europe", country: "Germany", revenue: 39},
+];
+
 // Charts that share a link group mirror each other's hover, active,
 // highlight (including search), and legend hide/solo state.
 new Treemap()
