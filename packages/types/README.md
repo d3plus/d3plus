@@ -1356,7 +1356,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -1368,7 +1368,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -1390,7 +1390,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -1411,7 +1411,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -1442,7 +1442,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -1463,7 +1463,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -1600,7 +1600,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1612,7 +1612,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1634,7 +1634,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -1646,7 +1646,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -1668,7 +1668,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1680,7 +1680,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1772,7 +1772,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -1930,7 +1930,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -1942,7 +1942,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -1962,7 +1962,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2024,7 +2024,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -2046,7 +2046,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2064,7 +2064,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2092,7 +2092,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -2108,7 +2108,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -2134,7 +2134,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -2146,7 +2146,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -2166,7 +2166,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2265,7 +2265,7 @@ Axis preset whose ticks are drawn below the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -2281,7 +2281,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -2307,7 +2307,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -2332,7 +2332,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -2367,7 +2367,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -2392,7 +2392,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -2533,7 +2533,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2549,7 +2549,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2575,7 +2575,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -2591,7 +2591,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -2617,7 +2617,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2633,7 +2633,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2729,7 +2729,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -2891,7 +2891,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -2907,7 +2907,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -2931,7 +2931,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2997,7 +2997,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -3023,7 +3023,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3045,7 +3045,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3077,7 +3077,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -3093,7 +3093,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -3119,7 +3119,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -3135,7 +3135,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -3159,7 +3159,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3262,7 +3262,7 @@ Axis preset whose ticks are drawn to the left of the vertical domain path. Accep
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -3278,7 +3278,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -3304,7 +3304,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -3329,7 +3329,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -3364,7 +3364,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -3389,7 +3389,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -3530,7 +3530,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3546,7 +3546,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3572,7 +3572,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -3588,7 +3588,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -3614,7 +3614,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3630,7 +3630,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3726,7 +3726,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -3888,7 +3888,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -3904,7 +3904,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -3928,7 +3928,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3994,7 +3994,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -4020,7 +4020,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4042,7 +4042,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4074,7 +4074,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -4090,7 +4090,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -4116,7 +4116,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -4132,7 +4132,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -4156,7 +4156,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4259,7 +4259,7 @@ Axis preset whose ticks are drawn to the right of the vertical domain path. Acce
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -4275,7 +4275,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -4301,7 +4301,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -4326,7 +4326,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -4361,7 +4361,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -4386,7 +4386,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -4527,7 +4527,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4543,7 +4543,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4569,7 +4569,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -4585,7 +4585,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -4611,7 +4611,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4627,7 +4627,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4723,7 +4723,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4885,7 +4885,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -4901,7 +4901,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -4925,7 +4925,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4991,7 +4991,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -5017,7 +5017,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5039,7 +5039,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5071,7 +5071,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -5087,7 +5087,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -5113,7 +5113,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -5129,7 +5129,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -5153,7 +5153,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -5256,7 +5256,7 @@ Axis preset whose ticks are drawn above the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -5272,7 +5272,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -5298,7 +5298,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -5323,7 +5323,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -5358,7 +5358,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -5383,7 +5383,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -5524,7 +5524,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -5540,7 +5540,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -5566,7 +5566,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -5582,7 +5582,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -5608,7 +5608,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5624,7 +5624,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5720,7 +5720,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -5882,7 +5882,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -5898,7 +5898,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -5922,7 +5922,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5988,7 +5988,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:90
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -6014,7 +6014,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6036,7 +6036,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6068,7 +6068,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -6084,7 +6084,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -6110,7 +6110,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -6126,7 +6126,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -6150,7 +6150,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:85
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -19393,7 +19393,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:94
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -19409,7 +19409,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:95
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -19435,7 +19435,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:122
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -19460,7 +19460,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:123
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -19495,7 +19495,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -19520,7 +19520,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:109
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -19661,7 +19661,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:127
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -19677,7 +19677,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:128
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -19703,7 +19703,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:132
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -19719,7 +19719,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:133
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -19779,7 +19779,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:137
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19795,7 +19795,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:138
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19891,7 +19891,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:160
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -20005,7 +20005,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:142
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -20021,7 +20021,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:143
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -20045,7 +20045,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:149
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -20171,7 +20171,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:170
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -20193,7 +20193,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:171
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -20259,7 +20259,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:175
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -20275,7 +20275,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:176
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -20301,7 +20301,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:180
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -20317,7 +20317,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:181
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 

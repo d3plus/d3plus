@@ -113,3 +113,19 @@ it("brokenScaleTicks ticks each segment as its own axis and labels both break ed
   assert.ok(ticks.some(t => t > 900 && t < 1000), "so does the high one");
   assert.strictEqual(new Set(ticks).size, ticks.length, "no duplicates");
 });
+
+it("brokenScaleTicks only adds a missing break edge that keepEdge accepts", () => {
+  const s = brokenScale({domain: [0, 1000], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const seen = [];
+  const ticks = brokenScaleTicks(
+    s,
+    seg => seg.ticks(4).filter(t => t !== 100 && t !== 900),
+    (edge, regular, segment) => {
+      seen.push([edge, regular.length > 0, typeof segment]);
+      return edge === 900;
+    },
+  );
+  assert.deepStrictEqual(seen.map(d => d[0]), [100, 900], "asked about each missing edge");
+  assert.ok(seen.every(d => d[1] && d[2] === "function"), "with the segment's ticks and scale");
+  assert.ok(!ticks.includes(100) && ticks.includes(900));
+});

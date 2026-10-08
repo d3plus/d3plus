@@ -50,7 +50,12 @@ it("a broken axis ticks each side of the break and labels both edges", () => {
   assert.ok(ticks.includes(100) && ticks.includes(900), "both edges are ticks");
   assert.ok(ticks.some(t => t > 0 && t < 100) && ticks.some(t => t > 900 && t < 1000), "each side keeps its own ticks");
   const labels = axis._tickShape._data.filter(d => d.text).map(d => d.id);
-  assert.ok(labels.includes(100) && labels.includes(900), "both edges are labeled");
+  assert.ok(!labels.includes(100) && !labels.includes(900), "edges at half a tick spacing from a nice tick crowd it, so they keep only their tick marks");
+  assert.ok(labels.some(t => t < 100) && labels.some(t => t > 900), "each side stays labeled");
+
+  const roomy = leftAxis({break: [200, 800]});
+  const roomyLabels = roomy._tickShape._data.filter(d => d.text).map(d => d.id);
+  assert.ok(roomyLabels.includes(200) && roomyLabels.includes(800), "edges with room keep their labels");
 });
 
 it("no gridline is drawn inside an explicit break", () => {

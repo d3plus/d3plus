@@ -221,13 +221,16 @@ export default class Axis extends BaseClass {
 
 
   /**
-      Returns the scale's domain, taking into account negative and positive log scales.
+      Returns the scale's domain, taking into account negative and positive log
+      scales and reaching to a baseline break's baseline.
       @private
 */
   _getDomain(): unknown[] {
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.domain();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.domain());
+    // A baseline break extends the axis to its baseline.
+    if (this._baselineBreak) ticks = ticks.concat([this._baselineBreak.value]);
 
     const domain = ["band", "ordinal", "point"].includes(this.schema.scale)
       ? ticks

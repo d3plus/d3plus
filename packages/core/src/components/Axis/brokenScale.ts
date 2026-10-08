@@ -177,12 +177,16 @@ export function brokenScale(spec: BrokenScaleSpec): BrokenScale {
 /**
     Tick values for a broken scale: each unbroken segment is ticked as its
     own small axis (via `segmentTicks`, which sees a plain linear scale over
-    that segment), then both edges of every interior break are added so each
-    side of a break is labeled.
+    that segment), and both edges of every interior break are added. With
+    `keepEdge` (a label pass), an edge the segment's ticks left out is added
+    only when `keepEdge` accepts it — given the edge, the segment's other
+    tick values, and the segment's scale — so a break edge that crowds its
+    neighboring tick can keep its tick mark without a label.
 */
 export function brokenScaleTicks(
   scale: BrokenScale,
   segmentTicks: (segment: D3Scale) => unknown[],
+  keepEdge?: (edge: number, regular: number[], segment: D3Scale) => boolean,
 ): unknown[] {
   const seen = new Set<number>();
   const out: unknown[] = [];
@@ -193,13 +197,17 @@ export function brokenScaleTicks(
       out.push(v);
     }
   };
+  const edges = new Set(scale.brokenSpec.breaks.flat());
   for (const s of scale.segments()) {
     const segment = scaleLinear().domain(s.domain).range(s.range) as unknown as D3Scale;
-    segmentTicks(segment).forEach(add);
+    const ticks = segmentTicks(segment);
+    ticks.forEach(add);
+    const values = ticks.map(Number);
+    s.domain
+      .filter(edge => edges.has(edge) && !values.includes(edge))
+      .forEach(edge => {
+        if (!keepEdge || keepEdge(edge, values, segment)) add(edge);
+      });
   }
-  scale.brokenSpec.breaks.forEach(([a, b]) => {
-    add(a);
-    add(b);
-  });
   return out;
 }

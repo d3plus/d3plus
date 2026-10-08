@@ -1861,11 +1861,11 @@ export const argTypes = assign(
     },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },
@@ -2007,11 +2007,11 @@ export const argTypes = assign(
     },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },

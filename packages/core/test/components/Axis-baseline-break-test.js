@@ -103,6 +103,7 @@ it("a broken axis maps the baseline to its end and the domain over the rest", ()
   assert.strictEqual(axis._getPosition(2100), top, "the domain max keeps the far end");
   assert.deepStrictEqual(axis._d3Scale.domain(), [2100, 1100], "the linear scale keeps the user domain");
   assert.strictEqual(axis._d3Scale.range()[1], bottom - 36, "the linear range stops at the break");
+  assert.deepStrictEqual(axis._getDomain(), [2100, 0], "the axis's domain reaches its baseline");
 });
 
 it("a broken axis ticks 0, then the domain min, then the usual ticks", () => {
@@ -112,7 +113,11 @@ it("a broken axis ticks 0, then the domain min, then the usual ticks", () => {
   assert.strictEqual(ticks[ticks.length - 2], 1100, "the domain min is the next tick");
   assert.ok(!ticks.some(t => t > 0 && t < 1100), "no ticks inside the break");
   const labels = axis._tickShape._data.filter(d => d.text).map(d => d.id);
-  assert.ok(labels.includes(0) && labels.includes(1100), "both are labeled");
+  assert.ok(labels.includes(0), "the baseline is always labeled");
+  assert.ok(!labels.includes(1100), "1100, half a spacing from the 1200 label, keeps only its tick mark");
+  const roomy = compute(new AxisLeft().domain([2000, 1000]).height(400).width(300).baselineBreak(true));
+  const roomyLabels = roomy._tickShape._data.filter(d => d.text).map(d => d.id);
+  assert.ok(roomyLabels.includes(0) && roomyLabels.includes(1000), "a domain min with room keeps its label");
 });
 
 it("explicit ticks inside the break are dropped and the baseline added", () => {

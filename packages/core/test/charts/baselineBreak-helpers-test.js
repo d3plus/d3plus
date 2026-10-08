@@ -96,3 +96,12 @@ it("BarChart defaults baselineBreak on; Plot charts leave it off", () => {
   assert.ok(!new LinePlot().baselineBreak(), "LinePlot does not break");
   assert.strictEqual(new BarChart().baselineBreak(false).baselineBreak(), false, "opt out");
 });
+
+it("withAxisInk inks the break marks along with the axis line", async () => {
+  const {withAxisInk} = await import("../../es/src/charts/Plot/axisInk.js");
+  const viz = new BarChart();
+  const config = withAxisInk(viz, {breakConfig: {stroke: "red"}});
+  assert.strictEqual(typeof config.baselineBreakConfig.stroke, "function", "baseline break marks inked");
+  assert.strictEqual(config.baselineBreakConfig.stroke(), config.barConfig.stroke(), "same ink as the axis line");
+  assert.strictEqual(config.breakConfig.stroke, "red", "a user stroke wins");
+});

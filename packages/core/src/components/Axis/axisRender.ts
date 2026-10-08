@@ -10,7 +10,7 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
-import {addDomainEnds, isNegative} from "./axisEndLabels.js";
+import {addDomainEnds, crowdsEndLabel, isNegative} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
@@ -91,7 +91,9 @@ export function calculateTicks(
   scale: D3Scale,
   minorTicks: boolean = false,
 ): unknown[] {
-  if (isBrokenScale(scale)) return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks));
+  // A broken scale ticks each segment like an axis; a label pass drops a crowded break edge's label.
+  if (isBrokenScale(scale))
+    return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks), minorTicks ? undefined : (v, regular, s) => !crowdsEndLabel(v, regular, d => s(d)));
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
