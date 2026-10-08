@@ -106,3 +106,15 @@ export function expandArea(area: FacetArea, sides: FacetSides): FacetArea {
     height: area.height + sides.top + sides.bottom,
   };
 }
+
+/**
+    The extra space between columns that keeps x-axis labels overhanging a
+    panel's left and right ends (a point scale's first and last labels) clear
+    of the next panel's: the most any x-labeled panel overhangs on each side.
+*/
+export function labelOverhang(expansions: Record<string, FacetSides>): number {
+  const most = (side: "left" | "right", test: (l: FacetLabels) => boolean): number =>
+    Math.max(0, ...LABEL_COMBOS.filter(test).map(l => expansions[labelKey(l)]?.[side] ?? 0));
+  // A y-labeled panel's left room is the y axis, already in the left gutter.
+  return most("left", l => l.x && !l.y) + most("right", l => l.x);
+}

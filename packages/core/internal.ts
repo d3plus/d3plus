@@ -279,6 +279,7 @@ export {
   labelExpansions,
   labelGutter,
   labelKey,
+  labelOverhang,
   NO_SIDES,
   panelBase,
 } from "./src/charts/facet/facetGutter.js";

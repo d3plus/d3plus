@@ -21,6 +21,8 @@ export interface FacetGridOptions {
   rows?: number;
   /** Space between panels. */
   padding: number;
+  /** Space between columns, when it differs from `padding` (room for axis labels that overhang a panel's sides). */
+  columnPadding?: number;
   /** Height of each panel's title band (part of the panel). */
   titleHeight: number;
   /** The panel width/height ratio the chart reads best at. */
@@ -63,7 +65,7 @@ export function facetDimensions(
   let bestScore = -1, bestEmpty = Infinity, bestShape = Infinity;
   for (let c = 1; c <= count; c++) {
     const r = Math.ceil(count / c);
-    const w = (area.width - gutter.left - gutter.right - (c - 1) * opts.padding) / c;
+    const w = (area.width - gutter.left - gutter.right - (c - 1) * (opts.columnPadding ?? opts.padding)) / c;
     const h = (area.height - gutter.bottom - (r - 1) * opts.padding) / r - opts.titleHeight;
     const score = fittedArea(w, h, opts.aspect);
     const empty = c * r - count;
@@ -93,14 +95,14 @@ export function facetGrid(count: number, area: FacetArea, opts: FacetGridOptions
   const {columns, rows} = facetDimensions(count, area, opts);
   if (!columns) return [];
   const gutter = opts.gutter ?? {left: 0, right: 0, bottom: 0};
-  const pad = opts.padding;
-  const cellW = Math.max(0, (area.width - gutter.left - gutter.right - (columns - 1) * pad) / columns);
+  const pad = opts.padding, padX = opts.columnPadding ?? pad;
+  const cellW = Math.max(0, (area.width - gutter.left - gutter.right - (columns - 1) * padX) / columns);
   const cellH = Math.max(0, (area.height - gutter.bottom - (rows - 1) * pad) / rows);
   const cells: FacetCell[] = [];
   for (let index = 0; index < count; index++) {
     const row = Math.floor(index / columns), column = index % columns;
     const below = index + columns < count;
-    const x = area.x + column * (cellW + pad) + (column ? gutter.left : 0);
+    const x = area.x + column * (cellW + padX) + (column ? gutter.left : 0);
     const y = area.y + row * (cellH + pad);
     cells.push({
       index, row, column, x, y,

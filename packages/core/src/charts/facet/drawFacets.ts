@@ -16,11 +16,10 @@
     @module
 */
 import type {DataPoint} from "@d3plus/data";
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {drawWithInset} from "../pipeline/insetPlacement.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   FACET_ASPECT,
@@ -46,6 +45,7 @@ import {
   labelExpansions,
   labelGutter,
   labelKey,
+  labelOverhang,
   NO_SIDES,
   panelBase,
 } from "./facetGutter.js";
@@ -103,7 +103,13 @@ export function panelLabels(cell: FacetCell, outer: boolean): {x: boolean; y: bo
 }
 
 /** Draws the chart's body for one panel's rows in `area`. */
-function drawPanel(viz: VizInstance, plan: FacetPlan, data: DataPoint[], area: FacetArea, ctx: FacetPanelContext): PanelDraw {
+function drawPanel(
+  viz: VizInstance,
+  plan: FacetPlan,
+  data: DataPoint[],
+  area: FacetArea,
+  ctx: FacetPanelContext,
+): PanelDraw {
   viz._filteredData = data;
   viz._margin = facetAreaMargin(viz, area);
   viz._padding = {...plan.padding};
@@ -137,9 +143,7 @@ export function facetTitleStyle(
   config: ResolvedFacetConfig,
 ): Record<string, unknown> {
   if (config.titleConfig.fontColor !== undefined) return config.titleConfig;
-  const node = viz._select && viz._select.node ? viz._select.node() : null;
-  const bg = node ? backgroundColor(node) : "rgb(255, 255, 255)";
-  return {...config.titleConfig, fontColor: colorContrast(bg, viz.schema.colorDefaults)};
+  return {...config.titleConfig, fontColor: backgroundInk(viz)};
 }
 
 /** Each panel's title text (empty when titles are off). */
@@ -221,6 +225,7 @@ function layoutGrid(viz: VizInstance, plan: FacetPlan, texts: string[], style: R
   const expansions = outer ? measureLabels(viz, plan, first, probeArea) : {};
   const gutter = labelGutter(expansions);
   opts.gutter = gutter;
+  opts.columnPadding = config.padding + labelOverhang(expansions);
   opts.titleHeight = titleHeight + gutter.top;
   const cells = facetGrid(panels.length, area, opts);
   const columns = Math.max(1, ...cells.map(c => c.column + 1));

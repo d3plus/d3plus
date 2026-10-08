@@ -24,6 +24,7 @@ import {
   labelExpansions,
   labelGutter,
   labelKey,
+  labelOverhang,
   NO_SIDES,
   panelBase,
   panelLabels,
@@ -193,6 +194,12 @@ describe("facet grid", () => {
     assert.deepStrictEqual(cells[4].edges, {top: false, right: true, bottom: true, left: false}, "the last panel ends its row");
     assert.deepStrictEqual(facetGrid(0, area, {padding: 0, titleHeight: 0, aspect: 1}), []);
   });
+  it("facetGrid: columnPadding separates columns without changing row spacing", () => {
+    const cells = facetGrid(4, {x: 0, y: 0, width: 230, height: 210}, {columns: 2, padding: 10, columnPadding: 30, titleHeight: 0, aspect: 1});
+    assert.strictEqual(cells[0].width, 100);
+    assert.strictEqual(cells[1].x, 130);
+    assert.strictEqual(cells[2].y, 110);
+  });
 });
 
 describe("facet label gutter", () => {
@@ -222,6 +229,17 @@ describe("facet label gutter", () => {
     });
     assert.deepStrictEqual(gutter, {top: 7, right: 14, bottom: 28, left: 50});
     assert.deepStrictEqual(labelGutter({}), NO_SIDES);
+  });
+
+  it("labelOverhang: the most x-labeled panels overhang left (without a y axis) and right", () => {
+    const exp = {
+      xy: {top: 0, right: 12, bottom: 26, left: 50},
+      x: {top: 0, right: 14, bottom: 28, left: 9},
+      y: {top: 7, right: 30, bottom: 3, left: 48},
+      "": NO_SIDES,
+    };
+    assert.strictEqual(labelOverhang(exp), 9 + 14);
+    assert.strictEqual(labelOverhang({}), 0);
   });
 
   it("panelBase: the cell below its title, less the gutter on its outer edges", () => {

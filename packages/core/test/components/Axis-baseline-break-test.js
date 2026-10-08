@@ -85,6 +85,7 @@ it("breakTickValues drops ticks inside a break and adds a baseline break's basel
   const base = {start: 0, end: 1100, startPosition: 400, endPosition: 364, baseline: true, mask: false};
   assert.deepStrictEqual(breakTickValues([base], [500, 1100, 1500, 2000]), [1100, 1500, 2000, 0]);
   assert.deepStrictEqual(breakTickValues([base], [0, 1100]), [0, 1100], "keeps an existing baseline once");
+  assert.deepStrictEqual(breakTickValues([base], [500, 1100], false), [1100], "addBaseline off: only drops values inside breaks");
   const inner = {start: 1300, end: 1700, startPosition: 200, endPosition: 164, baseline: false, mask: true};
   assert.deepStrictEqual(
     breakTickValues([inner], [1200, 1300, 1500, 1700, 1800]),
