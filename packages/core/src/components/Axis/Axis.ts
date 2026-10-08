@@ -1,9 +1,6 @@
 import {extent, min} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
-// @ts-ignore
-import pkg from "open-color/open-color.js";
-const {theme: openColor} = pkg;
 
 import {colorContrast} from "@d3plus/color";
 import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
@@ -15,6 +12,7 @@ import type {SvgRenderer} from "@d3plus/render";
 import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
+import {gridStroke} from "./gridStroke.js";
 import {
   axisToScene,
   buildTickData,
@@ -128,11 +126,7 @@ export default class Axis extends BaseClass {
       "stroke-width": 1,
     };
     this.schema.gridConfig = {
-      stroke: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        const contrast = colorContrast(bg, this.schema.colorDefaults);
-        return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
-      },
+      stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
       "stroke-width": 1,
     };
     this.orient("bottom");
