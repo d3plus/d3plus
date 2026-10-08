@@ -342,6 +342,13 @@ export interface PathNode extends NodeBase {
       numerically against `arc`, same as `flipFromArc`.
   */
   reunionFromArc?: ArcGeometry;
+  /**
+      Where this wedge starts whenever it enters: the chart's own collapsed
+      start (e.g. a Sunburst arc sweeping back in from 0 or 2π on zoom-out).
+      It grows from there at its own opacity, interpolated numerically against
+      `arc`, instead of fading in where it lands.
+  */
+  enterArc?: ArcGeometry;
 }
 
 export interface ImageNode extends NodeBase {

@@ -21,6 +21,7 @@ import {
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sunburstPadAngle} from "./geometry.js";
+import type {SunburstArc} from "./geometry.js";
 import {sunburstLabelBox, sunburstSplit} from "./labelFit.js";
 import type {SunburstLabelBox, SunburstLabelMetrics} from "./labelFit.js";
 import {
@@ -150,6 +151,30 @@ function labelBoxes(
   return boxes;
 }
 
+/**
+    Arcs a zoom-in removed stay for this frame, folding to zero width beneath
+    the arcs that grow into their place; they carry no datum, so they take no
+    part in hover or picking, and drop out on the next draw.
+*/
+function ghostNodes(
+  viz: Parameters<ChartEmit>[0]["viz"],
+  fillOf: (node: Fillable) => string | undefined,
+): SceneNode[] {
+  return ((viz.ctx.sunburstGhosts ?? []) as SunburstGhost[]).map(g => {
+    const arc = {...g.arc, padAngle: 0};
+    return {
+      type: "path",
+      key: `sunburst-${g.id}`,
+      d: arcPath(arc) ?? "",
+      arc,
+      paint: {
+        fill: fillOf(g),
+        opacity: 1,
+      },
+    } as SceneNode;
+  });
+}
+
 export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as SunburstNode[];
   if (!nodes.length) return [];
@@ -161,6 +186,10 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const locale = viz.schema.locale;
   const fillOf = fillResolver(viz, sc);
 
+  const enterArcs = (viz.ctx.sunburstEnterArcs ?? new Map()) as Map<
+    string,
+    SunburstArc
+  >;
   const pathNodes: SceneNode[] = nodes.map(node => {
     const i = node.i ?? 0;
     const arc = sunburstArcGeometry(node, padAngle, padPixel);
@@ -170,6 +199,10 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
       key: `sunburst-${node.id}`,
       d: arcPath(arc) ?? "",
       arc,
+      // A zoom-out sweeps a returning arc in from where it folded away.
+      enterArc: enterArcs.has(node.id)
+        ? {...enterArcs.get(node.id)!, padAngle: 0}
+        : undefined,
       datum: node.datum,
       paint: {
         fill: textureFill(sc, node.datum, i, fill),
@@ -184,22 +217,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     } as SceneNode;
   });
 
-  // Arcs a zoom-in removed stay for this frame, folding to zero width beneath
-  // the arcs that grow into their place; they carry no datum, so they take no
-  // part in hover or picking, and drop out on the next draw.
-  const ghosts = ((viz.ctx.sunburstGhosts ?? []) as SunburstGhost[]).map(g => {
-    const arc = {...g.arc, padAngle: 0};
-    return {
-      type: "path",
-      key: `sunburst-${g.id}`,
-      d: arcPath(arc) ?? "",
-      arc,
-      paint: {
-        fill: fillOf(g),
-        opacity: 1,
-      },
-    } as SceneNode;
-  });
+  const ghosts = ghostNodes(viz, fillOf);
 
   const labelConfig = (userLabelConfig(viz, "Path") ?? {}) as Record<
     string,
@@ -215,7 +233,8 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     padAngle,
     padPixel,
   });
-  const labeled = nodes.filter(n => boxes.has(n));
+  const held = (viz.ctx.sunburstHeldLabels ?? new Set()) as Set<string>;
+  const labeled = nodes.filter(n => boxes.has(n) && !held.has(n.id));
 
   const labelNodes = emitLabels({
     data: labeled as unknown as DataPoint[],

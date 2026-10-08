@@ -35,6 +35,22 @@ export const argTypes = assign(
         summary: "number | function",
       },
     },
+    legendInset: {
+      control: {
+        type: "boolean",
+      },
+      description:
+        "Whether the legend may be drawn inside the empty corners around the rings instead of in its margin. Off by default for Sunburst, so the legend doesn't move between corners as zooming changes the free space, and zooming stays responsive (placing an inset legend lays the chart out several times per render). Also accepts a function that receives the resolved chart config and returns a boolean.",
+      table: {
+        defaultValue: {
+          summary: false,
+        },
+      },
+      type: {
+        required: false,
+        summary: "boolean | function",
+      },
+    },
     padAngle: {
       control: {
         type: "number",

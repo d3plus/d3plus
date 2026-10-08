@@ -1,5 +1,5 @@
 import type {GroupNode, Scene, SceneNode, TransitionRect} from "../scene.js";
-import {collapse, collapseTo, interpolateNode, isFlipEligible} from "./interpolate.js";
+import {arcEnterStart, collapse, collapseTo, interpolateNode, isFlipEligible} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
 import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
@@ -119,9 +119,10 @@ function interpolateChildren(
     // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
     const start = flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
       ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
-      : flip?.enterFrom && isFlipEligible(n)
-        ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
-        : collapse(n);
+      : arcEnterStart(n) ??
+        (flip?.enterFrom && isFlipEligible(n)
+          ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
+          : collapse(n));
     const interp = interpolateNode(start, n);
     if (n.type === "group") {
       return wrapGroup(interp, interpolateChildren([], n.children, undefined, flip));

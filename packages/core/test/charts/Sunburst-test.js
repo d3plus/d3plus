@@ -484,3 +484,110 @@ it("Sunburst: buckets the leaves under the threshold into one arc per parent", a
     "the bucket's parent is not itself a bucket",
   );
 });
+
+it("Sunburst: zooming out plays the zoom-in in reverse, holding returning labels until the sweep ends", async function () {
+  this.timeout(60000);
+  const out = await page(async () => {
+    const chart = await window.build();
+    chart.duration(600);
+    const dOf = path => {
+      const el = document.querySelector(
+        `#viz path[data-key='sunburst-${JSON.stringify(path)}']`,
+      );
+      return el ? el.getAttribute("d") : null;
+    };
+    const texts = () => chart._chartScene.filter(n => n.type === "text").length;
+    window.route(chart, "click", window.arcFor(chart, ["Backend"]));
+    await window.wait(800);
+    const zoomed = {api: dOf(["Backend", "API"]), center: dOf(["Backend"])};
+    window.route(chart, "click", window.arcFor(chart, ["Backend"]));
+    await window.wait(0);
+    const entering = window.arcs(chart).filter(n => n.enterArc);
+    const scene = {
+      entering: entering.map(n => n.key).sort(),
+      starts: entering.map(n => [n.enterArc.startAngle, n.enterArc.endAngle]),
+      backend: Boolean(window.arcFor(chart, ["Backend"]).enterArc),
+      texts: texts(),
+    };
+    await window.wait(220);
+    const mid = {api: dOf(["Backend", "API"]), center: dOf(["Backend"])};
+    await window.wait(800);
+    const end = {
+      api: dOf(["Backend", "API"]),
+      center: dOf(["Backend"]),
+      texts: texts(),
+    };
+    return {zoomed, scene, mid, end};
+  });
+  const returning = ["Frontend", "Docs"].map(
+    a => `sunburst-${JSON.stringify([a])}`,
+  );
+  for (const key of returning)
+    assert.ok(out.scene.entering.includes(key), `${key} sweeps back in`);
+  assert.ok(
+    !out.scene.backend,
+    "the old center is not entering: it shrinks back into its ring",
+  );
+  assert.ok(
+    out.scene.starts.every(
+      ([s, e]) => s === e && (s === 0 || Math.abs(s - Math.PI * 2) < 1e-9),
+    ),
+    "returning arcs start folded at 0 or 2π",
+  );
+  for (const k of ["api", "center"]) {
+    assert.notStrictEqual(
+      out.mid[k],
+      out.zoomed[k],
+      `${k} has left its zoomed shape mid-animation`,
+    );
+    assert.notStrictEqual(
+      out.mid[k],
+      out.end[k],
+      `${k} hasn't reached its final shape mid-animation`,
+    );
+  }
+  assert.ok(
+    out.end.texts > out.scene.texts,
+    "returning labels appear once the sweep ends",
+  );
+});
+
+it("Sunburst: zooming out one of two levels returns the outer level's siblings, on Canvas too", async function () {
+  this.timeout(60000);
+  const out = await page(async () => {
+    const chart = await window.build({renderer: "canvas"});
+    chart.duration(600);
+    window.route(chart, "click", window.arcFor(chart, ["Backend"]));
+    await window.wait(800);
+    window.route(chart, "click", window.arcFor(chart, ["Backend", "API"]));
+    await window.wait(800);
+    window.route(chart, "click", window.arcFor(chart, ["Backend", "API"]));
+    await window.wait(0);
+    const entering = window
+      .arcs(chart)
+      .filter(n => n.enterArc)
+      .map(n => n.key);
+    const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
+    await window.wait(220);
+    const mid = canvas.toDataURL();
+    await window.wait(900);
+    const end = canvas.toDataURL();
+    return {
+      entering,
+      history: chart._history.length,
+      center: window.arcFor(chart, ["Backend"]).arc.innerRadius,
+      changed: mid !== end,
+    };
+  });
+  assert.strictEqual(out.history, 1, "one level up");
+  assert.strictEqual(out.center, 0, "Backend is the center again");
+  assert.ok(
+    out.entering.includes('sunburst-["Backend","Database"]'),
+    "API's siblings sweep back in",
+  );
+  assert.ok(
+    !out.entering.some(k => k.includes("Frontend")),
+    "the level above stays out",
+  );
+  assert.ok(out.changed, "the canvas is still animating mid-way");
+});

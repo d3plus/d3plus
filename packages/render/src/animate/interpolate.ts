@@ -327,6 +327,16 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
     the enter/exit conventions of the SVG Shape classes.
     @param node The node to collapse.
 */
+/**
+    A path's chart-computed enter start (`PathNode.enterArc`): the wedge at
+    that geometry and its own opacity, so it grows into place. Null for any
+    node without one.
+*/
+export function arcEnterStart(node: SceneNode): SceneNode | null {
+  if (node.type !== "path" || !node.enterArc) return null;
+  return {...node, arc: node.enterArc, d: arcPath(node.enterArc)};
+}
+
 export function collapse(node: SceneNode): SceneNode {
   const paint: Paint = {...node.paint, opacity: 0};
   switch (node.type) {

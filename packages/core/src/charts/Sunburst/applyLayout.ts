@@ -11,6 +11,7 @@ import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {sunburstEmit} from "./emit.js";
 import {sunburstCollapse, sunburstRadii} from "./geometry.js";
 import type {SunburstArc, SunburstRingSize} from "./geometry.js";
 import {sunburstLayout} from "./partition.js";
@@ -78,6 +79,110 @@ export function sunburstGhosts(
     }));
 }
 
+/**
+    Detects a zoom-out — the previous center disc is drawn as a ring arc of
+    the new layout, or failing that its nearest drawn ancestor — and gives
+    every arc that returns with it the start it sweeps in from: the mirror of
+    `sunburstGhosts`, collapsed through that node's new geometry into the
+    previous (zoomed) rings, so it grows out of 0 or 2π as the zoomed arcs
+    shrink back into their slot. Empty for any other change of layout.
+    @param previous The previous draw's nodes.
+    @param next This draw's nodes.
+    @param previousRadii The previous draw's radii per ring.
+*/
+export function sunburstReturning(
+  previous: SunburstNode[],
+  next: SunburstNode[],
+  previousRadii: [number, number][],
+): Map<string, SunburstArc> {
+  const enter = new Map<string, SunburstArc>();
+  const center = previous.find(n => n.depth === 0);
+  if (!center) return enter;
+  const isPrefix = (n: SunburstNode) =>
+    n.path.length <= center.path.length &&
+    n.path.every((k, j) => k === center.path[j]);
+  const focus = next
+    .filter(n => n.depth > 0 && isPrefix(n))
+    .sort((a, b) => b.path.length - a.path.length)[0];
+  if (!focus) return enter;
+  const drawn = new Set(previous.map(n => n.id));
+  const origin = {
+    startAngle: focus.startAngle,
+    endAngle: focus.endAngle,
+    depth: focus.depth,
+  };
+  for (const n of next) {
+    if (!drawn.has(n.id))
+      enter.set(n.id, sunburstCollapse(n, n.depth, origin, previousRadii));
+  }
+  return enter;
+}
+
+/**
+    Keeps the labels of arcs a zoom-out brings back off this draw, so none
+    appears over an arc that is still sweeping into place, then repaints with
+    them once the sweep ends so they fade in. The release is timed from the
+    paint, which follows this stage within the same synchronous pipeline, and
+    any later layout cancels it.
+*/
+export function holdReturningLabels(
+  viz: VizInstance,
+  returning: Map<string, SunburstArc>,
+): void {
+  const duration = Number(viz.schema.duration) || 0;
+  const held = duration > 0 ? new Set(returning.keys()) : new Set<string>();
+  viz.ctx.sunburstHeldLabels = held;
+  viz.ctx.sunburstLabelRelease = undefined;
+  if (!held.size) return;
+  const release = {};
+  viz.ctx.sunburstLabelRelease = release;
+  setTimeout(
+    () =>
+      setTimeout(() => {
+        if (viz.ctx.sunburstLabelRelease !== release) return;
+        viz.ctx.sunburstLabelRelease = undefined;
+        viz.ctx.sunburstHeldLabels = new Set<string>();
+        viz.ctx.sunburstEnterArcs = new Map<string, SunburstArc>();
+        viz.ctx.sunburstGhosts = [];
+        const shapeData = (viz.ctx.sunburstLaid ??
+          []) as unknown as DataPoint[];
+        viz._chartScene = sunburstEmit({viz, shapeData} as Parameters<
+          typeof sunburstEmit
+        >[0]);
+        viz._drawSceneToTarget(duration);
+      }, duration),
+    0,
+  );
+}
+
+/** The layout a render animates from: the last one drawn before it, plus a pending zoom-in origin. */
+interface SunburstRenderBase {
+  laid?: SunburstNode[];
+  radii?: [number, number][];
+  origin?: SunburstZoomOrigin;
+}
+
+/**
+    The layout this render animates from. A render can lay the chart out more
+    than once (placing the legend inside the chart redraws it), so the base is
+    taken on the first pass — recognized by a fresh `_filteredData` — and
+    every later pass of the same render reuses it, instead of animating from
+    the pass before it.
+*/
+export function renderBase(viz: VizInstance): SunburstRenderBase {
+  const pass = viz.ctx.sunburstPass as
+    {data: unknown; base: SunburstRenderBase} | undefined;
+  if (pass && pass.data === viz._filteredData) return pass.base;
+  const base: SunburstRenderBase = {
+    laid: viz.ctx.sunburstLaid as SunburstNode[] | undefined,
+    radii: viz.ctx.sunburstRadii as [number, number][] | undefined,
+    origin: viz.ctx.sunburstZoomOrigin as SunburstZoomOrigin | undefined,
+  };
+  viz.ctx.sunburstZoomOrigin = undefined;
+  viz.ctx.sunburstPass = {data: viz._filteredData, base};
+  return base;
+}
+
 /** The center slot's radius from the `innerRadius` config: a pixel value, or a function of the outer radius. */
 function centerRadius(
   viz: VizInstance,
@@ -98,9 +203,12 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
   viz.ctx.sunburstNodes = new Map<DataPoint, SunburstNode>();
   viz.ctx.sunburstGhosts = [];
 
+  const base = renderBase(viz);
   const data = (viz._filteredData ?? []) as DataPoint[];
   if (!data.length) {
     viz.ctx.sunburstLaid = [];
+    viz.ctx.sunburstRadii = undefined;
+    viz.ctx.sunburstEnterArcs = new Map<string, SunburstArc>();
     viz.ctx.sunburstOuterRadius = 0;
     return {shapeData: []};
   }
@@ -136,12 +244,19 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
     radii,
   });
 
-  const origin = viz.ctx.sunburstZoomOrigin as SunburstZoomOrigin | undefined;
-  const previous = viz.ctx.sunburstLaid as SunburstNode[] | undefined;
+  const {laid: previous, radii: previousRadii, origin} = base;
   viz.ctx.sunburstGhosts =
     origin && previous ? sunburstGhosts(previous, nodes, origin, radii) : [];
-  viz.ctx.sunburstZoomOrigin = undefined;
+  viz.ctx.sunburstEnterArcs =
+    previous && previousRadii
+      ? sunburstReturning(previous, nodes, previousRadii)
+      : new Map<string, SunburstArc>();
   viz.ctx.sunburstLaid = nodes;
+  viz.ctx.sunburstRadii = radii;
+  holdReturningLabels(
+    viz,
+    viz.ctx.sunburstEnterArcs as Map<string, SunburstArc>,
+  );
 
   const lookup = viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>;
   for (const node of nodes) {

@@ -1,7 +1,10 @@
 import assert from "assert";
 import {
   applySunburstLayout,
+  holdReturningLabels,
+  renderBase,
   sunburstFocus,
+  sunburstReturning,
   sunburstGhosts,
 } from "../../es/src/charts/Sunburst/applyLayout.js";
 import {
@@ -10,6 +13,7 @@ import {
 } from "../../es/src/charts/Sunburst/emit.js";
 import {sunburstDef} from "../../es/src/charts/Sunburst/index.js";
 
+const TAU = Math.PI * 2;
 const key = k => d => d[k];
 const field = k => sunburstDef.fields.find(f => f.key === k);
 
@@ -121,6 +125,13 @@ it("Sunburst layout stage: applySunburstLayout: collapses the arcs a zoom remove
   );
   assert.strictEqual(viz.ctx.sunburstZoomOrigin, undefined);
   applySunburstLayout({viz});
+  assert.strictEqual(
+    viz.ctx.sunburstGhosts.length,
+    2,
+    "a second pass of the same render keeps them",
+  );
+  viz._filteredData = viz._filteredData.slice();
+  applySunburstLayout({viz});
   assert.deepStrictEqual(viz.ctx.sunburstGhosts, []);
 });
 
@@ -186,4 +197,152 @@ it("Sunburst emit helpers: sunburstLabel reads the label at the node's own level
   };
   assert.strictEqual(sunburstLabel(viz, node), "label");
   assert.deepStrictEqual(calls, [[node.datum, 3, 1]]);
+});
+
+const ring = (id, path, depth, startAngle, endAngle) => ({
+  id,
+  path,
+  depth,
+  startAngle,
+  endAngle,
+});
+
+it("Sunburst layout stage: sunburstReturning sweeps the arcs a zoom-out brings back in from 0 or 2π", () => {
+  const previous = [
+    ring("B", ["B"], 0, 0, TAU),
+    ring("B|x", ["B", "x"], 1, 0, TAU),
+  ];
+  const next = [
+    ring("A", ["A"], 1, 0, 2),
+    ring("B", ["B"], 1, 2, 4),
+    ring("C", ["C"], 1, 4, TAU),
+    ring("B|x", ["B", "x"], 2, 2, 4),
+  ];
+  const radii = [
+    [0, 40],
+    [40, 80],
+  ];
+  const enter = sunburstReturning(previous, next, radii);
+  assert.deepStrictEqual(
+    [...enter.keys()].sort(),
+    ["A", "C"],
+    "only the returning arcs",
+  );
+  assert.deepStrictEqual(enter.get("A"), {
+    innerRadius: 0,
+    outerRadius: 40,
+    startAngle: 0,
+    endAngle: 0,
+  });
+  assert.deepStrictEqual(enter.get("C"), {
+    innerRadius: 0,
+    outerRadius: 40,
+    startAngle: TAU,
+    endAngle: TAU,
+  });
+});
+
+it("Sunburst layout stage: sunburstReturning is empty unless the previous center became a ring arc", () => {
+  const radii = [[0, 40]];
+  assert.strictEqual(
+    sunburstReturning(
+      [ring("A", ["A"], 1, 0, TAU)],
+      [ring("A", ["A"], 1, 0, TAU)],
+      radii,
+    ).size,
+    0,
+    "no center",
+  );
+  const center = ring("B", ["B"], 0, 0, TAU);
+  assert.strictEqual(
+    sunburstReturning(
+      [center],
+      [center, ring("B|x", ["B", "x"], 1, 0, TAU)],
+      radii,
+    ).size,
+    0,
+    "still the center (a zoom-in)",
+  );
+});
+
+it("Sunburst layout stage: sunburstReturning jumps several levels through the nearest drawn ancestor", () => {
+  const previous = [ring("B|x", ["B", "x"], 0, 0, TAU)];
+  const next = [ring("A", ["A"], 1, 0, 3), ring("B", ["B"], 1, 3, TAU)];
+  const enter = sunburstReturning(previous, next, [
+    [0, 40],
+    [40, 80],
+  ]);
+  assert.deepStrictEqual([...enter.keys()].sort(), ["A", "B"]);
+  assert.strictEqual(
+    enter.get("A").endAngle,
+    0,
+    "before the ancestor: folded at 0",
+  );
+  assert.deepStrictEqual(
+    [enter.get("B").startAngle, enter.get("B").endAngle],
+    [0, TAU],
+    "the ancestor itself fills the old circle",
+  );
+});
+
+it("Sunburst layout stage: renderBase takes the base once per render and reuses it across passes", () => {
+  const laid = [ring("B", ["B"], 0, 0, TAU)];
+  const viz = {
+    ctx: {
+      sunburstLaid: laid,
+      sunburstRadii: [[0, 1]],
+      sunburstZoomOrigin: {startAngle: 0, endAngle: 1, depth: 1},
+    },
+    _filteredData: [],
+  };
+  const first = renderBase(viz);
+  assert.strictEqual(first.laid, laid);
+  assert.deepStrictEqual(first.origin, {startAngle: 0, endAngle: 1, depth: 1});
+  assert.strictEqual(
+    viz.ctx.sunburstZoomOrigin,
+    undefined,
+    "the zoom-in origin is consumed",
+  );
+  viz.ctx.sunburstLaid = [];
+  assert.strictEqual(
+    renderBase(viz),
+    first,
+    "a later pass of the same render keeps the base",
+  );
+  viz._filteredData = [];
+  const next = renderBase(viz);
+  assert.notStrictEqual(next, first, "a new render takes a new base");
+  assert.deepStrictEqual(next.laid, []);
+});
+
+it("Sunburst layout stage: holdReturningLabels holds labels only for an animated zoom-out, then repaints them in", async () => {
+  const painted = [];
+  const viz = {
+    schema: {duration: 5},
+    ctx: {sunburstLaid: []},
+    _drawSceneToTarget: d => painted.push(d),
+  };
+  holdReturningLabels(viz, new Map([["A", {}]]));
+  assert.deepStrictEqual([...viz.ctx.sunburstHeldLabels], ["A"]);
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.deepStrictEqual(painted, [5], "repainted with the chart's duration");
+  assert.strictEqual(viz.ctx.sunburstHeldLabels.size, 0, "released");
+  assert.deepStrictEqual(viz._chartScene, []);
+
+  holdReturningLabels(viz, new Map([["A", {}]]));
+  holdReturningLabels(viz, new Map());
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.deepStrictEqual(
+    painted,
+    [5],
+    "a later layout cancels a pending release",
+  );
+
+  viz.schema.duration = 0;
+  holdReturningLabels(viz, new Map([["A", {}]]));
+  assert.strictEqual(
+    viz.ctx.sunburstHeldLabels.size,
+    0,
+    "nothing held without animation",
+  );
 });
