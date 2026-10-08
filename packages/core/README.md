@@ -24515,13 +24515,14 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `thickness` | `0.2` |
 | `tickFormat` | — |
 | `ticks` | — |
+| `shapeConfig` | — |
 | `tooltipConfig` | — |
 | `value` | `accessor(…)` |
 | `valueFormat` | — |
 | `zoom` | `false` |
 
 
-Defined in: [charts/Gauge/index.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L142)
+Defined in: [charts/Gauge/index.ts:158](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L158)
 
 Creates a gauge (speedometer) from an array of data: a single dial that
 reads each row's `value` against its `domain`. One row shows its value

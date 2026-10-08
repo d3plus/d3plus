@@ -25,7 +25,7 @@ import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyGaugeLayout} from "./applyLayout.js";
-import {gaugeEmit} from "./emit.js";
+import {chartBackground, gaugeEmit, NEEDLE_OUTLINE} from "./emit.js";
 
 export const gaugeDef: DataDrivenChartDefinition = {
   name: "Gauge",
@@ -85,6 +85,22 @@ export const gaugeDef: DataDrivenChartDefinition = {
         `false` for none. Counted ticks always label both ends of the domain.
     */
     {key: "ticks"},
+    /**
+        Outlines each needle (and a single needle's hub) in the chart's
+        background color, so a needle stays distinct over a band of its own
+        color. Progress arcs sit in their own tracks and get no outline. Set
+        `shapeConfig.stroke`/`strokeWidth` to override; hovering a needle
+        swaps the outline for the usual darker, wider one.
+    */
+    {
+      key: "shapeConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        stroke: () => chartBackground(viz),
+        strokeWidth: () =>
+          viz.schema.indicator === "progress" ? 0 : NEEDLE_OUTLINE,
+      }),
+    },
     {
       key: "tooltipConfig",
       merge: true,

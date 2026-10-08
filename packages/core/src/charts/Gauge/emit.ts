@@ -34,6 +34,16 @@ interface AxisShapeConfig {
   labelConfig?: {fontColor?: unknown; fontFamily?: unknown};
 }
 
+/** The width of the background-colored outline that separates each needle from the dial. */
+export const NEEDLE_OUTLINE = 1.5;
+
+/** The chart's background color, as detected behind its container. */
+export function chartBackground(viz: VizInstance): string {
+  return viz._select
+    ? backgroundColor(viz._select.node())
+    : "rgb(255, 255, 255)";
+}
+
 /**
     The colors a dial is drawn in when `axisConfig` doesn't set them, read
     against the chart's background so they hold up on light and dark themes:
@@ -45,9 +55,7 @@ export function dialDefaults(viz: VizInstance): {
   tick: string;
   text: string;
 } {
-  const bg = viz._select
-    ? backgroundColor(viz._select.node())
-    : "rgb(255, 255, 255)";
+  const bg = chartBackground(viz);
   const text = colorContrast(bg, viz.schema.colorDefaults);
   const mix = interpolateRgb(bg, text);
   return {track: mix(0.12), tick: mix(0.6), text};
@@ -209,7 +217,11 @@ export const gaugeEmit: ChartEmit = ({viz, shapeData}) => {
       cx: 0,
       cy: 0,
       r: layout.hubRadius,
-      paint: {fill: style.fontColor},
+      paint: {
+        fill: style.fontColor,
+        stroke: chartBackground(viz),
+        strokeWidth: NEEDLE_OUTLINE,
+      },
     });
   return [
     {

@@ -455,3 +455,109 @@ it("Gauge paints on Canvas and picks the row under the pointer", async function 
   assert.ok(out.colors >= 3, `canvas paints the dial (${out.colors} colors)`);
   assert.strictEqual(out.clicked, "Canvas", "clicking the dial picks its row");
 });
+
+it("Gauge outlines needles in the background color, overridable and emphasized on hover", async function () {
+  this.timeout(60000);
+  const out = await render(
+    "<div id='light' style='width:500px;height:400px'></div>" +
+      "<div id='dark' style='width:500px;height:400px;background:#1a1b1e'></div>" +
+      "<div id='custom' style='width:500px;height:400px'></div>" +
+      "<div id='rings' style='width:500px;height:400px'></div>",
+    async () => {
+      const rows = [
+        {id: "North", value: 42},
+        {id: "West", value: -5},
+      ];
+      const draw = async (sel, configure) => {
+        const viz = configure(
+          new window.d3plus.Gauge()
+            .select(sel)
+            .duration(0)
+            .detectVisible(false)
+            .data(rows)
+            .domain([0, 100]),
+        );
+        await new Promise(r => viz.render(r));
+        return viz;
+      };
+      const needlePaints = viz =>
+        viz._chartScene[0].children
+          .filter(k => k.key.endsWith("-indicator"))
+          .map(k => k.paint);
+      const light = await draw("#light", v => v);
+      const dark = await draw("#dark", v => v);
+      const custom = await draw("#custom", v =>
+        v.shapeConfig({stroke: "black", strokeWidth: 1}),
+      );
+      const rings = await draw("#rings", v => v.indicator("progress"));
+      const single = await draw("#custom", v =>
+        v.data([{id: "Speed", value: 30}]),
+      );
+      const singleKids = single._chartScene[0].children;
+
+      light.hover(d => d.id === "West");
+      await new Promise(r => setTimeout(r, 50));
+      const hovered = document.querySelector(
+        "#light [data-key='gauge-West-indicator']",
+      );
+      return {
+        light: needlePaints(light),
+        lightHub: light._chartScene[0].children.find(k => k.key === "gauge-hub")
+          .paint,
+        dark: needlePaints(dark),
+        custom: needlePaints(custom),
+        rings: needlePaints(rings),
+        singleNeedle: singleKids.find(k => k.key.endsWith("-indicator")).paint,
+        singleHub: singleKids.find(k => k.key.endsWith("-hub")).paint,
+        hovered: {
+          stroke: hovered.getAttribute("stroke"),
+          width: Number(hovered.getAttribute("stroke-width")),
+        },
+      };
+    },
+  );
+  const lum = c => {
+    const m = c.startsWith("#")
+      ? [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16))
+      : c.match(/\d+/g).map(Number);
+    return (m[0] + m[1] + m[2]) / 3;
+  };
+  for (const p of out.light) {
+    assert.ok(lum(p.stroke) > 240, `light background outline (${p.stroke})`);
+    assert.strictEqual(p.strokeWidth, 1.5);
+  }
+  assert.strictEqual(
+    out.lightHub.stroke,
+    out.light[0].stroke,
+    "the shared hub is outlined too",
+  );
+  for (const p of out.dark)
+    assert.ok(lum(p.stroke) < 40, `dark background outline (${p.stroke})`);
+  assert.deepStrictEqual(
+    out.custom.map(p => [p.stroke, p.strokeWidth]),
+    [
+      ["black", 1],
+      ["black", 1],
+    ],
+    "shapeConfig overrides the outline",
+  );
+  assert.ok(
+    out.rings.every(p => p.strokeWidth === 0),
+    "progress arcs get no outline",
+  );
+  assert.strictEqual(
+    out.singleNeedle.strokeWidth,
+    1.5,
+    "a single needle is outlined",
+  );
+  assert.strictEqual(
+    out.singleHub.stroke,
+    out.singleNeedle.stroke,
+    "and so is its hub",
+  );
+  assert.ok(
+    lum(out.hovered.stroke) < 200,
+    `hover swaps in a darker outline (${out.hovered.stroke})`,
+  );
+  assert.strictEqual(out.hovered.width, 3, "hover doubles the outline width");
+});
