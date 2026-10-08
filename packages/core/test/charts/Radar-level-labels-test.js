@@ -73,8 +73,8 @@ it("Radar draws rings on nice values and labels them along the top by default", 
   assert.ok(r.firstPolygon > -1 && r.lastLabel > -1, "labels and polygons rendered");
   assert.ok(r.lastLabel < r.firstPolygon, "labels are drawn beneath the polygons");
   assert.strictEqual(r.rings.length, 7, "rings at 50, 100, …, 350");
-  const step = r.rings[0];
-  r.rings.forEach((ring, i) => assert.ok(Math.abs(ring - step * (i + 1)) <= 1, `ring ${i} evenly spaced`));
+  const outer = r.rings[r.rings.length - 1];
+  r.rings.forEach((ring, i) => assert.ok(Math.abs(ring - (outer * (i + 1)) / 7) <= 1, `ring ${i} evenly spaced`));
   r.positions.forEach((p, i) => {
     assert.strictEqual(p.anchor, "start", "text grows away from the vertical spoke");
     assert.ok(Math.abs(p.x - 3) < 1e-9, `labels start 3px right of the vertical spoke (${p.x})`);

@@ -407,6 +407,21 @@ export interface D3plusConfig {
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
+      The Radar's axis styles, named after the parts of a Plot axis: the
+      inner level rings are its gridlines (`gridConfig`, a faint stroke like
+      Plot's gridlines), the outer ring is its axis line (`barConfig`, the
+      chart's background ink), and the spokes and metric labels are its ticks
+      (`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring
+      styles take `stroke`, `strokeWidth`, `strokeOpacity`,
+      `strokeDasharray`, and `opacity` (or Plot's `"stroke-width"` spelling),
+      each a value or a `(ring, i) => value` accessor.
+  */
+  axisConfig?: {
+    barConfig?: Record<string, unknown>;
+    gridConfig?: Record<string, unknown>;
+    shapeConfig?: Record<string, unknown>;
+  };
+  /**
       Text (rendered as HTML — any valid HTML string works, including anchor
       links) shown in the chart's bottom-right corner, most often a map tile
       credit. `false` (the default) shows nothing. A credit wider than half
@@ -634,6 +649,15 @@ export interface D3plusConfig {
   ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
   on?: Record<string, (event: Event) => void>;
+  /**
+      Room (px) the Radar reserves around its web for the metric labels.
+      `"auto"` (the default) measures the labels and gives the web the largest
+      radius at which every label fits inside the chart, wrapping long labels
+      onto two lines (and truncating what still doesn't fit) rather than
+      shrinking the web below half its largest possible size. A number
+      reserves exactly that much room and wraps labels to that width.
+  */
+  outerPadding?: number | "auto";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */

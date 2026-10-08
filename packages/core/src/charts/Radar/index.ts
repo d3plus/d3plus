@@ -2,12 +2,13 @@
     Radar — polar value polygons over a per-metric radial axis.
 
     Implementation files in this folder:
-      - `applyLayout.ts` — polar geometry + axis decorations + polygon paths.
+      - `applyLayout.ts` — polar geometry + polygon paths.
+      - `axisDecorations.ts` — metric labels, spokes, rings, level labels.
+      - `axisLabels.ts` — sizes the web to its metric labels.
+      - `levels.ts` — nice ring values + level value labels.
+      - `rings.ts` — ring styles + ring scene nodes.
       - `emit.ts` — Path scene nodes per polygon.
 */
-
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
@@ -15,6 +16,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadarLayout} from "./applyLayout.js";
@@ -55,7 +57,7 @@ export const radarDef: ChartDefinition = {
       default: accessor("metric"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
-    {key: "outerPadding", default: 100},
+    {key: "outerPadding", default: "auto"},
     {key: "shape", default: constant("Path"), coerce: "const"},
     {
       key: "value",
@@ -69,24 +71,14 @@ export const radarDef: ChartDefinition = {
         shapeConfig: {
           fill: constant("none"),
           labelConfig: {
-            fontColor: () => {
-              const bg = viz._select
-                ? backgroundColor(viz._select.node())
-                : "rgb(255, 255, 255)";
-              return colorContrast(bg, viz.schema.colorDefaults);
-            },
+            fontColor: () => backgroundInk(viz),
             fontResize: false,
             padding: 0,
             textAnchor: (d: {data?: {textAnchor?: string}}) =>
               d.data?.textAnchor ?? "middle",
             verticalAlign: "middle",
           },
-          stroke: () => {
-            const bg = viz._select
-              ? backgroundColor(viz._select.node())
-              : "rgb(255, 255, 255)";
-            return colorContrast(bg, viz.schema.colorDefaults);
-          },
+          stroke: () => backgroundInk(viz),
           strokeWidth: constant(1),
         },
       }),
