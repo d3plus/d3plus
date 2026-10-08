@@ -117,6 +117,8 @@ export const ScatterToSwarm = {
       source: {code: `import {Plot} from "@d3plus/react";
 import {useState} from "react";
 
+const data = ${countries.__source};
+
 function ScatterToSwarm() {
   const [swarm, setSwarm] = useState(false);
   return (
