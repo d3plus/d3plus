@@ -5,12 +5,10 @@ import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
 
 import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
-import {ColorScale, Legend, SizeLegend, TextBox, Timeline, Tooltip} from "../../components/index.js";
+import {ColorScale, Legend, SizeLegend} from "../../components/index.js";
 import {sizeLegendFits} from "../../components/SizeLegend/sizeLegendLayout.js";
 import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
@@ -25,6 +23,8 @@ import mouseleave from "../events/mouseleave.js";
 import mousemoveLegend from "../events/mousemove.legend.js";
 import mousemoveShape from "../events/mousemove.shape.js";
 
+import {backgroundInk} from "./backgroundInk.js";
+import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
 import {linkedColorDefaults, registerLink} from "./linkGroup.js";
 import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
@@ -39,14 +39,6 @@ function debounce<A extends unknown[]>(
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), delay);
   };
-}
-
-/**
- * Default padding logic that will return false if the screen is less than 600 pixels wide.
- * @private
- */
-function defaultPadding(): boolean {
-  return typeof window !== "undefined" ? window.innerWidth > 600 : true;
 }
 
 /**
@@ -232,7 +224,7 @@ function initLegendDefaults(viz: Viz): void {
         // Labels read against the chart's own background (dark text on a light
         // page, light text on a dark one), not the swatch fill the chart's
         // shape labels contrast with.
-        fontColor: () => colorContrast(viz._select ? backgroundColor(viz._select.node()) : "rgb(255, 255, 255)", viz.schema.colorDefaults),
+        fontColor: () => backgroundInk(viz),
         fontResize: false,
         padding: 0,
       },
@@ -408,66 +400,6 @@ function initShapeDefaults(viz: Viz): void {
     strokeWidth: constant(0),
   };
   viz._solo = [];
-}
-
-/**
-    Subtitle, title, timeline, threshold, tooltip, and total label defaults.
-    @private
-*/
-function initLabelDefaults(viz: Viz): void {
-  viz._subtitleClass = new TextBox();
-  viz.schema.subtitleConfig = {
-    ariaHidden: true,
-    fontSize: 12,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.subtitlePadding = defaultPadding;
-
-  viz.schema.svgDesc = "";
-  viz.schema.svgTitle = "";
-
-  viz.schema.timeline = true;
-  viz._timelineClass = new Timeline().align("end");
-  viz.schema.timelineConfig = {
-    padding: 5,
-  };
-  viz.schema.timelinePadding = defaultPadding;
-
-  viz.schema.threshold = constant(0.0001);
-  viz.schema.thresholdKey = undefined;
-  viz.schema.thresholdName = () => viz.schema.translate("Values");
-
-  viz._titleClass = new TextBox();
-  viz.schema.titleConfig = {
-    ariaHidden: true,
-    fontSize: 16,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.titlePadding = defaultPadding;
-
-  viz.schema.tooltip = constant(true);
-  viz._tooltipClass = new Tooltip();
-  viz.schema.tooltipConfig = {
-    pointerEvents: "none",
-    titleStyle: {
-      "max-width": "200px",
-    },
-  };
-
-  viz._totalClass = new TextBox();
-  viz.schema.totalConfig = {
-    fontSize: 10,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.totalFormat = (d: number) =>
-    `${viz.schema.translate("Total")}: ${formatAbbreviate(d, viz.schema.locale)}`;
-  viz.schema.totalPadding = defaultPadding;
 }
 
 /**

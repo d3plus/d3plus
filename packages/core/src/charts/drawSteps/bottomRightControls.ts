@@ -17,12 +17,11 @@
 
     @module
 */
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 
 import type {FeatureModule} from "../features/features.js";
 import {isInsetPending} from "../features/insetState.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomSizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
@@ -35,16 +34,9 @@ export interface BottomRightAvailable {
   height: number;
 }
 
-/** The text/stroke color that reads against the chart's background. */
-function inkColor(viz: VizInstance): string {
-  const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
-  const bg = node ? backgroundColor(node) : "rgb(255, 255, 255)";
-  return colorContrast(bg, viz.schema.colorDefaults);
-}
-
 /** Configures the size legend for a scale and lays it out, returning its size. */
 function layoutSizeLegend(viz: VizInstance, scale: SizeLegendScale): {width: number; height: number} {
-  const ink = inkColor(viz);
+  const ink = backgroundInk(viz);
   const legend = viz._sizeLegendClass!;
   legend
     .renderMode("compute")
