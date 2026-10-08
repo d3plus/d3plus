@@ -23,6 +23,8 @@
     <div><h3>Timeline across years (axisPersist)</h3><div class="viz" id="timeline"></div></div>
     <div><h3>Canvas renderer</h3><div class="viz" id="canvas"></div></div>
     <div><h3>sides(["Female", "Male"]), symmetric(false)</h3><div class="viz" id="sides"></div></div>
+    <div><h3>categoryPosition("left")</h3><div class="viz" id="left"></div></div>
+    <div><h3>Dark background</h3><div class="viz" id="dark" style="background: #1b1d21;"></div></div>
   </div>
 </body>
 
@@ -104,6 +106,24 @@
     .x("population")
     .sides(["Female", "Male"])
     .symmetric(false)
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#left")
+    .data(latest)
+    .groupBy("sex")
+    .y("age")
+    .x("population")
+    .categoryPosition("left")
+    .render();
+
+  new d3plus.Pyramid()
+    .select("#dark")
+    .data(urban)
+    .groupBy(["sex", "area"])
+    .y("age")
+    .x("population")
+    .comparison("population2000")
     .render();
 
 </script>

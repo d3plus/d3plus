@@ -65,13 +65,15 @@ interface OutlineInput {
   y: (v: unknown) => number;
   fallbackStep: number;
   config: Record<string, unknown>;
+  /** Where each side starts: its distance from zero (the center gutter's half-width, in values). */
+  inset?: number;
 }
 
 /** The comparison outline for each side with any comparison value. */
 export function comparisonNodes(input: OutlineInput): LineNode[] {
   const {sides, categories, data, category, side, comparison, divisor, x, y, fallbackStep, config} = input;
+  const inset = input.inset ?? 0;
   const step = bandStep(categories.map(c => y(c)), fallbackStep);
-  const center = x(0);
   return sides.flatMap((s, index) => {
     const sums = new Map<string, number>();
     data.forEach((d, i) => {
@@ -83,7 +85,8 @@ export function comparisonNodes(input: OutlineInput): LineNode[] {
     });
     if (!sums.size) return [];
     const sign = sideSign(sides, s);
-    const rows = categories.map(c => ({y: y(c), x: x(sign * (sums.get(`${c}`) ?? 0))}));
+    const center = x(sign * inset);
+    const rows = categories.map(c => ({y: y(c), x: x(sign * ((sums.get(`${c}`) ?? 0) + inset))}));
     const paint: Paint = {
       fill: "none",
       stroke: resolve<string>(config.stroke, s, index),
@@ -113,14 +116,18 @@ export interface SideTitle {
   height: number;
 }
 
-/** A title box centered over each half of the value axis, in side order. */
+/**
+    A title box centered over each half of the value axis, in side order.
+    `inner` is where each half meets the center: the same pixel without a
+    gutter, or the gutter's two edges.
+*/
 export function sideTitleBoxes(
   labels: string[],
-  bounds: {left: number; right: number; center: number; top: number; height: number},
+  bounds: {left: number; right: number; inner: [number, number]; top: number; height: number},
 ): SideTitle[] {
   const {left, right, top, height} = bounds;
-  const center = Math.max(left, Math.min(right, bounds.center));
-  const halves = [[left, center], [center, right]];
+  const clamp = (v: number) => Math.max(left, Math.min(right, v));
+  const halves = [[left, clamp(bounds.inner[0])], [clamp(bounds.inner[1]), right]];
   return labels.slice(0, 2).map((text, i) => ({
     text,
     x: halves[i][0],
@@ -169,6 +176,10 @@ export interface PyramidSceneInput {
   divisor: number;
   titleBox: TextBox;
   showTitles: boolean;
+  /** Each side's distance from zero: the gutter's half-width in values, or 0. */
+  inset: number;
+  /** Draws the category labels in the gutter, given its pixel edges. */
+  gutter?: (edges: [number, number]) => SceneNode[];
 }
 
 /** Adds the side titles and comparison outline to the painted Plot scene. */
@@ -191,9 +202,11 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
         y,
         fallbackStep: area.height,
         config: viz.schema.comparisonConfig,
+        inset: input.inset,
       })
     : [];
 
+  const edges: [number, number] = [x(-input.inset), x(input.inset)];
   const inset = viz._plotInsetTop ?? 0;
   const titles =
     input.showTitles && inset > 0
@@ -202,7 +215,7 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
           sideTitleBoxes(input.labels, {
             left: area.x,
             right: area.x + area.width,
-            center: x(0),
+            inner: edges,
             top: viz._margin.top - (viz._chartTransform?.y ?? viz._margin.top),
             height: inset,
           }),
@@ -210,5 +223,6 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
         )
       : [];
 
-  return withPyramidNodes(scene, outlines, titles);
+  const labels = input.gutter ? input.gutter(edges) : [];
+  return withPyramidNodes(scene, outlines, [...labels, ...titles]);
 }

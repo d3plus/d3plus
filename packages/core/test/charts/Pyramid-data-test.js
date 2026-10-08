@@ -131,12 +131,14 @@ it("Pyramid dashArray normalizes strings and numbers", () => {
 });
 
 it("Pyramid sideTitleBoxes centers a box over each half", () => {
-  const boxes = sideTitleBoxes(["Male", "Female", "Extra"], {left: 10, right: 110, center: 70, top: -20, height: 18});
+  const boxes = sideTitleBoxes(["Male", "Female", "Extra"], {left: 10, right: 110, inner: [70, 70], top: -20, height: 18});
   assert.deepStrictEqual(boxes, [
     {text: "Male", x: 10, y: -20, width: 60, height: 18},
     {text: "Female", x: 70, y: -20, width: 40, height: 18},
   ]);
-  const clamped = sideTitleBoxes(["A", "B"], {left: 0, right: 100, center: 150, top: 0, height: 10});
+  const gutter = sideTitleBoxes(["Male", "Female"], {left: 0, right: 100, inner: [40, 60], top: 0, height: 10});
+  assert.deepStrictEqual(gutter.map(b => [b.x, b.width]), [[0, 40], [60, 40]], "each half ends at its gutter edge");
+  const clamped = sideTitleBoxes(["A", "B"], {left: 0, right: 100, inner: [150, 150], top: 0, height: 10});
   assert.deepStrictEqual(clamped.map(b => b.width), [100, 0], "the center is clamped to the axis");
 });
 

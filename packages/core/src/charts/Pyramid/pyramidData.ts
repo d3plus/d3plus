@@ -90,7 +90,16 @@ export function symmetricDomain(extent: number): [number, number] {
   return extent > 0 ? [-extent, extent] : [-1, 1];
 }
 
-/** Wraps a number formatter so values on either side read as magnitudes. */
-export function absoluteFormat<T>(format: (d: number) => T): (d: unknown) => T {
-  return (d: unknown) => format(typeof d === "number" ? Math.abs(d) : (d as number));
+/** `|v|`, read as 0 within `inset` of zero (the center gutter's edges). */
+export function snapMagnitude(v: number, inset = 0): number {
+  const m = Math.abs(v);
+  return m <= inset * 2 ? 0 : m;
+}
+
+/**
+    Wraps a number formatter so values on either side read as magnitudes;
+    `inset` reports how far from zero the gutter edges sit.
+*/
+export function absoluteFormat<T>(format: (d: number) => T, inset: () => number = () => 0): (d: unknown) => T {
+  return (d: unknown) => format(typeof d === "number" ? snapMagnitude(d, inset()) : (d as number));
 }

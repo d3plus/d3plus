@@ -22,6 +22,22 @@ export const argTypes = assign(
    * Pyramid-specific methods
    */
   {
+    categoryPosition: {
+      control: {
+        type: "radio"
+      },
+      options: ["center", "left"],
+      description: "Where the category labels (e.g. age bands) are drawn: `\"center\"` (default) down a gutter between the two halves, as wide as the widest label, with each half reading outward from zero at its edge; or `\"left\"`, on a regular category axis beside the chart.",
+      table: {
+        defaultValue: {
+          summary: "\"center\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"center\" | \"left\""
+      }
+    },
     comparison: {
       control: {
         type: "text"

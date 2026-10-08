@@ -28,6 +28,20 @@ import {
   symmetricDomain,
   type RowAccessor,
 } from "./pyramidData.js";
+import {
+  allCategories,
+  captureAxisStyles,
+  categoryLabelConfig,
+  categoryText,
+  gutterAxisDefaults,
+  gutterInset,
+  gutterLabels,
+  gutterStackOffset,
+  gutterWidth,
+  labelFont,
+  type AxisRestore,
+  type CategoryPosition,
+} from "./gutter.js";
 import {pyramidScene} from "./scene.js";
 import {pyramidStackOrder} from "./stackOrder.js";
 
@@ -47,6 +61,11 @@ interface PyramidState {
   /** Formatters the chart wrapped to read magnitudes. */
   wrapped: WeakSet<object>;
   titleBox: TextBox;
+  /** Each side's distance from zero: the center gutter's half-width in values, or 0. */
+  inset: number;
+  labelBox: TextBox;
+  /** The axes' own styles, captured before the center layout changes them. */
+  restore?: AxisRestore;
 }
 
 /** Data keys behind string `comparison` accessors, for tooltip labels. */
@@ -104,24 +123,19 @@ function syncTickFormat(viz: VizInstance, state: PyramidState): void {
   const config = viz._xConfig!;
   const current = config.tickFormat;
   if (current === undefined || current === state.tickFormat) {
-    config.tickFormat = state.tickFormat = absoluteFormat(valueFormat(viz));
+    config.tickFormat = state.tickFormat = absoluteFormat(valueFormat(viz), () => state.inset);
     state.wrapped.add(config.tickFormat as object);
   } else if (typeof current === "function" && !state.wrapped.has(current)) {
-    config.tickFormat = absoluteFormat(current as (d: number) => string);
+    config.tickFormat = absoluteFormat(current as (d: number) => string, () => state.inset);
     state.wrapped.add(config.tickFormat as object);
   }
 }
 
-/** Centers the value axis on zero: `[-extent, extent]` across both sides. */
-function syncDomain(viz: VizInstance, state: PyramidState): void {
-  const config = viz._xConfig!;
-  const ours = config.domain !== undefined && config.domain === state.domain;
-  if (config.domain !== undefined && !ours) return;
-  if (!viz.schema.symmetric || viz.schema.xDomain) {
-    if (ours) delete config.domain;
-    state.domain = undefined;
-    return;
-  }
+/**
+    The largest single-side category total (with comparison values): over
+    every frame with `axisPersist`, else the current one.
+*/
+function valueExtent(viz: VizInstance, state: PyramidState): number {
   const persist = !!viz._axisPersist;
   const rows: DataPoint[] = persist ? viz._data : viz._filteredData;
   const time = persist && viz.schema.time ? (viz.schema.time as RowAccessor) : undefined;
@@ -135,14 +149,45 @@ function syncDomain(viz: VizInstance, state: PyramidState): void {
     };
   };
   const comparison = viz.schema.comparison as RowAccessor | undefined;
-  const extent = pyramidExtent(rows, {
+  return pyramidExtent(rows, {
     category: viz._y as RowAccessor,
     side: sideOf(viz),
     value: scaled(state.value, state.total),
     comparison: comparison ? scaled(comparison, state.comparisonTotal) : undefined,
     frame: time,
   });
-  config.domain = state.domain = symmetricDomain(extent);
+}
+
+/** Centers the value axis on zero: `[-extent, extent]` across both sides (and the gutter). */
+function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void {
+  const config = viz._xConfig!;
+  const ours = config.domain !== undefined && config.domain === state.domain;
+  if (config.domain !== undefined && !ours) return;
+  if (!viz.schema.symmetric || viz.schema.xDomain) {
+    if (ours) delete config.domain;
+    state.domain = undefined;
+    return;
+  }
+  config.domain = state.domain = symmetricDomain(extent + state.inset);
+}
+
+/**
+    Lays out the center gutter: each side starts `inset` from zero, and the
+    value axis breaks there as wide as the widest category label.
+*/
+function syncGutter(viz: VizInstance, state: PyramidState, extent: number): void {
+  const position = viz.schema.categoryPosition as CategoryPosition;
+  state.restore ??= captureAxisStyles(viz);
+  const center = position === "center";
+  state.inset = center ? gutterInset(extent) : 0;
+  let width = 0;
+  if (center) {
+    const categories = allCategories(viz);
+    const config = categoryLabelConfig(viz);
+    const fonts = categories.map((c, i) => labelFont(config, c, i));
+    width = gutterWidth(categories.map(c => categoryText(viz, c)), fonts);
+  }
+  viz._plotAxisDefaults = gutterAxisDefaults(position, state.inset, width, viz.schema.xBreak, state.restore);
 }
 
 /** In percent mode, titles the value axis "Percent of Total" unless the user titled it. */
@@ -178,7 +223,9 @@ function preparePyramid(viz: VizInstance): void {
   const comparison = viz.schema.comparison as RowAccessor | undefined;
   state.comparisonTotal = comparison ? pyramidTotal(frame, comparison) : 0;
   syncTickFormat(viz, state);
-  syncDomain(viz, state);
+  const extent = valueExtent(viz, state);
+  syncGutter(viz, state, extent);
+  syncDomain(viz, state, extent);
   syncTitle(viz, state);
   viz._plotInsetTop = sideTitleInset(viz);
 }
@@ -230,8 +277,12 @@ export const pyramidDef: ChartDefinition = {
       comparisonTotal: 0,
       wrapped: new WeakSet(),
       titleBox: new TextBox(),
+      inset: 0,
+      labelBox: new TextBox(),
     } satisfies PyramidState;
     interceptValue(viz);
+    // Each side stacks outward from its own edge of the center gutter.
+    viz._stackOffset = gutterStackOffset(() => pyramidState(viz).inset);
     // Both sides share one stack per row, so they draw at the same position
     // and diverge from the center line.
     viz._stackGroup = () => "group";
@@ -267,6 +318,8 @@ export const pyramidDef: ChartDefinition = {
         divisor: viz.schema.percent ? state.comparisonTotal : 1,
         titleBox: state.titleBox,
         showTitles: !!viz.schema.sideTitles,
+        inset: state.inset,
+        gutter: state.inset ? edges => gutterLabels(viz, state.labelBox, edges) : undefined,
       });
     };
   },
@@ -279,6 +332,13 @@ export const pyramidDef: ChartDefinition = {
         away from zero.
     */
     {key: "baselineBreak", default: false},
+    /**
+        Where the category labels (e.g. age bands) are drawn: `"center"`
+        (default) down a gutter between the two halves, as wide as the widest
+        label, with each half reading outward from zero at its edge; or
+        `"left"`, on a regular category axis beside the chart.
+    */
+    {key: "categoryPosition", default: "center"},
     /**
         An optional comparison value for each row, drawn as an outline around
         each side's bars (e.g. the same population a decade earlier). Accepts
@@ -356,7 +416,8 @@ export const pyramidDef: ChartDefinition = {
     `groupBy` level, e.g. Male / Female) extending in opposite directions
     from a shared center line, one row per `y` category (e.g. age band).
     Values stay positive — the left side is mirrored internally and the value
-    axis reads magnitudes on both halves. Deeper `groupBy` levels stack
-    within each side.
+    axis reads magnitudes on both halves. The category labels run down a
+    gutter between the halves (or beside the chart, with `categoryPosition`).
+    Deeper `groupBy` levels stack within each side.
 */
 export default makeChart(pyramidDef, BarChart);

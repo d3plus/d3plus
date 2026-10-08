@@ -21,7 +21,8 @@ const rows = [
   {age: "10-19", sex: "Female", pop: 60, before: 50},
 ];
 
-const pyramid = (data = rows) => new Pyramid().data(data).groupBy("sex").y("age").x("pop");
+// The left layout keeps zero exact; the center gutter's own tests are below.
+const pyramid = (data = rows) => new Pyramid().data(data).groupBy("sex").y("age").x("pop").categoryPosition("left");
 
 it("Pyramid pre-draw assigns sides in data order, or as configured", () => {
   const viz = pyramid();

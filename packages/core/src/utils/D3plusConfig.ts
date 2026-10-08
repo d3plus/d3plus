@@ -488,6 +488,8 @@ export interface D3plusConfig {
   colorScalePosition?: false | Position | (() => false | Position);
   /** Column key for matrix-style layouts. */
   column?: string;
+  /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
+  categoryPosition?: "center" | "left";
   /** Pyramid: a comparison value per row (data key or accessor), drawn as an outline around each side's bars. */
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */

@@ -65,7 +65,17 @@ BasicExample.args = {
   x: "Population",
   y: "Age",
 };
-BasicExample.parameters = {controls: {include: ["sides", "sideTitles", "symmetric"]}, docs: {description: {story: "Pass positive values: the first `groupBy` level splits the rows into two sides, the first side (here Male) is mirrored to the left, and the value axis reads magnitudes in both directions from a shared, symmetric center line. `y` categories (age bands) are listed once, bottom to top in data order, and each side is named above its half."}}};
+BasicExample.parameters = {controls: {include: ["categoryPosition", "sides", "sideTitles", "symmetric"]}, docs: {description: {story: "Pass positive values: the first `groupBy` level splits the rows into two sides, the first side (here Male) is mirrored to the left, and the value axis reads magnitudes outward from zero on both halves. The `y` categories (age bands) run down a gutter between the halves, bottom to top in data order, and each side is named above its half."}}};
+
+export const LeftLabels = Template.bind({});
+LeftLabels.args = {
+  data: latest,
+  groupBy: "Sex",
+  x: "Population",
+  y: "Age",
+  categoryPosition: "left",
+};
+LeftLabels.parameters = {controls: {include: ["categoryPosition", "yConfig"]}, docs: {description: {story: "`categoryPosition(\"left\")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line."}}};
 
 export const StackedSides = Template.bind({});
 StackedSides.args = {

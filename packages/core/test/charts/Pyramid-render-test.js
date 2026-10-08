@@ -54,7 +54,8 @@ const probe = ([data, config, year]) =>
       const area = viz._plotArea;
       resolve({
         canvas: !!host.querySelector("canvas.d3plus-render-canvas"),
-        center: origin.left + ct.x + viz._xFunc(0),
+        inner: [-1, 1].map(s => origin.left + ct.x + viz._xFunc(s * viz.ctx.pyramid.inset)),
+        center: origin.left + ct.x + (viz._xFunc(-viz.ctx.pyramid.inset) + viz._xFunc(viz.ctx.pyramid.inset)) / 2,
         plot: area ? {left: origin.left + ct.x + area.x, right: origin.left + ct.x + area.x + area.width, top: origin.top + ct.y} : null,
         bars: svg
           ? Array.from(svg.querySelectorAll("[data-key='plot-zoom-content'] rect.d3plus-render-rect"))
@@ -63,6 +64,7 @@ const probe = ([data, config, year]) =>
           : [],
         xTicks: svg ? Array.from(svg.querySelectorAll("[data-key='plot-x-axis'] text")).map(t => t.textContent) : [],
         yTicks: svg ? Array.from(svg.querySelectorAll("[data-key='plot-y-axis'] text")).map(t => t.textContent) : [],
+        categories: svg ? Array.from(svg.querySelectorAll("[data-key='pyramid-categories'] text")).map(t => ({text: t.textContent, ...box(t)})) : [],
         titles: svg ? Array.from(svg.querySelectorAll("[data-key='pyramid-side-titles'] text")).map(t => ({text: t.textContent, ...box(t)})) : [],
         outlines: svg ? Array.from(svg.querySelectorAll("[data-key^='pyramid-comparison']")).map(n => ({key: n.getAttribute("data-key"), events: n.getAttribute("pointer-events"), dash: n.getAttribute("stroke-dasharray")})) : [],
         domain: viz._xAxis._d3Scale.domain(),
@@ -81,8 +83,8 @@ it("Pyramid mirrors two sides about the center line", async function () {
   const female = out.bars.filter(b => b.key.startsWith("Female"));
   assert.strictEqual(male.length, 4);
   assert.strictEqual(female.length, 4);
-  male.forEach(b => assert.ok(near(b.right, out.center), `${b.key} ends at the center`));
-  female.forEach(b => assert.ok(near(b.left, out.center), `${b.key} starts at the center`));
+  male.forEach(b => assert.ok(near(b.right, out.inner[0]), `${b.key} ends at the gutter's left edge`));
+  female.forEach(b => assert.ok(near(b.left, out.inner[1]), `${b.key} starts at the gutter's right edge`));
   male.forEach(m => {
     const f = female.find(b => b.key.endsWith(m.key.slice(5)));
     assert.ok(near(m.cy, f.cy), `${m.key} shares its row`);
@@ -106,7 +108,12 @@ it("Pyramid's value axis reads magnitudes on both halves", async function () {
   const unique = new Set(numbers);
   assert.ok(numbers.length === unique.size * 2, `each magnitude appears once per side: ${numbers}`);
   assert.ok(near(out.domain[0], -out.domain[1], 1e-9), `symmetric domain ${out.domain}`);
-  assert.deepStrictEqual(out.yTicks, ["30-39", "20-29", "10-19", "0-9"]);
+  assert.deepStrictEqual(out.categories.map(c => c.text), ["30-39", "20-29", "10-19", "0-9"], "categories down the gutter");
+  assert.strictEqual(out.xTicks.filter(t => t === "0").length, 2, "zero at both inner edges");
+  const left = await render(body, probe, [rows, {categoryPosition: "left"}]);
+  assert.deepStrictEqual(left.yTicks, ["30-39", "20-29", "10-19", "0-9"], "left layout: a regular category axis");
+  assert.strictEqual(left.categories.length, 0);
+  assert.ok(left.xTicks.every(t => !/[-−]/.test(t)) && left.xTicks.filter(t => t === "0").length === 1);
 });
 
 it("Pyramid titles each half with its side", async function () {
@@ -114,14 +121,14 @@ it("Pyramid titles each half with its side", async function () {
   const out = await render(body, probe, [rows, {}]);
   assert.deepStrictEqual(out.titles.map(t => t.text), ["Male", "Female"]);
   const [male, female] = out.titles;
-  assert.ok(near(male.cx, (out.plot.left + out.center) / 2, 3), "Male centered over the left half");
-  assert.ok(near(female.cx, (out.center + out.plot.right) / 2, 3), "Female centered over the right half");
+  assert.ok(near(male.cx, (out.plot.left + out.inner[0]) / 2, 3), "Male centered over the left half");
+  assert.ok(near(female.cx, (out.inner[1] + out.plot.right) / 2, 3), "Female centered over the right half");
   const top = Math.min(...out.bars.map(b => b.top));
   assert.ok(male.bottom <= top + 1, "titles sit above the bars");
 
   const flipped = await render(body, probe, [rows, {sides: ["Female", "Male"]}]);
   assert.deepStrictEqual(flipped.titles.map(t => t.text), ["Female", "Male"]);
-  assert.ok(flipped.bars.filter(b => b.key.startsWith("Female")).every(b => near(b.right, flipped.center)), "Female on the left");
+  assert.ok(flipped.bars.filter(b => b.key.startsWith("Female")).every(b => near(b.right, flipped.inner[0])), "Female on the left");
 
   const none = await render(body, probe, [rows, {sideTitles: false}]);
   assert.strictEqual(none.titles.length, 0);
@@ -136,8 +143,8 @@ it("Pyramid stacks sub-groups outward from the center on both sides", async func
   bands.forEach(age => {
     const mu = bar(`Male_Urban_${age}`), mr = bar(`Male_Rural_${age}`);
     const fu = bar(`Female_Urban_${age}`), fr = bar(`Female_Rural_${age}`);
-    assert.ok(near(mu.right, out.center) && near(mr.right, mu.left), `${age}: Male urban then rural, leftward`);
-    assert.ok(near(fu.left, out.center) && near(fr.left, fu.right), `${age}: Female urban then rural, rightward`);
+    assert.ok(near(mu.right, out.inner[0]) && near(mr.right, mu.left), `${age}: Male urban then rural, leftward`);
+    assert.ok(near(fu.left, out.inner[1]) && near(fr.left, fu.right), `${age}: Female urban then rural, rightward`);
     assert.strictEqual(mu.fill, fu.fill, "a sub-group shares its color across sides");
     assert.notStrictEqual(mu.fill, mr.fill);
   });
@@ -212,7 +219,7 @@ it("Pyramid hides a side from the legend without moving the other", async functi
     viz._hidden = ["Male"];
     viz.render(() => {
       const svg = document.querySelector("#viz svg.d3plus-render-svg");
-      const center = document.querySelector("#viz").getBoundingClientRect().left + viz._chartTransform.x + viz._xFunc(0);
+      const center = document.querySelector("#viz").getBoundingClientRect().left + viz._chartTransform.x + viz._xFunc(viz.ctx.pyramid.inset);
       const bars = Array.from(svg.querySelectorAll("[data-key='plot-zoom-content'] rect.d3plus-render-rect"))
         .filter(r => r.getAttribute("data-key").includes("_"))
         .map(r => ({key: r.getAttribute("data-key"), left: r.getBoundingClientRect().left}));
@@ -270,8 +277,9 @@ it("Pyramid paints on the Canvas backend", async function () {
       const dpr = width / canvas.getBoundingClientRect().width;
       const ct = viz._chartTransform;
       const y = Math.round((ct.y + viz._yFunc("0-9")) * dpr);
+      const e = viz.ctx.pyramid.inset;
       const sample = dx => {
-        const x = Math.round((ct.x + viz._xFunc(0) + dx) * dpr);
+        const x = Math.round((ct.x + viz._xFunc(Math.sign(dx) * e) + dx) * dpr);
         const p = ctx.getImageData(x, y, 1, 1).data;
         return `${p[0]},${p[1]},${p[2]}`;
       };
@@ -292,7 +300,7 @@ const axisProbe = ([data, config]) =>
     viz.render(() => {
       const fills = {};
       const walk = (n, group) => {
-        const g = n.key === "pyramid-side-titles" || n.key === "plot-x-axis" ? n.key : group;
+        const g = ["pyramid-side-titles", "pyramid-categories", "plot-x-axis"].includes(n.key) ? n.key : group;
         if (n.type === "text" && g) (fills[g] = fills[g] || []).push(n.paint && n.paint.fill);
         (n.children || []).forEach(c => walk(c, g));
       };
@@ -337,10 +345,94 @@ it("Pyramid's side titles and axis read on a dark background", async function ()
   };
   const dark = '<div id="viz" style="width:700px;height:420px;background:#111"></div>';
   const out = await render(dark, axisProbe, [rows, {}]);
-  for (const key of ["pyramid-side-titles", "plot-x-axis"]) {
+  for (const key of ["pyramid-side-titles", "pyramid-categories", "plot-x-axis"]) {
     assert.ok(out.fills[key] && out.fills[key].length, `${key} has text`);
     out.fills[key].forEach(f => assert.ok(lightness(f) > 0.5, `${key} ${f} reads on dark`));
   }
   const light = await render(body, axisProbe, [rows, {}]);
   light.fills["pyramid-side-titles"].forEach(f => assert.ok(lightness(f) < 0.5, `side title ${f} reads on white`));
+});
+
+/** Renders a Pyramid and measures its gutter, category labels, gridlines, and value ticks. */
+const gutterProbe = ([data, config, year, size]) =>
+  new Promise(resolve => {
+    const host = document.querySelector("#viz");
+    if (size) Object.assign(host.style, {width: `${size[0]}px`, height: `${size[1]}px`});
+    const viz = new window.d3plus.Pyramid()
+      .data(data).groupBy("sex").y("age").x("pop").duration(0).config(config).select("#viz");
+    if (year) viz.timeFilter(d => d.year === year);
+    viz.render(() => {
+      const origin = host.getBoundingClientRect();
+      const ct = viz._chartTransform;
+      const e = viz.ctx.pyramid.inset;
+      const svg = host.querySelector("svg.d3plus-render-svg");
+      const box = el => {
+        const b = el.getBoundingClientRect();
+        return {left: b.left, right: b.right, top: b.top, bottom: b.bottom, cx: (b.left + b.right) / 2, cy: (b.top + b.bottom) / 2};
+      };
+      const bars = Array.from(svg.querySelectorAll("[data-key='plot-zoom-content'] rect.d3plus-render-rect"))
+        .filter(r => r.getAttribute("data-key").includes("_"))
+        .map(r => ({key: r.getAttribute("data-key"), ...box(r)}));
+      resolve({
+        inner: [-1, 1].map(s => origin.left + ct.x + viz._xFunc(s * e)),
+        labels: Array.from(svg.querySelectorAll("[data-key='pyramid-categories'] text")).map(t => ({text: t.textContent, ...box(t)})),
+        grid: Array.from(svg.querySelectorAll("[data-key='plot-x-axis-grid'] path")).map(l => box(l).cx),
+        yTickMarks: svg.querySelectorAll("[data-key='plot-y-axis'] line").length,
+        ticks: Array.from(svg.querySelectorAll("[data-key='plot-x-axis'] text")).map(t => t.textContent),
+        outlines: Array.from(svg.querySelectorAll("[data-key^='pyramid-comparison']")).map(n => n.getAttribute("data-key")),
+        bars,
+        padding: viz._yAxis.shapeConfig().labelConfig.padding,
+      });
+    });
+  });
+
+it("Pyramid centers its category labels in a gutter sized to the widest label", async function () {
+  this.timeout(60000);
+  const long = rows.map(d => ({...d, age: d.age === "30-39" ? "Thirty to thirty-nine" : d.age}));
+  const out = await render(body, gutterProbe, [long, {}]);
+  const width = out.inner[1] - out.inner[0];
+  const widest = Math.max(...out.labels.map(l => l.right - l.left));
+  assert.strictEqual(out.labels.length, 4, "one label per band");
+  assert.ok(width >= widest + 2 * out.padding - 1 && width <= widest + 2 * out.padding + 4, `gutter ${width}px fits the widest label (${widest}px) and its padding`);
+  out.labels.forEach(l => {
+    assert.ok(near(l.cx, (out.inner[0] + out.inner[1]) / 2, 1.5), `${l.text} centered in the gutter`);
+    const bar = out.bars.find(b => b.key.endsWith(l.text));
+    assert.ok(near(l.cy, bar.cy, 3), `${l.text} centered on its band`);
+  });
+  assert.ok(out.grid.every(x => x <= out.inner[0] + 1 || x >= out.inner[1] - 1), `no gridline inside the gutter: ${out.grid}`);
+  assert.ok(out.grid.some(x => x < out.inner[0]) && out.grid.some(x => x > out.inner[1]), `gridlines on both halves: ${out.grid}`);
+  assert.strictEqual(out.yTickMarks, 0, "no category tick marks");
+  const short = await render(body, gutterProbe, [rows, {}]);
+  assert.ok(out.inner[1] - out.inner[0] > short.inner[1] - short.inner[0] + 40, "a longer label widens the gutter");
+  const padded = await render(body, gutterProbe, [rows, {yConfig: {shapeConfig: {labelConfig: {padding: 15}}}}]);
+  assert.ok(near(padded.inner[1] - padded.inner[0], short.inner[1] - short.inner[0] + 20, 2), "padding widens the gutter on both sides");
+});
+
+it("Pyramid thins gutter labels on a short chart", async function () {
+  this.timeout(60000);
+  const many = Array.from({length: 21}, (_, i) => `${i * 5}-${i * 5 + 4}`).flatMap((age, b) => [
+    {age, sex: "Male", pop: 1000 - b * 40},
+    {age, sex: "Female", pop: 1050 - b * 40},
+  ]);
+  const out = await render(body, gutterProbe, [many, {}, undefined, [500, 260]]);
+  assert.ok(out.labels.length >= 2 && out.labels.length < 21, `${out.labels.length} labels`);
+  const sorted = out.labels.slice().sort((a, b) => a.top - b.top);
+  for (let i = 1; i < sorted.length; i++) assert.ok(sorted[i].top >= sorted[i - 1].bottom - 0.5, "labels don't overlap");
+  assert.ok(out.labels.some(l => l.text === "0-4") && out.labels.some(l => l.text === "100-104"), "the first and last bands keep their labels");
+  assert.ok(out.bars.length === 42);
+});
+
+it("Pyramid's center layout keeps percent, comparison, and timeline frames", async function () {
+  this.timeout(60000);
+  const withBefore = years.map(d => ({...d, before: d.pop * 0.9}));
+  const config = {time: "year", axisPersist: true, percent: true, comparison: "before"};
+  const first = await render(body, gutterProbe, [withBefore, config, 2010]);
+  const latest = await render(body, gutterProbe, [withBefore, config]);
+  [first, latest].forEach(out => {
+    assert.strictEqual(out.ticks.filter(t => t === "0%").length, 2, `zero at both edges: ${out.ticks}`);
+    assert.ok(out.ticks.every(t => !/[-−]/.test(t)));
+    assert.strictEqual(out.outlines.length, 2);
+    assert.strictEqual(out.labels.length, 4);
+  });
+  assert.ok(near(first.inner[0], latest.inner[0]) && near(first.inner[1], latest.inner[1]), "the gutter holds still across years");
 });

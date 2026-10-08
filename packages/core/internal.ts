@@ -34,9 +34,17 @@ export {
   pyramidSides,
   pyramidTotal,
   sideSign,
+  snapMagnitude,
   symmetricDomain,
 } from "./src/charts/Pyramid/pyramidData.js";
 export {pyramidStackOrder} from "./src/charts/Pyramid/stackOrder.js";
+export {
+  gutterAxisDefaults,
+  gutterInset,
+  gutterStackOffset,
+  gutterWidth,
+  thinBands,
+} from "./src/charts/Pyramid/gutter.js";
 export {
   bandStep,
   comparisonOutline,
