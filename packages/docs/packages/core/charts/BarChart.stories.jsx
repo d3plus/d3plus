@@ -580,12 +580,12 @@ OutlierBarBreak.args = {
 OutlierBarBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges; a line runs across the plot from each mark, and the gap between the two lines is cut straight across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (`lineConfig` styles the lines, `lines: false` hides them, and `mask: false` leaves the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767)."}}};
 
 const surveyResults = [
-  {region: "North", year: "2023", share: 42, lower: 38.5, upper: 45.6},
-  {region: "North", year: "2024", share: 47, lower: 43.2, upper: 50.9},
-  {region: "South", year: "2023", share: 35, lower: 30.1, upper: 39.8},
-  {region: "South", year: "2024", share: 31, lower: 27.4, upper: 34.7},
-  {region: "West",  year: "2023", share: 51, lower: 45.0, upper: 56.8},
-  {region: "West",  year: "2024", share: 55, lower: 50.3, upper: 59.6}
+  {region: "North", year: "2023", pct: 42, lower: 38.5, upper: 45.6},
+  {region: "North", year: "2024", pct: 47, lower: 43.2, upper: 50.9},
+  {region: "South", year: "2023", pct: 35, lower: 30.1, upper: 39.8},
+  {region: "South", year: "2024", pct: 31, lower: 27.4, upper: 34.7},
+  {region: "West",  year: "2023", pct: 51, lower: 45.0, upper: 56.8},
+  {region: "West",  year: "2024", pct: 55, lower: 50.3, upper: 59.6}
 ];
 
 export const ErrorBars = Template.bind({});
@@ -594,7 +594,7 @@ ErrorBars.args = {
   groupBy: "year",
   confidence: ["lower", "upper"],
   x: "region",
-  y: "share"
+  y: "pct"
 };
 ErrorBars.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off."}}};
 
@@ -609,7 +609,7 @@ ErrorBarsHorizontal.args = {
     strokeWidth: 2
   },
   discrete: "y",
-  x: "share",
+  x: "pct",
   y: "region"
 };
 ErrorBarsHorizontal.parameters = {controls: {include: ["confidence", "confidenceConfig", "discrete"]}, docs: {description: {story: "Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `\"50%\"`)."}}};
@@ -624,6 +624,6 @@ ErrorBarsStacked.args = {
   ],
   stacked: true,
   x: "region",
-  y: "share"
+  y: "pct"
 };
 ErrorBarsStacked.parameters = {controls: {include: ["confidence", "confidenceConfig", "stacked"]}, docs: {description: {story: "On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's. The shared tooltip lists each segment's own bounds after its value."}}};
