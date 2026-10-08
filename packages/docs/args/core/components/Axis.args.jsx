@@ -114,7 +114,7 @@ export const argTypes = assign(
     },
     breakConfig: {
       control: {},
-      description: "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `lines` (whether a Plot\nruns a line across the plot from each mark, default `true`),\n`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over\nthe gridline style), `mask` (whether a Plot cuts the gap between the\nlines across the shapes, default `true`), plus `stroke`/`stroke-width`\nand other line styles for the marks.",
+      description: "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `lines` (whether a Plot\nruns a line across the plot from each mark, default `true`),\n`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over\nthe axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the\nlines across the shapes, default `true`), plus `stroke`/`stroke-width`\nand other line styles for the marks.",
       table: {
         defaultValue: {
           summary: "undefined"

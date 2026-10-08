@@ -1451,7 +1451,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -1472,7 +1472,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -2376,7 +2376,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -2401,7 +2401,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -3373,7 +3373,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -3398,7 +3398,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -4370,7 +4370,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -4395,7 +4395,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -5367,7 +5367,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -5392,7 +5392,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -19504,7 +19504,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -19529,7 +19529,7 @@ line on the tick side so it never reaches into the plot), `angle`
 (degrees each mark tilts from perpendicular), `lines` (whether a Plot
 runs a line across the plot from each mark, default `true`),
 `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-the gridline style), `mask` (whether a Plot cuts the gap between the
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
 lines across the shapes, default `true`), plus `stroke`/`stroke-width`
 and other line styles for the marks.
 
@@ -27367,7 +27367,7 @@ Defined in: core/types/src/utils/D3plusConfig.d.ts:13
 | <a id="property-barconfig"></a> `barConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:14 |
 | <a id="property-baseline"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | core/types/src/utils/D3plusConfig.d.ts:19 |
 | <a id="property-baselinebreak"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | core/types/src/utils/D3plusConfig.d.ts:33 |
-| <a id="property-baselinebreakconfig"></a> `baselineBreakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the baseline break: `space` (pixels of axis between the baseline tick and the first tick after the break, default `36`), `gap` (pixels between the two marks, where the axis line is not drawn, default `5`), `size` (length of each mark, drawn outward from the axis line on the tick side so it never reaches into the plot, default `10`), `angle` (degrees each mark tilts from perpendicular to the axis, default `30`), `lines` (whether a Plot runs a straight line across the plot from the foot of each mark, perpendicular to the axis, default `true`; they draw even when the axis's gridlines are hidden), `lineConfig` (those lines' `stroke`, `stroke-width`, and other line styles, layered over the gridline style), `mask` (whether a Plot cuts the gap between the two lines straight across the shapes, default `false`), plus `stroke`, `stroke-width`, and the other line styles `barConfig` takes, for the marks. | core/types/src/utils/D3plusConfig.d.ts:50 |
+| <a id="property-baselinebreakconfig"></a> `baselineBreakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the baseline break: `space` (pixels of axis between the baseline tick and the first tick after the break, default `36`), `gap` (pixels between the two marks, where the axis line is not drawn, default `5`), `size` (length of each mark, drawn outward from the axis line on the tick side so it never reaches into the plot, default `10`), `angle` (degrees each mark tilts from perpendicular to the axis, default `30`), `lines` (whether a Plot runs a straight line across the plot from the foot of each mark, perpendicular to the axis, default `true`; they take the axis line's `barConfig` style), `lineConfig` (those lines' `stroke`, `stroke-width`, and other line styles, layered over the axis line style), `mask` (whether a Plot cuts the gap between the two lines straight across the shapes, default `false`), plus `stroke`, `stroke-width`, and the other line styles `barConfig` takes, for the marks. | core/types/src/utils/D3plusConfig.d.ts:50 |
 | <a id="property-break"></a> `break?` | `false` \| \[`number`, `number`\] \| \[`number`, `number`\][] | Value ranges to remove from a linear axis: one `[start, end]` pair, or a list of them (`[[start, end], [start, end]]`). Each range collapses to a short fixed gap in the axis, marked like the baseline break, with no ticks or gridlines inside it and both of its edges labeled; the values on either side keep one shared scale. Reversed pairs are flipped, overlapping ones merged, and ranges that don't lie strictly inside the domain (or that don't leave room for the data) are ignored. Only positions change — tooltips and labels still show the real values. | core/types/src/utils/D3plusConfig.d.ts:61 |
 | <a id="property-breakconfig"></a> `breakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the ranges set with `break`: the same `space`, `gap`, `size`, `angle`, `lines`, `lineConfig`, and mark line styles as `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between the break's two lines straight across the shapes) defaulting to `true`. | core/types/src/utils/D3plusConfig.d.ts:68 |
 | <a id="property-domainticks"></a> `domainTicks?` | `boolean` | Whether the domain's min and max are always shown as ticks, even when they aren't among the scale's own "nice" tick values (the nearest nice tick is dropped when it would crowd them). Defaults to `true`; zooming turns it off so a rescaled axis shows only nice values. | core/types/src/utils/D3plusConfig.d.ts:105 |

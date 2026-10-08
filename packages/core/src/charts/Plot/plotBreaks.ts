@@ -11,12 +11,6 @@
     that gap — a real clip, so whatever sits behind the chart shows through
     on SVG and Canvas alike, in any theme.
 */
-// @ts-ignore
-import pkg from "open-color/open-color.js";
-const {theme: openColor} = pkg;
-
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {LineNode, Paint, SceneNode} from "@d3plus/render";
 
 import type Axis from "../../components/Axis/Axis.js";
@@ -72,37 +66,29 @@ function placedBreaks(viz: VizInstance, frame: MaskFrame): PlacedBreak[] {
 /** The config key that styles `brk`. */
 const configKey = (brk: AxisBreak) => (brk.baseline ? "baselineBreakConfig" : "breakConfig");
 
-/** The default gridline gray for the chart's background. */
-function gridGray(viz: VizInstance): string {
-  const bg = viz._select ? backgroundColor(viz._select.node()) : "rgb(255, 255, 255)";
-  const contrast = colorContrast(bg, viz.schema.colorDefaults);
-  return contrast === viz.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
-}
-
 /**
-    The paint for a break's lines: the axis's gridline style, then the break
-    config's `lineConfig` on top. When the gridlines are hidden (a transparent
-    or zero-width stroke) the lines fall back to the default gridline gray,
-    since they belong to the break glyph rather than the grid.
+    The paint for a break's lines: the axis's own axis-line style
+    (`barConfig`), with the break config's `lineConfig` on top, so the lines
+    read as extensions of the axis line they break.
 */
-export function breakLinePaint(viz: VizInstance, axis: Axis, brk: AxisBreak): Paint {
-  const grid = configToPaint(axis, axis.schema.gridConfig as Record<string, unknown>, {id: (brk.start + brk.end) / 2});
-  const own = configToPaint(axis, ((axis.schema[configKey(brk)] || {}) as Record<string, unknown>).lineConfig as Record<string, unknown> || {});
-  const hidden = !grid.stroke || grid.stroke === "transparent" || grid.stroke === "none" || grid.strokeWidth === 0;
-  const base: Paint = hidden ? {stroke: gridGray(viz), strokeWidth: 1} : grid;
-  return {...base, ...own};
+export function breakLinePaint(axis: Axis, brk: AxisBreak): Paint {
+  const bar = configToPaint(axis, axis.schema.barConfig as Record<string, unknown>);
+  const cfg = (axis.schema[configKey(brk)] || {}) as Record<string, unknown>;
+  const own = configToPaint(axis, (cfg.lineConfig || {}) as Record<string, unknown>);
+  return {...bar, ...own};
 }
 
 /**
     The two break lines for every break on the plot's x and y axes whose
     config has `lines` on: straight lines from the foot of each break mark
-    across the plot, perpendicular to the axis. They sit in the gridline
-    layer, behind the shapes, and ignore the pointer.
+    across the plot, perpendicular to the axis, styled like the axis line.
+    They sit in the gridline layer, behind the shapes, and ignore the
+    pointer.
 */
 export function breakLineNodes(viz: VizInstance, frame: MaskFrame): SceneNode[] {
   return placedBreaks(viz, frame).flatMap(({axis, brk, vertical, gap, extent}, i) => {
     if (!breakStyle(axis, configKey(brk)).lines) return [];
-    const paint = breakLinePaint(viz, axis, brk);
+    const paint = breakLinePaint(axis, brk);
     const prefix = `break-line-${vertical ? "y" : "x"}-${i}`;
     return gap.map(
       (g, j): LineNode => ({
@@ -161,7 +147,7 @@ export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFram
       .filter(p => p.vertical === vertical && p.brk.mask)
       .map(({axis, brk, gap, extent}) => {
         const style = breakStyle(axis, configKey(brk));
-        const inset = style.lines ? (breakLinePaint(viz, axis, brk).strokeWidth ?? 1) / 2 : 0;
+        const inset = style.lines ? (breakLinePaint(axis, brk).strokeWidth ?? 1) / 2 : 0;
         return bandPolygon(gap, extent, vertical, inset);
       });
     if (!holes.length) continue;

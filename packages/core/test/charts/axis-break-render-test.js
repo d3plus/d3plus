@@ -174,12 +174,14 @@ it("BarChart: the baseline break looks the same, unmasked unless asked", async f
   assert.deepStrictEqual(masked.masks.map(m => m.key), ["plot-break-mask-y"], "mask on request");
 });
 
-it("Break lines draw with the grid hidden, and lines: false turns them off", async function () {
+it("Break lines follow the axis line's style, and lines: false turns them off", async function () {
   this.timeout(60000);
   const src = `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`;
-  const hidden = await probe(`${src}.yConfig({gridConfig: {stroke: "transparent"}})`);
-  assert.strictEqual(hidden.lines.length, 2);
-  assert.ok(hidden.lines.every(l => l.stroke && l.stroke !== "transparent"), "visible strokes");
+  const styled = await probe(`${src}.yConfig({barConfig: {stroke: "rgb(200, 0, 0)"}, gridConfig: {stroke: "transparent"}})`);
+  assert.strictEqual(styled.lines.length, 2, "drawn even with the grid hidden");
+  assert.ok(styled.lines.every(l => l.stroke === "rgb(200, 0, 0)"), "the axis line's stroke");
+  const own = await probe(`${src}.yConfig({breakConfig: {lineConfig: {stroke: "rgb(0, 0, 200)"}}})`);
+  assert.ok(own.lines.every(l => l.stroke === "rgb(0, 0, 200)"), "lineConfig overrides");
   const off = await probe(`${src}.yConfig({breakConfig: {lines: false}})`);
   assert.strictEqual(off.lines.length, 0);
   assert.strictEqual(off.masks.length, 1, "the mask is independent of the lines");

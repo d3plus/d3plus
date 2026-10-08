@@ -462,7 +462,7 @@ export default class Axis extends BaseClass {
       (degrees each mark tilts from perpendicular), `lines` (whether a Plot
       runs a line across the plot from each mark, default `true`),
       `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
-      the gridline style), `mask` (whether a Plot cuts the gap between the
+      the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
       lines across the shapes, default `true`), plus `stroke`/`stroke-width`
       and other line styles for the marks.
 */

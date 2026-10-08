@@ -78,10 +78,10 @@ export interface AxisConfig {
       tick side so it never reaches into the plot, default `10`), `angle`
       (degrees each mark tilts from perpendicular to the axis, default `30`),
       `lines` (whether a Plot runs a straight line across the plot from the
-      foot of each mark, perpendicular to the axis, default `true`; they draw
-      even when the axis's gridlines are hidden), `lineConfig` (those lines'
-      `stroke`, `stroke-width`, and other line styles, layered over the
-      gridline style), `mask` (whether a Plot cuts the gap between the two
+      foot of each mark, perpendicular to the axis, default `true`; they take
+      the axis line's `barConfig` style), `lineConfig` (those lines'
+      `stroke`, `stroke-width`, and other line styles, layered over the axis
+      line style), `mask` (whether a Plot cuts the gap between the two
       lines straight across the shapes, default `false`), plus `stroke`,
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.

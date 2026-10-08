@@ -83,16 +83,34 @@ it("breakLineNodes covers the baseline break too, and honors lines: false", () =
   assert.strictEqual(breakLineNodes(stubViz(yAxis({breakConfig: {lines: false}})), frame).length, 0);
 });
 
-it("break lines take the gridline style, fall back when the grid is hidden, and take lineConfig", () => {
-  const styled = yAxis({gridConfig: {stroke: "rgb(1, 2, 3)", "stroke-width": 2}});
-  assert.deepStrictEqual(breakLinePaint(stubViz(styled), styled, styled._breaks[0]), {stroke: "rgb(1, 2, 3)", strokeWidth: 2});
-  const hidden = yAxis({gridConfig: {stroke: "transparent"}});
-  const paint = breakLinePaint(stubViz(hidden), hidden, hidden._breaks[0]);
-  assert.ok(paint.stroke && paint.stroke !== "transparent", `still drawn with the grid hidden (${paint.stroke})`);
-  const own = yAxis({breakConfig: {lineConfig: {stroke: "red", "stroke-dasharray": "2 2"}}});
-  const ownPaint = breakLinePaint(stubViz(own), own, own._breaks[0]);
-  assert.strictEqual(ownPaint.stroke, "red");
-  assert.deepStrictEqual(ownPaint.strokeDasharray, [2, 2]);
+it("break lines take the axis line's style, with lineConfig on top", () => {
+  const plain = yAxis();
+  const bar = plain.toScene().children.find(n => n.key === "bar").paint;
+  assert.deepStrictEqual(breakLinePaint(plain, plain._breaks[0]), bar, "same paint as the axis line");
+  const styled = yAxis({barConfig: {stroke: "rgb(1, 2, 3)", "stroke-width": 2, "stroke-dasharray": "3 1", "stroke-opacity": 0.5}});
+  assert.deepStrictEqual(breakLinePaint(styled, styled._breaks[0]), {
+    stroke: "rgb(1, 2, 3)",
+    strokeWidth: 2,
+    strokeOpacity: 0.5,
+    strokeDasharray: [3, 1],
+  }, "the user's axis styling flows through");
+  const gridless = yAxis({gridConfig: {stroke: "transparent", "stroke-width": 4}});
+  assert.deepStrictEqual(breakLinePaint(gridless, gridless._breaks[0]), bar, "gridline styling doesn't apply");
+  const own = yAxis({barConfig: {stroke: "blue"}, breakConfig: {lineConfig: {stroke: "red", "stroke-width": 3}}});
+  const ownPaint = breakLinePaint(own, own._breaks[0]);
+  assert.strictEqual(ownPaint.stroke, "red", "lineConfig overrides the axis line");
+  assert.strictEqual(ownPaint.strokeWidth, 3);
+  const base = compute(new AxisLeft().domain([2100, 1100]).height(400).width(300).baselineBreak(true).barConfig({stroke: "green"}));
+  assert.strictEqual(breakLinePaint(base, base._breaks[0]).stroke, "green", "the baseline break too");
+  base.baselineBreakConfig({lineConfig: {stroke: "purple"}});
+  assert.strictEqual(breakLinePaint(base, base._breaks[0]).stroke, "purple", "with its own lineConfig");
+});
+
+it("breakLineNodes paint every line with the axis line style", () => {
+  const y = yAxis({barConfig: {stroke: "rgb(9, 9, 9)"}});
+  breakLineNodes(stubViz(y), frame).forEach(n => assert.strictEqual(n.paint.stroke, "rgb(9, 9, 9)"));
+  const x = xAxis({barConfig: {stroke: "rgb(8, 8, 8)"}});
+  breakLineNodes(stubViz(undefined, x, "y"), frame).forEach(n => assert.strictEqual(n.paint.stroke, "rgb(8, 8, 8)"));
 });
 
 it("maskBreaks cuts each masked break's gap as a straight band, per axis", () => {
