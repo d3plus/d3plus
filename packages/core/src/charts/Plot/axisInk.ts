@@ -17,6 +17,8 @@ export function withAxisInk(
   return assign(
     {
       barConfig: {stroke: ink},
+      baselineBreakConfig: {stroke: ink},
+      breakConfig: {stroke: ink},
       shapeConfig: {fill: ink, labelConfig: {fontColor: ink}, stroke: ink},
       titleConfig: {fontColor: ink},
     },

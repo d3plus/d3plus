@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The baseline for the x/y plot.",
+      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -205,6 +205,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    baselineBreak: {
+      control: {
+        type: "boolean"
+      },
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     buffer: {
@@ -1829,13 +1844,28 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    xBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the x axis — `[start, end]` or a list of\nthem — drawn as a break in the axis with a gap cut across the shapes\nthat cross it (see the axis `break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
+      }
+    },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },
@@ -1960,13 +1990,28 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    yBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the y axis — `[start, end]` or a list of\nthem, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the\naxis with a gap cut across the shapes that cross it (see the axis\n`break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
+      }
+    },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg, this.schema.colorDefaults);\n  return contrast === this.schema.colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },

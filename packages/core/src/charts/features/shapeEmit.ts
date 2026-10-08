@@ -28,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
+import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
@@ -73,6 +74,9 @@ export interface ShapeEmitContext {
   labelPositions: Record<string, number>;
 
   width: number;
+
+  /** Pixel span of the value axis; bars are clamped inside it. */
+  valueExtent?: [number, number];
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -146,7 +150,7 @@ const barEmit: ShapeEmitter = ctx => {
   const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values} = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
-    .config(buildInner(ctx, "Bar"))
+    .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
     .data(values);
 
   const scale = viz.schema.discrete === "x" ? x : y;

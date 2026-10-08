@@ -1,5 +1,6 @@
 /**
-    BarChart — Plot with `baseline: 0`, `discrete: "x"`, `shape: "Bar"`.
+    BarChart — Plot with `baseline: 0`, `baselineBreak: true`, `discrete: "x"`,
+    `shape: "Bar"`.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -21,6 +22,7 @@ export const barChartDef: ChartDefinition = {
 
   fields: [
     {key: "baseline", default: 0},
+    {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
     {key: "tooltipConfig", merge: true, factory: stackShareTooltipConfig},

@@ -44,6 +44,7 @@ import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measur
 import type {XLabelMode} from "./axisEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
 import {buildXConfig} from "./xAxisConfig.js";
+import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {LabelWidth, PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -149,7 +150,7 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(viz._yConfig)
+      .config(plotAxisConfig(viz, "y"))
       .scale(yConfigScale)
       .measure();
   }
@@ -208,7 +209,7 @@ function measureXTestAxes(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(viz._xConfig)
+      .config(plotAxisConfig(viz, "x"))
       .config(xOverrides)
       .scale(xConfigScale)
       .measure();
@@ -227,7 +228,7 @@ function measureXTestAxes(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(viz._xConfig)
+      .config(plotAxisConfig(viz, "x"))
       .config(xOverrides)
       .scale(xConfigScale)
       .measure();
@@ -345,7 +346,7 @@ function solveFinalYAxes(
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(viz._yConfig)
+      .config(plotAxisConfig(viz, "y"))
       .scale(yConfigScale)
       .measure();
   }
@@ -453,7 +454,7 @@ function renderXAxes(
     .ticks(xTicks)
     .width(width)
     .config(xC)
-    .config(viz._xConfig)
+    .config(plotAxisConfig(viz, "x"))
     .config(pCtx.zoomAxes?.x ?? {})
     .scale(xConfigScale);
   // Labeling its ends, the axis draws only its gridlines, up from the plot's bottom edge.
@@ -544,7 +545,7 @@ function renderYAxes(
     .ticks(yTicks)
     .width(xRange[xRange.length - 1])
     .config(yC)
-    .config(viz._yConfig)
+    .config(plotAxisConfig(viz, "y"))
     .config(pCtx.zoomAxes?.y ?? {})
     .scale(yConfigScale)
     .render();

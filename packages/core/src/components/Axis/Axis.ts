@@ -13,6 +13,7 @@ import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
 import {gridStroke} from "./gridStroke.js";
+import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
 import {
   axisToScene,
   buildTickData,
@@ -29,6 +30,9 @@ import type {ConfigField} from "../../fluent.js";
 /** Axis's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const axisSchema: ConfigField[] = [
   {key: "align", coerce: "identity", default: "middle"},
+  {key: "baseline", coerce: "identity", default: 0},
+  {key: "baselineBreak", coerce: "identity", default: false},
+  {key: "break", coerce: "identity", default: false},
   {key: "domain", coerce: "identity", default: [0, 10]},
   {key: "domainTicks", coerce: "identity", default: true},
   {key: "duration", coerce: "identity", default: 600},
@@ -95,6 +99,10 @@ export default class Axis extends BaseClass {
   _gridLineData?: {id: unknown}[];
   _d3Scale: D3Scale | null = null;
   _d3ScaleNegative: D3Scale | null = null;
+  /** The active baseline break, set by the layout pass (see `baselineBreak`). */
+  _baselineBreak: AxisBaselineBreak | null = null;
+  /** Every active break (baseline and explicit), set by the layout pass. */
+  _breaks: AxisBreak[] = [];
   _group!: D3Selection;
   _lastScale: ((d: unknown) => number) | undefined;
   _availableTicks: unknown[];
@@ -127,6 +135,22 @@ export default class Axis extends BaseClass {
       },
       "stroke-width": 1,
     };
+    const breakDefaults = (mask: boolean) => ({
+      angle: 30,
+      gap: 5,
+      lineConfig: {},
+      lines: true,
+      mask,
+      size: 10,
+      space: 36,
+      stroke: () => {
+        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        return colorContrast(bg, this.schema.colorDefaults);
+      },
+      "stroke-width": 1,
+    });
+    this.schema.baselineBreakConfig = breakDefaults(false);
+    this.schema.breakConfig = breakDefaults(true);
     this.schema.gridConfig = {
       stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
       "stroke-width": 1,
@@ -197,13 +221,16 @@ export default class Axis extends BaseClass {
 
 
   /**
-      Returns the scale's domain, taking into account negative and positive log scales.
+      Returns the scale's domain, taking into account negative and positive log
+      scales and reaching to a baseline break's baseline.
       @private
 */
   _getDomain(): unknown[] {
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.domain();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.domain());
+    // A baseline break extends the axis to its baseline.
+    if (this._baselineBreak) ticks = ticks.concat([this._baselineBreak.value]);
 
     const domain = ["band", "ordinal", "point"].includes(this.schema.scale)
       ? ticks
@@ -239,6 +266,7 @@ export default class Axis extends BaseClass {
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative) ticks = this._d3ScaleNegative.range();
     if (this._d3Scale) ticks = ticks.concat(this._d3Scale.range());
+    if (this._baselineBreak) ticks.push(this._baselineBreak.position);
     return (ticks[0] as number) > (ticks[1] as number)
       ? (extent(ticks as number[]) as unknown[]).reverse()
       : (extent(ticks as number[]) as unknown[]);
@@ -427,6 +455,46 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this.schema.barConfig = Object.assign(this.schema.barConfig, _)), this)
       : this.schema.barConfig;
+  }
+
+  /**
+      Style of the breaks set with `break`: `space` (pixels of axis each break
+      occupies), `gap` (pixels between its two marks, where the axis line is
+      not drawn), `size` (length of each mark, drawn outward from the axis
+      line on the tick side so it never reaches into the plot), `angle`
+      (degrees each mark tilts from perpendicular), `lines` (whether a Plot
+      runs a line across the plot from each mark, default `true`),
+      `lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+      the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+      lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+      and other line styles for the marks.
+*/
+  breakConfig(): Record<string, unknown>;
+  breakConfig(_: Record<string, unknown>): this;
+  breakConfig(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.breakConfig = Object.assign(this.schema.breakConfig, _)), this)
+      : this.schema.breakConfig;
+  }
+
+  /**
+      Style of the break drawn when `baselineBreak` is on and the domain stops
+      short of `baseline`: `space` (pixels of axis between the baseline tick
+      and the first tick after the break), `gap` (pixels between the two
+      break marks, where the axis line is not drawn), `size` (length of each
+      mark, drawn outward from the axis line on the tick side so it never
+      reaches into the plot), `angle` (degrees each mark tilts from
+      perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+      the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+      cuts the gap between those lines across the bars, default `false`),
+      plus `stroke`/`stroke-width` and other line styles for the marks.
+*/
+  baselineBreakConfig(): Record<string, unknown>;
+  baselineBreakConfig(_: Record<string, unknown>): this;
+  baselineBreakConfig(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.baselineBreakConfig = Object.assign(this.schema.baselineBreakConfig, _)), this)
+      : this.schema.baselineBreakConfig;
   }
 
   /**

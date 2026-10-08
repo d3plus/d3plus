@@ -528,3 +528,53 @@ StackOrderByField.args = {
   y: "units"
 };
 StackOrderByField.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: \"profit\", order: \"ascending\"}` to reverse."}}};
+
+const housingStarts = [
+  {year: 2019, starts: 1290},
+  {year: 2020, starts: 1380},
+  {year: 2021, starts: 1601},
+  {year: 2022, starts: 1553},
+  {year: 2023, starts: 1420},
+  {year: 2024, starts: 1367}
+];
+
+export const BaselineBreak = Template.bind({});
+BaselineBreak.args = {
+  baselineBreak: true,
+  data: housingStarts,
+  groupBy: "year",
+  x: "year",
+  y: "starts",
+  yDomain: [1200, 1700]
+};
+BaselineBreak.parameters = {controls: {include: ["baselineBreak", "yDomain"]}, docs: {description: {story: "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`). See [#645](https://github.com/d3plus/d3plus/issues/645)."}}};
+
+export const HorizontalBaselineBreak = Template.bind({});
+HorizontalBaselineBreak.args = {
+  data: housingStarts,
+  discrete: "y",
+  groupBy: "year",
+  x: "starts",
+  xConfig: {
+    baselineBreakConfig: {angle: 45, gap: 6, size: 14},
+    domain: [1200, 1700]
+  },
+  y: "year"
+};
+HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};
+
+export const OutlierBarBreak = Template.bind({});
+OutlierBarBreak.args = {
+  data: [
+    {region: "North", sales: 42},
+    {region: "South", sales: 58},
+    {region: "East", sales: 35},
+    {region: "Online", sales: 960},
+    {region: "West", sales: 51}
+  ],
+  groupBy: "region",
+  x: "region",
+  y: "sales",
+  yBreak: [80, 900]
+};
+OutlierBarBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges; a line runs across the plot from each mark, and the gap between the two lines is cut straight across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (`lineConfig` styles the lines, `lines: false` hides them, and `mask: false` leaves the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767)."}}};

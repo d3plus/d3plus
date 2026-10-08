@@ -20,6 +20,8 @@ import * as shapes from "../../shapes/index.js";
 import {renderAxes} from "./axes.js";
 import {emitEndLabels} from "./axisEndLabels.js";
 import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
+import {valueAxisExtent} from "../Plot/baselineBreak.js";
+import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
@@ -448,7 +450,7 @@ function emitShapeLoop(
   const {labelWidths, largestLabel} = pCtx;
   const {width} = pCtx;
   const {opp, showLineLabels} = pCtx;
-  const {x, y, xRange, yRange, labelPositions} = mCtx;
+  const {x, y, xRange, yRange, labelPositions, yOffset} = mCtx;
 
   const events = Object.keys(viz.schema.on);
   // Precompute id→index and discrete→index Maps once per draw. Without
@@ -469,6 +471,7 @@ function emitShapeLoop(
     showLineLabels, labelWidths, largestLabel, labelPositions,
     width,
     values: [],
+    valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
@@ -572,8 +575,10 @@ export function plotEmit(
 
     emitBackgroundRect(viz, out, xRange, yRange);
 
-    // Gridlines sit just above the background, behind the data shapes.
+    // Gridlines sit just above the background, behind the data shapes, with
+    // each axis break's lines across the plot among them.
     out.push(...axisScenes.grid);
+    out.push(...breakLineNodes(viz, {xRange, yRange, x2Height: pCtx.x2Height}));
 
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
@@ -600,9 +605,11 @@ export function plotEmit(
     // rescaled shapes can't paint over the axes. The group is emitted
     // unzoomed too, so the first zoom tick updates it in place rather than
     // re-entering every shape.
+    // Breaks with a mask cut their gap across everything below the axes.
+    const masked = maskBreaks(viz, out, {xRange, yRange, x2Height: pCtx.x2Height});
     const content = viz.schema.zoom
-      ? [{type: "group", key: PLOT_ZOOM_CONTENT_KEY, ...(clip ? {clip} : {}), children: out} as SceneNode]
-      : out;
+      ? [{type: "group", key: PLOT_ZOOM_CONTENT_KEY, ...(clip ? {clip} : {}), children: masked} as SceneNode]
+      : masked;
 
     const endLabels = emitEndLabels(viz._xAxis!, mCtx.xEndLabels ?? []);
     if (endLabels) tagAxisGroup(endLabels);

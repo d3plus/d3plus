@@ -51,6 +51,80 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    baseline: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0,
+      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    baselineBreak: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
+    baselineBreakConfig: {
+      control: {},
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the bars, default `false`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
+    break: {
+      control: {
+        type: "object"
+      },
+      defaultValue: false,
+      description: "Value ranges to remove from a linear axis: one `[start, end]` pair, or a\nlist of them (`[[start, end], [start, end]]`). Each range collapses to a\nshort fixed gap in the axis, marked like the baseline break, with no\nticks or gridlines inside it and both of its edges labeled; the values\non either side keep one shared scale. Reversed pairs are flipped,\noverlapping ones merged, and ranges that don't lie strictly inside the\ndomain (or that don't leave room for the data) are ignored. Only\npositions change — tooltips and labels still show the real values.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | * | array.&lt;*&gt;"
+      }
+    },
+    breakConfig: {
+      control: {},
+      description: "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `lines` (whether a Plot\nruns a line across the plot from each mark, default `true`),\n`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over\nthe axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the\nlines across the shapes, default `true`), plus `stroke`/`stroke-width`\nand other line styles for the marks.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "record"
+      }
+    },
     colorDefaults: {
       control: {},
       description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",

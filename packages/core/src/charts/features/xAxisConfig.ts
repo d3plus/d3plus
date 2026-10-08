@@ -2,6 +2,7 @@
     The shared config Plot's x and x2 axes start from (see `measureAxes`).
 */
 import {withAxisInk} from "../Plot/axisInk.js";
+import {baselineBreakAxisConfig} from "../Plot/baselineBreak.js";
 import type {AxisMeasureInputs} from "./axes.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -14,6 +15,7 @@ export function buildXConfig(viz: Viz, inputs: AxisMeasureInputs): Record<string
     locale: viz.schema.locale,
     rounding: viz.schema.xDomain || (viz._discreteExtent && viz.schema.discrete === "x") ? "none" : "outside",
     scalePadding: xScalePadding,
+    ...baselineBreakAxisConfig(viz, "x"),
   };
 
   return withAxisInk(viz, xC);

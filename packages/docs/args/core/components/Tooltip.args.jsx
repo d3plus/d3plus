@@ -397,7 +397,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: [],
-      description: "",
+      description: "Body rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and\nstacked Plot charts `x.share` is the row's fraction of its total, unless\nthe data has its own `share` field (then `x.share` is that field).",
       table: {
         defaultValue: {
           summary: "[]"
@@ -452,7 +452,7 @@ export const argTypes = assign(
         type: "object"
       },
       defaultValue: [],
-      description: "",
+      description: "Header rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and\nstacked Plot charts `x.share` is the row's fraction of its total, unless\nthe data has its own `share` field (then `x.share` is that field).",
       table: {
         defaultValue: {
           summary: "[]"
