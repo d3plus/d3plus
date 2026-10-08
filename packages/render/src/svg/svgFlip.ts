@@ -5,6 +5,7 @@ import {collapse, collapseTo, isFlipEligible} from "../animate/interpolate.js";
 import type {FlipTransition} from "../animate/diff.js";
 import type {SceneNode} from "../scene.js";
 import {applyGeometry} from "./svgNodeAttrs.js";
+import {trackTransition} from "./svgClock.js";
 
 /** The transition `_reconcile` threads through the reconcile recursion. */
 type RenderTransition = Transition<BaseType, unknown, null, undefined>;
@@ -72,7 +73,7 @@ export function reconcileExit(
   const exitTo = flip?.exitTo;
   const exitToBody = flip?.exitToBody;
   exit.each(function (this: Element, d: SceneNode) {
-    const tsel = select(this).transition(t);
+    const tsel = trackTransition(select(this).transition(t), t);
     const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
     applyGeometry(tsel, end, true, resolveFill);
     tsel.remove();

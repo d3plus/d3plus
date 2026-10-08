@@ -1,5 +1,5 @@
 import {type BaseType, select, type Selection} from "d3-selection";
-import {transition, type Transition} from "d3-transition";
+import type {Transition} from "d3-transition";
 import textures from "textures";
 
 import type {FlipTransition} from "../animate/diff.js";
@@ -8,6 +8,7 @@ import type {TrailParts} from "../animate/trail.js";
 import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
 import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
 import {enterStart, reconcileExit} from "./svgFlip.js";
+import {clockedTransition, trackTransition} from "./svgClock.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {
@@ -184,7 +185,7 @@ export default class SvgRenderer implements Renderer {
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
 
-    const t = transition().duration(duration);
+    const t = clockedTransition(duration);
     const flip: FlipTransition = {
       enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
       exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
@@ -386,7 +387,7 @@ export default class SvgRenderer implements Renderer {
         duration && canTrail && !persistTrail ? stash.__d3plusTrailPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
-        const tsel = s.transition(t);
+        const tsel = trackTransition(s.transition(t), t);
         applyGeometry(tsel, d, true, resolveFill);
         if (
           d.type === "text" &&
