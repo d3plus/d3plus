@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../../umd/d3plus-core.full.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 8px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 0 16px 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      Renderer:
+      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
+      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+    </div>
+    <div class="grid">
+      <section>
+        <h3>Baseline break: yDomain([1100, 1700])</h3>
+        <div class="viz" id="baseline"></div>
+      </section>
+      <section>
+        <h3>baselineBreak(false): yDomain stretches to 0</h3>
+        <div class="viz" id="baselineOff"></div>
+      </section>
+      <section>
+        <h3>Outlier bar: yBreak([80, 900])</h3>
+        <div class="viz" id="outlier"></div>
+      </section>
+      <section>
+        <h3>Same, yConfig.breakConfig({mask: false})</h3>
+        <div class="viz" id="noMask"></div>
+      </section>
+      <section>
+        <h3>Horizontal bars: xBreak([90, 600])</h3>
+        <div class="viz" id="horizontal"></div>
+      </section>
+      <section>
+        <h3>LinePlot, two breaks: yBreak([[70, 400], [460, 900]])</h3>
+        <div class="viz" id="line"></div>
+      </section>
+    </div>
+
+    <script>
+
+      const starts = [
+        {year: 2019, starts: 1290},
+        {year: 2020, starts: 1380},
+        {year: 2021, starts: 1601},
+        {year: 2022, starts: 1553},
+        {year: 2023, starts: 1420},
+        {year: 2024, starts: 1367},
+      ];
+
+      const sales = [
+        {region: "North", sales: 42},
+        {region: "South", sales: 58},
+        {region: "East", sales: 35},
+        {region: "Online", sales: 960},
+        {region: "West", sales: 51},
+      ];
+
+      const teams = [
+        {team: "Design", hours: 64},
+        {team: "Support", hours: 48},
+        {team: "Platform", hours: 712},
+        {team: "Sales", hours: 77},
+      ];
+
+      // Three bands of values: everyday latency, a mid-size spike, and an outlier.
+      const latency = [
+        {service: "API", day: 1, ms: 42},
+        {service: "API", day: 2, ms: 48},
+        {service: "API", day: 3, ms: 430},
+        {service: "API", day: 4, ms: 45},
+        {service: "API", day: 5, ms: 940},
+        {service: "API", day: 6, ms: 51},
+        {service: "API", day: 7, ms: 55},
+        {service: "Web", day: 1, ms: 30},
+        {service: "Web", day: 2, ms: 34},
+        {service: "Web", day: 3, ms: 38},
+        {service: "Web", day: 4, ms: 445},
+        {service: "Web", day: 5, ms: 36},
+        {service: "Web", day: 6, ms: 31},
+        {service: "Web", day: 7, ms: 40},
+      ];
+
+      const charts = [
+        new d3plus.BarChart()
+          .select("#baseline")
+          .data(starts)
+          .groupBy("year")
+          .x("year")
+          .y("starts")
+          .yDomain([1100, 1700]),
+        new d3plus.BarChart()
+          .select("#baselineOff")
+          .data(starts)
+          .groupBy("year")
+          .x("year")
+          .y("starts")
+          .yDomain([1100, 1700])
+          .baselineBreak(false),
+        new d3plus.BarChart()
+          .select("#outlier")
+          .data(sales)
+          .groupBy("region")
+          .x("region")
+          .y("sales")
+          .yBreak([80, 900]),
+        new d3plus.BarChart()
+          .select("#noMask")
+          .data(sales)
+          .groupBy("region")
+          .x("region")
+          .y("sales")
+          .yBreak([80, 900])
+          .yConfig({breakConfig: {mask: false}}),
+        new d3plus.BarChart()
+          .select("#horizontal")
+          .data(teams)
+          .groupBy("team")
+          .discrete("y")
+          .x("hours")
+          .y("team")
+          .xBreak([90, 600]),
+        new d3plus.LinePlot()
+          .select("#line")
+          .data(latency)
+          .groupBy("service")
+          .x("day")
+          .y("ms")
+          .yBreak([[70, 400], [460, 900]]),
+      ];
+
+      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      draw("svg");
+
+      document.querySelectorAll("input[name=renderer]").forEach(input =>
+        input.addEventListener("change", () => draw(input.value)));
+
+    </script>
+
+  </body>
+
+</html>
