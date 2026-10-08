@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Error Bars</title>
+    <meta name="description" content="Confidence error bars on vertical, horizontal (styled) and stacked bars, a LinePlot confidence band, and one-sided bounds, with one button that toggles confidence(false) on every chart.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 8px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 0 16px 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      Renderer:
+      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
+      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <button id="toggle">confidence(false)</button>
+    </div>
+    <div class="grid">
+      <section>
+        <h3>Vertical grouped bars</h3>
+        <div class="viz" id="grouped"></div>
+      </section>
+      <section>
+        <h3>Horizontal bars, styled error bars</h3>
+        <div class="viz" id="horizontal"></div>
+      </section>
+      <section>
+        <h3>Stacked bars</h3>
+        <div class="viz" id="stacked"></div>
+      </section>
+      <section>
+        <h3>LinePlot confidence band</h3>
+        <div class="viz" id="line"></div>
+      </section>
+      <section>
+        <h3>One-sided bounds ([false, "upper"]), one row without a bound</h3>
+        <div class="viz" id="onesided"></div>
+      </section>
+    </div>
+
+    <script>
+
+      const survey = [
+        {region: "North", year: "2023", pct: 42, lower: 38.5, upper: 45.6},
+        {region: "North", year: "2024", pct: 47, lower: 43.2, upper: 50.9},
+        {region: "South", year: "2023", pct: 35, lower: 30.1, upper: 39.8},
+        {region: "South", year: "2024", pct: 31, lower: 27.4, upper: 34.7},
+        {region: "West", year: "2023", pct: 51, lower: 45.0, upper: 56.8},
+        {region: "West", year: "2024", pct: 55, lower: 50.3, upper: 59.6},
+      ];
+
+      const sales = [];
+      ["Online", "Retail"].forEach((channel, c) => {
+        for (let month = 1; month <= 8; month++) {
+          const value = 40 + c * 25 + month * (4 - c) + (month % 3) * 3;
+          const moe = 3 + (month % 4) + c * 2;
+          sales.push({channel, month, value, lower: value - moe, upper: value + moe});
+        }
+      });
+
+      const capped = [
+        {team: "Alpha", value: 24, upper: 31},
+        {team: "Beta", value: 18, upper: 22},
+        {team: "Gamma", value: 30},
+        {team: "Delta", value: 12, upper: 19},
+      ];
+
+      // Each chart's interval, restored when the toggle turns it back on.
+      const charts = [
+        {
+          confidence: ["lower", "upper"],
+          viz: new d3plus.BarChart()
+            .select("#grouped")
+            .data(survey)
+            .groupBy("year")
+            .x("region")
+            .y("pct"),
+        },
+        {
+          confidence: ["lower", "upper"],
+          viz: new d3plus.BarChart()
+            .select("#horizontal")
+            .data(survey.filter(d => d.year === "2024"))
+            .groupBy("region")
+            .discrete("y")
+            .x("pct")
+            .y("region")
+            .confidenceConfig({capWidth: 10, stroke: "#343a40", strokeWidth: 2}),
+        },
+        {
+          confidence: [d => d.lower, d => d.upper],
+          viz: new d3plus.BarChart()
+            .select("#stacked")
+            .data(survey)
+            .groupBy("year")
+            .stacked(true)
+            .x("region")
+            .y("pct"),
+        },
+        {
+          confidence: ["lower", "upper"],
+          viz: new d3plus.LinePlot()
+            .select("#line")
+            .data(sales)
+            .groupBy("channel")
+            .x("month")
+            .y("value"),
+        },
+        {
+          confidence: [false, "upper"],
+          viz: new d3plus.BarChart()
+            .select("#onesided")
+            .data(capped)
+            .groupBy("team")
+            .x("team")
+            .y("value"),
+        },
+      ];
+
+      let renderer = "svg";
+      let on = true;
+      const draw = () => charts.forEach(c =>
+        c.viz.renderer(renderer).confidence(on ? c.confidence : false).render());
+      draw();
+
+      document.querySelectorAll("input[name=renderer]").forEach(input =>
+        input.addEventListener("change", () => {
+          renderer = input.value;
+          draw();
+        }));
+      const toggle = document.querySelector("#toggle");
+      toggle.addEventListener("click", () => {
+        on = !on;
+        toggle.textContent = on ? "confidence(false)" : "restore confidence";
+        draw();
+      });
+
+    </script>
+
+  </body>
+
+</html>
