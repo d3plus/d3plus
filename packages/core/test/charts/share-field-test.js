@@ -120,7 +120,7 @@ it("Pie and Donut keep a data field named share while labeling d3plus's share", 
   }, {h: helpers, list: ["Pie", "Donut"]});
 
   for (const [name, r] of Object.entries(out)) {
-    for (const pct of ["50%", "30%", "20%"]) assert.ok(r.texts.includes(pct), `${name}: labels ${pct}`);
+    for (const pct of ["50%", "30%", "20%"]) assert.ok(r.texts.includes(pct), `${name}: labels ${pct} (drew ${JSON.stringify(r.texts)})`);
     assert.ok(r.tip.some(row => row[0] === "Share" && row[1] === "50%"), `${name}: Share row ${JSON.stringify(r.tip)}`);
     assert.deepStrictEqual(r.filtered.slice().sort(), [7, 8, 9], `${name}: charted rows keep the user's share`);
     assert.deepStrictEqual(r.caller, [7, 8, 9], `${name}: the caller's objects are untouched`);
@@ -151,7 +151,8 @@ it("Treemap keeps a data field named share while labeling d3plus's share", async
     };
   }, {h: helpers});
 
-  for (const pct of ["50%", "30%", "20%"]) assert.ok(out.texts.includes(pct), `labels ${pct}`);
+  for (const pct of ["50%", "30%", "20%"])
+    assert.ok(out.texts.includes(pct), `labels ${pct} (drew ${JSON.stringify(out.texts)})`);
   assert.ok(out.aria.some(a => a.includes("alpha") && a.includes("50%")), "aria-label carries d3plus's share");
   assert.ok(out.tip.some(row => row[0] === "Share" && row[1] === "50%"), `Share row ${JSON.stringify(out.tip)}`);
   assert.deepStrictEqual(out.rows, [7, 8, 9], "each cell's row keeps the user's share");

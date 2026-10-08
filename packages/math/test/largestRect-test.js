@@ -62,3 +62,30 @@ it("geom/largestRect", () => {
   rect = largestRect(poly, {cache: false});
   assert.ok(rect && rect.area > 0, "cache disabled");
 });
+
+it("geom/largestRect is deterministic", () => {
+  // A donut-like ring segment: concave, so the sampled origins matter.
+  const ring = [];
+  for (let a = 0; a <= 72; a += 6) {
+    const r = (a * Math.PI) / 180;
+    ring.push([100 * Math.sin(r), -100 * Math.cos(r)]);
+  }
+  for (let a = 72; a >= 0; a -= 6) {
+    const r = (a * Math.PI) / 180;
+    ring.push([50 * Math.sin(r), -50 * Math.cos(r)]);
+  }
+
+  const random = Math.random;
+  Math.random = () => {
+    throw new Error("largestRect sampled Math.random");
+  };
+  let first, second;
+  try {
+    first = largestRect(ring, {angle: 0, cache: false});
+    second = largestRect(ring, {angle: 0, cache: false});
+  } finally {
+    Math.random = random;
+  }
+  assert.ok(first && first.area > 0, "finds a rectangle");
+  assert.deepStrictEqual(second, first, "the same polygon yields the same rectangle");
+});
