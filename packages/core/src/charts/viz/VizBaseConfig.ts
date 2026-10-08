@@ -548,7 +548,7 @@ Defaults to an empty array (`[]`).
 */
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendTooltip = assign(this.schema.legendTooltip, _!)), this)
+      ? ((this.schema.legendTooltip = assign({}, this.schema.legendTooltip, _!)), this)
       : this.schema.legendTooltip;
   }
 }

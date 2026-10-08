@@ -233,7 +233,7 @@ export default class VizBase extends VizBaseConfig {
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
     if (!arguments.length) return this.schema.shapeConfig;
     validateShapeConfig(this.constructor.name, _!);
-    this.schema.shapeConfig = assign(this.schema.shapeConfig, _!);
+    this.schema.shapeConfig = assign({}, this.schema.shapeConfig, _!);
     return this;
   }
 
@@ -474,7 +474,7 @@ export default class VizBase extends VizBaseConfig {
 */
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.tooltipConfig = assign(this.schema.tooltipConfig, _!)), this)
+      ? ((this.schema.tooltipConfig = assign({}, this.schema.tooltipConfig, _!)), this)
       : this.schema.tooltipConfig;
   }
 

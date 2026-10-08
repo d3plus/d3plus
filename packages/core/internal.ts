@@ -46,7 +46,7 @@ export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
-export {createFluent, installFluent} from "./src/fluent.js";
+export {createFluent, installFluent, isFluentAccessor} from "./src/fluent.js";
 
 // ── Pipeline orchestration + the config/context boundary ─────────────────────
 export {runStages} from "./src/charts/pipeline/stages.js";
