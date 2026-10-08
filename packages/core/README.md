@@ -1239,7 +1239,7 @@ The y1 (bottom edge) position accessor for the area.
 
 ### Axis
 
-Defined in: [components/Axis/Axis.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L71)
+Defined in: [components/Axis/Axis.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L69)
 
 Creates an SVG scale based on an array of data.
 
@@ -1265,7 +1265,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -1277,7 +1277,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -1405,7 +1405,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1417,7 +1417,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1439,7 +1439,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -1451,7 +1451,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -1473,7 +1473,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1485,7 +1485,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1577,7 +1577,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -1735,7 +1735,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -1747,7 +1747,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -1767,7 +1767,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -1829,7 +1829,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L329)
+Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
 
 Renders the current Axis to the page.
 
@@ -1851,7 +1851,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1869,7 +1869,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1897,7 +1897,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -1913,7 +1913,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -1939,7 +1939,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -1951,7 +1951,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -1971,7 +1971,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L321)
+Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2070,7 +2070,7 @@ Axis preset whose ticks are drawn below the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -2086,7 +2086,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -2218,7 +2218,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2234,7 +2234,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2260,7 +2260,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -2276,7 +2276,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -2302,7 +2302,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2318,7 +2318,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2414,7 +2414,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -2576,7 +2576,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -2592,7 +2592,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -2616,7 +2616,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2682,7 +2682,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L329)
+Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
 
 Renders the current Axis to the page.
 
@@ -2708,7 +2708,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2730,7 +2730,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2762,7 +2762,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -2778,7 +2778,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -2804,7 +2804,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -2820,7 +2820,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -2844,7 +2844,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L321)
+Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2947,7 +2947,7 @@ Axis preset whose ticks are drawn to the left of the vertical domain path. Accep
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -2963,7 +2963,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -3095,7 +3095,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3111,7 +3111,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3137,7 +3137,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -3153,7 +3153,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -3179,7 +3179,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3195,7 +3195,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3291,7 +3291,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -3453,7 +3453,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -3469,7 +3469,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -3493,7 +3493,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3559,7 +3559,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L329)
+Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
 
 Renders the current Axis to the page.
 
@@ -3585,7 +3585,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3607,7 +3607,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3639,7 +3639,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -3655,7 +3655,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -3681,7 +3681,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -3697,7 +3697,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -3721,7 +3721,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L321)
+Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3824,7 +3824,7 @@ Axis preset whose ticks are drawn to the right of the vertical domain path. Acce
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -3840,7 +3840,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -3972,7 +3972,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3988,7 +3988,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4014,7 +4014,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -4030,7 +4030,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -4056,7 +4056,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4072,7 +4072,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4168,7 +4168,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4330,7 +4330,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -4346,7 +4346,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -4370,7 +4370,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4436,7 +4436,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L329)
+Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
 
 Renders the current Axis to the page.
 
@@ -4462,7 +4462,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4484,7 +4484,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4516,7 +4516,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -4532,7 +4532,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -4558,7 +4558,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -4574,7 +4574,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -4598,7 +4598,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L321)
+Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4701,7 +4701,7 @@ Axis preset whose ticks are drawn above the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -4717,7 +4717,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -4849,7 +4849,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4865,7 +4865,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4891,7 +4891,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -4907,7 +4907,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -4933,7 +4933,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4949,7 +4949,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5045,7 +5045,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -5207,7 +5207,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -5223,7 +5223,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -5247,7 +5247,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5313,7 +5313,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/Axis/Axis.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L329)
+Defined in: [components/Axis/Axis.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L323)
 
 Renders the current Axis to the page.
 
@@ -5339,7 +5339,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5361,7 +5361,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5393,7 +5393,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -5409,7 +5409,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -5435,7 +5435,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -5451,7 +5451,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -5475,7 +5475,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/Axis/Axis.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L321)
+Defined in: [components/Axis/Axis.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L315)
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -12224,7 +12224,7 @@ Custom aggregation methods for each data key.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: [charts/Plot/index.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L470)
+Defined in: [charts/Plot/index.ts:466](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L466)
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -12318,7 +12318,7 @@ Configuration object for the attribution style.
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L479)
+Defined in: [charts/Plot/index.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L475)
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -12414,7 +12414,7 @@ An object containing CSS key/value pairs that is used to style the back button. 
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:488](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L488)
+Defined in: [charts/Plot/index.ts:484](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L484)
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -12434,7 +12434,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:497](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L497)
+Defined in: [charts/Plot/index.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L493)
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -12662,7 +12662,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`number`, `number`\]
 
-Defined in: [charts/Plot/index.ts:525](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L525)
+Defined in: [charts/Plot/index.ts:521](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L521)
 
 The confidence interval as an array of [lower, upper] bounds.
 
@@ -12694,7 +12694,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:542](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L542)
+Defined in: [charts/Plot/index.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L538)
 
 Configuration object for shapes rendered as confidence intervals.
 
@@ -12756,7 +12756,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **crosshairConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:593](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L593)
+Defined in: [charts/Plot/index.ts:589](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L589)
 
 Paint for the shared tooltip's crosshair guide line (`stroke`,
 `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
@@ -12949,7 +12949,7 @@ When `true` (the default) and `detectVisible` is enabled, the Viz releases its D
 
 > **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:551](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L551)
+Defined in: [charts/Plot/index.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L547)
 
 When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
@@ -13017,7 +13017,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:560](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L560)
+Defined in: [charts/Plot/index.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L556)
 
 The pixel space between groups of bars.
 
@@ -13163,7 +13163,7 @@ per-datum object key — pass a function for that).
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:569](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L569)
+Defined in: [charts/Plot/index.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L565)
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -13183,7 +13183,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/Plot/index.ts:579](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L579)
+Defined in: [charts/Plot/index.ts:575](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L575)
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -13395,7 +13395,7 @@ Configuration object for the legend tooltip.
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:631](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L631)
+Defined in: [charts/Plot/index.ts:627](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L627)
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -13415,7 +13415,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:640](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L640)
+Defined in: [charts/Plot/index.ts:636](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L636)
 
 Draws circle markers on each vertex of a Line.
 
@@ -14339,7 +14339,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:649](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L649)
+Defined in: [charts/Plot/index.ts:645](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L645)
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -14431,7 +14431,7 @@ Which margin the size legend claims in the chart's bottom-right corner. `"right"
 
 > **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: [charts/Plot/index.ts:663](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L663)
+Defined in: [charts/Plot/index.ts:659](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L659)
 
 Sets the vertical offset applied to stacked series. Accepts a named
 offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
@@ -14455,7 +14455,7 @@ stack offset function.
 
 > **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: [charts/Plot/index.ts:683](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L683)
+Defined in: [charts/Plot/index.ts:679](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L679)
 
 Sets the order of stacked series, from the bottom of the stack upward.
 Accepts:
@@ -15011,7 +15011,7 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: [charts/Plot/index.ts:259](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L259)
+Defined in: [charts/Plot/index.ts:255](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L255)
 
 Composes the chart's scene graph: the native shape scenes from Viz.toScene
 (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
@@ -15207,7 +15207,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **trendLine**(`_?`: `TrendLineType`): [`Plot`](#plot) \| `TrendLineType`
 
-Defined in: [charts/Plot/index.ts:602](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L602)
+Defined in: [charts/Plot/index.ts:598](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L598)
 
 Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
 
@@ -15227,7 +15227,7 @@ Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) fo
 
 > **trendLineConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:622](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L622)
+Defined in: [charts/Plot/index.ts:618](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L618)
 
 Options for the trend lines drawn by `trendLine`, merged into the current config:
 - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
@@ -15258,7 +15258,7 @@ Stacked charts always fit one line to the stack totals.
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L692)
+Defined in: [charts/Plot/index.ts:688](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L688)
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -15278,7 +15278,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:706](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L706)
+Defined in: [charts/Plot/index.ts:702](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L702)
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -15298,7 +15298,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L729)
+Defined in: [charts/Plot/index.ts:725](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L725)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15318,7 +15318,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:720](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L720)
+Defined in: [charts/Plot/index.ts:716](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L716)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15338,7 +15338,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:738](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L738)
+Defined in: [charts/Plot/index.ts:734](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L734)
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -15358,7 +15358,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:752](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L752)
+Defined in: [charts/Plot/index.ts:748](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L748)
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -15378,7 +15378,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:781](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L781)
+Defined in: [charts/Plot/index.ts:777](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L777)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15398,7 +15398,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:768](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L768)
+Defined in: [charts/Plot/index.ts:764](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L764)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -18085,7 +18085,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### TextBox
 
-Defined in: [components/TextBox.ts:411](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L411)
+Defined in: [components/TextBox.ts:410](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L410)
 
 Creates a wrapped text box for each point in an array of data.
 
@@ -18209,7 +18209,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [components/TextBox.ts:587](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L587)
+Defined in: [components/TextBox.ts:586](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L586)
 
 The data array used to draw text boxes. A text box will be drawn for each object in the array.
 
@@ -18221,7 +18221,7 @@ The data array used to draw text boxes. A text box will be drawn for each object
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [components/TextBox.ts:588](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L588)
+Defined in: [components/TextBox.ts:587](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L587)
 
 The data array used to draw text boxes. A text box will be drawn for each object in the array.
 
@@ -18243,7 +18243,7 @@ The data array used to draw text boxes. A text box will be drawn for each object
 
 > **html**(): `false` \| `Record`\<`string`, `string`\>
 
-Defined in: [components/TextBox.ts:596](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L596)
+Defined in: [components/TextBox.ts:595](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L595)
 
 Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles
 
@@ -18255,7 +18255,7 @@ Configures the ability to render simple HTML tags. Defaults to supporting `<b>`,
 
 > **html**(`_`: `boolean` \| `Record`\<`string`, `string`\>): `this`
 
-Defined in: [components/TextBox.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L597)
+Defined in: [components/TextBox.ts:596](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L596)
 
 Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles
 
@@ -18524,7 +18524,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/TextBox.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L513)
+Defined in: [components/TextBox.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L512)
 
 Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.
 
@@ -18546,7 +18546,7 @@ Renders the text boxes. If a *callback* is specified, it will be called once the
 
 > **select**(): `Selection`
 
-Defined in: [components/TextBox.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L609)
+Defined in: [components/TextBox.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L608)
 
 The SVG container element as a d3 selector or DOM element. If not specified, an SVG element will be added to the page.
 
@@ -18558,7 +18558,7 @@ The SVG container element as a d3 selector or DOM element. If not specified, an 
 
 > **select**(`_`: `string` \| `HTMLElement`): `this`
 
-Defined in: [components/TextBox.ts:610](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L610)
+Defined in: [components/TextBox.ts:609](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L609)
 
 The SVG container element as a d3 selector or DOM element. If not specified, an SVG element will be added to the page.
 
@@ -18620,7 +18620,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/TextBox.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L448)
+Defined in: [components/TextBox.ts:447](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/TextBox.ts#L447)
 
 Produces a backend-agnostic scene graph for the text boxes, reusing the same
 layout (_textData) and per-line positioning render() applies to the DOM.
@@ -18718,7 +18718,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L428)
+Defined in: [components/Axis/Axis.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L422)
 
 Axis line style.
 
@@ -18734,7 +18734,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L429)
+Defined in: [components/Axis/Axis.ts:423](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L423)
 
 Axis line style.
 
@@ -18866,7 +18866,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: [components/Axis/Axis.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L439)
+Defined in: [components/Axis/Axis.ts:433](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L433)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -18882,7 +18882,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: [components/Axis/Axis.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L440)
+Defined in: [components/Axis/Axis.ts:434](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L434)
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -18908,7 +18908,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:448](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L448)
+Defined in: [components/Axis/Axis.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L442)
 
 Grid config of the axis.
 
@@ -18924,7 +18924,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L449)
+Defined in: [components/Axis/Axis.ts:443](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L443)
 
 Grid config of the axis.
 
@@ -18984,7 +18984,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: [components/Axis/Axis.ts:459](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L459)
+Defined in: [components/Axis/Axis.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L453)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19000,7 +19000,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: [components/Axis/Axis.ts:460](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L460)
+Defined in: [components/Axis/Axis.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L454)
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19096,7 +19096,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: [components/Axis/Axis.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L515)
+Defined in: [components/Axis/Axis.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L509)
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -19210,7 +19210,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: [components/Axis/Axis.ts:470](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L470)
+Defined in: [components/Axis/Axis.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L464)
 
 The orientation of the shape.
 
@@ -19226,7 +19226,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: [components/Axis/Axis.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L471)
+Defined in: [components/Axis/Axis.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L465)
 
 The orientation of the shape.
 
@@ -19250,7 +19250,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/Axis/Axis.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L501)
+Defined in: [components/Axis/Axis.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L495)
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -19376,7 +19376,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: [components/Axis/Axis.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L529)
+Defined in: [components/Axis/Axis.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L523)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -19398,7 +19398,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: [components/Axis/Axis.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L530)
+Defined in: [components/Axis/Axis.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L524)
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -19464,7 +19464,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L544)
+Defined in: [components/Axis/Axis.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L538)
 
 Tick style of the axis.
 
@@ -19480,7 +19480,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:545](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L545)
+Defined in: [components/Axis/Axis.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L539)
 
 Tick style of the axis.
 
@@ -19506,7 +19506,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/Axis/Axis.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L555)
+Defined in: [components/Axis/Axis.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L549)
 
 Title configuration of the axis.
 
@@ -19522,7 +19522,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/Axis/Axis.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L556)
+Defined in: [components/Axis/Axis.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/Axis/Axis.ts#L550)
 
 Title configuration of the axis.
 
@@ -24511,7 +24511,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `endAngle` | `120` |
 | `indicator` | `"needle"` |
 | `minorTicks` | `true` |
-| `startAngle` | — |
+| `startAngle` | `-120` |
 | `thickness` | `0.2` |
 | `tickFormat` | — |
 | `ticks` | — |
@@ -24630,7 +24630,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `label` | — |
 
 
-Defined in: [charts/Matrix/index.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L105)
+Defined in: [charts/Matrix/index.ts:107](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L107)
 
 Creates a simple rows/columns Matrix view of any dataset.
 
@@ -24685,7 +24685,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `on` | — |
 
 
-Defined in: [charts/Pack/index.ts:172](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L172)
+Defined in: [charts/Pack/index.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L174)
 
 Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
 
