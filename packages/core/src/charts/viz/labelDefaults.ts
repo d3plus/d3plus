@@ -24,7 +24,6 @@ export function initLabelDefaults(viz: Viz): void {
     fontColor: () => backgroundInk(viz),
     fontSize: 12,
     padding: 5,
-    resize: false,
     textAnchor: "middle",
   };
   viz.schema.subtitlePadding = defaultPadding;
@@ -49,7 +48,6 @@ export function initLabelDefaults(viz: Viz): void {
     fontColor: () => backgroundInk(viz),
     fontSize: 16,
     padding: 5,
-    resize: false,
     textAnchor: "middle",
   };
   viz.schema.titlePadding = defaultPadding;
@@ -68,7 +66,6 @@ export function initLabelDefaults(viz: Viz): void {
     fontColor: () => backgroundInk(viz),
     fontSize: 10,
     padding: 5,
-    resize: false,
     textAnchor: "middle",
   };
   viz.schema.totalFormat = (d: number) =>

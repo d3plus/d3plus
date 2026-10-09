@@ -34,6 +34,7 @@ import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {markSharedConfig} from "../../utils/configWarnings.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -89,7 +90,7 @@ export type ShapeEmitter = (ctx: ShapeEmitContext, key: string) => SceneNode[];
 */
 function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown> {
   const {viz, opp, x, y, stackData, domains, stackKeyIndex, discreteKeyIndex} = ctx;
-  const inner: Record<string, unknown> = Object.assign({}, ctx.shapeConfig);
+  const inner: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
   // Bubble plots: when a `size` accessor is set, default to layering circles
   // largest-behind so smaller marks stay visible under bigger ones. This is a
   // default — `finishShape` applies the user's `shapeConfig` afterwards, so an
@@ -258,7 +259,7 @@ const lineEmit: ShapeEmitter = ctx => {
 
   if (viz._confidence) {
     const confidence = viz._confidence;
-    const areaConfig: Record<string, unknown> = Object.assign({}, ctx.shapeConfig);
+    const areaConfig: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
     const discrete = viz.schema.discrete || "x";
     const key = discrete === "x" ? "y" : "x";
     const scaleFunction = discrete === "x" ? y : x;

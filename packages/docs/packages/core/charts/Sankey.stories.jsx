@@ -27,7 +27,6 @@ const Template = (args) => <Sankey config={configify(args, argTypes)} />;
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
-  center: "alpha",
   links: [
     {source: "alpha", target: "beta"},
     {source: "alpha", target: "gamma"},
@@ -38,7 +37,7 @@ BasicExample.args = {
     {source: "eta", target: "gamma"}
   ]
 };
-BasicExample.parameters = {controls: {include: ["center", "links"]}, docs: {description: {story: "Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them."}}};
+BasicExample.parameters = {controls: {include: ["links"]}, docs: {description: {story: "Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them."}}};
 
 export const DataDrivenLinkWidth = Template.bind({});
 DataDrivenLinkWidth.args = {

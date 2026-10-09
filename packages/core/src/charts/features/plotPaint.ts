@@ -27,6 +27,7 @@ import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {markSharedConfig} from "../../utils/configWarnings.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -319,11 +320,15 @@ export function renderPlotAnnotation(
   domains: Record<string, unknown[]>,
   yOffset: number,
 ): shapes.Shape {
+  // `shape` and `layer` pick the class and z-layer; the rest is shape config.
+  const config: Record<string, unknown> = Object.assign({}, annotation);
+  delete config.shape;
+  delete config.layer;
   const inst = makeShape(annotation.shape)
     .renderMode("compute")
     .duration(viz.schema.duration)
-    .config(annotation)
-    .config({
+    .config(config)
+    .config(markSharedConfig({
       x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
       x0:
         viz.schema.discrete === "x"
@@ -342,7 +347,7 @@ export function renderPlotAnnotation(
         viz.schema.discrete === "y"
           ? null
           : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-    });
+    }));
   inst.render();
   return inst;
 }
@@ -407,7 +412,7 @@ function buildShapeConfig(
 ): Record<string, unknown> {
   const discrete = viz.schema.discrete || "x";
 
-  return {
+  return markSharedConfig({
     discrete: viz.schema.discrete,
     duration: viz.schema.duration,
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
@@ -434,7 +439,7 @@ function buildShapeConfig(
       discrete === "y"
         ? null
         : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-  };
+  });
 }
 
 /** Runs the main shape loop, pushing each shape's scene nodes onto `out`. */
