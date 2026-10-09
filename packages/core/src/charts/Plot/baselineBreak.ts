@@ -4,6 +4,7 @@
     user-supplied domain should stay clear of the baseline, and the clamp
     that keeps bars inside the plot area.
 */
+import {mergeConfig} from "../../fluent.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -15,11 +16,11 @@ import type {VizInstance} from "../viz/vizTypes.js";
 */
 export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
-  return {
-    break: brk === undefined ? false : brk,
-    ...viz._plotAxisDefaults?.[axis],
-    ...(viz[`_${axis}Config`] as Record<string, unknown>),
-  };
+  const base = {break: brk === undefined ? false : brk};
+  const user = viz[`_${axis}Config`] as Record<string, unknown>;
+  const own = viz._plotAxisDefaults?.[axis];
+  // The user's config deep-merges over the chart's, so a nested key keeps its siblings.
+  return own ? mergeConfig({...base, ...own}, user) : {...base, ...user};
 }
 
 /** The value (non-discrete) axis of a Plot. */

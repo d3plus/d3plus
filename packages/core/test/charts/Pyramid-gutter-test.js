@@ -124,7 +124,11 @@ it("Pyramid's center layout gives the axes a gutter around zero", () => {
   assert.strictEqual(viz._xConfig.tickFormat(inset), "0", "the gutter edges read as zero");
   viz.yConfig({shapeConfig: {labelConfig: {padding: 20}}})._preDraw();
   assert.ok(plotAxisConfig(viz, "x").breakConfig.space >= x.breakConfig.space + 30, "padding widens the gutter");
-  viz.yConfig({breakConfig: {space: 99}});
+  const space = plotAxisConfig(viz, "x").breakConfig.space;
+  viz.xConfig({breakConfig: {stroke: "red"}});
+  const merged = plotAxisConfig(viz, "x").breakConfig;
+  assert.strictEqual(merged.stroke, "red", "a user breakConfig key applies");
+  assert.strictEqual(merged.space, space, "and keeps the gutter's width");
   viz.categoryPosition("left")._preDraw();
   assert.strictEqual(viz.ctx.pyramid.inset, 0);
   assert.deepStrictEqual(viz._xConfig.domain, [-120, 120]);

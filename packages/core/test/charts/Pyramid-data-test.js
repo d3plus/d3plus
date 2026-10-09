@@ -1,6 +1,6 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {Pyramid} from "../../es/index.js";
+import {Pyramid, RESET} from "../../es/index.js";
 import {
   absoluteFormat,
   finite,
@@ -263,4 +263,43 @@ it("Pyramid tooltip rows show the share of the total, or the value in percent mo
   assert.deepStrictEqual(tbody({sex: "M", pop: [1, 2]}, 0), [], "legend aggregates get no rows");
   viz.comparison(d => d.before);
   assert.strictEqual(tbody({sex: "M", pop: 50, before: 40}, 0)[1][0], "Comparison");
+});
+
+it("Pyramid sideTitleConfig and comparisonConfig deep-merge, and RESET restores the defaults", () => {
+  const viz = new Pyramid();
+  const color = viz.sideTitleConfig().fontColor;
+  // The RESET snapshot is taken by the first `config()` call.
+  viz.config({sideTitleConfig: {fontSize: 20}});
+  assert.strictEqual(viz.sideTitleConfig().fontSize, 20);
+  assert.strictEqual(viz.sideTitleConfig().fontWeight, 600, "siblings kept");
+  assert.strictEqual(viz.sideTitleConfig().fontColor, color);
+  viz.config({sideTitleConfig: {fontSize: RESET}});
+  assert.strictEqual(viz.sideTitleConfig().fontSize, 14, "RESET restores the chart default");
+  assert.strictEqual(viz.sideTitleConfig().fontWeight, 600);
+
+  viz.comparisonConfig({strokeWidth: 3});
+  assert.strictEqual(viz.comparisonConfig().strokeWidth, 3);
+  assert.strictEqual(viz.comparisonConfig().strokeDasharray, "4 3", "siblings kept");
+  viz.config({comparisonConfig: RESET});
+  assert.strictEqual(viz.comparisonConfig().strokeWidth, 1.5);
+
+  const other = new Pyramid();
+  assert.strictEqual(other.sideTitleConfig().fontSize, 14, "instances don't share config");
+  assert.notStrictEqual(other.sideTitleConfig(), viz.sideTitleConfig());
+});
+
+it("Pyramid tooltipConfig keeps its rows through nested sets, and RESET restores them", () => {
+  const viz = new Pyramid().groupBy("sex").x("pop");
+  const tbody = viz.tooltipConfig().tbody;
+  viz.config({tooltipConfig: {titleStyle: {color: "red"}}});
+  assert.strictEqual(viz.tooltipConfig().tbody, tbody, "a sibling set keeps the Pyramid rows");
+  assert.strictEqual(viz.tooltipConfig().titleStyle.color, "red");
+  assert.ok(viz.tooltipConfig().titleStyle["max-width"], "nested siblings kept");
+  viz.tooltipConfig({tbody: []});
+  assert.deepStrictEqual(viz.tooltipConfig().tbody, []);
+  viz.config({tooltipConfig: {tbody: RESET}});
+  assert.strictEqual(typeof viz.tooltipConfig().tbody, "function", "RESET restores the Pyramid rows");
+  viz.ctx.pyramid.sides = ["M", "F"];
+  viz.ctx.pyramid.total = 10;
+  assert.deepStrictEqual(viz.tooltipConfig().tbody({sex: "M", pop: 5}, 0), [["Percent of Total", "50%"]]);
 });

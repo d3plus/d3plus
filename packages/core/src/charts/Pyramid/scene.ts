@@ -219,7 +219,8 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
             top: viz._margin.top - (viz._chartTransform?.y ?? viz._margin.top),
             height: inset,
           }),
-          viz.schema.sideTitleConfig,
+          // Titles follow the chart's `fontFamily` unless they set their own.
+          {...(viz.schema.fontFamily ? {fontFamily: viz.schema.fontFamily} : {}), ...viz.schema.sideTitleConfig},
         )
       : [];
 

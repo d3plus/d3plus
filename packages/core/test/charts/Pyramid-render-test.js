@@ -436,3 +436,30 @@ it("Pyramid's center layout keeps percent, comparison, and timeline frames", asy
   });
   assert.ok(near(first.inner[0], latest.inner[0]) && near(first.inner[1], latest.inner[1]), "the gutter holds still across years");
 });
+
+it("Pyramid renders its stories' configs without warnings", async function () {
+  this.timeout(60000);
+  const warnings = await render(body, ([data]) => new Promise(resolve => {
+    const seen = [];
+    const warn = console.warn;
+    console.warn = (...args) => seen.push(args.join(" "));
+    const configs = [
+      {},
+      {groupBy: ["sex", "area"]},
+      {percent: true, comparison: "before"},
+      {categoryPosition: "left", sideTitleConfig: {fontSize: 12}, comparisonConfig: {strokeWidth: 2}},
+      {time: "year", axisPersist: true},
+    ];
+    const next = i => {
+      if (i === configs.length) {
+        console.warn = warn;
+        return resolve(seen);
+      }
+      new window.d3plus.Pyramid()
+        .data(data.map(d => ({...d, area: "Urban"}))).groupBy("sex").y("age").x("pop")
+        .duration(0).config(configs[i]).select("#viz").render(() => next(i + 1));
+    };
+    next(0);
+  }), [rows]);
+  assert.deepStrictEqual(warnings.filter(w => !/Line\.config\(\) received unknown property/.test(w)), []);
+});
