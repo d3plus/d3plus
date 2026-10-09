@@ -6,7 +6,8 @@
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
     `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` delegate to
-    `def.thresholdFunction` / `def.sizeLegendScale` / `def.insetRegion` if present.
+    `def.thresholdFunction` / `def.sizeLegendScale` / `def.insetRegion` if
+    present, and `_facetHooks` layers `def.facet` over the base chart's.
 
     A chart's `index.ts` becomes literally `export default makeChart(def)`.
 */
@@ -40,7 +41,8 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
 
     _draw(callback?: () => void) {
       (super._draw as (...args: unknown[]) => unknown)(callback);
-      if (def.layoutStage) {
+      // A small-multiples chrome pass lays out the chrome only.
+      if (def.layoutStage && this._facetStep !== "chrome") {
         runChartDraw(this as unknown as VizInstance, def, def.layoutStage, def.chartTransform);
       }
       return this;
@@ -56,6 +58,10 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       return def.insetRegion
         ? def.insetRegion(this as unknown as VizInstance)
         : super._insetRegion();
+    }
+
+    _facetHooks() {
+      return def.facet ? {...super._facetHooks(), ...def.facet} : super._facetHooks();
     }
 
     _thresholdFunction(data: unknown[]) {

@@ -37,7 +37,7 @@ import {attributionFeature, runLayout} from "../features/features.js";
 import {minimapFeature} from "../drawSteps/minimap.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
 import {resolveDrillMorph} from "./drillMorph.js";
-import {drawWithInset} from "./insetPlacement.js";
+import {drawChart} from "../facet/drawFacets.js";
 import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
 import {bottomRightControlsFeature} from "../drawSteps/bottomRightControls.js";
 import {tableViewFeature} from "../drawSteps/tableView.js";
@@ -51,8 +51,10 @@ export function runVizPipeline(viz: Viz): void {
   // calls hit the shim which delegates to the free functions.
   viz._preDraw();
   // `_draw()`, possibly more than once: chrome that fits inside the chart's
-  // negative space is placed there after layout (see insetPlacement.ts).
-  drawWithInset(viz);
+  // negative space is placed there after layout (see insetPlacement.ts), and
+  // a faceted chart draws its chrome once and its body once per panel (see
+  // facet/drawFacets.ts).
+  drawChart(viz);
   // Post-draw features: zoom + brush event wiring, the minimap, the shared
   // top-left controls panel (back / table-view button / search), the
   // attribution overlay, and the table-view data-table overlay. All run

@@ -18,6 +18,8 @@ import type {InsetKey, InsetRegion} from "../features/insetState.js";
 import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {unregisterLink} from "./linkGroup.js";
+import type {FacetHooks} from "../facet/facetConfig.js";
+import {facetPanelAt, withFacetPanel} from "../facet/facetPanel.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
@@ -575,6 +577,27 @@ export default class Viz extends VizBase {
   _sharedHover(_event: SceneEvent): void {}
 
   /**
+      The chart's small-multiple hooks (see `ChartDefinition.facet`). The base
+      chart has none: each panel draws the way the whole chart does.
+      @private
+  */
+  _facetHooks(): FacetHooks {
+    return {};
+  }
+
+  /**
+      Routes a renderer pointer event to the chart's handlers. Over a
+      small-multiples panel, the handlers run with that panel's chart state in
+      place (see `facet/facetPanel.ts`), so code written for one chart reads the
+      panel under the pointer.
+      @private
+  */
+  _routeSceneEvent(event: SceneEvent): void {
+    const viz = this as unknown as VizInstance;
+    withFacetPanel(viz, facetPanelAt(viz, event.point), () => this._dispatchSceneEvent(event));
+  }
+
+  /**
       Routes a renderer pointer event to the matching `viz.schema.on` handlers.
       Bridges the v4 scene-rendered path (SvgRenderer/CanvasRenderer), where
       compute-mode shapes mount no per-shape DOM, so `shape.on(evt, fn)`
@@ -584,7 +607,7 @@ export default class Viz extends VizBase {
       excluded. Split out of `_drawSceneToTarget` to keep that method small.
       @private
   */
-  _routeSceneEvent(event: SceneEvent): void {
+  _dispatchSceneEvent(event: SceneEvent): void {
     // Ignore all pointer interaction while an animated transition (zoom,
     // re-center, drill-down, entrance) is in flight. Hovering or clicking a
     // shape mid-transition would fire a handler that schedules a duration-0

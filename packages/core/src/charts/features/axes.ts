@@ -39,6 +39,7 @@
 import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
+import {frozenAxis} from "./frozenAxis.js";
 
 import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measureEndLabels, placeEndLabels} from "./axisEndLabels.js";
 import type {XLabelMode} from "./axisEndLabels.js";
@@ -413,7 +414,9 @@ function setupAxisTransforms(
     x: {x: viz._margin.left, y: viz._margin.top + x2Height + topOffset},
     x2: {x: viz._margin.left, y: viz._margin.top + topOffset},
     y: {x: viz._margin.left + xTrans, y: viz._margin.top + topOffset},
-    y2: {x: -viz._margin.right, y: viz._margin.top + topOffset},
+    // The y2 axis draws at the right edge of the width it measured against,
+    // which already excludes any margins set before the chrome claimed its own.
+    y2: {x: viz._margin.left - pCtx.horizontalMargin, y: viz._margin.top + topOffset},
   };
   return (which: "x" | "x2" | "y" | "y2") => ({
     x: axisAbsoluteTransforms[which].x - chartTransform.x,
@@ -489,21 +492,16 @@ function renderXAxes(
     });
   }
 
+  const xs = frozenAxis(xAxis), x2s = frozenAxis(x2Axis);
   const x = (d: unknown, x?: string): number => {
     if (x === "x2") {
       if (x2ConfigScale === "log" && d === 0)
-        d =
-          x2Domain[0] < 0
-            ? x2Axis._d3Scale!.domain()[1]
-            : x2Axis._d3Scale!.domain()[0];
-      return x2Axis._getPosition.bind(x2Axis)(d);
+        d = x2s._d3Scale!.domain()[x2Domain[0] < 0 ? 1 : 0];
+      return x2s._getPosition(d);
     } else {
       if (xConfigScale === "log" && d === 0)
-        d =
-          xDomain[0] < 0
-            ? xAxis._d3Scale!.domain()[1]
-            : xAxis._d3Scale!.domain()[0];
-      return xAxis._getPosition.bind(xAxis)(d);
+        d = xs._d3Scale!.domain()[xDomain[0] < 0 ? 1 : 0];
+      return xs._getPosition(d);
     }
   };
   viz._xFunc = x;
@@ -577,21 +575,22 @@ function renderYAxes(
     });
   }
 
+  const ys = frozenAxis(yAxis), y2s = frozenAxis(y2Axis);
   const y = (d: unknown, y?: string): number => {
     if (y === "y2") {
       if (y2ConfigScale === "log" && d === 0)
         d =
           y2Domain[1] < 0
-            ? y2Axis._d3ScaleNegative!.domain()[0]
-            : y2Axis._d3Scale!.domain()[1];
-      return y2Axis._getPosition.bind(y2Axis)(d) - x2Height;
+            ? y2s._d3ScaleNegative!.domain()[0]
+            : y2s._d3Scale!.domain()[1];
+      return y2s._getPosition(d) - x2Height;
     } else {
       if (yConfigScale === "log" && d === 0)
         d =
           yDomain[1] < 0
-            ? yAxis._d3ScaleNegative!.domain()[0]
-            : yAxis._d3Scale!.domain()[1];
-      return yAxis._getPosition.bind(yAxis)(d) - x2Height;
+            ? ys._d3ScaleNegative!.domain()[0]
+            : ys._d3Scale!.domain()[1];
+      return ys._getPosition(d) - x2Height;
     }
   };
   viz._yFunc = y;

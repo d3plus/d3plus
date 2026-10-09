@@ -61,6 +61,9 @@ export const bumpChartDef: ChartDefinition = {
       (viz._y as (d: unknown) => number)(b) - (viz._y as (d: unknown) => number)(a));
   },
 
+  // Each panel ranks its own series, so every panel labels its axes.
+  facet: {axes: "all"},
+
   ctx: {},
 
   fields: [

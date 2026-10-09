@@ -34,7 +34,9 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   // or in an underlay beneath the <canvas>. That's fine on-screen, but a
   // server render serializes only the scene, so under SSR (`viz._ssr`) paint
   // them into the scene here, beneath the geography, so the output is complete.
-  if (viz._ssr) {
+  // A small-multiples panel does the same: the imperative layer holds one map.
+  const panel = viz._facetStep === "panel";
+  if (viz._ssr || panel) {
     const ocean = resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)) as string | undefined;
     if (ocean && ocean !== "transparent") {
       const {width, height} = chartBounds(viz);
@@ -50,13 +52,15 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     }
   }
 
-  // Basemap tiles, pre-fetched + inlined as data URIs by @d3plus/ssr. Placed
-  // above the ocean and below the geography, at the positions `_computeTileList`
-  // derives from the fitted projection (same math as the live `_renderTiles`).
+  // Basemap tiles, pre-fetched + inlined as data URIs by @d3plus/ssr (or
+  // linked by URL in a small-multiples panel). Placed above the ocean and
+  // below the geography, at the positions `_computeTileList` derives from the
+  // fitted projection (same math as the live `_renderTiles`).
   const ssrTiles = viz._ssrTiles as Map<string, string> | undefined;
-  if (ssrTiles && ssrTiles.size && typeof viz._computeTileList === "function") {
+  const sceneTiles = (ssrTiles && ssrTiles.size) || (panel && !viz._ssr);
+  if (sceneTiles && typeof viz._computeTileList === "function") {
     for (const t of viz._computeTileList()) {
-      const href = ssrTiles.get(t.key);
+      const href = ssrTiles && ssrTiles.size ? ssrTiles.get(t.key) : t.url;
       if (!href) continue;
       out.push({
         type: "image",

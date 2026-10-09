@@ -202,6 +202,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.hiddenOpacity = constant(0.5);
   viz._history = [];
   viz.schema.groupBy = [accessor("id")];
+  viz.schema.facetConfig = {};
 }
 
 /**

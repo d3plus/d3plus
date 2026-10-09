@@ -5,6 +5,8 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, BaseClass, constant} from "../../utils/index.js";
+import {coerceFacet} from "../facet/facetConfig.js";
+import type {FacetConfig} from "../facet/facetConfig.js";
 import {broadcastLink} from "./linkGroup.js";
 import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
@@ -287,6 +289,35 @@ Defaults to an empty array (`[]`).
   }
 
   /**
+      Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
+*/
+  facet(
+    _?: string | ((d: DataPoint, i: number) => unknown) | false,
+  ): this | ((d: DataPoint, i: number) => unknown) | undefined {
+    if (!arguments.length) return this.schema.facet;
+    this.schema.facet = coerceFacet(_);
+    return this;
+  }
+
+  /**
+      Configuration for small multiples (see `facet`), merged into the current config:
+      - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
+      - `padding`: the space between panels, in pixels (default `20`).
+      - `sort`: panel order — `"ascending"` (default), `"descending"`, `"data"` (first appearance), a comparator over facet values, or an Array of values.
+      - `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows.
+      - `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid's left and bottom edges; `"all"` labels every panel.
+      - `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.
+      - `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).
+*/
+  facetConfig(): FacetConfig;
+  facetConfig(_: FacetConfig): this;
+  facetConfig(_?: FacetConfig): this | FacetConfig {
+    if (!arguments.length) return this.schema.facetConfig;
+    this.schema.facetConfig = mergeConfigBag(this, "facetConfig", _);
+    return this;
+  }
+
+  /**
       The font family used throughout the visualization.
 */
   fontFamily(_?: string | string[]): this | string | string[] {
@@ -561,6 +592,7 @@ resolvesReset(
   "attributionStyle",
   "backConfig",
   "colorScaleConfig",
+  "facetConfig",
   "legendConfig",
   "legendInsetConfig",
   "legendTooltip",

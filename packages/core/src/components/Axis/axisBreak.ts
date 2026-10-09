@@ -137,17 +137,20 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
 }
 
 /**
-    Drops tick values that fall inside a break and makes sure a baseline
-    break's baseline is present, so the axis reads "baseline, break, edge, …".
+    Drops tick values that fall inside a break and, unless `addBaseline` is
+    off, makes sure a baseline break's baseline is present, so the axis reads
+    "baseline, break, edge, …".
 */
-export function breakTickValues(breaks: AxisBreak[], values: unknown[]): unknown[] {
+export function breakTickValues(breaks: AxisBreak[], values: unknown[], addBaseline = true): unknown[] {
   const kept = values.filter(v => {
     const n = Number(v);
     return !breaks.some(b => n > Math.min(b.start, b.end) && n < Math.max(b.start, b.end));
   });
-  breaks.forEach(b => {
-    if (b.baseline && !kept.some(v => Number(v) === b.start)) kept.push(b.start);
-  });
+  if (addBaseline) {
+    breaks.forEach(b => {
+      if (b.baseline && !kept.some(v => Number(v) === b.start)) kept.push(b.start);
+    });
+  }
   return kept;
 }
 

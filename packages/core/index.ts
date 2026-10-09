@@ -80,6 +80,7 @@ export type {
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
+export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
 
 export type {
   AnyShapeConfig,

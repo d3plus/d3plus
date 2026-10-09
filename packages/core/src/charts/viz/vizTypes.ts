@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
@@ -46,6 +47,7 @@ import type {InsetKey, InsetPlacement, InsetRegion} from "../features/insetState
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
+import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
 
@@ -195,6 +197,14 @@ export interface VizInstance {
   _zoomShapes?: SceneNode[];
   /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */
   _plotZoomBase?: PlotZoomBase;
+  /**
+      Which part of a small-multiples draw `_draw()` is running: `"chrome"`
+      lays out the shared chart chrome and skips the chart body; `"panel"`
+      draws one panel's body and skips the chrome (see `facet/drawFacets.ts`).
+  */
+  _facetStep?: "chrome" | "panel";
+  /** The panels drawn this render when `facet` is set, in panel order. */
+  _facetPanels?: FacetPanelState[];
   /** Pending repaint that drops a Plot's zoom clip once an animated reset settles. */
   _plotUnclipTimer?: ReturnType<typeof setTimeout>;
   /**
@@ -333,6 +343,10 @@ export interface VizInstance {
   _yFunc?: (d: DataPoint, axis?: string) => number;
   /** The plot area (inside the axes) in chart content space, set by the paint phase. */
   _plotArea?: {x: number; y: number; width: number; height: number};
+  /** The x/y axis domains the paint phase drew (the shared tooltip's crosshair spans them). */
+  _plotAxisDomains?: {x: unknown[]; y: unknown[]};
+  /** While a small-multiples panel draws with shared scales: the domains and size scale every panel uses. */
+  _plotFacetScales?: PlotFacetScales;
   /** Crosshair guide-line paint for the shared tooltip. */
   _crosshairConfig?: Record<string, unknown>;
   /**
@@ -347,6 +361,8 @@ export interface VizInstance {
     value: unknown;
     markers: {datum: DataPoint; x: number; y: number}[];
     layer: "back" | "front";
+    /** The small-multiples panel the hover is in, by key. */
+    panel?: string;
   } | null;
   /** True while the shared multi-series tooltip owns the tooltip. */
   _sharedHoverActive?: boolean;
@@ -492,6 +508,8 @@ export interface VizInstance {
   _sizeLegendScale?(available: {width: number; height: number}): SizeLegendScale | null;
   /** The region chart chrome may be drawn inside, with the chart's marks as obstacles (see `ChartDefinition.insetRegion`). */
   _insetRegion?(): InsetRegion | null;
+  /** The chart's small-multiple hooks (see `ChartDefinition.facet`). */
+  _facetHooks?(): FacetHooks;
   toScene?(): SceneNode;
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;

@@ -183,7 +183,7 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
     data exists; returns undefined otherwise.
 */
-function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
+export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   let computedTimeFilter: TimeFilterFn | undefined;
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
@@ -215,24 +215,26 @@ function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
 }
 
 /**
-    Filters + groups `viz._data` into the result's `filteredData`,
-    `legendData`, and (when data exists) `_thresholdTree`.
+    Filters + groups `data` (default: `viz._data`) into the result's
+    `filteredData`, `legendData`, and (when data exists) `_thresholdTree`.
+    Small multiples pass one panel's rows as `data`.
 */
-function computeFilteredData(
+export function computeFilteredData(
   viz: Viz,
   out: VizPreDrawResult,
   drawDepth: number,
   id: (d: DataPoint, i: number) => DataPoint[keyof DataPoint],
   computedTimeFilter: TimeFilterFn | undefined,
+  data: DataPoint[] = viz._data,
 ): void {
   const filteredData: DataPoint[] = [];
   const legendData: DataPoint[] = [];
   let flatData: DataPoint[] = [];
-  if (viz._data.length) {
+  if (data.length) {
     const effectiveTimeFilter = viz.schema.timeFilter || computedTimeFilter;
     flatData = effectiveTimeFilter
-      ? viz._data.filter(effectiveTimeFilter)
-      : viz._data;
+      ? data.filter(effectiveTimeFilter)
+      : data;
     if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
 
     const nestKeys: ((

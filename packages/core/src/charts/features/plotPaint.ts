@@ -666,6 +666,10 @@ export function plotPaintMeasured(
     width: xRange[1] - xRange[0],
     height: yRange[1] - yRange[0],
   };
+  viz._plotAxisDomains = {
+    x: viz._xAxis?._d3Scale?.domain() ?? [],
+    y: viz._yAxis?._d3Scale?.domain() ?? [],
+  };
   // `xRange` is measured from the chart area's left edge, which is where
   // `_chartTransform` puts content space's origin.
   viz._plotArea = {

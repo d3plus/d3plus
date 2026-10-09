@@ -94,6 +94,18 @@ button, attribution, zoom controls) are **opt-in `FeatureModule`s**
 (`features: [backFeature, titleFeature, …]`); `runLayout` runs each feature's
 `layout()`, which claims margin and returns a panel to compose into the scene.
 
+### Small multiples (`facet`)
+
+`facet` splits any chart into a grid of panels (`charts/facet/`). `drawChart`
+lays the chrome out once (`viz._facetStep = "chrome"`: `_draw` skips the body),
+then runs the chart's own `_draw` once per panel (`"panel"`: `vizDraw` skips
+the chrome) with that panel's rows and its chart area as the margins, and
+composes the panels into `_chartScene` (keys prefixed per panel). At
+interaction time `withFacetPanel` restores the hovered panel's state. A def can
+tune this through `facet: FacetHooks` (panel `aspect`, shared scales, axis
+labels); the Plot family's hooks live in `Plot/plotFacet.ts`. A data-driven
+def needs nothing to support it.
+
 ### The pipeline
 
 The draw flow exists as free functions so it can run without the class

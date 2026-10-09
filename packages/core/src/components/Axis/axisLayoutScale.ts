@@ -356,7 +356,8 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   }
   if (axis._breaks.length) {
     ticks = breakTickValues(axis._breaks, ticks);
-    labels = breakTickValues(axis._breaks, labels);
+    // An explicit `labels` list labels just those values (an empty one, none).
+    labels = breakTickValues(axis._breaks, labels, !axis.schema.labels);
   }
   ticks = ticks.sort(
     (a: unknown, b: unknown) => axis._getPosition(a) - axis._getPosition(b),

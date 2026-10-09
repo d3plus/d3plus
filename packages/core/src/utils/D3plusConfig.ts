@@ -3,6 +3,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
+import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {
   SizeLegendLineConfig,
@@ -518,6 +519,10 @@ export interface D3plusConfig {
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
+  facet?: string | ((d: DataPoint, i: number) => unknown) | false;
+  /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
+  facetConfig?: FacetConfig;
   /** Predicate filtering which data points are included, or false to disable. */
   filter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Allows removing specific geographies from topojson file to improve zoom. */

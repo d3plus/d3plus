@@ -200,7 +200,8 @@ function makePlotLineLabelMeasure(
 }
 
 export function drawPlot(viz: VizInstance, callback?: () => void) {
-  if (!viz._filteredData.length && !viz._annotations?.length) {
+  // A small-multiples chrome pass lays out the chrome only.
+  if (viz._facetStep === "chrome" || (!viz._filteredData.length && !viz._annotations?.length)) {
     // Empty data: still run super._draw so the chart shell (title /
     // legend / total / timeline / colorScale) refreshes — features
     // tear down their DOM via .data([]) in their layout body, and
@@ -306,9 +307,14 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     measureLineLabels,
   );
 
+  // The axes measured against the chart area as it stood before the chrome
+  // claimed its margins; the paint phase shrinks their ranges by what the
+  // chrome claimed. (A small-multiples panel arrives with its margins set
+  // and claims nothing more.)
+  const pre = {...viz._margin};
   superDraw(viz, callback);
-  const horizontalMargin = viz._margin.left + viz._margin.right;
-  const verticalMargin = viz._margin.top + viz._margin.bottom;
+  const horizontalMargin = viz._margin.left + viz._margin.right - pre.left - pre.right;
+  const verticalMargin = viz._margin.top + viz._margin.bottom - pre.top - pre.bottom;
   // The local layout types (DomainValue domains, D3Scale scales, dynamically-
   // keyed rows) are broader than PlotPaintContext's; the emit reads each field
   // as the concrete type its producer guaranteed, so bridge at this boundary.

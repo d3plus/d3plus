@@ -108,6 +108,11 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     // It wouldn't be serialized anyway, and its transform transition relies on
     // SVGGElement.transform.baseVal, which headless DOMs don't implement.
     if (this._ssr) return;
+    // Small multiples paint each panel's basemap into the scene (see geomapEmit).
+    if (this._facetPanels || this._facetStep) {
+      this._tileGroup?.selectAll("image.d3plus-geomap-tile").remove();
+      return;
+    }
     let tileData: number[][] & {scale?: number; translate?: number[]} =
       [] as unknown as number[][] & {scale?: number; translate?: number[]};
     if (this.schema.tiles) {
@@ -202,8 +207,11 @@ function setupGeomapDraw(viz: VizInstance): void {
       duration: viz.schema.duration,
       // On the canvas backend the ocean + tiles mount in an underlay beneath
       // the <canvas> (see `ensureZoomDom`), so they show through around the
-      // geography on either backend.
-      ocean: resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)),
+      // geography on either backend. Small multiples paint each panel's
+      // ocean into the scene instead (see geomapEmit).
+      ocean: viz._facetStep
+        ? "transparent"
+        : resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)),
     });
     viz._zoomSet = true;
     return result;

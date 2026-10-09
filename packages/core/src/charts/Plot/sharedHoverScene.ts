@@ -15,6 +15,9 @@ import {
 } from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
+import type {FacetPanelState} from "../facet/facetConfig.js";
+import {withFacetPanel} from "../facet/facetPanel.js";
+import {prefixKeys} from "../facet/facetScene.js";
 
 type Parent = {key?: string | number; children?: SceneNode[]};
 type HoverState = NonNullable<VizInstance["_sharedHoverState"]>;
@@ -39,9 +42,9 @@ function crosshairAnnotation(viz: VizInstance, state: HoverState): SceneNode | n
   const snapped: PlotAxisFn = () => state.px;
   const x = state.axis === "x" ? snapped : viz._xFunc as PlotAxisFn | undefined;
   const y = state.axis === "y" ? snapped : viz._yFunc as PlotAxisFn | undefined;
-  const xDomain = viz._xAxis?._d3Scale?.domain();
-  const yDomain = viz._yAxis?._d3Scale?.domain();
-  if (!x || !y || !xDomain || !yDomain) return null;
+  const xDomain = viz._plotAxisDomains?.x;
+  const yDomain = viz._plotAxisDomains?.y;
+  if (!x || !y || !xDomain?.length || !yDomain?.length) return null;
   const span = (state.axis === "x" ? yDomain : xDomain) as unknown[];
   const ends = [span[0], span[span.length - 1]];
   const data = ends.map(v =>
@@ -101,36 +104,36 @@ function layer(nodes: SceneNode[], crosshair: SceneNode | null, markers: SceneNo
 }
 
 /**
-    Adds the snapped hover's scene nodes to the chart body group (content
-    space, so they track zoom): with `tooltipShared`, a transparent hover
-    surface behind the marks, so the SVG backend receives pointer events over
-    empty plot space; and — while a hover is active — the crosshair and the
-    hovered Line markers, inside the zoom-clipped plot content when the chart
-    is zoomable.
+    The hover nodes for one chart body's children: with `tooltipShared`, a
+    transparent hover surface behind the marks, so the SVG backend receives
+    pointer events over empty plot space; and — while a hover is active — the
+    crosshair and the hovered Line markers, inside the zoom-clipped plot
+    content when the chart is zoomable. `key` maps a node key to its key in
+    this body (small-multiples panels prefix theirs).
 */
-export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
+function decorateBody(
+  viz: VizInstance,
+  nodes: SceneNode[],
+  state: HoverState | null | undefined,
+  key: (k: string) => string,
+): SceneNode[] {
   const area = viz._plotArea;
-  const discrete = viz.schema.discrete;
-  if (!area || (discrete !== "x" && discrete !== "y")) return;
-  const cells = (scene.root.children as Parent[]).find(n => n.key === "viz-chart-cells");
-  const zoom = cells && cells.children && (cells.children[0] as Parent);
-  const body = zoom && zoom.children && (zoom.children[0] as Parent);
-  if (!body || !body.children) return;
+  if (!area) return nodes;
   // The surface is only needed for shared hovers over empty space; a single
   // hover (tooltipShared off) needs the pointer on a mark anyway.
   const surface = viz.schema.tooltipShared && hasSharedMarks(viz) ? [{
     type: "rect",
-    key: "plot-hover-surface",
+    key: key("plot-hover-surface"),
     ...area,
     interactionGroup: "axis",
     paint: {fill: "transparent"},
   } as SceneNode] : [];
-  let children = body.children;
-  const state = viz._sharedHoverState;
+  let children = nodes;
   if (state) {
-    const crosshair = crosshairAnnotation(viz, state);
-    const markers = hoverMarkers(viz, state);
-    const content = children.findIndex(n => n.key === PLOT_ZOOM_CONTENT_KEY);
+    const rekey = (n: SceneNode | null): SceneNode | null => n && prefixKeys([n], key)[0];
+    const crosshair = rekey(crosshairAnnotation(viz, state));
+    const markers = prefixKeys(hoverMarkers(viz, state), key);
+    const content = children.findIndex(n => n.key === key(PLOT_ZOOM_CONTENT_KEY));
     if (content >= 0) {
       const group = children[content] as Parent;
       children = [...children];
@@ -141,5 +144,46 @@ export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
     }
     else children = layer(children, crosshair, markers, state.layer);
   }
-  body.children = [...surface, ...children];
+  return [...surface, ...children];
+}
+
+/**
+    Decorates one small-multiples panel's chart body (see `decorateBody`),
+    reading that panel's state. Returns new nodes: the panel groups are the
+    chart's own `_chartScene`, which must not accumulate per-paint nodes.
+*/
+function decoratePanel(viz: VizInstance, group: SceneNode, panel: FacetPanelState): SceneNode {
+  const kids = (group as Parent).children || [];
+  const index = kids.findIndex(n => n.key === `${panel.key}/cells`);
+  const cells = kids[index] as Parent | undefined;
+  const body = cells && cells.children && (cells.children[0] as Parent);
+  if (!cells || !body || !body.children) return group;
+  const state = viz._sharedHoverState;
+  const children = withFacetPanel(viz, panel, () =>
+    decorateBody(viz, body.children!, state && state.panel === panel.key ? state : null, k => `${panel.key}/${k}`));
+  const next = [...kids];
+  next[index] = {...cells, children: [{...body, children} as SceneNode, ...cells.children!.slice(1)]} as SceneNode;
+  return {...group, children: next} as SceneNode;
+}
+
+/**
+    Adds the snapped hover's scene nodes (see `decorateBody`) to the chart
+    body group (content space, so they track zoom) — to each panel's body
+    when the chart is drawn as small multiples.
+*/
+export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
+  const discrete = viz.schema.discrete;
+  if (discrete !== "x" && discrete !== "y") return;
+  const cells = (scene.root.children as Parent[]).find(n => n.key === "viz-chart-cells");
+  const zoom = cells && cells.children && (cells.children[0] as Parent);
+  const body = zoom && zoom.children && (zoom.children[0] as Parent);
+  if (!body || !body.children) return;
+  const panels = viz._facetPanels;
+  if (panels) {
+    body.children = body.children.map(group => {
+      const panel = panels.find(p => p.key === group.key);
+      return panel ? decoratePanel(viz, group, panel) : group;
+    });
+  }
+  else body.children = decorateBody(viz, body.children, viz._sharedHoverState, k => k);
 }
