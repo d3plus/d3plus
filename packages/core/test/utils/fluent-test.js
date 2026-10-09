@@ -1,5 +1,5 @@
 import assert from "assert";
-import {createFluent, installFluent} from "../../es/src/fluent.js";
+import {createFluent, installFluent, isFluentAccessor} from "../../es/src/fluent.js";
 
 it("createFluent generates accessors with arguments.length getter/setter semantics", () => {
   const f = createFluent([
@@ -96,4 +96,77 @@ it("createFluent.config() is round-trip-symmetric with the per-key accessors", (
   f.config({x: "newKey", duration: 0});
   assert.strictEqual(f.x()({newKey: 7}), 7, "config({x: ...}) coerced like x(...)");
   assert.strictEqual(f.duration(), 0, "config({duration: 0}) stored verbatim");
+});
+
+it("installFluent seeds, but never shadows, an inherited hand-written method", () => {
+  class Base {
+    on(key, fn) {
+      if (arguments.length === 2) {
+        this.schema.on[key] = fn;
+        return this;
+      }
+      return this.schema.on;
+    }
+  }
+  class Chart extends Base {}
+  const c = new Chart();
+  c.schema = {on: {"click.shape": "base"}};
+  installFluent(c, [{key: "on", merge: true, factory: () => ({"mousemove.shape": "chart"})}]);
+
+  assert.deepStrictEqual(
+    c.schema.on,
+    {"click.shape": "base", "mousemove.shape": "chart"},
+    "the field still seeds (and merges into) schema.on",
+  );
+  assert.ok(!Object.prototype.hasOwnProperty.call(Chart.prototype, "on"), "no accessor was installed on the chart prototype");
+  const fn = () => undefined;
+  assert.strictEqual(c.on("click.foo", fn), c, "the base class method still handles on(key, fn)");
+  assert.strictEqual(c.schema.on["click.foo"], fn, "the handler was registered under its key");
+});
+
+it("installFluent leaves a method the class itself defines alone", () => {
+  class Chart {
+    size(_) {
+      return arguments.length ? ((this.schema.size = _ * 2), this) : this.schema.size;
+    }
+  }
+  const c = new Chart();
+  installFluent(c, [{key: "size", default: 1}]);
+  assert.strictEqual(c.schema.size, 1, "seeded");
+  assert.strictEqual(c.size(3).size(), 6, "hand-written setter still runs");
+});
+
+it("a subclass schema replaces the accessor its parent's schema generated, in either construction order", () => {
+  const parentSchema = [{key: "value", coerce: "identity"}];
+  const childSchema = [{key: "value", coerce: "accessor"}];
+  for (const childFirst of [false, true]) {
+    class Parent {
+      constructor() {
+        installFluent(this, parentSchema);
+      }
+    }
+    class Child extends Parent {
+      constructor() {
+        super();
+        installFluent(this, childSchema);
+      }
+    }
+    const first = childFirst ? new Child() : new Parent();
+    const second = childFirst ? new Parent() : new Child();
+    const [parent, child] = childFirst ? [second, first] : [first, second];
+    assert.strictEqual(parent.value("score").schema.value, "score", "the parent keeps identity coercion");
+    assert.strictEqual(child.value("score").schema.value({score: 4}), 4, "the child's accessor coercion wins");
+  }
+});
+
+it("isFluentAccessor tells generated accessors from hand-written methods", () => {
+  class Chart {
+    render() {
+      return this;
+    }
+  }
+  installFluent(new Chart(), [{key: "width", default: 400}]);
+  assert.strictEqual(isFluentAccessor(Chart.prototype.width), true, "generated accessor");
+  assert.strictEqual(isFluentAccessor(Chart.prototype.render), false, "hand-written method");
+  assert.strictEqual(isFluentAccessor(undefined), false, "non-function");
 });

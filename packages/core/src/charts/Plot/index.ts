@@ -19,10 +19,8 @@ import {
 import {accessor, constant} from "../../utils/index.js";
 import {installFluent} from "../../fluent.js";
 
-// E4: Plot's identity-coerce accessor schema (18 keys). installFluent's
-// per-key idempotence lets this co-exist with vizSchema on the parent
-// Viz.prototype — installFluent walks the actual prototype (Plot.prototype
-// here) and skips keys already present.
+// E4: Plot's identity-coerce accessor schema. installFluent installs it on
+// the instance's prototype alongside vizSchema's accessors.
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
   {key: "baseline", coerce: "identity" as const},
