@@ -15,6 +15,7 @@ export {
   Pie,
   Plot,
   Priestley,
+  Pyramid,
   Radar,
   RadialMatrix,
   Rings,

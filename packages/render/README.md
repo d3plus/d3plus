@@ -363,7 +363,7 @@ repaints live and never needs it. See CanvasResources.
 
 ### SvgRenderer
 
-Defined in: [svg/SvgRenderer.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L72)
+Defined in: [svg/SvgRenderer.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L73)
 
 Renderer
 The pluggable backend contract. Chart logic emits a Scene; a Renderer realizes
@@ -394,7 +394,7 @@ across backends — that equivalence is the parity guarantee of the architecture
 
 > **destroy**(): `void`
 
-Defined in: [svg/SvgRenderer.ts:638](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L638)
+Defined in: [svg/SvgRenderer.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L639)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -412,7 +412,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [svg/SvgRenderer.ts:155](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L155)
+Defined in: [svg/SvgRenderer.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L156)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -438,7 +438,7 @@ scene when `opts.duration` is positive. The single method that matters.
 
 > **mount**(`target`: [`RenderTarget`](#rendertarget)): `void`
 
-Defined in: [svg/SvgRenderer.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L111)
+Defined in: [svg/SvgRenderer.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L112)
 
 Attach to a target element and prepare the drawing surface.
 
@@ -462,7 +462,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [svg/SvgRenderer.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L565)
+Defined in: [svg/SvgRenderer.ts:566](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L566)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -486,7 +486,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [svg/SvgRenderer.ts:537](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L537)
+Defined in: [svg/SvgRenderer.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L538)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -510,7 +510,7 @@ Hit-test a point in surface-local coordinates. Returns the topmost interactive n
 
 > **resize**(`width`: `number`, `height`: `number`): `void`
 
-Defined in: [svg/SvgRenderer.ts:138](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L138)
+Defined in: [svg/SvgRenderer.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L139)
 
 Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
@@ -535,7 +535,7 @@ Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
 > **target**(): [`RenderTarget`](#rendertarget) \| `undefined`
 
-Defined in: [svg/SvgRenderer.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L151)
+Defined in: [svg/SvgRenderer.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L152)
 
 Public view onto the mount target. v4: callers (e.g. `Viz._drawSceneToTarget`)
 use this to compare the current target's container against their
@@ -555,7 +555,7 @@ desired one without reaching into the private `_target` field.
 
 > **toSVGString**(): `string`
 
-Defined in: [svg/SvgRenderer.ts:634](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L634)
+Defined in: [svg/SvgRenderer.ts:635](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L635)
 
 Serialize the current scene to an SVG string (Canvas backends re-render via SVG).
 
@@ -571,7 +571,7 @@ Serialize the current scene to an SVG string (Canvas backends re-render via SVG)
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L73) |
+| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L74) |
 
 ***
 

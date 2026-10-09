@@ -63,3 +63,19 @@ it("roomy point axis — every label still shows", async () => {
   assert.strictEqual(r.labels.length, 9);
   assert.strictEqual(r.rotated, false, "no rotation needed");
 });
+
+it("crowded point axis — a vertical axis thins labels instead of dropping them all", async () => {
+  const r = await render('<div id="viz" style="width:500px;height:300px"></div>', () =>
+    new Promise(resolve => {
+      const data = [];
+      for (let year = 2000; year <= 2029; year++) data.push({id: "A", year: `${year}`, value: year - 1990});
+      const viz = new window.d3plus.BarChart()
+        .data(data).groupBy("id").discrete("y").y("year").x("value").duration(0).select("#viz");
+      viz.render(() => resolve(Array.from(document.querySelectorAll("#viz [data-key='plot-y-axis'] text")).map(t => {
+        const b = t.getBoundingClientRect();
+        return {text: t.textContent, left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+      })));
+    }));
+  assert.ok(r.length >= 2 && r.length < 30, `shows some labels (${r.length})`);
+  assert.ok(!overlaps(r), "labels don't overlap");
+});

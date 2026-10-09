@@ -14,6 +14,7 @@ export {default as Pack} from "./Pack/index.js";
 export {default as Pie} from "./Pie/index.js";
 export {default as Plot} from "./Plot/index.js";
 export {default as Priestley} from "./Priestley/index.js";
+export {default as Pyramid} from "./Pyramid/index.js";
 export {default as Radar} from "./Radar/index.js";
 export {default as RadialMatrix} from "./RadialMatrix/index.js";
 export {default as Rings} from "./Rings/index.js";

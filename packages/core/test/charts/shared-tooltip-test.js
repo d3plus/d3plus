@@ -222,6 +222,13 @@ it("shared tooltip — tooltipShared(false): a hovered line gets a snapped x/y t
   assert.ok(r.opacity.Alpha < 1 && r.opacity.Beta === 1, "the hovered series is emphasized");
 });
 
+it("shared tooltip — a single-mark tooltip adds the rows a tbody accessor resolves", async () => {
+  const r = await run("BarChart", {stacked: true, tooltipShared: false}, data, 0.1, '[data-key="Beta_2010"]');
+  assert.strictEqual(r.title, "Beta");
+  assert.deepStrictEqual(texts(r.cells), [["year", "2010"], ["value", "20"], ["Share", "33.3%"]],
+    "the stacked BarChart's Share row follows the x/y rows");
+});
+
 it("shared tooltip — BoxWhisker keeps its default tooltip (a box has no single value)", async () => {
   const rows = [];
   ["Alpha", "Beta"].forEach((group, g) => ["Q1", "Q2"].forEach(x => {

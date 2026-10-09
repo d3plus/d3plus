@@ -151,7 +151,9 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
     .title(() => viz._drawLabel(row.datum, row.index))
     .footer(deeper && viz.schema.on["click.shape"] ? viz.schema.translate("Click to Expand") : false)
     .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig));
-  const extra = tip.tbody();
+  // A `tbody` accessor resolves against the hovered datum, like any other cell.
+  const tbody = tip.tbody();
+  const extra = typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
   leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
     .tbody([axisRow(viz, "x", hover), axisRow(viz, "y", hover), ...(Array.isArray(extra) ? extra : [])])
     .arrow(false)

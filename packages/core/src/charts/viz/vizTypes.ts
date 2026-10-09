@@ -396,6 +396,12 @@ export interface VizInstance {
   _discreteCutoff?: number;
   /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
   _discreteExtent?: (d: DataPoint) => [number, number];
+  /** The series part of a stacked row's stack group; by default every groupBy level above the leaf. */
+  _stackGroup?: (d: DataPoint, i: number) => string;
+  /** Extra room (px) reserved above a Plot's chart area, inside its margins. */
+  _plotInsetTop?: number;
+  /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
+  _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

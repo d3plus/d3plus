@@ -8,6 +8,7 @@ export interface TranslationStrings {
   "Click to Highlight": string;
   "Click to Show": string;
   "Click to Show All": string;
+  Comparison: string;
   Count: string;
   Density: string;
   Download: string;
@@ -22,6 +23,7 @@ export interface TranslationStrings {
   "No Data Available": string;
   "No Matches": string;
   Observations: string;
+  "Percent of Total": string;
   Polynomial: string;
   Power: string;
   "Powered by D3plus": string;
@@ -59,6 +61,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "\u0627\u0646\u0642\u0631 \u0644\u0644\u0639\u0631\u0636",
     "Click to Show All":
       "\u0627\u0646\u0642\u0631 \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
+    Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     Download: "\u062a\u062d\u0645\u064a\u0644",
@@ -75,6 +78,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
     more: "\u0623\u062e\u0631\u0649",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
+    "Percent of Total": "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
     Polynomial: "\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u062d\u062f\u0648\u062f",
     Power: "\u0642\u0648\u0629",
     "Powered by D3plus":
@@ -106,6 +110,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clic para Resaltar",
     "Click to Show": "Clic para Mostrar",
     "Click to Show All": "Clic para Mostrar Todo",
+    Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
     Density: "Densidad",
     Download: "Descargar",
@@ -120,6 +125,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
     Observations: "Observaciones",
+    "Percent of Total": "Porcentaje del Total",
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
@@ -148,6 +154,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "Clique para Destacar",
     "Click to Show": "Clique para Mostrar",
     "Click to Show All": "Clique para Mostrar Tudo",
+    Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
     Density: "Densidade",
     Download: "Baixar",
@@ -162,6 +169,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
     Observations: "Observa\u00e7\u00f5es",
+    "Percent of Total": "Porcentagem do Total",
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
@@ -190,6 +198,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Highlight": "\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Click to Show": "\u5355\u51fb\u663e\u793a",
     "Click to Show All": "\u5355\u51fb\u663e\u793a\u5168\u90e8",
+    Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
     Density: "\u5bc6\u5ea6",
     Download: "\u4e0b\u8f7d",
@@ -204,6 +213,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
     Observations: "\u89c2\u6d4b\u6570",
+    "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",

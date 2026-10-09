@@ -118,7 +118,7 @@ Finds the closest numeric value in an array.
 
 > **largestRect**(`poly`: `Point`[], `options?`: `LargestRectOptions`): `LargestRectResult` \| `null`
 
-Defined in: [largestRect.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.ts#L315)
+Defined in: [largestRect.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.ts#L322)
 
 Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
 
@@ -234,7 +234,7 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 > **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
 
-Defined in: [negativeSpace.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L88)
+Defined in: [negativeSpace.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L102)
 
 Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
 outside the marks described by `obstacles`. The marks are treated as a single

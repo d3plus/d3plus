@@ -18,6 +18,7 @@ const charts = [
   ["Pie", "pie"],
   ["Plot", "plot"],
   ["Priestley", "priestley"],
+  ["Pyramid", "pyramid"],
   ["Radar", "radar"],
   ["Radial Matrix", "radialmatrix"],
   ["Rings", "rings"],

@@ -4,17 +4,23 @@
     user-supplied domain should stay clear of the baseline, and the clamp
     that keeps bars inside the plot area.
 */
+import {mergeConfig} from "../../fluent.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     A primary axis's user config (`xConfig`/`yConfig`) with the Plot's
-    `xBreak`/`yBreak` folded in as the axis `break`. The break is always set,
-    so clearing `yBreak` clears it from a reused axis; a `break` inside
-    `yConfig` wins.
+    `xBreak`/`yBreak` folded in as the axis `break`, over any axis config the
+    chart itself supplies (`_plotAxisDefaults`). The break is always set, so
+    clearing `yBreak` clears it from a reused axis; a `break` inside `yConfig`
+    wins.
 */
 export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
-  return {break: brk === undefined ? false : brk, ...(viz[`_${axis}Config`] as Record<string, unknown>)};
+  const base = {break: brk === undefined ? false : brk};
+  const user = viz[`_${axis}Config`] as Record<string, unknown>;
+  const own = viz._plotAxisDefaults?.[axis];
+  // The user's config deep-merges over the chart's, so a nested key keeps its siblings.
+  return own ? mergeConfig({...base, ...own}, user) : {...base, ...user};
 }
 
 /** The value (non-discrete) axis of a Plot. */

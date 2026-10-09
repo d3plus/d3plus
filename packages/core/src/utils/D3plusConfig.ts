@@ -488,6 +488,12 @@ export interface D3plusConfig {
   colorScalePosition?: false | Position | (() => false | Position);
   /** Column key for matrix-style layouts. */
   column?: string;
+  /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
+  categoryPosition?: "center" | "left";
+  /** Pyramid: a comparison value per row (data key or accessor), drawn as an outline around each side's bars. */
+  comparison?: string | ((d: DataPoint, i: number) => number) | false;
+  /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
+  comparisonConfig?: Record<string, unknown>;
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
@@ -658,6 +664,8 @@ export interface D3plusConfig {
       reserves exactly that much room and wraps labels to that width.
   */
   outerPadding?: number | "auto";
+  /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
+  percent?: boolean;
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */
@@ -694,6 +702,12 @@ export interface D3plusConfig {
       all shapes of a given type.
   */
   shapeSort?: (a: string, b: string) => number;
+  /** Pyramid: the side values (the first `groupBy` level) as `[left, right]`. */
+  sides?: unknown[];
+  /** Pyramid: TextBox styles for the side titles. */
+  sideTitleConfig?: TextBoxConfig;
+  /** Pyramid: draws the name of each side above its half of the chart. */
+  sideTitles?: boolean;
   /** Size accessor key. */
   size?: string;
   /**
@@ -747,6 +761,8 @@ export interface D3plusConfig {
   svgDesc?: string;
   /** Accessible title applied to the root SVG (`<title>`). */
   svgTitle?: string;
+  /** Pyramid: centers the value axis on zero so both halves share one scale. */
+  symmetric?: boolean;
   /** Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. */
   tableView?: boolean;
   /** Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. */

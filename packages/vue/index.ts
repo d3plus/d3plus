@@ -15,6 +15,7 @@ import {
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
+  Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
   Rings as RingsClass,
@@ -83,6 +84,8 @@ export const Pie = createD3plusComponent(PieClass, "chart");
 export const Plot = createD3plusComponent(PlotClass, "chart");
 /** Vue component for rendering a d3plus Priestley visualization. */
 export const Priestley = createD3plusComponent(PriestleyClass, "chart");
+/** Vue component for rendering a d3plus Pyramid visualization. */
+export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 /** Vue component for rendering a d3plus Radar visualization. */
 export const Radar = createD3plusComponent(RadarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */

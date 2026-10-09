@@ -237,6 +237,10 @@ export function createTextData(
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
     if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(res.width));
+    // Likewise a vertical axis label taller than its share is painted at its
+    // own height, leaving the overlap pass to thin out its neighbors.
+    else if (!horizontal && !datum.rotate && res.height - datum.fP > datum.space)
+      datum.space = Math.ceil(res.height);
     return Object.assign(res, datum);
   });
 
