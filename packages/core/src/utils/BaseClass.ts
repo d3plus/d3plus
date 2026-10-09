@@ -9,38 +9,28 @@ import {
 
 import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
-import {RESOLVES_RESET} from "../fluent.js";
+import {containsReset, isPlainObject, mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../fluent.js";
 import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
 /**
-    Recursive function that resets nested Object configs.
-
+    Swaps every nested `RESET` in a config value for the matching entry of
+    `defaults`, dropping the key when that default is `undefined`. Objects
+    holding a `RESET` are copied on the way down, so the caller's value is
+    untouched; any other value passes through as is.
     @private
 */
-function nestedReset(
-  obj: Record<string, unknown>,
-  defaults: Record<string, unknown> | undefined,
-): void {
-  if (isObject(obj)) {
-    for (const nestedKey in obj) {
-      if (
-        {}.hasOwnProperty.call(obj, nestedKey) &&
-        !nestedKey.startsWith("_")
-      ) {
-        const defaultValue =
-          defaults && isObject(defaults) ? defaults[nestedKey] : undefined;
-        if (obj[nestedKey] === RESET) {
-          if (defaultValue) obj[nestedKey] = defaultValue;
-          else delete obj[nestedKey];
-        } else if (isObject(obj[nestedKey])) {
-          nestedReset(
-            obj[nestedKey] as Record<string, unknown>,
-            defaultValue as Record<string, unknown> | undefined,
-          );
-        }
-      }
-    }
+function nestedReset(value: unknown, defaults: unknown): unknown {
+  if (!isPlainObject(value) || !containsReset(value)) return value;
+  const out: Record<string, unknown> = {...value};
+  const fallbacks = isObject(defaults) ? (defaults as Record<string, unknown>) : {};
+  for (const key of Object.keys(out)) {
+    if (key.startsWith("_")) continue;
+    if (out[key] === RESET) {
+      if (fallbacks[key] === undefined) delete out[key];
+      else out[key] = fallbacks[key];
+    } else out[key] = nestedReset(out[key], fallbacks[key]);
   }
+  return out;
 }
 
 type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
@@ -145,13 +135,7 @@ export default class BaseClass {
             if (v === RESET && k === "on") this.schema.on = defaults[k];
             else if (setter[RESOLVES_RESET]) setter.call(this, v);
             else if (v === RESET) setter.call(this, defaults[k]);
-            else {
-              nestedReset(
-                v as Record<string, unknown>,
-                defaults[k] as Record<string, unknown>,
-              );
-              setter.call(this, v);
-            }
+            else setter.call(this, nestedReset(v, defaults[k]));
           } else if (!isSharedConfig(_)) {
             warnUnknownConfig(`${this.constructor.name}.config()`, k);
           }
@@ -299,11 +283,9 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = assign(
-          this.schema.shapeConfig ?? {},
-          _!,
-        ) as D3plusConfig),
-        this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
       : (this.schema.shapeConfig as D3plusConfig);
   }
 }
+
+resolvesReset(BaseClass.prototype, "shapeConfig");

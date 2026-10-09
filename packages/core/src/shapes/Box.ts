@@ -3,14 +3,14 @@ import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 import type {D3plusConfig} from "../utils/index.js";
 import type {VizContext} from "../utils/configPrep.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
@@ -442,7 +442,7 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.medianConfig = assign(this.schema.medianConfig, _!)), this)
+      ? ((this.schema.medianConfig = mergeConfigBag(this, "medianConfig", _)), this)
       : this.schema.medianConfig;
   }
 
@@ -453,7 +453,7 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.outlierConfig = assign(this.schema.outlierConfig, _!)), this)
+      ? ((this.schema.outlierConfig = mergeConfigBag(this, "outlierConfig", _)), this)
       : this.schema.outlierConfig;
   }
 
@@ -464,7 +464,7 @@ export default class Box extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      ? ((this.schema.rectConfig = mergeConfigBag(this, "rectConfig", _)), this)
       : this.schema.rectConfig;
   }
 
@@ -486,7 +486,7 @@ export default class Box extends BaseClass {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.whiskerConfig = assign(this.schema.whiskerConfig, _!)), this)
+      ? ((this.schema.whiskerConfig = mergeConfigBag(this, "whiskerConfig", _)), this)
       : this.schema.whiskerConfig;
   }
 
@@ -503,3 +503,5 @@ export default class Box extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(Box.prototype, "medianConfig", "outlierConfig", "rectConfig", "whiskerConfig");

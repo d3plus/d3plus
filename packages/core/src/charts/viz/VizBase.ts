@@ -1,7 +1,7 @@
 import {select} from "d3-selection";
 
 import {unique} from "@d3plus/data";
-import {assign, date} from "@d3plus/dom";
+import {date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, constant} from "../../utils/index.js";
@@ -10,6 +10,7 @@ import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
 import type {SizeLegendScale, SizeLegendSize} from "../../components/SizeLegend/sizeLegendLayout.js";
 import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 import VizBaseConfig from "./VizBaseConfig.js";
+import {isPlainObject, mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 /**
     Second half of the fluent config accessors shared by every Viz chart
@@ -55,7 +56,7 @@ export default class VizBase extends VizBaseConfig {
 */
   messageStyle(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.messageStyle = assign(this.schema.messageStyle, _!)), this)
+      ? ((this.schema.messageStyle = mergeConfigBag(this, "messageStyle", _)), this)
       : this.schema.messageStyle;
   }
 
@@ -232,8 +233,8 @@ export default class VizBase extends VizBaseConfig {
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
     if (!arguments.length) return this.schema.shapeConfig;
-    validateShapeConfig(this.constructor.name, _!);
-    this.schema.shapeConfig = assign({}, this.schema.shapeConfig, _!);
+    if (isPlainObject(_)) validateShapeConfig(this.constructor.name, _);
+    this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _);
     return this;
   }
 
@@ -258,7 +259,7 @@ export default class VizBase extends VizBaseConfig {
 */
   sizeLegendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.sizeLegendConfig = assign(this.schema.sizeLegendConfig, _!)), this)
+      ? ((this.schema.sizeLegendConfig = mergeConfigBag(this, "sizeLegendConfig", _)), this)
       : this.schema.sizeLegendConfig;
   }
 
@@ -287,7 +288,7 @@ export default class VizBase extends VizBaseConfig {
 */
   subtitleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.subtitleConfig = assign(this.schema.subtitleConfig, _!)), this)
+      ? ((this.schema.subtitleConfig = mergeConfigBag(this, "subtitleConfig", _)), this)
       : this.schema.subtitleConfig;
   }
 
@@ -398,7 +399,7 @@ export default class VizBase extends VizBaseConfig {
 */
   timelineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.timelineConfig = assign(this.schema.timelineConfig, _!)), this)
+      ? ((this.schema.timelineConfig = mergeConfigBag(this, "timelineConfig", _)), this)
       : this.schema.timelineConfig;
   }
 
@@ -443,7 +444,7 @@ export default class VizBase extends VizBaseConfig {
 */
   titleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.titleConfig = assign(this.schema.titleConfig, _!)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
       : this.schema.titleConfig;
   }
 
@@ -474,7 +475,7 @@ export default class VizBase extends VizBaseConfig {
 */
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.tooltipConfig = assign({}, this.schema.tooltipConfig, _!)), this)
+      ? ((this.schema.tooltipConfig = mergeConfigBag(this, "tooltipConfig", _)), this)
       : this.schema.tooltipConfig;
   }
 
@@ -497,7 +498,7 @@ export default class VizBase extends VizBaseConfig {
 */
   totalConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.totalConfig = assign(this.schema.totalConfig, _!)), this)
+      ? ((this.schema.totalConfig = mergeConfigBag(this, "totalConfig", _)), this)
       : this.schema.totalConfig;
   }
 
@@ -675,3 +676,15 @@ export default class VizBase extends VizBaseConfig {
   }
 
 }
+
+resolvesReset(
+  VizBase.prototype,
+  "messageStyle",
+  "shapeConfig",
+  "sizeLegendConfig",
+  "subtitleConfig",
+  "timelineConfig",
+  "titleConfig",
+  "tooltipConfig",
+  "totalConfig",
+);

@@ -1,7 +1,6 @@
 import {merge as arrayMerge} from "d3-array";
 
 import {addToQueue, unique} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
 import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 
@@ -9,6 +8,7 @@ import {accessor, BaseClass, constant} from "../../utils/index.js";
 import {broadcastLink} from "./linkGroup.js";
 import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
+import {mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 /**
     First half of the fluent config accessors shared by every Viz chart
@@ -50,7 +50,7 @@ export default class VizBaseConfig extends BaseClass {
 */
   aggs(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.aggs = assign(this.schema.aggs, _!)), this)
+      ? ((this.schema.aggs = mergeConfigBag(this, "aggs", _)), this)
       : this.schema.aggs;
   }
 
@@ -84,7 +84,7 @@ export default class VizBaseConfig extends BaseClass {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.attributionStyle = assign(this.schema.attributionStyle, _!)), this)
+      ? ((this.schema.attributionStyle = mergeConfigBag(this, "attributionStyle", _)), this)
       : this.schema.attributionStyle;
   }
 
@@ -97,7 +97,7 @@ export default class VizBaseConfig extends BaseClass {
 */
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.backConfig = assign(this.schema.backConfig, _!)), this)
+      ? ((this.schema.backConfig = mergeConfigBag(this, "backConfig", _)), this)
       : this.schema.backConfig;
   }
 
@@ -165,7 +165,7 @@ export default class VizBaseConfig extends BaseClass {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.colorScaleConfig = assign(this.schema.colorScaleConfig, _!)), this)
+      ? ((this.schema.colorScaleConfig = mergeConfigBag(this, "colorScaleConfig", _)), this)
       : this.schema.colorScaleConfig;
   }
 
@@ -485,7 +485,7 @@ Defaults to an empty array (`[]`).
 */
   legendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)), this)
       : this.schema.legendConfig;
   }
 
@@ -517,7 +517,7 @@ Defaults to an empty array (`[]`).
 */
   legendInsetConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendInsetConfig = assign(this.schema.legendInsetConfig, _!)), this)
+      ? ((this.schema.legendInsetConfig = mergeConfigBag(this, "legendInsetConfig", _)), this)
       : this.schema.legendInsetConfig;
   }
 
@@ -548,7 +548,18 @@ Defaults to an empty array (`[]`).
 */
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendTooltip = assign({}, this.schema.legendTooltip, _!)), this)
+      ? ((this.schema.legendTooltip = mergeConfigBag(this, "legendTooltip", _)), this)
       : this.schema.legendTooltip;
   }
 }
+
+resolvesReset(
+  VizBaseConfig.prototype,
+  "aggs",
+  "attributionStyle",
+  "backConfig",
+  "colorScaleConfig",
+  "legendConfig",
+  "legendInsetConfig",
+  "legendTooltip",
+);

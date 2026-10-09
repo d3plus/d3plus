@@ -4,12 +4,12 @@ import type {VirtualElement} from "@floating-ui/dom";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem, stylize} from "@d3plus/dom";
+import {elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
@@ -450,7 +450,7 @@ export default class Tooltip extends BaseClass {
   arrowStyle(_: Record<string, string>): this;
   arrowStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.arrowStyle = assign(this.schema.arrowStyle, _!)), this)
+      ? ((this.schema.arrowStyle = mergeConfigBag(this, "arrowStyle", _)), this)
       : this.schema.arrowStyle;
   }
 
@@ -461,7 +461,7 @@ export default class Tooltip extends BaseClass {
   bodyStyle(_: Record<string, string>): this;
   bodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.bodyStyle = assign(this.schema.bodyStyle, _!)), this)
+      ? ((this.schema.bodyStyle = mergeConfigBag(this, "bodyStyle", _)), this)
       : this.schema.bodyStyle;
   }
 
@@ -507,7 +507,7 @@ export default class Tooltip extends BaseClass {
   footerStyle(_: Record<string, string>): this;
   footerStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.footerStyle = assign(this.schema.footerStyle, _!)), this)
+      ? ((this.schema.footerStyle = mergeConfigBag(this, "footerStyle", _)), this)
       : this.schema.footerStyle;
   }
 
@@ -558,7 +558,7 @@ export default class Tooltip extends BaseClass {
   tableStyle(_: Record<string, string>): this;
   tableStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tableStyle = assign(this.schema.tableStyle, _!)), this)
+      ? ((this.schema.tableStyle = mergeConfigBag(this, "tableStyle", _)), this)
       : this.schema.tableStyle;
   }
 
@@ -569,7 +569,7 @@ export default class Tooltip extends BaseClass {
   tbodyStyle(_: Record<string, string>): this;
   tbodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tbodyStyle = assign(this.schema.tbodyStyle, _!)), this)
+      ? ((this.schema.tbodyStyle = mergeConfigBag(this, "tbodyStyle", _)), this)
       : this.schema.tbodyStyle;
   }
 
@@ -580,7 +580,7 @@ export default class Tooltip extends BaseClass {
   theadStyle(_: Record<string, string>): this;
   theadStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.theadStyle = assign(this.schema.theadStyle, _!)), this)
+      ? ((this.schema.theadStyle = mergeConfigBag(this, "theadStyle", _)), this)
       : this.schema.theadStyle;
   }
 
@@ -591,7 +591,7 @@ export default class Tooltip extends BaseClass {
   titleStyle(_: Record<string, string>): this;
   titleStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.titleStyle = assign(this.schema.titleStyle, _!)), this)
+      ? ((this.schema.titleStyle = mergeConfigBag(this, "titleStyle", _)), this)
       : this.schema.titleStyle;
   }
 
@@ -602,7 +602,7 @@ export default class Tooltip extends BaseClass {
   tooltipStyle(_: Record<string, string>): this;
   tooltipStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tooltipStyle = assign(this.schema.tooltipStyle, _!)), this)
+      ? ((this.schema.tooltipStyle = mergeConfigBag(this, "tooltipStyle", _)), this)
       : this.schema.tooltipStyle;
   }
 
@@ -618,7 +618,7 @@ export default class Tooltip extends BaseClass {
   trStyle(_: Record<string, unknown>): this;
   trStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.trStyle = assign(this.schema.trStyle, _!)), this)
+      ? ((this.schema.trStyle = mergeConfigBag(this, "trStyle", _)), this)
       : this.schema.trStyle;
   }
 
@@ -634,7 +634,7 @@ export default class Tooltip extends BaseClass {
   tdStyle(_: Record<string, unknown>): this;
   tdStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.tdStyle = assign(this.schema.tdStyle, _!)), this)
+      ? ((this.schema.tdStyle = mergeConfigBag(this, "tdStyle", _)), this)
       : this.schema.tdStyle;
   }
 
@@ -650,7 +650,22 @@ export default class Tooltip extends BaseClass {
   thStyle(_: Record<string, unknown>): this;
   thStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.thStyle = assign(this.schema.thStyle, _!)), this)
+      ? ((this.schema.thStyle = mergeConfigBag(this, "thStyle", _)), this)
       : this.schema.thStyle;
   }
 }
+
+resolvesReset(
+  Tooltip.prototype,
+  "arrowStyle",
+  "bodyStyle",
+  "footerStyle",
+  "tableStyle",
+  "tbodyStyle",
+  "theadStyle",
+  "titleStyle",
+  "tooltipStyle",
+  "trStyle",
+  "tdStyle",
+  "thStyle",
+);

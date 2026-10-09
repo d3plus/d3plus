@@ -17,7 +17,7 @@ import {
   AxisTop,
 } from "../../components/index.js";
 import {accessor, constant} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
@@ -89,6 +89,12 @@ const defaultBuffers = {
   Line: LineBuffer,
   Rect: RectBuffer,
 };
+
+/** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
+function reverseDomain(patch: unknown): unknown {
+  const domain = (patch as {domain?: unknown} | undefined)?.domain;
+  return Array.isArray(domain) ? {...(patch as object), domain: domain.slice().reverse()} : patch;
+}
 
 /**
     Creates an x/y plot based on an array of data.
@@ -484,7 +490,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backgroundConfig = assign(this._backgroundConfig, _!)), this)
+      ? ((this._backgroundConfig = mergeConfigBag(this, "backgroundConfig", _, this._backgroundConfig)), this)
       : this._backgroundConfig;
   }
 
@@ -538,7 +544,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._confidenceConfig = assign(this._confidenceConfig, _!)), this)
+      ? ((this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig)), this)
       : this._confidenceConfig;
   }
 
@@ -565,7 +571,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   labelConnectorConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _!)),
+      ? ((this._labelConnectorConfig = mergeConfigBag(this, "labelConnectorConfig", _, this._labelConnectorConfig)),
         this)
       : this._labelConnectorConfig;
   }
@@ -589,7 +595,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   crosshairConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._crosshairConfig = assign(this._crosshairConfig, _!)), this)
+      ? ((this._crosshairConfig = mergeConfigBag(this, "crosshairConfig", _, this._crosshairConfig)), this)
       : this._crosshairConfig;
   }
 
@@ -618,7 +624,7 @@ Stacked charts always fit one line to the stack totals.
 */
   trendLineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._trendLineConfig = assign(this._trendLineConfig, _!)), this)
+      ? ((this._trendLineConfig = mergeConfigBag(this, "trendLineConfig", _, this._trendLineConfig)), this)
       : this._trendLineConfig;
   }
 
@@ -627,7 +633,7 @@ Stacked charts always fit one line to the stack totals.
 */
   lineMarkerConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _!)), this)
+      ? ((this._lineMarkerConfig = mergeConfigBag(this, "lineMarkerConfig", _, this._lineMarkerConfig)), this)
       : this._lineMarkerConfig;
   }
 
@@ -716,7 +722,7 @@ Stacked charts always fit one line to the stack totals.
 */
   xConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._xConfig = assign(this._xConfig, _!)), this)
+      ? ((this._xConfig = mergeConfigBag(this, "xConfig", _, this._xConfig)), this)
       : this._xConfig;
   }
 
@@ -725,7 +731,7 @@ Stacked charts always fit one line to the stack totals.
 */
   x2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._x2Config = assign(this._x2Config, _!)), this)
+      ? ((this._x2Config = mergeConfigBag(this, "x2Config", _, this._x2Config)), this)
       : this._x2Config;
   }
 
@@ -763,26 +769,24 @@ Stacked charts always fit one line to the stack totals.
 *Note:* If a "domain" array is passed to the y-axis config, it will be reversed.
 */
   yConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    if (arguments.length) {
-      const cfg = _ as {domain?: unknown[]};
-      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
-      this._yConfig = assign(this._yConfig, _!);
-      return this;
-    }
-    return this._yConfig;
+    return arguments.length
+      ? ((this._yConfig = mergeConfigBag(this, "yConfig", reverseDomain(_), this._yConfig)), this)
+      : this._yConfig;
   }
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
   y2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
-    if (arguments.length) {
-      const cfg = _ as {domain?: unknown[]};
-      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
-      this._y2Config = assign(this._y2Config, _!);
-      return this;
-    }
-    return this._y2Config;
+    return arguments.length
+      ? ((this._y2Config = mergeConfigBag(this, "y2Config", reverseDomain(_), this._y2Config)), this)
+      : this._y2Config;
   }
 
 }
+
+resolvesReset(
+  Plot.prototype,
+  "backgroundConfig", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
+  "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+);
